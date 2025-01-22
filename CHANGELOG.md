@@ -1,7 +1,7 @@
 # 6.6.6 (in progress)
 
-* Your contribution here!
-* [#2793](https://github.com/oshi/oshi/pull/2793), Enable configurable prioritization of thermal zones - [@joerg1985](https://github.com/joerg1985).
+* [#2793](https://github.com/oshi/oshi/pull/2793): Enable configurable prioritization of thermal zones - [@joerg1985](https://github.com/joerg1985).
+* [#2796](https://github.com/oshi/oshi/pull/2796): Support memory speed units of MT/s - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16)
 

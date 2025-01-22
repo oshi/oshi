@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -141,6 +141,19 @@ public final class ParseUtil {
     }
 
     /**
+     * Parse speed from a string, eg. "2.00 MT/s" is 2000000L.
+     *
+     * @param speed Transfer speed.
+     * @return {@link java.lang.Long} MT/s value. If not parseable, delegates to {#link {@link #parseHertz(String)}.
+     */
+    public static long parseSpeed(String speed) {
+        if (speed.contains("T/s")) {
+            return parseHertz(speed.replace("T/s", "Hz"));
+        }
+        return parseHertz(speed);
+    }
+
+    /**
      * Parse hertz from a string, eg. "2.00MHz" is 2000000L.
      *
      * @param hertz Hertz size.
@@ -148,7 +161,7 @@ public final class ParseUtil {
      */
     public static long parseHertz(String hertz) {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
-        if (matcher.find() && matcher.groupCount() == 3) {
+        if (matcher.find()) {
             // Regexp enforces #(.#) format so no test for NFE required
             double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
             if (value >= 0d) {

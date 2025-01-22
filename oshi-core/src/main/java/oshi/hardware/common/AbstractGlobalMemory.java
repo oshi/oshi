@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -66,7 +66,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                         memoryType = split[1].trim();
                         break;
                     case "Speed":
-                        speed = ParseUtil.parseHertz(split[1]);
+                        speed = ParseUtil.parseSpeed(split[1]);
                         break;
                     case "Manufacturer":
                         manufacturer = split[1].trim();

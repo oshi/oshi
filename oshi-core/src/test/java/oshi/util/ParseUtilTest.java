@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -43,6 +43,26 @@ class ParseUtilTest {
 
     private enum TestEnum {
         FOO, BAR, BAZ;
+    }
+
+    /**
+     * Test parse hertz.
+     */
+    @Test
+    void testParseSpeed() {
+        assertThat("parse OneMT/s", ParseUtil.parseSpeed("OneMT/s"), is(-1L));
+        assertThat("parse NotEvenAMegaTransferPerSec", ParseUtil.parseSpeed("NotEvenAMegaTransferPerSec"), is(-1L));
+        assertThat("parse 10000000000000 MT/s", ParseUtil.parseSpeed("10000000000000 MT/s"), is(Long.MAX_VALUE));
+        assertThat("parse 1MT/s", ParseUtil.parseSpeed("1MT/s"), is(1_000_000L));
+        assertThat("parse 1.5 MT/s", ParseUtil.parseSpeed("1.5 MT/s"), is(1_500_000L));
+        // fallback to Hz
+        assertThat("parse 1Hz", ParseUtil.parseSpeed("1Hz"), is(1L));
+        assertThat("parse 500 Hz", ParseUtil.parseSpeed("500 Hz"), is(500L));
+        assertThat("parse 1kHz", ParseUtil.parseSpeed("1kHz"), is(1_000L));
+        assertThat("parse 1MHz", ParseUtil.parseSpeed("1MHz"), is(1_000_000L));
+        assertThat("parse 1GHz", ParseUtil.parseSpeed("1GHz"), is(1_000_000_000L));
+        assertThat("parse 1.5GHz", ParseUtil.parseSpeed("1.5GHz"), is(1_500_000_000L));
+        assertThat("parse 1THz", ParseUtil.parseSpeed("1THz"), is(1_000_000_000_000L));
     }
 
     /**
