@@ -1,9 +1,8 @@
-# 6.6.6 (in progress)
+# 6.6.7 (in progress)
 
-* [#2793](https://github.com/oshi/oshi/pull/2793): Enable configurable prioritization of thermal zones - [@joerg1985](https://github.com/joerg1985).
-* [#2796](https://github.com/oshi/oshi/pull/2796): Support memory speed units of MT/s - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here
 
-# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16)
+# 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
 
 ##### New Features
 * [#2603](https://github.com/oshi/oshi/pull/2603),
@@ -28,6 +27,8 @@
 * [#2725](https://github.com/oshi/oshi/pull/2725): Reduce redundant logging on perf counter failures - [@dbwiddis](https://github.com/dbwiddis).
 * [#2726](https://github.com/oshi/oshi/pull/2726): JNA 5.15.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#2740](https://github.com/oshi/oshi/pull/2740): Fix Linux CPU thermal zone path string - [@1056227556](https://github.com/1056227556).
+* [#2793](https://github.com/oshi/oshi/pull/2793): Enable configurable prioritization of thermal zones - [@joerg1985](https://github.com/joerg1985).
+* [#2796](https://github.com/oshi/oshi/pull/2796): Support memory speed units of MT/s - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.5.0 (2024-03-10)
 
