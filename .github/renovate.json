@@ -1,18 +1,26 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "config:base", "schedule:daily"
-    ],
-    "ignoreDeps": [
-      "org.apache.maven.plugins:maven-site-plugin"
-    ],
-    "packageRules": [
-      {
-        "description": "Batch and auto-merge plugin updates",
-        "matchPackagePatterns": ["maven", "-plugin$", "bind-api"],
-        "matchUpdateTypes": ["patch", "minor"],
-        "groupName": "plugins",
-        "automerge": true
-      }
-    ]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:daily"
+  ],
+  "ignoreDeps": [
+    "org.apache.maven.plugins:maven-site-plugin"
+  ],
+  "packageRules": [
+    {
+      "description": "Batch and auto-merge plugin updates",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "plugins",
+      "automerge": true,
+      "matchPackageNames": [
+        "/maven/",
+        "/-plugin$/",
+        "/bind-api/"
+      ]
+    }
+  ]
 }
