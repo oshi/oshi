@@ -136,7 +136,7 @@
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
         <spotless-plugin.version>2.44.2</spotless-plugin.version>
         <!-- report only -->
-        <maven-changelog-plugin.version>2.3</maven-changelog-plugin.version>
+        <maven-changelog-plugin.version>3.0.0-M2</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.8.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.2</maven-surefire-report-plugin.version>
