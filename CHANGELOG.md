@@ -1,6 +1,7 @@
 # 6.6.7 (in progress)
 
 * Your contribution here
+* [#2805](https://github.com/oshi/oshi/pull/2805): Fix EdidUtil.getManufacturerID() not reading all bits of id - [@JonathanTheDev](https://github.com/JonathanTheDev).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
 
