@@ -68,6 +68,11 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.pandalxb</groupId>
+            <artifactId>jLibreHardwareMonitor</artifactId>
+            <version>${jlibrehardwaremonitor.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
