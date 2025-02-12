@@ -4,40 +4,29 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.Arrays;
+import com.sun.jna.platform.win32.COM.COMException;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import io.github.pandalxb.jlibrehardwaremonitor.config.ComputerConfig;
+import io.github.pandalxb.jlibrehardwaremonitor.manager.LibreHardwareManager;
+import io.github.pandalxb.jlibrehardwaremonitor.model.Sensor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.wmi.*;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
+import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
+import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
+import oshi.hardware.common.AbstractSensors;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiUtil;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import io.github.pandalxb.jlibrehardwaremonitor.config.ComputerConfig;
-import io.github.pandalxb.jlibrehardwaremonitor.manager.LibreHardwareManager;
-import io.github.pandalxb.jlibrehardwaremonitor.model.Sensor;
-import javafx.print.Collation;
-import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
-import oshi.SystemInfo;
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature;
-import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
-import oshi.driver.windows.wmi.OhmHardware;
-import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
-import oshi.driver.windows.wmi.OhmSensor;
-import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
-import oshi.driver.windows.wmi.Win32Fan;
-import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
-import oshi.driver.windows.wmi.Win32Processor;
-import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.Sensors;
-import oshi.hardware.common.AbstractSensors;
-import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Sensors from WMI or Open Hardware Monitor
@@ -321,17 +310,5 @@ final class WindowsSensors extends AbstractSensors {
             }
         }
         return 0d;
-    }
-
-    public static void main(String[] args) {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        Sensors sensors = hal.getSensors();
-        double temp = sensors.getCpuTemperature();
-        System.out.println("CPU Temperature:" + temp);
-        int[] fans = sensors.getFanSpeeds();
-        System.out.println("Fan Speeds:" + Arrays.toString(fans));
-        double volts = sensors.getCpuVoltage();
-        System.out.println("CPU Voltage:" + volts);
     }
 }
