@@ -19,5 +19,9 @@ module com.github.oshi {
     requires com.sun.jna;
     requires com.sun.jna.platform;
     requires transitive java.desktop;
+    requires io.github.pandalxb.jlibrehardwaremonitor.config;
+    requires io.github.pandalxb.jlibrehardwaremonitor.manager;
+    requires io.github.pandalxb.jlibrehardwaremonitor.model;
+    requires org.apache.commons.collections4;
     requires org.slf4j;
 }
