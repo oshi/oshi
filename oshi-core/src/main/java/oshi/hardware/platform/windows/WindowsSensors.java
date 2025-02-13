@@ -156,7 +156,7 @@ final class WindowsSensors extends AbstractSensors {
     private static int[] getFansFromLHM() {
         LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
         List<Sensor> sensors = instance.querySensors("SuperIO", "Fan");
-        if(sensors != null) {
+        if (sensors != null) {
             List<Sensor> validSensors = sensors.stream().filter(sensor -> sensor.getValue() > 0).collect(Collectors.toList());
             return validSensors.stream().mapToInt(sensor -> (int) sensor.getValue()).toArray();
         }
@@ -278,11 +278,11 @@ final class WindowsSensors extends AbstractSensors {
     private static double getCpuAverageValueFromLHM(String sensorType, Function<Sensor, Boolean> sensorValidFunction) {
         LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
         List<Sensor> sensors = instance.querySensors("CPU", sensorType);
-        if(sensors != null) {
+        if (sensors != null) {
             double sum = 0;
             int validCount = 0;
             for (Sensor sensor : sensors) {
-                if(sensorValidFunction.apply(sensor)) {
+                if (sensorValidFunction.apply(sensor)) {
                     sum += sensor.getValue();
                     validCount++;
                 }
