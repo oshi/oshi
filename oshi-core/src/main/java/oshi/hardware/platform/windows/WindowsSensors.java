@@ -4,9 +4,15 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import io.github.pandalxb.jlibrehardwaremonitor.config.ComputerConfig;
+import io.github.pandalxb.jlibrehardwaremonitor.manager.LibreHardwareManager;
+import io.github.pandalxb.jlibrehardwaremonitor.model.Sensor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +35,7 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Sensors from WMI or Open Hardware Monitor
+ * Sensors from WMI or Open Hardware Monitor or Libre Hardware Monitor
  */
 @ThreadSafe
 final class WindowsSensors extends AbstractSensors {
@@ -44,6 +50,13 @@ final class WindowsSensors extends AbstractSensors {
         // as it will give the most accurate results and the time to query (or
         // attempt) is trivial
         double tempC = getTempFromOHM();
+        if (tempC > 0d) {
+            return tempC;
+        }
+
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        tempC = getTempFromLHM();
         if (tempC > 0d) {
             return tempC;
         }
@@ -87,6 +100,23 @@ final class WindowsSensors extends AbstractSensors {
         return 0;
     }
 
+    private static double getTempFromLHM() {
+        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
+        List<Sensor> sensors = instance.querySensors("CPU", "Temperature");
+        if(CollectionUtils.isNotEmpty(sensors)) {
+            double sum = 0;
+            int validCount = 0;
+            for (Sensor sensor : sensors) {
+                if(!sensor.getName().contains("Max") && !sensor.getName().contains("Average") && sensor.getValue() > 0) {
+                    sum += sensor.getValue();
+                    validCount++;
+                }
+            }
+            return validCount > 0 ? sum / validCount : 0;
+        }
+        return 0;
+    }
+
     private static double getTempFromWMI() {
         double tempC = 0d;
         long tempK = 0L;
@@ -107,6 +137,13 @@ final class WindowsSensors extends AbstractSensors {
     public int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         int[] fanSpeeds = getFansFromOHM();
+        if (fanSpeeds.length > 0) {
+            return fanSpeeds;
+        }
+
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        fanSpeeds = getFansFromLHM();
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -152,6 +189,18 @@ final class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
+    private static int[] getFansFromLHM() {
+        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
+        List<Sensor> sensors = instance.querySensors("SuperIO", "Fan");
+        if(CollectionUtils.isNotEmpty(sensors)) {
+            List<Sensor> validSensors = sensors.stream().filter(sensor -> sensor.getValue() > 0).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(validSensors)) {
+                return validSensors.stream().mapToInt(sensor -> (int) sensor.getValue()).toArray();
+            }
+        }
+        return new int[0];
+    }
+
     private static int[] getFansFromWMI() {
         WmiResult<SpeedProperty> fan = Win32Fan.querySpeed();
         if (fan.getResultCount() > 1) {
@@ -169,6 +218,13 @@ final class WindowsSensors extends AbstractSensors {
     public double queryCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         double volts = getVoltsFromOHM();
+        if (volts > 0d) {
+            return volts;
+        }
+
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        volts = getVoltsFromLHM();
         if (volts > 0d) {
             return volts;
         }
@@ -215,6 +271,23 @@ final class WindowsSensors extends AbstractSensors {
             }
         }
         return 0d;
+    }
+
+    private static double getVoltsFromLHM() {
+        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
+        List<Sensor> sensors = instance.querySensors("CPU", "Voltage");
+        if(CollectionUtils.isNotEmpty(sensors)) {
+            double sum = 0;
+            int validCount = 0;
+            for (Sensor sensor : sensors) {
+                if(sensor.getValue() > 0) {
+                    sum += sensor.getValue();
+                    validCount++;
+                }
+            }
+            return validCount > 0 ? sum / validCount : 0;
+        }
+        return 0;
     }
 
     private static double getVoltsFromWMI() {
