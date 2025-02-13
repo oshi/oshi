@@ -18,6 +18,12 @@
         pkg="com\.sun\.(jna|jna\..*)"
         regex="true" />
 
+    <!-- gson -->
+    <allow pkg="com.google.gson" />
+
+    <!-- jlibrehardwaremonitor -->
+    <allow pkg="io.github.pandalxb.jlibrehardwaremonitor" />
+
     <!-- slf4j -->
     <allow pkg="org.slf4j" />
 

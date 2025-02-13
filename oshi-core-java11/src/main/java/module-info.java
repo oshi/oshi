@@ -16,8 +16,10 @@ module com.github.oshi {
     opens oshi.jna.platform.unix to com.sun.jna;
 
     // dependencies
+    requires com.google.gson;
     requires com.sun.jna;
     requires com.sun.jna.platform;
     requires transitive java.desktop;
+    requires io.github.pandalxb.jlibrehardwaremonitor;
     requires org.slf4j;
 }

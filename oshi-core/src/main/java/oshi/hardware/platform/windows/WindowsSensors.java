@@ -4,9 +4,16 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import io.github.pandalxb.jlibrehardwaremonitor.config.ComputerConfig;
+import io.github.pandalxb.jlibrehardwaremonitor.manager.LibreHardwareManager;
+import io.github.pandalxb.jlibrehardwaremonitor.model.Sensor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +36,7 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
 /**
- * Sensors from WMI or Open Hardware Monitor
+ * Sensors from WMI or Open Hardware Monitor or Libre Hardware Monitor
  */
 @ThreadSafe
 final class WindowsSensors extends AbstractSensors {
@@ -48,6 +55,13 @@ final class WindowsSensors extends AbstractSensors {
             return tempC;
         }
 
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        tempC = getTempFromLHM();
+        if (tempC > 0d) {
+            return tempC;
+        }
+
         // If we get this far, OHM is not running. Try from WMI
         tempC = getTempFromWMI();
 
@@ -58,33 +72,25 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromOHM() {
-        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
-        boolean comInit = false;
-        try {
-            comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Hardware", "CPU");
-            if (ohmHardware.getResultCount() > 0) {
-                LOG.debug("Found Temperature data in Open Hardware Monitor");
-                String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-                if (cpuIdentifier.length() > 0) {
-                    WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Temperature");
-                    if (ohmSensors.getResultCount() > 0) {
-                        double sum = 0;
-                        for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                            sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
-                        }
-                        return sum / ohmSensors.getResultCount();
-                    }
-                }
+        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Temperature", (h, ohmHardware) -> {
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+            if (!cpuIdentifier.isEmpty()) {
+                return OhmSensor.querySensorValue(h, cpuIdentifier, "Temperature");
             }
-        } catch (COMException e) {
-            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
-        } finally {
-            if (comInit) {
-                h.unInitCOM();
+            return null;
+        });
+        if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
+            double sum = 0;
+            for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
             }
+            return sum / ohmSensors.getResultCount();
         }
         return 0;
+    }
+
+    private static double getTempFromLHM() {
+        return getCpuAverageValueFromLHM("Temperature", sensor -> !sensor.getName().contains("Max") && !sensor.getName().contains("Average") && sensor.getValue() > 0);
     }
 
     private static double getTempFromWMI() {
@@ -100,13 +106,20 @@ final class WindowsSensors extends AbstractSensors {
         } else if (tempK > 274L) {
             tempC = tempK - 273d;
         }
-        return tempC < 0d ? 0d : tempC;
+        return Math.max(tempC, 0d);
     }
 
     @Override
     public int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
         int[] fanSpeeds = getFansFromOHM();
+        if (fanSpeeds.length > 0) {
+            return fanSpeeds;
+        }
+
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        fanSpeeds = getFansFromLHM();
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -123,31 +136,29 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromOHM() {
-        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
-        boolean comInit = false;
-        try {
-            comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Hardware", "CPU");
-            if (ohmHardware.getResultCount() > 0) {
-                LOG.debug("Found Fan data in Open Hardware Monitor");
-                String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-                if (cpuIdentifier.length() > 0) {
-                    WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Fan");
-                    if (ohmSensors.getResultCount() > 0) {
-                        int[] fanSpeeds = new int[ohmSensors.getResultCount()];
-                        for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                            fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
-                        }
-                        return fanSpeeds;
-                    }
-                }
+        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Fan", (h, ohmHardware) -> {
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+            if (!cpuIdentifier.isEmpty()) {
+                return OhmSensor.querySensorValue(h, cpuIdentifier, "Fan");
             }
-        } catch (COMException e) {
-            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
-        } finally {
-            if (comInit) {
-                h.unInitCOM();
+            return null;
+        });
+        if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
+            int[] fanSpeeds = new int[ohmSensors.getResultCount()];
+            for (int i = 0; i < ohmSensors.getResultCount(); i++) {
+                fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
             }
+            return fanSpeeds;
+        }
+        return new int[0];
+    }
+
+    private static int[] getFansFromLHM() {
+        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
+        List<Sensor> sensors = instance.querySensors("SuperIO", "Fan");
+        if(sensors != null) {
+            List<Sensor> validSensors = sensors.stream().filter(sensor -> sensor.getValue() > 0).collect(Collectors.toList());
+            return validSensors.stream().mapToInt(sensor -> (int) sensor.getValue()).toArray();
         }
         return new int[0];
     }
@@ -173,6 +184,13 @@ final class WindowsSensors extends AbstractSensors {
             return volts;
         }
 
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // without applications running
+        volts = getVoltsFromLHM();
+        if (volts > 0d) {
+            return volts;
+        }
+
         // If we get this far, OHM is not running.
         // Try to get from conventional WMI
         volts = getVoltsFromWMI();
@@ -181,40 +199,31 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromOHM() {
-        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
-        boolean comInit = false;
-        try {
-            comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, "Sensor", "Voltage");
-            if (ohmHardware.getResultCount() > 0) {
-                LOG.debug("Found Voltage data in Open Hardware Monitor");
-                // Look for identifier containing "cpu"
-                String cpuIdentifier = null;
-                for (int i = 0; i < ohmHardware.getResultCount(); i++) {
-                    String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
-                    if (id.toLowerCase(Locale.ROOT).contains("cpu")) {
-                        cpuIdentifier = id;
-                        break;
-                    }
-                }
-                // If none found, just get the first one
-                if (cpuIdentifier == null) {
-                    cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
-                }
-                // Now fetch sensor
-                WmiResult<ValueProperty> ohmSensors = OhmSensor.querySensorValue(h, cpuIdentifier, "Voltage");
-                if (ohmSensors.getResultCount() > 0) {
-                    return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
+        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Sensor", "Voltage", "Voltage", (h, ohmHardware) -> {
+            // Look for identifier containing "cpu"
+            String cpuIdentifier = null;
+            for (int i = 0; i < ohmHardware.getResultCount(); i++) {
+                String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
+                if (id.toLowerCase(Locale.ROOT).contains("cpu")) {
+                    cpuIdentifier = id;
+                    break;
                 }
             }
-        } catch (COMException e) {
-            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
-        } finally {
-            if (comInit) {
-                h.unInitCOM();
+            // If none found, just get the first one
+            if (cpuIdentifier == null) {
+                cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
+            // Now fetch sensor
+            return OhmSensor.querySensorValue(h, cpuIdentifier, "Voltage");
+        });
+        if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
+            return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
         }
         return 0d;
+    }
+
+    private static double getVoltsFromLHM() {
+        return getCpuAverageValueFromLHM("Voltage", sensor -> sensor.getValue() > 0);
     }
 
     private static double getVoltsFromWMI() {
@@ -243,5 +252,43 @@ final class WindowsSensors extends AbstractSensors {
             }
         }
         return 0d;
+    }
+
+    private static WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName, String sensorType, BiFunction<WmiQueryHandler, WmiResult<IdentifierProperty>, WmiResult<ValueProperty>> querySensorFunction) {
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
+        boolean comInit = false;
+        WmiResult<ValueProperty> ohmSensors = null;
+        try {
+            comInit = h.initCOM();
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, typeToQuery, typeName);
+            if (ohmHardware.getResultCount() > 0) {
+                LOG.debug(String.format("Found %s data in Open Hardware Monitor", sensorType));
+                ohmSensors = querySensorFunction.apply(h, ohmHardware);
+            }
+        } catch (COMException e) {
+            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
+        } finally {
+            if (comInit) {
+                h.unInitCOM();
+            }
+        }
+        return ohmSensors;
+    }
+
+    private static double getCpuAverageValueFromLHM(String sensorType, Function<Sensor, Boolean> sensorValidFunction) {
+        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
+        List<Sensor> sensors = instance.querySensors("CPU", sensorType);
+        if(sensors != null) {
+            double sum = 0;
+            int validCount = 0;
+            for (Sensor sensor : sensors) {
+                if(sensorValidFunction.apply(sensor)) {
+                    sum += sensor.getValue();
+                    validCount++;
+                }
+            }
+            return validCount > 0 ? sum / validCount : 0;
+        }
+        return 0;
     }
 }
