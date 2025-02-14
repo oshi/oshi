@@ -262,7 +262,7 @@ final class WindowsSensors extends AbstractSensors {
             comInit = h.initCOM();
             WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, typeToQuery, typeName);
             if (ohmHardware.getResultCount() > 0) {
-                LOG.debug(String.format("Found %s data in Open Hardware Monitor", sensorType));
+                LOG.debug("Found {} data in Open Hardware Monitor", sensorType);
                 ohmSensors = querySensorFunction.apply(h, ohmHardware);
             }
         } catch (COMException e) {
