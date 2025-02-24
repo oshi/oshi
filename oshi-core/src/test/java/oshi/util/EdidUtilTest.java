@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 class EdidUtilTest {
 
     private static final String EDID_HEADER = "00FFFFFFFFFFFF00";
-    private static final String EDID_MANUFID = "0610";
+    private static final String EDID_MANUFID = "06af";
     private static final String EDID_PRODCODE = "2792";
     private static final String EDID_SERIAL = "250C2C16";
     private static final String EDID_WKYR = "2C16";
@@ -43,7 +43,7 @@ class EdidUtilTest {
 
     @Test
     void testGetEdidAttrs() {
-        assertThat("manufacturerId", EdidUtil.getManufacturerID(EDID), is("A"));
+        assertThat("manufacturerId", EdidUtil.getManufacturerID(EDID), is("AUO"));
         assertThat("productId", EdidUtil.getProductID(EDID), is("9227"));
         assertThat("serialNo", EdidUtil.getSerialNo(EDID), is("162C0C25"));
         assertThat("week", EdidUtil.getWeek(EDID), is((byte) 44));
