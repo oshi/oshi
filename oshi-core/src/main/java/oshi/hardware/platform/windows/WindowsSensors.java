@@ -90,7 +90,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromLHM() {
-        return getCpuAverageValueFromLHM("Temperature", sensor -> !sensor.getName().contains("Max") && !sensor.getName().contains("Average") && sensor.getValue() > 0);
+        return getAverageValueFromLHM("CPU", "Temperature", sensor -> !sensor.getName().contains("Max") && !sensor.getName().contains("Average") && sensor.getValue() > 0);
     }
 
     private static double getTempFromWMI() {
@@ -223,7 +223,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromLHM() {
-        return getCpuAverageValueFromLHM("Voltage", sensor -> sensor.getValue() > 0);
+        return getAverageValueFromLHM("SuperIO", "Voltage", sensor -> sensor.getName().toLowerCase().contains("vcore") && sensor.getValue() > 0);
     }
 
     private static double getVoltsFromWMI() {
@@ -275,9 +275,9 @@ final class WindowsSensors extends AbstractSensors {
         return ohmSensors;
     }
 
-    private static double getCpuAverageValueFromLHM(String sensorType, Function<Sensor, Boolean> sensorValidFunction) {
+    private static double getAverageValueFromLHM(String hardwareType, String sensorType, Function<Sensor, Boolean> sensorValidFunction) {
         LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
-        List<Sensor> sensors = instance.querySensors("CPU", sensorType);
+        List<Sensor> sensors = instance.querySensors(hardwareType, sensorType);
         if (sensors != null) {
             double sum = 0;
             int validCount = 0;
