@@ -35,6 +35,9 @@
     <allow pkg="com.sun.jna.platform.win32.COM.util.annotation" />
     <allow pkg="com.sun.jna.platform.wince" />
 
+    <!-- jlibrehardwaremonitor -->
+    <allow pkg="io.github.pandalxb.jlibrehardwaremonitor" />
+
     <!-- slf4j -->
     <allow pkg="org.slf4j" />
 
