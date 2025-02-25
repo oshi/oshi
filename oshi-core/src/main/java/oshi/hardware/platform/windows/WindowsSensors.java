@@ -5,7 +5,7 @@
 package oshi.hardware.platform.windows;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -107,7 +107,7 @@ final class WindowsSensors extends AbstractSensors {
         } else if (tempK > 274L) {
             tempC = tempK - 273d;
         }
-        return Math.max(tempC, 0d);
+        return Math.max(tempC, +0.0);
     }
 
     @Override
@@ -161,6 +161,7 @@ final class WindowsSensors extends AbstractSensors {
         }
 
         try {
+            // The sensor object is confirmed to contain the getValue method.
             Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
             Method getValueMethod = sensorClass.getMethod("getValue");
 
@@ -308,13 +309,15 @@ final class WindowsSensors extends AbstractSensors {
         }
 
         try {
+            // The sensor object is confirmed to contain the getName and getValue methods.
+            Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
+            Method getNameMethod = sensorClass.getMethod("getName");
+            Method getValueMethod = sensorClass.getMethod("getValue");
+
             double sum = 0;
             int validCount = 0;
             for (Object sensor : sensors) {
-                Method getNameMethod = sensor.getClass().getMethod("getName");
                 String name = (String) getNameMethod.invoke(sensor);
-
-                Method getValueMethod = sensor.getClass().getMethod("getValue");
                 double value = (double) getValueMethod.invoke(sensor);
                 if (sensorValidFunction.apply(name, value)) {
                     sum += value;
@@ -350,6 +353,6 @@ final class WindowsSensors extends AbstractSensors {
         } catch (Exception e) {
             LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }
