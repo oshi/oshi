@@ -4,16 +4,13 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import io.github.pandalxb.jlibrehardwaremonitor.config.ComputerConfig;
-import io.github.pandalxb.jlibrehardwaremonitor.manager.LibreHardwareManager;
-import io.github.pandalxb.jlibrehardwaremonitor.model.Sensor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +41,10 @@ final class WindowsSensors extends AbstractSensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     private static final String COM_EXCEPTION_MSG = "COM exception: {}";
+
+    private static final String REFLECT_EXCEPTION_MSG = "Reflect exception: {}";
+
+    private static final String JLIBREHARDWAREMONITOR_PACKAGE = "io.github.pandalxb.jlibrehardwaremonitor";
 
     @Override
     public double queryCpuTemperature() {
@@ -90,7 +91,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromLHM() {
-        return getAverageValueFromLHM("CPU", "Temperature", sensor -> !sensor.getName().contains("Max") && !sensor.getName().contains("Average") && sensor.getValue() > 0);
+        return getAverageValueFromLHM("CPU", "Temperature", (name, value) -> !name.contains("Max") && !name.contains("Average") && value > 0);
     }
 
     private static double getTempFromWMI() {
@@ -154,11 +155,36 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromLHM() {
-        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
-        List<Sensor> sensors = instance.querySensors("SuperIO", "Fan");
-        if (sensors != null) {
-            List<Sensor> validSensors = sensors.stream().filter(sensor -> sensor.getValue() > 0).collect(Collectors.toList());
-            return validSensors.stream().mapToInt(sensor -> (int) sensor.getValue()).toArray();
+        List<?> sensors = getLhmSensors("SuperIO", "Fan");
+        if (sensors == null || sensors.isEmpty()) {
+            return new int[0];
+        }
+
+        try {
+            Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
+            Method getValueMethod = sensorClass.getMethod("getValue");
+
+            return sensors.stream()
+                .filter(sensor -> {
+                    try {
+                        double value = (double) getValueMethod.invoke(sensor);
+                        return value > 0;
+                    } catch (Exception e) {
+                        LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                        return false;
+                    }
+                })
+                .mapToInt(sensor -> {
+                    try {
+                        return (int) (double) getValueMethod.invoke(sensor);
+                    } catch (Exception e) {
+                        LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                        return 0;
+                    }
+                })
+                .toArray();
+        } catch (Exception e) {
+            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
         }
         return new int[0];
     }
@@ -223,7 +249,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromLHM() {
-        return getAverageValueFromLHM("SuperIO", "Voltage", sensor -> sensor.getName().toLowerCase(Locale.ROOT).contains("vcore") && sensor.getValue() > 0);
+        return getAverageValueFromLHM("SuperIO", "Voltage", (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
     }
 
     private static double getVoltsFromWMI() {
@@ -275,20 +301,55 @@ final class WindowsSensors extends AbstractSensors {
         return ohmSensors;
     }
 
-    private static double getAverageValueFromLHM(String hardwareType, String sensorType, Function<Sensor, Boolean> sensorValidFunction) {
-        LibreHardwareManager instance = LibreHardwareManager.getInstance(ComputerConfig.getInstance().setCpuEnabled(true).setMotherboardEnabled(true));
-        List<Sensor> sensors = instance.querySensors(hardwareType, sensorType);
-        if (sensors != null) {
+    private static double getAverageValueFromLHM(String hardwareType, String sensorType, BiFunction<String, Double, Boolean> sensorValidFunction) {
+        List<?> sensors = getLhmSensors(hardwareType, sensorType);
+        if (sensors == null || sensors.isEmpty()) {
+            return 0;
+        }
+
+        try {
             double sum = 0;
             int validCount = 0;
-            for (Sensor sensor : sensors) {
-                if (sensorValidFunction.apply(sensor)) {
-                    sum += sensor.getValue();
+            for (Object sensor : sensors) {
+                Method getNameMethod = sensor.getClass().getMethod("getName");
+                String name = (String) getNameMethod.invoke(sensor);
+
+                Method getValueMethod = sensor.getClass().getMethod("getValue");
+                double value = (double) getValueMethod.invoke(sensor);
+                if (sensorValidFunction.apply(name, value)) {
+                    sum += value;
                     validCount++;
                 }
             }
             return validCount > 0 ? sum / validCount : 0;
+        } catch (Exception e) {
+            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
         }
         return 0;
+    }
+
+    private static List<?> getLhmSensors(String hardwareType, String sensorType) {
+        try {
+            Class<?> computerConfigClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".config.ComputerConfig");
+            Class<?> libreHardwareManagerClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".manager.LibreHardwareManager");
+
+            Method computerConfigGetInstanceMethod = computerConfigClass.getMethod("getInstance");
+            Object computerConfigInstance = computerConfigGetInstanceMethod.invoke(null);
+
+            Method setEnabledMethod = computerConfigClass.getMethod("setCpuEnabled", boolean.class);
+            setEnabledMethod.invoke(computerConfigInstance, true);
+            setEnabledMethod = computerConfigClass.getMethod("setMotherboardEnabled", boolean.class);
+            setEnabledMethod.invoke(computerConfigInstance, true);
+
+            Method libreHardwareManagerGetInstanceMethod = libreHardwareManagerClass.getMethod("getInstance", computerConfigClass);
+
+            Object instance = libreHardwareManagerGetInstanceMethod.invoke(null, computerConfigInstance);
+
+            Method querySensorsMethod = libreHardwareManagerClass.getMethod("querySensors", String.class, String.class);
+            return (List<?>) querySensorsMethod.invoke(instance, hardwareType, sensorType);
+        } catch (Exception e) {
+            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

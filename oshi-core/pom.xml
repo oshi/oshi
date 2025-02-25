@@ -64,6 +64,7 @@
             <groupId>io.github.pandalxb</groupId>
             <artifactId>jLibreHardwareMonitor</artifactId>
             <version>${jlibrehardwaremonitor.version}</version>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
                     <groupId>net.java.dev.jna</groupId>
