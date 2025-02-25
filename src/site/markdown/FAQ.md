@@ -2,22 +2,23 @@
 
   * [What is the intended use of the API?](#what-is-the-intended-use-of-the-api)
   * [Is the API backwards compatible between versions?](#is-the-api-backwards-compatible-between-versions)
-  * [Does OSHI support Open Service Gateway initiative (OSGi) modules?](#does-oshi-support-open-service-gateway-initiative--osgi--modules)
-  * [Does OSHI support Java Module System (JPMS) modules?](#does-oshi-support-java-module-system--jpms--modules)
+  * [Does OSHI support Open Service Gateway initiative (OSGi) modules?](#does-oshi-support-open-service-gateway-initiative-osgi-modules)
+  * [Does OSHI support Java Module System (JPMS) modules?](#does-oshi-support-java-module-system-jpms-modules)
   * [Is OSHI Thread Safe?](#is-oshi-thread-safe)
   * [What minimum Java version is required?](#what-minimum-java-version-is-required)
   * [Which operating systems are supported?](#which-operating-systems-are-supported)
+  * [How can I get reliable sensor information on Windows?](#how-can-i-get-reliable-sensor-information-on-windows)
   * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
   * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-process-cpu-usage-differ-from-the-windows-task-manager)
-  * [Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?](#why-does-oshi-freeze-for-20-seconds--or-larger-multiples-of-20-seconds--on-windows-when-it-first-starts-up)
+  * [Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?](#why-does-oshi-freeze-for-20-seconds-or-larger-multiples-of-20-seconds-on-windows-when-it-first-starts-up)
   * [How is OSHI different from SIGAR?](#how-is-oshi-different-from-sigar)
-  * [Does OSHI work on ...](#does-oshi-work-on-)
+  * [Does OSHI work on ...](#does-oshi-work-on)
     + [ARM hardware?](#arm-hardware)
     + [Apple Silicon hardware?](#apple-silicon-hardware)
     + [Raspberry Pi hardware?](#raspberry-pi-hardware)
-  * [Will you implement ... ?](#will-you-implement--)
+  * [Will you implement ... ?](#will-you-implement)
 
 ---
 
@@ -81,6 +82,23 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
 * Android 7.0 and higher
+
+## How can I get reliable sensor information on Windows?
+
+Windows sensor information is unreliable via the supported Windows API.  OSHI includes an optional dependency on [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) which gives much more reliable sensor data, but is not included transitively due to its single-OS relevance and MPL 2.0-licensed binary DLLs. To include it, define the dependency in your own project.  You can do so using Maven:
+
+```
+<dependency>
+    <groupId>io.github.pandalxb</groupId>
+    <artifactId>jLibreHardwareMonitor</artifactId>
+</dependency>
+```
+
+Or Gradle:
+
+```
+implementation("io.github.pandalxb:jLibreHardwareMonitor")
+```
 
 ## How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -14,10 +14,13 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Users should expect, test for, and handle zero values and/or empty arrays which will result if the OS is unable to
  * provide the information.
  * <p>
- * Windows information is retrieved via Windows Management Instrumentation (WMI). Unfortunately, most hardware providers
- * do not publish values to WMI. Oshi attempts to retrieve values from <a href="https://openhardwaremonitor.org/">Open
- * Hardware Monitor</a> if it is running, in preference to the Microsoft API, which may require elevated permissions and
- * still may provide no results or unchanging results depending on the motherboard manufacturer.
+ * Windows information is generally retrieved via Windows Management Instrumentation (WMI). Unfortunately, most hardware
+ * providers do not publish sensor values to WMI. OSHI attempts to retrieve values from
+ * <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> if the optional
+ * <code>jLibreHardwareMonitor</code> dependency is included. Otherwise OSHI attempts to retrieve values from
+ * <a href="https://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is running. Otherwise OSHI retrieves via
+ * the Microsoft API, which may require elevated permissions and still may provide no results or unchanging results
+ * depending on the motherboard manufacturer.
  */
 @ThreadSafe
 public interface Sensors {

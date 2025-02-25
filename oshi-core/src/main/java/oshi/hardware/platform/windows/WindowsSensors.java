@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -56,7 +56,8 @@ final class WindowsSensors extends AbstractSensors {
             return tempC;
         }
 
-        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET
+        // 2.0)
         // without applications running
         tempC = getTempFromLHM();
         if (tempC > 0d) {
@@ -91,7 +92,8 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getTempFromLHM() {
-        return getAverageValueFromLHM("CPU", "Temperature", (name, value) -> !name.contains("Max") && !name.contains("Average") && value > 0);
+        return getAverageValueFromLHM("CPU", "Temperature",
+                (name, value) -> !name.contains("Max") && !name.contains("Average") && value > 0);
     }
 
     private static double getTempFromWMI() {
@@ -118,7 +120,8 @@ final class WindowsSensors extends AbstractSensors {
             return fanSpeeds;
         }
 
-        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET
+        // 2.0)
         // without applications running
         fanSpeeds = getFansFromLHM();
         if (fanSpeeds.length > 0) {
@@ -165,25 +168,22 @@ final class WindowsSensors extends AbstractSensors {
             Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
             Method getValueMethod = sensorClass.getMethod("getValue");
 
-            return sensors.stream()
-                .filter(sensor -> {
-                    try {
-                        double value = (double) getValueMethod.invoke(sensor);
-                        return value > 0;
-                    } catch (Exception e) {
-                        LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
-                        return false;
-                    }
-                })
-                .mapToInt(sensor -> {
-                    try {
-                        return (int) (double) getValueMethod.invoke(sensor);
-                    } catch (Exception e) {
-                        LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
-                        return 0;
-                    }
-                })
-                .toArray();
+            return sensors.stream().filter(sensor -> {
+                try {
+                    double value = (double) getValueMethod.invoke(sensor);
+                    return value > 0;
+                } catch (Exception e) {
+                    LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                    return false;
+                }
+            }).mapToInt(sensor -> {
+                try {
+                    return (int) (double) getValueMethod.invoke(sensor);
+                } catch (Exception e) {
+                    LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                    return 0;
+                }
+            }).toArray();
         } catch (Exception e) {
             LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
         }
@@ -211,7 +211,8 @@ final class WindowsSensors extends AbstractSensors {
             return volts;
         }
 
-        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET 2.0)
+        // Fetch value from library LibreHardwareMonitorLib.dll(.NET 4.7.2 and above) or OpenHardwareMonitorLib.dll(.NET
+        // 2.0)
         // without applications running
         volts = getVoltsFromLHM();
         if (volts > 0d) {
@@ -250,7 +251,8 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromLHM() {
-        return getAverageValueFromLHM("SuperIO", "Voltage", (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
+        return getAverageValueFromLHM("SuperIO", "Voltage",
+                (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
     }
 
     private static double getVoltsFromWMI() {
@@ -281,7 +283,8 @@ final class WindowsSensors extends AbstractSensors {
         return 0d;
     }
 
-    private static WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName, String sensorType, BiFunction<WmiQueryHandler, WmiResult<IdentifierProperty>, WmiResult<ValueProperty>> querySensorFunction) {
+    private static WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName, String sensorType,
+            BiFunction<WmiQueryHandler, WmiResult<IdentifierProperty>, WmiResult<ValueProperty>> querySensorFunction) {
         WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
         boolean comInit = false;
         WmiResult<ValueProperty> ohmSensors = null;
@@ -302,7 +305,8 @@ final class WindowsSensors extends AbstractSensors {
         return ohmSensors;
     }
 
-    private static double getAverageValueFromLHM(String hardwareType, String sensorType, BiFunction<String, Double, Boolean> sensorValidFunction) {
+    private static double getAverageValueFromLHM(String hardwareType, String sensorType,
+            BiFunction<String, Double, Boolean> sensorValidFunction) {
         List<?> sensors = getLhmSensors(hardwareType, sensorType);
         if (sensors == null || sensors.isEmpty()) {
             return 0;
@@ -334,7 +338,8 @@ final class WindowsSensors extends AbstractSensors {
     private static List<?> getLhmSensors(String hardwareType, String sensorType) {
         try {
             Class<?> computerConfigClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".config.ComputerConfig");
-            Class<?> libreHardwareManagerClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".manager.LibreHardwareManager");
+            Class<?> libreHardwareManagerClass = Class
+                    .forName(JLIBREHARDWAREMONITOR_PACKAGE + ".manager.LibreHardwareManager");
 
             Method computerConfigGetInstanceMethod = computerConfigClass.getMethod("getInstance");
             Object computerConfigInstance = computerConfigGetInstanceMethod.invoke(null);
@@ -344,7 +349,8 @@ final class WindowsSensors extends AbstractSensors {
             setEnabledMethod = computerConfigClass.getMethod("setMotherboardEnabled", boolean.class);
             setEnabledMethod.invoke(computerConfigInstance, true);
 
-            Method libreHardwareManagerGetInstanceMethod = libreHardwareManagerClass.getMethod("getInstance", computerConfigClass);
+            Method libreHardwareManagerGetInstanceMethod = libreHardwareManagerClass.getMethod("getInstance",
+                    computerConfigClass);
 
             Object instance = libreHardwareManagerGetInstanceMethod.invoke(null, computerConfigInstance);
 
