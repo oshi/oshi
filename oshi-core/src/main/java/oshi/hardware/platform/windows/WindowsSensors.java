@@ -223,7 +223,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromLHM() {
-        return getAverageValueFromLHM("SuperIO", "Voltage", sensor -> sensor.getName().toLowerCase().contains("vcore") && sensor.getValue() > 0);
+        return getAverageValueFromLHM("SuperIO", "Voltage", sensor -> sensor.getName().toLowerCase(Locale.ROOT).contains("vcore") && sensor.getValue() > 0);
     }
 
     private static double getVoltsFromWMI() {
