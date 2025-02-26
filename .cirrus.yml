@@ -4,8 +4,7 @@ freebsd_task:
   skip: "!changesInclude('.cirrus.yml', '**/freebsd/**', '**/common/**', '**/unix/*', '**/util/**')"
   freebsd_instance:
     matrix:
-      image_family: freebsd-13-2
-      image_family: freebsd-14-0
+      image_family: freebsd-14-2
       image_family: freebsd-15-0-snap
   maven_cache:
     folder: ~/.m2
