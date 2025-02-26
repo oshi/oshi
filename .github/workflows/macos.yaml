@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
-        java: [11, 17, 21]
-        os: [macos-11, macos-12, macos-13, macos-14]
+        java: [11, 21, 23]
+        os: [macos-12, macos-13, macos-14]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Coverage
-        if: contains(matrix.java, '11') && contains(matrix.os, 'macos-12')
+        if: contains(matrix.java, '11') && contains(matrix.os, 'macos-13')
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
