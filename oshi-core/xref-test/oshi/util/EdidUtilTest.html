@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/util/EdidUtilTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util;
@@ -24,7 +24,7 @@
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">class</strong> <a name="EdidUtilTest" href="../../oshi/util/EdidUtilTest.html#EdidUtilTest">EdidUtilTest</a> {
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_HEADER = <span class="jxr_string">"00FFFFFFFFFFFF00"</span>;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_MANUFID = <span class="jxr_string">"0610"</span>;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_MANUFID = <span class="jxr_string">"06af"</span>;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_PRODCODE = <span class="jxr_string">"2792"</span>;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_SERIAL = <span class="jxr_string">"250C2C16"</span>;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String EDID_WKYR = <span class="jxr_string">"2C16"</span>;
@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">void</strong> testGetEdidAttrs() {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(<span class="jxr_string">"manufacturerId"</span>, EdidUtil.getManufacturerID(EDID), is(<span class="jxr_string">"A"</span>));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(<span class="jxr_string">"manufacturerId"</span>, EdidUtil.getManufacturerID(EDID), is(<span class="jxr_string">"AUO"</span>));
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(<span class="jxr_string">"productId"</span>, EdidUtil.getProductID(EDID), is(<span class="jxr_string">"9227"</span>));
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertThat(<span class="jxr_string">"serialNo"</span>, EdidUtil.getSerialNo(EDID), is(<span class="jxr_string">"162C0C25"</span>));
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(<span class="jxr_string">"week"</span>, EdidUtil.getWeek(EDID), is((byte) 44));
