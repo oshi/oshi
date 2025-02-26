@@ -1,10 +1,10 @@
 # 6.7.0 (in progress)
 
 ##### New Features
-* [#2814](https://github.com/oshi/oshi/pull/2814): Fetch Windows sensor information via jLibreHardwareMonitor - [@Tegrason](https://github.com/Tegrason).
+* [#2814](https://github.com/oshi/oshi/pull/2814): Fetch Windows sensor information via jLibreHardwareMonitor - [@pandalxb](https://github.com/pandalxb).
 
 ##### Bug fixes / Improvements
-* [#2805](https://github.com/oshi/oshi/pull/2805): Fix EdidUtil.getManufacturerID() not reading all bits of id - [@pandalxb](https://github.com/pandalxb).
+* [#2805](https://github.com/oshi/oshi/pull/2805): Fix EdidUtil.getManufacturerID() not reading all bits of id - [@JonathanTheDev](https://github.com/JonathanTheDev)).
 * [#2815](https://github.com/oshi/oshi/pull/2815): Trim the trailing NUL of /proc/device-tree/model - [@Glavo](https://github.com/Glavo).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
