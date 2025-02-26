@@ -68,6 +68,26 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.pandalxb</groupId>
+            <artifactId>jLibreHardwareMonitor</artifactId>
+            <version>${jlibrehardwaremonitor.version}</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna-platform</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
