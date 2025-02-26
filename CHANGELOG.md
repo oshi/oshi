@@ -1,4 +1,8 @@
-# 6.7.0 (in progress)
+# 6.7.1 (in progress)
+
+* Your contribution here
+
+# 6.7.0 (2025-02-25)
 
 ##### New Features
 * [#2814](https://github.com/oshi/oshi/pull/2814): Fetch Windows sensor information via jLibreHardwareMonitor - [@pandalxb](https://github.com/pandalxb).
