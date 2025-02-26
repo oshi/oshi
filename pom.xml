@@ -94,7 +94,7 @@
         <!-- Dependency versions -->
         <!-- Users of the Spring Boot Starter Parent should include this property in their POM -->
         <jna.version>5.16.0</jna.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
         <junit.version>5.12.0</junit.version>
         <hamcrest.version>3.0</hamcrest.version>
