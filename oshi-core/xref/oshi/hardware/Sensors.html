@@ -25,8 +25,8 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * Windows information is generally retrieved via Windows Management Instrumentation (WMI). Unfortunately, most hardware</em>
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * providers do not publish sensor values to WMI. OSHI attempts to retrieve values from</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor" target="alexandria_uri">https://github.com/LibreHardwareMonitor/LibreHardwareMonitor</a>"&gt;LibreHardwareMonitor&lt;/a&gt; if the optional</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * &lt;code&gt;jLibreHardwareMonitor&lt;/code&gt; dependency is included. Otherwise OSHI attempts to retrieve values from</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="https://openhardwaremonitor.org/" target="alexandria_uri">https://openhardwaremonitor.org/</a>"&gt;Open Hardware Monitor&lt;/a&gt; if it is running. Otherwise OSHI retrieves via</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="https://github.com/pandalxb/jLibreHardwareMonitor" target="alexandria_uri">https://github.com/pandalxb/jLibreHardwareMonitor</a>"&gt;jLibreHardwareMonitor&lt;/a&gt; dependency is included. Otherwise, OSHI attempts to retrieve values from</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="https://openhardwaremonitor.org/" target="alexandria_uri">https://openhardwaremonitor.org/</a>"&gt;Open Hardware Monitor&lt;/a&gt; if it is running. Otherwise, OSHI retrieves via</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * the Microsoft API, which may require elevated permissions and still may provide no results or unchanging results</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * depending on the motherboard manufacturer.</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> */</em>
@@ -37,28 +37,25 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @return CPU Temperature in degrees Celsius if available, 0 or {@link Double#NaN} otherwise.</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *         On Windows, if not running Open Hardware Monitor, requires elevated permissions and hardware BIOS that</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     *         supports publishing to WMI. In this case, returns the temperature of the "Thermal Zone" which may be</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     *         different than CPU temperature obtained from other sources. In addition, some motherboards may only</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     *         refresh this value on certain events.</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">double</strong> getCpuTemperature();
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * Fan speeds</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @return Speed in rpm for all fans. May return empty array if no fans detected or 0 fan speed if unable to measure</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     *         fan speed.</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">int</strong>[] getFanSpeeds();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * CPU Voltage</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * @return CPU Voltage in Volts if available, 0 otherwise.</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">double</strong> getCpuVoltage();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  }
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *         See notes on {@link Sensors}.</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">double</strong> getCpuTemperature();
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * Fan speeds</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @return Speed in rpm for all fans. May return empty array if no fans detected or 0 fan speed if unable to measure</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     *         fan speed.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">int</strong>[] getFanSpeeds();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * CPU Voltage</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @return CPU Voltage in Volts if available, 0 otherwise.</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">double</strong> getCpuVoltage();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
