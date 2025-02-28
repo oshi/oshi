@@ -29,7 +29,7 @@ public interface Sensors {
      *
      * @return CPU Temperature in degrees Celsius if available, 0 or {@link Double#NaN} otherwise.
      *         <p>
-     *         See notes on <a href="https://www.oshi.ooo/oshi-core-java11/apidocs/com.github.oshi/oshi/hardware/Sensors.html">Sensors</a>.
+     *         See notes on {@link Sensors}.
      */
     double getCpuTemperature();
 
