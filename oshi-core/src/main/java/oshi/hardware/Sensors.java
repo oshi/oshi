@@ -17,10 +17,10 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Windows information is generally retrieved via Windows Management Instrumentation (WMI). Unfortunately, most hardware
  * providers do not publish sensor values to WMI. OSHI attempts to retrieve values from
  * <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> if the optional
- * <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency is included. Otherwise, OSHI attempts to retrieve values from
- * <a href="https://openhardwaremonitor.org/">Open Hardware Monitor</a> if it is running. Otherwise, OSHI retrieves via
- * the Microsoft API, which may require elevated permissions and still may provide no results or unchanging results
- * depending on the motherboard manufacturer.
+ * <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency is included.
+ * Otherwise, OSHI attempts to retrieve values from <a href="https://openhardwaremonitor.org/">Open Hardware Monitor</a>
+ * if it is running. Otherwise, OSHI retrieves via the Microsoft API, which may require elevated permissions and still
+ * may provide no results or unchanging results depending on the motherboard manufacturer.
  */
 @ThreadSafe
 public interface Sensors {

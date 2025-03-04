@@ -15,11 +15,10 @@ jobs:
   # Runs current branch with multiple JDKs
   testmatrix:
     runs-on: ${{ matrix.os }}
-    # disable on windows JDK18+ until junit-platform-maven-plugin fix
-    # https://github.com/sormuras/junit-platform-maven-plugin/issues/95
+  continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        java: [11, 17]
+        java: [11, 17, 21]
         os: [windows-2019, windows-2022]
         include:
           - java: 21
