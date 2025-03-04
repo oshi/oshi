@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -57,6 +57,10 @@ final class WindowsBaseboard extends AbstractBaseboard {
         if (win32BaseBoard.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
+            String product = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.PRODUCT, 0);
+            if (!Util.isBlank(product)) {
+                model = Util.isBlank(model) ? product : (model + " (" + product + ")");
+            }
             version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
             serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
         }

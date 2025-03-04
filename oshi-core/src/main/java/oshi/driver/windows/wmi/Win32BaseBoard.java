@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.wmi;
@@ -24,7 +24,7 @@ public final class Win32BaseBoard {
      * Baseboard description properties.
      */
     public enum BaseBoardProperty {
-        MANUFACTURER, MODEL, VERSION, SERIALNUMBER;
+        MANUFACTURER, MODEL, PRODUCT, VERSION, SERIALNUMBER;
     }
 
     private Win32BaseBoard() {
