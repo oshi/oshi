@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -155,8 +155,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         // Older JDKs don't recognize Win11 and Server2022
         if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
             version = "11";
-        } else if ("Server 2019".equals(version) && buildNumber.compareTo("20347") > 0) {
+        }
+        if ("Server 2016".equals(version) && buildNumber.compareTo("17762") > 0) {
+            version = "Server 2019";
+        }
+        if ("Server 2019".equals(version) && buildNumber.compareTo("20347") > 0) {
             version = "Server 2022";
+        }
+        if ("Server 2022".equals(version) && buildNumber.compareTo("26039") > 0) {
+            version = "Server 2025";
         }
         return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
     }
