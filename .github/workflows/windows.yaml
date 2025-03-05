@@ -15,7 +15,7 @@ jobs:
   # Runs current branch with multiple JDKs
   testmatrix:
     runs-on: ${{ matrix.os }}
-  continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
         java: [11, 17, 21]
