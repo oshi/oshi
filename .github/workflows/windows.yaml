@@ -15,7 +15,6 @@ jobs:
   # Runs current branch with multiple JDKs
   testmatrix:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
         java: [11, 17, 21]
@@ -36,6 +35,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Test with Maven
+        continue-on-error: ${{ matrix.experimental }}
         run: ./mvnw clean test -B
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
