@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 The OSHI Project Contributors
+ * Copyright 2019-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -11,6 +11,9 @@ import oshi.annotation.concurrent.NotThreadSafe;
 /**
  * The global configuration utility. See {@code src/main/resources/oshi.properties} for default values.
  * <p>
+ * Configuration values set as Java System Properties using {@link System#setProperty(String, String)} will override
+ * values from the {@code oshi.propertie} file, but may then be later altered using {@link #set()} or {@link #remove()}.
+ * <p>
  * This class is not thread safe if methods manipulating the configuration are used. These methods are intended for use
  * by a single thread at startup, before instantiation of any other OSHI classes. OSHI does not guarantee re- reading of
  * any configuration changes.
@@ -21,6 +24,14 @@ public final class GlobalConfig {
     private static final String OSHI_PROPERTIES = "oshi.properties";
 
     private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
+    static {
+        System.getProperties().forEach((k, v) -> {
+            String key = k.toString();
+            if (key.startsWith("oshi.")) {
+                set(key, v);
+            }
+        });
+    }
 
     public static final String OSHI_UTIL_MEMOIZER_EXPIRATION = "oshi.util.memoizer.expiration";
     public static final String OSHI_UTIL_WMI_TIMEOUT = "oshi.util.wmi.timeout";
