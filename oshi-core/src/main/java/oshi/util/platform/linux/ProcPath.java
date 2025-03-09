@@ -41,6 +41,8 @@ public final class ProcPath {
     public static final String PID_STATM = PROC + "/%d/statm";
     public static final String PID_STATUS = PROC + "/%d/status";
     public static final String SELF_STAT = PROC + "/self/stat";
+    public static final String SNMP = NET + "/snmp";
+    public static final String SNMP6 = NET + "/snmp6";
     public static final String STAT = PROC + "/stat";
     public static final String SYS_FS_FILE_NR = PROC + "/sys/fs/file-nr";
     public static final String SYS_FS_FILE_MAX = PROC + "/sys/fs/file-max";
