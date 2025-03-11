@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -18,12 +18,12 @@ import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
-import oshi.driver.unix.NetStat;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -36,19 +36,103 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
+    private final String tcpColon = "Tcp:";
+    private final String udpColon = "Udp:";
+    private final String udp6 = "Udp6";
+
+    private enum TcpStat {
+        RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets,
+        CurrEstab, InSegs, OutSegs, RetransSegs, InErrs, OutRsts, InCsumErrors;
+    }
+
+    private enum UdpStat {
+        OutDatagrams, InDatagrams, NoPorts, InErrors, RcvbufErrors, SndbufErrors, InCsumErrors, IgnoredMulti,
+        MemErrors;
+    }
+
     @Override
     public TcpStats getTCPv4Stats() {
-        return NetStat.queryTcpStats("netstat -st4");
+        byte[] fileBytes = FileUtil.readAllBytes(ProcPath.SNMP, true);
+        List<String> lines = ParseUtil.parseByteArrayToStrings(fileBytes);
+        Map<TcpStat, Long> tcpData = new EnumMap<>(TcpStat.class);
+
+        for (int line = 0; line < lines.size() - 1; line += 2) {
+            if (lines.get(line).startsWith(tcpColon) && lines.get(line + 1).startsWith(tcpColon)) {
+                Map<TcpStat, String> parsedData = ParseUtil.stringToEnumMap(TcpStat.class, lines.get(line + 1).substring(tcpColon.length()).trim(), ' ');
+                for (Map.Entry<TcpStat, String> entry : parsedData.entrySet()) {
+                    tcpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
+                }
+                break;
+            }
+        }
+
+        return new TcpStats(tcpData.getOrDefault(TcpStat.CurrEstab, 0L), tcpData.getOrDefault(TcpStat.ActiveOpens, 0L),
+                tcpData.getOrDefault(TcpStat.PassiveOpens, 0L), tcpData.getOrDefault(TcpStat.AttemptFails, 0L),
+                tcpData.getOrDefault(TcpStat.EstabResets, 0L), tcpData.getOrDefault(TcpStat.OutSegs, 0L),
+                tcpData.getOrDefault(TcpStat.InSegs, 0L), tcpData.getOrDefault(TcpStat.RetransSegs, 0L),
+                tcpData.getOrDefault(TcpStat.InErrs, 0L), tcpData.getOrDefault(TcpStat.OutRsts, 0L));
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-        return NetStat.queryUdpStats("netstat -su4");
+        byte[] fileBytes = FileUtil.readAllBytes(ProcPath.SNMP, true);
+        List<String> lines = ParseUtil.parseByteArrayToStrings(fileBytes);
+        Map<UdpStat, Long> udpData = new EnumMap<>(UdpStat.class);
+
+        for (int line = 0; line < lines.size() - 1; line += 2) {
+            if (lines.get(line).startsWith(udpColon) && lines.get(line + 1).startsWith(udpColon)) {
+                Map<UdpStat, String> parsedData = ParseUtil.stringToEnumMap(UdpStat.class, lines.get(line + 1).substring(udpColon.length()).trim(), ' ');
+                for (Map.Entry<UdpStat, String> entry : parsedData.entrySet()) {
+                    udpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
+                }
+                break;
+            }
+        }
+
+        return new UdpStats(udpData.getOrDefault(UdpStat.OutDatagrams, 0L),
+                udpData.getOrDefault(UdpStat.InDatagrams, 0L), udpData.getOrDefault(UdpStat.NoPorts, 0L),
+                udpData.getOrDefault(UdpStat.InErrors, 0L));
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        return NetStat.queryUdpStats("netstat -su6");
+        byte[] fileBytes = FileUtil.readAllBytes(ProcPath.SNMP6, true);
+        List<String> lines = ParseUtil.parseByteArrayToStrings(fileBytes);
+        long inDatagrams = 0;
+        long noPorts = 0;
+        long inErrors = 0;
+        long outDatagrams = 0;
+        int foundUDPv6StatsCount = 0;
+
+        // Traverse bottom-to-top for efficiency as the /etc/proc/snmp6 file follows sequential format -> ip6, icmp6,
+        // udp6, udplite6 stats
+        for (int line = lines.size() - 1; line >= 0 && foundUDPv6StatsCount < 4; line--) {
+            if (lines.get(line).startsWith(udp6)) {
+                String[] parts = lines.get(line).split("\\s+");
+                switch (parts[0]) {
+                case "Udp6InDatagrams":
+                    inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                    foundUDPv6StatsCount++;
+                    break;
+                case "Udp6NoPorts":
+                    noPorts = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                    foundUDPv6StatsCount++;
+                    break;
+                case "Udp6InErrors":
+                    inErrors = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                    foundUDPv6StatsCount++;
+                    break;
+                case "Udp6OutDatagrams":
+                    outDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                    foundUDPv6StatsCount++;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+        return new UdpStats(inDatagrams, noPorts, inErrors, outDatagrams);
     }
 
     @Override
