@@ -36,17 +36,17 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
-    private final String TCP_COLON = "Tcp:";
-    private final String UDP_COLON = "Udp:";
-    private final String UDP6 = "Udp6";
+    private final String tcpColon = "Tcp:";
+    private final String udpColon = "Udp:";
+    private final String udp6 = "Udp6";
 
     private enum TcpStat {
-        TcpColon, RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets,
+        RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets,
         CurrEstab, InSegs, OutSegs, RetransSegs, InErrs, OutRsts, InCsumErrors;
     }
 
     private enum UdpStat {
-        UdpColon, OutDatagrams, InDatagrams, NoPorts, InErrors, RcvbufErrors, SndbufErrors, InCsumErrors, IgnoredMulti,
+        OutDatagrams, InDatagrams, NoPorts, InErrors, RcvbufErrors, SndbufErrors, InCsumErrors, IgnoredMulti,
         MemErrors;
     }
 
@@ -57,13 +57,10 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         Map<TcpStat, Long> tcpData = new EnumMap<>(TcpStat.class);
 
         for (int line = 0; line < lines.size() - 1; line += 2) {
-            if (lines.get(line).startsWith(TCP_COLON) && lines.get(line + 1).startsWith(TCP_COLON)) {
-                Map<TcpStat, String> parsedData = ParseUtil.stringToEnumMap(TcpStat.class, lines.get(line + 1), ' ');
+            if (lines.get(line).startsWith(tcpColon) && lines.get(line + 1).startsWith(tcpColon)) {
+                Map<TcpStat, String> parsedData = ParseUtil.stringToEnumMap(TcpStat.class, lines.get(line + 1).substring(tcpColon.length()).trim(), ' ');
                 for (Map.Entry<TcpStat, String> entry : parsedData.entrySet()) {
-                    if (entry.getKey().equals(TcpStat.TcpColon)) {
-                        continue; // Skip "Tcp:"
-                    }
-                    tcpData.put(entry.getKey(), Long.parseLong(entry.getValue()));
+                    tcpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
                 }
                 break;
             }
@@ -83,13 +80,10 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         Map<UdpStat, Long> udpData = new EnumMap<>(UdpStat.class);
 
         for (int line = 0; line < lines.size() - 1; line += 2) {
-            if (lines.get(line).startsWith(UDP_COLON) && lines.get(line + 1).startsWith(UDP_COLON)) {
-                Map<UdpStat, String> parsedData = ParseUtil.stringToEnumMap(UdpStat.class, lines.get(line + 1), ' ');
+            if (lines.get(line).startsWith(udpColon) && lines.get(line + 1).startsWith(udpColon)) {
+                Map<UdpStat, String> parsedData = ParseUtil.stringToEnumMap(UdpStat.class, lines.get(line + 1).substring(udpColon.length()).trim(), ' ');
                 for (Map.Entry<UdpStat, String> entry : parsedData.entrySet()) {
-                    if (entry.getKey().equals(UdpStat.UdpColon)) {
-                        continue; // Skip "Udp:"
-                    }
-                    udpData.put(entry.getKey(), Long.parseLong(entry.getValue()));
+                    udpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
                 }
                 break;
             }
@@ -104,29 +98,32 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
     public UdpStats getUDPv6Stats() {
         byte[] fileBytes = FileUtil.readAllBytes(ProcPath.SNMP6, true);
         List<String> lines = ParseUtil.parseByteArrayToStrings(fileBytes);
-        long inDatagrams = 0, noPorts = 0, inErrors = 0, outDatagrams = 0;
+        long inDatagrams = 0;
+        long noPorts = 0;
+        long inErrors = 0;
+        long outDatagrams = 0;
         int foundUDPv6StatsCount = 0;
 
         // Traverse bottom-to-top for efficiency as the /etc/proc/snmp6 file follows sequential format -> ip6, icmp6,
-        // udp6 stats
+        // udp6, udplite6 stats
         for (int line = lines.size() - 1; line >= 0 && foundUDPv6StatsCount < 4; line--) {
-            if (lines.get(line).startsWith(UDP6)) {
+            if (lines.get(line).startsWith(udp6)) {
                 String[] parts = lines.get(line).split("\\s+");
                 switch (parts[0]) {
                 case "Udp6InDatagrams":
-                    inDatagrams = Long.parseLong(parts[1]);
+                    inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     foundUDPv6StatsCount++;
                     break;
                 case "Udp6NoPorts":
-                    noPorts = Long.parseLong(parts[1]);
+                    noPorts = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     foundUDPv6StatsCount++;
                     break;
                 case "Udp6InErrors":
-                    inErrors = Long.parseLong(parts[1]);
+                    inErrors = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     foundUDPv6StatsCount++;
                     break;
                 case "Udp6OutDatagrams":
-                    outDatagrams = Long.parseLong(parts[1]);
+                    outDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     foundUDPv6StatsCount++;
                     break;
                 default:

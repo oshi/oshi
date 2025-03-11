@@ -1221,7 +1221,7 @@ public final class ParseUtil {
         int end = 0;
         // Iterate characters
         do {
-            // If we've reached a delimiter or the end of the array, add to list
+            // If we've reached a delimiter or the end of the array or new line (linux), add to list
             if (end == bytes.length || bytes[end] == 0 || bytes[end] == '\n') {
                 // Zero length string means two nulls, we're done
                 if (start == end) {

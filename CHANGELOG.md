@@ -5,6 +5,7 @@
 * [#2838](https://github.com/oshi/oshi/pull/2838): Improve Windows baseboard model identification - [@dbwiddis](https://github.com/dbwiddis).
 * [#2841](https://github.com/oshi/oshi/pull/2841): Resolve Windows Server 2025 on older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2843](https://github.com/oshi/oshi/pull/2843): Allow System Properties to override oshi.properties values - [@dbwiddis](https://github.com/dbwiddis).
+* [#2848](https://github.com/oshi/oshi/pull/2846): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
 
 # 6.7.0 (2025-02-25)
 
