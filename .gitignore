@@ -9,3 +9,4 @@ target
 .mvn/wrapper/maven-wrapper.jar
 oshi-core-shaded/dependency-reduced-pom.xml
 .github/keys
+lib/
