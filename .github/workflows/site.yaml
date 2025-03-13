@@ -19,12 +19,9 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu'
-          cache: 'maven'
-      - uses: webfactory/ssh-agent@master
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+          cache: maven
+          distribution: temurin
+          java-version: 21
       - name: Build site
         run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
         env:
@@ -32,10 +29,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
       - name: Deploy Site to gh-pages
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          SSH: true
-          BRANCH: gh-pages
-          FOLDER: target/staging
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: target/staging
+          ssh-key: ${{ secrets.DEPLOY_KEY }}

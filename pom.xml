@@ -111,7 +111,7 @@
         <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-        <maven-fluido-skin.version>2.0.1</maven-fluido-skin.version>
+        <maven-fluido-skin.version>2.1.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>9.0.1</git-commit-id-maven-plugin.version>
         <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
@@ -1111,10 +1111,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-scm-publish-plugin</artifactId>
-                        <configuration>
-                            <!-- no need for site:stage, use target/site or target/checkout/target/site on release -->
-                            <content>${project.reporting.outputDirectory}</content>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>scm-publish</id>
