@@ -41,13 +41,12 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
     private final String udp6 = "Udp6";
 
     private enum TcpStat {
-        RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets,
-        CurrEstab, InSegs, OutSegs, RetransSegs, InErrs, OutRsts, InCsumErrors;
+        RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets, CurrEstab, InSegs,
+        OutSegs, RetransSegs, InErrs, OutRsts, InCsumErrors;
     }
 
     private enum UdpStat {
-        OutDatagrams, InDatagrams, NoPorts, InErrors, RcvbufErrors, SndbufErrors, InCsumErrors, IgnoredMulti,
-        MemErrors;
+        OutDatagrams, InDatagrams, NoPorts, InErrors, RcvbufErrors, SndbufErrors, InCsumErrors, IgnoredMulti, MemErrors;
     }
 
     @Override
@@ -58,7 +57,8 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
         for (int line = 0; line < lines.size() - 1; line += 2) {
             if (lines.get(line).startsWith(tcpColon) && lines.get(line + 1).startsWith(tcpColon)) {
-                Map<TcpStat, String> parsedData = ParseUtil.stringToEnumMap(TcpStat.class, lines.get(line + 1).substring(tcpColon.length()).trim(), ' ');
+                Map<TcpStat, String> parsedData = ParseUtil.stringToEnumMap(TcpStat.class,
+                        lines.get(line + 1).substring(tcpColon.length()).trim(), ' ');
                 for (Map.Entry<TcpStat, String> entry : parsedData.entrySet()) {
                     tcpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
                 }
@@ -81,7 +81,8 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
         for (int line = 0; line < lines.size() - 1; line += 2) {
             if (lines.get(line).startsWith(udpColon) && lines.get(line + 1).startsWith(udpColon)) {
-                Map<UdpStat, String> parsedData = ParseUtil.stringToEnumMap(UdpStat.class, lines.get(line + 1).substring(udpColon.length()).trim(), ' ');
+                Map<UdpStat, String> parsedData = ParseUtil.stringToEnumMap(UdpStat.class,
+                        lines.get(line + 1).substring(udpColon.length()).trim(), ' ');
                 for (Map.Entry<UdpStat, String> entry : parsedData.entrySet()) {
                     udpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
                 }
