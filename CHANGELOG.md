@@ -1,6 +1,7 @@
 # 6.7.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 
 # 6.7.0 (2025-02-25), 6.7.1 (2025-03-12)
 
@@ -15,7 +16,6 @@
 * [#2841](https://github.com/oshi/oshi/pull/2841): Resolve Windows Server 2025 on older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2843](https://github.com/oshi/oshi/pull/2843): Allow System Properties to override oshi.properties values - [@dbwiddis](https://github.com/dbwiddis).
 * [#2848](https://github.com/oshi/oshi/pull/2846): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
-* [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
 
