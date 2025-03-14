@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -61,8 +61,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         for (String line : lspci) {
             String[] split = line.trim().split(":", 2);
             String prefix = split[0];
-            // Skip until line contains "VGA"
-            if (prefix.equals("Class") && line.contains("VGA")) {
+            // Skip until line contains "VGA" or "3D controller"
+            if (prefix.equals("Class") && (line.contains("VGA") || line.contains("3D controller"))) {
                 found = true;
             } else if (prefix.equals("Device") && !found && split.length > 1) {
                 lookupDevice = split[1].trim();

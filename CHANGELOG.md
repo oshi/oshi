@@ -1,6 +1,7 @@
 # 6.7.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 
 # 6.7.0 (2025-02-25), 6.7.1 (2025-03-12)
 
