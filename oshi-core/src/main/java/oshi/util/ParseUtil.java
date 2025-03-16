@@ -10,6 +10,10 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1351,5 +1355,58 @@ public final class ParseUtil {
     public static String getValueOrUnknown(Map<String, String> map, String key) {
         String value = map.getOrDefault(key, "");
         return value.isEmpty() ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Checks if a value exists in the map for the given key and returns the value or unknown based on it
+     *
+     * @param map A map where the keys can be of any type and the values are Strings.
+     * @param key The key for which to fetch the value from the map. The key can be of any type that is compatible with
+     *            the map's key type.
+     * @return The value associated with the key if the key exists in the map and the value is not empty; otherwise,
+     *         returns a predefined "unknown" string
+     */
+    public static String getValueOrUnknown(Map<?, String> map, Object key) {
+        String value = map.getOrDefault(key, "");
+        return value.isEmpty() ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Parses a date string from Windows format (YYYYMMDD) and converts it to epoch time (milliseconds since epoch).
+     *
+     * @param dateString The date string to parse.
+     * @return The epoch time (milliseconds since epoch).
+     * @throws DateTimeParseException if the date string is not in the expected format.
+     */
+    public static long parseWindowsDateToEpoch(String dateString) {
+        try {
+            DateTimeFormatter windowsFormatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.US);
+            LocalDateTime localDateTime = LocalDate.parse(dateString, windowsFormatter).atStartOfDay();
+            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            return instant.toEpochMilli();
+        } catch (DateTimeParseException e) {
+            LOG.trace("Unable to parse date string " + dateString);
+            return 0;
+        }
+    }
+
+    /**
+     * Parses a date string from Mac OS format (DD/MM/YY, HH:mm) and converts it to epoch time (milliseconds since
+     * epoch).
+     *
+     * @param dateString The date string to parse.
+     * @return The epoch time (milliseconds since epoch).
+     * @throws DateTimeParseException if the date string is not in the expected format.
+     */
+    public static long parseMacDateToEpoch(String dateString) {
+        try {
+            DateTimeFormatter macFormatter = DateTimeFormatter.ofPattern("dd/MM/yy, HH:mm", Locale.US);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateString, macFormatter);
+            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+            return instant.toEpochMilli();
+        } catch (DateTimeParseException e) {
+            LOG.trace("Unable to parse date string " + dateString);
+            return 0;
+        }
     }
 }
