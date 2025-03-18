@@ -3,21 +3,21 @@ package oshi.software.os.linux;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
-import java.net.URL;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import oshi.annotation.SuppressForbidden;
 
+@SuppressForbidden(reason = "Using java.net.URL in a test class")
 public class LinuxInternetProtocolStatsTest {
 
     @Test
     void testRawNetNetstat() {
-        URL url = LinuxInternetProtocolStats.class.getResource("sample-proc-net-netstat.txt");
-        assertThat(url, is(notNullValue()));
+        String resource =
+            LinuxInternetProtocolStats.class.getResource("sample-proc-net-netstat.txt").getFile();
 
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(url.getFile());
+        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(resource);
 
         assertThat(results.keySet(), containsInAnyOrder("TcpExt", "IpExt", "MPTcpExt"));
         assertThat(results.get("TcpExt").get("SyncookiesSent"), is(6L));
@@ -28,10 +28,10 @@ public class LinuxInternetProtocolStatsTest {
 
     @Test
     void testRawNetSnmp() {
-        URL url = LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp.txt");
-        assertThat(url, is(notNullValue()));
+        String resource =
+            LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp.txt").getFile();
 
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(url.getFile());
+        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(resource);
 
         assertThat(results.keySet(), containsInAnyOrder("Ip", "Icmp", "IcmpMsg", "Tcp", "Udp", "UdpLite"));
         assertThat(results.get("Tcp").get("ActiveOpens"), is(1892L));
@@ -41,10 +41,10 @@ public class LinuxInternetProtocolStatsTest {
 
     @Test
     void testRawNetSnmp6() {
-        URL url = LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp6.txt");
-        assertThat(url, is(notNullValue()));
+        String resource =
+            LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp6.txt").getFile();
 
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmp6(url.getFile());
+        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmp6(resource);
 
         assertThat(results.keySet(), containsInAnyOrder("Ip6", "Icmp6", "Udp6", "UdpLite6"));
         assertThat(results.get("Udp6").get("InDatagrams"), is(8021L));

@@ -173,7 +173,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
      *
      * @return a map of protocols to stats
      */
-    public static Map<String, Map<String, Long>> getRawNetNetstat(String procFile) {
+    public static Map<String, Map<String, Long>> getRawNetNetstat() {
         return processNetSnmpOrNetstat(ProcPath.NETSTAT);
     }
 
@@ -237,18 +237,18 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
     private static final Pattern SNMP6_RE = Pattern.compile("^(?<proto>Ip6|Icmp6|Udp6|UdpLite6)(?<stat>.*?)\\s+(?<value>\\d+)");
 
     /**
-     * Parses /proc/net/snmp6 and produces a mapping similar to {@link #getRawNetSnmp(String)}.
+     * Parses /proc/net/snmp6 and produces a mapping similar to {@link #getRawNetSnmp()}.
      * The file format looks like (abbreviated):
      * <pre>
-     *    Ip6InReceives                   	8026
-     *    Ip6InHdrErrors                  	0
-     *    Icmp6InMsgs                     	2
-     *    Icmp6InErrors                   	0
-     *    Icmp6OutMsgs                    	424
-     *    Udp6IgnoredMulti                	5
-     *    Udp6MemErrors                   	1
-     *    UdpLite6InDatagrams             	37
-     *    UdpLite6NoPorts                 	1
+     *    Ip6InReceives             8026
+     *    Ip6InHdrErrors            0
+     *    Icmp6InMsgs               2
+     *    Icmp6InErrors             0
+     *    Icmp6OutMsgs              424
+     *    Udp6IgnoredMulti          5
+     *    Udp6MemErrors             1
+     *    UdpLite6InDatagrams       37
+     *    UdpLite6NoPorts           1
      * </pre>
      * Which would produce a mapping structure like:
      * <pre>
