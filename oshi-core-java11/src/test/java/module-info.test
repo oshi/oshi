@@ -5,6 +5,8 @@
 --add-opens
   com.github.oshi/oshi.software.os=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.software.os.linux=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.util=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.linux=org.junit.platform.commons
@@ -43,7 +45,7 @@
 --add-opens
   com.github.oshi/oshi.driver.windows.wmi=org.junit.platform.commons
 
---add-modules 
+--add-modules
   org.hamcrest,org.slf4j.simple
 --add-reads
   com.github.oshi=org.junit.jupiter.api,org.hamcrest

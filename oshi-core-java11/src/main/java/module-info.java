@@ -6,6 +6,7 @@ module com.github.oshi {
     exports oshi;
     exports oshi.hardware;
     exports oshi.software.os;
+    exports oshi.software.os.linux;
     exports oshi.util;
 
     // JNA needs reflective access to Structure and ByReference subclasses

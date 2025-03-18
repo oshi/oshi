@@ -19,8 +19,12 @@ import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
@@ -145,6 +149,140 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         conns.addAll(queryConnections("udp", 4, pidMap));
         conns.addAll(queryConnections("udp", 6, pidMap));
         return conns;
+    }
+
+    /**
+     * Parses /proc/net/netstat and returns a mapping of protocols -> map of stats and values. This
+     * file has a format like (abbreviated):
+     * <pre>
+     *     TcpExt: SyncookiesSent SyncookiesRecv SyncookiesFailed ...
+     *     TcpExt: 0 4 0 ...
+     *     IpExt: InNoRoutes InTruncatedPkts InMcastPkts OutMcastPkts ...
+     *     IpExt: 55 0 27786 1435 ...
+     *     MPTcpExt: MPCapableSYNRX MPCapableSYNTX MPCapableSYNACKRX ...
+     *     MPTcpExt: 0 0 0 ...
+     * </pre>
+     * Which would produce a mapping structure like:
+     * <pre>
+     *     {
+     *         "TcpExt": {"SyncookiesSent":0, "SyncookiesRecv":4, "SyncookiesFailed":0, ... }
+     *         "IpExt": {"InNoRoutes":55, "InTruncatedPkts":27786, "InMcastPkts":1435, ... }
+     *         "MPTcpExt": {"MPCapableSYNACKRX":0, "MPCapableSYNTX":0, "MPCapableSYNACKRX":0, ... }
+     *     }
+     * </pre>
+     *
+     * @return a map of protocols to stats
+     */
+    public static Map<String, Map<String, Long>> getRawNetNetstat(String procFile) {
+        return processNetSnmpOrNetstat(ProcPath.NETSTAT);
+    }
+
+    /**
+     * Parses /proc/net/snmp and returns a mapping of protocols -> map of stats and values. This
+     * file has a format like (abbreviated):
+     * <pre>
+     *    Tcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets
+     *    Tcp: 1 200 120000 -1 3343 73 2352 15
+     *    Udp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors
+     *    Udp: 12897 420 0 7428 0 0 0
+     * </pre>
+     * Which would produce a mapping structure like:
+     * <pre>
+     *     {
+     *         "Tcp": {"RtoAlgorithm":1, "RtoMin":200, "RtoMax":120000, ... }
+     *         "Udp": {"InDatagrams":12897, "NoPorts":420, "InErrors":0, ... }
+     *     }
+     * </pre>
+     *
+     * @return a map of protocols to stats
+     */
+    public static Map<String, Map<String, Long>> getRawNetSnmp() {
+        return processNetSnmpOrNetstat(ProcPath.SNMP);
+    }
+
+    static Map<String, Map<String, Long>> processNetSnmpOrNetstat(String procFile) {
+        Map<String, Map<String, Long>> result = new HashMap<>();
+
+        List<String> lines = FileUtil.readFile(procFile);
+        String previousKey = null;
+
+        for (String line : lines) {
+            String[] parts = line.split("\\s+");
+            String key = parts[0].substring(0, parts[0].length() - 1);
+
+            if (key.equals(previousKey)) {
+                Map<String, Long> data = result.get(key);
+                if (data != null) {
+                    int idx = 1;
+                    for (String stat : data.keySet()) {
+                        data.put(stat, ParseUtil.parseLongOrDefault(parts[idx], 0));
+                        idx++;
+                    }
+                }
+            } else {
+                // Use a LinkedHashMap to preserve the insertion order
+                Map<String, Long> data = new LinkedHashMap<>();
+                for (int i = 1; i < parts.length; i++) {
+                    data.put(parts[i], 0L);
+                }
+                result.put(key, data);
+            }
+
+            previousKey = key;
+        }
+
+        return result;
+    }
+
+    private static final Pattern SNMP6_RE = Pattern.compile("^(?<proto>Ip6|Icmp6|Udp6|UdpLite6)(?<stat>.*?)\\s+(?<value>\\d+)");
+
+    /**
+     * Parses /proc/net/snmp6 and produces a mapping similar to {@link #getRawNetSnmp(String)}.
+     * The file format looks like (abbreviated):
+     * <pre>
+     *    Ip6InReceives                   	8026
+     *    Ip6InHdrErrors                  	0
+     *    Icmp6InMsgs                     	2
+     *    Icmp6InErrors                   	0
+     *    Icmp6OutMsgs                    	424
+     *    Udp6IgnoredMulti                	5
+     *    Udp6MemErrors                   	1
+     *    UdpLite6InDatagrams             	37
+     *    UdpLite6NoPorts                 	1
+     * </pre>
+     * Which would produce a mapping structure like:
+     * <pre>
+     *     {
+     *         "Ip6": { "InReceives":8026, "InHdrErrors":0 }
+     *         "Icmp6": { "InMsgs":2, "InErrors":0, "OutMsgs":424 }
+     *         "Udp6": { "IgnoredMulti":5, "MemErrors":1 }
+     *         "UdpLite6": { "InDatagrams":37, "NoPorts":1 }
+     *     }
+     * </pre>
+     *
+     * @return a map of IP v6 protocols to stats
+     */
+    static Map<String, Map<String, Long>> getRawNetSnmp6() {
+        return  processNetSnmp6(ProcPath.SNMP6);
+    }
+
+    static Map<String, Map<String, Long>> processNetSnmp6(String procFile) {
+        Map<String, Map<String, Long>> result = new HashMap<>();
+        List<String> lines = FileUtil.readFile(procFile);
+
+        for (String line : lines) {
+            Matcher matcher = SNMP6_RE.matcher(line);
+            if (!matcher.find()) {
+                continue;
+            }
+            String proto = matcher.group("proto");
+            String stat = matcher.group("stat");
+            long value = ParseUtil.parseLongOrDefault(matcher.group("value"), 0);
+
+            result.computeIfAbsent(proto, k -> new HashMap<>()).put(stat, value);
+        }
+
+        return result;
     }
 
     private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Long, Integer> pidMap) {
