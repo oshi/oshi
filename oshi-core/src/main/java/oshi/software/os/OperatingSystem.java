@@ -6,6 +6,7 @@ package oshi.software.os;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -362,6 +363,18 @@ public interface OperatingSystem {
         // Default X11 implementation for Unix-like operating systems.
         // Overridden on Windows and macOS
         return Xwininfo.queryXWindows(visibleOnly);
+    }
+
+    /**
+     * Retrieves a list of installed applications on the system.
+     * <p>
+     * This method is implemented per OS. If the OS does not support this feature,
+     * it returns an empty list.
+     *
+     * @return A list of installed applications or an empty list if unsupported.
+     */
+    default List<ApplicationInfo> getInstalledApplications() {
+        return Collections.emptyList();
     }
 
     /**

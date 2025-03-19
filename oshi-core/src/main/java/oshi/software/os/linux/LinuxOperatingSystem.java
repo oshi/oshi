@@ -35,6 +35,7 @@ import oshi.driver.linux.proc.UpTime;
 import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -43,6 +44,7 @@ import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
+import oshi.software.os.windows.WindowsInstalledApps;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -336,6 +338,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return new LinuxInstalledApps().getInstalledApps();
     }
 
     private static Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {

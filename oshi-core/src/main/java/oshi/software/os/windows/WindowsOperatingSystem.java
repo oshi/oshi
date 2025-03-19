@@ -65,6 +65,7 @@ import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.Struct.CloseableSystemInfo;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -527,6 +528,10 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         return EnumWindows.queryDesktopWindows(visibleOnly);
     }
 
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return new WindowsInstalledApps().getInstalledApps();
+    }
     /*
      * Package-private methods for use by WindowsOSProcess to limit process memory queries to processes with same
      * bitness as the current one

@@ -4,26 +4,26 @@
  */
 package oshi.software.os.mac;
 
-import oshi.software.os.AppInfo;
+import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MacAppInfo implements AppInfo {
+public class MacApplicationInfo implements ApplicationInfo {
 
     private final String name;
     private final String version;
     private final String vendor;
-    private final long lastModifiedEpoch; // epoch-based
+    private final long lastModifiedTime; // epoch-based
     private final Map<String, String> additionalInfo;
 
-    public MacAppInfo(String name, String version, String vendor, String lastModified, String kind, String location,
-            String getInfoString) {
+    public MacApplicationInfo(String name, String version, String vendor, String lastModified, String kind, String location,
+                              String getInfoString) {
         this.name = name;
         this.version = version;
         this.vendor = vendor;
-        this.lastModifiedEpoch = convertToEpoch(lastModified);
+        this.lastModifiedTime = convertToEpoch(lastModified);
         // Store additional fields in the map
         this.additionalInfo = new HashMap<>();
         additionalInfo.put("kind", kind);
@@ -47,8 +47,8 @@ public class MacAppInfo implements AppInfo {
     }
 
     @Override
-    public long getLastModifiedEpoch() {
-        return lastModifiedEpoch;
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
     }
 
     @Override
@@ -63,12 +63,12 @@ public class MacAppInfo implements AppInfo {
 
     private long convertToEpoch(String date) {
         // Mac format is DD/MM/YY, HH:mm
-        return ParseUtil.parseMacDateToEpoch(date);
+        return ParseUtil.parseDateToEpoch(date, "dd/MM/yy, HH:mm");
     }
 
     @Override
     public String toString() {
         return "MacAppInfo{" + "appName=" + name + ", version=" + version + ", vendor=" + vendor + ", lastModified="
-                + lastModifiedEpoch + ", additionalInfo=" + additionalInfo + '}';
+                + lastModifiedTime + ", additionalInfo=" + additionalInfo + '}';
     }
 }

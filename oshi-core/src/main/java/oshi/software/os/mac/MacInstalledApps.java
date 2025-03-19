@@ -4,8 +4,7 @@
  */
 package oshi.software.os.mac;
 
-import oshi.software.os.AbstractInstalledApps;
-import oshi.software.os.AppInfo;
+import oshi.software.os.ApplicationInfo;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -14,18 +13,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-public class MacInstalledApps extends AbstractInstalledApps {
+public class MacInstalledApps {
 
     private final String colon = ":";
 
-    @Override
-    public List<AppInfo> getInstalledApps() {
+    public List<ApplicationInfo> getInstalledApps() {
         List<String> output = ExecutingCommand.runNative("system_profiler SPApplicationsDataType");
         return parseMacAppInfo(output);
     }
 
-    private List<AppInfo> parseMacAppInfo(List<String> lines) {
-        List<AppInfo> appInfoList = new ArrayList<>();
+    private List<ApplicationInfo> parseMacAppInfo(List<String> lines) {
+        List<ApplicationInfo> appInfoList = new ArrayList<>();
         String appName = null;
         Map<String, String> appDetails = null;
         boolean collectingAppDetails = false;
@@ -59,11 +57,11 @@ public class MacInstalledApps extends AbstractInstalledApps {
         return appInfoList;
     }
 
-    private MacAppInfo createAppInfo(String name, Map<String, String> details) {
+    private MacApplicationInfo createAppInfo(String name, Map<String, String> details) {
         String obtainedFrom = ParseUtil.getValueOrUnknown(details, "Obtained from");
         String signedBy = ParseUtil.getValueOrUnknown(details, "Signed by");
         String vendor = (obtainedFrom.equals("Identified Developer")) ? signedBy : obtainedFrom;
-        return new MacAppInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor,
+        return new MacApplicationInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor,
                 ParseUtil.getValueOrUnknown(details, "Last Modified"), ParseUtil.getValueOrUnknown(details, "Kind"),
                 ParseUtil.getValueOrUnknown(details, "Location"),
                 ParseUtil.getValueOrUnknown(details, "Get Info String"));

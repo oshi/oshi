@@ -1372,40 +1372,24 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a date string from Windows format (YYYYMMDD) and converts it to epoch time (milliseconds since epoch).
+     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch).
+     * This method is useful for handling date formats across different operating systems, such as:
+     * <ul>
+     *   <li>{@code yyyyMMdd}</li>
+     *   <li>{@code dd/MM/yy, HH:mm}</li>
+     * </ul>
      *
      * @param dateString The date string to parse.
-     * @return The epoch time (milliseconds since epoch).
-     * @throws DateTimeParseException if the date string is not in the expected format.
+     * @param datePattern The expected date format pattern (e.g., {@code "yyyyMMdd"}).
+     * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
      */
-    public static long parseWindowsDateToEpoch(String dateString) {
+    public static long parseDateToEpoch(String dateString, String datePattern) {
         try {
-            DateTimeFormatter windowsFormatter = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.US);
-            LocalDateTime localDateTime = LocalDate.parse(dateString, windowsFormatter).atStartOfDay();
-            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-            return instant.toEpochMilli();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ROOT);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+            return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         } catch (DateTimeParseException e) {
-            LOG.trace("Unable to parse date string " + dateString);
-            return 0;
-        }
-    }
-
-    /**
-     * Parses a date string from Mac OS format (DD/MM/YY, HH:mm) and converts it to epoch time (milliseconds since
-     * epoch).
-     *
-     * @param dateString The date string to parse.
-     * @return The epoch time (milliseconds since epoch).
-     * @throws DateTimeParseException if the date string is not in the expected format.
-     */
-    public static long parseMacDateToEpoch(String dateString) {
-        try {
-            DateTimeFormatter macFormatter = DateTimeFormatter.ofPattern("dd/MM/yy, HH:mm", Locale.US);
-            LocalDateTime localDateTime = LocalDateTime.parse(dateString, macFormatter);
-            Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-            return instant.toEpochMilli();
-        } catch (DateTimeParseException e) {
-            LOG.trace("Unable to parse date string " + dateString);
+            LOG.trace("Unable to parse date string: " + dateString);
             return 0;
         }
     }

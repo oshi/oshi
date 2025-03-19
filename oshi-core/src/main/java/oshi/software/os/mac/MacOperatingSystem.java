@@ -29,6 +29,7 @@ import oshi.driver.mac.WindowInfo;
 import oshi.jna.Struct.CloseableProcTaskInfo;
 import oshi.jna.Struct.CloseableTimeval;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -293,5 +294,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
         return WindowInfo.queryDesktopWindows(visibleOnly);
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return new MacInstalledApps().getInstalledApps();
     }
 }

@@ -4,70 +4,58 @@
  */
 package oshi.software.os.linux;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.software.os.AbstractInstalledApps;
-import oshi.software.os.AppInfo;
+import oshi.software.os.ApplicationInfo;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class LinuxInstalledApps extends AbstractInstalledApps {
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxInstalledApps.class);
+public class LinuxInstalledApps {
 
-    private enum LinuxFlavor {
-        DEBIAN, RPM, UNKNOWN
-    }
-
-    @Override
-    public List<AppInfo> getInstalledApps() {
-        LinuxFlavor flavor = detectLinuxFlavor();
-        List<String> output = fetchInstalledApps(flavor);
+    /**
+     * Retrieves the list of installed applications on a Linux system.
+     * This method determines the appropriate package manager (DPKG or RPM)
+     * and parses the installed application details.
+     *
+     * @return A list of {@link ApplicationInfo} objects representing installed applications.
+     */
+    public List<ApplicationInfo> getInstalledApps() {
+        List<String> output = fetchInstalledApps();
         return parseLinuxAppInfo(output);
     }
 
-    private LinuxFlavor detectLinuxFlavor() {
-        byte[] fileBytes = FileUtil.readAllBytes("/etc/os-release", true);
-        List<String> lines = ParseUtil.parseByteArrayToStrings(fileBytes);
-
-        for (String line : lines) {
-            if (line.startsWith("ID_LIKE")) {
-                if (line.contains("debian")) {
-                    return LinuxFlavor.DEBIAN;
-                } else if (line.contains("fedora")) {
-                    return LinuxFlavor.RPM;
-                }
-            }
-        }
-
-        return LinuxFlavor.UNKNOWN;
-    }
-
-    private List<String> fetchInstalledApps(LinuxFlavor flavor) {
+    /**
+     * Fetches installed application details from the system using the appropriate package manager.
+     * It first checks for the availability of 'dpkg' (Debian-based) or 'rpm' (RedHat-based).
+     * If neither is found, it returns an empty list.
+     *
+     * @return A list of strings representing installed applications, formatted by the package manager.
+     */
+    private List<String> fetchInstalledApps() {
         String command;
 
-        switch (flavor) {
-        case DEBIAN:
+        if(isPackageManagerAvailable("dpkg")) {
             command = "dpkg-query -W -f='${Package}|${Version}|${Architecture}|${Installed-Size}|${db-fsys:Last-Modified}|${Maintainer}|${Source}|${Homepage}\\n'";
-            break;
-        case RPM:
+        } else if (isPackageManagerAvailable("rpm")) {
             command = "rpm -qa --queryformat '%{NAME}|%{VERSION}-%{RELEASE}|%{ARCH}|%{SIZE}|%{INSTALLTIME}|%{PACKAGER}|%{SOURCERPM}|%{URL}\\n'";
-            break;
-        default:
-            LOG.warn("Installed Apps stats are not supported for this flavor of Linux OS");
+        } else {
             return Collections.emptyList();
         }
 
         return ExecutingCommand.runNative(command);
     }
 
-    private List<AppInfo> parseLinuxAppInfo(List<String> output) {
-        List<AppInfo> appInfoList = new ArrayList<>();
+    private boolean isPackageManagerAvailable(String packageManager) {
+        List<String> result = ExecutingCommand.runNative(packageManager + " --version");
+        // If the command executes fine the result is non-empty else empty
+        return !result.isEmpty();
+    }
+
+    private List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
+        List<ApplicationInfo> appInfoList = new ArrayList<>();
 
         for (String line : output) {
             // split by the pipe character
@@ -75,7 +63,7 @@ public class LinuxInstalledApps extends AbstractInstalledApps {
 
             // Check if we have all 8 fields
             if (parts.length >= 8) {
-                LinuxAppInfo app = new LinuxAppInfo(parts[0].isEmpty() ? Constants.UNKNOWN : parts[0], // Package Name
+                LinuxApplicationInfo app = new LinuxApplicationInfo(parts[0].isEmpty() ? Constants.UNKNOWN : parts[0], // Package Name
                         parts[1].isEmpty() ? Constants.UNKNOWN : parts[1], // Version
                         parts[2].isEmpty() ? Constants.UNKNOWN : parts[2], // Architecture
                         ParseUtil.parseLongOrDefault(parts[3], 0L), // Installed Size

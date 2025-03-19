@@ -4,22 +4,34 @@
  */
 package oshi.driver.windows.registry;
 
-import oshi.util.ExecutingCommand;
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinReg;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 public class InstalledAppsData {
     private InstalledAppsData() {
     }
 
-    private static final List<String> UNINSTALL_PATHS = Arrays.asList(
-            "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-            "HKLM\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-            "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+    private static final Map<WinReg.HKEY, List<String>> REGISTRY_PATHS;
+
+    static {
+        REGISTRY_PATHS = new HashMap<>();
+
+        List<String> hklmPaths = new ArrayList<>();
+        hklmPaths.add("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+        hklmPaths.add("SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+        REGISTRY_PATHS.put(WinReg.HKEY_LOCAL_MACHINE, hklmPaths);
+
+        List<String> hkcuPaths = new ArrayList<>();
+        hkcuPaths.add("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+        REGISTRY_PATHS.put(WinReg.HKEY_CURRENT_USER, hkcuPaths);
+    }
 
     public enum AppInfo {
         NAME, VERSION, VENDOR, INSTALLDATE, INSTALLLOCATION, INSTALLSOURCE;
@@ -28,64 +40,32 @@ public class InstalledAppsData {
     public static List<Map<AppInfo, String>> queryInstalledApps() {
         List<Map<AppInfo, String>> appInfoList = new ArrayList<>();
 
-        for (String path : UNINSTALL_PATHS) {
-            List<String> output = ExecutingCommand.runNative("reg query " + path + " /s");
-            parseRegistryOutput(output, appInfoList);
-        }
+        // Iterate through both HKLM and HKCU paths
+        for (Map.Entry<WinReg.HKEY, List<String>> entry : REGISTRY_PATHS.entrySet()) {
+            WinReg.HKEY rootKey = entry.getKey();
+            List<String> uninstallPaths = entry.getValue();
 
-        return appInfoList;
-    }
+            for (String registryPath : uninstallPaths) {
+                String[] keys = Advapi32Util.registryGetKeys(rootKey, registryPath);
 
-    private static void parseRegistryOutput(List<String> output, List<Map<AppInfo, String>> appInfoList) {
-        Map<AppInfo, String> currentApp = new HashMap<>();
-
-        for (String line : output) {
-            line = line.trim();
-
-            if (line.isEmpty()) {
-                continue;
-            }
-
-            if (line.startsWith("HKEY")) {
-                if (!currentApp.isEmpty()) {
-                    appInfoList.add(new HashMap<>(currentApp));
-                    currentApp.clear();
-                }
-            } else {
-                String[] parts = line.trim().split("\\s{4,}");
-
-                if (parts.length > 2) {
-                    String key = parts[0].trim();
-                    String value = parts[2].trim();
-
-                    switch (key) {
-                    case "DisplayName":
-                        currentApp.put(AppInfo.NAME, value);
-                        break;
-                    case "DisplayVersion":
-                        currentApp.put(AppInfo.VERSION, value);
-                        break;
-                    case "Publisher":
-                        currentApp.put(AppInfo.VENDOR, value);
-                        break;
-                    case "InstallDate":
-                        currentApp.put(AppInfo.INSTALLDATE, value);
-                        break;
-                    case "InstallLocation":
-                        currentApp.put(AppInfo.INSTALLLOCATION, value);
-                        break;
-                    case "InstallSource":
-                        currentApp.put(AppInfo.INSTALLSOURCE, value);
-                        break;
-                    default:
-                        break;
+                for (String key : keys) {
+                    String fullPath = registryPath + "\\" + key;
+                    try {
+                        Map<AppInfo, String> appDetails = new EnumMap<>(AppInfo.class);
+                        appDetails.put(AppInfo.NAME, Advapi32Util.registryGetStringValue(rootKey, fullPath, "DisplayName"));
+                        appDetails.put(AppInfo.VERSION, Advapi32Util.registryGetStringValue(rootKey, fullPath, "DisplayVersion"));
+                        appDetails.put(AppInfo.VENDOR, Advapi32Util.registryGetStringValue(rootKey, fullPath, "Publisher"));
+                        appDetails.put(AppInfo.INSTALLDATE, Advapi32Util.registryGetStringValue(rootKey, fullPath, "InstallDate"));
+                        appDetails.put(AppInfo.INSTALLLOCATION, Advapi32Util.registryGetStringValue(rootKey, fullPath, "InstallLocation"));
+                        appDetails.put(AppInfo.INSTALLSOURCE, Advapi32Util.registryGetStringValue(rootKey, fullPath, "InstallSource"));
+                        appInfoList.add(appDetails);
+                    } catch (Win32Exception e) {
+                        // Skip keys that are inaccessible or have missing values
                     }
                 }
             }
         }
 
-        if (!currentApp.isEmpty()) {
-            appInfoList.add(currentApp);
-        }
+        return appInfoList;
     }
 }

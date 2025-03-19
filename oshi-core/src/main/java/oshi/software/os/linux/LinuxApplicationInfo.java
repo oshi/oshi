@@ -4,27 +4,27 @@
  */
 package oshi.software.os.linux;
 
-import oshi.software.os.AppInfo;
+import oshi.software.os.ApplicationInfo;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class LinuxAppInfo implements AppInfo {
+public class LinuxApplicationInfo implements ApplicationInfo {
 
     private final String name;
     private final String version;
     private final String maintainer; // Used as vendor
     private final long installedSize;
-    private final long installTimeEpoch; // Direct epoch from RPM/Debian
+    private final long installTime; // Direct epoch from RPM/Debian
     private final Map<String, String> additionalInfo;
 
-    public LinuxAppInfo(String name, String version, String architecture, long installedSize, long installTimeEpoch,
-            String maintainer, String source, String homepage) {
+    public LinuxApplicationInfo(String name, String version, String architecture, long installedSize, long installTime,
+                                String maintainer, String source, String homepage) {
         this.name = name;
         this.version = version;
         this.maintainer = maintainer;
         this.installedSize = installedSize;
-        this.installTimeEpoch = installTimeEpoch;
+        this.installTime = installTime;
         // Store additional fields in the map
         this.additionalInfo = new HashMap<>();
         additionalInfo.put("architecture", architecture);
@@ -53,8 +53,8 @@ public class LinuxAppInfo implements AppInfo {
     }
 
     @Override
-    public long getLastModifiedEpoch() {
-        return installTimeEpoch;
+    public long getLastModifiedTime() {
+        return installTime;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class LinuxAppInfo implements AppInfo {
     @Override
     public String toString() {
         return "LinuxAppInfo{" + "packageName=" + name + ", version=" + version + ", maintainer=" + maintainer
-                + ", lastModified=" + installTimeEpoch + ", installedSize=" + installedSize + ", additionalInfo="
+                + ", lastModified=" + installTime + ", installedSize=" + installedSize + ", additionalInfo="
                 + additionalInfo + '}';
     }
 }

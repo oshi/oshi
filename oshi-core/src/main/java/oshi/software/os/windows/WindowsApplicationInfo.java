@@ -4,26 +4,26 @@
  */
 package oshi.software.os.windows;
 
-import oshi.software.os.AppInfo;
+import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class WindowsAppInfo implements AppInfo {
+public class WindowsApplicationInfo implements ApplicationInfo {
 
     private final String name;
     private final String version;
     private final String vendor;
-    private final long installDateEpoch; // Epoch-based
+    private final long installDate; // Epoch-based
     private final Map<String, String> additionalInfo;
 
-    public WindowsAppInfo(String name, String version, String vendor, String installDate, String installLocation,
-            String installSource) {
+    public WindowsApplicationInfo(String name, String version, String vendor, String installDate, String installLocation,
+                                  String installSource) {
         this.name = name;
         this.version = version;
         this.vendor = vendor;
-        this.installDateEpoch = convertToEpoch(installDate);
+        this.installDate = convertToEpoch(installDate);
         // Store additional fields in the map
         this.additionalInfo = new HashMap<>();
         additionalInfo.put("installLocation", installLocation);
@@ -46,8 +46,8 @@ public class WindowsAppInfo implements AppInfo {
     }
 
     @Override
-    public long getLastModifiedEpoch() {
-        return installDateEpoch;
+    public long getLastModifiedTime() {
+        return installDate;
     }
 
     @Override
@@ -62,12 +62,12 @@ public class WindowsAppInfo implements AppInfo {
 
     private long convertToEpoch(String date) {
         // Windows format is YYYYMMDD
-        return ParseUtil.parseWindowsDateToEpoch(date);
+        return ParseUtil.parseDateToEpoch(date, "yyyyMMdd");
     }
 
     @Override
     public String toString() {
         return "WindowsAppInfo{" + "name=" + name + ", version=" + version + ", vendor=" + vendor + ", installDate="
-                + installDateEpoch + ", additionalInfo=" + additionalInfo + '}';
+                + installDate + ", additionalInfo=" + additionalInfo + '}';
     }
 }
