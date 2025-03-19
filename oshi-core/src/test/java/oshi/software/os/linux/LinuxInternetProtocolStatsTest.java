@@ -1,15 +1,15 @@
 package oshi.software.os.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import oshi.annotation.SuppressForbidden;
+import oshi.util.ProcUtil;
 
-@SuppressForbidden(reason = "Using java.net.URL in a test class")
 public class LinuxInternetProtocolStatsTest {
 
     @Test
@@ -17,7 +17,7 @@ public class LinuxInternetProtocolStatsTest {
         String resource =
             LinuxInternetProtocolStats.class.getResource("sample-proc-net-netstat.txt").getFile();
 
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(resource);
+        Map<String, Map<String, Long>> results = ProcUtil.getMapFromHeaderProc(resource);
 
         assertThat(results.keySet(), containsInAnyOrder("TcpExt", "IpExt", "MPTcpExt"));
         assertThat(results.get("TcpExt").get("SyncookiesSent"), is(6L));
@@ -27,11 +27,22 @@ public class LinuxInternetProtocolStatsTest {
     }
 
     @Test
+    void testRawNetNetstatWithLimitedKeys() {
+        String resource =
+            LinuxInternetProtocolStats.class.getResource("sample-proc-net-netstat.txt").getFile();
+
+        Map<String, Map<String, Long>> results = ProcUtil.getMapFromHeaderProc(resource, "IpExt");
+
+        assertThat(results.keySet(), contains("IpExt"));
+        assertThat(results.get("IpExt").get("InNoRoutes"), is(55L));
+    }
+
+    @Test
     void testRawNetSnmp() {
         String resource =
             LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp.txt").getFile();
 
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmpOrNetstat(resource);
+        Map<String, Map<String, Long>> results = ProcUtil.getMapFromHeaderProc(resource);
 
         assertThat(results.keySet(), containsInAnyOrder("Ip", "Icmp", "IcmpMsg", "Tcp", "Udp", "UdpLite"));
         assertThat(results.get("Tcp").get("ActiveOpens"), is(1892L));
@@ -39,16 +50,4 @@ public class LinuxInternetProtocolStatsTest {
         assertThat(results.get("Icmp").get("InMsgs"), is(184L));
     }
 
-    @Test
-    void testRawNetSnmp6() {
-        String resource =
-            LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp6.txt").getFile();
-
-        Map<String, Map<String, Long>> results = LinuxInternetProtocolStats.processNetSnmp6(resource);
-
-        assertThat(results.keySet(), containsInAnyOrder("Ip6", "Icmp6", "Udp6", "UdpLite6"));
-        assertThat(results.get("Udp6").get("InDatagrams"), is(8021L));
-        assertThat(results.get("Icmp6").get("OutType143"), is(368L));
-        assertThat(results.get("UdpLite6").get("MemErrors"), is(1L));
-    }
 }

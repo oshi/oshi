@@ -31,7 +31,6 @@ public final class ProcPath {
     public static final String MODEL = PROC + "/device-tree/model";
     public static final String MOUNTS = PROC + "/mounts";
     public static final String NET = PROC + "/net";
-    public static final String NETSTAT = NET + "/netstat";
     public static final String PID_CMDLINE = PROC + "/%d/cmdline";
     public static final String PID_CWD = PROC + "/%d/cwd";
     public static final String PID_EXE = PROC + "/%d/exe";
