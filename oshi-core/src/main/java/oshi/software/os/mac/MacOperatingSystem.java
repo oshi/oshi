@@ -6,6 +6,7 @@ package oshi.software.os.mac;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -41,6 +43,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
@@ -65,6 +68,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final String osXVersion;
     private final int major;
     private final int minor;
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
+        Memoizer.memoize(MacInstalledApps::queryInstalledApps, defaultExpiration());
 
     private static final long BOOTTIME;
     static {
@@ -298,6 +303,6 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<ApplicationInfo> getInstalledApplications() {
-        return new MacInstalledApps().getInstalledApps();
+        return installedAppsSupplier.get();
     }
 }

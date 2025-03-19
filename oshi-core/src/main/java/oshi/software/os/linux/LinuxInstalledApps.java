@@ -11,7 +11,9 @@ import oshi.util.ParseUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LinuxInstalledApps {
 
@@ -22,7 +24,7 @@ public class LinuxInstalledApps {
      *
      * @return A list of {@link ApplicationInfo} objects representing installed applications.
      */
-    public List<ApplicationInfo> getInstalledApps() {
+    public static List<ApplicationInfo> queryInstalledApps() {
         List<String> output = fetchInstalledApps();
         return parseLinuxAppInfo(output);
     }
@@ -34,7 +36,7 @@ public class LinuxInstalledApps {
      *
      * @return A list of strings representing installed applications, formatted by the package manager.
      */
-    private List<String> fetchInstalledApps() {
+    private static List<String> fetchInstalledApps() {
         String command;
 
         if(isPackageManagerAvailable("dpkg")) {
@@ -48,13 +50,13 @@ public class LinuxInstalledApps {
         return ExecutingCommand.runNative(command);
     }
 
-    private boolean isPackageManagerAvailable(String packageManager) {
+    private static boolean isPackageManagerAvailable(String packageManager) {
         List<String> result = ExecutingCommand.runNative(packageManager + " --version");
         // If the command executes fine the result is non-empty else empty
         return !result.isEmpty();
     }
 
-    private List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
+    private static List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
         List<ApplicationInfo> appInfoList = new ArrayList<>();
 
         for (String line : output) {
@@ -63,14 +65,17 @@ public class LinuxInstalledApps {
 
             // Check if we have all 8 fields
             if (parts.length >= 8) {
-                LinuxApplicationInfo app = new LinuxApplicationInfo(parts[0].isEmpty() ? Constants.UNKNOWN : parts[0], // Package Name
+                // Additional info map
+                Map<String, String> additionalInfo = new HashMap<>();
+                additionalInfo.put("architecture", parts[2].isEmpty() ? Constants.UNKNOWN : parts[2]);
+                additionalInfo.put("installedSize", String.valueOf(ParseUtil.parseLongOrDefault(parts[3], 0L)));
+                additionalInfo.put("source", parts[6].isEmpty() ? Constants.UNKNOWN : parts[6]);
+                additionalInfo.put("homepage", parts[7].isEmpty() ? Constants.UNKNOWN : parts[7]);
+                ApplicationInfo app = new ApplicationInfo(parts[0].isEmpty() ? Constants.UNKNOWN : parts[0], // Package Name
                         parts[1].isEmpty() ? Constants.UNKNOWN : parts[1], // Version
-                        parts[2].isEmpty() ? Constants.UNKNOWN : parts[2], // Architecture
-                        ParseUtil.parseLongOrDefault(parts[3], 0L), // Installed Size
+                        parts[5].isEmpty() ? Constants.UNKNOWN : parts[5], // Vendor
                         ParseUtil.parseLongOrDefault(parts[4], 0L), // Date Epoch
-                        parts[5].isEmpty() ? Constants.UNKNOWN : parts[5], // Maintainer
-                        parts[6].isEmpty() ? Constants.UNKNOWN : parts[6], // Source Package
-                        parts[7].isEmpty() ? Constants.UNKNOWN : parts[7] // Homepage / URL
+                        additionalInfo
                 );
                 appInfoList.add(app);
             }

@@ -77,6 +77,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
+import oshi.util.Memoizer;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -111,6 +112,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     private static final boolean X86 = isCurrentX86();
     private static final boolean WOW = isCurrentWow();
+
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
+        Memoizer.memoize(WindowsInstalledApps::queryInstalledApps, defaultExpiration());
 
     /*
      * Cache full process stats queries. Second query will only populate if first one returns null.
@@ -530,7 +534,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<ApplicationInfo> getInstalledApplications() {
-        return new WindowsInstalledApps().getInstalledApps();
+        return installedAppsSupplier.get();
     }
     /*
      * Package-private methods for use by WindowsOSProcess to limit process memory queries to processes with same

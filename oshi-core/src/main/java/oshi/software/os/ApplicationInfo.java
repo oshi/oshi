@@ -4,35 +4,56 @@
  */
 package oshi.software.os;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents common information about an installed application across different operating systems.
- * This interface provides standardized access to essential application details while allowing
+ * This class provides standardized access to essential application details while allowing
  * flexibility for OS-specific fields via an additional information map.
  */
-public interface ApplicationInfo {
+public class ApplicationInfo {
+
+    private final String name;
+    private final String version;
+    private final String vendor;
+    private final long lastModifiedTime;
+    private final Map<String, String> additionalInfo;
+
+    public ApplicationInfo(String name, String version, String vendor, long lastModifiedTime, Map<String, String> additionalInfo) {
+        this.name = name;
+        this.version = version;
+        this.vendor = vendor;
+        this.lastModifiedTime = lastModifiedTime;
+        this.additionalInfo = additionalInfo != null ? new HashMap<>(additionalInfo) : new HashMap<>();
+    }
 
     /**
      * Gets the name of the installed application.
      *
      * @return The application name, or an empty string if not available.
      */
-    String getName();
+    public String getName() {
+        return name;
+    }
 
     /**
      * Gets the version of the installed application.
      *
      * @return The application version, or an empty string if not available.
      */
-    String getVersion();
+    public String getVersion() {
+        return version;
+    }
 
     /**
      * Gets the vendor or publisher of the installed application.
      *
      * @return The vendor name, or an empty string if not available.
      */
-    String getVendor();
+    public String getVendor() {
+        return vendor;
+    }
 
     /**
      * Gets the last modified or installation time of the application.
@@ -45,7 +66,9 @@ public interface ApplicationInfo {
      *
      * @return The last modified time in epoch milliseconds, or {@code 0} if unavailable.
      */
-    long getLastModifiedTime();
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
 
     /**
      * Gets additional application details that are OS-specific and not covered by the main fields.
@@ -53,5 +76,13 @@ public interface ApplicationInfo {
      *
      * @return A map containing optional key-value pairs of application details.
      */
-    Map<String, String> getAdditionalInfo(); // For optional fields
+    public Map<String, String> getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "AppInfo{" + "name=" + name + ", version=" + version + ", vendor=" + vendor
+            + ", lastModified=" + lastModifiedTime + ", additionalInfo=" + additionalInfo + '}';
+    }
 }

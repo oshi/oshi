@@ -6,6 +6,7 @@ package oshi.software.os.linux;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.defaultExpiration;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +46,10 @@ import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.software.os.windows.WindowsInstalledApps;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -76,6 +78,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public static final boolean HAS_GETTID;
     /** This static field identifies if the syscall for gettid returns sane results. */
     public static final boolean HAS_SYSCALL_GETTID;
+
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
+        Memoizer.memoize(LinuxInstalledApps::queryInstalledApps, defaultExpiration());
 
     static {
         boolean hasUdev = false;
@@ -342,7 +347,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<ApplicationInfo> getInstalledApplications() {
-        return new LinuxInstalledApps().getInstalledApps();
+        return installedAppsSupplier.get();
     }
 
     private static Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {
