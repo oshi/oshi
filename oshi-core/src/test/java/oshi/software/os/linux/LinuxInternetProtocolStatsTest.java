@@ -8,8 +8,11 @@ import static org.hamcrest.Matchers.is;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import oshi.util.ProcUtil;
 
+@DisabledOnOs(OS.WINDOWS)
 public class LinuxInternetProtocolStatsTest {
 
     @Test
