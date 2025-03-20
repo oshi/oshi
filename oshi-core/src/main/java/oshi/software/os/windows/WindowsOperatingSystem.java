@@ -8,7 +8,9 @@ import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
-import static oshi.util.Memoizer.*;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.installedAppsExpiration;
+import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Arrays;
