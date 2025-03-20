@@ -38,7 +38,8 @@ public final class ProcUtil {
      * </pre>
      *
      * @param procFile the file to process
-     * @param keys an optional array of keys to return. If none are given, all found keys are returned
+     * @param keys an optional array of keys to return in the outer map. If none are given, all
+     *             found keys are returned.
      * @return a map of keys to stats
      */
     public static Map<String, Map<String, Long>> parseNestedStatistics(String procFile, String... keys) {
