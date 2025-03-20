@@ -2,9 +2,10 @@ package oshi.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -40,36 +41,35 @@ public final class ProcUtil {
      * @param keys an optional array of keys to return. If none are given, all found keys are returned
      * @return a map of keys to stats
      */
-    public static Map<String, Map<String, Long>> getMapFromHeaderProc(String procFile, String... keys) {
+    public static Map<String, Map<String, Long>> parseNestedStatistics(String procFile, String... keys) {
         Map<String, Map<String, Long>> result = new HashMap<>();
+        Set<String> keysSet = new HashSet<>(Arrays.asList(keys));
 
         List<String> lines = FileUtil.readFile(procFile);
         String previousKey = null;
+        String[] statNames = null;
 
         for (String line : lines) {
-            String[] parts = line.split("\\s+");
+            String[] parts = ParseUtil.whitespaces.split(line);
+            if (parts.length == 0) {
+                continue;
+            }
             String key = parts[0].substring(0, parts[0].length() - 1);
 
-            if (keys.length > 0 && Arrays.binarySearch(keys, key) < 0) {
+            if (!keysSet.isEmpty() && !keysSet.contains(key)) {
                 continue;
             }
 
             if (key.equals(previousKey)) {
-                Map<String, Long> data = result.get(key);
-                if (data != null) {
-                    int idx = 1;
-                    for (String stat : data.keySet()) {
-                        data.put(stat, ParseUtil.parseLongOrDefault(parts[idx], 0));
-                        idx++;
+                if (parts.length == statNames.length) {
+                    Map<String, Long> stats = new HashMap<>(parts.length - 1);
+                    for (int i = 1; i < parts.length; i++) {
+                        stats.put(statNames[i], ParseUtil.parseLongOrDefault(parts[i], 0));
                     }
+                    result.put(key, stats);
                 }
             } else {
-                // Use a LinkedHashMap to preserve the insertion order
-                Map<String, Long> data = new LinkedHashMap<>();
-                for (int i = 1; i < parts.length; i++) {
-                    data.put(parts[i], 0L);
-                }
-                result.put(key, data);
+                statNames = parts;
             }
 
             previousKey = key;
@@ -78,4 +78,46 @@ public final class ProcUtil {
         return result;
     }
 
+    /**
+     * Parses /proc files formatted as "statistic  (long)value" to produce a simple mapping. An
+     * example would be /proc/net/snmp6. The file format would look like:
+     * <pre>
+     *    Ip6InReceives             8026
+     *    Ip6InHdrErrors            0
+     *    Icmp6InMsgs               2
+     *    Icmp6InErrors             0
+     *    Icmp6OutMsgs              424
+     *    Udp6IgnoredMulti          5
+     *    Udp6MemErrors             1
+     *    UdpLite6InDatagrams       37
+     *    UdpLite6NoPorts           1
+     * </pre>
+     * Which would produce a mapping structure like:
+     * <pre>
+     *     {
+     *         "Ip6InReceives":8026,
+     *         "Ip6InHdrErrors":0,
+     *         "Icmp6InMsgs":2,
+     *         "Icmp6InErrors":0,
+     *         ...
+     *     }
+     * </pre>
+     *
+     * @param procFile the file to process
+     * @param separator a regex specifying the separator between statistic and value. For
+     *                  whitespace use {@code "\\s+"}.
+     * @return a map statistics and associated values
+     */
+    public static Map<String, Long> parseStatistics(String procFile, String separator) {
+        Map<String, Long> result = new HashMap<>();
+        List<String> lines = FileUtil.readFile(procFile, false);
+        for (String line : lines) {
+            String[] parts = line.split(separator);
+            if (parts.length == 2) {
+                result.put(parts[0], ParseUtil.parseLongOrDefault(parts[1], 0));
+            }
+        }
+
+        return result;
+    }
 }
