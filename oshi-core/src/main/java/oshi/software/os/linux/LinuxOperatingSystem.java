@@ -1,12 +1,12 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,8 +79,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /** This static field identifies if the syscall for gettid returns sane results. */
     public static final boolean HAS_SYSCALL_GETTID;
 
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
-        Memoizer.memoize(LinuxInstalledApps::queryInstalledApps, defaultExpiration());
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     static {
         boolean hasUdev = false;

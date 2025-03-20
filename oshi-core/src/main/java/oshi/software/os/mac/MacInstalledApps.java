@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class MacInstalledApps {
+    private MacInstalledApps() {
+    }
 
     private static final String COLON = ":";
 
@@ -63,11 +65,8 @@ public class MacInstalledApps {
         String signedBy = ParseUtil.getValueOrUnknown(details, "Signed by");
         String vendor = (obtainedFrom.equals("Identified Developer")) ? signedBy : obtainedFrom;
 
-        String lastModified = ParseUtil.getValueOrUnknown(details, "Last Modified");
-        long lastModifiedEpoch = 0;
-        if (!lastModified.equals(Constants.UNKNOWN)) {
-            lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yy, HH:mm");
-        }
+        String lastModified = details.getOrDefault("Last Modified", Constants.UNKNOWN);
+        long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yy, HH:mm");
 
         // Additional info map
         Map<String, String> additionalInfo = new HashMap<>();
@@ -75,7 +74,7 @@ public class MacInstalledApps {
         additionalInfo.put("Location", ParseUtil.getValueOrUnknown(details, "Location"));
         additionalInfo.put("Get Info String", ParseUtil.getValueOrUnknown(details, "Get Info String"));
 
-        return new ApplicationInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor,
-                lastModifiedEpoch, additionalInfo);
+        return new ApplicationInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor, lastModifiedEpoch,
+                additionalInfo);
     }
 }

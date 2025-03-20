@@ -1,12 +1,12 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,8 +68,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final String osXVersion;
     private final int major;
     private final int minor;
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
-        Memoizer.memoize(MacInstalledApps::queryInstalledApps, defaultExpiration());
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     private static final long BOOTTIME;
     static {

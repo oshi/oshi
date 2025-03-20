@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -19,11 +19,18 @@ public final class Memoizer {
     private static final Supplier<Long> DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,
             TimeUnit.MINUTES.toNanos(1));
 
+    private static final Supplier<Long> INSTALLED_APPS_EXPIRATION_NANOS = memoize(() -> TimeUnit.MINUTES.toNanos(1),
+            TimeUnit.MINUTES.toNanos(1));
+
     private Memoizer() {
     }
 
     private static long queryExpirationConfig() {
         return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 300));
+    }
+
+    public static long installedAppsExpiration() {
+        return INSTALLED_APPS_EXPIRATION_NANOS.get();
     }
 
     /**

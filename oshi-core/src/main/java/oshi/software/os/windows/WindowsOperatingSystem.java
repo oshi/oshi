@@ -8,8 +8,7 @@ import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
+import static oshi.util.Memoizer.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,8 +112,8 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final boolean X86 = isCurrentX86();
     private static final boolean WOW = isCurrentWow();
 
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier =
-        Memoizer.memoize(WindowsInstalledApps::queryInstalledApps, defaultExpiration());
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(WindowsInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     /*
      * Cache full process stats queries. Second query will only populate if first one returns null.
@@ -536,6 +535,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     public List<ApplicationInfo> getInstalledApplications() {
         return installedAppsSupplier.get();
     }
+
     /*
      * Package-private methods for use by WindowsOSProcess to limit process memory queries to processes with same
      * bitness as the current one

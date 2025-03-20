@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -368,8 +368,7 @@ public interface OperatingSystem {
     /**
      * Retrieves a list of installed applications on the system.
      * <p>
-     * This method is implemented per OS. If the OS does not support this feature,
-     * it returns an empty list.
+     * This method is implemented per OS. If the OS does not support this feature, it returns an empty list.
      *
      * @return A list of installed applications or an empty list if unsupported.
      */

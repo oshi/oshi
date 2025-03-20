@@ -10,10 +10,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Instant;
 import java.time.ZoneId;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1372,22 +1371,41 @@ public final class ParseUtil {
     }
 
     /**
-     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch).
-     * This method is useful for handling date formats across different operating systems, such as:
+     * Returns the given string value if it is not empty; otherwise, returns {@code Constants.UNKNOWN}.
+     *
+     * @param value The input string value.
+     * @return The input value if it is non-empty; otherwise, {@code Constants.UNKNOWN}.
+     */
+    public static String getStringValueOrUnknown(String value) {
+        return (value == null || value.isEmpty()) ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch). This method is
+     * useful for handling date formats across different operating systems, such as:
      * <ul>
-     *   <li>{@code yyyyMMdd}</li>
-     *   <li>{@code dd/MM/yy, HH:mm}</li>
+     * <li>{@code yyyyMMdd}</li>
+     * <li>{@code dd/MM/yy, HH:mm}</li>
      * </ul>
      *
-     * @param dateString The date string to parse.
+     * @param dateString  The date string to parse.
      * @param datePattern The expected date format pattern (e.g., {@code "yyyyMMdd"}).
      * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
      */
     public static long parseDateToEpoch(String dateString, String datePattern) {
+        if (dateString.equals(Constants.UNKNOWN) || dateString.isBlank()) {
+            return 0; // Default value if date is unknown or empty
+        }
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ROOT);
-            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-            return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            // Determine whether the pattern includes time components
+            if (datePattern.contains("H") || datePattern.contains("m") || datePattern.contains("s")) {
+                LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+                return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            } else {
+                LocalDate localDate = LocalDate.parse(dateString, formatter);
+                return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            }
         } catch (DateTimeParseException e) {
             LOG.trace("Unable to parse date string: " + dateString);
             return 0;

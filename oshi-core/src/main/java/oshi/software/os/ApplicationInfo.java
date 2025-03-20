@@ -8,23 +8,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents common information about an installed application across different operating systems.
- * This class provides standardized access to essential application details while allowing
- * flexibility for OS-specific fields via an additional information map.
+ * Represents common information about an installed application across different operating systems. This class provides
+ * standardized access to essential application details while allowing flexibility for OS-specific fields via an
+ * additional information map.
  */
 public class ApplicationInfo {
 
+    /** The name of the application. */
     private final String name;
+    /** The version of the application. */
     private final String version;
+    /** The vendor or publisher of the application. */
     private final String vendor;
-    private final long lastModifiedTime;
+    /**
+     * The installation or last modified timestamp of the application in milliseconds since epoch. This represents the
+     * Unix timestamp.
+     */
+    private final long timestamp;
+    /**
+     * A map containing additional application details such as install location, source, etc. Keys are field names, and
+     * values are corresponding details.
+     */
     private final Map<String, String> additionalInfo;
 
-    public ApplicationInfo(String name, String version, String vendor, long lastModifiedTime, Map<String, String> additionalInfo) {
+    /**
+     * Constructs an {@code ApplicationInfo} object with the specified details.
+     *
+     * @param name           The name of the application.
+     * @param version        The version of the application.
+     * @param vendor         The vendor or publisher of the application.
+     * @param timestamp      The installation or last modified timestamp in milliseconds since epoch.
+     * @param additionalInfo A map of additional information (can be {@code null}, in which case an empty map is used).
+     */
+    public ApplicationInfo(String name, String version, String vendor, long timestamp,
+            Map<String, String> additionalInfo) {
         this.name = name;
         this.version = version;
         this.vendor = vendor;
-        this.lastModifiedTime = lastModifiedTime;
+        this.timestamp = timestamp;
         this.additionalInfo = additionalInfo != null ? new HashMap<>(additionalInfo) : new HashMap<>();
     }
 
@@ -56,23 +77,23 @@ public class ApplicationInfo {
     }
 
     /**
-     * Gets the last modified or installation time of the application.
-     * The timestamp is represented in milliseconds since the Unix epoch (January 1, 1970, UTC).
+     * Gets the last modified or installation time of the application. The timestamp is represented in milliseconds
+     * since the Unix epoch (January 1, 1970, UTC).
      * <p>
-     * - On Windows, this corresponds to the application's install date.
-     * - On Linux, it represents the package's installation or last modified time.
-     * - On macOS, it reflects the last modification timestamp of the application bundle.
+     * - On Windows, this corresponds to the application's install date. - On Linux, it represents the package's
+     * installation or last modified time. - On macOS, it reflects the last modification timestamp of the application
+     * bundle.
      * </p>
      *
      * @return The last modified time in epoch milliseconds, or {@code 0} if unavailable.
      */
-    public long getLastModifiedTime() {
-        return lastModifiedTime;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
-     * Gets additional application details that are OS-specific and not covered by the main fields.
-     * This map may include attributes like installation location, source, architecture, or other metadata.
+     * Gets additional application details that are OS-specific and not covered by the main fields. This map may include
+     * attributes like installation location, source, architecture, or other metadata.
      *
      * @return A map containing optional key-value pairs of application details.
      */
@@ -82,7 +103,7 @@ public class ApplicationInfo {
 
     @Override
     public String toString() {
-        return "AppInfo{" + "name=" + name + ", version=" + version + ", vendor=" + vendor
-            + ", lastModified=" + lastModifiedTime + ", additionalInfo=" + additionalInfo + '}';
+        return "AppInfo{" + "name=" + name + ", version=" + version + ", vendor=" + vendor + ", timestamp=" + timestamp
+                + ", additionalInfo=" + additionalInfo + '}';
     }
 }
