@@ -2,10 +2,9 @@ package oshi.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -44,7 +43,7 @@ public final class ProcUtil {
      */
     public static Map<String, Map<String, Long>> parseNestedStatistics(String procFile, String... keys) {
         Map<String, Map<String, Long>> result = new HashMap<>();
-        Set<String> keysSet = new HashSet<>(Arrays.asList(keys));
+        List<String> keyList = Arrays.asList(keys);
 
         List<String> lines = FileUtil.readFile(procFile);
         String previousKey = null;
@@ -57,7 +56,7 @@ public final class ProcUtil {
             }
             String key = parts[0].substring(0, parts[0].length() - 1);
 
-            if (!keysSet.isEmpty() && !keysSet.contains(key)) {
+            if (!keyList.isEmpty() && !keyList.contains(key)) {
                 continue;
             }
 
@@ -105,20 +104,30 @@ public final class ProcUtil {
      * </pre>
      *
      * @param procFile the file to process
-     * @param separator a regex specifying the separator between statistic and value. For
-     *                  whitespace use {@code "\\s+"}.
-     * @return a map statistics and associated values
+     * @param separator a regex specifying the separator between statistic and value
+     * @return a map of statistics and associated values
      */
-    public static Map<String, Long> parseStatistics(String procFile, String separator) {
+    public static Map<String, Long> parseStatistics(String procFile, Pattern separator) {
         Map<String, Long> result = new HashMap<>();
-        List<String> lines = FileUtil.readFile(procFile, false);
+        List<String> lines = FileUtil.readFile(procFile);
         for (String line : lines) {
-            String[] parts = line.split(separator);
+            String[] parts = separator.split(line);
             if (parts.length == 2) {
                 result.put(parts[0], ParseUtil.parseLongOrDefault(parts[1], 0));
             }
         }
 
         return result;
+    }
+
+    /**
+     * Overloaded {@link #parseStatistics(String, Pattern)} using a whitespace separator.
+     *
+     * @param procFile the file to process
+     * @return a map of statistics and associated values
+     * @see #parseStatistics(String, Pattern)
+     */
+    public static Map<String, Long> parseStatistics(String procFile) {
+        return parseStatistics(procFile, ParseUtil.whitespaces);
     }
 }

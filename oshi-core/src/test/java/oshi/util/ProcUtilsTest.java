@@ -59,7 +59,7 @@ public class ProcUtilsTest {
         String resource =
             LinuxInternetProtocolStats.class.getResource("sample-proc-net-snmp6.txt").getFile();
 
-        Map<String, Long> results = ProcUtil.parseStatistics(resource, "\\s+");
+        Map<String, Long> results = ProcUtil.parseStatistics(resource);
 
         assertThat(results.keySet(), hasSize(90));
         assertThat(results.get("Ip6InReceives"), is(8026L));
