@@ -54,6 +54,12 @@ public final class ProcUtil {
             if (parts.length == 0) {
                 continue;
             }
+
+            // This would happen if the line starts with whitespace
+            if (parts[0].isEmpty()) {
+                parts = Arrays.copyOfRange(parts, 1, parts.length);
+            }
+
             String key = parts[0].substring(0, parts[0].length() - 1);
 
             if (!keyList.isEmpty() && !keyList.contains(key)) {
@@ -112,6 +118,12 @@ public final class ProcUtil {
         List<String> lines = FileUtil.readFile(procFile);
         for (String line : lines) {
             String[] parts = separator.split(line);
+
+            // This would happen if the line starts with the given separator (whitespace?)
+            if (parts[0].isEmpty()) {
+                parts = Arrays.copyOfRange(parts, 1, parts.length);
+            }
+
             if (parts.length == 2) {
                 result.put(parts[0], ParseUtil.parseLongOrDefault(parts[1], 0));
             }

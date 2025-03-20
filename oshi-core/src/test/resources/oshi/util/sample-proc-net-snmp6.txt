@@ -88,3 +88,5 @@ UdpLite6RcvbufErrors            	0
 UdpLite6SndbufErrors            	0
 UdpLite6InCsumErrors            	0
 UdpLite6MemErrors               	1
+  IndentedEntry                     37
+DoesntBreakWithoutAValue

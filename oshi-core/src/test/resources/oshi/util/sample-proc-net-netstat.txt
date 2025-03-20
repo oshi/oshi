@@ -4,3 +4,7 @@ IpExt: InNoRoutes InTruncatedPkts InMcastPkts OutMcastPkts InBcastPkts OutBcastP
 IpExt: 55 0 27786 1435 27214 0 2161690297 1573001841 6100546 133192 2054032 0 0 3111745 0 0 0 0
 MPTcpExt: MPCapableSYNRX MPCapableSYNTX MPCapableSYNACKRX MPCapableACKRX MPCapableFallbackACK MPCapableFallbackSYNACK MPFallbackTokenInit MPTCPRetrans MPJoinNoTokenFound MPJoinSynRx MPJoinSynBackupRx MPJoinSynAckRx MPJoinSynAckBackupRx MPJoinSynAckHMacFailure MPJoinAckRx MPJoinAckHMacFailure DSSNotMatching InfiniteMapTx InfiniteMapRx DSSNoMatchTCP DataCsumErr OFOQueueTail OFOQueue OFOMerge NoDSSInWindow DuplicateData AddAddr AddAddrTx AddAddrTxDrop EchoAdd EchoAddTx EchoAddTxDrop PortAdd AddAddrDrop MPJoinPortSynRx MPJoinPortSynAckRx MPJoinPortAckRx MismatchPortSynRx MismatchPortAckRx RmAddr RmAddrDrop RmAddrTx RmAddrTxDrop RmSubflow MPPrioTx MPPrioRx MPFailTx MPFailRx MPFastcloseTx MPFastcloseRx MPRstTx MPRstRx RcvPruned SubflowStale SubflowRecover SndWndShared RcvWndShared RcvWndConflictUpdate RcvWndConflict MPCurrEstab
 MPTcpExt: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  BadExt: One Two Three
+  BadExt: 1 2 3
+  MoreBadExt: Four Five Six
+MoreBadExt: 4 5 6
