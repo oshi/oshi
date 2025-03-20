@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class MacInstalledApps {
-    private MacInstalledApps() {
-    }
 
     private static final String COLON = ":";
 

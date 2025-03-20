@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 public class LinuxInstalledApps {
-    private LinuxInstalledApps() {
-    }
 
     private static final Map<String, String> PACKAGE_MANAGER_COMMANDS = initializePackageManagerCommands();
 
