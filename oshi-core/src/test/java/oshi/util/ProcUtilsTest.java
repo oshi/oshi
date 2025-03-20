@@ -1,4 +1,4 @@
-package oshi.software.os.linux;
+package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -11,10 +11,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import oshi.util.ProcUtil;
+import oshi.software.os.linux.LinuxInternetProtocolStats;
 
 @EnabledOnOs(OS.LINUX)
-public class LinuxInternetProtocolStatsTest {
+public class ProcUtilsTest {
 
     @Test
     void testRawNetNetstat() {
