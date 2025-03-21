@@ -43,7 +43,7 @@
 --add-opens
   com.github.oshi/oshi.driver.windows.wmi=org.junit.platform.commons
 
---add-modules 
+--add-modules
   org.hamcrest,org.slf4j.simple
 --add-reads
   com.github.oshi=org.junit.jupiter.api,org.hamcrest
