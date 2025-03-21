@@ -118,7 +118,7 @@ public final class ParseUtil {
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
     /** Constant <code>forwardSlash</code> */
-    public static final Pattern SLASH = Pattern.compile("\\/");
+    public static final Pattern slash = Pattern.compile("\\/");
 
     static {
         multipliers = new HashMap<>();
