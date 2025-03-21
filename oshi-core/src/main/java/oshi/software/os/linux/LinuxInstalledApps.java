@@ -13,20 +13,25 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class LinuxInstalledApps {
 
+    private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");
     private static final Map<String, String> PACKAGE_MANAGER_COMMANDS = initializePackageManagerCommands();
+
+    private LinuxInstalledApps() {
+    }
 
     private static Map<String, String> initializePackageManagerCommands() {
         Map<String, String> commands = new HashMap<>();
 
         if (isPackageManagerAvailable("dpkg")) {
             commands.put("dpkg",
-                    "dpkg-query -W -f='${Package}|${Version}|${Architecture}|${Installed-Size}|${db-fsys:Last-Modified}|${Maintainer}|${Source}|${Homepage}\\n'");
+                    "dpkg-query -W -f=${Package}|${Version}|${Architecture}|${Installed-Size}|${db-fsys:Last-Modified}|${Maintainer}|${Source}|${Homepage}\\n");
         } else if (isPackageManagerAvailable("rpm")) {
             commands.put("rpm",
-                    "rpm -qa --queryformat '%{NAME}|%{VERSION}-%{RELEASE}|%{ARCH}|%{SIZE}|%{INSTALLTIME}|%{PACKAGER}|%{SOURCERPM}|%{URL}\\n'");
+                    "rpm -qa --queryformat %{NAME}|%{VERSION}-%{RELEASE}|%{ARCH}|%{SIZE}|%{INSTALLTIME}|%{PACKAGER}|%{SOURCERPM}|%{URL}\\n");
         }
 
         return commands;
@@ -72,7 +77,7 @@ public class LinuxInstalledApps {
 
         for (String line : output) {
             // split by the pipe character
-            String[] parts = line.split("\\|", -1); // -1 to keep empty fields
+            String[] parts = PIPE_PATTERN.split(line, -1); // -1 to keep empty fields
 
             // Check if we have all 8 fields
             if (parts.length >= 8) {

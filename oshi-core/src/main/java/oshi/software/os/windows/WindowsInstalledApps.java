@@ -11,6 +11,9 @@ import java.util.List;
 
 public class WindowsInstalledApps {
 
+    private WindowsInstalledApps() {
+    }
+
     public static List<ApplicationInfo> queryInstalledApps() {
         return InstalledAppsData.queryInstalledApps();
     }

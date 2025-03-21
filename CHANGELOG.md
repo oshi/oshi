@@ -1,5 +1,8 @@
 # 6.7.2 (in progress)
 
+##### New Features
+* [#2851](https://github.com/oshi/oshi/pull/2851): Report installed apps stats on mac, windows, and linux - [@rohan-coder02](https://github.com/rohan-coder02).
+
 ##### Bug fixes / Improvements
 * [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 * [#2852](https://github.com/oshi/oshi/pull/2852): JNA 5.17.0 - [@dbwiddis](https://github.com/dbwiddis).

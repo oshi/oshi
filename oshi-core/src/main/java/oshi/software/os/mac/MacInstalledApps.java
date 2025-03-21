@@ -18,6 +18,9 @@ public class MacInstalledApps {
 
     private static final String COLON = ":";
 
+    private MacInstalledApps() {
+    }
+
     public static List<ApplicationInfo> queryInstalledApps() {
         List<String> output = ExecutingCommand.runNative("system_profiler SPApplicationsDataType");
         return parseMacAppInfo(output);

@@ -118,7 +118,7 @@ public final class ParseUtil {
     public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
 
     /** Constant <code>forwardSlash</code> */
-    public static final Pattern slash = Pattern.compile("\\/");
+    public static final Pattern SLASH = Pattern.compile("\\/");
 
     static {
         multipliers = new HashMap<>();
@@ -1366,8 +1366,7 @@ public final class ParseUtil {
      *         returns a predefined "unknown" string
      */
     public static String getValueOrUnknown(Map<?, String> map, Object key) {
-        String value = map.getOrDefault(key, "");
-        return value.isEmpty() ? Constants.UNKNOWN : value;
+        return getStringValueOrUnknown(map.get(key));
     }
 
     /**

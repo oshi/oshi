@@ -19,9 +19,6 @@ public final class Memoizer {
     private static final Supplier<Long> DEFAULT_EXPIRATION_NANOS = memoize(Memoizer::queryExpirationConfig,
             TimeUnit.MINUTES.toNanos(1));
 
-    private static final Supplier<Long> INSTALLED_APPS_EXPIRATION_NANOS = memoize(() -> TimeUnit.MINUTES.toNanos(1),
-            TimeUnit.MINUTES.toNanos(1));
-
     private Memoizer() {
     }
 
@@ -30,7 +27,7 @@ public final class Memoizer {
     }
 
     public static long installedAppsExpiration() {
-        return INSTALLED_APPS_EXPIRATION_NANOS.get();
+        return TimeUnit.MINUTES.toNanos(1);
     }
 
     /**
