@@ -1,11 +1,12 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import oshi.driver.mac.WindowInfo;
 import oshi.jna.Struct.CloseableProcTaskInfo;
 import oshi.jna.Struct.CloseableTimeval;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -40,6 +43,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
@@ -64,6 +68,8 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final String osXVersion;
     private final int major;
     private final int minor;
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     private static final long BOOTTIME;
     static {
@@ -293,5 +299,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
         return WindowInfo.queryDesktopWindows(visibleOnly);
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return installedAppsSupplier.get();
     }
 }

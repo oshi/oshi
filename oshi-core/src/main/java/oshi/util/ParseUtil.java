@@ -10,6 +10,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1351,5 +1354,60 @@ public final class ParseUtil {
     public static String getValueOrUnknown(Map<String, String> map, String key) {
         String value = map.getOrDefault(key, "");
         return value.isEmpty() ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Checks if a value exists in the map for the given key and returns the value or unknown based on it
+     *
+     * @param map A map where the keys can be of any type and the values are Strings.
+     * @param key The key for which to fetch the value from the map. The key can be of any type that is compatible with
+     *            the map's key type.
+     * @return The value associated with the key if the key exists in the map and the value is not empty; otherwise,
+     *         returns a predefined "unknown" string
+     */
+    public static String getValueOrUnknown(Map<?, String> map, Object key) {
+        return getStringValueOrUnknown(map.get(key));
+    }
+
+    /**
+     * Returns the given string value if it is not empty; otherwise, returns {@code Constants.UNKNOWN}.
+     *
+     * @param value The input string value.
+     * @return The input value if it is non-empty; otherwise, {@code Constants.UNKNOWN}.
+     */
+    public static String getStringValueOrUnknown(String value) {
+        return (value == null || value.isEmpty()) ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch). This method is
+     * useful for handling date formats across different operating systems, such as:
+     * <ul>
+     * <li>{@code yyyyMMdd}</li>
+     * <li>{@code dd/MM/yy, HH:mm}</li>
+     * </ul>
+     *
+     * @param dateString  The date string to parse.
+     * @param datePattern The expected date format pattern (e.g., {@code "yyyyMMdd"}).
+     * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
+     */
+    public static long parseDateToEpoch(String dateString, String datePattern) {
+        if (dateString.equals(Constants.UNKNOWN) || dateString.isEmpty()) {
+            return 0; // Default value if date is unknown or empty
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ROOT);
+            // Determine whether the pattern includes time components
+            if (datePattern.contains("H") || datePattern.contains("m") || datePattern.contains("s")) {
+                LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+                return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            } else {
+                LocalDate localDate = LocalDate.parse(dateString, formatter);
+                return localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            }
+        } catch (DateTimeParseException e) {
+            LOG.trace("Unable to parse date string: " + dateString);
+            return 0;
+        }
     }
 }

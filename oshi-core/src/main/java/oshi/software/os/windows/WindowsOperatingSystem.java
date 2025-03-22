@@ -9,6 +9,7 @@ import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.Struct.CloseableSystemInfo;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -76,6 +78,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
+import oshi.util.Memoizer;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -110,6 +113,9 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      */
     private static final boolean X86 = isCurrentX86();
     private static final boolean WOW = isCurrentWow();
+
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(WindowsInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     /*
      * Cache full process stats queries. Second query will only populate if first one returns null.
@@ -525,6 +531,11 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
         return EnumWindows.queryDesktopWindows(visibleOnly);
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return installedAppsSupplier.get();
     }
 
     /*

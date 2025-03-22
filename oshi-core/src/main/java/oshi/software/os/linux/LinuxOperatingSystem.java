@@ -1,11 +1,12 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import oshi.driver.linux.proc.UpTime;
 import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -46,6 +49,7 @@ import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
@@ -74,6 +78,9 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     public static final boolean HAS_GETTID;
     /** This static field identifies if the syscall for gettid returns sane results. */
     public static final boolean HAS_SYSCALL_GETTID;
+
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     static {
         boolean hasUdev = false;
@@ -336,6 +343,11 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new LinuxNetworkParams();
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return installedAppsSupplier.get();
     }
 
     private static Triplet<String, String, String> queryFamilyVersionCodenameFromReleaseFiles() {

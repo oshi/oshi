@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.util;
 
 import java.util.Arrays;
@@ -15,10 +19,10 @@ public final class ProcUtil {
     }
 
     /**
-     * Parses /proc files with a given structure consisting of a keyed header line followed by a
-     * keyed value line. {@code /proc/net/netstat} and {@code /proc/net/snmp} are specific examples
-     * of this. The returned map is of the form {key: {stat: value, stat: value, ...}}. An example
-     * of the file structure is:
+     * Parses /proc files with a given structure consisting of a keyed header line followed by a keyed value line.
+     * {@code /proc/net/netstat} and {@code /proc/net/snmp} are specific examples of this. The returned map is of the
+     * form {key: {stat: value, stat: value, ...}}. An example of the file structure is:
+     *
      * <pre>
      *     TcpExt: SyncookiesSent SyncookiesRecv SyncookiesFailed ...
      *     TcpExt: 0 4 0 ...
@@ -27,7 +31,9 @@ public final class ProcUtil {
      *     MPTcpExt: MPCapableSYNRX MPCapableSYNTX MPCapableSYNACKRX ...
      *     MPTcpExt: 0 0 0 ...
      * </pre>
+     *
      * Which would produce a mapping structure like:
+     *
      * <pre>
      *     {
      *         "TcpExt": {"SyncookiesSent":0, "SyncookiesRecv":4, "SyncookiesFailed":0, ... }
@@ -37,8 +43,8 @@ public final class ProcUtil {
      * </pre>
      *
      * @param procFile the file to process
-     * @param keys an optional array of keys to return in the outer map. If none are given, all
-     *             found keys are returned.
+     * @param keys     an optional array of keys to return in the outer map. If none are given, all found keys are
+     *                 returned.
      * @return a map of keys to stats
      */
     public static Map<String, Map<String, Long>> parseNestedStatistics(String procFile, String... keys) {
@@ -85,8 +91,9 @@ public final class ProcUtil {
     }
 
     /**
-     * Parses /proc files formatted as "statistic  (long)value" to produce a simple mapping. An
-     * example would be /proc/net/snmp6. The file format would look like:
+     * Parses /proc files formatted as "statistic (long)value" to produce a simple mapping. An example would be
+     * /proc/net/snmp6. The file format would look like:
+     *
      * <pre>
      *    Ip6InReceives             8026
      *    Ip6InHdrErrors            0
@@ -98,7 +105,9 @@ public final class ProcUtil {
      *    UdpLite6InDatagrams       37
      *    UdpLite6NoPorts           1
      * </pre>
+     *
      * Which would produce a mapping structure like:
+     *
      * <pre>
      *     {
      *         "Ip6InReceives":8026,
@@ -109,7 +118,7 @@ public final class ProcUtil {
      *     }
      * </pre>
      *
-     * @param procFile the file to process
+     * @param procFile  the file to process
      * @param separator a regex specifying the separator between statistic and value
      * @return a map of statistics and associated values
      */
