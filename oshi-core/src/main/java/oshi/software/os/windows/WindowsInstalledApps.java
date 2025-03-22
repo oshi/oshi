@@ -9,7 +9,7 @@ import oshi.software.os.ApplicationInfo;
 
 import java.util.List;
 
-public class WindowsInstalledApps {
+public final class WindowsInstalledApps {
 
     private WindowsInstalledApps() {
     }

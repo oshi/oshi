@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-public class MacInstalledApps {
+public final class MacInstalledApps {
 
     private static final String COLON = ":";
 
