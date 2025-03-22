@@ -1,12 +1,12 @@
-# 6.7.2 (in progress)
+# 6.8.0 (in progress)
 
 ##### New Features
 * [#2851](https://github.com/oshi/oshi/pull/2851): Report installed apps stats on mac, windows, and linux - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2854](https://github.com/oshi/oshi/pull/2854): Add raw access to map structures in proc filesystem - [@jdeppe-pivotal](https://github.com/jdeppe-pivotal).
 
 ##### Bug fixes / Improvements
 * [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 * [#2852](https://github.com/oshi/oshi/pull/2852): JNA 5.17.0 - [@dbwiddis](https://github.com/dbwiddis).
-* [#2854](https://github.com/oshi/oshi/pull/2854): Add raw access to map structures in proc filesystem - [@jdeppe-pivotal](https://github.com/jdeppe-pivotal).
 
 # 6.7.0 (2025-02-25), 6.7.1 (2025-03-12)
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,8 +21,7 @@ public class ProcUtilsTest {
 
     @Test
     void testRawNetNetstat() {
-        String resource =
-            ProcUtilsTest.class.getResource("sample-proc-net-netstat.txt").getFile();
+        String resource = ProcUtilsTest.class.getResource("sample-proc-net-netstat.txt").getFile();
 
         Map<String, Map<String, Long>> results = ProcUtil.parseNestedStatistics(resource);
 
@@ -33,8 +36,7 @@ public class ProcUtilsTest {
 
     @Test
     void testRawNetNetstatWithLimitedKeys() {
-        String resource =
-            ProcUtilsTest.class.getResource("sample-proc-net-netstat.txt").getFile();
+        String resource = ProcUtilsTest.class.getResource("sample-proc-net-netstat.txt").getFile();
 
         Map<String, Map<String, Long>> results = ProcUtil.parseNestedStatistics(resource, "IpExt");
 
@@ -44,8 +46,7 @@ public class ProcUtilsTest {
 
     @Test
     void testRawNetSnmp() {
-        String resource =
-            ProcUtilsTest.class.getResource("sample-proc-net-snmp.txt").getFile();
+        String resource = ProcUtilsTest.class.getResource("sample-proc-net-snmp.txt").getFile();
 
         Map<String, Map<String, Long>> results = ProcUtil.parseNestedStatistics(resource);
 
@@ -57,8 +58,7 @@ public class ProcUtilsTest {
 
     @Test
     void testRawNetSnmp6() {
-        String resource =
-            ProcUtilsTest.class.getResource("sample-proc-net-snmp6.txt").getFile();
+        String resource = ProcUtilsTest.class.getResource("sample-proc-net-snmp6.txt").getFile();
 
         Map<String, Long> results = ProcUtil.parseStatistics(resource);
 
