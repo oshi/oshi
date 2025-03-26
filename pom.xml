@@ -144,7 +144,7 @@
         <taglist-maven-plugin.version>3.2.1</taglist-maven-plugin.version>
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
         <!-- Misc. -->
-        <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
         <dependency-check-maven.version>12.1.0</dependency-check-maven.version>
         <puppycrawl.checkstyle.version>10.21.4</puppycrawl.checkstyle.version>
