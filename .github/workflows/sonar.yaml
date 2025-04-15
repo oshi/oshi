@@ -18,7 +18,7 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
-      - name: Setup JDK
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           cache: maven
