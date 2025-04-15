@@ -18,20 +18,16 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
-      - name: Set up JDK
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu'
-          cache: 'maven'
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          cache: maven
+          distribution: temurin
+          java-version: 21
+      - name: Set SONAR_SCANNER_JAVA_OPTS
+        run: echo "SONAR_SCANNER_JAVA_OPTS=-Xmx512m" >> $GITHUB_ENV
       - name: Analyze with SonarCloud
-        run: ./mvnw verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io" -D"sonar.login=$SONAR_TOKEN"
+        run: ./mvnw verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io" -D"sonar.token=$SONAR_TOKEN"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
