@@ -61,14 +61,8 @@
         <url>https://github.com/oshi/oshi/actions</url>
     </ciManagement>
     <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
         <snapshotRepository>
-            <id>ossrh-snapshot</id>
-            <name>Sonatype Nexus Snapshots</name>
+            <id>central</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <site>
@@ -102,7 +96,6 @@
         <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-        <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>2.6.1</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
@@ -174,15 +167,15 @@
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
+                <!-- Sonatype Provided Plugins -->
                 <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>${nexus-staging-plugin.version}</version>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.7.0</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <serverId>sonatype-nexus-staging</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <publishingServerId>central</publishingServerId>
+                        <autoPublish>true</autoPublish>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -857,6 +850,17 @@
                         <version>${puppycrawl.checkstyle.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <!-- Sonatype Provided Plugins -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
             </plugin>
         </plugins>
     </build>
