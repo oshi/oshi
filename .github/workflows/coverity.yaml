@@ -13,12 +13,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu'
-          cache: 'maven'
+          cache: maven
+          java-version: 21
+          distribution: zulu
       - name: Analyze with Coverity
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=oshi%2Foshi" -O coverity_tool.tgz
