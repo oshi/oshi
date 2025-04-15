@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/linux/LinuxGraphicsCard.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.linux;
@@ -69,8 +69,8 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">for</strong> (String line : lspci) {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>              String[] split = line.trim().split(<span class="jxr_string">":"</span>, 2);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              String prefix = split[0];
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// Skip until line contains "VGA"</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"Class"</span>) &amp;&amp; line.contains(<span class="jxr_string">"VGA"</span>)) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// Skip until line contains "VGA" or "3D controller"</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"Class"</span>) &amp;&amp; (line.contains(<span class="jxr_string">"VGA"</span>) || line.contains(<span class="jxr_string">"3D controller"</span>))) {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  found = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"Device"</span>) &amp;&amp; !found &amp;&amp; split.length &gt; 1) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                  lookupDevice = split[1].trim();

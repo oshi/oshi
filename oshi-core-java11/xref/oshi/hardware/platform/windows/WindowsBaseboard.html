@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/windows/WindowsBaseboard.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.windows;
@@ -65,14 +65,18 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">if</strong> (win32BaseBoard.getResultCount() &gt; 0) {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>              model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              String product = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.PRODUCT, 0);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">if</strong> (!Util.isBlank(product)) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  model = Util.isBlank(model) ? product : (model + <span class="jxr_string">" ("</span> + product + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
