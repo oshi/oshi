@@ -19,11 +19,11 @@ jobs:
       NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu'
-          cache: 'maven'
+          cache: maven
+          distribution: temurin
+          java-version: 21
       - name: Deploy to Sonatype
         run: ./mvnw deploy -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
