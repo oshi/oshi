@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -54,7 +54,7 @@ public final class ThreadPerformanceData {
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
         // Iterate instances.
         for (Map<ThreadPerformanceProperty, Object> threadInstanceMap : threadInstanceMaps) {
-            int pid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS)).intValue();
+            Integer pid = (Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS);
             if ((pids == null || pids.contains(pid)) && pid > 0) {
                 int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDTHREAD)).intValue();
                 String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);

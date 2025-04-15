@@ -1,6 +1,7 @@
 # 6.8.1 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2868](https://github.com/oshi/oshi/pull/2868): Fix windows thread details collection - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22)
 

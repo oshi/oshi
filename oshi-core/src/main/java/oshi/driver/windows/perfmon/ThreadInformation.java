@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -81,10 +81,10 @@ public final class ThreadInformation {
         if (threadNum >= 0) {
             return PerfCounterWildcardQuery.queryInstancesAndValues(
                     ThreadPerformanceProperty.class, THREAD, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD
-                            + " WHERE Name LIKE \\\"" + procName + "\\\" AND IDThread=" + threadNum,
+                            + " WHERE Name LIKE \"" + procName + "/_%\" AND IDThread=" + threadNum,
                     procName + "/" + threadNum);
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.class, THREAD,
-                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + " WHERE Name LIKE \\\"" + procName + "\\\"", procName + "/*");
+                WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + " WHERE Name LIKE \"" + procName + "/_%\"", procName + "/*");
     }
 }
