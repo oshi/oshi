@@ -68,6 +68,10 @@ public final class MacInstalledApps {
 
         String lastModified = details.getOrDefault("Last Modified", Constants.UNKNOWN);
         long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yy, HH:mm");
+        if (lastModifiedEpoch == 0) {
+            // Fallback to 4 digits year format
+            lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yyyy, HH:mm");
+        }
 
         // Additional info map
         Map<String, String> additionalInfo = new HashMap<>();
