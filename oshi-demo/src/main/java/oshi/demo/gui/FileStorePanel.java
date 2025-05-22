@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -24,6 +24,7 @@ import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 import org.jfree.data.general.DefaultPieDataset;
 
 import oshi.PlatformEnum;
@@ -96,7 +97,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         int i = 0;
         for (OSFileStore store : fileStores) {
             fsCharts[i].setTitle(store.getName());
-            List<TextTitle> subtitles = new ArrayList<>();
+            List<Title> subtitles = new ArrayList<>();
             if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
                 subtitles.add(new TextTitle(store.getLabel()));
             }
