@@ -1,6 +1,7 @@
 # 6.8.2 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#2889](https://github.com/oshi/oshi/pull/2889): Include fallback on macos getInstalledApps for systems with 4 year digits on date format - [@dyorgio](https://github.com/dyorgio).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15)
 
