@@ -45,7 +45,7 @@ public final class MacInstalledApps {
             if (line.endsWith(COLON)) {
                 // When app and appDetails are not empty then we reached the next app, add it to the list
                 if (appName != null && !appDetails.isEmpty()) {
-                    appInfoList.add(createAppInfo(appName, appDetails));
+                    appInfoList.add(createAppInfo(appName, appDetails, dateFormat));
                 }
 
                 // store app name and proceed with collecting app details
