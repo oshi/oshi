@@ -4,10 +4,14 @@
  */
 package oshi.software.os.mac;
 
+import oshi.jna.platform.mac.CoreFoundation;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +21,7 @@ import java.util.HashMap;
 public final class MacInstalledApps {
 
     private static final String COLON = ":";
+    private static CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private MacInstalledApps() {
     }
@@ -31,6 +36,7 @@ public final class MacInstalledApps {
         String appName = null;
         Map<String, String> appDetails = null;
         boolean collectingAppDetails = false;
+        String dateFormat = getMacDateTimeFormat(CoreFoundation.kCFDateFormatterShortStyle);
 
         for (String line : lines) {
             line = line.trim();
@@ -61,17 +67,13 @@ public final class MacInstalledApps {
         return appInfoList;
     }
 
-    private static ApplicationInfo createAppInfo(String name, Map<String, String> details) {
+    private static ApplicationInfo createAppInfo(String name, Map<String, String> details, String dateFormat) {
         String obtainedFrom = ParseUtil.getValueOrUnknown(details, "Obtained from");
         String signedBy = ParseUtil.getValueOrUnknown(details, "Signed by");
         String vendor = (obtainedFrom.equals("Identified Developer")) ? signedBy : obtainedFrom;
 
         String lastModified = details.getOrDefault("Last Modified", Constants.UNKNOWN);
-        long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yy, HH:mm");
-        if (lastModifiedEpoch == 0) {
-            // Fallback to 4 digits year format
-            lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yyyy, HH:mm");
-        }
+        long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, dateFormat);
 
         // Additional info map
         Map<String, String> additionalInfo = new HashMap<>();
@@ -81,5 +83,23 @@ public final class MacInstalledApps {
 
         return new ApplicationInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor, lastModifiedEpoch,
                 additionalInfo);
+    }
+
+    private static String getMacDateTimeFormat(int style) {
+        CFTypeRef localeRef = CF.CFLocaleCopyCurrent();
+        try {
+            CFTypeRef formatter = CF.CFDateFormatterCreate(null, localeRef, style, style);
+            if (formatter == null) {
+                throw new IllegalStateException("CFDateFormatterCreate: null");
+            }
+            try {
+                CFStringRef format = CF.CFDateFormatterGetFormat(formatter);
+                return format.stringValue();
+            } finally {
+                CF.CFRelease(formatter);
+            }
+        } finally {
+            CF.CFRelease(localeRef);
+        }
     }
 }
