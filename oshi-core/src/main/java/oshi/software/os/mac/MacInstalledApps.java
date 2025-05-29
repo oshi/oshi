@@ -4,19 +4,29 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateFormatterShortStyle;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
+
+import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFDateFormatter;
+import oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle;
+import oshi.jna.platform.mac.CoreFoundation.CFLocale;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 public final class MacInstalledApps {
 
     private static final String COLON = ":";
+    private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private MacInstalledApps() {
     }
@@ -31,6 +41,7 @@ public final class MacInstalledApps {
         String appName = null;
         Map<String, String> appDetails = null;
         boolean collectingAppDetails = false;
+        String dateFormat = getLocaleDateTimeFormat(kCFDateFormatterShortStyle);
 
         for (String line : lines) {
             line = line.trim();
@@ -39,7 +50,7 @@ public final class MacInstalledApps {
             if (line.endsWith(COLON)) {
                 // When app and appDetails are not empty then we reached the next app, add it to the list
                 if (appName != null && !appDetails.isEmpty()) {
-                    appInfoList.add(createAppInfo(appName, appDetails));
+                    appInfoList.add(createAppInfo(appName, appDetails, dateFormat));
                 }
 
                 // store app name and proceed with collecting app details
@@ -61,13 +72,13 @@ public final class MacInstalledApps {
         return appInfoList;
     }
 
-    private static ApplicationInfo createAppInfo(String name, Map<String, String> details) {
+    private static ApplicationInfo createAppInfo(String name, Map<String, String> details, String dateFormat) {
         String obtainedFrom = ParseUtil.getValueOrUnknown(details, "Obtained from");
         String signedBy = ParseUtil.getValueOrUnknown(details, "Signed by");
         String vendor = (obtainedFrom.equals("Identified Developer")) ? signedBy : obtainedFrom;
 
         String lastModified = details.getOrDefault("Last Modified", Constants.UNKNOWN);
-        long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, "dd/MM/yy, HH:mm");
+        long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, dateFormat);
 
         // Additional info map
         Map<String, String> additionalInfo = new HashMap<>();
@@ -77,5 +88,24 @@ public final class MacInstalledApps {
 
         return new ApplicationInfo(name, ParseUtil.getValueOrUnknown(details, "Version"), vendor, lastModifiedEpoch,
                 additionalInfo);
+    }
+
+    private static String getLocaleDateTimeFormat(CFDateFormatterStyle style) {
+        CFIndex styleIndex = style.index();
+        CFLocale locale = CF.CFLocaleCopyCurrent();
+        try {
+            CFDateFormatter formatter = CF.CFDateFormatterCreate(null, locale, styleIndex, styleIndex);
+            if (formatter == null) {
+                return "";
+            }
+            try {
+                CFStringRef format = CF.CFDateFormatterGetFormat(formatter);
+                return (format == null) ? "" : format.stringValue();
+            } finally {
+                CF.CFRelease(formatter);
+            }
+        } finally {
+            CF.CFRelease(locale);
+        }
     }
 }
