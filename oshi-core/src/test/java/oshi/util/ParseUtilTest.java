@@ -22,7 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -783,5 +786,22 @@ class ParseUtilTest {
 
         map.put("key", "value");
         assertThat(ParseUtil.getValueOrUnknown(map, key), is("value"));
+    }
+
+    @Test
+    void testParseDateToEpoch() {
+        assertThat("Parse yyyyMMdd", ParseUtil.parseDateToEpoch("20240101", "yyyyMMdd"),
+                is(LocalDate.of(2024, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+
+        assertThat("Parse dd/MM/yy, HH:mm", ParseUtil.parseDateToEpoch("01/01/24, 12:30", "dd/MM/yy, HH:mm"),
+                is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+
+        assertThat("Parse empty date string", ParseUtil.parseDateToEpoch("", "yyyyMMdd"), is(0L));
+
+        assertThat("Parse empty pattern", ParseUtil.parseDateToEpoch("20240101", ""), is(0L));
+
+        assertThat("Parse UNKNOWN constant", ParseUtil.parseDateToEpoch(Constants.UNKNOWN, "yyyyMMdd"), is(0L));
+
+        assertThat("Parse invalid date format", ParseUtil.parseDateToEpoch("invalid-date", "yyyyMMdd"), is(0L));
     }
 }

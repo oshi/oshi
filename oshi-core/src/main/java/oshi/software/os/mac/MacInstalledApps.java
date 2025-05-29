@@ -4,24 +4,29 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateFormatterShortStyle;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
+
 import oshi.jna.platform.mac.CoreFoundation;
+import oshi.jna.platform.mac.CoreFoundation.CFDateFormatter;
+import oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle;
+import oshi.jna.platform.mac.CoreFoundation.CFLocale;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
-import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 public final class MacInstalledApps {
 
     private static final String COLON = ":";
-    private static CoreFoundation CF = CoreFoundation.INSTANCE;
+    private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private MacInstalledApps() {
     }
@@ -36,7 +41,7 @@ public final class MacInstalledApps {
         String appName = null;
         Map<String, String> appDetails = null;
         boolean collectingAppDetails = false;
-        String dateFormat = getMacDateTimeFormat(CoreFoundation.kCFDateFormatterShortStyle);
+        String dateFormat = getLocaleDateTimeFormat(kCFDateFormatterShortStyle);
 
         for (String line : lines) {
             line = line.trim();
@@ -85,21 +90,22 @@ public final class MacInstalledApps {
                 additionalInfo);
     }
 
-    private static String getMacDateTimeFormat(int style) {
-        CFTypeRef localeRef = CF.CFLocaleCopyCurrent();
+    private static String getLocaleDateTimeFormat(CFDateFormatterStyle style) {
+        CFIndex styleIndex = style.index();
+        CFLocale locale = CF.CFLocaleCopyCurrent();
         try {
-            CFTypeRef formatter = CF.CFDateFormatterCreate(null, localeRef, style, style);
+            CFDateFormatter formatter = CF.CFDateFormatterCreate(null, locale, styleIndex, styleIndex);
             if (formatter == null) {
-                throw new IllegalStateException("CFDateFormatterCreate: null");
+                return "";
             }
             try {
                 CFStringRef format = CF.CFDateFormatterGetFormat(formatter);
-                return format.stringValue();
+                return (format == null) ? "" : format.stringValue();
             } finally {
                 CF.CFRelease(formatter);
             }
         } finally {
-            CF.CFRelease(localeRef);
+            CF.CFRelease(locale);
         }
     }
 }
