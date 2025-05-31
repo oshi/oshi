@@ -1400,7 +1400,7 @@
 <a class="jxr_linenumber" name="L1392" href="#L1392">1392</a> <em class="jxr_javadoccomment">     * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.</em>
 <a class="jxr_linenumber" name="L1393" href="#L1393">1393</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L1394" href="#L1394">1394</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseDateToEpoch(String dateString, String datePattern) {
-<a class="jxr_linenumber" name="L1395" href="#L1395">1395</a>         <strong class="jxr_keyword">if</strong> (dateString.equals(Constants.UNKNOWN) || dateString.isEmpty()) {
+<a class="jxr_linenumber" name="L1395" href="#L1395">1395</a>         <strong class="jxr_keyword">if</strong> (dateString.equals(Constants.UNKNOWN) || dateString.isEmpty() || datePattern.isEmpty()) {
 <a class="jxr_linenumber" name="L1396" href="#L1396">1396</a>             <strong class="jxr_keyword">return</strong> 0; <em class="jxr_comment">// Default value if date is unknown or empty</em>
 <a class="jxr_linenumber" name="L1397" href="#L1397">1397</a>         }
 <a class="jxr_linenumber" name="L1398" href="#L1398">1398</a>         <strong class="jxr_keyword">try</strong> {

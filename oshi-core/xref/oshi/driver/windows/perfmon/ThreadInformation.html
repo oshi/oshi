@@ -87,15 +87,19 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">int</strong> threadNum) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          String procName = name.toLowerCase(Locale.ROOT);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">if</strong> (threadNum &gt;= 0) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> PerfCounterWildcardQuery.queryInstancesAndValues(
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      ThreadPerformanceProperty.<strong class="jxr_keyword">class</strong>, THREAD, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              + <span class="jxr_string">" WHERE Name LIKE \&quot;"</span> + procName + <span class="jxr_string">"/_%\&quot; AND IDThread="</span> + threadNum,
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      procName + <span class="jxr_string">"/"</span> + threadNum);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">return</strong> PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.<strong class="jxr_keyword">class</strong>, THREAD,
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + <span class="jxr_string">" WHERE Name LIKE \&quot;"</span> + procName + <span class="jxr_string">"/_%\&quot;"</span>, procName + <span class="jxr_string">"/*"</span>);
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              Pair&lt;List&lt;String&gt;, Map&lt;ThreadPerformanceProperty, List&lt;Long&gt;&gt;&gt; threads = <a name="PerfCounterWildcardQuery" href="../../../../oshi/util/platform/windows/PerfCounterWildcardQuery.html#PerfCounterWildcardQuery">PerfCounterWildcardQuery</a>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      .queryInstancesAndValues(
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              ThreadPerformanceProperty.<strong class="jxr_keyword">class</strong>, THREAD, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                                      + <span class="jxr_string">" WHERE Name LIKE \&quot;"</span> + procName + <span class="jxr_string">"/_%\&quot; AND IDThread="</span> + threadNum,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                              procName + <span class="jxr_string">"/*"</span>);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">if</strong> (!threads.getA().isEmpty()) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">return</strong> threads;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> PerfCounterWildcardQuery.queryInstancesAndValues(ThreadPerformanceProperty.<strong class="jxr_keyword">class</strong>, THREAD,
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  WIN32_PERF_RAW_DATA_PERF_PROC_THREAD + <span class="jxr_string">" WHERE Name LIKE \&quot;"</span> + procName + <span class="jxr_string">"/_%\&quot;"</span>, procName + <span class="jxr_string">"/*"</span>);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
