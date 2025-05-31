@@ -11,6 +11,8 @@
     <artifactId>oshi-dist</artifactId>
     <packaging>pom</packaging>
 
+    <name>oshi-dist</name>
+
     <!-- NOTE: These dependency declarations are only required to sort this project to the end of the line in the multimodule
         build. -->
     <dependencies>

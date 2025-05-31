@@ -1,9 +1,8 @@
-# 6.8.2 (in progress)
+# 6.8.3 (in progress)
 
-##### Bug fixes / Improvements
-* [#2889](https://github.com/oshi/oshi/pull/2889): Handle system date format on macOS getInstalledApps output parsing - [@dyorgio](https://github.com/dyorgio).
+* Your contribution here!
 
-# 6.8.0 (2025-03-22), 6.8.1 (2025-04-15)
+# 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31)
 
 ##### New Features
 * [#2851](https://github.com/oshi/oshi/pull/2851): Report installed apps stats on mac, windows, and linux - [@rohan-coder02](https://github.com/rohan-coder02).
@@ -12,6 +11,7 @@
 ##### Bug fixes / Improvements
 * [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 * [#2868](https://github.com/oshi/oshi/pull/2868): Fix windows thread details collection - [@dbwiddis](https://github.com/dbwiddis).
+* [#2889](https://github.com/oshi/oshi/pull/2889): Handle system date format on macOS getInstalledApps output parsing - [@dyorgio](https://github.com/dyorgio).
 
 # 6.7.0 (2025-02-25), 6.7.1 (2025-03-12)
 
