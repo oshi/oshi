@@ -12,6 +12,8 @@
     <packaging>jar</packaging>
 
     <name>oshi-core-java11</name>
+    <description>Modular release of oshi-core, a JNA-based (native) operating system information library for Java that aims to provide a
+        cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
 
     <properties>
         <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>

@@ -12,9 +12,9 @@
     <packaging>pom</packaging>
 
     <name>oshi-dist</name>
+    <description>OSHI JAR files packaged in zip, tar.gz, and tar.bz2 formats.</description>
 
-    <!-- NOTE: These dependency declarations are only required to sort this project to the end of the line in the multimodule
-        build. -->
+    <!-- These dependency declarations are only required to sort this project to the end of the line in the multimodule build. -->
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

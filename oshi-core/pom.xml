@@ -12,6 +12,8 @@
     <packaging>jar</packaging>
 
     <name>oshi-core</name>
+    <description>A JNA-based (native) operating system information library for Java that aims to provide a
+        cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
 
     <dependencyManagement>
         <dependencies>

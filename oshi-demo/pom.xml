@@ -12,6 +12,7 @@
     <packaging>jar</packaging>
 
     <name>oshi-demo</name>
+    <description>Demo classes demonstrating OSHI usage.</description>
 
     <properties>
         <jackson.version>2.19.0</jackson.version>
