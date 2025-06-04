@@ -6,8 +6,12 @@ package oshi.driver.windows.registry;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
+import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinReg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.software.os.ApplicationInfo;
+import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
 import java.util.ArrayList;
@@ -17,6 +21,7 @@ import java.util.Map;
 import java.util.Arrays;
 
 public final class InstalledAppsData {
+    private static final Logger LOG = LoggerFactory.getLogger(InstalledAppsData.class);
     private InstalledAppsData() {
     }
 
@@ -46,6 +51,9 @@ public final class InstalledAppsData {
                     String fullPath = registryPath + "\\" + key;
                     try {
                         String name = getRegistryValueOrUnknown(rootKey, fullPath, "DisplayName");
+                        if (name.equals(Constants.UNKNOWN)) {
+                            continue;
+                        }
                         String version = getRegistryValueOrUnknown(rootKey, fullPath, "DisplayVersion");
                         String publisher = getRegistryValueOrUnknown(rootKey, fullPath, "Publisher");
                         String installDate = getRegistryValueOrUnknown(rootKey, fullPath, "InstallDate");
@@ -73,7 +81,16 @@ public final class InstalledAppsData {
     }
 
     private static String getRegistryValueOrUnknown(WinReg.HKEY rootKey, String path, String key) {
-        String value = Advapi32Util.registryGetStringValue(rootKey, path, key);
-        return ParseUtil.getStringValueOrUnknown(value);
+        for (int accessFlag : new int[] { WinNT.KEY_WOW64_64KEY, WinNT.KEY_WOW64_32KEY }) {
+            try {
+                String value = Advapi32Util.registryGetStringValue(rootKey, path, key, accessFlag);
+                if (!ParseUtil.getStringValueOrUnknown(value).equals(Constants.UNKNOWN)) {
+                    return value;
+                }
+            } catch (Win32Exception e) {
+                LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
+            }
+        }
+        return Constants.UNKNOWN;
     }
 }
