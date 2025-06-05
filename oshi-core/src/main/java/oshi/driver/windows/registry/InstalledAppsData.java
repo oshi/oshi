@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.Arrays;
 
 public final class InstalledAppsData {
@@ -38,7 +40,7 @@ public final class InstalledAppsData {
     }
 
     public static List<ApplicationInfo> queryInstalledApps() {
-        List<ApplicationInfo> appInfoList = new ArrayList<>();
+        Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 
         // Iterate through both HKLM and HKCU paths
         for (Map.Entry<WinReg.HKEY, List<String>> entry : REGISTRY_PATHS.entrySet()) {
@@ -72,7 +74,7 @@ public final class InstalledAppsData {
 
                             ApplicationInfo app = new ApplicationInfo(name, version, publisher, installDateEpoch,
                                     additionalInfo);
-                            appInfoList.add(app);
+                            appInfoSet.add(app);
                         } catch (Win32Exception e) {
                             // Skip keys that are inaccessible or have missing values
                         }
@@ -81,7 +83,7 @@ public final class InstalledAppsData {
             }
         }
 
-        return appInfoList;
+        return new ArrayList<>(appInfoSet);
     }
 
     private static String getRegistryValueOrUnknown(WinReg.HKEY rootKey, String path, String key, int accessFlag) {
