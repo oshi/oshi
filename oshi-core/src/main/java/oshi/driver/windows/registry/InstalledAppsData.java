@@ -26,6 +26,7 @@ public final class InstalledAppsData {
     }
 
     private static final Map<WinReg.HKEY, List<String>> REGISTRY_PATHS = new HashMap<>();
+    private static final int[] ACCESS_FLAGS = { WinNT.KEY_WOW64_64KEY, WinNT.KEY_WOW64_32KEY };
 
     static {
         REGISTRY_PATHS.put(WinReg.HKEY_LOCAL_MACHINE,
@@ -45,7 +46,7 @@ public final class InstalledAppsData {
             List<String> uninstallPaths = entry.getValue();
 
             for (String registryPath : uninstallPaths) {
-                for (int accessFlag : new int[] { WinNT.KEY_WOW64_64KEY, WinNT.KEY_WOW64_32KEY }) {
+                for (int accessFlag : ACCESS_FLAGS) {
                     String[] keys = Advapi32Util.registryGetKeys(rootKey, registryPath, accessFlag);
                     for (String key : keys) {
                         String fullPath = registryPath + "\\" + key;
@@ -90,7 +91,7 @@ public final class InstalledAppsData {
                 return value;
             }
         } catch (Win32Exception e) {
-            LOG.trace("Unable to access " + path + ": " + e.getMessage());
+            LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
         }
         return null;
     }
