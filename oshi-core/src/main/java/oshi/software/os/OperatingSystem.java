@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -373,8 +372,8 @@ public interface OperatingSystem {
      *
      * @return A list of installed applications or an empty list if unsupported.
      */
-    default Set<ApplicationInfo> getInstalledApplications() {
-        return Collections.EMPTY_SET;
+    default List<ApplicationInfo> getInstalledApplications() {
+        return Collections.emptyList();
     }
 
     /**

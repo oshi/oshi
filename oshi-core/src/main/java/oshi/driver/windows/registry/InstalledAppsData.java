@@ -13,13 +13,7 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.Arrays;
+import java.util.*;
 
 public final class InstalledAppsData {
     private static final Logger LOG = LoggerFactory.getLogger(InstalledAppsData.class);
@@ -39,7 +33,7 @@ public final class InstalledAppsData {
                 Arrays.asList("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
     }
 
-    public static Set<ApplicationInfo> queryInstalledApps() {
+    public static List<ApplicationInfo> queryInstalledApps() {
         Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 
         // Iterate through both HKLM and HKCU paths
@@ -83,7 +77,7 @@ public final class InstalledAppsData {
             }
         }
 
-        return appInfoSet;
+        return new ArrayList<>(appInfoSet);
     }
 
     private static String getRegistryValueOrUnknown(WinReg.HKEY rootKey, String path, String key, int accessFlag) {

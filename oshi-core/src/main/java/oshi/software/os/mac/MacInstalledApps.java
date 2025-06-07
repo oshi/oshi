@@ -6,6 +6,7 @@ package oshi.software.os.mac;
 
 import static oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateFormatterShortStyle;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedHashSet;
@@ -33,12 +34,12 @@ public final class MacInstalledApps {
     private MacInstalledApps() {
     }
 
-    public static Set<ApplicationInfo> queryInstalledApps() {
+    public static List<ApplicationInfo> queryInstalledApps() {
         List<String> output = ExecutingCommand.runNative("system_profiler SPApplicationsDataType");
         return parseMacAppInfo(output);
     }
 
-    private static Set<ApplicationInfo> parseMacAppInfo(List<String> lines) {
+    private static List<ApplicationInfo> parseMacAppInfo(List<String> lines) {
         Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
         String appName = null;
         Map<String, String> appDetails = null;
@@ -71,7 +72,7 @@ public final class MacInstalledApps {
             }
         }
 
-        return appInfoSet;
+        return new ArrayList<>(appInfoSet);
     }
 
     private static ApplicationInfo createAppInfo(String name, Map<String, String> details, String dateFormat) {

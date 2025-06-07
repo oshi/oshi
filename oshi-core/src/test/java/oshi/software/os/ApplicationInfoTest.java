@@ -7,8 +7,10 @@ package oshi.software.os;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ApplicationInfoTest {
 
@@ -74,6 +77,21 @@ public class ApplicationInfoTest {
     }
 
     @Test
+    public void equalsWithSameReferenceShouldReturnTrue() {
+        ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+        assertTrue(app.equals(app)); // this == o
+    }
+
+    @Test
+    public void equalsWithDifferentObjectTypeShouldReturnFalse() {
+        ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+        ;
+        assertFalse(app.equals("NotAnApplicationInfo")); // !(o instanceof ApplicationInfo)
+    }
+
+    @Test
     public void testEqualsAndHashCodeSameValues() {
         Map<String, String> info1 = new LinkedHashMap<>();
         info1.put("installLocation", null);
@@ -100,16 +118,21 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void testSetBehavior() {
-        Set<ApplicationInfo> set = new LinkedHashSet<>();
-        ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.3.37.0", "Microsoft Corp.",
+    public void testDeduplicationWithListResult() {
+        ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
-        set.add(app);
 
-        // Should not add duplicate
-        assertFalse(set.add(new ApplicationInfo("SQL Server Management Studio", "20.3.37.0", "Microsoft Corp.",
-                1746576000000L, new LinkedHashMap<>())));
-        assertEquals(1, set.size());
+        ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+
+        Set<ApplicationInfo> dedupedSet = new LinkedHashSet<>();
+        dedupedSet.add(app1);
+        dedupedSet.add(app2); // Duplicate
+
+        List<ApplicationInfo> resultList = new ArrayList<>(dedupedSet);
+
+        assertEquals(1, resultList.size());
+        assertEquals(app1, resultList.get(0));
     }
 
 }

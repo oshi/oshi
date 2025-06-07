@@ -7,14 +7,14 @@ package oshi.software.os.windows;
 import oshi.driver.windows.registry.InstalledAppsData;
 import oshi.software.os.ApplicationInfo;
 
-import java.util.Set;
+import java.util.List;
 
 public final class WindowsInstalledApps {
 
     private WindowsInstalledApps() {
     }
 
-    public static Set<ApplicationInfo> queryInstalledApps() {
+    public static List<ApplicationInfo> queryInstalledApps() {
         return InstalledAppsData.queryInstalledApps();
     }
 }

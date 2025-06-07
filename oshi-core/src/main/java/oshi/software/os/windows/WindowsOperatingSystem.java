@@ -114,7 +114,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final boolean X86 = isCurrentX86();
     private static final boolean WOW = isCurrentWow();
 
-    private final Supplier<Set<ApplicationInfo>> installedAppsSupplier = Memoizer
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(WindowsInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     /*
@@ -534,7 +534,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public Set<ApplicationInfo> getInstalledApplications() {
+    public List<ApplicationInfo> getInstalledApplications() {
         return installedAppsSupplier.get();
     }
 

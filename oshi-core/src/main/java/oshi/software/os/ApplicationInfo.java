@@ -4,6 +4,7 @@
  */
 package oshi.software.os;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +31,7 @@ public class ApplicationInfo {
      * A map containing additional application details such as install location, source, etc. Keys are field names, and
      * values are corresponding details.
      */
-    private final LinkedHashMap<String, String> additionalInfo;
+    private final Map<String, String> additionalInfo;
 
     /**
      * Constructs an {@code ApplicationInfo} object with the specified details.
@@ -47,7 +48,7 @@ public class ApplicationInfo {
         this.version = version;
         this.vendor = vendor;
         this.timestamp = timestamp;
-        this.additionalInfo = additionalInfo != null ? new LinkedHashMap<>(additionalInfo) : new LinkedHashMap<>();
+        this.additionalInfo = additionalInfo != null ? new LinkedHashMap<>(additionalInfo) : Collections.emptyMap();
     }
 
     /**
