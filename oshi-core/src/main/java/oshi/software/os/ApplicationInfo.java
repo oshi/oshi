@@ -110,10 +110,12 @@ public class ApplicationInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof ApplicationInfo))
+        }
+        if (!(o instanceof ApplicationInfo)) {
             return false;
+        }
         ApplicationInfo that = (ApplicationInfo) o;
         return timestamp == that.timestamp && Objects.equals(name, that.name) && Objects.equals(version, that.version)
                 && Objects.equals(vendor, that.vendor) && Objects.equals(additionalInfo, that.additionalInfo);

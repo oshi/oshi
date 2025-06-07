@@ -74,7 +74,7 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void testEqualsAndHashCode_sameValues_shouldBeEqual() {
+    public void testEqualsAndHashCodeSameValues() {
         Map<String, String> info1 = new LinkedHashMap<>();
         info1.put("installLocation", null);
         info1.put("installSource",
@@ -90,7 +90,7 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void testEqualsAndHashCode_differentVersion_shouldNotBeEqual() {
+    public void testEqualsAndHashCodeDifferentVersion() {
         ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
         ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.3.37.0", "Microsoft Corp.",
