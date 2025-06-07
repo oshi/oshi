@@ -8,11 +8,13 @@ import oshi.software.os.ApplicationInfo;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class LinuxInstalledApps {
@@ -43,7 +45,7 @@ public final class LinuxInstalledApps {
      *
      * @return A list of {@link ApplicationInfo} objects representing installed applications.
      */
-    public static List<ApplicationInfo> queryInstalledApps() {
+    public static Set<ApplicationInfo> queryInstalledApps() {
         List<String> output = fetchInstalledApps();
         return parseLinuxAppInfo(output);
     }
@@ -72,8 +74,8 @@ public final class LinuxInstalledApps {
         return !result.isEmpty();
     }
 
-    private static List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
-        List<ApplicationInfo> appInfoList = new ArrayList<>();
+    private static Set<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
+        Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 
         for (String line : output) {
             // split by the pipe character
@@ -82,7 +84,7 @@ public final class LinuxInstalledApps {
             // Check if we have all 8 fields
             if (parts.length >= 8) {
                 // Additional info map
-                Map<String, String> additionalInfo = new HashMap<>();
+                Map<String, String> additionalInfo = new LinkedHashMap<>();
                 additionalInfo.put("architecture", ParseUtil.getStringValueOrUnknown(parts[2]));
                 additionalInfo.put("installedSize", String.valueOf(ParseUtil.parseLongOrDefault(parts[3], 0L)));
                 additionalInfo.put("source", ParseUtil.getStringValueOrUnknown(parts[6]));
@@ -94,10 +96,10 @@ public final class LinuxInstalledApps {
                         ParseUtil.parseLongOrDefault(parts[4], 0L), // Date Epoch
                         additionalInfo);
 
-                appInfoList.add(app);
+                appInfoSet.add(app);
             }
         }
 
-        return appInfoList;
+        return appInfoSet;
     }
 }

@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Arrays;
 
 public final class InstalledAppsData {
@@ -39,7 +39,7 @@ public final class InstalledAppsData {
                 Arrays.asList("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
     }
 
-    public static List<ApplicationInfo> queryInstalledApps() {
+    public static Set<ApplicationInfo> queryInstalledApps() {
         Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 
         // Iterate through both HKLM and HKCU paths
@@ -68,7 +68,7 @@ public final class InstalledAppsData {
 
                             long installDateEpoch = ParseUtil.parseDateToEpoch(installDate, "yyyyMMdd");
 
-                            Map<String, String> additionalInfo = new HashMap<>();
+                            Map<String, String> additionalInfo = new LinkedHashMap<>();
                             additionalInfo.put("installLocation", installLocation);
                             additionalInfo.put("installSource", installSource);
 
@@ -83,7 +83,7 @@ public final class InstalledAppsData {
             }
         }
 
-        return new ArrayList<>(appInfoSet);
+        return appInfoSet;
     }
 
     private static String getRegistryValueOrUnknown(WinReg.HKEY rootKey, String path, String key, int accessFlag) {

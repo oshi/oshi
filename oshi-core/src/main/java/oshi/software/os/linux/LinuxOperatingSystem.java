@@ -79,7 +79,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     /** This static field identifies if the syscall for gettid returns sane results. */
     public static final boolean HAS_SYSCALL_GETTID;
 
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+    private final Supplier<Set<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     static {
@@ -346,7 +346,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
+    public Set<ApplicationInfo> getInstalledApplications() {
         return installedAppsSupplier.get();
     }
 

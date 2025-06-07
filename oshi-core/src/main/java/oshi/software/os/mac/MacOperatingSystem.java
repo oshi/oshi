@@ -68,7 +68,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private final String osXVersion;
     private final int major;
     private final int minor;
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+    private final Supplier<Set<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     private static final long BOOTTIME;
@@ -302,7 +302,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
+    public Set<ApplicationInfo> getInstalledApplications() {
         return installedAppsSupplier.get();
     }
 }
