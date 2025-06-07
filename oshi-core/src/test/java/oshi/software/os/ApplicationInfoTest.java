@@ -87,7 +87,6 @@ public class ApplicationInfoTest {
     public void equalsWithDifferentObjectTypeShouldReturnFalse() {
         ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
-        ;
         assertFalse(app.equals("NotAnApplicationInfo")); // !(o instanceof ApplicationInfo)
     }
 

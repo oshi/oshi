@@ -13,7 +13,14 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Arrays;
 
 public final class InstalledAppsData {
     private static final Logger LOG = LoggerFactory.getLogger(InstalledAppsData.class);
