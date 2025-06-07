@@ -1392,8 +1392,9 @@ public final class ParseUtil {
      * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
      */
     public static long parseDateToEpoch(String dateString, String datePattern) {
-        if (dateString.equals(Constants.UNKNOWN) || dateString.isEmpty() || datePattern.isEmpty()) {
-            return 0; // Default value if date is unknown or empty
+        if (dateString == null || dateString.equals(Constants.UNKNOWN) || dateString.isEmpty()
+                || datePattern.isEmpty()) {
+            return 0; // Default value if date is unknown or empty or null
         }
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ROOT);

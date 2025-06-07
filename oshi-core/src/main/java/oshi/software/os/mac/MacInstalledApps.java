@@ -9,7 +9,10 @@ import static oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateF
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
@@ -37,7 +40,7 @@ public final class MacInstalledApps {
     }
 
     private static List<ApplicationInfo> parseMacAppInfo(List<String> lines) {
-        List<ApplicationInfo> appInfoList = new ArrayList<>();
+        Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
         String appName = null;
         Map<String, String> appDetails = null;
         boolean collectingAppDetails = false;
@@ -50,7 +53,7 @@ public final class MacInstalledApps {
             if (line.endsWith(COLON)) {
                 // When app and appDetails are not empty then we reached the next app, add it to the list
                 if (appName != null && !appDetails.isEmpty()) {
-                    appInfoList.add(createAppInfo(appName, appDetails, dateFormat));
+                    appInfoSet.add(createAppInfo(appName, appDetails, dateFormat));
                 }
 
                 // store app name and proceed with collecting app details
@@ -69,7 +72,7 @@ public final class MacInstalledApps {
             }
         }
 
-        return appInfoList;
+        return new ArrayList<>(appInfoSet);
     }
 
     private static ApplicationInfo createAppInfo(String name, Map<String, String> details, String dateFormat) {
@@ -81,7 +84,7 @@ public final class MacInstalledApps {
         long lastModifiedEpoch = ParseUtil.parseDateToEpoch(lastModified, dateFormat);
 
         // Additional info map
-        Map<String, String> additionalInfo = new HashMap<>();
+        Map<String, String> additionalInfo = new LinkedHashMap<>();
         additionalInfo.put("Kind", ParseUtil.getValueOrUnknown(details, "Kind"));
         additionalInfo.put("Location", ParseUtil.getValueOrUnknown(details, "Location"));
         additionalInfo.put("Get Info String", ParseUtil.getValueOrUnknown(details, "Get Info String"));

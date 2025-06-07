@@ -4,8 +4,10 @@
  */
 package oshi.software.os;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents common information about an installed application across different operating systems. This class provides
@@ -46,7 +48,7 @@ public class ApplicationInfo {
         this.version = version;
         this.vendor = vendor;
         this.timestamp = timestamp;
-        this.additionalInfo = additionalInfo != null ? new HashMap<>(additionalInfo) : new HashMap<>();
+        this.additionalInfo = additionalInfo != null ? new LinkedHashMap<>(additionalInfo) : Collections.emptyMap();
     }
 
     /**
@@ -105,5 +107,23 @@ public class ApplicationInfo {
     public String toString() {
         return "AppInfo{" + "name=" + name + ", version=" + version + ", vendor=" + vendor + ", timestamp=" + timestamp
                 + ", additionalInfo=" + additionalInfo + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ApplicationInfo)) {
+            return false;
+        }
+        ApplicationInfo that = (ApplicationInfo) o;
+        return timestamp == that.timestamp && Objects.equals(name, that.name) && Objects.equals(version, that.version)
+                && Objects.equals(vendor, that.vendor) && Objects.equals(additionalInfo, that.additionalInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version, vendor, timestamp, additionalInfo);
     }
 }

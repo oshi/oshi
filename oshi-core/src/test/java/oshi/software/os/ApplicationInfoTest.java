@@ -7,12 +7,18 @@ package oshi.software.os;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ApplicationInfoTest {
 
@@ -25,7 +31,7 @@ public class ApplicationInfoTest {
 
     @BeforeEach
     void setUp() {
-        additionalInfo = new HashMap<>();
+        additionalInfo = new LinkedHashMap<>();
         additionalInfo.put("source", "libzstd");
         additionalInfo.put("installedSize", "1798");
         additionalInfo.put("architecture", "amd64");
@@ -69,4 +75,63 @@ public class ApplicationInfoTest {
         additionalInfo.put("NewKey", "NewValue");
         assertFalse(appInfo.getAdditionalInfo().containsKey("NewKey"), "Stored map should remain unchanged");
     }
+
+    @Test
+    public void equalsWithSameReferenceShouldReturnTrue() {
+        ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+        assertTrue(app.equals(app)); // this == o
+    }
+
+    @Test
+    public void equalsWithDifferentObjectTypeShouldReturnFalse() {
+        ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+        assertFalse(app.equals("NotAnApplicationInfo")); // !(o instanceof ApplicationInfo)
+    }
+
+    @Test
+    public void testEqualsAndHashCodeSameValues() {
+        Map<String, String> info1 = new LinkedHashMap<>();
+        info1.put("installLocation", null);
+        info1.put("installSource",
+                "C:\\ProgramData\\Package Cache\\{FE8C7838-D3E6-4CEA-87BE-216E42391827}v20.2.37.0\\");
+
+        ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, info1);
+        ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>(info1));
+
+        assertEquals(app1, app2);
+        assertEquals(app1.hashCode(), app2.hashCode());
+    }
+
+    @Test
+    public void testEqualsAndHashCodeDifferentVersion() {
+        ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+        ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.3.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+
+        assertNotEquals(app1, app2);
+    }
+
+    @Test
+    public void testDeduplicationWithListResult() {
+        ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+
+        ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
+                1746576000000L, new LinkedHashMap<>());
+
+        Set<ApplicationInfo> dedupedSet = new LinkedHashSet<>();
+        dedupedSet.add(app1);
+        dedupedSet.add(app2); // Duplicate
+
+        List<ApplicationInfo> resultList = new ArrayList<>(dedupedSet);
+
+        assertEquals(1, resultList.size());
+        assertEquals(app1, resultList.get(0));
+    }
+
 }
