@@ -74,7 +74,7 @@ public final class LogicalProcessorInformation {
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
                 CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
-                caches.add(new ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.size,
+                caches.add(new ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.cacheSize,
                         Type.values()[cache.type]));
                 break;
             case LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
