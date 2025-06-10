@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -8,6 +8,7 @@ import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -31,6 +32,7 @@ import oshi.driver.unix.aix.perfstat.PerfstatConfig;
 import oshi.driver.unix.aix.perfstat.PerfstatProcess;
 import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -38,6 +40,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
@@ -52,6 +55,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
     private final Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses,
             defaultExpiration());
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(AixInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     private static final long BOOTTIME = querySystemBootTimeMillis() / 1000L;
 
@@ -257,5 +262,10 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
             }
         }
         return services;
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return installedAppsSupplier.get();
     }
 }
