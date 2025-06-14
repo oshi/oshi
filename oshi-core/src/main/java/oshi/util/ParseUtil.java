@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.LocalDate;
@@ -17,6 +18,8 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -1397,6 +1400,14 @@ public final class ParseUtil {
             return 0; // Default value if date is unknown or empty or null
         }
         try {
+            if (datePattern.equals("YYWW")) {
+                // convert this to a date i.e. the start of the week -> Monday
+                int year = 2000 + Integer.parseInt(dateString.substring(0, 2));
+                int week = Integer.parseInt(dateString.substring(2));
+                LocalDate weekStart = LocalDate.ofYearDay(year, 1).with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
+                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                return weekStart.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            }
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ROOT);
             // Determine whether the pattern includes time components
             if (datePattern.contains("H") || datePattern.contains("m") || datePattern.contains("s")) {
