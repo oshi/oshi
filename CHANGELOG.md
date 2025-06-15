@@ -1,5 +1,9 @@
 # 6.8.3 (in progress)
 
+##### New Features
+
+* [#2912](https://github.com/oshi/oshi/pull/2912): Installed apps feature for AIX - [@rohan-coder02](https://github.com/rohan-coder02).
+
 ##### Bug fixes / Improvements
 * [#2902](https://github.com/oshi/oshi/pull/2902): Deduplicate installed applications using Set across Windows, Linux, MacOS and Read both 32-bit, 64-bit Windows registry keys when fetching installed apps - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#2908](https://github.com/oshi/oshi/pull/2908): Fix Windows cache size - [@lesley29](https://github.com/dbwiddis).

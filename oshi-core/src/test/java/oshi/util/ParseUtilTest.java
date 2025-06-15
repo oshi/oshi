@@ -796,6 +796,13 @@ class ParseUtilTest {
         assertThat("Parse dd/MM/yy, HH:mm", ParseUtil.parseDateToEpoch("01/01/24, 12:30", "dd/MM/yy, HH:mm"),
                 is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
+        assertThat("Parse YYYY-'W'ww-e ISO week date", ParseUtil.parseDateToEpoch("2025-W25-2", "YYYY-'W'ww-e"),
+                is(LocalDate.of(2025, 6, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+
+        assertThat("Parse EEE MMM dd HH:mm:ss yyyy",
+                ParseUtil.parseDateToEpoch("Fri Sep 18 15:53:11 2020", "EEE MMM dd HH:mm:ss yyyy"), is(LocalDateTime
+                        .of(2020, 9, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+
         assertThat("Parse empty date string", ParseUtil.parseDateToEpoch("", "yyyyMMdd"), is(0L));
 
         assertThat("Parse empty pattern", ParseUtil.parseDateToEpoch("20240101", ""), is(0L));

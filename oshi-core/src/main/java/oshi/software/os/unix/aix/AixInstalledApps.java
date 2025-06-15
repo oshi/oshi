@@ -21,6 +21,9 @@ public class AixInstalledApps {
 
     private static final Pattern COLON_PATTERN = Pattern.compile(":");
 
+    private AixInstalledApps() {
+    }
+
     public static List<ApplicationInfo> queryInstalledApps() {
         // https://www.ibm.com/docs/en/aix/7.1.0?topic=l-lslpp-command
         List<String> output = ExecutingCommand.runNative("lslpp -Lc");
@@ -55,7 +58,9 @@ public class AixInstalledApps {
             long timestamp = 0;
             if (!buildDate.equals(Constants.UNKNOWN)) {
                 if (buildDate.matches("\\d{4}")) {
-                    timestamp = ParseUtil.parseDateToEpoch(buildDate, "YYWW");
+                    // Convert to ISO week date string (e.g., 1125 -> 2011-W25-2 for Monday)
+                    String isoWeekString = "20" + buildDate.substring(0, 2) + "-W" + buildDate.substring(2) + "-2";
+                    timestamp = ParseUtil.parseDateToEpoch(isoWeekString, "YYYY-'W'ww-e");
                 } else {
                     timestamp = ParseUtil.parseDateToEpoch(buildDate, "EEE MMM dd HH:mm:ss yyyy");
                 }
