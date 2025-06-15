@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
 
-public class AixInstalledApps {
+public final class AixInstalledApps {
 
     private static final Pattern COLON_PATTERN = Pattern.compile(":");
 
