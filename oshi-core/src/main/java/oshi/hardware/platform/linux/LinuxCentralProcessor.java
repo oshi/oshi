@@ -5,6 +5,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.util.platform.linux.ProcPath.COMPATIBLE;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import static oshi.util.platform.linux.ProcPath.MODEL;
 
@@ -131,6 +132,24 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
                 break;
             default:
                 // Do nothing
+            }
+        }
+        if (cpuName.isEmpty()) {
+            String[] compatible = FileUtil.getStringFromFile(COMPATIBLE).trim().split("\0");
+            for (int i = compatible.length - 1; i >= 0; i--) {
+                String item = compatible[i];
+                int comma = item.indexOf(',');
+                if (comma > 0 && comma < item.length() - 1) {
+                    String vendor = item.substring(0, comma);
+                    String name = item.substring(comma + 1);
+                    if (!name.startsWith("generic-")) {
+                        cpuName = name.toUpperCase(Locale.ROOT);
+                        if (cpuVendor.isEmpty()) {
+                            cpuVendor = vendor;
+                        }
+                        break;
+                    }
+                }
             }
         }
         if (cpuName.isEmpty()) {
