@@ -6,7 +6,7 @@
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
 
     <!-- Intentional style breaks -->
-    <suppress checks="ConstantName" files="ParseUtil\.java" lines="101-121"/>
+    <suppress checks="ConstantName" files="ParseUtil\.java" lines="102-122"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
 
     <!-- JNA convention  -->
