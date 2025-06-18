@@ -123,7 +123,7 @@
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
         <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-        <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
+        <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
