@@ -44,6 +44,7 @@
     <modules>
         <module>oshi-core</module>
         <module>oshi-demo</module>
+        <module>oshi-core-java24</module>
     </modules>
 
     <scm>
@@ -984,6 +985,19 @@
             <properties>
                 <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
+            </properties>
+        </profile>
+        <!-- Java 24+ profile -->
+        <profile>
+            <id>java24</id>
+            <activation>
+                <jdk>[24,)</jdk>
+            </activation>
+            <modules>
+                <module>oshi-core-java24</module>
+            </modules>
+            <properties>
+                <maven.compiler.release>24</maven.compiler.release>
             </properties>
         </profile>
         <profile>
