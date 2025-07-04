@@ -1,8 +1,12 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.software.os;
 
 public interface OperatingSystemFactory {
     /**
-     * Returns true if this factory supports the current JDK.
+     * Returns the minimum supported Java version (e.g., 8, 11, 24).
      */
-    boolean isSupportedOnThisJdk();
+    int getMinimumSupportedJavaVersion();
 }

@@ -44,7 +44,6 @@
     <modules>
         <module>oshi-core</module>
         <module>oshi-demo</module>
-        <module>oshi-core-java24</module>
     </modules>
 
     <scm>
@@ -991,14 +990,11 @@
         <profile>
             <id>java24</id>
             <activation>
-                <jdk>[24,)</jdk>
+                <jdk>[22,)</jdk> <!-- Temporary until Java 24 LTS -->
             </activation>
             <modules>
                 <module>oshi-core-java24</module>
             </modules>
-            <properties>
-                <maven.compiler.release>24</maven.compiler.release>
-            </properties>
         </profile>
         <profile>
             <id>checks</id>
