@@ -30,7 +30,7 @@ public class OperatingSystemFactoryProvider {
 
         return selected;
     }
-    public static int parseJavaVersion(String version) {
+    private static int parseJavaVersion(String version) {
         if (version.startsWith("1.")) {
             return ParseUtil.parseIntOrDefault(version.substring(2), 0);
         }
