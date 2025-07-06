@@ -4,6 +4,7 @@
 * [#2902](https://github.com/oshi/oshi/pull/2902): Deduplicate installed applications using Set across Windows, Linux, MacOS and Read both 32-bit, 64-bit Windows registry keys when fetching installed apps - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#2908](https://github.com/oshi/oshi/pull/2908): Fix Windows cache size - [@lesley29](https://github.com/dbwiddis).
 * [#2912](https://github.com/oshi/oshi/pull/2912): Installed apps feature for AIX - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2929](https://github.com/oshi/oshi/pull/2929): Improve Linux temperature sensor selection - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31)
 
