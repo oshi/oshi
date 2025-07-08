@@ -129,7 +129,7 @@
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
-        <spotless-plugin.version>2.44.5</spotless-plugin.version>
+        <spotless-plugin.version>2.45.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.5</jlibrehardwaremonitor.version>
         <!-- report only -->
         <maven-changelog-plugin.version>3.0.0-M1</maven-changelog-plugin.version>
