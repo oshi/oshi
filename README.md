@@ -68,6 +68,9 @@ HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
 
+Sample Output 
+-------------
+
 See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for examples. To see sample output for your machine:
 ```sh
 git clone https://github.com/oshi/oshi.git && cd oshi
@@ -79,29 +82,20 @@ git clone https://github.com/oshi/oshi.git && cd oshi
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
-Demo
-----
-
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
 
-You can run some of the demos using `jbang`, you can list the available demos with:
+You can run some of the demos using `jbang`:
 
 ```sh
+# list all the aliases
 jbang alias list oshi/oshi
-```
 
-and then run the demo you want to run, for example:
-
-```sh
+# run the json demo
 jbang json@oshi/oshi
-```
 
-or 
-
-```sh
+#run the gui
 jbang gui@oshi/oshi
 ```
-
 
 Supported Features
 ------------------
