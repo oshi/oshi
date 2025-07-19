@@ -4,6 +4,13 @@
  */
 package oshi;
 
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+
+import java.util.function.Supplier;
+
+import static oshi.util.Memoizer.memoize;
+
 public class SystemInfo {
 
     private static final PlatformEnum CURRENT_PLATFORM;
@@ -17,6 +24,9 @@ public class SystemInfo {
         default -> PlatformEnum.UNSUPPORTED;
         };
     }
+
+    private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
+    private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
 
     /**
      * Constructs a new SystemInfo instance.
