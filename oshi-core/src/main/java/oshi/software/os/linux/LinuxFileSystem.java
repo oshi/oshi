@@ -69,7 +69,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 try {
                     volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
                 } catch (IOException e) {
-                    LOG.error("Couldn't get canonical path for {}. {}", volume.getName(), e.getMessage());
+                    LOG.debug("Couldn't get canonical path for {}. {}", volume.getName(), e.getMessage());
                 }
             }
         }
@@ -87,7 +87,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                         uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
                     }
                 } catch (IOException e) {
-                    LOG.error("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
+                    LOG.debug("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
                 }
             }
         }
@@ -170,7 +170,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                         logicalVolume = full.normalize().toString();
                     }
                 } catch (IOException e) {
-                    LOG.warn("Couldn't access symbolic path  {}. {}", link, e.getMessage());
+                    LOG.debug("Couldn't access symbolic path  {}. {}", link, e.getMessage());
                 }
             }
 
@@ -190,7 +190,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
                     usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();
                     freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();
                 } else {
-                    LOG.warn("Failed to get information to use statvfs. path: {}, Error code: {}", path,
+                    LOG.debug("Failed to get information to use statvfs. path: {}, Error code: {}", path,
                             Native.getLastError());
                 }
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
