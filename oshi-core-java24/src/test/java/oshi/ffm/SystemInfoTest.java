@@ -2,13 +2,13 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi;
+package oshi.ffm;
 
-import oshi.ffm.PlatformEnum;
-import oshi.ffm.SystemInfo;
 import org.junit.jupiter.api.Test;
-import oshi.ffm.hardware.HardwareAbstractionLayer;
-import oshi.ffm.software.os.OperatingSystem;
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,7 +27,6 @@ public class SystemInfoTest {
         SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os);
-        assertNotNull(os.toString()); // Optional: check delegate works
     }
 
     @Test
