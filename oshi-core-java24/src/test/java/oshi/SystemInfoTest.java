@@ -2,11 +2,10 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi;
 
 import org.junit.jupiter.api.Test;
-import oshi.PlatformEnum;
-import oshi.SystemInfo;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 
