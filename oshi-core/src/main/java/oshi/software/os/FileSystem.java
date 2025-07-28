@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -31,7 +31,7 @@ public interface FileSystem {
      * Instantiates a list of {@link oshi.software.os.OSFileStore} objects, representing a storage pool, device,
      * partition, volume, concrete file system or other implementation specific means of file storage.
      *
-     * @param localOnly If true, filters the list to only local file stores.
+     * @param localOnly If true, filters the list to only local file stores. On Windows, also excluded CD-ROM drives.
      *
      * @return A list of {@link oshi.software.os.OSFileStore} objects or an empty array if none are present.
      */
