@@ -1,0 +1,31 @@
+{
+  "catalogs": {},
+  "aliases": {
+    "json": {
+      "script-ref": "com.github.oshi:oshi-demo:RELEASE",
+      "main": "oshi.demo.Json",
+      "java-agents": []
+    },
+    "gui": {
+      "script-ref": "com.github.oshi:oshi-demo:RELEASE",
+      "main": "oshi.demo.OshiGui",
+      "java-agents": []
+    },
+    "detectvm": {
+      "script-ref": "com.github.oshi:oshi-demo:RELEASE",
+      "main": "oshi.demo.DetectVM",
+      "java-agents": []
+    },
+    "id": {
+      "script-ref": "com.github.oshi:oshi-demo:RELEASE",
+      "main": "oshi.demo.ComputerID",
+      "java-agents": []
+    },
+    "diskstore": {
+      "script-ref": "com.github.oshi:oshi-demo:RELEASE",
+      "main": "oshi.demo.DiskStoreForPath",
+      "java-agents": []
+    }
+  },
+  "templates": {}
+}
