@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.wmi;
@@ -41,7 +41,7 @@ public final class Win32LogicalDisk {
         StringBuilder wmiClassName = new StringBuilder(WIN32_LOGICAL_DISK);
         boolean where = false;
         if (localOnly) {
-            wmiClassName.append(" WHERE DriveType = 3");
+            wmiClassName.append(" WHERE DriveType = 2 OR DriveType = 3 OR DriveType = 6");
             where = true;
         }
         if (nameToMatch != null) {
