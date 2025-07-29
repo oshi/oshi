@@ -52,6 +52,7 @@ class EdidUtilTest {
         assertThat("digital", EdidUtil.isDigital(EDID), is(true));
         assertThat("hcm", EdidUtil.getHcm(EDID), is(60));
         assertThat("vcm", EdidUtil.getVcm(EDID), is(34));
+        assertThat("preferredResolution", EdidUtil.getPreferredResolution(EDID), is("2560x1440"));
     }
 
     @Test

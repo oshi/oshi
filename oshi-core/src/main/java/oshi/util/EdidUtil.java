@@ -203,6 +203,20 @@ public final class EdidUtil {
     }
 
     /**
+     * Get the preferred resolution for the monitor (Eg: 1920x1080)
+     *
+     * @param edid The edid Byte array
+     * @return Plain text preferred resolution
+     */
+
+    public static String getPreferredResolution(byte[] edid) {
+        int dtd = 54;
+        int horizontalRes = (edid[dtd + 4] & 0xF0) << 4 | edid[dtd + 2] & 0xFF;
+        int verticalRes = (edid[dtd + 7] & 0xF0) << 4 | edid[dtd + 5] & 0xFF;
+        return horizontalRes + "x" + verticalRes;
+    }
+
+    /**
      * Parse an EDID byte array into user-readable information
      *
      * @param edid An EDID byte array
