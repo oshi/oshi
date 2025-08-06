@@ -1,6 +1,7 @@
 # 6.8.3 (in progress)
 
 ##### Bug fixes / Improvements
+* [#2941](https://github.com/oshi/oshi/pull/2941): Add get monitor model to the EdidUtil Class - [@ayonization](https://github.com/ayonization).
 * [#2939](https://github.com/oshi/oshi/pull/2939): Add get preferred resolution to the EdidUtil Class - [@ayonization](https://github.com/ayonization).
 * [#2902](https://github.com/oshi/oshi/pull/2902): Deduplicate installed applications using Set across Windows, Linux, MacOS and Read both 32-bit, 64-bit Windows registry keys when fetching installed apps - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#2908](https://github.com/oshi/oshi/pull/2908): Fix Windows cache size - [@lesley29](https://github.com/dbwiddis).

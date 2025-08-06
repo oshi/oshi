@@ -53,6 +53,7 @@ class EdidUtilTest {
         assertThat("hcm", EdidUtil.getHcm(EDID), is(60));
         assertThat("vcm", EdidUtil.getVcm(EDID), is(34));
         assertThat("preferredResolution", EdidUtil.getPreferredResolution(EDID), is("2560x1440"));
+        assertThat("model", EdidUtil.getModel(EDID), is("Thunderbolt"));
     }
 
     @Test
