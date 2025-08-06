@@ -217,6 +217,34 @@ public final class EdidUtil {
     }
 
     /**
+     * Get the monitor model from the EDID
+     *
+     * @param edid The edid Byte array
+     * @return Plain text monitor model
+     */
+
+    public static String getModel(byte[] edid) {
+
+        byte[][] desc = EdidUtil.getDescriptors(edid);
+        String model = null;
+
+        for (byte[] b : desc) {
+
+            if (EdidUtil.getDescriptorType(b) == 0xfc) {
+                model = EdidUtil.getDescriptorText(b);
+                break;
+            }
+        }
+
+        assert model != null;
+        String[] tokens = model.split("\\s+");
+        if (tokens.length >= 1) {
+            model = tokens[tokens.length - 1];
+        }
+        return model.trim();
+    }
+
+    /**
      * Parse an EDID byte array into user-readable information
      *
      * @param edid An EDID byte array
