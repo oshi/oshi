@@ -29,7 +29,7 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
       - name: Checkstyle
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
+        if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '17')
         run: ./mvnw checkstyle:check
       - name: Forbidden APIs
         if: contains(matrix.os, 'ubuntu') && contains(matrix.java, '11')
