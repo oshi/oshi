@@ -2,7 +2,7 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi;
+package oshi.ffm;
 
 /**
  * An enumeration of supported operating systems.

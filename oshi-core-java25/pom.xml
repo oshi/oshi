@@ -10,10 +10,10 @@
         <version>6.8.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>oshi-core-java24</artifactId>
+    <artifactId>oshi-core-java25</artifactId>
     <packaging>jar</packaging>
 
-    <name>oshi-core-java24</name>
+    <name>oshi-core-java25</name>
     <description>oshi-core implementation using FFM</description>
 
     <properties>
@@ -24,6 +24,24 @@
     </properties>
 
     <dependencies>
+        <!-- runtime dependencies needed for compilation as oshi-core is used in builder-helper -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

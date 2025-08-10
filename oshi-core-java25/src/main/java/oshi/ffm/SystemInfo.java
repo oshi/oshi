@@ -2,12 +2,12 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi;
+package oshi.ffm;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.linux.LinuxHardwareAbstractionLayer;
-import oshi.hardware.mac.MacHardwareAbstractionLayer;
-import oshi.hardware.windows.WindowsHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystem;
@@ -31,7 +31,7 @@ public class SystemInfo {
         };
     }
 
-    private static final String NOT_SUPPORTED = "Operating system not supported: ";
+    private static final String NOT_SUPPORTED = "Unsupported platform: " + CURRENT_PLATFORM;
 
     private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
     private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
