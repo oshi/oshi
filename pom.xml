@@ -986,14 +986,14 @@
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
             </properties>
         </profile>
-        <!-- Java 24+ profile -->
+        <!-- Java 25+ profile -->
         <profile>
-            <id>java24</id>
+            <id>java25</id>
             <activation>
-                <jdk>[22,)</jdk> <!-- Temporary until Java 24 LTS -->
+                <jdk>[24,)</jdk>
             </activation>
             <modules>
-                <module>oshi-core-java24</module>
+                <module>oshi-core-java25</module>
             </modules>
         </profile>
         <profile>
