@@ -76,7 +76,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <!-- Copy source files from oshi-core to override selectively -->
+                                <!-- Copy source files from oshi-core -->
                                 <source>${project.basedir}/../oshi-core/src/main/java</source>
                             </sources>
                         </configuration>
