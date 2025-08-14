@@ -19,7 +19,7 @@ jobs:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Test in FreeBSD
         id: test-freebsd
         uses: vmactions/freebsd-vm@v1
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 11, OpenBSD vm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Test on OpenBSD
         id: test-openbsd
         uses: vmactions/openbsd-vm@v1
@@ -58,7 +58,7 @@ jobs:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Test on Solaris
         id: test-solaris
         uses: vmactions/solaris-vm@v1
