@@ -804,15 +804,22 @@
 <a class="jxr_linenumber" name="L796" href="#L796">796</a>         assertThat(<span class="jxr_string">"Parse dd/MM/yy, HH:mm"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"01/01/24, 12:30"</span>, <span class="jxr_string">"dd/MM/yy, HH:mm"</span>),
 <a class="jxr_linenumber" name="L797" href="#L797">797</a>                 is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 <a class="jxr_linenumber" name="L798" href="#L798">798</a> 
-<a class="jxr_linenumber" name="L799" href="#L799">799</a>         assertThat(<span class="jxr_string">"Parse empty date string"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">""</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L800" href="#L800">800</a> 
-<a class="jxr_linenumber" name="L801" href="#L801">801</a>         assertThat(<span class="jxr_string">"Parse empty pattern"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">""</span>), is(0L));
-<a class="jxr_linenumber" name="L802" href="#L802">802</a> 
-<a class="jxr_linenumber" name="L803" href="#L803">803</a>         assertThat(<span class="jxr_string">"Parse UNKNOWN constant"</span>, ParseUtil.parseDateToEpoch(Constants.UNKNOWN, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L804" href="#L804">804</a> 
-<a class="jxr_linenumber" name="L805" href="#L805">805</a>         assertThat(<span class="jxr_string">"Parse invalid date format"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"invalid-date"</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L806" href="#L806">806</a>     }
-<a class="jxr_linenumber" name="L807" href="#L807">807</a> }
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>         assertThat(<span class="jxr_string">"Parse YYYY-'W'ww-e ISO week date"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"2025-W25-2"</span>, <span class="jxr_string">"YYYY-'W'ww-e"</span>),
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>                 is(LocalDate.of(2025, 6, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L801" href="#L801">801</a> 
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>         assertThat(<span class="jxr_string">"Parse EEE MMM dd HH:mm:ss yyyy"</span>,
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>                 ParseUtil.parseDateToEpoch(<span class="jxr_string">"Fri Sep 18 15:53:11 2020"</span>, <span class="jxr_string">"EEE MMM dd HH:mm:ss yyyy"</span>), is(LocalDateTime
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>                         .of(2020, 9, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L805" href="#L805">805</a> 
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>         assertThat(<span class="jxr_string">"Parse empty date string"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">""</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L807" href="#L807">807</a> 
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>         assertThat(<span class="jxr_string">"Parse empty pattern"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">""</span>), is(0L));
+<a class="jxr_linenumber" name="L809" href="#L809">809</a> 
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>         assertThat(<span class="jxr_string">"Parse UNKNOWN constant"</span>, ParseUtil.parseDateToEpoch(Constants.UNKNOWN, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L811" href="#L811">811</a> 
+<a class="jxr_linenumber" name="L812" href="#L812">812</a>         assertThat(<span class="jxr_string">"Parse invalid date format"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"invalid-date"</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L813" href="#L813">813</a>     }
+<a class="jxr_linenumber" name="L814" href="#L814">814</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>

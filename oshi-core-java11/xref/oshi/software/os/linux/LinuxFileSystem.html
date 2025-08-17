@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/linux/LinuxFileSystem.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2024 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.linux;
@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                  <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                      volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                  } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      LOG.error(<span class="jxr_string">"Couldn't get canonical path for {}. {}"</span>, volume.getName(), e.getMessage());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      LOG.debug(<span class="jxr_string">"Couldn't get canonical path for {}. {}"</span>, volume.getName(), e.getMessage());
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
@@ -95,7 +95,7 @@
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                          uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                      }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      LOG.error(<span class="jxr_string">"Couldn't get canonical path for {}. {}"</span>, uuid.getName(), e.getMessage());
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      LOG.debug(<span class="jxr_string">"Couldn't get canonical path for {}. {}"</span>, uuid.getName(), e.getMessage());
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  }
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
@@ -178,7 +178,7 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>                         logicalVolume = full.normalize().toString();
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>                     }
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>                 } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     LOG.warn(<span class="jxr_string">"Couldn't access symbolic path  {}. {}"</span>, link, e.getMessage());
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     LOG.debug(<span class="jxr_string">"Couldn't access symbolic path  {}. {}"</span>, link, e.getMessage());
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>                 }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>             }
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> 
@@ -198,7 +198,7 @@
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                     usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>                     freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>                     LOG.warn(<span class="jxr_string">"Failed to get information to use statvfs. path: {}, Error code: {}"</span>, path,
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                     LOG.debug(<span class="jxr_string">"Failed to get information to use statvfs. path: {}, Error code: {}"</span>, path,
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>                             Native.getLastError());
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>                 }
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             } <strong class="jxr_keyword">catch</strong> (UnsatisfiedLinkError | NoClassDefFoundError e) {

@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../apidocs/oshi/driver/windows/LogicalProcessorInformation.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.windows;
@@ -82,7 +82,7 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                  CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.size,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.cacheSize,
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                          Type.values()[cache.type]));
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
