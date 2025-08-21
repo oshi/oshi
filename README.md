@@ -57,15 +57,15 @@ OSHI Java 25+ Module
 A new module, **`oshi-core-java25`**, is now available.
 
 - **Purpose:** This module intends to provide API-compatible implementations using the JDK Foreign Function & Memory (FFM) API, replacing JNA for native access over time with community contributions.
-- **Compatibility:**  
-  - Compiles on **JDK 24+**.  
-  - Will require **JDK 25+** at runtime once the full migration is complete.  
-- **Usage:**  
-  - Use this dependency **in place of** `oshi-core`.  
-  - Update your imports to use the equivalent `oshi.ffm.*` packages when accessing implementation classes.  
-  - Top-level API classes remain in the same `oshi.*` packages to minimize code changes for most applications.
-- **Status:**  
-  - Some methods still delegate to legacy JNA-based internals until their FFM equivalents are implemented. 
+- **Compatibility:**
+  - Compiles on **JDK 24+**.
+  - Will require **JDK 25+** at runtime once the full migration is complete.
+  - Initial support may be limited to operating systems with JDK 25 builds; broader OS support will follow as availability expands.
+- **Usage:**
+  - Use this dependency **in place of** `oshi-core`.
+  - Update imports to reference `oshi.ffm.*` packages instead of `oshi.*`
+- **Status:**
+  - Some methods still delegate to legacy JNA-based internals until their FFM equivalents are implemented.
 
 Usage
 -----
