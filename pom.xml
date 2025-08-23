@@ -986,6 +986,16 @@
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
             </properties>
         </profile>
+        <!-- Java 25+ profile -->
+        <profile>
+            <id>java25</id>
+            <activation>
+                <jdk>[24,)</jdk>
+            </activation>
+            <modules>
+                <module>oshi-core-java25</module>
+            </modules>
+        </profile>
         <profile>
             <id>checks</id>
             <build>

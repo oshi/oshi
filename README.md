@@ -52,6 +52,22 @@ Current Development (SNAPSHOT) downloads
   * JDK8: [oshi-core-6.8.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.8.4-SNAPSHOT)
   * JPMS: [oshi-core-java11-6.8.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.8.4-SNAPSHOT/)
 
+OSHI Java 25+ Module
+----------------------------
+A new module, **`oshi-core-java25`**, is now available.
+
+- **Purpose:** This module intends to provide API-compatible implementations using the JDK Foreign Function & Memory (FFM) API, replacing JNA for native access over time with community contributions.
+- **Compatibility:**
+  - Compiles on **JDK 24+**.
+  - Will require **JDK 25+** at runtime once the full migration is complete.
+  - Initial support may be limited to operating systems with JDK 25 builds; broader OS support will follow as availability expands.
+- **Usage:**
+  - Use this dependency **in place of** `oshi-core`.
+  - Import oshi.SystemInfoFFM instead of oshi.SystemInfo as the entry-point.
+  - All other imports (oshi.hardware.*, oshi.software.os.*) remain unchanged.
+- **Status:**
+  - Some methods still delegate to legacy JNA-based internals until their FFM equivalents are implemented.
+
 Usage
 -----
 1. Include OSHI and its dependencies on your classpath.
