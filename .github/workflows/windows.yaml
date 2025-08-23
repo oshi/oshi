@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [11, 17, 21]
+        java: [11, 21, 24]
         os: [windows-2019, windows-2022]
         include:
           - java: 21

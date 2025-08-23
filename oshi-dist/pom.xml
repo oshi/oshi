@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-core-java25</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>oshi-demo</artifactId>
             <version>${project.version}</version>
         </dependency>
