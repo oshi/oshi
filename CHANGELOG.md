@@ -3,7 +3,6 @@
 * Your contribution here!
 
 ##### New Features
-
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
 
 ##### Bug fixes / Improvements
