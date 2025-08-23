@@ -4,26 +4,33 @@
  */
 package oshi.software.os.mac;
 
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.mac.MacSystemHeaders.INT_SIZE;
+import static oshi.ffm.mac.MacSystemHeaders.PROC_ALL_PIDS;
+import static oshi.ffm.mac.MacSystemImpl.proc_listpids;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
+import com.sun.jna.platform.mac.SystemB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
@@ -62,8 +69,6 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
 
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
-
-    private int maxProc = 1024;
 
     private final String osXVersion;
     private final int major;
@@ -105,8 +110,6 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
         this.osXVersion = version;
         this.major = verMajor;
         this.minor = verMinor;
-        // Set max processes
-        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
     }
 
     @Override
@@ -162,20 +165,19 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        List<OSProcess> procs = new ArrayList<>();
-        int[] pids = new int[this.maxProc];
-        Arrays.fill(pids, -1);
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
-                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
-        for (int i = 0; i < numberOfProcesses; i++) {
-            if (pids[i] >= 0) {
-                OSProcess proc = getProcess(pids[i]);
-                if (proc != null) {
-                    procs.add(proc);
-                }
-            }
+        try (Arena arena = Arena.ofConfined()) {
+            // Calculate size needed, add a small buffer
+            int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
+            MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
+            numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, pidSegment, numberOfProcesses * INT_SIZE) / INT_SIZE;
+            // Use only the segment containing pids
+            return Arrays.stream(pidSegment.asSlice(0, numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT))
+                    .distinct().parallel().mapToObj(this::getProcess).filter(Objects::nonNull)
+                    .filter(ProcessFiltering.VALID_PROCESS).toList();
+        } catch (Throwable e) {
+            LOG.warn("Failed to query processes", e.getMessage());
+            return Collections.emptyList();
         }
-        return procs;
     }
 
     @Override
@@ -205,7 +207,12 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
+        try {
+            return proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
+        } catch (Throwable e) {
+            LOG.warn("Failed to query processes", e.getMessage());
+            return 0;
+        }
     }
 
     @Override
@@ -226,22 +233,27 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        // Get current pids, then slightly pad in case new process starts while
-        // allocating array space
-        int[] pids = new int[getProcessCount() + 10];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
-                / SystemB.INT_SIZE;
-        int numberOfThreads = 0;
+        try (Arena arena = Arena.ofConfined()) {
+            // Calculate size needed, add a small buffer
+            int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
+            MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
+            numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, pidSegment, numberOfProcesses * INT_SIZE) / INT_SIZE;
+            // Use only the segment containing pids
+            return Arrays.stream(pidSegment.asSlice(0, numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT))
+                    .distinct().parallel().map(this::threadsPerProc).sum();
+        } catch (Throwable e) {
+            LOG.warn("Failed to query processes", e.getMessage());
+            return 0;
+        }
+    }
+
+    private int threadsPerProc(int pid) {
         try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {
-            for (int i = 0; i < numberOfProcesses; i++) {
-                int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,
-                        taskInfo.size());
-                if (exit != -1) {
-                    numberOfThreads += taskInfo.pti_threadnum;
-                }
+            if (-1 != SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size())) {
+                return taskInfo.pti_threadnum;
             }
         }
-        return numberOfThreads;
+        return 0;
     }
 
     @Override
