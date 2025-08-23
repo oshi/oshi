@@ -81,6 +81,19 @@
                             </sources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>add-module-descriptor</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <!-- copy module-info.java from java11 -->
+                                <source>${project.basedir}/../oshi-core-java11/src/main/java/module-info.java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
