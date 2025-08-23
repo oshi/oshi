@@ -975,10 +975,9 @@
             <activation>
                 <jdk>[11,)</jdk>
             </activation>
-            <!-- Only include java11 and dist modules on Java 11+ -->
+            <!-- Only include java11 modules on Java 11+ -->
             <modules>
                 <module>oshi-core-java11</module>
-                <module>oshi-dist</module>
             </modules>
             <!-- Restrict the API to be compatible with Java 8 -->
             <properties>
@@ -992,8 +991,10 @@
             <activation>
                 <jdk>[24,)</jdk>
             </activation>
+            <!-- Only include java25 and dist modules on Java 24+ (TODO 25+) -->
             <modules>
                 <module>oshi-core-java25</module>
+                <module>oshi-dist</module>
             </modules>
         </profile>
         <profile>

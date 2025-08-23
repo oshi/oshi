@@ -1,0 +1,49 @@
+--add-opens
+  com.github.oshi/oshi=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.hardware=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.software.os=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.util=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.linux=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.linux.proc=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac.net=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.aix=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.aix.perfstat=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.freebsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.freebsd.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.openbsd.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.solaris=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.solaris.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.unix.solaris.kstat=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.windows=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.windows.perfmon=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.windows.registry=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.windows.wmi=org.junit.platform.commons
+
+--add-modules
+  org.hamcrest,org.slf4j.simple
+--add-reads
+  com.github.oshi=org.junit.jupiter.api,org.hamcrest

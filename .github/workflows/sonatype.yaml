@@ -24,6 +24,6 @@ jobs:
         with:
           cache: maven
           distribution: temurin
-          java-version: 21
+          java-version: 24
       - name: Deploy to Sonatype
         run: ./mvnw deploy -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
