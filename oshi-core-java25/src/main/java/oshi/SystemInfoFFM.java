@@ -2,7 +2,7 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
@@ -17,29 +17,29 @@ import java.util.function.Supplier;
 
 import static oshi.util.Memoizer.memoize;
 
-public class SystemInfo {
+public class SystemInfoFFM {
 
-    private static final PlatformEnum CURRENT_PLATFORM;
+    private static final PlatformEnumFFM CURRENT_PLATFORM;
 
     static {
         String osName = System.getProperty("os.name");
         CURRENT_PLATFORM = switch (osName) {
-        case String name when name.startsWith("Linux") -> PlatformEnum.LINUX;
-        case String name when name.startsWith("Mac") || name.startsWith("Darwin") -> PlatformEnum.MACOS;
-        case String name when name.startsWith("Windows") -> PlatformEnum.WINDOWS;
-        default -> PlatformEnum.UNSUPPORTED;
+        case String name when name.startsWith("Linux") -> PlatformEnumFFM.LINUX;
+        case String name when name.startsWith("Mac") || name.startsWith("Darwin") -> PlatformEnumFFM.MACOS;
+        case String name when name.startsWith("Windows") -> PlatformEnumFFM.WINDOWS;
+        default -> PlatformEnumFFM.UNSUPPORTED;
         };
     }
 
     private static final String NOT_SUPPORTED = "Unsupported platform: " + CURRENT_PLATFORM;
 
-    private final Supplier<OperatingSystem> os = memoize(SystemInfo::createOperatingSystem);
-    private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfo::createHardware);
+    private final Supplier<OperatingSystem> os = memoize(SystemInfoFFM::createOperatingSystem);
+    private final Supplier<HardwareAbstractionLayer> hardware = memoize(SystemInfoFFM::createHardware);
 
     /**
      * Constructs a new SystemInfo instance.
      */
-    public SystemInfo() {
+    public SystemInfoFFM() {
         // Empty constructor for API consistency
     }
 
@@ -62,11 +62,11 @@ public class SystemInfo {
     }
 
     /**
-     * Gets the {@link PlatformEnum} value representing this system.
+     * Gets the {@link PlatformEnumFFM} value representing this system.
      *
      * @return Returns the current platform
      */
-    public static PlatformEnum getCurrentPlatform() {
+    public static PlatformEnumFFM getCurrentPlatform() {
         return CURRENT_PLATFORM;
     }
 

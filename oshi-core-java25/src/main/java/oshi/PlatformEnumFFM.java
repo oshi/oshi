@@ -2,12 +2,12 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi;
 
 /**
  * An enumeration of supported operating systems.
  */
-public enum PlatformEnum {
+public enum PlatformEnumFFM {
     /**
      * macOS
      */
@@ -27,7 +27,7 @@ public enum PlatformEnum {
 
     private final String name;
 
-    PlatformEnum(String name) {
+    PlatformEnumFFM(String name) {
         this.name = name;
     }
 

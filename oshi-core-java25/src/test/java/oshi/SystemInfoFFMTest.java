@@ -2,34 +2,36 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi;
 
 import org.junit.jupiter.api.Test;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.PlatformEnumFFM;
+import oshi.SystemInfoFFM;
 import oshi.software.os.OperatingSystem;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class SystemInfoTest {
+public class SystemInfoFFMTest {
 
     @Test
     public void testGetCurrentPlatform() {
-        PlatformEnum platform = SystemInfo.getCurrentPlatform();
+        PlatformEnumFFM platform = SystemInfoFFM.getCurrentPlatform();
         assertNotNull(platform, "Platform should not be null");
-        assertNotEquals(PlatformEnum.UNSUPPORTED, platform, "Platform should be recognized");
+        assertNotEquals(PlatformEnumFFM.UNSUPPORTED, platform, "Platform should be recognized");
     }
 
     @Test
     void testGetOperatingSystem() {
-        SystemInfo si = new SystemInfo();
+        SystemInfoFFM si = new SystemInfoFFM();
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os);
     }
 
     @Test
     void testGetHardware() {
-        SystemInfo si = new SystemInfo();
+        SystemInfoFFM si = new SystemInfoFFM();
         HardwareAbstractionLayer hw = si.getHardware();
         assertNotNull(hw);
     }
