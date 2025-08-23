@@ -64,6 +64,7 @@ A new module, **`oshi-core-java25`**, is now available.
 - **Usage:**
   - Use this dependency **in place of** `oshi-core`.
   - Import oshi.SystemInfoFFM instead of oshi.SystemInfo as the entry-point.
+  - All other imports (oshi.hardware.*, oshi.software.os.*) remain unchanged.
 - **Status:**
   - Some methods still delegate to legacy JNA-based internals until their FFM equivalents are implemented.
 

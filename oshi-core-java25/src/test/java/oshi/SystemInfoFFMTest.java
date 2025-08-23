@@ -6,8 +6,6 @@ package oshi;
 
 import org.junit.jupiter.api.Test;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.PlatformEnumFFM;
-import oshi.SystemInfoFFM;
 import oshi.software.os.OperatingSystem;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
