@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +59,12 @@ import oshi.util.Util;
 /**
  * A demonstration of access to many of OSHI's capabilities
  */
+@EnabledForJreRange(max = JRE.JAVA_23)
 public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
-    static List<String> oshi = new ArrayList<>();
+    protected static List<String> oshi = new ArrayList<>();
 
     /**
      * Test that this platform is implemented..
@@ -152,7 +155,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }
 
-    private static void printOperatingSystem(final OperatingSystem os) {
+    protected static void printOperatingSystem(final OperatingSystem os) {
         oshi.add(String.valueOf(os));
         oshi.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
         oshi.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
@@ -163,13 +166,13 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printComputerSystem(final ComputerSystem computerSystem) {
+    protected static void printComputerSystem(final ComputerSystem computerSystem) {
         oshi.add("System: " + computerSystem.toString());
         oshi.add(" Firmware: " + computerSystem.getFirmware().toString());
         oshi.add(" Baseboard: " + computerSystem.getBaseboard().toString());
     }
 
-    private static void printProcessor(CentralProcessor processor) {
+    protected static void printProcessor(CentralProcessor processor) {
         oshi.add(processor.toString());
 
         Map<Integer, Integer> efficiencyCount = new HashMap<>();
@@ -226,7 +229,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printMemory(GlobalMemory memory) {
+    protected static void printMemory(GlobalMemory memory) {
         oshi.add("Physical Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
         oshi.add("Virtual Memory: \n " + vm.toString());
@@ -239,7 +242,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printCpu(CentralProcessor processor) {
+    protected static void printCpu(CentralProcessor processor) {
         oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
         long[] prevTicks = processor.getSystemCpuLoadTicks();
@@ -304,7 +307,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printProcesses(OperatingSystem os, GlobalMemory memory) {
+    protected static void printProcesses(OperatingSystem os, GlobalMemory memory) {
         OSProcess myProc = os.getProcess(os.getProcessId());
         // current process will never be null. Other code should check for null here
         oshi.add(
@@ -333,7 +336,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printServices(OperatingSystem os) {
+    protected static void printServices(OperatingSystem os) {
         oshi.add("Services: ");
         oshi.add("   PID   State   Name");
         // DO 5 each of running and stopped
@@ -351,11 +354,11 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printSensors(Sensors sensors) {
+    protected static void printSensors(Sensors sensors) {
         oshi.add("Sensors: " + sensors.toString());
     }
 
-    private static void printPowerSources(List<PowerSource> list) {
+    protected static void printPowerSources(List<PowerSource> list) {
         StringBuilder sb = new StringBuilder("Power Sources: ");
         if (list.isEmpty()) {
             sb.append("Unknown");
@@ -366,7 +369,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add(sb.toString());
     }
 
-    private static void printDisks(List<HWDiskStore> list) {
+    protected static void printDisks(List<HWDiskStore> list) {
         oshi.add("Disks:");
         for (HWDiskStore disk : list) {
             oshi.add(" " + disk.toString());
@@ -379,7 +382,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
     }
 
-    private static void printLVgroups(List<LogicalVolumeGroup> list) {
+    protected static void printLVgroups(List<LogicalVolumeGroup> list) {
         if (!list.isEmpty()) {
             oshi.add("Logical Volume Groups:");
             for (LogicalVolumeGroup lvg : list) {
@@ -388,7 +391,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printFileSystem(FileSystem fileSystem) {
+    protected static void printFileSystem(FileSystem fileSystem) {
         oshi.add("File System:");
 
         oshi.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
@@ -409,7 +412,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printNetworkInterfaces(List<NetworkIF> list) {
+    protected static void printNetworkInterfaces(List<NetworkIF> list) {
         StringBuilder sb = new StringBuilder("Network Interfaces:");
         if (list.isEmpty()) {
             sb.append(" Unknown");
@@ -421,11 +424,11 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add(sb.toString());
     }
 
-    private static void printNetworkParameters(NetworkParams networkParams) {
+    protected static void printNetworkParameters(NetworkParams networkParams) {
         oshi.add("Network parameters:\n " + networkParams.toString());
     }
 
-    private static void printInternetProtocolStats(InternetProtocolStats ip) {
+    protected static void printInternetProtocolStats(InternetProtocolStats ip) {
         oshi.add("Internet Protocol statistics:");
         oshi.add(" TCPv4: " + ip.getTCPv4Stats());
         oshi.add(" TCPv6: " + ip.getTCPv6Stats());
@@ -433,7 +436,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add(" UDPv6: " + ip.getUDPv6Stats());
     }
 
-    private static void printDisplays(List<Display> list) {
+    protected static void printDisplays(List<Display> list) {
         oshi.add("Displays:");
         int i = 0;
         for (Display display : list) {
@@ -443,21 +446,21 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    private static void printUsbDevices(List<UsbDevice> list) {
+    protected static void printUsbDevices(List<UsbDevice> list) {
         oshi.add("USB Devices:");
         for (UsbDevice usbDevice : list) {
             oshi.add(String.valueOf(usbDevice));
         }
     }
 
-    private static void printSoundCards(List<SoundCard> list) {
+    protected static void printSoundCards(List<SoundCard> list) {
         oshi.add("Sound Cards:");
         for (SoundCard card : list) {
             oshi.add(" " + String.valueOf(card));
         }
     }
 
-    private static void printGraphicsCards(List<GraphicsCard> list) {
+    protected static void printGraphicsCards(List<GraphicsCard> list) {
         oshi.add("Graphics Cards:");
         if (list.isEmpty()) {
             oshi.add(" None detected.");
