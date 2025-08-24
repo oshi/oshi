@@ -21,13 +21,18 @@ public class MacSystemImpl {
     private static final Linker LINKER = Linker.nativeLinker();
     private static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
-    private static final FunctionDescriptor PROC_LISTPIDS_FUNC = FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT,
-            ADDRESS, JAVA_INT);
-
-    private static final MethodHandle proc_listpids = LINKER
-            .downcallHandle(SYMBOL_LOOKUP.find("proc_listpids").orElseThrow(), PROC_LISTPIDS_FUNC);
+    private static final MethodHandle proc_listpids = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.find("proc_listpids").orElseThrow(),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
     public static final int proc_listpids(int type, int typeinfo, MemorySegment pids, int bufferSize) throws Throwable {
         return (int) proc_listpids.invokeExact(type, typeinfo, pids, bufferSize);
+    }
+
+    private static final MethodHandle getpid = LINKER.downcallHandle(SYMBOL_LOOKUP.find("getpid").orElseThrow(),
+            FunctionDescriptor.of(JAVA_INT));
+
+    public static int getpid() throws Throwable {
+        return (int) getpid.invokeExact();
     }
 }

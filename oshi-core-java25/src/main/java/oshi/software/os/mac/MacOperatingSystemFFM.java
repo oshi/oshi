@@ -7,6 +7,7 @@ package oshi.software.os.mac;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.mac.MacSystemHeaders.INT_SIZE;
 import static oshi.ffm.mac.MacSystemHeaders.PROC_ALL_PIDS;
+import static oshi.ffm.mac.MacSystemImpl.getpid;
 import static oshi.ffm.mac.MacSystemImpl.proc_listpids;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
@@ -202,7 +203,12 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return SystemB.INSTANCE.getpid();
+        try {
+            return getpid();
+        } catch (Throwable e) {
+            LOG.warn("Failed to get current pid", e.getMessage());
+            return 0;
+        }
     }
 
     @Override
