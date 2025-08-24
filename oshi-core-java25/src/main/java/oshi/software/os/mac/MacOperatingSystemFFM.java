@@ -7,8 +7,12 @@ package oshi.software.os.mac;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.mac.MacSystemHeaders.INT_SIZE;
 import static oshi.ffm.mac.MacSystemHeaders.PROC_ALL_PIDS;
+import static oshi.ffm.mac.MacSystemHeaders.PROC_PIDTASKINFO;
 import static oshi.ffm.mac.MacSystemImpl.getpid;
 import static oshi.ffm.mac.MacSystemImpl.proc_listpids;
+import static oshi.ffm.mac.MacSystemImpl.proc_pidinfo;
+import static oshi.ffm.mac.MacSystemStructs.PROC_TASK_INFO;
+import static oshi.ffm.mac.MacSystemStructs.PTI_THREADNUM;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.installedAppsExpiration;
@@ -29,14 +33,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import com.sun.jna.platform.mac.SystemB;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
 import oshi.driver.mac.WindowInfo;
-import oshi.jna.Struct.CloseableProcTaskInfo;
 import oshi.jna.Struct.CloseableTimeval;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
@@ -254,12 +257,18 @@ public class MacOperatingSystemFFM extends AbstractOperatingSystem {
     }
 
     private int threadsPerProc(int pid) {
-        try (CloseableProcTaskInfo taskInfo = new CloseableProcTaskInfo()) {
-            if (-1 != SystemB.INSTANCE.proc_pidinfo(pid, SystemB.PROC_PIDTASKINFO, 0, taskInfo, taskInfo.size())) {
-                return taskInfo.pti_threadnum;
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment buffer = arena.allocate(PROC_TASK_INFO);
+            int result = proc_pidinfo(pid, PROC_PIDTASKINFO, 0L, buffer, (int) PROC_TASK_INFO.byteSize());
+            if (result > 0) {
+                return buffer.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
             }
+            return 0;
+        } catch (Throwable e) {
+            // if this is a common warning for short-lived processes may need a lower log level
+            LOG.warn("Failed to get threads for process {}:", pid, e.getMessage());
+            return 0;
         }
-        return 0;
     }
 
     @Override
