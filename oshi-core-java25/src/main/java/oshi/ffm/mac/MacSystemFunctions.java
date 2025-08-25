@@ -7,10 +7,14 @@ package oshi.ffm.mac;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.mac.MacSystemHeaders.MNAMELEN;
+import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
@@ -28,16 +32,16 @@ public final class MacSystemFunctions {
 
     public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
 
-    private static final MethodHandle proc_listpids = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.find("proc_listpids").orElseThrow(),
+    // int proc_listpids(uint32_t type, uint32_t typeinfo, void *buffer, int buffersize)
+    private static final MethodHandle proc_listpids = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_listpids"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
     public static int proc_listpids(int type, int typeinfo, MemorySegment pids, int bufferSize) throws Throwable {
         return (int) proc_listpids.invokeExact(type, typeinfo, pids, bufferSize);
     }
 
-    private static final MethodHandle proc_pidinfo = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.find("proc_pidinfo").orElseThrow(),
+    // int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer, int buffersize)
+    private static final MethodHandle proc_pidinfo = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_pidinfo"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_LONG, ADDRESS, JAVA_INT));
 
     public static int proc_pidinfo(int pid, int flavor, long arg, MemorySegment buffer, int bufferSize)
@@ -45,19 +49,89 @@ public final class MacSystemFunctions {
         return (int) proc_pidinfo.invokeExact(pid, flavor, arg, buffer, bufferSize);
     }
 
-    private static final MethodHandle getpid = LINKER.downcallHandle(SYMBOL_LOOKUP.find("getpid").orElseThrow(),
+    // int proc_pidpath(int pid, void * buffer, uint32_t buffersize)
+    private static final MethodHandle proc_pidpath = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_pidpath"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
+
+    public static int proc_pidpath(int pid, MemorySegment buffer, int bufferSize) throws Throwable {
+        return (int) proc_pidpath.invokeExact(pid, buffer, bufferSize);
+    }
+
+    // int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer)
+    private static final MethodHandle proc_pid_rusage = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("proc_pid_rusage"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS));
+
+    public static int proc_pid_rusage(int pid, int flavor, MemorySegment buffer) throws Throwable {
+        return (int) proc_pid_rusage.invokeExact(pid, flavor, buffer);
+    }
+
+    // struct passwd * q getpwuid(uid_t uid);
+    private static final MethodHandle getpwuid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getpwuid"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static MemorySegment getpwuid(int uid) throws Throwable {
+        MemorySegment result = (MemorySegment) getpwuid.invokeExact(uid);
+        return result.equals(MemorySegment.NULL) ? null : result;
+    }
+
+    // struct group * getgrgid(gid_t gid);
+    private static final MethodHandle getgrgid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getgrgid"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static MemorySegment getgrgid(int gid) throws Throwable {
+        MemorySegment result = (MemorySegment) getgrgid.invokeExact(gid);
+        return result.equals(MemorySegment.NULL) ? null : result;
+    }
+
+    // pid_t getpid(void);
+
+    private static final MethodHandle getpid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getpid"),
             FunctionDescriptor.of(JAVA_INT));
 
     public static int getpid() throws Throwable {
         return (int) getpid.invokeExact();
     }
 
-    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.find("sysctlbyname").orElseThrow(),
+    // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+
+    private static final MethodHandle sysctl = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctl"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+
+    public static int sysctl(MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
+            MemorySegment newp, long newlen) throws Throwable {
+        return (int) sysctl.invokeExact(name, namelen, oldp, oldlenp, newp, newlen);
+    }
+
+    // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+
+    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctlbyname"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
 
     public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
             long newlen) throws Throwable {
-        return (int) sysctlbyname.invokeExact(name, oldp, newp, oldlenp, newlen);
+        return (int) sysctlbyname.invokeExact(name, oldp, oldlenp, newp, newlen);
+    }
+
+    // int getrlimit(int resource, struct rlimit *rlp);
+
+    private static final MethodHandle getrlimit = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getrlimit"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, RLIMIT));
+
+    public static int getrlimit(int resource, MemorySegment rlp) throws Throwable {
+        return (int) getrlimit.invokeExact(resource, rlp);
+    }
+
+    public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {
+        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
+            return null;
+        }
+        return MemorySegment.ofAddress(pointer.address()).reinterpret(layout.byteSize(), arena, null);
+    }
+
+    public static String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
+        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
+            return null;
+        }
+        return MemorySegment.ofAddress(pointer.address()).reinterpret(MNAMELEN, arena, null).getString(0);
     }
 }
