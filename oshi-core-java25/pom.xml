@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.oshi</groupId>
         <artifactId>oshi-parent</artifactId>
-        <version>6.8.4-SNAPSHOT</version>
+        <version>6.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>oshi-core-java25</artifactId>
