@@ -18,11 +18,7 @@ jobs:
     strategy:
       matrix:
         java: [11, 21, 24]
-        os: [windows-2019, windows-2022]
-        include:
-          - java: 21
-            os: 'windows-2025'
-            experimental: true
+        os: [windows-2022, windows-2025]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
