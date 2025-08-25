@@ -19,7 +19,8 @@ public interface MacSystemStructs {
     // Constants
     int MAXCOMLEN = 16;
 
-    StructLayout PROC_TASK_INFO = structLayout(JAVA_LONG.withName("pti_virtual_size"), // virtual memory size (bytes)
+    StructLayout PROC_TASK_INFO = structLayout( //
+            JAVA_LONG.withName("pti_virtual_size"), // virtual memory size (bytes)
             JAVA_LONG.withName("pti_resident_size"), // resident memory size (bytes)
             JAVA_LONG.withName("pti_total_user"), // total time (nanoseconds)
             JAVA_LONG.withName("pti_total_system"), JAVA_LONG.withName("pti_threads_user"), // existing threads only
@@ -37,10 +38,17 @@ public interface MacSystemStructs {
             JAVA_INT.withName("pti_priority") // task priority
     );
 
-    // Define path elements for accessing fields
     MemoryLayout.PathElement PTI_THREADNUM = groupElement("pti_threadnum");
 
-    StructLayout TIMEVAL = structLayout(JAVA_LONG.withName("tv_sec"), // seconds
+    StructLayout TIMEVAL = structLayout( //
+            JAVA_LONG.withName("tv_sec"), // seconds
             JAVA_INT.withName("tv_usec") // microseconds
     );
+
+    StructLayout RLIMIT = structLayout( //
+            JAVA_LONG.withName("rlim_cur"), // current (soft) limit
+            JAVA_LONG.withName("rlim_max") // hard limit
+    );
+    MemoryLayout.PathElement RLIM_CUR = groupElement("rlim_cur");
+    MemoryLayout.PathElement RLIM_MAX = groupElement("rlim_max");
 }

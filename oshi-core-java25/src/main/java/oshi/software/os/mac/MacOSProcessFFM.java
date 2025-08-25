@@ -4,6 +4,9 @@
  */
 package oshi.software.os.mac;
 
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.mac.MacSystemFunctions.getrlimit;
+import static oshi.ffm.mac.MacSystemStructs.*;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -13,7 +16,10 @@ import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
+import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +42,6 @@ import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
-import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
@@ -346,23 +351,35 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return -1L; // not supported
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment buffer = arena.allocate(RLIMIT);
+                int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
+                if (result > 0) {
+                    return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_CUR));
+                }
+            } catch (Throwable e) {
+                // Ignore, return 0 below
+            }
+            return 0;
         }
+        return -1L; // not supported
     }
 
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SystemB.INSTANCE.getrlimit(MAC_RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return -1L; // not supported
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment buffer = arena.allocate(RLIMIT);
+                int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
+                if (result > 0) {
+                    return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_MAX));
+                }
+            } catch (Throwable e) {
+                // Ignore, return 0 below
+            }
+            return 0;
         }
+        return -1L; // not supported
     }
 
     @Override
