@@ -43,16 +43,20 @@ final class MacNetworkParams extends AbstractNetworkParams {
         String hostname = "";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
+            if (hostname == null || hostname.isEmpty()) {
+                LOG.debug("Could not determine hostname");
+                return "";
+            }
         } catch (UnknownHostException e) {
-            LOG.error("Unknown host exception when getting address of local host: {}", e.getMessage());
+            LOG.debug("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
         try (Addrinfo hint = new Addrinfo(); CloseablePointerByReference ptr = new CloseablePointerByReference()) {
             hint.ai_flags = CLibrary.AI_CANONNAME;
             int res = SYS.getaddrinfo(hostname, null, hint, ptr);
-            if (res > 0) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed getaddrinfo(): {}", SYS.gai_strerror(res));
+            if (res != 0) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Failed getaddrinfo(): {}", SYS.gai_strerror(res));
                 }
                 return "";
             }
