@@ -1,14 +1,11 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -34,8 +31,6 @@ import oshi.util.tuples.Triplet;
 @Immutable
 final class WindowsGraphicsCard extends AbstractGraphicsCard {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsGraphicsCard.class);
-
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     public static final String ADAPTER_STRING = "HardwareInformation.AdapterString";
     public static final String DRIVER_DESC = "DriverDesc";
@@ -43,8 +38,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static final String VENDOR = "ProviderName";
     public static final String QW_MEMORY_SIZE = "HardwareInformation.qwMemorySize";
     public static final String MEMORY_SIZE = "HardwareInformation.MemorySize";
-    public static final String DISPLAY_DEVICES_REGISTRY_PATH =
-        "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
+    public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
 
     /**
      * Constructor for WindowsGraphicsCard
@@ -83,13 +77,15 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String name = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
                 String deviceId = "VideoController" + index++;
                 String vendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
-                String versionInfo = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
+                String versionInfo = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
+                        DRIVER_VERSION);
                 long vram = 0L;
 
                 if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE)) {
                     vram = Advapi32Util.registryGetLongValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE);
                 } else if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE)) {
-                    Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE);
+                    Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
+                            MEMORY_SIZE);
                     if (genericValue instanceof Long) {
                         vram = (long) genericValue;
                     } else if (genericValue instanceof Integer) {
@@ -100,12 +96,10 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     }
                 }
 
-                cardList.add(new WindowsGraphicsCard(
-                    Util.isBlank(name) ? Constants.UNKNOWN : name,
-                    Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
-                    Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                    Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo,
-                    vram));
+                cardList.add(new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
+                        Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
+                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
+                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram));
             } catch (Win32Exception e) {
                 if (e.getErrorCode() != WinError.ERROR_ACCESS_DENIED) {
                     // Ignore access denied errors, re-throw others

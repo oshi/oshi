@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -56,10 +56,11 @@ final class MacNetworkParams extends AbstractNetworkParams {
                 }
                 return "";
             }
-            Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
-            String canonname = info.ai_canonname.trim();
-            SYS.freeaddrinfo(ptr.getValue());
-            return canonname;
+            try (Addrinfo info = new Addrinfo(ptr.getValue())) { // NOSONAR
+                String canonname = info.ai_canonname.trim();
+                SYS.freeaddrinfo(ptr.getValue());
+                return canonname;
+            }
         }
     }
 

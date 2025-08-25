@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -43,10 +43,11 @@ final class FreeBsdNetworkParams extends AbstractNetworkParams {
                     }
                     return "";
                 }
-                Addrinfo info = new Addrinfo(ptr.getValue()); // NOSONAR
-                String canonname = info.ai_canonname.trim();
-                LIBC.freeaddrinfo(ptr.getValue());
-                return canonname;
+                try (Addrinfo info = new Addrinfo(ptr.getValue())) { // NOSONAR
+                    String canonname = info.ai_canonname.trim();
+                    LIBC.freeaddrinfo(ptr.getValue());
+                    return canonname;
+                }
             }
         }
     }
