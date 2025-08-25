@@ -4,9 +4,13 @@
  */
 package oshi.software.os.mac;
 
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.mac.MacSystemFunctions.getrlimit;
-import static oshi.ffm.mac.MacSystemStructs.*;
+import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
+import static oshi.ffm.mac.MacSystemStructs.RLIM_CUR;
+import static oshi.ffm.mac.MacSystemStructs.RLIM_MAX;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -16,7 +20,7 @@ import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
-import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
+import static oshi.util.platform.mac.SysctlUtilFFM.sysctl;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -41,7 +45,6 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Group;
 import com.sun.jna.platform.mac.SystemB.Passwd;
-import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
@@ -52,7 +55,6 @@ import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -63,7 +65,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOSProcessFFM.class);
 
-    private static final int ARGMAX = SysctlUtil.sysctl("kern.argmax", 0);
+    private static final int ARGMAX = sysctl("kern.argmax", 0);
     private static final long TICKS_PER_MS;
     static {
         // default to 1 tick per nanosecond
@@ -187,60 +189,59 @@ public class MacOSProcessFFM extends AbstractOSProcess {
         Map<String, String> env = new LinkedHashMap<>();
 
         // Get command line via sysctl
-        int[] mib = new int[3];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 49; // KERN_PROCARGS2
-        mib[2] = pid;
-        // Allocate memory for arguments
-        try (Memory procargs = new Memory(ARGMAX)) {
-            procargs.clear();
-            size_t.ByReference size = new size_t.ByReference(ARGMAX);
-            // Fetch arguments
-            if (0 == SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO)) {
+        int[] mib = { 1, 49, pid }; // CTL_KERN, KERN_PROCARGS2, pid
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment procargs = arena.allocate(ARGMAX);
+            procargs.fill((byte) 0);
+
+            long size = sysctl(mib, procargs);
+            if (size > 0) {
                 // Procargs contains an int representing total # of args, followed by a
                 // null-terminated execpath string and then the arguments, each
                 // null-terminated (possible multiple consecutive nulls),
                 // The execpath string is also the first arg.
                 // Following this is an int representing total # of env, followed by
                 // null-terminated envs in similar format
-                int nargs = procargs.getInt(0);
+                int nargs = procargs.get(JAVA_INT, 0);
                 // Sanity check
                 if (nargs > 0 && nargs <= 1024) {
                     // Skip first int (containing value of nargs)
-                    long offset = SystemB.INT_SIZE;
-                    // Skip exec_command, as
+                    long offset = Integer.BYTES;
+                    // Skip exec_command
                     offset += procargs.getString(offset).length();
                     // Iterate character by character using offset
                     // Build each arg and add to list
-                    while (offset < size.longValue()) {
-                        // Advance through additional nulls
-                        while (procargs.getByte(offset) == 0) {
-                            if (++offset >= size.longValue()) {
-                                break;
-                            }
+                    while (offset < size) {
+                        // Skip null bytes
+                        while (offset < size && procargs.get(JAVA_BYTE, offset) == 0) {
+                            offset++;
                         }
-                        // Grab a string. This should go until the null terminator
+                        if (offset >= size) {
+                            break;
+                        }
+                        // Read string until null terminator
                         String arg = procargs.getString(offset);
+                        if (arg.isEmpty()) {
+                            break;
+                        }
                         if (nargs-- > 0) {
-                            // If we havent found nargs yet, it's an arg
+                            // Still processing arguments
                             args.add(arg);
                         } else {
-                            // otherwise it's an env
+                            // Processing environment variables
                             int idx = arg.indexOf('=');
                             if (idx > 0) {
                                 env.put(arg.substring(0, idx), arg.substring(idx + 1));
                             }
                         }
-                        // Advance offset to next null
-                        offset += arg.length();
+                        offset += arg.length() + 1; // +1 for null terminator
                     }
                 }
             } else {
                 // Don't warn for pid 0
                 if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
-                    LOG.warn(
-                            "Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
-                            pid, Native.getLastError());
+                    LOG.warn("Failed sysctl call for process arguments (kern.procargs2), process {} may not exist.",
+                            pid);
                 }
             }
         }
@@ -390,7 +391,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     @Override
     public long getAffinityMask() {
         // macOS doesn't do affinity. Return a bitmask of the current processors.
-        int logicalProcessorCount = SysctlUtil.sysctl("hw.logicalcpu", 1);
+        int logicalProcessorCount = sysctl("hw.logicalcpu", 1);
         return logicalProcessorCount < 64 ? (1L << logicalProcessorCount) - 1 : -1L;
     }
 

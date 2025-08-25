@@ -10,6 +10,7 @@ import static oshi.ffm.mac.MacSystemFunctions.SIZE_T;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,6 +201,30 @@ public final class SysctlUtilFFM {
         } catch (Throwable e) {
             LOG.warn("Failed to get sysctl value for {}", name, e);
             return null;
+        }
+    }
+
+    /**
+     * Executes a sysctl call with a Memory Segment result
+     *
+     * @param mib    definition of the sysctl
+     * @param buffer buffer to hold the result. Must be allocated
+     * @return The size of data written to the buffer, or -1 if the call failed
+     */
+    public static long sysctl(int[] mib, MemorySegment buffer) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment mibSeg = arena.allocateFrom(JAVA_INT, mib);
+            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, buffer.byteSize());
+            int result = MacSystemFunctions.sysctl(mibSeg, mib.length, buffer, sizeSeg, MemorySegment.NULL, 0L);
+
+            if (result != 0) {
+                LOG.warn(SYSCTL_FAIL, Arrays.toString(mib), result);
+                return -1;
+            }
+            return sizeSeg.get(SIZE_T, 0);
+        } catch (Throwable e) {
+            LOG.warn("Failed to get sysctl value for {}", Arrays.toString(mib), e);
+            return -1;
         }
     }
 }

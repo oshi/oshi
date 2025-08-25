@@ -55,6 +55,16 @@ public final class MacSystemFunctions {
         return (int) getpid.invokeExact();
     }
 
+    // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+
+    private static final MethodHandle sysctl = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctl"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+
+    public static int sysctl(MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
+            MemorySegment newp, long newlen) throws Throwable {
+        return (int) sysctl.invokeExact(name, namelen, oldp, oldlenp, newp, newlen);
+    }
+
     // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
     private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctlbyname"),
@@ -62,7 +72,7 @@ public final class MacSystemFunctions {
 
     public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
             long newlen) throws Throwable {
-        return (int) sysctlbyname.invokeExact(name, oldp, newp, oldlenp, newlen);
+        return (int) sysctlbyname.invokeExact(name, oldp, oldlenp, newp, newlen);
     }
 
     // int getrlimit(int resource, struct rlimit *rlp);
