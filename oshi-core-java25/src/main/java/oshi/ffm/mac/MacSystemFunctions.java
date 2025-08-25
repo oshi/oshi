@@ -12,15 +12,18 @@ import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
 /**
  * Implementations of MacOS functions
  */
-public class MacSystemImpl {
+public class MacSystemFunctions {
 
     private static final Linker LINKER = Linker.nativeLinker();
     private static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
+
+    public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
 
     private static final MethodHandle proc_listpids = LINKER.downcallHandle(
             SYMBOL_LOOKUP.find("proc_listpids").orElseThrow(),
@@ -44,5 +47,14 @@ public class MacSystemImpl {
 
     public static int getpid() throws Throwable {
         return (int) getpid.invokeExact();
+    }
+
+    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.find("sysctlbyname").orElseThrow(),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+
+    public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
+            long newlen) throws Throwable {
+        return (int) sysctlbyname.invokeExact(name, oldp, newp, oldlenp, newlen);
     }
 }

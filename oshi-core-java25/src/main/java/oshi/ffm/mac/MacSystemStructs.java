@@ -38,4 +38,7 @@ public interface MacSystemStructs {
     // Define path elements for accessing fields
     MemoryLayout.PathElement PTI_THREADNUM = groupElement("pti_threadnum");
 
+    StructLayout TIMEVAL = structLayout(JAVA_LONG.withName("tv_sec"), // seconds
+            JAVA_INT.withName("tv_usec") // microseconds
+    );
 }
