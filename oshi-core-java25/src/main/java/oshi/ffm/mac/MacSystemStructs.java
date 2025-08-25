@@ -4,11 +4,13 @@
  */
 package oshi.ffm.mac;
 
+import static java.lang.foreign.MemoryLayout.structLayout;
+import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.StructLayout;
-import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
-import static java.lang.foreign.MemoryLayout.structLayout;
-import static java.lang.foreign.ValueLayout.*;
 
 /**
  * Structures defined in MacOS header files
