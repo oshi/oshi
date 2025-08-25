@@ -1,9 +1,8 @@
-# 6.8.4 (in progress)
-
-* Your contribution here!
+# 6.9.0 (in progress)
 
 ##### New Features
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2949](https://github.com/oshi/oshi/pull/2949): Implement MacOperatingSystem using FFM - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#2946](https://github.com/oshi/oshi/pull/2946): Add Hyper-V VM mac address - [@chunzhennn](https://github.com/chunzhennn).

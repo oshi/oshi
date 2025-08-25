@@ -5,6 +5,8 @@
 --add-opens
   com.github.oshi/oshi.software.os=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.software.os.mac=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.util=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.linux=org.junit.platform.commons

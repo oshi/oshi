@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -33,6 +33,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import com.sun.jna.Platform;
 
@@ -45,11 +47,16 @@ import oshi.software.os.OperatingSystem.ProcessSorting;
 /**
  * Test OS
  */
+@EnabledForJreRange(max = JRE.JAVA_23)
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemTest {
 
-    private OperatingSystem os = new SystemInfo().getOperatingSystem();
-    private OSProcess proc = os.getProcess(os.getProcessId());
+    protected OperatingSystem createOperatingSystem() {
+        return new SystemInfo().getOperatingSystem();
+    }
+
+    protected OperatingSystem os = createOperatingSystem();
+    protected OSProcess proc = os.getProcess(os.getProcessId());
 
     @BeforeAll
     void setUp() {
@@ -172,8 +179,7 @@ class OperatingSystemTest {
      */
     @Test
     void testProcessQueryByList() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         assertThat("OS family shouldn't be null", os.getFamily(), is(notNullValue()));
         assertThat("OS manufacturer shouldn't be null", os.getManufacturer(), is(notNullValue()));
         OSVersionInfo versionInfo = os.getVersionInfo();
@@ -227,8 +233,7 @@ class OperatingSystemTest {
         // processes. On the second poll, we expect at least half of processes in those
         // categories to still be in the same category.
         //
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         List<OSProcess> processes = os.getProcesses(null, null, 0);
         Map<Integer, Long> zeroChildMap = new HashMap<>();
         Map<Integer, Long> oneChildMap = new HashMap<>();
@@ -346,8 +351,7 @@ class OperatingSystemTest {
     void testGetCommandLine() {
         int processesWithNonEmptyCmdLine = 0;
 
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         for (OSProcess process : os.getProcesses(null, null, 0)) {
             if (!process.getCommandLine().trim().isEmpty()) {
                 processesWithNonEmptyCmdLine++;
@@ -360,8 +364,7 @@ class OperatingSystemTest {
 
     @Test
     void testGetArguments() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         List<OSProcess> processesWithNonEmptyArguments = os.getProcesses(p -> !p.getArguments().isEmpty(), null, 0);
 
         assertThat("Processes with non-empty arguments should be non-empty", processesWithNonEmptyArguments,
@@ -372,8 +375,7 @@ class OperatingSystemTest {
     void testGetEnvironment() {
         int processesWithNonEmptyEnvironment = 0;
 
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         for (OSProcess process : os.getProcesses(null, null, 0)) {
             if (!process.getEnvironmentVariables().isEmpty()) {
                 processesWithNonEmptyEnvironment++;
@@ -389,8 +391,7 @@ class OperatingSystemTest {
      */
     @Test
     void testGetServices() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         List<OSService> services = os.getServices();
         // macOS CI typically has none, though, and some linux distros aren't covered
         if (!services.isEmpty()) {
@@ -420,8 +421,7 @@ class OperatingSystemTest {
      */
     @Test
     void testGetSessions() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         for (OSSession sess : os.getSessions()) {
             assertThat("Logged in user's name for the session shouldn't be empty", sess.getUserName(),
                     is(not(emptyString())));
@@ -441,8 +441,7 @@ class OperatingSystemTest {
      */
     @Test
     void testGetDesktopWindows() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
+        OperatingSystem os = createOperatingSystem();
         List<OSDesktopWindow> allWindows = os.getDesktopWindows(false);
         List<OSDesktopWindow> visibleWindows = os.getDesktopWindows(true);
         assertThat("Visible should be a subset of all windows", visibleWindows.size(),

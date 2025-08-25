@@ -65,9 +65,9 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     private int maxProc = 1024;
 
-    private final String osXVersion;
-    private final int major;
-    private final int minor;
+    protected final String osXVersion;
+    protected final int major;
+    protected final int minor;
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
@@ -123,7 +123,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
     }
 
-    private String parseCodeName() {
+    protected String parseCodeName() {
         Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
         String codeName = null;
         if (this.major > 10) {
