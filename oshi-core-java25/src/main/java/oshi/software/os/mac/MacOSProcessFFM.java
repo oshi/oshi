@@ -4,13 +4,58 @@
  */
 package oshi.software.os.mac;
 
+import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.mac.MacSystemFunctions.getStringFromNativePointer;
+import static oshi.ffm.mac.MacSystemFunctions.getStructFromNativePointer;
+import static oshi.ffm.mac.MacSystemFunctions.getgrgid;
+import static oshi.ffm.mac.MacSystemFunctions.getpwuid;
 import static oshi.ffm.mac.MacSystemFunctions.getrlimit;
+import static oshi.ffm.mac.MacSystemFunctions.proc_pid_rusage;
+import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
+import static oshi.ffm.mac.MacSystemFunctions.proc_pidpath;
+import static oshi.ffm.mac.MacSystemHeaders.PROC_PIDPATHINFO_MAXSIZE;
+import static oshi.ffm.mac.MacSystemHeaders.PROC_PIDTASKALLINFO;
+import static oshi.ffm.mac.MacSystemHeaders.PROC_PIDVNODEPATHINFO;
+import static oshi.ffm.mac.MacSystemHeaders.RUSAGE_INFO_V2;
+import static oshi.ffm.mac.MacSystemStructs.GROUP;
+import static oshi.ffm.mac.MacSystemStructs.PASSWD;
+import static oshi.ffm.mac.MacSystemStructs.PBI_COMM;
+import static oshi.ffm.mac.MacSystemStructs.PBI_FLAGS;
+import static oshi.ffm.mac.MacSystemStructs.PBI_GID;
+import static oshi.ffm.mac.MacSystemStructs.PBI_NFILES;
+import static oshi.ffm.mac.MacSystemStructs.PBI_PPID;
+import static oshi.ffm.mac.MacSystemStructs.PBI_START_TVSEC;
+import static oshi.ffm.mac.MacSystemStructs.PBI_START_TVUSEC;
+import static oshi.ffm.mac.MacSystemStructs.PBI_STATUS;
+import static oshi.ffm.mac.MacSystemStructs.PBI_UID;
+import static oshi.ffm.mac.MacSystemStructs.PBSD;
+import static oshi.ffm.mac.MacSystemStructs.PROC_BSD_INFO;
+import static oshi.ffm.mac.MacSystemStructs.PROC_TASK_ALL_INFO;
+import static oshi.ffm.mac.MacSystemStructs.PROC_TASK_INFO;
+import static oshi.ffm.mac.MacSystemStructs.PTINFO;
+import static oshi.ffm.mac.MacSystemStructs.PTI_CSW;
+import static oshi.ffm.mac.MacSystemStructs.PTI_FAULTS;
+import static oshi.ffm.mac.MacSystemStructs.PTI_PAGEINS;
+import static oshi.ffm.mac.MacSystemStructs.PTI_PRIORITY;
+import static oshi.ffm.mac.MacSystemStructs.PTI_RESIDENT_SIZE;
+import static oshi.ffm.mac.MacSystemStructs.PTI_THREADNUM;
+import static oshi.ffm.mac.MacSystemStructs.PTI_TOTAL_SYSTEM;
+import static oshi.ffm.mac.MacSystemStructs.PTI_TOTAL_USER;
+import static oshi.ffm.mac.MacSystemStructs.PTI_VIRTUAL_SIZE;
+import static oshi.ffm.mac.MacSystemStructs.PVI_CDIR;
+import static oshi.ffm.mac.MacSystemStructs.RI_DISKIO_BYTESREAD;
+import static oshi.ffm.mac.MacSystemStructs.RI_DISKIO_BYTESWRITTEN;
 import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
 import static oshi.ffm.mac.MacSystemStructs.RLIM_CUR;
 import static oshi.ffm.mac.MacSystemStructs.RLIM_MAX;
+import static oshi.ffm.mac.MacSystemStructs.RUSAGEINFOV2;
+import static oshi.ffm.mac.MacSystemStructs.VIP_PATH;
+import static oshi.ffm.mac.MacSystemStructs.VNODE_INFO_PATH;
+import static oshi.ffm.mac.MacSystemStructs.VNODE_PATH_INFO;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -24,7 +69,6 @@ import static oshi.util.platform.mac.SysctlUtilFFM.sysctl;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -37,20 +81,12 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
-import com.sun.jna.platform.mac.SystemB;
-import com.sun.jna.platform.mac.SystemB.Group;
-import com.sun.jna.platform.mac.SystemB.Passwd;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
-import oshi.jna.Struct.CloseableProcTaskAllInfo;
-import oshi.jna.Struct.CloseableRUsageInfoV2;
-import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
@@ -413,84 +449,116 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
-        try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {
-            if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,
-                    taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum < 1) {
+        int pid = getProcessID();
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment taskAllInfo = arena.allocate(PROC_TASK_ALL_INFO);
+            int infoResult = proc_pidinfo(pid, PROC_PIDTASKALLINFO, 0L, taskAllInfo,
+                    (int) PROC_TASK_ALL_INFO.byteSize());
+            if (infoResult <= 0) {
                 this.state = INVALID;
                 return false;
             }
-            try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-                if (0 < SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-                    this.path = buf.getString(0).trim();
-                    // Overwrite name with last part of path
-                    String[] pathSplit = this.path.split("/");
-                    if (pathSplit.length > 0) {
-                        this.name = pathSplit[pathSplit.length - 1];
-                    }
+            MemorySegment ptinfo = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PTINFO),
+                    PROC_TASK_INFO.byteSize());
+            if (ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM)) < 1) {
+                this.state = INVALID;
+                return false;
+            }
+            MemorySegment pbsd = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PBSD), PROC_BSD_INFO.byteSize());
+
+            // Get process path
+            MemorySegment pathBuf = arena.allocate(PROC_PIDPATHINFO_MAXSIZE);
+            if (proc_pidpath(pid, pathBuf, PROC_PIDPATHINFO_MAXSIZE) > 0) {
+                this.path = pathBuf.getString(0).trim();
+                // Overwrite name with last part of path
+                String[] pathSplit = this.path.split("/");
+                if (pathSplit.length > 0) {
+                    this.name = pathSplit[pathSplit.length - 1];
                 }
             }
             if (this.name.isEmpty()) {
                 // pbi_comm contains first 16 characters of name
-                this.name = Native.toString(taskAllInfo.pbsd.pbi_comm, StandardCharsets.UTF_8);
+                this.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM)).getString(0);
             }
 
-            switch (taskAllInfo.pbsd.pbi_status) {
-            case SSLEEP:
-                this.state = SLEEPING;
-                break;
-            case SWAIT:
-                this.state = WAITING;
-                break;
-            case SRUN:
-                this.state = RUNNING;
-                break;
-            case SIDL:
-                this.state = NEW;
-                break;
-            case SZOMB:
-                this.state = ZOMBIE;
-                break;
-            case SSTOP:
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
+            // Get Process state based on status
+            int status = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_STATUS));
+            this.state = switch (status) {
+            case SSLEEP -> SLEEPING;
+            case SWAIT -> WAITING;
+            case SRUN -> RUNNING;
+            case SIDL -> NEW;
+            case SZOMB -> ZOMBIE;
+            case SSTOP -> STOPPED;
+            default -> OTHER;
+            };
+
+            // User and group info
+            this.parentProcessID = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_PPID));
+            int uid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_UID));
+            this.userID = Integer.toString(uid);
+            MemorySegment pwuid = getpwuid(uid);
+            if (pwuid != null) {
+                MemorySegment passwdStruct = getStructFromNativePointer(pwuid, PASSWD, arena);
+                MemorySegment nameAddress = passwdStruct.get(ADDRESS, PASSWD.byteOffset(groupElement("pw_name")));
+                this.user = getStringFromNativePointer(nameAddress, arena);
+            } else {
+                this.user = this.userID;
             }
-            this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
-            this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
-            Passwd pwuid = SystemB.INSTANCE.getpwuid(taskAllInfo.pbsd.pbi_uid);
-            this.user = pwuid == null ? Integer.toString(taskAllInfo.pbsd.pbi_uid) : pwuid.pw_name;
-            this.groupID = Integer.toString(taskAllInfo.pbsd.pbi_gid);
-            Group grgid = SystemB.INSTANCE.getgrgid(taskAllInfo.pbsd.pbi_gid);
-            this.group = grgid == null ? Integer.toString(taskAllInfo.pbsd.pbi_gid) : grgid.gr_name;
-            this.threadCount = taskAllInfo.ptinfo.pti_threadnum;
-            this.priority = taskAllInfo.ptinfo.pti_priority;
-            this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
-            this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
-            this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;
-            this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;
-            this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
+
+            int gid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_GID));
+            this.groupID = Integer.toString(gid);
+            MemorySegment grgid = getgrgid(gid);
+            if (grgid != null) {
+                MemorySegment groupStruct = getStructFromNativePointer(pwuid, GROUP, arena);
+                MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement("gr_name")));
+                this.group = getStringFromNativePointer(nameAddress, arena);
+            } else {
+                this.group = this.groupID;
+            }
+
+            // Process metrics
+            this.threadCount = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
+            this.priority = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PRIORITY));
+            this.virtualSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_VIRTUAL_SIZE));
+            this.residentSetSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_RESIDENT_SIZE));
+            this.kernelTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_SYSTEM)) / TICKS_PER_MS;
+            this.userTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_USER)) / TICKS_PER_MS;
+
+            long startSec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVSEC));
+            long startUsec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVUSEC));
+            this.startTime = startSec * 1000L + startUsec / 1000L;
             this.upTime = now - this.startTime;
-            this.openFiles = taskAllInfo.pbsd.pbi_nfiles;
-            this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
-            this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
+
+            this.openFiles = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_NFILES));
+            int flags = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_FLAGS));
+            this.bitness = (flags & P_LP64) == 0 ? 32 : 64;
+
+            this.majorFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PAGEINS));
+            int totalFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_FAULTS));
             // testing using getrusage confirms pti_faults includes both major and minor
-            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
-            this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
-        }
-        if (this.majorVersion > 10 || this.minorVersion >= 9) {
-            try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {
-                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
-                    this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
-                    this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
+            this.minorFaults = totalFaults - this.majorFaults;
+            this.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
+
+            // Get rusage info for newer OS versions
+            if (this.majorVersion > 10 || this.minorVersion >= 9) {
+                MemorySegment rusage = arena.allocate(RUSAGEINFOV2);
+                if (0 == proc_pid_rusage(pid, RUSAGE_INFO_V2, rusage)) {
+                    this.bytesRead = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESREAD));
+                    this.bytesWritten = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESWRITTEN));
                 }
             }
-        }
-        try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {
-            if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
-                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
+
+            // Get working directory info
+            MemorySegment vnodeInfo = arena.allocate(VNODE_PATH_INFO);
+            if (proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0L, vnodeInfo, (int) VNODE_PATH_INFO.byteSize()) > 0) {
+                // Get the current directory path using nested path elements
+                this.currentWorkingDirectory = vnodeInfo.asSlice(VNODE_PATH_INFO.byteOffset(PVI_CDIR))
+                        .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH)).getString(0);
             }
+        } catch (Throwable e) {
+            this.state = INVALID;
+            return false;
         }
         return true;
     }

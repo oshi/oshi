@@ -7,11 +7,14 @@ package oshi.ffm.mac;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.mac.MacSystemHeaders.MNAMELEN;
 import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
@@ -44,6 +47,40 @@ public final class MacSystemFunctions {
     public static int proc_pidinfo(int pid, int flavor, long arg, MemorySegment buffer, int bufferSize)
             throws Throwable {
         return (int) proc_pidinfo.invokeExact(pid, flavor, arg, buffer, bufferSize);
+    }
+
+    // int proc_pidpath(int pid, void * buffer, uint32_t buffersize)
+    private static final MethodHandle proc_pidpath = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_pidpath"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
+
+    public static int proc_pidpath(int pid, MemorySegment buffer, int bufferSize) throws Throwable {
+        return (int) proc_pidpath.invokeExact(pid, buffer, bufferSize);
+    }
+
+    // int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer)
+    private static final MethodHandle proc_pid_rusage = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("proc_pid_rusage"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS));
+
+    public static int proc_pid_rusage(int pid, int flavor, MemorySegment buffer) throws Throwable {
+        return (int) proc_pid_rusage.invokeExact(pid, flavor, buffer);
+    }
+
+    // struct passwd * q getpwuid(uid_t uid);
+    private static final MethodHandle getpwuid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getpwuid"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static MemorySegment getpwuid(int uid) throws Throwable {
+        MemorySegment result = (MemorySegment) getpwuid.invokeExact(uid);
+        return result.equals(MemorySegment.NULL) ? null : result;
+    }
+
+    // struct group * getgrgid(gid_t gid);
+    private static final MethodHandle getgrgid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getgrgid"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static MemorySegment getgrgid(int gid) throws Throwable {
+        MemorySegment result = (MemorySegment) getgrgid.invokeExact(gid);
+        return result.equals(MemorySegment.NULL) ? null : result;
     }
 
     // pid_t getpid(void);
@@ -82,5 +119,19 @@ public final class MacSystemFunctions {
 
     public static int getrlimit(int resource, MemorySegment rlp) throws Throwable {
         return (int) getrlimit.invokeExact(resource, rlp);
+    }
+
+    public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {
+        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
+            return null;
+        }
+        return MemorySegment.ofAddress(pointer.address()).reinterpret(layout.byteSize(), arena, null);
+    }
+
+    public static String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
+        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
+            return null;
+        }
+        return MemorySegment.ofAddress(pointer.address()).reinterpret(MNAMELEN, arena, null).getString(0);
     }
 }
