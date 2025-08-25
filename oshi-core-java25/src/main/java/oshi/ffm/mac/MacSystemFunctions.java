@@ -18,7 +18,10 @@ import java.lang.invoke.MethodHandle;
 /**
  * Implementations of MacOS functions
  */
-public class MacSystemFunctions {
+public final class MacSystemFunctions {
+
+    private MacSystemFunctions() {
+    }
 
     private static final Linker LINKER = Linker.nativeLinker();
     private static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
@@ -29,7 +32,7 @@ public class MacSystemFunctions {
             SYMBOL_LOOKUP.find("proc_listpids").orElseThrow(),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
-    public static final int proc_listpids(int type, int typeinfo, MemorySegment pids, int bufferSize) throws Throwable {
+    public static int proc_listpids(int type, int typeinfo, MemorySegment pids, int bufferSize) throws Throwable {
         return (int) proc_listpids.invokeExact(type, typeinfo, pids, bufferSize);
     }
 

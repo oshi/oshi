@@ -19,9 +19,21 @@
     <suppress checks="ParameterName" files="[\\/]jna[\\/].*"/>
     <suppress checks="TypeName" files="[\\/]jna[\\/].*"/>
 
+    <!-- FFM convention -->
+    <suppress checks="InterfaceIsType" files="[\\/]ffm[\\/].*"/>
+    <suppress checks="ConstantName" files="[\\/]ffm[\\/].*"/>
+    <suppress checks="MethodName" files="[\\/]ffm[\\/].*"/>
+
+    <!-- Package-info is in other source tree -->
+    <suppress checks="JavadocPackage" files=".*FFM\.java"/>
+
+    <!-- Protected final fields initialized in constructor -->
+    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="68-70"/>
+
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
     <!-- Test files -->
     <suppress checks="(JavadocPackage|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
     <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
+    <suppress checks="(VisibilityModifier)" files="OperatingSystemTest\.java"/>
 </suppressions>

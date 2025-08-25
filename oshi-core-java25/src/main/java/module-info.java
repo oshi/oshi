@@ -16,8 +16,8 @@ module com.github.oshi {
     opens oshi.jna.platform.unix to com.sun.jna;
 
     // dependencies
-    requires com.sun.jna;
-    requires com.sun.jna.platform;
+    requires transitive com.sun.jna;
+    requires transitive com.sun.jna.platform;
     requires transitive java.desktop;
     requires org.slf4j;
 }

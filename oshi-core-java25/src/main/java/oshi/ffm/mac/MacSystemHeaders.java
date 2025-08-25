@@ -13,9 +13,9 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 public interface MacSystemHeaders {
 
     // host_statistics()
-    int HOST_LOAD_INFO = 1;// System loading stats
+    int HOST_LOAD_INFO = 1; // System loading stats
     int HOST_VM_INFO = 2; // Virtual memory stats
-    int HOST_CPU_LOAD_INFO = 3;// CPU load stats
+    int HOST_CPU_LOAD_INFO = 3; // CPU load stats
 
     // host_statistics64()
     int HOST_VM_INFO64 = 4; // 64-bit virtual memory stats
