@@ -9,8 +9,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystemFunctions.getStringFromNativePointer;
-import static oshi.ffm.mac.MacSystemFunctions.getStructFromNativePointer;
 import static oshi.ffm.mac.MacSystemFunctions.getgrgid;
 import static oshi.ffm.mac.MacSystemFunctions.getpwuid;
 import static oshi.ffm.mac.MacSystemFunctions.getrlimit;
@@ -81,9 +79,10 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKitUtil;
+import oshi.ffm.mac.ForeignFunctions;
+import oshi.ffm.mac.IOKit.IOIterator;
+import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.ThreadInfo;
@@ -113,6 +112,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
                 try {
                     String s = cpu.getName().toLowerCase(Locale.ROOT);
                     if (s.startsWith("cpu") && s.length() > 3) {
+                        // Frequency is typically only on lowest-numbered P-core
                         byte[] data = cpu.getByteArrayProperty("timebase-frequency");
                         if (data != null) {
                             ticksPerSec = ParseUtil.byteArrayToLong(data, 4, false);
@@ -499,9 +499,9 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.userID = Integer.toString(uid);
             MemorySegment pwuid = getpwuid(uid);
             if (pwuid != null) {
-                MemorySegment passwdStruct = getStructFromNativePointer(pwuid, PASSWD, arena);
+                MemorySegment passwdStruct = ForeignFunctions.getStructFromNativePointer(pwuid, PASSWD, arena);
                 MemorySegment nameAddress = passwdStruct.get(ADDRESS, PASSWD.byteOffset(groupElement("pw_name")));
-                this.user = getStringFromNativePointer(nameAddress, arena);
+                this.user = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
             } else {
                 this.user = this.userID;
             }
@@ -510,9 +510,9 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.groupID = Integer.toString(gid);
             MemorySegment grgid = getgrgid(gid);
             if (grgid != null) {
-                MemorySegment groupStruct = getStructFromNativePointer(pwuid, GROUP, arena);
+                MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(pwuid, GROUP, arena);
                 MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement("gr_name")));
-                this.group = getStringFromNativePointer(nameAddress, arena);
+                this.group = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
             } else {
                 this.group = this.groupID;
             }
