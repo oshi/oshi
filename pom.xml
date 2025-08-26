@@ -84,6 +84,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- native access enablement default -->
+        <native.access.modules>ALL-UNNAMED</native.access.modules>
         <!-- internal, see https://issues.apache.org/jira/browse/MNG-7038 -->
         <main.basedir>${maven.multiModuleProjectDirectory}</main.basedir>
         <!-- Dependency versions -->
@@ -257,7 +259,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                        <argLine>-Xmx1024m -XX:MaxPermSize=256m ${enable.native.access}</argLine>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <forkCount>4</forkCount>
                         <reuseForks>true</reuseForks>
@@ -294,6 +296,7 @@
                         <javaOptions>
                             <additionalOptions>
                                 <jacoco>${jacoco.java.option}</jacoco>
+                                <additionalOption>${enable.native.access}</additionalOption>
                             </additionalOptions>
                         </javaOptions>
                     </configuration>
@@ -983,6 +986,25 @@
             <properties>
                 <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
+            </properties>
+        </profile>
+        <!-- for oshi-core and oshi-core-java11: enable-native-access switch not available before JDK16 -->
+        <profile>
+            <id>pre-java16</id>
+            <activation>
+                <jdk>[1.8,16)</jdk>
+            </activation>
+            <properties>
+                <enable.native.access />
+            </properties>
+        </profile>
+        <profile>
+            <id>post-java16</id>
+            <activation>
+                <jdk>[16,)</jdk>
+            </activation>
+            <properties>
+                <enable.native.access>--enable-native-access=${native.access.modules}</enable.native.access>
             </properties>
         </profile>
         <!-- Java 25+ profile -->
