@@ -20,6 +20,7 @@
         <maven.compiler.target>24</maven.compiler.target>
         <maven.compiler.testSource>24</maven.compiler.testSource>
         <maven.compiler.testTarget>24</maven.compiler.testTarget>
+        <native.access.modules>com.sun.jna,com.github.oshi</native.access.modules>
     </properties>
 
     <dependencies>
@@ -31,15 +32,14 @@
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
+            <artifactId>jna-jpms</artifactId>
             <version>${jna.version}</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
+            <artifactId>jna-platform-jpms</artifactId>
             <version>${jna.version}</version>
         </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>

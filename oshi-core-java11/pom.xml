@@ -21,6 +21,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.testSource>11</maven.compiler.testSource>
         <maven.compiler.testTarget>11</maven.compiler.testTarget>
+        <native.access.modules>com.sun.jna</native.access.modules>
     </properties>
 
     <dependencyManagement>
