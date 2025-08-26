@@ -7,28 +7,20 @@ package oshi.ffm.mac;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystemHeaders.MNAMELEN;
 import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.StructLayout;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
 /**
  * Implementations of MacOS functions
  */
-public final class MacSystemFunctions {
+public final class MacSystemFunctions extends ForeignFunctions {
 
     private MacSystemFunctions() {
     }
-
-    private static final Linker LINKER = Linker.nativeLinker();
-    private static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
     public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
 
@@ -121,17 +113,21 @@ public final class MacSystemFunctions {
         return (int) getrlimit.invokeExact(resource, rlp);
     }
 
-    public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {
-        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
-            return null;
-        }
-        return MemorySegment.ofAddress(pointer.address()).reinterpret(layout.byteSize(), arena, null);
+    // mach_port_t mach_task_self(void)
+
+    private static final MethodHandle mach_task_self = LINKER
+            .downcallHandle(SYMBOL_LOOKUP.findOrThrow("mach_task_self"), FunctionDescriptor.of(JAVA_INT));
+
+    public static int mach_task_self() throws Throwable {
+        return (int) mach_task_self.invokeExact();
     }
 
-    public static String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
-        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
-            return null;
-        }
-        return MemorySegment.ofAddress(pointer.address()).reinterpret(MNAMELEN, arena, null).getString(0);
+    // kern_return_t mach_port_deallocate(ipc_space_t, mach_port_name_t);
+
+    private static final MethodHandle mach_port_deallocate = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("mach_port_deallocate"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT));
+
+    public static int mach_port_deallocate(int task, int name) throws Throwable {
+        return (int) mach_port_deallocate.invokeExact(task, name);
     }
 }
