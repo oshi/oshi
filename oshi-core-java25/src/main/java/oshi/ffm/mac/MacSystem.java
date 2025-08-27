@@ -70,7 +70,8 @@ public interface MacSystem {
     // resource.h
     int RUSAGE_INFO_V2 = 2;
 
-    StructLayout PROC_BSD_INFO = structLayout(//
+    StructLayout PROC_BSD_INFO = structLayout(
+            //
             JAVA_INT.withName("pbi_flags"), //
             JAVA_INT.withName("pbi_status"), //
             JAVA_INT.withName("pbi_xstatus"), //
@@ -104,7 +105,8 @@ public interface MacSystem {
     PathElement PBI_START_TVSEC = groupElement("pbi_start_tvsec");
     PathElement PBI_START_TVUSEC = groupElement("pbi_start_tvusec");
 
-    StructLayout PROC_TASK_INFO = structLayout(//
+    StructLayout PROC_TASK_INFO = structLayout(
+            //
             JAVA_LONG.withName("pti_virtual_size"), // virtual memory size (bytes)
             JAVA_LONG.withName("pti_resident_size"), // resident memory size (bytes)
             JAVA_LONG.withName("pti_total_user"), // total time (nanoseconds)
@@ -134,14 +136,16 @@ public interface MacSystem {
     PathElement PTI_THREADNUM = groupElement("pti_threadnum");
     PathElement PTI_PRIORITY = groupElement("pti_priority");
 
-    StructLayout PROC_TASK_ALL_INFO = MemoryLayout.structLayout(//
+    StructLayout PROC_TASK_ALL_INFO = MemoryLayout.structLayout(
+            //
             PROC_BSD_INFO.withName("pbsd"), //
             PROC_TASK_INFO.withName("ptinfo") //
     );
     PathElement PBSD = groupElement("pbsd");
     PathElement PTINFO = groupElement("ptinfo");
 
-    StructLayout PASSWD = MemoryLayout.structLayout(//
+    StructLayout PASSWD = MemoryLayout.structLayout(
+            //
             ADDRESS.withName("pw_name"), // user name
             ADDRESS.withName("pw_passwd"), // encrypted password
             JAVA_INT.withName("pw_uid"), // user uid
@@ -155,14 +159,16 @@ public interface MacSystem {
             ADDRESS.withName("pw_fields") // internal: fields filled in
     );
 
-    StructLayout GROUP = MemoryLayout.structLayout(//
+    StructLayout GROUP = MemoryLayout.structLayout(
+            //
             ADDRESS.withName("gr_name"), // group name
             ADDRESS.withName("gr_passwd"), // group password
             ADDRESS.withName("gr_gid"), // group id
             ADDRESS.withName("gr_mem") // group members
     );
 
-    StructLayout RUSAGEINFOV2 = MemoryLayout.structLayout(//
+    StructLayout RUSAGEINFOV2 = MemoryLayout.structLayout(
+            //
             sequenceLayout(16, JAVA_BYTE).withName("ri_uuid"), //
             JAVA_LONG.withName("ri_user_time"), //
             JAVA_LONG.withName("ri_system_time"), //
@@ -186,26 +192,55 @@ public interface MacSystem {
     PathElement RI_DISKIO_BYTESREAD = groupElement("ri_diskio_bytesread");
     PathElement RI_DISKIO_BYTESWRITTEN = groupElement("ri_diskio_byteswritten");
 
-    StructLayout VNODE_INFO_PATH = MemoryLayout.structLayout(//
+    StructLayout VNODE_INFO_PATH = MemoryLayout.structLayout(
+            //
             paddingLayout(152 * 8), // vnode_info but we don't need its data
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("vip_path"));
     PathElement VIP_PATH = groupElement("vip_path");
 
-    StructLayout VNODE_PATH_INFO = MemoryLayout.structLayout(//
+    StructLayout VNODE_PATH_INFO = MemoryLayout.structLayout(
+            //
             VNODE_INFO_PATH.withName("pvi_cdir"), //
             VNODE_INFO_PATH.withName("pvi_rdir") //
     );
     PathElement PVI_CDIR = groupElement("pvi_cdir");
 
-    StructLayout TIMEVAL = structLayout(//
+    StructLayout TIMEVAL = structLayout(
+            //
             JAVA_LONG.withName("tv_sec"), // seconds
             JAVA_INT.withName("tv_usec") // microseconds
     );
 
-    StructLayout RLIMIT = structLayout(//
+    StructLayout RLIMIT = structLayout(
+            //
             JAVA_LONG.withName("rlim_cur"), // current (soft) limit
             JAVA_LONG.withName("rlim_max") // hard limit
     );
     MemoryLayout.PathElement RLIM_CUR = groupElement("rlim_cur");
     MemoryLayout.PathElement RLIM_MAX = groupElement("rlim_max");
+
+    StructLayout STATFS = structLayout(//
+            JAVA_INT.withName("f_bsize"), // fundamental file system block size
+            JAVA_INT.withName("f_iosize"), // optimal transfer block size
+            JAVA_LONG.withName("f_blocks"), // total data blocks in file system
+            JAVA_LONG.withName("f_bfree"), // free blocks in fs
+            JAVA_LONG.withName("f_bavail"), // free blocks avail to non-superuser
+            JAVA_LONG.withName("f_files"), // total file nodes in file system
+            JAVA_LONG.withName("f_ffree"), // free file nodes in fs
+            sequenceLayout(2, JAVA_INT).withName("f_fsid"), // file system id
+            JAVA_INT.withName("f_owner"), // user that mounted the filesystem
+            JAVA_INT.withName("f_type"), // type of filesystem
+            JAVA_INT.withName("f_flags"), // copy of mount exported flags
+            JAVA_INT.withName("f_fssubtype"), // fs sub-type (flavor)
+            sequenceLayout(MFSTYPENAMELEN, JAVA_BYTE).withName("f_fstypename"), // fs type name
+            sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntonname"), // directory on which mounted
+            sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntfromname"), // mounted filesystem
+            paddingLayout(8 * 4).withName("f_reserved") // For future use
+    );
+    MemoryLayout.PathElement F_FILES = groupElement("f_files");
+    MemoryLayout.PathElement F_FFREE = groupElement("f_ffree");
+    MemoryLayout.PathElement F_FSTYPENAME = groupElement("f_fstypename");
+    MemoryLayout.PathElement F_FLAGS = groupElement("f_flags");
+    MemoryLayout.PathElement F_MNTONNAME = groupElement("f_mntonname");
+    MemoryLayout.PathElement F_MNTFROMNAME = groupElement("f_mntfromname");
 }

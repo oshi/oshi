@@ -132,4 +132,17 @@ public final class MacSystemFunctions extends ForeignFunctions {
     public static int mach_port_deallocate(int task, int name) throws Throwable {
         return (int) mach_port_deallocate.invokeExact(task, name);
     }
+
+    // int getfsstat(struct statfs *buf, int bufsize, int flags);
+
+    private static final MethodHandle getfsstat64 = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getfsstat64"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT));
+
+    public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) {
+        try {
+            return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
 }
