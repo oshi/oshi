@@ -79,9 +79,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.mac.ForeignFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.ForeignFunctions;
 import oshi.ffm.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.ThreadSafe;

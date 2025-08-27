@@ -2,7 +2,7 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.mac;
+package oshi.ffm;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static oshi.ffm.mac.MacSystemHeaders.MNAMELEN;

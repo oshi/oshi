@@ -14,6 +14,8 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
+import oshi.ffm.ForeignFunctions;
+
 /**
  * Implementations of MacOS functions
  */

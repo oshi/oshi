@@ -5,6 +5,7 @@
 package oshi.ffm.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static oshi.ffm.ForeignFunctions.getByteArrayFromNativePointer;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFAllocatorGetDefault;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetBytePtr;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetLength;
@@ -16,7 +17,6 @@ import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberFloat64Type;
 import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberSInt32Type;
 import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberSInt64Type;
 import static oshi.ffm.mac.CoreFoundationHeaders.kCFStringEncodingUTF8;
-import static oshi.ffm.mac.ForeignFunctions.getByteArrayFromNativePointer;
 import static oshi.ffm.mac.IOKitFunctions.IOIteratorNext;
 import static oshi.ffm.mac.IOKitFunctions.IOObjectConformsTo;
 import static oshi.ffm.mac.IOKitFunctions.IOObjectRelease;
