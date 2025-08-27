@@ -63,7 +63,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
 
-    private int maxProc = 1024;
+    protected final int maxProc;
 
     protected final String osXVersion;
     protected final int major;
@@ -90,6 +90,10 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     public MacOperatingSystem() {
+        this(SysctlUtil.sysctl("kern.maxproc", 0x1000));
+    }
+
+    protected MacOperatingSystem(int maxproc) {
         String version = System.getProperty("os.version");
         int verMajor = ParseUtil.getFirstIntValue(version);
         int verMinor = ParseUtil.getNthIntValue(version, 2);
@@ -106,7 +110,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
         this.major = verMajor;
         this.minor = verMinor;
         // Set max processes
-        this.maxProc = SysctlUtil.sysctl("kern.maxproc", 0x1000);
+        this.maxProc = maxproc;
     }
 
     @Override
@@ -246,7 +250,7 @@ public class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
+        return System.currentTimeMillis() / 1000 - getSystemBootTime();
     }
 
     @Override

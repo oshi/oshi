@@ -18,27 +18,6 @@ import oshi.ffm.ForeignFunctions;
 
 public final class CoreFoundationFunctions extends ForeignFunctions {
 
-    public static final long ARRAY_TYPE_ID;
-    public static final long BOOLEAN_TYPE_ID;
-    public static final long DATA_TYPE_ID;
-    public static final long DATE_TYPE_ID;
-    public static final long DICTIONARY_TYPE_ID;
-    public static final long NUMBER_TYPE_ID;
-    public static final long STRING_TYPE_ID;
-    static {
-        try {
-            ARRAY_TYPE_ID = CFArrayGetTypeID();
-            BOOLEAN_TYPE_ID = CFBooleanGetTypeID();
-            DATA_TYPE_ID = CFDataGetTypeID();
-            DATE_TYPE_ID = CFDateGetTypeID();
-            DICTIONARY_TYPE_ID = CFDictionaryGetTypeID();
-            NUMBER_TYPE_ID = CFNumberGetTypeID();
-            STRING_TYPE_ID = CFStringGetTypeID();
-        } catch (Throwable e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
     // CFAllocatorRef CFAllocatorGetDefault();
 
     private static final MethodHandle CFAllocatorGetDefault = LINKER
@@ -269,8 +248,7 @@ public final class CoreFoundationFunctions extends ForeignFunctions {
     }
 
     // CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, CFIndex capacity, const
-    // CFDictionaryKeyCallBacks *
-    // keyCallBacks, const CFDictionaryValueCallBacks * valueCallBacks);
+    // CFDictionaryKeyCallBacks * keyCallBacks, const CFDictionaryValueCallBacks * valueCallBacks);
 
     private static final MethodHandle CFDictionaryCreateMutable = LINKER.downcallHandle(
             SYMBOL_LOOKUP.findOrThrow("CFDictionaryCreateMutable"),
@@ -282,14 +260,43 @@ public final class CoreFoundationFunctions extends ForeignFunctions {
     }
 
     // CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, CFIndex capacity, const
-    // CFDictionaryKeyCallBacks *
-    // keyCallBacks, const CFDictionaryValueCallBacks * valueCallBacks);
+    // CFDictionaryKeyCallBacks * keyCallBacks, const CFDictionaryValueCallBacks * valueCallBacks);
 
     private static final MethodHandle CFGetTypeID = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("CFGetTypeID"),
             FunctionDescriptor.of(JAVA_LONG, ADDRESS));
 
     public static long CFGetTypeID(MemorySegment cf) throws Throwable {
         return (long) CFGetTypeID.invokeExact(cf);
+    }
+
+    // CFLocaleRef CFLocaleCopyCurrent();
+
+    private static final MethodHandle CFLocaleCopyCurrent = LINKER
+            .downcallHandle(SYMBOL_LOOKUP.findOrThrow("CFLocaleCopyCurrent"), FunctionDescriptor.of(ADDRESS));
+
+    public static MemorySegment CFLocaleCopyCurrent() throws Throwable {
+        return (MemorySegment) CFLocaleCopyCurrent.invokeExact();
+    }
+
+    // CFDateFormatterRef CFDateFormatterCreate(CFAllocatorRef allocator, CFLocaleRef locale, CFDateFormatterStyle
+    // dateStyle, CFDateFormatterStyle timeStyle);
+
+    private static final MethodHandle CFDateFormatterCreate = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("CFDateFormatterCreate"),
+            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, JAVA_LONG, JAVA_LONG));
+
+    public static MemorySegment CFDateFormatterCreate(MemorySegment allocator, MemorySegment locale, long dateStyle,
+            long timeStyle) throws Throwable {
+        return (MemorySegment) CFDateFormatterCreate.invokeExact(allocator, locale, dateStyle, timeStyle);
+    }
+
+    // CFStringRef CFDateFormatterGetFormat(CFDateFormatterRef formatter);
+
+    private static final MethodHandle CFDateFormatterGetFormat = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("CFDateFormatterGetFormat"), FunctionDescriptor.of(ADDRESS, ADDRESS));
+
+    public static MemorySegment CFDateFormatterGetFormat(MemorySegment formatter) throws Throwable {
+        return (MemorySegment) CFDateFormatterGetFormat.invokeExact(formatter);
     }
 
     // CFTypeID CFArrayGetTypeID();
@@ -355,34 +362,24 @@ public final class CoreFoundationFunctions extends ForeignFunctions {
         return (long) CFStringGetTypeID.invokeExact();
     }
 
-    // CFLocaleRef CFLocaleCopyCurrent();
-
-    private static final MethodHandle CFLocaleCopyCurrent = LINKER
-            .downcallHandle(SYMBOL_LOOKUP.findOrThrow("CFLocaleCopyCurrent"), FunctionDescriptor.of(ADDRESS));
-
-    public static MemorySegment CFLocaleCopyCurrent() throws Throwable {
-        return (MemorySegment) CFLocaleCopyCurrent.invokeExact();
-    }
-
-    // CFDateFormatterRef CFDateFormatterCreate(CFAllocatorRef allocator, CFLocaleRef locale, CFDateFormatterStyle
-    // dateStyle,
-    // CFDateFormatterStyle timeStyle);
-
-    private static final MethodHandle CFDateFormatterCreate = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.findOrThrow("CFDateFormatterCreate"),
-            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, JAVA_LONG, JAVA_LONG));
-
-    public static MemorySegment CFDateFormatterCreate(MemorySegment allocator, MemorySegment locale, long dateStyle,
-            long timeStyle) throws Throwable {
-        return (MemorySegment) CFDateFormatterCreate.invokeExact(allocator, locale, dateStyle, timeStyle);
-    }
-
-    // CFStringRef CFDateFormatterGetFormat(CFDateFormatterRef formatter);
-
-    private static final MethodHandle CFDateFormatterGetFormat = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.findOrThrow("CFDateFormatterGetFormat"), FunctionDescriptor.of(ADDRESS, ADDRESS));
-
-    public static MemorySegment CFDateFormatterGetFormat(MemorySegment formatter) throws Throwable {
-        return (MemorySegment) CFDateFormatterGetFormat.invokeExact(formatter);
+    public static final long ARRAY_TYPE_ID;
+    public static final long BOOLEAN_TYPE_ID;
+    public static final long DATA_TYPE_ID;
+    public static final long DATE_TYPE_ID;
+    public static final long DICTIONARY_TYPE_ID;
+    public static final long NUMBER_TYPE_ID;
+    public static final long STRING_TYPE_ID;
+    static {
+        try {
+            ARRAY_TYPE_ID = CFArrayGetTypeID();
+            BOOLEAN_TYPE_ID = CFBooleanGetTypeID();
+            DATA_TYPE_ID = CFDataGetTypeID();
+            DATE_TYPE_ID = CFDateGetTypeID();
+            DICTIONARY_TYPE_ID = CFDictionaryGetTypeID();
+            NUMBER_TYPE_ID = CFNumberGetTypeID();
+            STRING_TYPE_ID = CFStringGetTypeID();
+        } catch (Throwable e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 }

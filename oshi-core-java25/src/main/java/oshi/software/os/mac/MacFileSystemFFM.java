@@ -75,9 +75,9 @@ public class MacFileSystemFFM extends MacFileSystem {
                 return fsList;
             }
             // Create buffer to hold results
-            long size = STATFS.byteSize() * numfs;
-            MemorySegment statfsBuffer = arena.allocate(size);
-            numfs = getfsstat64(statfsBuffer, (int) size, MNT_NOWAIT);
+            long statfsSize = STATFS.byteSize(); // Size of one structure
+            MemorySegment statfsBuffer = arena.allocate(statfsSize * numfs);
+            numfs = getfsstat64(statfsBuffer, (int) statfsBuffer.byteSize(), MNT_NOWAIT);
             if (numfs <= 0) {
                 return fsList;
             }
@@ -95,7 +95,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                 CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
                 try {
                     for (int f = 0; f < numfs; f++) {
-                        MemorySegment statfs = statfsBuffer.asSlice(f * size, size);
+                        MemorySegment statfs = statfsBuffer.asSlice(f * statfsSize, statfsSize);
                         // Mount on name will match mounted path, e.g. /Volumes/foo
                         // Mount to name will match canonical path., e.g., /dev/disk0s2
                         // Byte arrays are null-terminated strings
@@ -198,7 +198,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                 session.release();
             }
         } catch (Throwable e) {
-            LOG.warn("Failed to query file systems: {}", e.getMessage());
+            LOG.warn("Failed to query file systems: {}", e.getMessage(), e);
             return fsList;
         }
         return fsList;

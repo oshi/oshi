@@ -12,8 +12,8 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.StructLayout;
 
@@ -70,8 +70,22 @@ public interface MacSystem {
     // resource.h
     int RUSAGE_INFO_V2 = 2;
 
-    StructLayout PROC_BSD_INFO = structLayout(
-            //
+    int PROC_PIDLISTFDS = 1;
+    int PROX_FDTYPE_SOCKET = 2;
+    int PROC_PIDFDSOCKETINFO = 3;
+    int TSI_T_NTIMERS = 4;
+    int SOCKINFO_IN = 1;
+    int SOCKINFO_TCP = 2;
+
+    int UTX_USERSIZE = 256;
+    int UTX_LINESIZE = 32;
+    int UTX_IDSIZE = 4;
+    int UTX_HOSTSIZE = 256;
+
+    int AF_INET = 2; // The Internet Protocol version 4 (IPv4) address family.
+    int AF_INET6 = 30; // The Internet Protocol version 6 (IPv6) address family.
+
+    StructLayout PROC_BSD_INFO = structLayout(//
             JAVA_INT.withName("pbi_flags"), //
             JAVA_INT.withName("pbi_status"), //
             JAVA_INT.withName("pbi_xstatus"), //
@@ -105,8 +119,7 @@ public interface MacSystem {
     PathElement PBI_START_TVSEC = groupElement("pbi_start_tvsec");
     PathElement PBI_START_TVUSEC = groupElement("pbi_start_tvusec");
 
-    StructLayout PROC_TASK_INFO = structLayout(
-            //
+    StructLayout PROC_TASK_INFO = structLayout(//
             JAVA_LONG.withName("pti_virtual_size"), // virtual memory size (bytes)
             JAVA_LONG.withName("pti_resident_size"), // resident memory size (bytes)
             JAVA_LONG.withName("pti_total_user"), // total time (nanoseconds)
@@ -136,16 +149,14 @@ public interface MacSystem {
     PathElement PTI_THREADNUM = groupElement("pti_threadnum");
     PathElement PTI_PRIORITY = groupElement("pti_priority");
 
-    StructLayout PROC_TASK_ALL_INFO = MemoryLayout.structLayout(
-            //
+    StructLayout PROC_TASK_ALL_INFO = structLayout(//
             PROC_BSD_INFO.withName("pbsd"), //
             PROC_TASK_INFO.withName("ptinfo") //
     );
     PathElement PBSD = groupElement("pbsd");
     PathElement PTINFO = groupElement("ptinfo");
 
-    StructLayout PASSWD = MemoryLayout.structLayout(
-            //
+    StructLayout PASSWD = structLayout(//
             ADDRESS.withName("pw_name"), // user name
             ADDRESS.withName("pw_passwd"), // encrypted password
             JAVA_INT.withName("pw_uid"), // user uid
@@ -159,16 +170,14 @@ public interface MacSystem {
             ADDRESS.withName("pw_fields") // internal: fields filled in
     );
 
-    StructLayout GROUP = MemoryLayout.structLayout(
-            //
+    StructLayout GROUP = structLayout(//
             ADDRESS.withName("gr_name"), // group name
             ADDRESS.withName("gr_passwd"), // group password
             ADDRESS.withName("gr_gid"), // group id
             ADDRESS.withName("gr_mem") // group members
     );
 
-    StructLayout RUSAGEINFOV2 = MemoryLayout.structLayout(
-            //
+    StructLayout RUSAGEINFOV2 = structLayout(//
             sequenceLayout(16, JAVA_BYTE).withName("ri_uuid"), //
             JAVA_LONG.withName("ri_user_time"), //
             JAVA_LONG.withName("ri_system_time"), //
@@ -192,32 +201,28 @@ public interface MacSystem {
     PathElement RI_DISKIO_BYTESREAD = groupElement("ri_diskio_bytesread");
     PathElement RI_DISKIO_BYTESWRITTEN = groupElement("ri_diskio_byteswritten");
 
-    StructLayout VNODE_INFO_PATH = MemoryLayout.structLayout(
-            //
+    StructLayout VNODE_INFO_PATH = structLayout(//
             paddingLayout(152 * 8), // vnode_info but we don't need its data
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("vip_path"));
     PathElement VIP_PATH = groupElement("vip_path");
 
-    StructLayout VNODE_PATH_INFO = MemoryLayout.structLayout(
-            //
+    StructLayout VNODE_PATH_INFO = structLayout(//
             VNODE_INFO_PATH.withName("pvi_cdir"), //
             VNODE_INFO_PATH.withName("pvi_rdir") //
     );
     PathElement PVI_CDIR = groupElement("pvi_cdir");
 
-    StructLayout TIMEVAL = structLayout(
-            //
+    StructLayout TIMEVAL = structLayout(//
             JAVA_LONG.withName("tv_sec"), // seconds
             JAVA_INT.withName("tv_usec") // microseconds
     );
 
-    StructLayout RLIMIT = structLayout(
-            //
+    StructLayout RLIMIT = structLayout(//
             JAVA_LONG.withName("rlim_cur"), // current (soft) limit
             JAVA_LONG.withName("rlim_max") // hard limit
     );
-    MemoryLayout.PathElement RLIM_CUR = groupElement("rlim_cur");
-    MemoryLayout.PathElement RLIM_MAX = groupElement("rlim_max");
+    PathElement RLIM_CUR = groupElement("rlim_cur");
+    PathElement RLIM_MAX = groupElement("rlim_max");
 
     StructLayout STATFS = structLayout(//
             JAVA_INT.withName("f_bsize"), // fundamental file system block size
@@ -237,10 +242,91 @@ public interface MacSystem {
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntfromname"), // mounted filesystem
             paddingLayout(8 * 4).withName("f_reserved") // For future use
     );
-    MemoryLayout.PathElement F_FILES = groupElement("f_files");
-    MemoryLayout.PathElement F_FFREE = groupElement("f_ffree");
-    MemoryLayout.PathElement F_FSTYPENAME = groupElement("f_fstypename");
-    MemoryLayout.PathElement F_FLAGS = groupElement("f_flags");
-    MemoryLayout.PathElement F_MNTONNAME = groupElement("f_mntonname");
-    MemoryLayout.PathElement F_MNTFROMNAME = groupElement("f_mntfromname");
+    PathElement F_FILES = groupElement("f_files");
+    PathElement F_FFREE = groupElement("f_ffree");
+    PathElement F_FSTYPENAME = groupElement("f_fstypename");
+    PathElement F_FLAGS = groupElement("f_flags");
+    PathElement F_MNTONNAME = groupElement("f_mntonname");
+    PathElement F_MNTFROMNAME = groupElement("f_mntfromname");
+
+    StructLayout PROC_FD_INFO = structLayout(//
+            JAVA_INT.withName("proc_fd"), //
+            JAVA_INT.withName("proc_fdtype") //
+    );
+    PathElement PROC_FD = groupElement("proc_fd");
+    PathElement PROC_FDTYPE = groupElement("proc_fdtype");
+
+    StructLayout IN_SOCK_INFO = structLayout(//
+            JAVA_INT.withName("insi_fport"), // foreign port
+            JAVA_INT.withName("insi_lport"), // local port
+            JAVA_LONG.withName("insi_gencnt"), // generation count
+            JAVA_INT.withName("insi_flags"), // generic IP/datagram flags
+            JAVA_INT.withName("insi_flow"), // flow info
+            JAVA_BYTE.withName("insi_vflag"), // inet version flag
+            JAVA_BYTE.withName("insi_ip_ttl"), // time to live
+            paddingLayout(2), // align to 4 byte boundary
+            JAVA_INT.withName("rfu_1"), // reserved
+            sequenceLayout(4, JAVA_INT).withName("insi_faddr"), // foreign host table entry
+            sequenceLayout(4, JAVA_INT).withName("insi_laddr"), // local host table entry
+            JAVA_BYTE.withName("insi_v4"), // type of service
+            sequenceLayout(9, JAVA_BYTE).withName("insi_v6") // type of service for IPv6
+    );
+    PathElement INSI_FPORT = groupElement("insi_fport");
+    PathElement INSI_LPORT = groupElement("insi_lport");
+    PathElement INSI_VFLAG = groupElement("insi_vflag");
+    PathElement INSI_FADDR = groupElement("insi_faddr");
+    PathElement INSI_LADDR = groupElement("insi_laddr");
+
+    StructLayout TCP_SOCK_INFO = structLayout(//
+            IN_SOCK_INFO.withName("tcpsi_ini"), //
+            paddingLayout(2), // align to 4 byte boundary
+            JAVA_INT.withName("tcpsi_state"), //
+            sequenceLayout(TSI_T_NTIMERS, JAVA_INT).withName("tcpsi_timer"), //
+            JAVA_INT.withName("tcpsi_mss"), //
+            JAVA_INT.withName("tcpsi_flags"), //
+            JAVA_INT.withName("rfu_1"), //
+            paddingLayout(4), // align to 8 byte boundary
+            JAVA_LONG.withName("tcpsi_tp") // opaque handle of TCP protocol control block
+    );
+    PathElement TCPSI_INI = groupElement("tcpsi_ini");
+    PathElement TCPSI_STATE = groupElement("tcpsi_state");
+
+    StructLayout PROC_FILE_INFO = structLayout(JAVA_INT.withName("fi_openflags"), JAVA_INT.withName("fi_status"),
+            JAVA_LONG.withName("fi_offset"), JAVA_INT.withName("fi_type"), JAVA_INT.withName("fi_guardflags"));
+
+    StructLayout SOCKET_INFO = structLayout(//
+            sequenceLayout(17, JAVA_LONG).withName("soi_stat"), // vinfo_stat
+            JAVA_LONG.withName("soi_so"), // opaque handle of socket
+            JAVA_LONG.withName("soi_pcb"), // opaque handle of protocol control block
+            JAVA_INT.withName("soi_type"), //
+            JAVA_INT.withName("soi_protocol"), //
+            JAVA_INT.withName("soi_family"), //
+            JAVA_SHORT.withName("soi_options"), //
+            JAVA_SHORT.withName("soi_linger"), //
+            JAVA_SHORT.withName("soi_state"), //
+            JAVA_SHORT.withName("soi_qlen"), //
+            JAVA_SHORT.withName("soi_incqlen"), //
+            JAVA_SHORT.withName("soi_qlimit"), //
+            JAVA_SHORT.withName("soi_timeo"), //
+            JAVA_SHORT.withName("soi_error"), //
+            JAVA_INT.withName("soi_oobmark"), //
+            sequenceLayout(6, JAVA_INT).withName("soi_rcv"), // sockbuf_info
+            sequenceLayout(6, JAVA_INT).withName("soi_snd"), // sockbuf_info
+            JAVA_INT.withName("soi_kind"), //
+            JAVA_INT.withName("rfu_1"), // reserved
+            // We only consider 2 of the 7 possible union structures, max size is 524 bytes
+            paddingLayout(524).withName("soi_proto") // Union for Pri structure
+    );
+    PathElement SOI_FAMILY = groupElement("soi_family");
+    PathElement SOI_KIND = groupElement("soi_kind");
+    PathElement SOI_QLEN = groupElement("soi_qlen");
+    PathElement SOI_INCQLEN = groupElement("soi_incqlen");
+    PathElement SOI_PROTO = groupElement("soi_proto");
+
+    StructLayout SOCKET_FD_INFO = structLayout(//
+            PROC_FILE_INFO.withName("pfi"), //
+            SOCKET_INFO.withName("psi") //
+    );
+    PathElement PFI = groupElement("pfi");
+    PathElement PSI = groupElement("psi");
 }
