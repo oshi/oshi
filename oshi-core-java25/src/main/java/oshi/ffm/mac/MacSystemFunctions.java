@@ -7,7 +7,6 @@ package oshi.ffm.mac;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystem.RLIMIT;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
@@ -57,6 +56,16 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     public static int proc_pid_rusage(int pid, int flavor, MemorySegment buffer) throws Throwable {
         return (int) proc_pid_rusage.invokeExact(pid, flavor, buffer);
+    }
+
+    // int proc_pidfdinfo(int pid, int fd, int flavor, void * buffer, int buffersize)
+    private static final MethodHandle proc_pidfdinfo = LINKER.downcallHandle(
+            SYMBOL_LOOKUP.findOrThrow("proc_pidfdinfo"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
+
+    public static int proc_pidfdinfo(int pid, int fd, int flavor, MemorySegment buffer, int bufferSize)
+            throws Throwable {
+        return (int) proc_pidfdinfo.invokeExact(pid, fd, flavor, buffer, bufferSize);
     }
 
     // struct passwd * q getpwuid(uid_t uid);
@@ -109,7 +118,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     // int getrlimit(int resource, struct rlimit *rlp);
 
     private static final MethodHandle getrlimit = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getrlimit"),
-            FunctionDescriptor.of(JAVA_INT, JAVA_INT, RLIMIT));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
     public static int getrlimit(int resource, MemorySegment rlp) throws Throwable {
         return (int) getrlimit.invokeExact(resource, rlp);

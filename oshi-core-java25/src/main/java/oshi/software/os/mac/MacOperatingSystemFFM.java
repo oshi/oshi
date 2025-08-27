@@ -6,15 +6,15 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystemFunctions.getpid;
-import static oshi.ffm.mac.MacSystemFunctions.proc_listpids;
-import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
 import static oshi.ffm.mac.MacSystem.INT_SIZE;
 import static oshi.ffm.mac.MacSystem.PROC_ALL_PIDS;
 import static oshi.ffm.mac.MacSystem.PROC_PIDTASKINFO;
 import static oshi.ffm.mac.MacSystem.PROC_TASK_INFO;
 import static oshi.ffm.mac.MacSystem.PTI_THREADNUM;
 import static oshi.ffm.mac.MacSystem.TIMEVAL;
+import static oshi.ffm.mac.MacSystemFunctions.getpid;
+import static oshi.ffm.mac.MacSystemFunctions.proc_listpids;
+import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -23,14 +23,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
+import oshi.driver.mac.WindowInfo;
+import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.NetworkParams;
+import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
@@ -71,7 +74,17 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     }
 
     public MacOperatingSystemFFM() {
-        super();
+        super(SysctlUtilFFM.sysctl("kern.maxproc", 0x1000));
+    }
+
+    @Override
+    public FileSystem getFileSystem() {
+        return new MacFileSystemFFM();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new MacInternetProtocolStatsFFM(isElevated());
     }
 
     @Override
@@ -85,6 +98,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
+        // TODO: migrate queryUtxent
         return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();
     }
 
@@ -112,25 +126,11 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> queryChildProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
-    }
-
-    @Override
     public int getProcessId() {
         try {
             return getpid();
         } catch (Throwable e) {
-            LOG.warn("Failed to get current pid", e.getMessage());
+            LOG.warn("Failed to get current pid: {}", e.getMessage(), e);
             return 0;
         }
     }
@@ -140,7 +140,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
         try {
             return proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
         } catch (Throwable e) {
-            LOG.warn("Failed to query processes", e.getMessage());
+            LOG.warn("Failed to query processes: {}", e.getMessage(), e);
             return 0;
         }
     }
@@ -177,12 +177,20 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     }
 
     @Override
-    public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
-    }
-
-    @Override
     public long getSystemBootTime() {
         return BOOTTIME;
     }
+
+    @Override
+    public NetworkParams getNetworkParams() {
+        // TODO: migrate
+        return new MacNetworkParams();
+    }
+
+    @Override
+    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        // TODO: migrate
+        return WindowInfo.queryDesktopWindows(visibleOnly);
+    }
+
 }
