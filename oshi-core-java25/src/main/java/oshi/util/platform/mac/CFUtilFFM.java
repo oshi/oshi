@@ -2,7 +2,7 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.mac;
+package oshi.util.platform.mac;
 
 import java.lang.foreign.MemorySegment;
 

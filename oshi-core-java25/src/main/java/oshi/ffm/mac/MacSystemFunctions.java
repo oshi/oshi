@@ -7,7 +7,7 @@ package oshi.ffm.mac;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystemStructs.RLIMIT;
+import static oshi.ffm.mac.MacSystem.RLIMIT;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;

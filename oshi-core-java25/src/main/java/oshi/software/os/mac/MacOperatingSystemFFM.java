@@ -9,12 +9,12 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.mac.MacSystemFunctions.getpid;
 import static oshi.ffm.mac.MacSystemFunctions.proc_listpids;
 import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
-import static oshi.ffm.mac.MacSystemHeaders.INT_SIZE;
-import static oshi.ffm.mac.MacSystemHeaders.PROC_ALL_PIDS;
-import static oshi.ffm.mac.MacSystemHeaders.PROC_PIDTASKINFO;
-import static oshi.ffm.mac.MacSystemStructs.PROC_TASK_INFO;
-import static oshi.ffm.mac.MacSystemStructs.PTI_THREADNUM;
-import static oshi.ffm.mac.MacSystemStructs.TIMEVAL;
+import static oshi.ffm.mac.MacSystem.INT_SIZE;
+import static oshi.ffm.mac.MacSystem.PROC_ALL_PIDS;
+import static oshi.ffm.mac.MacSystem.PROC_PIDTASKINFO;
+import static oshi.ffm.mac.MacSystem.PROC_TASK_INFO;
+import static oshi.ffm.mac.MacSystem.PTI_THREADNUM;
+import static oshi.ffm.mac.MacSystem.TIMEVAL;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

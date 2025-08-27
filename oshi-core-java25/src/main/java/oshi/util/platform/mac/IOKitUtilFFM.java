@@ -2,10 +2,16 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.mac;
+package oshi.util.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.mac.IOKitFunctions.IOBSDNameMatching;
+import static oshi.ffm.mac.IOKitFunctions.IOMasterPort;
+import static oshi.ffm.mac.IOKitFunctions.IORegistryGetRootEntry;
+import static oshi.ffm.mac.IOKitFunctions.IOServiceGetMatchingService;
+import static oshi.ffm.mac.IOKitFunctions.IOServiceGetMatchingServices;
+import static oshi.ffm.mac.IOKitFunctions.IOServiceMatching;
 import static oshi.ffm.mac.MacSystemFunctions.mach_port_deallocate;
 import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
 
@@ -16,9 +22,9 @@ import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.ffm.mac.IOKit.IOService;
 
-public final class IOKitUtil {
+public final class IOKitUtilFFM {
 
-    private IOKitUtil() {
+    private IOKitUtilFFM() {
     }
 
     /**
@@ -32,7 +38,7 @@ public final class IOKitUtil {
     public static int getMasterPort() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment port = arena.allocate(JAVA_INT);
-            int result = IOKitFunctions.IOMasterPort(0, port);
+            int result = IOMasterPort(0, port);
             if (result == 0) {
                 return port.get(JAVA_INT, 0);
             }
@@ -50,7 +56,7 @@ public final class IOKitUtil {
     public static IORegistryEntry getRoot() {
         try {
             int masterPort = getMasterPort();
-            MemorySegment root = IOKitFunctions.IORegistryGetRootEntry(masterPort);
+            MemorySegment root = IORegistryGetRootEntry(masterPort);
             deallocatePort(masterPort);
             return root.equals(MemorySegment.NULL) ? null : new IORegistryEntry(root);
         } catch (Throwable e) {
@@ -67,7 +73,7 @@ public final class IOKitUtil {
     public static IOService getMatchingService(String serviceName) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
-            MemorySegment dict = IOKitFunctions.IOServiceMatching(nameStr);
+            MemorySegment dict = IOServiceMatching(nameStr);
             if (dict != null && !dict.equals(MemorySegment.NULL)) {
                 return getMatchingService(dict);
             }
@@ -86,7 +92,7 @@ public final class IOKitUtil {
     public static IOService getMatchingService(MemorySegment matchingDictionary) {
         try {
             int masterPort = getMasterPort();
-            MemorySegment service = IOKitFunctions.IOServiceGetMatchingService(masterPort, matchingDictionary);
+            MemorySegment service = IOServiceGetMatchingService(masterPort, matchingDictionary);
             deallocatePort(masterPort);
             return service.equals(MemorySegment.NULL) ? null : new IOService(service);
         } catch (Throwable e) {
@@ -103,7 +109,7 @@ public final class IOKitUtil {
     public static IOIterator getMatchingServices(String serviceName) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
-            MemorySegment dict = IOKitFunctions.IOServiceMatching(nameStr);
+            MemorySegment dict = IOServiceMatching(nameStr);
             if (dict != null && !dict.equals(MemorySegment.NULL)) {
                 return getMatchingServices(dict);
             }
@@ -124,7 +130,7 @@ public final class IOKitUtil {
             int masterPort = getMasterPort();
             MemorySegment iteratorSeg = arena.allocate(ADDRESS);
 
-            int result = IOKitFunctions.IOServiceGetMatchingServices(masterPort, matchingDictionary, iteratorSeg);
+            int result = IOServiceGetMatchingServices(masterPort, matchingDictionary, iteratorSeg);
             deallocatePort(masterPort);
 
             if (result == 0) {
@@ -149,7 +155,7 @@ public final class IOKitUtil {
         try (Arena arena = Arena.ofConfined()) {
             int masterPort = getMasterPort();
             MemorySegment bsdNameStr = arena.allocateFrom(bsdName);
-            MemorySegment result = IOKitFunctions.IOBSDNameMatching(masterPort, 0, bsdNameStr);
+            MemorySegment result = IOBSDNameMatching(masterPort, 0, bsdNameStr);
             deallocatePort(masterPort);
             return result;
         } catch (Throwable e) {
