@@ -5,6 +5,7 @@
 package oshi.ffm.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static oshi.ffm.ForeignFunctions.getByteArrayFromNativePointer;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFAllocatorGetDefault;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetBytePtr;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetLength;
@@ -12,11 +13,10 @@ import static oshi.ffm.mac.CoreFoundationFunctions.CFNumberGetValue;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFStringCreateWithCharacters;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFStringGetCString;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFStringGetLength;
-import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberFloat64Type;
-import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberSInt32Type;
-import static oshi.ffm.mac.CoreFoundationHeaders.kCFNumberSInt64Type;
-import static oshi.ffm.mac.CoreFoundationHeaders.kCFStringEncodingUTF8;
-import static oshi.ffm.mac.ForeignFunctions.getByteArrayFromNativePointer;
+import static oshi.ffm.mac.CoreFoundation.kCFNumberFloat64Type;
+import static oshi.ffm.mac.CoreFoundation.kCFNumberSInt32Type;
+import static oshi.ffm.mac.CoreFoundation.kCFNumberSInt64Type;
+import static oshi.ffm.mac.CoreFoundation.kCFStringEncodingUTF8;
 import static oshi.ffm.mac.IOKitFunctions.IOIteratorNext;
 import static oshi.ffm.mac.IOKitFunctions.IOObjectConformsTo;
 import static oshi.ffm.mac.IOKitFunctions.IOObjectRelease;
@@ -28,7 +28,6 @@ import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetName;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetParentEntry;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetRegistryEntryID;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntrySearchCFProperty;
-import static oshi.ffm.mac.IOKitHeaders.kIOReturnNoDevice;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -41,6 +40,12 @@ import java.util.List;
  * mechanism.
  */
 public interface IOKit {
+
+    int kIORegistryIterateRecursively = 0x00000001;
+    int kIORegistryIterateParents = 0x00000002;
+    int kIOReturnNoDevice = 0xe00002c0;
+    double kIOPSTimeRemainingUnlimited = -2.0;
+    double kIOPSTimeRemainingUnknown = -1.0;
 
     class IOObject {
         private final MemorySegment segment;

@@ -2,10 +2,9 @@
  * Copyright 2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.mac;
+package oshi.ffm;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
-import static oshi.ffm.mac.MacSystemHeaders.MNAMELEN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.Linker;
@@ -32,7 +31,8 @@ public abstract class ForeignFunctions {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
-        return MemorySegment.ofAddress(pointer.address()).reinterpret(MNAMELEN, arena, null).getString(0);
+        // More than enough space for 255 UTF characters
+        return MemorySegment.ofAddress(pointer.address()).reinterpret(1024, arena, null).getString(0);
     }
 
     public static byte[] getByteArrayFromNativePointer(MemorySegment pointer, long length, Arena arena) {
