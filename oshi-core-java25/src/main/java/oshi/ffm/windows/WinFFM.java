@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.ffm.windows;
 
 import java.lang.foreign.Arena;
@@ -10,14 +14,15 @@ import java.lang.invoke.MethodHandle;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 
 /**
- * Utility class for working with the Foreign Function & Memory API (Java 24+).
- * Provides helpers for library lookup, downcalls, and UTF-16 string conversion.
+ * Utility class for working with the Foreign Function & Memory API (Java 24+). Provides helpers for library lookup,
+ * downcalls, and UTF-16 string conversion.
  */
 public final class WinFFM {
 
     private static final Linker LINKER = Linker.nativeLinker();
 
-    private WinFFM() {}
+    private WinFFM() {
+    }
 
     /**
      * Look up a native DLL by name (e.g., "Kernel32", "Advapi32").
@@ -30,8 +35,7 @@ public final class WinFFM {
      * Create a downcall handle for a native function.
      */
     public static MethodHandle downcall(SymbolLookup lib, String symbol, FunctionDescriptor fd) {
-        MemorySegment sym = lib.find(symbol)
-            .orElseThrow(() -> new UnsatisfiedLinkError("Missing symbol: " + symbol));
+        MemorySegment sym = lib.find(symbol).orElseThrow(() -> new UnsatisfiedLinkError("Missing symbol: " + symbol));
         return LINKER.downcallHandle(sym, fd);
     }
 
@@ -47,18 +51,4 @@ public final class WinFFM {
         return seg;
     }
 
-    /**
-     * Convert a UTF-16 (wide char) memory segment to a Java String.
-     * Reads until the first NUL terminator.
-     */
-    public static String fromUtf16(MemorySegment seg) {
-        StringBuilder sb = new StringBuilder();
-        long len = seg.byteSize() / JAVA_CHAR.byteSize();
-        for (long i = 0; i < len; i++) {
-            char c = seg.getAtIndex(JAVA_CHAR, i);
-            if (c == 0) break;
-            sb.append(c);
-        }
-        return sb.toString();
-    }
 }
