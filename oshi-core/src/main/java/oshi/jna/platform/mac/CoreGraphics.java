@@ -6,10 +6,19 @@ package oshi.jna.platform.mac;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFNumberType;
+import com.sun.jna.ptr.*;
+import com.sun.jna.ptr.DoubleByReference;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 import oshi.util.Util;
 
@@ -50,6 +59,9 @@ public interface CoreGraphics extends Library {
      */
     @FieldOrder({ "width", "height" })
     class CGSize extends Structure {
+
+        public static class ByValue extends CGSize implements Structure.ByValue {}
+
         public double width;
         public double height;
     }
@@ -67,8 +79,57 @@ public interface CoreGraphics extends Library {
             Util.freeMemory(getPointer());
         }
     }
+        
+    class CGDisplayModeRef  extends PointerType {
+        public CGDisplayModeRef() {
+            super();
+        }
 
+        public CGDisplayModeRef(Pointer p) {
+            super(p);
+        }
+
+        public long pixelHeight() {
+            return INSTANCE.CGDisplayModeGetPixelHeight(this);
+        }
+        public long pixelWidth() {
+            return INSTANCE.CGDisplayModeGetPixelWidth(this);
+        }
+        public double refreshRate() {
+            return INSTANCE.CGDisplayModeGetRefreshRate(this);            
+        }
+    }
+    
     CFArrayRef CGWindowListCopyWindowInfo(int option, int relativeToWindow);
 
     boolean CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect rect);
+
+    int CGGetActiveDisplayList(int maxDisplays, int[] activeDisplays, IntByReference displayCount);
+
+    int CGDisplayVendorNumber(int display);
+
+    int CGDisplayModelNumber(int display);
+
+    int CGDisplaySerialNumber(int display);
+
+    CGSize.ByValue CGDisplayScreenSize(int display);
+
+    boolean CGDisplayIsMain(int display);
+
+    boolean CGDisplayIsBuiltin(int display);
+
+    double CGDisplayRotation(int diaplay);
+
+    long CGDisplayPixelsHigh(int display);
+
+    long CGDisplayPixelsWide(int display);
+
+    CFArrayRef CGDisplayCopyAllDisplayModes(int display, CFDictionaryRef options);
+    
+    long CGDisplayModeGetPixelHeight(CGDisplayModeRef mode);
+
+    long CGDisplayModeGetPixelWidth(CGDisplayModeRef mode);
+
+    double CGDisplayModeGetRefreshRate(CGDisplayModeRef mode);
+
 }
