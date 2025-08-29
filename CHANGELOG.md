@@ -6,6 +6,7 @@
 
 ##### Bug fixes / Improvements
 * [#2946](https://github.com/oshi/oshi/pull/2946): Add Hyper-V VM mac address - [@chunzhennn](https://github.com/chunzhennn).
+* [#2960](https://github.com/oshi/oshi/pull/2949): Include Apple Silicon MacDisplaly registry options - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
