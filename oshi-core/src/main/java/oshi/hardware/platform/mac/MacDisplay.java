@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -47,30 +47,56 @@ final class MacDisplay extends AbstractDisplay {
      */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // Iterate IO Registry IODisplayConnect
-        IOIterator serviceIterator = IOKitUtil.getMatchingServices("IODisplayConnect");
+        // Intel
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService"));
+        // Apple Silicon
+        displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null));
+
+        return displays;
+    }
+
+    /**
+     * Helper method to get displays from a specific IOKit service
+     *
+     * @param serviceName    The IOKit service name to search for
+     * @param edidKeyName    The key name for the EDID property
+     * @param childEntryName The name of the child entry to search in, or null to search directly in the service
+     * @return List of Display objects found using this service
+     */
+    private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName, String childEntryName) {
+        List<Display> displays = new ArrayList<>();
+
+        IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
         if (serviceIterator != null) {
-            CFStringRef cfEdid = CFStringRef.createCFString("IODisplayEDID");
+            CFStringRef cfEdid = CFStringRef.createCFString(edidKeyName);
             IORegistryEntry sdService = serviceIterator.next();
+
             while (sdService != null) {
-                // Display properties are in a child entry
-                IORegistryEntry properties = sdService.getChildEntry("IOService");
-                if (properties != null) {
-                    // look up the edid by key
-                    CFTypeRef edidRaw = properties.createCFProperty(cfEdid);
-                    if (edidRaw != null) {
-                        CFDataRef edid = new CFDataRef(edidRaw.getPointer());
-                        // Edid is a byte array of 128 bytes
-                        int length = edid.getLength();
-                        Pointer p = edid.getBytePtr();
-                        displays.add(new MacDisplay(p.getByteArray(0, length)));
-                        edid.release();
+                IORegistryEntry propertySource = null;
+
+                try {
+                    propertySource = childEntryName == null ? sdService : sdService.getChildEntry(childEntryName);
+                    if (propertySource != null) {
+                        CFTypeRef edidRaw = propertySource.createCFProperty(cfEdid);
+                        if (edidRaw != null) {
+                            CFDataRef edid = new CFDataRef(edidRaw.getPointer());
+                            try {
+                                // EDID is a byte array of 128 bytes (or more)
+                                int length = edid.getLength();
+                                Pointer p = edid.getBytePtr();
+                                displays.add(new MacDisplay(p.getByteArray(0, length)));
+                            } finally {
+                                edid.release();
+                            }
+                        }
+                        if (childEntryName != null && propertySource != null) {
+                            propertySource.release();
+                        }
                     }
-                    properties.release();
+                } finally {
+                    sdService.release();
+                    sdService = serviceIterator.next();
                 }
-                // iterate
-                sdService.release();
-                sdService = serviceIterator.next();
             }
             serviceIterator.release();
             cfEdid.release();
