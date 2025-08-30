@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -17,4 +17,11 @@ public interface Display {
      * @return The original unparsed EDID byte array.
      */
     byte[] getEdid();
+
+    /**
+     * The display connection port.
+     *
+     * @return The connection port to which the display is connected.
+     */
+    String getConnectionPort();
 }

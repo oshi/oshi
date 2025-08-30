@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -44,8 +44,8 @@ final class WindowsDisplay extends AbstractDisplay {
      *
      * @param edid a byte array representing a display EDID
      */
-    WindowsDisplay(byte[] edid) {
-        super(edid);
+    WindowsDisplay(byte[] edid, String connectionPort) {
+        super(edid, connectionPort);
         LOG.debug("Initialized WindowsDisplay");
     }
 
@@ -75,7 +75,7 @@ final class WindowsDisplay extends AbstractDisplay {
                         if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
                             edid = new byte[lpcbData.getValue()];
                             if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
-                                Display display = new WindowsDisplay(edid);
+                                Display display = new WindowsDisplay(edid, "HDMI");
                                 displays.add(display);
                             }
                         }

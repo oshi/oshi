@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix;
@@ -19,19 +19,20 @@ import oshi.util.ParseUtil;
 public final class Xrandr {
 
     private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
+    private static List<String> xrandr = null;
 
     private Xrandr() {
     }
 
     public static List<byte[]> getEdidArrays() {
         // Special handling for X commands, don't use LC_ALL
-        List<String> xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
+        xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr.isEmpty()) {
             return Collections.emptyList();
         }
-        List<byte[]> displays = new ArrayList<>();
+        List<byte[]> edidArrays = new ArrayList<>();
         StringBuilder sb = null;
         for (String s : xrandr) {
             if (s.contains("EDID")) {
@@ -44,11 +45,31 @@ public final class Xrandr {
                 String edidStr = sb.toString();
                 byte[] edid = ParseUtil.hexStringToByteArray(edidStr);
                 if (edid.length >= 128) {
-                    displays.add(edid);
+                    edidArrays.add(edid);
                 }
                 sb = null;
             }
         }
-        return displays;
+        return edidArrays;
+    }
+
+    public static List<String> getConnectionPorts() {
+
+        List<String> connectionPorts = new ArrayList<>();
+
+        if (xrandr.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (String line : xrandr) {
+
+            String[] words = line.split("\\s+");
+
+            if (words.length > 1 && words[1].equalsIgnoreCase("connected")) {
+                connectionPorts.add(words[0].trim());
+            }
+        }
+
+        return connectionPorts;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -17,19 +17,27 @@ import oshi.util.EdidUtil;
 public abstract class AbstractDisplay implements Display {
 
     private final byte[] edid;
+    private final String connectionPort;
 
     /**
      * Constructor for AbstractDisplay.
      *
-     * @param edid a byte array representing a display EDID
+     * @param edid           a byte array representing a display EDID
+     * @param connectionPort the display connection port
      */
-    protected AbstractDisplay(byte[] edid) {
+    protected AbstractDisplay(byte[] edid, String connectionPort) {
         this.edid = Arrays.copyOf(edid, edid.length);
+        this.connectionPort = connectionPort;
     }
 
     @Override
     public byte[] getEdid() {
         return Arrays.copyOf(this.edid, this.edid.length);
+    }
+
+    @Override
+    public String getConnectionPort() {
+        return this.connectionPort;
     }
 
     @Override
