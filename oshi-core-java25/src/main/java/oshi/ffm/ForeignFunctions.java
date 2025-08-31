@@ -7,10 +7,12 @@ package oshi.ffm;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
+import java.lang.invoke.MethodHandle;
 
 public abstract class ForeignFunctions {
 
@@ -43,5 +45,20 @@ public abstract class ForeignFunctions {
         byte[] result = new byte[(int) length];
         MemorySegment.copy(bytesSegment, JAVA_BYTE, 0, result, 0, (int) length);
         return result;
+    }
+
+    /**
+     * Lookup a library by name in the global arena.
+     */
+    public static SymbolLookup lib(String name) {
+        return SymbolLookup.libraryLookup(name, Arena.global());
+    }
+
+    /**
+     * Create a downcall handle for a symbol in a library.
+     */
+    public static MethodHandle downcall(SymbolLookup lib, String symbol, FunctionDescriptor fd) {
+        MemorySegment sym = lib.find(symbol).orElseThrow(() -> new UnsatisfiedLinkError("Missing symbol: " + symbol));
+        return LINKER.downcallHandle(sym, fd);
     }
 }

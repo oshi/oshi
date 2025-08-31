@@ -9,87 +9,81 @@ import org.slf4j.LoggerFactory;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WinNTFFM;
+import oshi.ffm.windows.WindowsForeignFunctions;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.util.Optional;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.windows.Kernel32FFM.GetLastError;
+import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
 
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
+
+    private static final boolean IS_VISTA_OR_GREATER = WindowsForeignFunctions.isVistaOrGreater();
 
     static {
         enableDebugPrivilege();
     }
 
     private static boolean enableDebugPrivilege() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment hTokenOut = arena.allocate(ADDRESS);
 
-            MemorySegment hProcess = Kernel32FFM.getCurrentProcess();
-            boolean success = Advapi32FFM.openProcessToken(hProcess,
-                    WinNTFFM.TOKEN_QUERY | WinNTFFM.TOKEN_ADJUST_PRIVILEGES, hTokenOut);
-            if (!success) {
-                int err = Kernel32FFM.getLastError();
-                LOG.error("OpenProcessToken failed, error: " + err);
+        MemorySegment hToken = null;
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment hTokenPtr = arena.allocate(ADDRESS);
+
+            Optional<MemorySegment> hProcess = Kernel32FFM.GetCurrentProcess();
+            if (hProcess.isEmpty()) {
                 return false;
             }
-            MemorySegment hToken = hTokenOut.get(ADDRESS, 0);
+            boolean success = Advapi32FFM.OpenProcessToken(hProcess.get(),
+                    WinNTFFM.TOKEN_QUERY | WinNTFFM.TOKEN_ADJUST_PRIVILEGES, hTokenPtr);
+            if (!success) {
+                LOG.error("OpenProcessToken failed, error: " + GetLastError());
+                return false;
+            }
+            hToken = hTokenPtr.get(ADDRESS, 0);
 
             MemorySegment luid = arena.allocate(WinNTFFM.LUID);
-            success = Advapi32FFM.lookupPrivilegeValue("SeDebugPrivilege", luid, arena);
+            success = Advapi32FFM.LookupPrivilegeValue("SeDebugPrivilege", luid, arena);
             if (!success) {
-                int err = Kernel32FFM.getLastError();
-                LOG.error("LookupPrivilegeValue failed, error: " + err);
-                Kernel32FFM.closeHandle(hToken);
+                LOG.error("LookupPrivilegeValue failed, error: " + GetLastError());
                 return false;
             }
 
-            MemorySegment tkp = arena.allocate(WinNTFFM.TOKEN_PRIVILEGES_1);
-            tkp.set(JAVA_INT, 0, 1);
-            tkp.asSlice(4, WinNTFFM.LUID.byteSize()).copyFrom(luid);
-            tkp.setAtIndex(JAVA_INT, 3, WinNTFFM.SE_PRIVILEGE_ENABLED);
-            success = Advapi32FFM.adjustTokenPrivileges(hToken, tkp);
+            MemorySegment tkp = setupTokenPrivileges(arena, luid);
+            success = Advapi32FFM.AdjustTokenPrivileges(hToken, tkp);
             if (!success) {
-                int err = Kernel32FFM.getLastError();
-                LOG.error("AdjustTokenPrivileges failed, error: " + err);
-                Kernel32FFM.closeHandle(hToken);
+                LOG.error("AdjustTokenPrivileges failed, error: " + GetLastError());
                 return false;
             }
 
-            Kernel32FFM.closeHandle(hToken);
             return true;
         } catch (Throwable t) {
             LOG.error("enableDebugPrivilege exception: " + t);
             return false;
+        } finally {
+            if (hToken != null && hToken.address() != 0) {
+                Kernel32FFM.CloseHandle(hToken);
+            }
         }
     }
 
     @Override
     public int getProcessId() {
-        return Kernel32FFM.getCurrentProcessId();
+        return Kernel32FFM.GetCurrentProcessId().orElse(-1);
     }
 
     @Override
     public long getSystemUptime() {
-        return Kernel32FFM.querySystemUptime(isVistaOrGreater());
+        return querySystemUptime();
     }
 
-    public static boolean isVistaOrGreater() {
-        String osName = System.getProperty("os.name");
-        String osVersion = System.getProperty("os.version");
-
-        if (!osName.startsWith("Windows")) {
-            return false;
-        }
-
-        String[] parts = osVersion.split("\\.");
-        if (parts.length >= 2) {
-            int major = Integer.parseInt(parts[0]);
-            return major >= 6;
-        }
-        return false;
+    private static long querySystemUptime() {
+        return IS_VISTA_OR_GREATER ? Kernel32FFM.GetTickCount64().orElse(-1) / 1000L
+                : (long) Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
     }
 }
