@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
@@ -57,8 +58,11 @@ public abstract class ForeignFunctions {
     /**
      * Create a downcall handle for a symbol in a library.
      */
-    public static MethodHandle downcall(SymbolLookup lib, String symbol, FunctionDescriptor fd) {
-        MemorySegment sym = lib.find(symbol).orElseThrow(() -> new UnsatisfiedLinkError("Missing symbol: " + symbol));
+    public static MethodHandle downcall(SymbolLookup lib, String symbol, MemoryLayout resLayout,
+            MemoryLayout... argLayouts) {
+        MemorySegment sym = lib.findOrThrow(symbol);
+        FunctionDescriptor fd = (resLayout == null) ? FunctionDescriptor.ofVoid(argLayouts)
+                : FunctionDescriptor.of(resLayout, argLayouts);
         return LINKER.downcallHandle(sym, fd);
     }
 }

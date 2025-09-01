@@ -7,7 +7,6 @@ package oshi.ffm.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
@@ -25,8 +24,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     private static final SymbolLookup K32 = lib("Kernel32");
 
-    private static final MethodHandle CloseHandle = downcall(K32, "CloseHandle",
-            FunctionDescriptor.of(JAVA_INT, ADDRESS));
+    private static final MethodHandle CloseHandle = downcall(K32, "CloseHandle", JAVA_INT, ADDRESS);
 
     public static OptionalInt CloseHandle(MemorySegment handle) {
         try {
@@ -37,8 +35,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
-    private static final MethodHandle GetCurrentProcess = downcall(K32, "GetCurrentProcess",
-            FunctionDescriptor.of(ADDRESS));
+    private static final MethodHandle GetCurrentProcess = downcall(K32, "GetCurrentProcess", ADDRESS);
 
     public static Optional<MemorySegment> GetCurrentProcess() {
         try {
@@ -49,8 +46,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
-    private static final MethodHandle GetCurrentProcessId = downcall(K32, "GetCurrentProcessId",
-            FunctionDescriptor.of(JAVA_INT));
+    private static final MethodHandle GetCurrentProcessId = downcall(K32, "GetCurrentProcessId", JAVA_INT);
 
     public static OptionalInt GetCurrentProcessId() {
         try {
@@ -61,7 +57,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
-    private static final MethodHandle GetLastError = downcall(K32, "GetLastError", FunctionDescriptor.of(JAVA_INT));
+    private static final MethodHandle GetLastError = downcall(K32, "GetLastError", JAVA_INT);
 
     public static OptionalInt GetLastError() {
         try {
@@ -72,26 +68,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
-    private static final MethodHandle GetTickCount = downcall(K32, "GetTickCount", FunctionDescriptor.of(JAVA_INT) // 32-bit
-    // return
-    );
+    private static final MethodHandle GetTickCount = downcall(K32, "GetTickCount64", JAVA_LONG);
 
-    public static OptionalInt GetTickCount() {
+    public static OptionalLong GetTickCount() {
         try {
-            return OptionalInt.of((int) GetTickCount.invokeExact());
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetTickCount failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
-    }
-
-    private static final MethodHandle GetTickCount64 = downcall(K32, "GetTickCount64", FunctionDescriptor.of(JAVA_LONG) // 64-bit
-                                                                                                                        // return
-    );
-
-    public static OptionalLong GetTickCount64() {
-        try {
-            return OptionalLong.of((long) GetTickCount64.invokeExact());
+            return OptionalLong.of((long) GetTickCount.invokeExact());
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.GetTickCount64 failed: {}", t.getMessage());
             return OptionalLong.empty();

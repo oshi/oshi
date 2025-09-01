@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WinNTFFM;
-import oshi.ffm.windows.WindowsForeignFunctions;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -22,8 +21,6 @@ import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
-
-    private static final boolean IS_VISTA_OR_GREATER = WindowsForeignFunctions.isVistaOrGreater();
 
     static {
         enableDebugPrivilege();
@@ -83,7 +80,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     private static long querySystemUptime() {
-        return IS_VISTA_OR_GREATER ? Kernel32FFM.GetTickCount64().orElse(-1) / 1000L
-                : (long) Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
+        return Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
     }
 }

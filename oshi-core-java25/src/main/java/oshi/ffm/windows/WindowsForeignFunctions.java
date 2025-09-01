@@ -11,11 +11,11 @@ import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.WinNTFFM.OFFSET_ATTRIBUTES;
-import static oshi.ffm.windows.WinNTFFM.OFFSET_LUID;
-import static oshi.ffm.windows.WinNTFFM.OFFSET_PRIVILEGE_COUNT;
 import static oshi.ffm.windows.WinNTFFM.SE_PRIVILEGE_ENABLED;
 import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES;
+import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES_ATTRIBUTES_OFFSET;
+import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES_LUID_OFFSET;
+import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES_PRIVILEGE_COUNT_OFFSET;
 
 /**
  * Utility class for working with the Foreign Function & Memory API (Java 24+). Provides helpers for library lookup,
@@ -35,37 +35,18 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
     }
 
     /**
-     * Checks if the current OS is Windows Vista or greater.
-     */
-    public static boolean isVistaOrGreater() {
-        String osName = System.getProperty("os.name");
-        String osVersion = System.getProperty("os.version");
-
-        if (!osName.startsWith("Windows")) {
-            return false;
-        }
-
-        String[] parts = osVersion.split("\\.");
-        if (parts.length >= 2) {
-            int major = Integer.parseInt(parts[0]);
-            return major >= 6;
-        }
-        return false;
-    }
-
-    /**
      * Builds a TOKEN_PRIVILEGES struct with a single privilege enabled.
      *
      */
     public static MemorySegment setupTokenPrivileges(Arena arena, MemorySegment luid) {
         MemorySegment tkp = arena.allocate(TOKEN_PRIVILEGES);
 
-        tkp.set(JAVA_INT, OFFSET_PRIVILEGE_COUNT, 1);
+        tkp.set(JAVA_INT, TOKEN_PRIVILEGES_PRIVILEGE_COUNT_OFFSET, 1);
 
-        MemorySegment luidSegment = tkp.asSlice(OFFSET_LUID, luid.byteSize());
+        MemorySegment luidSegment = tkp.asSlice(TOKEN_PRIVILEGES_LUID_OFFSET, luid.byteSize());
         luidSegment.copyFrom(luid);
 
-        tkp.set(JAVA_INT, OFFSET_ATTRIBUTES, SE_PRIVILEGE_ENABLED);
+        tkp.set(JAVA_INT, TOKEN_PRIVILEGES_ATTRIBUTES_OFFSET, SE_PRIVILEGE_ENABLED);
 
         return tkp;
     }
@@ -73,7 +54,7 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
     /**
      * Allocate a null-terminated UTF-16 string in the given arena.
      */
-    public static MemorySegment utf16(Arena arena, String s) {
+    public static MemorySegment toWideString(Arena arena, String s) {
         return arena.allocateFrom(s + "\0", StandardCharsets.UTF_16LE);
     }
 }
