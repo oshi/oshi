@@ -11,7 +11,7 @@ import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystemFFM;
-import oshi.software.os.windows.WindowsOperatingSystem;
+import oshi.software.os.windows.WindowsOperatingSystemFFM;
 
 import java.util.function.Supplier;
 
@@ -47,7 +47,7 @@ public class SystemInfoFFM {
         return switch (CURRENT_PLATFORM) {
         case LINUX -> new LinuxOperatingSystem();
         case MACOS -> new MacOperatingSystemFFM();
-        case WINDOWS -> new WindowsOperatingSystem();
+        case WINDOWS -> new WindowsOperatingSystemFFM();
         default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
         };
     }
