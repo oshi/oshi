@@ -139,7 +139,7 @@
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.3</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.2.1</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
