@@ -6,6 +6,7 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,8 @@ final class MacDisplay extends AbstractDisplay {
      *
      * @param edid a byte array representing a display EDID
      */
-    MacDisplay(byte[] edid) {
-        super(edid);
+    MacDisplay(byte[] edid, String connectionPort) {
+        super(edid, connectionPort);
         LOG.debug("Initialized MacDisplay");
     }
 
@@ -69,7 +70,11 @@ final class MacDisplay extends AbstractDisplay {
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
         if (serviceIterator != null) {
             CFStringRef cfEdid = CFStringRef.createCFString(edidKeyName);
+            CFStringRef cfConnectionPort = CFStringRef.createCFString("ParentBuiltInPortTypeDescription");
             IORegistryEntry sdService = serviceIterator.next();
+
+            byte[] edid = null;
+            String connectionPort = null;
 
             while (sdService != null) {
                 IORegistryEntry propertySource = null;
@@ -77,18 +82,15 @@ final class MacDisplay extends AbstractDisplay {
                 try {
                     propertySource = childEntryName == null ? sdService : sdService.getChildEntry(childEntryName);
                     if (propertySource != null) {
-                        CFTypeRef edidRaw = propertySource.createCFProperty(cfEdid);
-                        if (edidRaw != null) {
-                            CFDataRef edid = new CFDataRef(edidRaw.getPointer());
-                            try {
-                                // EDID is a byte array of 128 bytes (or more)
-                                int length = edid.getLength();
-                                Pointer p = edid.getBytePtr();
-                                displays.add(new MacDisplay(p.getByteArray(0, length)));
-                            } finally {
-                                edid.release();
-                            }
-                        }
+
+                        edid = getEdidFromPropertySource(propertySource, cfEdid);
+                        // Apple silicon displays connection port in the same registry entry as EDID
+                        if (childEntryName == null)
+                            connectionPort = getConnectionPortFromPropertySource(propertySource, cfConnectionPort);
+
+                        if (Objects.nonNull(edid))
+                            displays.add(new MacDisplay(edid, connectionPort));
+
                         if (childEntryName != null && propertySource != null) {
                             propertySource.release();
                         }
@@ -103,4 +105,42 @@ final class MacDisplay extends AbstractDisplay {
         }
         return displays;
     }
+
+    private static byte[] getEdidFromPropertySource(IORegistryEntry propertySource, CFStringRef cfEdid) {
+
+        byte[] edid = null;
+        CFTypeRef edidRaw = propertySource.createCFProperty(cfEdid);
+        if (edidRaw != null) {
+            CFDataRef edidRef = new CFDataRef(edidRaw.getPointer());
+            try {
+                // EDID is a byte array of 128 bytes (or more)
+                int length = edidRef.getLength();
+                Pointer p = edidRef.getBytePtr();
+                edid = p.getByteArray(0, length);
+            } finally {
+                edidRef.release();
+            }
+        }
+
+        return edid;
+    }
+
+    private static String getConnectionPortFromPropertySource(IORegistryEntry propertySource,
+            CFStringRef cfConnectionPort) {
+
+        String connectionPort = null;
+        CFTypeRef connectionPortRaw = propertySource.createCFProperty(cfConnectionPort);
+
+        if (connectionPortRaw != null) {
+            CFStringRef connectionPortRef = new CFStringRef(connectionPortRaw.getPointer());
+            try {
+                connectionPort = connectionPortRef.stringValue();
+            } finally {
+                connectionPortRef.release();
+            }
+        }
+
+        return connectionPort;
+    }
+
 }
