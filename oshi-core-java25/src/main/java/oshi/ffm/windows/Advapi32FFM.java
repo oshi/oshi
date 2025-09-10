@@ -86,8 +86,6 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
                 Kernel32FFM.CloseHandle(hToken);
             }
         } catch (Throwable t) {
-            System.out.println("4");
-            System.out.println(t.getMessage());
             LOG.debug("Advapi32FFM.isCurrentProcessElevated failed", t);
             return false;
         }
