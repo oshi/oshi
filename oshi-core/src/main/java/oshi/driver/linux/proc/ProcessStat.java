@@ -4,13 +4,6 @@
  */
 package oshi.driver.linux.proc;
 
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -30,13 +23,20 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.linux.ProcPath;
 import oshi.util.tuples.Triplet;
 
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
+
 /**
  * Utility to read process statistics from {@code /proc/[pid]/stat}
  */
 @ThreadSafe
 public final class ProcessStat {
 
-    private static final Pattern SOCKET = Pattern.compile("socket:\\[(\\d+)\\]");
+    private static final Pattern SOCKET = Pattern.compile("socket:[(\\d+)]");
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
@@ -343,7 +343,7 @@ public final class ProcessStat {
     static {
         String stat = FileUtil.getStringFromFile(ProcPath.SELF_STAT);
         if (stat.contains(")")) {
-            // add 3 to account for pid, process name in prarenthesis, and state
+            // add 3 to account for pid, process name in parenthesis, and state
             PROC_PID_STAT_LENGTH = ParseUtil.countStringToLongArray(stat, ' ') + 3;
         } else {
             // Default assuming recent kernel

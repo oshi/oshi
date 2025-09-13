@@ -655,7 +655,7 @@ public final class ParseUtil {
      *
      * @param s         The string to parse
      * @param indices   An array indicating which indexes should be populated in the final array; other values will be
-     *                  skipped. This idex is zero-referenced assuming the rightmost delimited fields of the string
+     *                  skipped. This index is zero-referenced assuming the rightmost delimited fields of the string
      *                  contain the array.
      * @param length    The total number of elements in the string array. It is permissible for the string to have more
      *                  elements than this; leading elements will be ignored. This should be calculated once per text
@@ -811,8 +811,8 @@ public final class ParseUtil {
 
         String result = "";
 
-        if (text.indexOf(before) >= 0 && text.indexOf(after) >= 0) {
-            result = text.substring(text.indexOf(before) + before.length(), text.length());
+        if (text.contains(before) && text.contains(after)) {
+            result = text.substring(text.indexOf(before) + before.length());
             result = result.substring(0, result.indexOf(after));
         }
         return result;
@@ -892,7 +892,7 @@ public final class ParseUtil {
     /**
      * Parses a string like "53G" or "54.904 M" to its long value.
      *
-     * @param count A count with a multiplyer like "4096 M"
+     * @param count A count with a multiplier like "4096 M"
      * @return the count parsed to a long
      */
     public static long parseMultipliedToLongs(String count) {
@@ -907,7 +907,7 @@ public final class ParseUtil {
         }
 
         double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);
-        if (mem.length == 2 && mem[1] != null && mem[1].length() >= 1) {
+        if (mem.length == 2 && mem[1] != null && !mem[1].isEmpty()) {
             switch (mem[1].charAt(0)) {
             case 'T':
                 number *= 1_000_000_000_000L;
@@ -1156,7 +1156,7 @@ public final class ParseUtil {
      * Parses a string of hex digits to an int value.
      *
      * @param hexString    A sequence of hex digits
-     * @param defaultValue default value to return if parsefails
+     * @param defaultValue default value to return if parse fails
      * @return The corresponding int value
      */
     public static int hexStringToInt(String hexString, int defaultValue) {
@@ -1179,7 +1179,7 @@ public final class ParseUtil {
      * Parses a string of hex digits to a long value.
      *
      * @param hexString    A sequence of hex digits
-     * @param defaultValue default value to return if parsefails
+     * @param defaultValue default value to return if parse fails
      * @return The corresponding long value
      */
     public static long hexStringToLong(String hexString, long defaultValue) {
@@ -1405,7 +1405,7 @@ public final class ParseUtil {
             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
             return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         } catch (DateTimeParseException e) {
-            LOG.trace("Unable to parse date string: " + dateString);
+            LOG.trace("Unable to parse date string: {}", dateString);
             return 0;
         }
     }

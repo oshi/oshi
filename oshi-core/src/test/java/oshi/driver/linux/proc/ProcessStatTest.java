@@ -4,25 +4,24 @@
  */
 package oshi.driver.linux.proc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-
 import oshi.driver.linux.proc.ProcessStat.PidStat;
 import oshi.driver.linux.proc.ProcessStat.PidStatM;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @EnabledOnOs(OS.LINUX)
 class ProcessStatTest {
