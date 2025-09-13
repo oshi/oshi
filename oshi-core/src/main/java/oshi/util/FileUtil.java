@@ -142,7 +142,7 @@ public final class FileUtil {
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename, boolean reportError) {
-        var path = Paths.get(filename);
+        Path path = Paths.get(filename);
         if (Files.isReadable(path)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
