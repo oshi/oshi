@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -54,7 +54,7 @@ public final class CpuStat {
     }
 
     /**
-     * Gets an arrya of Processor CPU ticks array from /proc/stat
+     * Gets an array of Processor CPU ticks array from /proc/stat
      *
      * @param logicalProcessorCount The number of logical processors, which corresponds to the number of lines to read
      *                              from the file.

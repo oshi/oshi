@@ -31,7 +31,7 @@ public final class Memoizer {
     }
 
     /**
-     * Default exipiration of memoized values in nanoseconds, which will refresh after this time elapses. Update by
+     * Default expiration of memoized values in nanoseconds, which will refresh after this time elapses. Update by
      * setting {@link GlobalConfig} property <code>oshi.util.memoizer.expiration</code> to a value in milliseconds.
      *
      * @return The number of nanoseconds to keep memoized values before refreshing

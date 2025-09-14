@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -21,9 +21,18 @@ public final class Auxv {
     private Auxv() {
     }
 
-    public static final int AT_PAGESZ = 6; // system page size
-    public static final int AT_HWCAP = 16; // arch dependent hints at CPU capabilities
-    public static final int AT_CLKTCK = 17; // frequency at which times() increments
+    /**
+     * system page size
+     */
+    public static final int AT_PAGESZ = 6;
+    /**
+     * arch dependent hints at CPU capabilities
+     */
+    public static final int AT_HWCAP = 16;
+    /**
+     * frequency at which times() increments
+     */
+    public static final int AT_CLKTCK = 17;
 
     /**
      * Retrieve the auxiliary vector for the current process

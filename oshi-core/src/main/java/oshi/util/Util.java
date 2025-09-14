@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -47,7 +47,7 @@ public final class Util {
      * @return True if the String matches or if the first character is ^ and the remainder of the String does not match.
      */
     public static boolean wildcardMatch(String text, String pattern) {
-        if (pattern.length() > 0 && pattern.charAt(0) == '^') {
+        if (!pattern.isEmpty() && pattern.charAt(0) == '^') {
             return !wildcardMatch(text, pattern.substring(1));
         }
         return text.matches(pattern.replace("?", ".?").replace("*", ".*?"));

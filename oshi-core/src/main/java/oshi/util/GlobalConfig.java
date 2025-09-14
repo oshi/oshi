@@ -12,7 +12,7 @@ import oshi.annotation.concurrent.NotThreadSafe;
  * The global configuration utility. See {@code src/main/resources/oshi.properties} for default values.
  * <p>
  * Configuration values set as Java System Properties using {@link System#setProperty(String, String)} will override
- * values from the {@code oshi.propertie} file, but may then be later altered using {@link #set(String, Object)} or
+ * values from the {@code oshi.properties} file, but may then be later altered using {@link #set(String, Object)} or
  * {@link #remove(String)}.
  * <p>
  * This class is not thread safe if methods manipulating the configuration are used. These methods are intended for use

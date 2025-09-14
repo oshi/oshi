@@ -1,25 +1,20 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,14 +25,12 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -50,8 +43,6 @@ public final class FileUtil {
 
     private static final String READING_LOG = "Reading file {}";
     private static final String READ_LOG = "Read {}";
-
-    private static final int BUFFER_SIZE = 1024;
 
     private FileUtil() {
     }
@@ -78,12 +69,13 @@ public final class FileUtil {
      *         empty
      */
     public static List<String> readFile(String filename, boolean reportError) {
-        if (new File(filename).canRead()) {
+        Path path = Paths.get(filename);
+        if (Files.isReadable(path)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
             try {
-                return Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8);
+                return Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
@@ -126,18 +118,9 @@ public final class FileUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
-            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-            try (Reader isr = new InputStreamReader(Files.newInputStream(file), decoder);
-                    BufferedReader reader = new BufferedReader(isr, BUFFER_SIZE)) {
-                List<String> lines = new ArrayList<>(count);
-                for (int i = 0; i < count; ++i) {
-                    String line = reader.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    lines.add(line);
-                }
-                return lines;
+            try {
+                return Files.readAllLines(file, StandardCharsets.UTF_8).stream().limit(count)
+                        .collect(Collectors.toList());
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
@@ -160,12 +143,13 @@ public final class FileUtil {
      * @return A byte array representing the file
      */
     public static byte[] readAllBytes(String filename, boolean reportError) {
-        if (new File(filename).canRead()) {
+        Path path = Paths.get(filename);
+        if (Files.isReadable(path)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
             try {
-                return Files.readAllBytes(Paths.get(filename));
+                return Files.readAllBytes(path);
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
