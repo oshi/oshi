@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -118,9 +120,16 @@ public final class FileUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
-            try {
-                return Files.readAllLines(file, StandardCharsets.UTF_8).stream().limit(count)
-                        .collect(Collectors.toList());
+            try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+                List<String> lines = new ArrayList<>(count);
+                for (int i = 0; i < count; ++i) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    lines.add(line);
+                }
+                return lines;
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
