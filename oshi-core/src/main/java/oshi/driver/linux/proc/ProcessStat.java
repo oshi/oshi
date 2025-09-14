@@ -36,7 +36,7 @@ import static oshi.software.os.OSProcess.State.ZOMBIE;
 @ThreadSafe
 public final class ProcessStat {
 
-    private static final Pattern SOCKET = Pattern.compile("socket:[(\\d+)]");
+    private static final Pattern SOCKET = Pattern.compile("socket:\\[(\\d+)\\]");
 
     /**
      * Enum corresponding to the fields in the output of {@code /proc/[pid]/stat}
