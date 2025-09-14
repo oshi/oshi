@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -16,8 +16,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class FormatUtil {
     /**
-     * Binary prefixes, used in IEC Standard for naming bytes.
-     * (<a href="https://en.wikipedia.org/wiki/International_Electrotechnical_Commission">https://en.wikipedia.org/wiki/International_Electrotechnical_Commission</a>)
+     * Binary prefixes, used in IEC Standard for naming bytes. (<a href=
+     * "https://en.wikipedia.org/wiki/International_Electrotechnical_Commission">https://en.wikipedia.org/wiki/International_Electrotechnical_Commission</a>)
      *
      * Should be used for most representations of bytes
      */

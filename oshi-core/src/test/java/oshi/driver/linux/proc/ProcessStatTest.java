@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;

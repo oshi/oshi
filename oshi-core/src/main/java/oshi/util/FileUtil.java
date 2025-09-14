@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -118,8 +118,9 @@ public final class FileUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(READING_LOG, filename);
             }
-            try (Stream<String> lines = Files.lines(file, StandardCharsets.UTF_8)) {
-                return lines.limit(count).collect(Collectors.toList());
+            try {
+                return Files.readAllLines(file, StandardCharsets.UTF_8).stream().limit(count)
+                        .collect(Collectors.toList());
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());
