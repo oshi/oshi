@@ -4,11 +4,7 @@
  */
 package oshi.ffm.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.foreign.Arena;
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
@@ -18,8 +14,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 public final class Advapi32FFM extends WindowsForeignFunctions {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Advapi32FFM.class);
 
     private static final SymbolLookup ADV = lib("Advapi32");
 
@@ -33,12 +27,8 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
 
     private static final MethodHandle CloseEventLog = downcall(ADV, "CloseEventLog", JAVA_INT, ADDRESS);
 
-    public static void CloseEventLog(MemorySegment hEventLog) {
-        try {
-            CloseEventLog.invokeExact(hEventLog);
-        } catch (Throwable t) {
-            LOG.debug("Advapi32FFM.CloseEventLog failed: {}", t.getMessage());
-        }
+    public static boolean CloseEventLog(MemorySegment hEventLog) throws Throwable {
+        return isSuccess((int) CloseEventLog.invokeExact(hEventLog));
     }
 
     private static final MethodHandle GetTokenInformation = downcall(ADV, "GetTokenInformation", JAVA_INT, ADDRESS,
@@ -48,47 +38,6 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
             int tokenInfoLength, MemorySegment returnLength) throws Throwable {
         return isSuccess((int) GetTokenInformation.invokeExact(hToken, tokenInfoClass, tokenInfo, tokenInfoLength,
                 returnLength));
-    }
-
-    public static boolean isCurrentProcessElevated() {
-        try (Arena arena = Arena.ofConfined()) {
-
-            Optional<MemorySegment> hProcessOpt = Kernel32FFM.GetCurrentProcess();
-            if (hProcessOpt.isEmpty()) {
-                return false;
-            }
-            MemorySegment hProcess = hProcessOpt.get();
-
-            MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-
-            if (!OpenProcessToken(hProcess, WinNTFFM.TOKEN_QUERY, hTokenPtr)) {
-                return false;
-            }
-
-            MemorySegment hToken = hTokenPtr.get(ADDRESS, 0);
-
-            try {
-                MemorySegment elevation = arena.allocate(WinNTFFM.TOKEN_ELEVATION);
-                MemorySegment returnLength = arena.allocate(JAVA_INT);
-
-                boolean success = GetTokenInformation(hToken, WinNTFFM.TokenElevation, elevation,
-                        (int) WinNTFFM.TOKEN_ELEVATION.byteSize(), returnLength);
-
-                if (!success) {
-                    return false;
-                }
-
-                int tokenIsElevated = elevation.get(JAVA_INT,
-                        WinNTFFM.TOKEN_ELEVATION.byteOffset(MemoryLayout.PathElement.groupElement("TokenIsElevated")));
-
-                return tokenIsElevated > 0;
-            } finally {
-                Kernel32FFM.CloseHandle(hToken);
-            }
-        } catch (Throwable t) {
-            LOG.debug("Advapi32FFM.isCurrentProcessElevated failed", t);
-            return false;
-        }
     }
 
     private static final MethodHandle LookupPrivilegeValue = downcall(ADV, "LookupPrivilegeValueW", JAVA_INT, ADDRESS,
@@ -135,13 +84,8 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
             JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
 
     public static boolean ReadEventLog(MemorySegment hEventLog, int flags, MemorySegment buffer, int bufSize,
-            MemorySegment bytesRead, MemorySegment minBytesNeeded) {
-        try {
-            return isSuccess(
-                    (int) ReadEventLog.invokeExact(hEventLog, flags, 0, buffer, bufSize, bytesRead, minBytesNeeded));
-        } catch (Throwable t) {
-            LOG.debug("Advapi32FFM.ReadEventLog failed: {}", t.getMessage());
-            return false;
-        }
+            MemorySegment bytesRead, MemorySegment minBytesNeeded) throws Throwable {
+        return isSuccess(
+                (int) ReadEventLog.invokeExact(hEventLog, flags, 0, buffer, bufSize, bytesRead, minBytesNeeded));
     }
 }
