@@ -43,6 +43,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.VirtualMemory;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -90,6 +91,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         OperatingSystem os = si.getOperatingSystem();
 
         printOperatingSystem(os);
+
+        logger.info("Checking Installed Apps...");
+        printInstalledApps(os.getInstalledApplications());
 
         logger.info("Checking computer system...");
         printComputerSystem(hal.getComputerSystem());
@@ -163,6 +167,13 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add("Sessions:");
         for (OSSession s : os.getSessions()) {
             oshi.add(" " + s.toString());
+        }
+    }
+
+    private static void printInstalledApps(List<ApplicationInfo> installedApplications) {
+        oshi.add("Apps: ");
+        for (ApplicationInfo app : installedApplications.subList(0, 5)) {
+            oshi.add(" " + app.toString());
         }
     }
 
