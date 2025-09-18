@@ -68,6 +68,18 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
+    private static final MethodHandle GetCurrentThreadId = downcall(K32, "GetCurrentThreadId", JAVA_INT);
+
+    public static OptionalInt GetCurrentThreadId() {
+        try {
+            int tid = (int) GetCurrentThreadId.invokeExact();
+            return OptionalInt.of(tid);
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetCurrentThreadId failed: {}", t.getMessage());
+            return OptionalInt.empty();
+        }
+    }
+
     private static final MethodHandle GetTickCount = downcall(K32, "GetTickCount64", JAVA_LONG);
 
     public static OptionalLong GetTickCount() {

@@ -8,19 +8,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.WinNTFFM;
+import oshi.util.platform.windows.Advapi32UtilFFM;
+import oshi.util.platform.windows.Kernel32UtilFFM;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.util.Optional;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.Kernel32FFM.GetLastError;
+import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
 
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
+
+    private static final long BOOTTIME = Advapi32UtilFFM.querySystemBootTime();
 
     static {
         enableDebugPrivilege();
@@ -70,16 +78,48 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     @Override
+    public boolean isElevated() {
+        return Advapi32UtilFFM.isCurrentProcessElevated();
+    }
+
+    @Override
     public int getProcessId() {
         return Kernel32FFM.GetCurrentProcessId().orElse(-1);
     }
 
     @Override
-    public long getSystemUptime() {
-        return querySystemUptime();
+    public long getSystemBootTime() {
+        return BOOTTIME;
     }
 
-    private static long querySystemUptime() {
-        return Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
+    @Override
+    public long getSystemUptime() {
+        return Kernel32UtilFFM.querySystemUptime();
+    }
+
+    public int getThreadCount() {
+
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment perfInfo = arena.allocate(PERFORMANCE_INFORMATION);
+            int size = (int) PERFORMANCE_INFORMATION.byteSize();
+            perfInfo.set(JAVA_INT, PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement("cb")),
+                    size);
+            if (!PsapiFFM.GetPerformanceInfo(perfInfo, size)) {
+                LOG.error("Failed to get Performance Info. Error code: {}", GetLastError());
+                return 0;
+            }
+
+            int threadCount = perfInfo.get(JAVA_INT,
+                    PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement("ThreadCount")));
+            return threadCount;
+        } catch (Throwable t) {
+            LOG.error("Exception getting thread count", t);
+            return 0;
+        }
+    }
+
+    @Override
+    public int getThreadId() {
+        return Kernel32FFM.GetCurrentThreadId().orElse(-1);
     }
 }
