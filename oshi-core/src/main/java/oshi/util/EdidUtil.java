@@ -72,8 +72,10 @@ public final class EdidUtil {
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-        return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b)
-                : String.format(Locale.ROOT, "%02X", b);
+        char c = (char) (b & 0xFF); // Ensure unsigned conversion
+        return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+            ? String.format(Locale.ROOT, "%c", c)
+            : String.format(Locale.ROOT, "%02X", b & 0xFF);
     }
 
     /**
