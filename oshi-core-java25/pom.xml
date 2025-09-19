@@ -112,6 +112,26 @@
                     <source>24</source>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>24</source>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>24</source>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
