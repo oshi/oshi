@@ -21,7 +21,7 @@ jobs:
         with:
           cache: maven
           distribution: temurin
-          java-version: 21
+          java-version: 24
       - name: Build site
         run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
         env:
