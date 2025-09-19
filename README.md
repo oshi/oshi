@@ -44,13 +44,15 @@ Documentation
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.8.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.8.3)
-  * JPMS: [oshi-core-java11-6.8.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.8.3)
+  * JDK8: [oshi-core-6.9.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.9.0)
+  * JPMS: [oshi-core-java11-6.9.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.9.0)
+  * FFM: [oshi-core-java25-6.9.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.9.0)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.9.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.9.0-SNAPSHOT)
-  * JPMS: [oshi-core-java11-6.9.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.9.0-SNAPSHOT/)
+  * JDK8: [oshi-core-6.9.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.9.1-SNAPSHOT)
+  * JPMS: [oshi-core-java11-6.9.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.9.1-SNAPSHOT/)
+  * FFM: [oshi-core-java25-6.9.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.9.1-SNAPSHOT/)
 
 OSHI Java 25+ Module
 ----------------------------
@@ -58,9 +60,9 @@ A new module, **`oshi-core-java25`**, is now available.
 
 - **Purpose:** This module intends to provide API-compatible implementations using the JDK Foreign Function & Memory (FFM) API, replacing JNA for native access over time with community contributions.
 - **Compatibility:**
-  - Compiles on **JDK 24+**.
-  - Will require **JDK 25+** at runtime once the full migration is complete.
-  - Initial support may be limited to operating systems with JDK 25 builds; broader OS support will follow as availability expands.
+  - Compiles on **JDK 25++**.
+  - Initial support is limited to operating systems with JDK 25 builds; broader OS support and migration of more native implementations will follow.
+  - Contributions are welcome and encuoraged!
 - **Usage:**
   - Use this dependency **in place of** `oshi-core`.
   - Import oshi.SystemInfoFFM instead of oshi.SystemInfo as the entry-point.
@@ -79,7 +81,7 @@ Usage
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
 ```java
-SystemInfo si = new SystemInfo();
+SystemInfo si = new SystemInfo(); // or new SystemInfoFFM() on java25 version
 HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```

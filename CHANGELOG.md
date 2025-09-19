@@ -1,15 +1,20 @@
-# 6.9.0 (in progress)
+# 6.9.1 (in progress)
+
+* Your contribution here!
+
+# 6.9.0 (2025-09-18)
 
 ##### New Features
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#2949](https://github.com/oshi/oshi/pull/2949): Implement MacOperatingSystem using FFM - [@dbwiddis](https://github.com/dbwiddis).
-* [#2959](https://github.com/oshi/oshi/pull/2959): Implement WindowsOperatingSystem using FFM - [@rohan-coder02](https://github.com/rohan-coder02).
-* [#2968](https://github.com/oshi/oshi/pull/2968): Add isElevated, getSystemBootTime, getThreadCount, getThreadId to WindowsOperatingSystemFFM - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2959](https://github.com/oshi/oshi/pull/2959),
+  [#2968](https://github.com/oshi/oshi/pull/2968): Implement WindowsOperatingSystem using FFM - [@rohan-coder02](https://github.com/rohan-coder02).
 
 ##### Bug fixes / Improvements
 * [#2946](https://github.com/oshi/oshi/pull/2946): Add Hyper-V VM mac address - [@chunzhennn](https://github.com/chunzhennn).
-* [#2960](https://github.com/oshi/oshi/pull/2949): Include Apple Silicon MacDisplaly registry options - [@dbwiddis](https://github.com/dbwiddis).
+* [#2960](https://github.com/oshi/oshi/pull/2949): Include Apple Silicon MacDisplay registry options - [@dbwiddis](https://github.com/dbwiddis).
 * [#2966](https://github.com/oshi/oshi/pull/2966): Add macOS 26 (Tahoe) codename mapping - [@zacharee](https://github.com/zacharee).
+* [#2973](https://github.com/oshi/oshi/pull/2949): Handle DWORD registry keys in Windows Installed Apps implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
