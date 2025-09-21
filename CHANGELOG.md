@@ -1,6 +1,6 @@
 # 6.9.1 (in progress)
 
-* Your contribution here!
+* [#2974](https://github.com/oshi/oshi/pull/2974): Use simple xml parsing on MacInstalledApps, support more info/version from app plist, including binary format - [@dyorgio](https://github.com/dyorgio).
 
 # 6.9.0 (2025-09-18)
 
