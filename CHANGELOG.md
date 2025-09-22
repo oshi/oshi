@@ -12,9 +12,9 @@
 
 ##### Bug fixes / Improvements
 * [#2946](https://github.com/oshi/oshi/pull/2946): Add Hyper-V VM mac address - [@chunzhennn](https://github.com/chunzhennn).
-* [#2960](https://github.com/oshi/oshi/pull/2949): Include Apple Silicon MacDisplay registry options - [@dbwiddis](https://github.com/dbwiddis).
+* [#2960](https://github.com/oshi/oshi/pull/2960): Include Apple Silicon MacDisplay registry options - [@dbwiddis](https://github.com/dbwiddis).
 * [#2966](https://github.com/oshi/oshi/pull/2966): Add macOS 26 (Tahoe) codename mapping - [@zacharee](https://github.com/zacharee).
-* [#2973](https://github.com/oshi/oshi/pull/2949): Handle DWORD registry keys in Windows Installed Apps implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#2973](https://github.com/oshi/oshi/pull/2973): Handle DWORD registry keys in Windows Installed Apps implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
@@ -23,7 +23,7 @@
 * [#2854](https://github.com/oshi/oshi/pull/2854): Add raw access to map structures in proc filesystem - [@jdeppe-pivotal](https://github.com/jdeppe-pivotal).
 
 ##### Bug fixes / Improvements
-* [#2849](https://github.com/oshi/oshi/pull/2846): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
+* [#2849](https://github.com/oshi/oshi/pull/2849): Include 3D controller ([0302]) in Linux GPU detection - [@lesley29](https://github.com/lesley29).
 * [#2868](https://github.com/oshi/oshi/pull/2868): Fix windows thread details collection - [@dbwiddis](https://github.com/dbwiddis).
 * [#2889](https://github.com/oshi/oshi/pull/2889): Handle system date format on macOS getInstalledApps output parsing - [@dyorgio](https://github.com/dyorgio).
 * [#2941](https://github.com/oshi/oshi/pull/2941): Add get monitor model to the EdidUtil Class - [@ayonization](https://github.com/ayonization).
@@ -46,7 +46,7 @@
 * [#2838](https://github.com/oshi/oshi/pull/2838): Improve Windows baseboard model identification - [@dbwiddis](https://github.com/dbwiddis).
 * [#2841](https://github.com/oshi/oshi/pull/2841): Resolve Windows Server 2025 on older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2843](https://github.com/oshi/oshi/pull/2843): Allow System Properties to override oshi.properties values - [@dbwiddis](https://github.com/dbwiddis).
-* [#2848](https://github.com/oshi/oshi/pull/2846): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2848](https://github.com/oshi/oshi/pull/2848): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
 
@@ -175,7 +175,7 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 * [#2077](https://github.com/oshi/oshi/pull/2077): Fix processor numbering with Windows Processor Groups - [@dbwiddis](https://github.com/dbwiddis).
 * [#2078](https://github.com/oshi/oshi/pull/2078): Support macOS 13 (Ventura) - [@dbwiddis](https://github.com/dbwiddis).
 * [#2089](https://github.com/oshi/oshi/pull/2089): PDH wild card counters need English objects but localized instances - [@dbwiddis](https://github.com/dbwiddis).
-* [#2097](https://github.com/oshi/oshi/pull/2108): Prefer character classes to alternators in regex - [@varun83388](https://github.com/varun83388).
+* [#2097](https://github.com/oshi/oshi/pull/2097): Prefer character classes to alternators in regex - [@varun83388](https://github.com/varun83388).
 * [#2095](https://github.com/oshi/oshi/pull/2095): Avoid using reserved identifiers as variable names - [@muhammetgumus](https://github.com/muhammetgumus)
 * [#2099](https://github.com/oshi/oshi/pull/2099): Remove useless public constructor for abstract class - [@victorjbassey](https://github.com/victorjbassey).
 * [#2124](https://github.com/oshi/oshi/pull/2124): Properly determine Apple Silicon frequency - [@dbwiddis](https://github.com/dbwiddis).
@@ -342,7 +342,7 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 * [#1363](https://github.com/oshi/oshi/pull/1363), [#1374](https://github.com/oshi/oshi/pull/1374): Index logical processors by NUMA node - [@dbwiddis](https://github.com/dbwiddis).
 * [#1368](https://github.com/oshi/oshi/pull/1368): Backup for getting process name and state - [@J-Jimmy](https://github.com/J-Jimmy).
 * [#1375](https://github.com/oshi/oshi/pull/1375): Reduce log level for expected Windows permission failures - [@dbwiddis](https://github.com/dbwiddis).
-* [#1380](https://github.com/oshi/oshi/pull/1389): Fix exception sorting child process list on Windows - [@agaponik](https://github.com/agaponik).
+* [#1380](https://github.com/oshi/oshi/pull/1380): Fix exception sorting child process list on Windows - [@agaponik](https://github.com/agaponik).
 * [#1382](https://github.com/oshi/oshi/pull/1382): Fix exception on 32-bit Windows thread stats - [@dbwiddis](https://github.com/dbwiddis).
 * [#1388](https://github.com/oshi/oshi/pull/1388): Fix service listing with systemd 245 and newer - [@Szwendacz99](https://github.com/Szwendacz99).
 * [#1389](https://github.com/oshi/oshi/pull/1389): Vendor frequency from non-Intel chips - [@dbwiddis](https://github.com/dbwiddis).
@@ -448,7 +448,7 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 * [#1125](https://github.com/oshi/oshi/pull/1125): Add driver to parse Linux proc/stat and proc/uptime. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1127](https://github.com/oshi/oshi/pull/1127): Add Volume Label to OSFileStore. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1140](https://github.com/oshi/oshi/pull/1140): Demo Swing GUI. - [@dbwiddis](https://github.com/dbwiddis).
-* [#1143](https://github.com/oshi/oshi/pull/1140): Add process CPU usage between ticks calculation. - [@dbwiddis](https://github.com/dbwiddis).
+* [#1143](https://github.com/oshi/oshi/pull/1143): Add process CPU usage between ticks calculation. - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#1139](https://github.com/oshi/oshi/pull/1139): Fix Windows FileStore updating. - [@dbwiddis](https://github.com/dbwiddis).
@@ -518,7 +518,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 
 ##### Bug fixes / Improvements
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).
-* [#963](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).
+* [#963](https://github.com/oshi/oshi/pull/963): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).
 * [#971](https://github.com/oshi/oshi/pull/971): Fix handle leak in WindowsDisplay.java - [@r10a](https://github.com/r10a).
 * [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * [#989](https://github.com/oshi/oshi/pull/989): Improve Windows current frequency stats. - [@dbwiddis](https://github.com/dbwiddis).
@@ -564,7 +564,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 * [#766](https://github.com/oshi/oshi/pull/766): Use query key to update counters in groups. - [@dbwiddis](https://github.com/dbwiddis).
 * [#767](https://github.com/oshi/oshi/pull/767): Allow subclassing WmiQueryHandler with reflection. - [@dbwiddis](https://github.com/dbwiddis).
 * [#769](https://github.com/oshi/oshi/pull/769): Close PDH handles after each query. - [@dbwiddis](https://github.com/dbwiddis).
-* [#839](https://github.com/oshi/oshi/pull/838): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
+* [#839](https://github.com/oshi/oshi/pull/839): JNA 5.3.0. - [@dbwiddis](https://github.com/dbwiddis).
 * [#845](https://github.com/oshi/oshi/pull/845): JNA 5.3.1. - [@dbwiddis](https://github.com/dbwiddis).
 * [#1299](https://github.com/oshi/oshi/pull/1299): JNA 5.6.0 / macOS 11 Compatibility - [@dbwiddis](https://github.com/dbwiddis)
 
