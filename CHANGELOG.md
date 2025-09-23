@@ -46,7 +46,7 @@
 * [#2838](https://github.com/oshi/oshi/pull/2838): Improve Windows baseboard model identification - [@dbwiddis](https://github.com/dbwiddis).
 * [#2841](https://github.com/oshi/oshi/pull/2841): Resolve Windows Server 2025 on older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2843](https://github.com/oshi/oshi/pull/2843): Allow System Properties to override oshi.properties values - [@dbwiddis](https://github.com/dbwiddis).
-* [#2848](https://github.com/oshi/oshi/pull/2848): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2846](https://github.com/oshi/oshi/pull/2846): Optimize netstat calls using /proc files - [@rohan-coder02](https://github.com/rohan-coder02).
 
 # 6.6.0 (2024-04-13), 6.6.1 (2024-05-26), 6.6.2 (2024-07-21), 6.6.3 (2024-08-20), 6.6.4 (2024-09-15), 6.6.5 (2024-09-16), 6.6.6 (2025-01-25)
 
@@ -142,7 +142,7 @@
 * [#2212](https://github.com/oshi/oshi/pull/2212): Suppress log warnings for common non-root macOS sysctl failures - [@pavangole](https://github.com/pavangole).
 * [#2224](https://github.com/oshi/oshi/pull/2224): Detect Windows Server 2022 in older JDKs - [@dbwiddis](https://github.com/dbwiddis).
 * [#2229](https://github.com/oshi/oshi/pull/2229): Fix division by zero on AIX with fewer logical processors than physical processors - [@dbwiddis](https://github.com/dbwiddis).
-* [#2243](https://github.com/oshi/oshi/pull/224e): Actually return Windows IP Connections - [@dbwiddis](https://github.com/dbwiddis).
+* [#2243](https://github.com/oshi/oshi/pull/2243): Actually return Windows IP Connections - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.2.0 (2022-06-26), 6.2.1 (2022-06-29), 6.2.2 (2022-07-20)
 
@@ -518,7 +518,7 @@ The default configuration file has been renamed to `oshi.properties` to prevent 
 
 ##### Bug fixes / Improvements
 * [#962](https://github.com/oshi/oshi/pull/962): Properly handle null WMI DateTime results. - [@dbwiddis](https://github.com/dbwiddis).
-* [#963](https://github.com/oshi/oshi/pull/963): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).
+* [#964](https://github.com/oshi/oshi/pull/964): Move the ProcessorIdentifier inner class to the CentralProcessor class - [@Praveen101997](https://github.com/Praveen101997).
 * [#971](https://github.com/oshi/oshi/pull/971): Fix handle leak in WindowsDisplay.java - [@r10a](https://github.com/r10a).
 * [#977](https://github.com/oshi/oshi/pull/977): Rename default configuration - [@cilki](https://github.com/cilki).
 * [#989](https://github.com/oshi/oshi/pull/989): Improve Windows current frequency stats. - [@dbwiddis](https://github.com/dbwiddis).
