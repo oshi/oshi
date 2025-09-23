@@ -97,7 +97,7 @@
         <hamcrest.version>3.0</hamcrest.version>
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>3.0.0</restrict-imports-enforcer-rule.version>
@@ -139,7 +139,7 @@
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.4</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.2.1</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
