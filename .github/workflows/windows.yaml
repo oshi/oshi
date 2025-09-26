@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [11, 21, 24]
+        java: [11, 21, 25]
         os: [windows-2022, windows-2025]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}

@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           cache: maven
-          java-version: 21
+          java-version: 25
           distribution: zulu
       - name: Analyze with Coverity
         run: |
