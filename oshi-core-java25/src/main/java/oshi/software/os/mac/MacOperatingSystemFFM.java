@@ -48,7 +48,7 @@ import oshi.util.tuples.Pair;
  * marketed by Apple Inc. since 2001. It is the primary operating system for Apple's Mac computers.
  */
 @ThreadSafe
-public class MacOperatingSystemFFM extends MacOperatingSystem {
+public class MacOperatingSystemFFM extends AbstractMacOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystemFFM.class);
 
