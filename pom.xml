@@ -1011,9 +1011,9 @@
         <profile>
             <id>java25</id>
             <activation>
-                <jdk>[24,)</jdk>
+                <jdk>[25,)</jdk>
             </activation>
-            <!-- Only include java25 and dist modules on Java 24+ (TODO 25+) -->
+            <!-- Only include java25 and dist modules on Java 25+ -->
             <modules>
                 <module>oshi-core-java25</module>
                 <module>oshi-dist</module>
