@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -119,6 +119,9 @@ public interface CentralProcessor {
      * Returns the "recent cpu usage" for the whole system by counting ticks from {@link #getSystemCpuLoadTicks()}
      * between the user-provided value from a previous call.
      * <p>
+     * This method is equivalent to calling {@link #getSystemCpuLoadTicks()} and passing those ticks to
+     * {@link #getSystemCpuLoadBetweenTicks(long[], long[])} along with a previous set of ticks.
+     * <p>
      * On some operating systems with variable numbers of logical processors, the size of the array returned from a
      * previous call to {@link #getSystemCpuLoadTicks()} could change and will throw an
      * {@link IllegalArgumentException}. Calling code on these operating systems should handle this exception.
@@ -128,6 +131,17 @@ public interface CentralProcessor {
      * @throws IllegalArgumentException if the array sizes differ.
      */
     double getSystemCpuLoadBetweenTicks(long[] oldTicks);
+
+    /**
+     * Returns the "recent cpu usage" for the whole system by counting ticks between two user-provided values, retrieved
+     * from {@link #getSystemCpuLoadTicks()} at different points in time.
+     *
+     * @param oldTicks A tick array from a previous call to {@link #getSystemCpuLoadTicks()}
+     * @param newTicks A tick array from a more recent call to {@link #getSystemCpuLoadTicks()}
+     * @return CPU load between 0 and 1 (100%)
+     * @throws IllegalArgumentException if the array sizes differ.
+     */
+    double getSystemCpuLoadBetweenTicks(long[] oldTicks, long[] newTicks);
 
     /**
      * Get System-wide CPU Load tick counters. Returns an array with eight elements representing milliseconds spent in
@@ -225,6 +239,9 @@ public interface CentralProcessor {
      * Returns the "recent cpu usage" for all logical processors by counting ticks from
      * {@link #getProcessorCpuLoadTicks()} between the user-provided value from a previous call.
      * <p>
+     * This method is equivalent to calling {@link #getProcessorCpuLoadTicks()} and passing those ticks to
+     * {@link #getProcessorCpuLoadBetweenTicks(long[][], long[][])} along with a previous set of ticks.
+     * <p>
      * On some operating systems with variable numbers of logical processors, the size of the array returned from the
      * two calls could change and will throw an {@link IllegalArgumentException}. Calling code on these operating
      * systems should handle this exception.
@@ -234,6 +251,21 @@ public interface CentralProcessor {
      * @throws IllegalArgumentException if the array sizes differ between calls.
      */
     double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks);
+
+    /**
+     * Returns the "recent cpu usage" for all logical processors by counting ticks from
+     * {@link #getProcessorCpuLoadTicks()} between the user-provided value from a previous call.
+     * <p>
+     * On some operating systems with variable numbers of logical processors, the size of the array returned from the
+     * two calls could change and will throw an {@link IllegalArgumentException}. Calling code on these operating
+     * systems should handle this exception.
+     *
+     * @param oldTicks A tick array from a previous call to {@link #getProcessorCpuLoadTicks()}
+     * @param newTicks A tick array from a more recent call to {@link #getProcessorCpuLoadTicks()}
+     * @return array of CPU load between 0 and 1 (100%) for each logical processor
+     * @throws IllegalArgumentException if the array sizes differ between calls.
+     */
+    double[] getProcessorCpuLoadBetweenTicks(long[][] oldTicks, long[][] newTicks);
 
     /**
      * Get Processor CPU Load tick counters. Returns a two dimensional array, with {@link #getLogicalProcessorCount()}
