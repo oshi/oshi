@@ -1,5 +1,8 @@
 # 6.9.1 (in progress)
 
+##### New Features
+* [#2990](https://github.com/oshi/oshi/pull/2990): Add methods for calculating CPU usage with two arrays - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### Bug fixes / Improvements
 * [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
 
