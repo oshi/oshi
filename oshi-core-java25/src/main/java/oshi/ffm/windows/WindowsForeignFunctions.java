@@ -10,6 +10,8 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.WinNTFFM.SE_PRIVILEGE_ENABLED;
 import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES;
@@ -32,6 +34,28 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
      */
     public static boolean isSuccess(int winBool) {
         return winBool != 0;
+    }
+
+    public static String readWideString(MemorySegment seg) {
+        StringBuilder sb = new StringBuilder();
+        for (int offset = 0;; offset += 2) { // 2 bytes per UTF-16 char
+            char c = seg.get(JAVA_CHAR, offset);
+            if (c == '\0')
+                break; // null terminator
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+
+    public static String readAnsiString(MemorySegment seg, int maxLen) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < maxLen; i++) {
+            byte b = seg.get(JAVA_BYTE, i);
+            if (b == 0)
+                break;
+            sb.append((char) b);
+        }
+        return sb.toString();
     }
 
     /**

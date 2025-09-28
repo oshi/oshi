@@ -7,16 +7,20 @@ package oshi.ffm.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
 
 public final class Kernel32FFM extends WindowsForeignFunctions {
 
@@ -32,6 +36,57 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.closeHandle failed", t);
             return OptionalInt.empty();
+        }
+    }
+
+    private static final MethodHandle GetComputerName = downcall(K32, "GetComputerNameW", JAVA_INT, ADDRESS, ADDRESS);
+
+    public static Optional<String> GetComputerName() {
+        try (Arena arena = Arena.ofConfined()) {
+            int maxLen = 32;
+
+            MemorySegment buffer = arena.allocate(JAVA_CHAR, maxLen);
+            MemorySegment sizeSegment = arena.allocate(JAVA_INT);
+            sizeSegment.set(ValueLayout.JAVA_INT, 0, maxLen);
+
+            int success = (int) GetComputerName.invokeExact(buffer, sizeSegment);
+            if (success == ERROR_SUCCESS) {
+                int errorCode = (int) GetLastError.invokeExact();
+                throw new Win32Exception(errorCode);
+            }
+
+            return Optional.of(readWideString(buffer));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetComputerName failed: {}", t.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private static final MethodHandle GetComputerNameEx = downcall(K32, "GetComputerNameExW", JAVA_INT, JAVA_INT,
+            ADDRESS, ADDRESS);
+
+    public static Optional<String> GetComputerNameEx() {
+        try (Arena arena = Arena.ofConfined()) {
+            int maxLen = 256;
+
+            MemorySegment buffer = arena.allocate(JAVA_CHAR, maxLen);
+            MemorySegment sizeSegment = arena.allocate(JAVA_INT);
+            sizeSegment.set(ValueLayout.JAVA_INT, 0, maxLen);
+
+            final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
+
+            int success = (int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer,
+                    sizeSegment);
+            if (success == ERROR_SUCCESS) {
+                int errorCode = (int) GetLastError.invokeExact();
+                LOG.error("Failed to get DNS domain name. Error code: {}", errorCode);
+                return Optional.empty();
+            }
+
+            return Optional.of(readWideString(buffer));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetComputerNameEx failed: {}", t.getMessage());
+            return Optional.empty();
         }
     }
 

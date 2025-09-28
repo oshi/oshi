@@ -9,20 +9,30 @@ import org.slf4j.LoggerFactory;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WinNTFFM;
-import oshi.ffm.windows.WindowsForeignFunctions;
+import oshi.ffm.windows.Win32Exception;
 import oshi.util.GlobalConfig;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
+import static oshi.ffm.windows.WinNTFFM.KEY_READ;
 import static oshi.ffm.windows.Advapi32FFM.OpenProcessToken;
+import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
+import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
+import static oshi.ffm.windows.Advapi32FFM.RegEnumKeyEx;
+import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
+import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.Memoizer.memoize;
 
 public final class Advapi32UtilFFM {
@@ -72,6 +82,62 @@ public final class Advapi32UtilFFM {
         } catch (Throwable t) {
             LOG.debug("Advapi32FFM.isCurrentProcessElevated failed", t);
             return false;
+        }
+    }
+
+    public static String[] registryGetKeys(MemorySegment hKey) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment lpcSubKeys = arena.allocate(JAVA_INT);
+            MemorySegment lpcMaxSubKeyLen = arena.allocate(JAVA_INT);
+
+            int rc = RegQueryInfoKey(hKey, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL, lpcSubKeys,
+                    lpcMaxSubKeyLen, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL,
+                    MemorySegment.NULL, MemorySegment.NULL);
+
+            if (rc != ERROR_SUCCESS) {
+                throw new Win32Exception(rc);
+            }
+
+            int subKeyCount = lpcSubKeys.get(JAVA_INT, 0);
+            int maxNameLen = lpcMaxSubKeyLen.get(JAVA_INT, 0);
+
+            List<String> keys = new ArrayList<>(subKeyCount);
+            for (int i = 0; i < subKeyCount; i++) {
+                MemorySegment nameBuf = arena.allocate((maxNameLen + 1) * 2);
+                MemorySegment nameLen = arena.allocate(JAVA_INT);
+                nameLen.set(JAVA_INT, 0, maxNameLen + 1);
+
+                rc = RegEnumKeyEx(hKey, i, nameBuf, nameLen, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL,
+                        MemorySegment.NULL);
+                if (rc != ERROR_SUCCESS) {
+                    throw new Win32Exception(rc);
+                }
+
+                keys.add(readWideString(nameBuf));
+            }
+
+            return keys.toArray(String[]::new);
+        }
+    }
+
+    public static String[] registryGetKeys(MemorySegment rootKey, String keyPath, int samDesiredExtra)
+            throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment phkResult = arena.allocate(ADDRESS);
+            int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ | samDesiredExtra, phkResult);
+            if (rc != ERROR_SUCCESS) {
+                throw new Win32Exception(rc);
+            }
+
+            MemorySegment hKey = phkResult.get(ADDRESS, 0);
+            try {
+                return registryGetKeys(hKey);
+            } finally {
+                rc = RegCloseKey(hKey);
+                if (rc != ERROR_SUCCESS) {
+                    throw new Win32Exception(rc);
+                }
+            }
         }
     }
 
@@ -146,7 +212,7 @@ public final class Advapi32UtilFFM {
         }
 
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment sourceName = WindowsForeignFunctions.toWideString(arena, systemLog);
+            MemorySegment sourceName = toWideString(arena, systemLog);
 
             Optional<MemorySegment> hEventLog = Advapi32FFM.OpenEventLog(MemorySegment.NULL, sourceName);
             if (hEventLog.isEmpty()) {
