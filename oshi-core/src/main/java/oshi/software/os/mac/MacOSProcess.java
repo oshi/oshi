@@ -45,7 +45,6 @@ import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
@@ -107,7 +106,7 @@ public class MacOSProcess extends AbstractOSProcess {
 
     private int majorVersion;
     private int minorVersion;
-    private final OperatingSystem os;
+    private final MacOperatingSystem os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(this::queryArgsAndEnvironment);
@@ -137,7 +136,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public MacOSProcess(int pid, int major, int minor, OperatingSystem os) {
+    public MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
         this.majorVersion = major;
         this.minorVersion = minor;
