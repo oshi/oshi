@@ -39,7 +39,6 @@ import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.platform.mac.SysctlUtilFFM;
 import oshi.util.tuples.Pair;
 
@@ -92,7 +91,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
         String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
                 : System.getProperty("os.name");
         String codeName = parseCodeName();
-        String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
+        String buildNumber = SysctlUtilFFM.sysctl("kern.osversion", "");
         return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
     }
 
