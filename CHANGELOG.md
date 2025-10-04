@@ -2,6 +2,7 @@
 
 ##### New Features
 * [#2990](https://github.com/oshi/oshi/pull/2990): Add methods for calculating CPU usage with two arrays - [@dbwiddis](https://github.com/dbwiddis).
+* [#2991](https://github.com/oshi/oshi/pull/2991): Add installed apps, network params, internet protocols API in Windows FFM - [@rohan-coder02](https://github.com/rohan-coder02).
 
 ##### Bug fixes / Improvements
 * [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
