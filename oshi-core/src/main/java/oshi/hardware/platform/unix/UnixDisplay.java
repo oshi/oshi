@@ -1,11 +1,12 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.Xrandr;
@@ -21,10 +22,11 @@ public final class UnixDisplay extends AbstractDisplay {
     /**
      * Constructor for UnixDisplay.
      *
-     * @param edid a byte array representing a display EDID
+     * @param edid           a byte array representing a display EDID
+     * @param connectionPort the display connection port
      */
-    UnixDisplay(byte[] edid) {
-        super(edid);
+    UnixDisplay(byte[] edid, String connectionPort) {
+        super(edid, connectionPort);
     }
 
     /**
@@ -33,6 +35,23 @@ public final class UnixDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
-        return Xrandr.getEdidArrays().stream().map(UnixDisplay::new).collect(Collectors.toList());
+
+        List<byte[]> edidArrays = Xrandr.getEdidArrays();
+        List<String> connectionPorts = Xrandr.getConnectionPorts();
+
+        List<Display> displays = new ArrayList<>();
+
+        for (int i = 0; i < edidArrays.size(); i++) {
+
+            byte[] edid = edidArrays.get(i);
+            String connectionPort = "Unknown";
+
+            if (Objects.nonNull(connectionPorts.get(i)))
+                connectionPort = connectionPorts.get(i);
+
+            displays.add(new UnixDisplay(edid, connectionPort));
+        }
+
+        return displays;
     }
 }
