@@ -22,22 +22,16 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
 import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
-import static oshi.ffm.windows.Advapi32FFM.RegQueryValueEx;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.windows.WinNTFFM.KEY_READ;
 import static oshi.ffm.windows.WinNTFFM.KEY_WOW64_32KEY;
 import static oshi.ffm.windows.WinNTFFM.KEY_WOW64_64KEY;
-import static oshi.ffm.windows.WinNTFFM.REG_SZ;
-import static oshi.ffm.windows.WinNTFFM.REG_DWORD;
-import static oshi.ffm.windows.WinNTFFM.REG_EXPAND_SZ;
 import static oshi.ffm.windows.WinRegFFM.HKEY_CURRENT_USER;
 import static oshi.ffm.windows.WinRegFFM.HKEY_LOCAL_MACHINE;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.platform.windows.Advapi32UtilFFM.registryGetValue;
 
 public final class InstalledAppsDataFFM {
 
@@ -145,77 +139,18 @@ public final class InstalledAppsDataFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment phkKey = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, path), 0, KEY_READ | accessFlag, phkKey);
-            if (rc != ERROR_SUCCESS) {
-                throw new Win32Exception(rc);
-            }
+            checkSuccess(rc);
 
             MemorySegment hKey = phkKey.get(ADDRESS, 0);
             try {
                 return registryGetValue(hKey, key);
             } finally {
                 rc = RegCloseKey(hKey);
-                if (rc != ERROR_SUCCESS) {
-                    throw new Win32Exception(rc);
-                }
+                checkSuccess(rc);
             }
         } catch (Win32Exception e) {
             LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
             return null;
         }
     }
-
-    private static Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment lpType = arena.allocate(JAVA_INT);
-            MemorySegment lpcbData = arena.allocate(JAVA_INT);
-
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
-            if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER) {
-                throw new Win32Exception(rc);
-            }
-
-            int type = lpType.get(JAVA_INT, 0);
-            int size = lpcbData.get(JAVA_INT, 0);
-
-            return switch (type) {
-            case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
-            case REG_DWORD -> registryGetDword(hKey, valueName);
-            default -> {
-                LOG.warn("Unsupported registry data type " + type + " for " + valueName);
-                yield null;
-            }
-            };
-        }
-    }
-
-    private static String registryGetString(MemorySegment hKey, String valueName, int size) throws Throwable {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment data = arena.allocate(size + 2);
-            MemorySegment lpType = arena.allocate(JAVA_INT);
-            MemorySegment lpcbData = arena.allocate(JAVA_INT);
-            lpcbData.set(JAVA_INT, 0, size);
-
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
-            if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER) {
-                throw new Win32Exception(rc);
-            }
-            return readWideString(data);
-        }
-    }
-
-    private static int registryGetDword(MemorySegment hKey, String valueName) throws Throwable {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment pData = arena.allocate(JAVA_INT);
-            MemorySegment lpType = arena.allocate(JAVA_INT);
-            MemorySegment lpcbData = arena.allocate(JAVA_INT);
-            lpcbData.set(JAVA_INT, 0, Integer.BYTES);
-
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
-            if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER) {
-                throw new Win32Exception(rc);
-            }
-            return pData.get(JAVA_INT, 0);
-        }
-    }
-
 }

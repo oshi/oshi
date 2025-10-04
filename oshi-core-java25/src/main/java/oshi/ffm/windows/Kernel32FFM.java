@@ -20,7 +20,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
 
 public final class Kernel32FFM extends WindowsForeignFunctions {
 
@@ -49,10 +48,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             sizeSegment.set(ValueLayout.JAVA_INT, 0, maxLen);
 
-            int success = (int) GetComputerName.invokeExact(buffer, sizeSegment);
-            if (success == ERROR_SUCCESS) {
+            boolean success = isSuccess((int) GetComputerName.invokeExact(buffer, sizeSegment));
+            if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
-                throw new Win32Exception(errorCode);
+                LOG.error("Failed to get computer name name. Error code: {}", errorCode);
+                return Optional.empty();
             }
 
             return Optional.of(readWideString(buffer));
@@ -75,9 +75,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
             final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-            int success = (int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer,
-                    sizeSegment);
-            if (success == ERROR_SUCCESS) {
+            boolean success = isSuccess((int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer,
+                    sizeSegment));
+            if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
                 LOG.error("Failed to get DNS domain name. Error code: {}", errorCode);
                 return Optional.empty();

@@ -6,7 +6,6 @@ package oshi.util.platform.windows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.foreign.MemoryLayout.PathElement;
+import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -65,7 +65,7 @@ public class IPHlpAPIUtilFFM {
     public static String[] getDnsServers() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetNetworkParams(MemorySegment.NULL, sizeSegment);
+            int ret = GetNetworkParams(NULL, sizeSegment);
             if (ret != ERROR_BUFFER_OVERFLOW) {
                 LOG.error("Failed to get network parameters size. Error: {}", ret);
                 return new String[0];
@@ -86,7 +86,7 @@ public class IPHlpAPIUtilFFM {
                     FIXED_INFO_LAYOUT.byteOffset(PathElement.groupElement("DnsServerList")),
                     IP_ADDR_STRING_LAYOUT.byteSize());
 
-            while (dnsServerList != MemorySegment.NULL) {
+            while (dnsServerList != NULL) {
                 MemorySegment ipStringSeg = dnsServerList
                         .asSlice(IP_ADDR_STRING_LAYOUT.byteOffset(PathElement.groupElement("IpAddress")), 16);
 
@@ -172,7 +172,7 @@ public class IPHlpAPIUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
 
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetExtendedTcpTable(MemorySegment.NULL, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+            int ret = GetExtendedTcpTable(NULL, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
 
             if (ret != ERROR_INSUFFICIENT_BUFFER && ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
@@ -222,7 +222,7 @@ public class IPHlpAPIUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
 
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetExtendedTcpTable(MemorySegment.NULL, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
+            int ret = GetExtendedTcpTable(NULL, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
 
             if (ret != ERROR_INSUFFICIENT_BUFFER && ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
@@ -244,18 +244,16 @@ public class IPHlpAPIUtilFFM {
                         MIB_TCP6ROW_OWNER_PID_LAYOUT.byteSize());
 
                 byte[] localAddr = new byte[16];
-                MemorySegment localAddrSeg = rowSeg.asSlice(
-                    MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16
-                );
+                MemorySegment localAddrSeg = rowSeg
+                        .asSlice(MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16);
                 for (int b = 0; b < 16; b++) {
                     localAddr[b] = localAddrSeg.get(JAVA_BYTE, b);
                 }
                 int localPortBE = rowSeg.get(JAVA_INT,
                         MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("dwLocalPort")));
                 byte[] remoteAddr = new byte[16];
-                MemorySegment remoteAddrSeg = rowSeg.asSlice(
-                    MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucRemoteAddr")), 16
-                );
+                MemorySegment remoteAddrSeg = rowSeg
+                        .asSlice(MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucRemoteAddr")), 16);
                 for (int b = 0; b < 16; b++) {
                     remoteAddr[b] = remoteAddrSeg.get(JAVA_BYTE, b);
                 }
@@ -266,9 +264,8 @@ public class IPHlpAPIUtilFFM {
                 int pid = rowSeg.get(JAVA_INT,
                         MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("dwOwningPid")));
 
-                conns.add(new IPConnection("tcp6", localAddr,
-                        ParseUtil.bigEndian16ToLittleEndian(localPortBE), remoteAddr,
-                        ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
+                conns.add(new IPConnection("tcp6", localAddr, ParseUtil.bigEndian16ToLittleEndian(localPortBE),
+                        remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
             }
             return conns;
         } catch (Throwable t) {
@@ -281,7 +278,7 @@ public class IPHlpAPIUtilFFM {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetExtendedUdpTable(MemorySegment.NULL, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
+            int ret = GetExtendedUdpTable(NULL, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
 
             if (ret != ERROR_INSUFFICIENT_BUFFER && ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
@@ -323,7 +320,7 @@ public class IPHlpAPIUtilFFM {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetExtendedUdpTable(MemorySegment.NULL, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+            int ret = GetExtendedUdpTable(NULL, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
 
             if (ret != ERROR_INSUFFICIENT_BUFFER && ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
@@ -345,9 +342,8 @@ public class IPHlpAPIUtilFFM {
                         MIB_UDP6ROW_OWNER_PID_LAYOUT.byteSize());
 
                 byte[] localAddr = new byte[16];
-                MemorySegment localAddrSeg = rowSeg.asSlice(
-                    MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16
-                );
+                MemorySegment localAddrSeg = rowSeg
+                        .asSlice(MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16);
                 for (int b = 0; b < 16; b++) {
                     localAddr[b] = localAddrSeg.get(JAVA_BYTE, b);
                 }
@@ -356,8 +352,8 @@ public class IPHlpAPIUtilFFM {
                 int pid = rowSeg.get(JAVA_INT,
                         MIB_UDP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("dwOwningPid")));
 
-                conns.add(new IPConnection("udp6", localAddr,
-                        ParseUtil.bigEndian16ToLittleEndian(localPortBE), new byte[0], 0, TcpState.NONE, 0, 0, pid));
+                conns.add(new IPConnection("udp6", localAddr, ParseUtil.bigEndian16ToLittleEndian(localPortBE),
+                        new byte[0], 0, TcpState.NONE, 0, 0, pid));
             }
             return conns;
         } catch (Throwable t) {
@@ -366,7 +362,7 @@ public class IPHlpAPIUtilFFM {
         }
     }
 
-    private static InternetProtocolStats.TcpState stateLookup(int state) {
+    private static TcpState stateLookup(int state) {
         switch (state) {
         case 1:
         case 12:

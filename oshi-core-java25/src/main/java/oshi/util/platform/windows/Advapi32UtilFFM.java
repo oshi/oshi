@@ -21,16 +21,23 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.windows.Advapi32FFM.*;
+import static oshi.ffm.windows.Advapi32FFM.RegQueryValueEx;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
-import static oshi.ffm.windows.WinNTFFM.KEY_READ;
 import static oshi.ffm.windows.Advapi32FFM.OpenProcessToken;
 import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
 import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
 import static oshi.ffm.windows.Advapi32FFM.RegEnumKeyEx;
 import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
 import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
+import static oshi.ffm.windows.WinNTFFM.KEY_READ;
+import static oshi.ffm.windows.WinNTFFM.REG_DWORD;
+import static oshi.ffm.windows.WinNTFFM.REG_EXPAND_SZ;
+import static oshi.ffm.windows.WinNTFFM.REG_SZ;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.Memoizer.memoize;
@@ -90,9 +97,8 @@ public final class Advapi32UtilFFM {
             MemorySegment lpcSubKeys = arena.allocate(JAVA_INT);
             MemorySegment lpcMaxSubKeyLen = arena.allocate(JAVA_INT);
 
-            int rc = RegQueryInfoKey(hKey, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL, lpcSubKeys,
-                    lpcMaxSubKeyLen, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL,
-                    MemorySegment.NULL, MemorySegment.NULL);
+            int rc = RegQueryInfoKey(hKey, NULL, NULL, NULL, lpcSubKeys, lpcMaxSubKeyLen, NULL, NULL, NULL, NULL, NULL,
+                    NULL);
 
             if (rc != ERROR_SUCCESS) {
                 throw new Win32Exception(rc);
@@ -107,8 +113,7 @@ public final class Advapi32UtilFFM {
                 MemorySegment nameLen = arena.allocate(JAVA_INT);
                 nameLen.set(JAVA_INT, 0, maxNameLen + 1);
 
-                rc = RegEnumKeyEx(hKey, i, nameBuf, nameLen, MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL,
-                        MemorySegment.NULL);
+                rc = RegEnumKeyEx(hKey, i, nameBuf, nameLen, NULL, NULL, NULL, NULL);
                 if (rc != ERROR_SUCCESS) {
                     throw new Win32Exception(rc);
                 }
@@ -138,6 +143,54 @@ public final class Advapi32UtilFFM {
                     throw new Win32Exception(rc);
                 }
             }
+        }
+    }
+
+    public static int registryGetDword(MemorySegment hKey, String valueName) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment pData = arena.allocate(JAVA_INT);
+            MemorySegment lpType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+            lpcbData.set(JAVA_INT, 0, Integer.BYTES);
+
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+            checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
+            return pData.get(JAVA_INT, 0);
+        }
+    }
+
+    public static String registryGetString(MemorySegment hKey, String valueName, int size) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment data = arena.allocate(size + 2);
+            MemorySegment lpType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+            lpcbData.set(JAVA_INT, 0, size);
+
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+            checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
+            return readWideString(data);
+        }
+    }
+
+    public static Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment lpType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+            checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
+
+            int type = lpType.get(JAVA_INT, 0);
+            int size = lpcbData.get(JAVA_INT, 0);
+
+            return switch (type) {
+                case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
+                case REG_DWORD -> registryGetDword(hKey, valueName);
+                default -> {
+                    LOG.warn("Unsupported registry data type " + type + " for " + valueName);
+                    yield null;
+                }
+            };
         }
     }
 
@@ -214,7 +267,7 @@ public final class Advapi32UtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sourceName = toWideString(arena, systemLog);
 
-            Optional<MemorySegment> hEventLog = Advapi32FFM.OpenEventLog(MemorySegment.NULL, sourceName);
+            Optional<MemorySegment> hEventLog = Advapi32FFM.OpenEventLog(NULL, sourceName);
             if (hEventLog.isEmpty()) {
                 LOG.warn("Unable to open configured system Event log \"{}\". Calculating boot time from uptime.",
                         systemLog);
