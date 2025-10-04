@@ -16,6 +16,12 @@ public interface WinNTFFM {
 
     int EVENTLOG_BACKWARDS_READ = 0x0008;
     int EVENTLOG_SEQUENTIAL_READ = 0x0001;
+    int KEY_READ = 0x20019;
+    int KEY_WOW64_64KEY = 0x0100;
+    int KEY_WOW64_32KEY = 0x0200;
+    int REG_SZ = 1;
+    int REG_EXPAND_SZ = 2;
+    int REG_DWORD = 4;
     int SE_PRIVILEGE_ENABLED = 0x00000002;
     int TOKEN_QUERY = 0x0008;
     int TOKEN_ADJUST_PRIVILEGES = 0x0020;

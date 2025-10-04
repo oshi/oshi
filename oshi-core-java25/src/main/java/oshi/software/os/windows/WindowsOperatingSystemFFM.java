@@ -10,25 +10,35 @@ import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.WinNTFFM;
+import oshi.software.os.ApplicationInfo;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.NetworkParams;
+import oshi.util.Memoizer;
 import oshi.util.platform.windows.Advapi32UtilFFM;
 import oshi.util.platform.windows.Kernel32UtilFFM;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.Kernel32FFM.GetLastError;
 import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
 
     private static final long BOOTTIME = Advapi32UtilFFM.querySystemBootTime();
+
+    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
+            .memoize(WindowsInstalledAppsFFM::queryInstalledApps, installedAppsExpiration());
 
     static {
         enableDebugPrivilege();
@@ -75,6 +85,21 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 Kernel32FFM.CloseHandle(hToken);
             }
         }
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications() {
+        return installedAppsSupplier.get();
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new WindowsInternetProtocolStatsFFM();
+    }
+
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new WindowsNetworkParamsFFM();
     }
 
     @Override
