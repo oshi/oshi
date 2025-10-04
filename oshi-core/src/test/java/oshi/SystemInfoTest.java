@@ -172,8 +172,8 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static void printInstalledApps(List<ApplicationInfo> installedApplications) {
         oshi.add("Apps: ");
-        for (ApplicationInfo app : installedApplications.subList(0, 5)) {
-            oshi.add(" " + app.toString());
+        for (int i = 0; i < 5 && i < installedApplications.size(); i++) {
+            oshi.add(" " + installedApplications.get(i).toString());
         }
     }
 

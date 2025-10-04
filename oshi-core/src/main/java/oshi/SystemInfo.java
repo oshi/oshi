@@ -20,7 +20,7 @@ import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
-import oshi.software.os.mac.MacOperatingSystem;
+import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
@@ -84,7 +84,7 @@ public class SystemInfo {
         case ANDROID:
             return new LinuxOperatingSystem();
         case MACOS:
-            return new MacOperatingSystem();
+            return new MacOperatingSystemJNA();
         case SOLARIS:
             return new SolarisOperatingSystem();
         case FREEBSD:

@@ -10,6 +10,7 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
@@ -23,10 +24,12 @@ public final class MacSystemFunctions extends ForeignFunctions {
     private MacSystemFunctions() {
     }
 
+    private static final SymbolLookup SYSTEMB = libraryLookup("System");
+
     public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
 
     // int proc_listpids(uint32_t type, uint32_t typeinfo, void *buffer, int buffersize)
-    private static final MethodHandle proc_listpids = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_listpids"),
+    private static final MethodHandle proc_listpids = LINKER.downcallHandle(SYSTEMB.findOrThrow("proc_listpids"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
     public static int proc_listpids(int type, int typeinfo, MemorySegment pids, int bufferSize) throws Throwable {
@@ -34,7 +37,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     }
 
     // int proc_pidinfo(int pid, int flavor, uint64_t arg, void *buffer, int buffersize)
-    private static final MethodHandle proc_pidinfo = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_pidinfo"),
+    private static final MethodHandle proc_pidinfo = LINKER.downcallHandle(SYSTEMB.findOrThrow("proc_pidinfo"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_LONG, ADDRESS, JAVA_INT));
 
     public static int proc_pidinfo(int pid, int flavor, long arg, MemorySegment buffer, int bufferSize)
@@ -43,7 +46,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     }
 
     // int proc_pidpath(int pid, void * buffer, uint32_t buffersize)
-    private static final MethodHandle proc_pidpath = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("proc_pidpath"),
+    private static final MethodHandle proc_pidpath = LINKER.downcallHandle(SYSTEMB.findOrThrow("proc_pidpath"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
     public static int proc_pidpath(int pid, MemorySegment buffer, int bufferSize) throws Throwable {
@@ -52,7 +55,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int proc_pid_rusage(int pid, int flavor, rusage_info_t *buffer)
     private static final MethodHandle proc_pid_rusage = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.findOrThrow("proc_pid_rusage"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS));
+        SYSTEMB.findOrThrow("proc_pid_rusage"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS));
 
     public static int proc_pid_rusage(int pid, int flavor, MemorySegment buffer) throws Throwable {
         return (int) proc_pid_rusage.invokeExact(pid, flavor, buffer);
@@ -60,7 +63,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int proc_pidfdinfo(int pid, int fd, int flavor, void * buffer, int buffersize)
     private static final MethodHandle proc_pidfdinfo = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.findOrThrow("proc_pidfdinfo"),
+        SYSTEMB.findOrThrow("proc_pidfdinfo"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT));
 
     public static int proc_pidfdinfo(int pid, int fd, int flavor, MemorySegment buffer, int bufferSize)
@@ -69,7 +72,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     }
 
     // struct passwd * q getpwuid(uid_t uid);
-    private static final MethodHandle getpwuid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getpwuid"),
+    private static final MethodHandle getpwuid = LINKER.downcallHandle(SYSTEMB.findOrThrow("getpwuid"),
             FunctionDescriptor.of(ADDRESS, JAVA_INT));
 
     public static MemorySegment getpwuid(int uid) throws Throwable {
@@ -78,7 +81,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     }
 
     // struct group * getgrgid(gid_t gid);
-    private static final MethodHandle getgrgid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getgrgid"),
+    private static final MethodHandle getgrgid = LINKER.downcallHandle(SYSTEMB.findOrThrow("getgrgid"),
             FunctionDescriptor.of(ADDRESS, JAVA_INT));
 
     public static MemorySegment getgrgid(int gid) throws Throwable {
@@ -88,7 +91,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // pid_t getpid(void);
 
-    private static final MethodHandle getpid = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getpid"),
+    private static final MethodHandle getpid = LINKER.downcallHandle(SYSTEMB.findOrThrow("getpid"),
             FunctionDescriptor.of(JAVA_INT));
 
     public static int getpid() throws Throwable {
@@ -97,7 +100,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctl = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctl"),
+    private static final MethodHandle sysctl = LINKER.downcallHandle(SYSTEMB.findOrThrow("sysctl"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
 
     public static int sysctl(MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
@@ -107,7 +110,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("sysctlbyname"),
+    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYSTEMB.findOrThrow("sysctlbyname"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
 
     public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
@@ -117,7 +120,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int getrlimit(int resource, struct rlimit *rlp);
 
-    private static final MethodHandle getrlimit = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getrlimit"),
+    private static final MethodHandle getrlimit = LINKER.downcallHandle(SYSTEMB.findOrThrow("getrlimit"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
     public static int getrlimit(int resource, MemorySegment rlp) throws Throwable {
@@ -127,7 +130,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     // mach_port_t mach_task_self(void)
 
     private static final MethodHandle mach_task_self = LINKER
-            .downcallHandle(SYMBOL_LOOKUP.findOrThrow("mach_task_self"), FunctionDescriptor.of(JAVA_INT));
+            .downcallHandle(SYSTEMB.findOrThrow("mach_task_self"), FunctionDescriptor.of(JAVA_INT));
 
     public static int mach_task_self() throws Throwable {
         return (int) mach_task_self.invokeExact();
@@ -136,7 +139,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
     // kern_return_t mach_port_deallocate(ipc_space_t, mach_port_name_t);
 
     private static final MethodHandle mach_port_deallocate = LINKER.downcallHandle(
-            SYMBOL_LOOKUP.findOrThrow("mach_port_deallocate"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT));
+        SYSTEMB.findOrThrow("mach_port_deallocate"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT));
 
     public static int mach_port_deallocate(int task, int name) throws Throwable {
         return (int) mach_port_deallocate.invokeExact(task, name);
@@ -144,7 +147,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int getfsstat(struct statfs *buf, int bufsize, int flags);
 
-    private static final MethodHandle getfsstat64 = LINKER.downcallHandle(SYMBOL_LOOKUP.findOrThrow("getfsstat64"),
+    private static final MethodHandle getfsstat64 = LINKER.downcallHandle(SYSTEMB.findOrThrow("getfsstat64"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT));
 
     public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) {

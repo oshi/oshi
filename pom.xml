@@ -90,16 +90,16 @@
         <main.basedir>${maven.multiModuleProjectDirectory}</main.basedir>
         <!-- Dependency versions -->
         <!-- Users of the Spring Boot Starter Parent should include this property in their POM -->
-        <jna.version>5.17.0</jna.version>
+        <jna.version>5.18.1</jna.version>
         <slf4j.version>2.0.17</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
-        <junit.version>5.13.4</junit.version>
+        <junit.version>5.14.0</junit.version>
         <hamcrest.version>3.0</hamcrest.version>
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>3.0.0</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
@@ -119,19 +119,19 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.config.location>config/checkstyle.xml</checkstyle.config.location>
         <checkstyle.suppressions.location>config/checkstyle-suppressions.xml</checkstyle.suppressions.location>
-        <maven-javadoc-plugin.version>3.11.3</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <forbiddenapis.version>3.9</forbiddenapis.version>
         <!-- tools -->
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
-        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.9.0</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-        <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+        <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
-        <spotless-plugin.version>2.46.1</spotless-plugin.version>
+        <spotless-plugin.version>3.0.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.6</jlibrehardwaremonitor.version>
         <!-- report only -->
         <maven-changelog-plugin.version>3.0.0-M1</maven-changelog-plugin.version>
@@ -139,12 +139,12 @@
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.4</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.2.1</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.19.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <animal-sniffer-maven-plugin.version>1.24</animal-sniffer-maven-plugin.version>
-        <dependency-check-maven.version>12.1.3</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>11.0.1</puppycrawl.checkstyle.version>
+        <dependency-check-maven.version>12.1.6</dependency-check-maven.version>
+        <puppycrawl.checkstyle.version>11.1.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
@@ -1011,13 +1011,25 @@
         <profile>
             <id>java25</id>
             <activation>
-                <jdk>[24,)</jdk>
+                <jdk>[25,)</jdk>
             </activation>
-            <!-- Only include java25 and dist modules on Java 24+ (TODO 25+) -->
+            <!-- Only include java25 and dist modules on Java 25+ -->
             <modules>
                 <module>oshi-core-java25</module>
                 <module>oshi-dist</module>
             </modules>
+            <!-- Temporarily disable forbidden APIs until signatures are available -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>de.thetaphi</groupId>
+                        <artifactId>forbiddenapis</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>checks</id>

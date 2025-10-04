@@ -4,23 +4,23 @@
  */
 package oshi.software.os.mac;
 
-import static oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateFormatterShortStyle;
+import static com.sun.jna.platform.mac.CoreFoundation.CFDateFormatterStyle.kCFDateFormatterShortStyle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.CoreFoundation.CFDateFormatter;
+import com.sun.jna.platform.mac.CoreFoundation.CFDateFormatterStyle;
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
+import com.sun.jna.platform.mac.CoreFoundation.CFLocale;
+import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 
-import oshi.jna.platform.mac.CoreFoundation;
-import oshi.jna.platform.mac.CoreFoundation.CFDateFormatter;
-import oshi.jna.platform.mac.CoreFoundation.CFDateFormatterStyle;
-import oshi.jna.platform.mac.CoreFoundation.CFLocale;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
