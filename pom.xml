@@ -1018,18 +1018,6 @@
                 <module>oshi-core-java25</module>
                 <module>oshi-dist</module>
             </modules>
-            <!-- Temporarily disable forbidden APIs until signatures are available -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>de.thetaphi</groupId>
-                        <artifactId>forbiddenapis</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>checks</id>
