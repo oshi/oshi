@@ -18,7 +18,7 @@ import java.lang.invoke.MethodHandle;
 public abstract class ForeignFunctions {
 
     protected static final Linker LINKER = Linker.nativeLinker();
-    protected static final Arena LIBRARY_ARENA = Arena.ofShared();
+    protected static final Arena LIBRARY_ARENA = Arena.ofAuto();
     protected static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
     protected ForeignFunctions() {
