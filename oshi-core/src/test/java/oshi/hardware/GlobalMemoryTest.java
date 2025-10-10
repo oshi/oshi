@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.List;
@@ -45,7 +45,7 @@ class GlobalMemoryTest {
         assertThat("Memory shouldn't be null", memory, is(notNullValue()));
         assertThat("Total memory should be greater than zero", memory.getTotal(), is(greaterThan(0L)));
         assertThat("Available memory should be between 0 and total memory", memory.getAvailable(),
-                is(both(greaterThanOrEqualTo(0L)).and(lessThanOrEqualTo(memory.getTotal()))));
+                is(both(greaterThan(0L)).and(lessThan(memory.getTotal()))));
         assertThat("Memory page size should be greater than zero", memory.getPageSize(), is(greaterThan(0L)));
         assertThat("Memory toString should contain the substring \"Available\"", memory.toString(),
                 containsString("Available"));

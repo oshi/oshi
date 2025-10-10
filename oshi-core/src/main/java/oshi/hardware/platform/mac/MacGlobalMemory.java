@@ -33,7 +33,7 @@ import oshi.util.platform.mac.SysctlUtil;
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
 @ThreadSafe
-class MacGlobalMemory extends AbstractGlobalMemory {
+abstract class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 
@@ -122,17 +122,7 @@ class MacGlobalMemory extends AbstractGlobalMemory {
         return pmList;
     }
 
-    private long queryVmStats() {
-        try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
-                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    size)) {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
-                return 0L;
-            }
-            return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
-        }
-    }
+    protected abstract long queryVmStats();
 
     private static long queryPhysMem() {
         return SysctlUtil.sysctl("hw.memsize", 0L);
