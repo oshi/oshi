@@ -11,6 +11,8 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
@@ -31,12 +33,13 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
             MemorySegment count = arena.allocate(JAVA_INT);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             // Set the count to the size of the VM statistics structure in integers
             count.set(JAVA_INT, 0, (int) (VM_STATISTICS.byteSize() / JAVA_INT.byteSize()));
 
-            int result = host_statistics(mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
+            int result = host_statistics(callState, mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
             if (result != 0) {
-                LOG.error("Failed to get host VM info. Error code: {}", result);
+                LOG.error("Failed to get host VM info. Error code: {}", getErrno(callState));
             } else {
                 swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
                 swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));

@@ -13,6 +13,8 @@ import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.mac.MacSystem.VM_FREE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_INACTIVE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
@@ -30,12 +32,14 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
             MemorySegment count = arena.allocate(JAVA_INT);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+
             // Set the count to the size of the VM statistics structure in integers
             count.set(JAVA_INT, 0, (int) (VM_STATISTICS.byteSize() / JAVA_INT.byteSize()));
 
-            int result = host_statistics(mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
+            int result = host_statistics(callState, mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
             if (result != 0) {
-                LOG.error("Failed to get host VM info. Error code: {}", result);
+                LOG.error("Failed to get host VM info. Error code: {}", getErrno(callState));
                 return 0L;
             }
             // Read free_count and inactive_count from the structure

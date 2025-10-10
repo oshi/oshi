@@ -187,13 +187,16 @@ public final class MacSystemFunctions extends ForeignFunctions {
         }
     }
 
-    private static final MethodHandle host_statistics = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("host_statistics"),
-        FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS));
+    private static final MethodHandle host_statistics = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("host_statistics"),
+        FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS),
+        CAPTURE_CALL_STATE
+    );
 
 
-    public static int host_statistics(int hostPort, int hostStat, MemorySegment stats, MemorySegment count) {
+    public static int host_statistics(MemorySegment callState, int hostPort, int hostStat, MemorySegment stats, MemorySegment count) {
         try {
-            return (int) host_statistics.invokeExact(hostPort, hostStat, stats, count);
+            return (int) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
         } catch (Throwable e) {
             return -1;
         }

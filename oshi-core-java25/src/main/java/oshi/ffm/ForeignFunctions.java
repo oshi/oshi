@@ -77,7 +77,7 @@ public abstract class ForeignFunctions {
     public static final StructLayout CAPTURED_STATE_LAYOUT = Linker.Option.captureStateLayout();
     protected static final VarHandle ERRNO_HANDLE = CAPTURED_STATE_LAYOUT.varHandle(PathElement.groupElement("errno"));
 
-    public static int getErrno(MemorySegment capturedState) {
-        return (int) ERRNO_HANDLE.get(capturedState, 0);
+    public static int getErrno(MemorySegment callState) {
+        return (int) ERRNO_HANDLE.get(callState, 0);
     }
 }
