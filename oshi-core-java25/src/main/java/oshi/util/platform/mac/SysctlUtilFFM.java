@@ -24,7 +24,7 @@ import oshi.ffm.mac.MacSystemFunctions;
 @ThreadSafe
 public final class SysctlUtilFFM {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SysctlUtilFFM.class);
 
     private static final String SYSCTL_FAIL = "Failed sysctl call: {}, Error code: {}";
 
@@ -54,7 +54,7 @@ public final class SysctlUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_INT);
-            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, Integer.BYTES);
+            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_INT.byteSize());
             int result = MacSystemFunctions.sysctlbyname(nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
 
             if (result != 0) {
@@ -83,7 +83,7 @@ public final class SysctlUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_LONG);
-            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, Integer.BYTES);
+            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_LONG.byteSize());
             int result = MacSystemFunctions.sysctlbyname(nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
 
             if (result != 0) {

@@ -4,11 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystem;
+import oshi.ffm.mac.MacSystemFunctions;
+import oshi.util.platform.mac.SysctlUtilFFM;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.mac.MacSystemFunctions.VM_FREE_COUNT;
 import static oshi.ffm.mac.MacSystemFunctions.VM_INACTIVE_COUNT;
 import static oshi.ffm.mac.MacSystemFunctions.VM_STATISTICS;
@@ -42,4 +45,20 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
         }
     }
 
+    @Override
+    protected long sysctl(String name, long defaultValue) {
+        return SysctlUtilFFM.sysctl(name, defaultValue);
+    }
+
+    @Override
+    protected long host_page_size() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment pageSize = arena.allocate(JAVA_LONG);
+            int result = MacSystemFunctions.host_page_size(mach_host_self(), pageSize);
+            if (result == 0) {
+                return pageSize.get(JAVA_LONG, 0);
+            }
+        }
+        return -1;
+    }
 }

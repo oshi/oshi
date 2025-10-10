@@ -174,6 +174,17 @@ public final class MacSystemFunctions extends ForeignFunctions {
         }
     }
 
+    private static final MethodHandle host_page_size = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("host_page_size"),
+        FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+
+    public static int host_page_size(int hostPort, MemorySegment pPageSize) {
+        try {
+            return (int) host_page_size.invokeExact(hostPort, pPageSize);
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
+
     private static final MethodHandle host_statistics = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("host_statistics"),
         FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS));
 
@@ -182,7 +193,6 @@ public final class MacSystemFunctions extends ForeignFunctions {
         try {
             return (int) host_statistics.invokeExact(hostPort, hostStat, stats, count);
         } catch (Throwable e) {
-            e.printStackTrace();
             return -1;
         }
     }

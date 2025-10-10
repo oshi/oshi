@@ -6,8 +6,10 @@ import com.sun.jna.platform.mac.SystemB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableLongByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.util.platform.mac.SysctlUtil;
 
 
 @ThreadSafe
@@ -28,4 +30,18 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
         }
     }
 
+    @Override
+    protected long sysctl(String name, long defaultValue) {
+        return SysctlUtil.sysctl(name, defaultValue);
+    }
+
+    @Override
+    protected long host_page_size() {
+        try (CloseableLongByReference pPageSize = new CloseableLongByReference()) {
+            if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
+                return pPageSize.getValue();
+            }
+        }
+        return -1;
+    }
 }
