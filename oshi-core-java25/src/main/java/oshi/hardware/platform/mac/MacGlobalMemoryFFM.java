@@ -12,9 +12,9 @@ import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.MacSystemFunctions.VM_FREE_COUNT;
-import static oshi.ffm.mac.MacSystemFunctions.VM_INACTIVE_COUNT;
-import static oshi.ffm.mac.MacSystemFunctions.VM_STATISTICS;
+import static oshi.ffm.mac.MacSystem.VM_FREE_COUNT;
+import static oshi.ffm.mac.MacSystem.VM_INACTIVE_COUNT;
+import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
 

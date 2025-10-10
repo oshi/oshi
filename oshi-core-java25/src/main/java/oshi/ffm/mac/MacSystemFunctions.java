@@ -4,16 +4,12 @@
  */
 package oshi.ffm.mac;
 
-import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
-import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
@@ -196,23 +192,4 @@ public final class MacSystemFunctions extends ForeignFunctions {
             return -1;
         }
     }
-
-    // VM Statistics structure for host_statistics calls
-    public static final StructLayout VM_STATISTICS = structLayout(//
-        JAVA_INT.withName("free_count"), // # of pages free
-        JAVA_INT.withName("active_count"), // # of pages active
-        JAVA_INT.withName("inactive_count"), // # of pages inactive
-        JAVA_INT.withName("wire_count"), // # of pages wired down
-        JAVA_INT.withName("zero_fill_count"), // # of zero fill pages
-        JAVA_INT.withName("reactivations"), // # of pages reactivated
-        JAVA_INT.withName("pageins"), // # of pageins
-        JAVA_INT.withName("pageouts"), // # of pageouts
-        JAVA_INT.withName("faults"), // # of faults
-        JAVA_INT.withName("cow_faults"), // # of copy-on-writes
-        JAVA_INT.withName("lookups"), // object cache lookups
-        JAVA_INT.withName("hits") // object cache hits
-    );
-    public static final PathElement VM_FREE_COUNT = groupElement("free_count");
-    public static final PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");
-
 }

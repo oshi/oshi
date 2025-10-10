@@ -329,4 +329,23 @@ public interface MacSystem {
     );
     PathElement PFI = groupElement("pfi");
     PathElement PSI = groupElement("psi");
+
+    // VM Statistics structure for host_statistics calls
+    StructLayout VM_STATISTICS = structLayout(//
+        JAVA_INT.withName("free_count"), // # of pages free
+        JAVA_INT.withName("active_count"), // # of pages active
+        JAVA_INT.withName("inactive_count"), // # of pages inactive
+        JAVA_INT.withName("wire_count"), // # of pages wired down
+        JAVA_INT.withName("zero_fill_count"), // # of zero fill pages
+        JAVA_INT.withName("reactivations"), // # of pages reactivated
+        JAVA_INT.withName("pageins"), // # of pageins
+        JAVA_INT.withName("pageouts"), // # of pageouts
+        JAVA_INT.withName("faults"), // # of faults
+        JAVA_INT.withName("cow_faults"), // # of copy-on-writes
+        JAVA_INT.withName("lookups"), // object cache lookups
+        JAVA_INT.withName("hits") // object cache hits
+    );
+    PathElement VM_FREE_COUNT = groupElement("free_count");
+    PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");
+
 }
