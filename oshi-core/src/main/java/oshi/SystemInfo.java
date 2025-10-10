@@ -12,7 +12,7 @@ import com.sun.jna.Platform;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
-import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
@@ -115,7 +115,7 @@ public class SystemInfo {
         case ANDROID:
             return new LinuxHardwareAbstractionLayer();
         case MACOS:
-            return new MacHardwareAbstractionLayer();
+            return new MacHardwareAbstractionLayerJNA();
         case SOLARIS:
             return new SolarisHardwareAbstractionLayer();
         case FREEBSD:

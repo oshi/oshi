@@ -33,7 +33,7 @@ import oshi.util.platform.mac.SysctlUtil;
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
 @ThreadSafe
-final class MacGlobalMemory extends AbstractGlobalMemory {
+class MacGlobalMemory extends AbstractGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
 

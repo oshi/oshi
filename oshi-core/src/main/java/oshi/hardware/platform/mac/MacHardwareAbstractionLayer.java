@@ -25,16 +25,11 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * MacHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public final class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
         return new MacComputerSystem();
-    }
-
-    @Override
-    public GlobalMemory createMemory() {
-        return new MacGlobalMemory();
     }
 
     @Override

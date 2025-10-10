@@ -6,7 +6,7 @@ package oshi;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
-import oshi.hardware.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
@@ -55,7 +55,7 @@ public class SystemInfoFFM {
     private static HardwareAbstractionLayer createHardware() {
         return switch (CURRENT_PLATFORM) {
             case LINUX -> new LinuxHardwareAbstractionLayer();
-            case MACOS -> new MacHardwareAbstractionLayer();
+            case MACOS -> new MacHardwareAbstractionLayerFFM();
             case WINDOWS -> new WindowsHardwareAbstractionLayer();
             default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
         };

@@ -21,19 +21,23 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import oshi.SystemInfo;
+import oshi.software.os.OperatingSystem;
 
 /**
  * Test GlobalMemory
  */
 @TestInstance(Lifecycle.PER_CLASS)
 class GlobalMemoryTest {
+
+    protected GlobalMemory createGlobalMemory() {
+        return new SystemInfo().getHardware().getMemory();
+    }
+
     private GlobalMemory memory = null;
 
     @BeforeAll
     void setUp() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        this.memory = hal.getMemory();
+        this.memory = createGlobalMemory();
     }
 
     @Test
