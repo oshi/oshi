@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
+import oshi.jna.Struct.CloseableXswUsage;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
@@ -16,6 +18,19 @@ final class MacVirtualMemoryJNA extends MacVirtualMemory {
 
     MacVirtualMemoryJNA(MacGlobalMemoryJNA macGlobalMemory) {
         super(macGlobalMemory);
+    }
+
+    @Override
+    protected Pair<Long, Long> querySwapUsage() {
+        long swapUsed = 0L;
+        long swapTotal = 0L;
+        try (CloseableXswUsage xswUsage = new CloseableXswUsage()) {
+            if (SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
+                swapUsed = xswUsage.xsu_used;
+                swapTotal = xswUsage.xsu_total;
+            }
+        }
+        return new Pair<>(swapUsed, swapTotal);
     }
 
     @Override

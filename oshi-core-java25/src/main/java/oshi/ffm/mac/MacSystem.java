@@ -14,6 +14,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.StructLayout;
 
@@ -349,5 +350,15 @@ public interface MacSystem {
     PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");
     PathElement VM_PAGEINS = groupElement("pageins");
     PathElement VM_PAGEOUTS = groupElement("pageouts");
+
+    StructLayout XSW_USAGE = MemoryLayout.structLayout(
+        JAVA_LONG.withName("xsu_total"),
+        JAVA_LONG.withName("xsu_avail"),
+        JAVA_LONG.withName("xsu_used"),
+        JAVA_INT.withName("xsu_pagesize"),
+        JAVA_INT.withName("xsu_encrypted")  // boolean padded to int
+    );
+    PathElement XSW_USAGE_USED = groupElement("xsu_used");
+    PathElement XSW_USAGE_TOTAL = groupElement("xsu_total");
 
 }

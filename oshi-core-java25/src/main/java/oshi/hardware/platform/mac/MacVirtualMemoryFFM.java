@@ -5,15 +5,19 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystem;
 import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtilFFM;
 import oshi.util.tuples.Pair;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
+import static oshi.ffm.mac.MacSystem.XSW_USAGE_TOTAL;
+import static oshi.ffm.mac.MacSystem.XSW_USAGE_USED;
 import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
 
@@ -23,6 +27,20 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
 
     MacVirtualMemoryFFM(MacGlobalMemoryFFM macGlobalMemory) {
         super(macGlobalMemory);
+    }
+
+    @Override
+    protected Pair<Long, Long> querySwapUsage() {
+        long swapUsed = 0L;
+        long swapTotal = 0L;
+        try (Arena arena = Arena.ofConfined()) {
+            var xswUsage = arena.allocate(MacSystem.XSW_USAGE);
+            if (SysctlUtilFFM.sysctl("vm.swapusage", xswUsage)) {
+                swapUsed = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_USED));
+                swapTotal = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_TOTAL));
+            }
+        }
+        return new Pair<>(swapUsed, swapTotal);
     }
 
     @Override

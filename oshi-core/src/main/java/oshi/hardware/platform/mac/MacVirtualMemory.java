@@ -11,8 +11,6 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
-import oshi.jna.Struct.CloseableXswUsage;
-import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -23,7 +21,7 @@ abstract class MacVirtualMemory extends AbstractVirtualMemory {
 
     private final MacGlobalMemory global;
 
-    private final Supplier<Pair<Long, Long>> usedTotal = memoize(MacVirtualMemory::querySwapUsage, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> usedTotal = memoize(this::querySwapUsage, defaultExpiration());
 
     private final Supplier<Pair<Long, Long>> inOut = memoize(this::queryVmStat, defaultExpiration());
 
@@ -66,17 +64,7 @@ abstract class MacVirtualMemory extends AbstractVirtualMemory {
         return inOut.get().getB();
     }
 
-    private static Pair<Long, Long> querySwapUsage() {
-        long swapUsed = 0L;
-        long swapTotal = 0L;
-        try (CloseableXswUsage xswUsage = new CloseableXswUsage()) {
-            if (SysctlUtil.sysctl("vm.swapusage", xswUsage)) {
-                swapUsed = xswUsage.xsu_used;
-                swapTotal = xswUsage.xsu_total;
-            }
-        }
-        return new Pair<>(swapUsed, swapTotal);
-    }
+    protected abstract Pair<Long, Long> querySwapUsage();
 
     protected abstract Pair<Long, Long> queryVmStat();
 }
