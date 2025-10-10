@@ -347,5 +347,7 @@ public interface MacSystem {
     );
     PathElement VM_FREE_COUNT = groupElement("free_count");
     PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");
+    PathElement VM_PAGEINS = groupElement("pageins");
+    PathElement VM_PAGEOUTS = groupElement("pageouts");
 
 }
