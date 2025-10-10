@@ -28,7 +28,7 @@ import oshi.util.tuples.Pair;
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
 @ThreadSafe
-final class MacVirtualMemory extends AbstractVirtualMemory {
+class MacVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacVirtualMemory.class);
 

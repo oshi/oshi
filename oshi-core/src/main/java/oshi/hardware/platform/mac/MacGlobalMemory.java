@@ -136,7 +136,5 @@ abstract class MacGlobalMemory extends AbstractGlobalMemory {
 
     protected abstract long host_page_size();
 
-    private VirtualMemory createVirtualMemory() {
-        return new MacVirtualMemory(this);
-    }
+    protected abstract VirtualMemory createVirtualMemory();
 }

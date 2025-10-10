@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystem;
 import oshi.ffm.mac.MacSystemFunctions;
+import oshi.hardware.VirtualMemory;
 import oshi.util.platform.mac.SysctlUtilFFM;
 
 import java.lang.foreign.Arena;
@@ -60,5 +61,10 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
             }
         }
         return -1;
+    }
+
+    @Override
+    protected VirtualMemory createVirtualMemory() {
+        return new MacVirtualMemoryFFM(this);
     }
 }

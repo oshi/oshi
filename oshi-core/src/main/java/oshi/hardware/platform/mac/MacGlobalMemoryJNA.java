@@ -6,6 +6,7 @@ import com.sun.jna.platform.mac.SystemB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.VirtualMemory;
 import oshi.jna.ByRef.CloseableLongByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.jna.ByRef.CloseableIntByReference;
@@ -44,4 +45,9 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
         }
         return -1;
     }
+
+    protected VirtualMemory createVirtualMemory() {
+        return new MacVirtualMemoryJNA(this);
+    }
+
 }
