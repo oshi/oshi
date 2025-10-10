@@ -100,22 +100,28 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctl = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("sysctl"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+    private static final MethodHandle sysctl = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("sysctl"),
+        FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T),
+        CAPTURE_CALL_STATE
+    );
 
-    public static int sysctl(MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
-            MemorySegment newp, long newlen) throws Throwable {
-        return (int) sysctl.invokeExact(name, namelen, oldp, oldlenp, newp, newlen);
+    public static int sysctl(MemorySegment callState, MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
+                             MemorySegment newp, long newlen) throws Throwable {
+        return (int) sysctl.invokeExact(callState, name, namelen, oldp, oldlenp, newp, newlen);
     }
 
     // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("sysctlbyname"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("sysctlbyname"),
+        FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T),
+        CAPTURE_CALL_STATE
+    );
 
-    public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
+    public static int sysctlbyname(MemorySegment callState, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
             long newlen) throws Throwable {
-        return (int) sysctlbyname.invokeExact(name, oldp, oldlenp, newp, newlen);
+        return (int) sysctlbyname.invokeExact(callState, name, oldp, oldlenp, newp, newlen);
     }
 
     // int getrlimit(int resource, struct rlimit *rlp);
