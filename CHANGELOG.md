@@ -6,6 +6,7 @@
 
 ##### Bug fixes / Improvements
 * [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#3006](https://github.com/oshi/oshi/pull/3006): Remove animal-sniffer-maven-plugin - [@arun-misra](https://github.com/arun-misra).
 
 # 6.9.0 (2025-09-18)
 
