@@ -31,23 +31,15 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
         try (Arena arena = Arena.ofConfined()) {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
-            MemorySegment count = arena.allocate(JAVA_INT);
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+            if (MacMemoryUtil.callVmStat(arena, vmStats)) {
+                // Read free_count and inactive_count from the structure
+                int freeCount = vmStats.get(JAVA_INT, VM_STATISTICS.byteOffset(VM_FREE_COUNT));
+                int inactiveCount = vmStats.get(JAVA_INT, VM_STATISTICS.byteOffset(VM_INACTIVE_COUNT));
 
-            // Set the count to the size of the VM statistics structure in integers
-            count.set(JAVA_INT, 0, (int) (VM_STATISTICS.byteSize() / JAVA_INT.byteSize()));
-
-            int result = host_statistics(callState, mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
-            if (result != 0) {
-                LOG.error("Failed to get host VM info. Error code: {}", getErrno(callState));
-                return 0L;
+                return (freeCount + inactiveCount) * getPageSize();
             }
-            // Read free_count and inactive_count from the structure
-            int freeCount = vmStats.get(JAVA_INT, VM_STATISTICS.byteOffset(VM_FREE_COUNT));
-            int inactiveCount = vmStats.get(JAVA_INT, VM_STATISTICS.byteOffset(VM_INACTIVE_COUNT));
-
-            return (freeCount + inactiveCount) * getPageSize();
         }
+        return 0L;
     }
 
     @Override

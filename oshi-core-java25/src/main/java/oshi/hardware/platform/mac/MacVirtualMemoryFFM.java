@@ -45,24 +45,15 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
 
     @Override
     protected Pair<Long, Long> queryVmStat() {
-        long swapPagesIn = 0L;
-        long swapPagesOut = 0L;
         try (Arena arena = Arena.ofConfined()) {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
-            MemorySegment count = arena.allocate(JAVA_INT);
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            // Set the count to the size of the VM statistics structure in integers
-            count.set(JAVA_INT, 0, (int) (VM_STATISTICS.byteSize() / JAVA_INT.byteSize()));
-
-            int result = host_statistics(callState, mach_host_self(), MacSystem.HOST_VM_INFO, vmStats, count);
-            if (result != 0) {
-                LOG.error("Failed to get host VM info. Error code: {}", getErrno(callState));
-            } else {
-                swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
-                swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
+            if (MacMemoryUtil.callVmStat(arena, vmStats)) {
+                long swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
+                long swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
+                return new Pair<>(swapPagesIn, swapPagesOut);
             }
+            return new Pair<>(0L, 0L);
         }
-        return new Pair<>(swapPagesIn, swapPagesOut);
     }
 }
