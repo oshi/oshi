@@ -100,22 +100,28 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctl = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("sysctl"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+    private static final MethodHandle sysctl = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("sysctl"),
+        FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T),
+        CAPTURE_CALL_STATE
+    );
 
-    public static int sysctl(MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
-            MemorySegment newp, long newlen) throws Throwable {
-        return (int) sysctl.invokeExact(name, namelen, oldp, oldlenp, newp, newlen);
+    public static int sysctl(MemorySegment callState, MemorySegment name, int namelen, MemorySegment oldp, MemorySegment oldlenp,
+                             MemorySegment newp, long newlen) throws Throwable {
+        return (int) sysctl.invokeExact(callState, name, namelen, oldp, oldlenp, newp, newlen);
     }
 
     // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 
-    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("sysctlbyname"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T));
+    private static final MethodHandle sysctlbyname = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("sysctlbyname"),
+        FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS, SIZE_T),
+        CAPTURE_CALL_STATE
+    );
 
-    public static int sysctlbyname(MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
+    public static int sysctlbyname(MemorySegment callState, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp, MemorySegment newp,
             long newlen) throws Throwable {
-        return (int) sysctlbyname.invokeExact(name, oldp, oldlenp, newp, newlen);
+        return (int) sysctlbyname.invokeExact(callState, name, oldp, oldlenp, newp, newlen);
     }
 
     // int getrlimit(int resource, struct rlimit *rlp);
@@ -153,6 +159,44 @@ public final class MacSystemFunctions extends ForeignFunctions {
     public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) {
         try {
             return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
+
+    private static final MethodHandle mach_host_self_handle = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("mach_host_self"),
+        FunctionDescriptor.of(JAVA_INT));
+
+
+    public static int mach_host_self() {
+        try {
+            return (int) mach_host_self_handle.invokeExact();
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
+
+    private static final MethodHandle host_page_size = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("host_page_size"),
+        FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+
+    public static int host_page_size(int hostPort, MemorySegment pPageSize) {
+        try {
+            return (int) host_page_size.invokeExact(hostPort, pPageSize);
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
+
+    private static final MethodHandle host_statistics = LINKER.downcallHandle(
+        SYSTEM_LIBRARY.findOrThrow("host_statistics"),
+        FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS),
+        CAPTURE_CALL_STATE
+    );
+
+
+    public static int host_statistics(MemorySegment callState, int hostPort, int hostStat, MemorySegment stats, MemorySegment count) {
+        try {
+            return (int) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
         } catch (Throwable e) {
             return -1;
         }
