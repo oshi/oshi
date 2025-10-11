@@ -57,13 +57,7 @@ public final class SysctlUtilFFM {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_INT);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_INT.byteSize());
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
-
-            if (result != 0) {
-                if (logWarning) {
-                    LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
-                }
+            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, logWarning)) {
                 return def;
             }
             return valueSeg.get(JAVA_INT, 0);
@@ -87,11 +81,7 @@ public final class SysctlUtilFFM {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_LONG);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_LONG.byteSize());
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
-
-            if (result != 0) {
-                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
+            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, true)) {
                 return def;
             }
             return valueSeg.get(JAVA_LONG, 0);
@@ -124,22 +114,12 @@ public final class SysctlUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocate(SIZE_T);
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, MemorySegment.NULL, sizeSeg, MemorySegment.NULL, 0L);
-            if (result != 0) {
-                if (logWarning) {
-                    LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
-                }
+            if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg, logWarning)) {
                 return def;
             }
             long size = sizeSeg.get(SIZE_T, 0);
             MemorySegment valueSeg = arena.allocate(size + 1); // +1 for null terminator
-            result = MacSystemFunctions.sysctlbyname(callState, nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
-
-            if (result != 0) {
-                if (logWarning) {
-                    LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
-                }
+            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, logWarning)) {
                 return def;
             }
             return valueSeg.getString(0);
@@ -162,14 +142,7 @@ public final class SysctlUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, struct.byteSize());
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, struct, sizeSeg, MemorySegment.NULL, 0L);
-
-            if (result != 0) {
-                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
-                return false;
-            }
-            return true;
+            return sysctlbyname(arena, nameSeg, struct, sizeSeg, true);
         } catch (Throwable e) {
             LOG.warn("Failed to get sysctl value for {}", name, e);
             return false;
@@ -187,18 +160,12 @@ public final class SysctlUtilFFM {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocate(SIZE_T);
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, MemorySegment.NULL, sizeSeg, MemorySegment.NULL, 0L);
-            if (result != 0) {
-                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
+            if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg, true)) {
                 return null;
             }
             long size = sizeSeg.get(SIZE_T, 0);
             MemorySegment valueSeg = arena.allocate(size);
-            result = MacSystemFunctions.sysctlbyname(callState, nameSeg, valueSeg, sizeSeg, MemorySegment.NULL, 0L);
-
-            if (result != 0) {
-                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
+            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, true)) {
                 return null;
             }
             // Need to copy to a segment that will be released on GC
@@ -209,6 +176,24 @@ public final class SysctlUtilFFM {
             LOG.warn("Failed to get sysctl value for {}", name, e);
             return null;
         }
+    }
+
+    private static boolean sysctlbyname(
+        Arena arena,
+        MemorySegment name,
+        MemorySegment oldp,
+        MemorySegment oldlenp,
+        boolean logWarning
+    ) throws Throwable {
+        MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+        var result = MacSystemFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
+        if (result != 0) {
+            if (logWarning) {
+                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
