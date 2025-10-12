@@ -30,7 +30,7 @@ final class MacMemoryUtil {
      *
      * @return {@code true} when the call succeeded, {@code false} otherwise.
      */
-    static boolean callVmStat(Arena arena, MemorySegment vmStats) {
+    static boolean callVmStat(Arena arena, MemorySegment vmStats) throws Throwable {
         MemorySegment count = arena.allocate(JAVA_INT);
         MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
         // Set the count to the size of the VM statistics structure in integers

@@ -151,34 +151,22 @@ public final class MacSystemFunctions extends ForeignFunctions {
     private static final MethodHandle getfsstat64 = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("getfsstat64"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT));
 
-    public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) {
-        try {
-            return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
-        } catch (Throwable e) {
-            return -1;
-        }
+    public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) throws Throwable {
+        return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
     }
 
     private static final MethodHandle mach_host_self_handle = LINKER
             .downcallHandle(SYSTEM_LIBRARY.findOrThrow("mach_host_self"), FunctionDescriptor.of(JAVA_INT));
 
-    public static int mach_host_self() {
-        try {
-            return (int) mach_host_self_handle.invokeExact();
-        } catch (Throwable e) {
-            return -1;
-        }
+    public static int mach_host_self() throws Throwable {
+        return (int) mach_host_self_handle.invokeExact();
     }
 
     private static final MethodHandle host_page_size = LINKER.downcallHandle(
             SYSTEM_LIBRARY.findOrThrow("host_page_size"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static int host_page_size(int hostPort, MemorySegment pPageSize) {
-        try {
-            return (int) host_page_size.invokeExact(hostPort, pPageSize);
-        } catch (Throwable e) {
-            return -1;
-        }
+    public static int host_page_size(int hostPort, MemorySegment pPageSize) throws Throwable {
+        return (int) host_page_size.invokeExact(hostPort, pPageSize);
     }
 
     private static final MethodHandle host_statistics = LINKER.downcallHandle(
@@ -186,11 +174,7 @@ public final class MacSystemFunctions extends ForeignFunctions {
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
 
     public static int host_statistics(MemorySegment callState, int hostPort, int hostStat, MemorySegment stats,
-            MemorySegment count) {
-        try {
-            return (int) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
-        } catch (Throwable e) {
-            return -1;
-        }
+            MemorySegment count) throws Throwable {
+        return (int) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
     }
 }

@@ -55,7 +55,9 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
                         vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
                 return new Pair<>(swapPagesIn, swapPagesOut);
             }
-            return new Pair<>(0L, 0L);
+        } catch (Throwable e) {
+            // Ignored
         }
+        return new Pair<>(0L, 0L);
     }
 }

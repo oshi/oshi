@@ -38,6 +38,8 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
 
                 return (freeCount + inactiveCount) * getPageSize();
             }
+        } catch (Throwable e) {
+            // Ignore
         }
         return 0L;
     }
@@ -55,6 +57,8 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
             if (result == 0) {
                 return pageSize.get(JAVA_LONG, 0);
             }
+        } catch (Throwable t) {
+            // IGNORED
         }
         return -1;
     }
