@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 The OSHI Project Contributors
+ * Copyright 2019-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -225,20 +225,20 @@ public final class PerfCounterWildcardQuery {
                     List<Long> values = new ArrayList<>();
                     for (int i = 0; i < result.getResultCount(); i++) {
                         switch (result.getCIMType(prop)) {
-                        case Wbemcli.CIM_UINT16:
-                            values.add((long) WmiUtil.getUint16(result, prop, i));
-                            break;
-                        case Wbemcli.CIM_UINT32:
-                            values.add(WmiUtil.getUint32asLong(result, prop, i));
-                            break;
-                        case Wbemcli.CIM_UINT64:
-                            values.add(WmiUtil.getUint64(result, prop, i));
-                            break;
-                        case Wbemcli.CIM_DATETIME:
-                            values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
-                            break;
-                        default:
-                            throw new ClassCastException("Unimplemented CIM Type Mapping.");
+                            case Wbemcli.CIM_UINT16:
+                                values.add((long) WmiUtil.getUint16(result, prop, i));
+                                break;
+                            case Wbemcli.CIM_UINT32:
+                                values.add(WmiUtil.getUint32asLong(result, prop, i));
+                                break;
+                            case Wbemcli.CIM_UINT64:
+                                values.add(WmiUtil.getUint64(result, prop, i));
+                                break;
+                            case Wbemcli.CIM_DATETIME:
+                                values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
+                                break;
+                            default:
+                                throw new ClassCastException("Unimplemented CIM Type Mapping.");
                         }
                     }
                     valuesMap.put(prop, values);

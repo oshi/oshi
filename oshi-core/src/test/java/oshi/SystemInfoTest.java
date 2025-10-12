@@ -60,7 +60,7 @@ import oshi.util.Util;
 /**
  * A demonstration of access to many of OSHI's capabilities
  */
-@EnabledForJreRange(max = JRE.JAVA_23)
+@EnabledForJreRange(max = JRE.JAVA_25)
 public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);

@@ -32,7 +32,7 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
     /**
      * Validates a Windows API return code, allowing {@code ERROR_SUCCESS} or specified codes.
      *
-     * @param rc return code from a Windows API call
+     * @param rc            return code from a Windows API call
      * @param allowedErrors optional additional codes
      * @return the original code if valid
      * @throws Win32Exception if not successful
@@ -50,8 +50,7 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
     }
 
     /**
-     * Converts a Windows BOOL (0 or non-zero) to a Java boolean.
-     * In Windows API, 0 means FALSE and non-zero means TRUE.
+     * Converts a Windows BOOL (0 or non-zero) to a Java boolean. In Windows API, 0 means FALSE and non-zero means TRUE.
      *
      * @param winBool the BOOL value returned by a Windows API
      * @return {@code true} if non-zero, {@code false} if zero
@@ -80,7 +79,7 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
     /**
      * Reads a null-terminated ANSI (single-byte) string from the given memory segment.
      *
-     * @param seg the memory segment containing the ANSI string
+     * @param seg    the memory segment containing the ANSI string
      * @param maxLen the maximum number of bytes to read
      * @return the decoded Java string
      */
@@ -95,12 +94,11 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
         return sb.toString();
     }
 
-
     /**
      * Creates and initializes a {@code TOKEN_PRIVILEGES} structure with one privilege enabled.
      *
      * @param arena the memory arena used for allocation
-     * @param luid the LUID of the privilege to enable
+     * @param luid  the LUID of the privilege to enable
      * @return a memory segment containing the initialized {@code TOKEN_PRIVILEGES} structure
      */
     public static MemorySegment setupTokenPrivileges(Arena arena, MemorySegment luid) {
@@ -120,7 +118,7 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
      * Converts a Java string into a null-terminated UTF-16LE wide string memory segment.
      *
      * @param arena the memory arena used for allocation
-     * @param s the Java string to convert
+     * @param s     the Java string to convert
      * @return a memory segment containing the UTF-16LE encoded string with a null terminator
      */
     public static MemorySegment toWideString(Arena arena, String s) {

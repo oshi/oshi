@@ -909,20 +909,20 @@ public final class ParseUtil {
         double number = ParseUtil.parseDoubleOrDefault(mem[0], 0L);
         if (mem.length == 2 && mem[1] != null && !mem[1].isEmpty()) {
             switch (mem[1].charAt(0)) {
-            case 'T':
-                number *= 1_000_000_000_000L;
-                break;
-            case 'G':
-                number *= 1_000_000_000L;
-                break;
-            case 'M':
-                number *= 1_000_000L;
-                break;
-            case 'K':
-            case 'k':
-                number *= 1_000L;
-                break;
-            default:
+                case 'T':
+                    number *= 1_000_000_000_000L;
+                    break;
+                case 'G':
+                    number *= 1_000_000_000L;
+                    break;
+                case 'M':
+                    number *= 1_000_000L;
+                    break;
+                case 'K':
+                case 'k':
+                    number *= 1_000L;
+                    break;
+                default:
             }
         }
         return (long) number;
@@ -949,21 +949,21 @@ public final class ParseUtil {
         long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
         if (mem.length == 2 && mem[1].length() > 1) {
             switch (mem[1].charAt(0)) {
-            case 'T':
-                capacity <<= 40;
-                break;
-            case 'G':
-                capacity <<= 30;
-                break;
-            case 'M':
-                capacity <<= 20;
-                break;
-            case 'K':
-            case 'k':
-                capacity <<= 10;
-                break;
-            default:
-                break;
+                case 'T':
+                    capacity <<= 40;
+                    break;
+                case 'G':
+                    capacity <<= 30;
+                    break;
+                case 'M':
+                    capacity <<= 20;
+                    break;
+                case 'K':
+                case 'k':
+                    capacity <<= 10;
+                    break;
+                default:
+                    break;
             }
         }
         return capacity;

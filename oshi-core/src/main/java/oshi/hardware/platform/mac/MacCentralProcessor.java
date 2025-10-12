@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -91,15 +91,15 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
                 type = ARM_CPUTYPE;
                 int mSeries = ParseUtil.getFirstIntValue(cpuName);
                 switch (mSeries) {
-                case 2:
-                    family = M2_CPUFAMILY;
-                    break;
-                case 3:
-                    family = M3_CPUFAMILY;
-                    break;
-                default:
-                    // Some M1 did not brand as such
-                    family = M1_CPUFAMILY;
+                    case 2:
+                        family = M2_CPUFAMILY;
+                        break;
+                    case 3:
+                        family = M3_CPUFAMILY;
+                        break;
+                    default:
+                        // Some M1 did not brand as such
+                        family = M1_CPUFAMILY;
                 }
             } else {
                 type = SysctlUtil.sysctl("hw.cputype", 0);

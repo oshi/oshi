@@ -481,24 +481,24 @@ public final class ProcessStat {
     public static OSProcess.State getState(char stateValue) {
         OSProcess.State state;
         switch (stateValue) {
-        case 'R':
-            state = RUNNING;
-            break;
-        case 'S':
-            state = SLEEPING;
-            break;
-        case 'D':
-            state = WAITING;
-            break;
-        case 'Z':
-            state = ZOMBIE;
-            break;
-        case 'T':
-            state = STOPPED;
-            break;
-        default:
-            state = OTHER;
-            break;
+            case 'R':
+                state = RUNNING;
+                break;
+            case 'S':
+                state = SLEEPING;
+                break;
+            case 'D':
+                state = WAITING;
+                break;
+            case 'Z':
+                state = ZOMBIE;
+                break;
+            case 'T':
+                state = STOPPED;
+                break;
+            default:
+                state = OTHER;
+                break;
         }
         return state;
     }

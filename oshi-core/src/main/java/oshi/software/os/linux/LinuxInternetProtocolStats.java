@@ -111,24 +111,24 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
             if (lines.get(line).startsWith(udp6)) {
                 String[] parts = lines.get(line).split("\\s+");
                 switch (parts[0]) {
-                case "Udp6InDatagrams":
-                    inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
-                    foundUDPv6StatsCount++;
-                    break;
-                case "Udp6NoPorts":
-                    noPorts = ParseUtil.parseLongOrDefault(parts[1], 0L);
-                    foundUDPv6StatsCount++;
-                    break;
-                case "Udp6InErrors":
-                    inErrors = ParseUtil.parseLongOrDefault(parts[1], 0L);
-                    foundUDPv6StatsCount++;
-                    break;
-                case "Udp6OutDatagrams":
-                    outDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
-                    foundUDPv6StatsCount++;
-                    break;
-                default:
-                    break;
+                    case "Udp6InDatagrams":
+                        inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                        foundUDPv6StatsCount++;
+                        break;
+                    case "Udp6NoPorts":
+                        noPorts = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                        foundUDPv6StatsCount++;
+                        break;
+                    case "Udp6InErrors":
+                        inErrors = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                        foundUDPv6StatsCount++;
+                        break;
+                    case "Udp6OutDatagrams":
+                        outDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
+                        foundUDPv6StatsCount++;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -197,31 +197,31 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private static TcpState stateLookup(int state) {
         switch (state) {
-        case 0x01:
-            return ESTABLISHED;
-        case 0x02:
-            return SYN_SENT;
-        case 0x03:
-            return SYN_RECV;
-        case 0x04:
-            return FIN_WAIT_1;
-        case 0x05:
-            return FIN_WAIT_2;
-        case 0x06:
-            return TIME_WAIT;
-        case 0x07:
-            return CLOSED;
-        case 0x08:
-            return CLOSE_WAIT;
-        case 0x09:
-            return LAST_ACK;
-        case 0x0A:
-            return LISTEN;
-        case 0x0B:
-            return CLOSING;
-        case 0x00:
-        default:
-            return UNKNOWN;
+            case 0x01:
+                return ESTABLISHED;
+            case 0x02:
+                return SYN_SENT;
+            case 0x03:
+                return SYN_RECV;
+            case 0x04:
+                return FIN_WAIT_1;
+            case 0x05:
+                return FIN_WAIT_2;
+            case 0x06:
+                return TIME_WAIT;
+            case 0x07:
+                return CLOSED;
+            case 0x08:
+                return CLOSE_WAIT;
+            case 0x09:
+                return LAST_ACK;
+            case 0x0A:
+                return LISTEN;
+            case 0x0B:
+                return CLOSING;
+            case 0x00:
+            default:
+                return UNKNOWN;
         }
     }
 }

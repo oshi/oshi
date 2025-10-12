@@ -483,13 +483,13 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             // Get Process state based on status
             int status = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_STATUS));
             this.state = switch (status) {
-            case SSLEEP -> SLEEPING;
-            case SWAIT -> WAITING;
-            case SRUN -> RUNNING;
-            case SIDL -> NEW;
-            case SZOMB -> ZOMBIE;
-            case SSTOP -> STOPPED;
-            default -> OTHER;
+                case SSLEEP -> SLEEPING;
+                case SWAIT -> WAITING;
+                case SRUN -> RUNNING;
+                case SIDL -> NEW;
+                case SZOMB -> ZOMBIE;
+                case SSTOP -> STOPPED;
+                default -> OTHER;
             };
 
             // User and group info

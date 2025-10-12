@@ -47,7 +47,7 @@ import oshi.software.os.OperatingSystem.ProcessSorting;
 /**
  * Test OS
  */
-@EnabledForJreRange(max = JRE.JAVA_23)
+@EnabledForJreRange(max = JRE.JAVA_25)
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemTest {
 
@@ -400,14 +400,14 @@ class OperatingSystemTest {
             for (OSService svc : services) {
                 assertThat(svc.getName(), is(not(emptyString())));
                 switch (svc.getState()) {
-                case STOPPED:
-                    stopped++;
-                    break;
-                case RUNNING:
-                    running++;
-                    break;
-                default:
-                    break;
+                    case STOPPED:
+                        stopped++;
+                        break;
+                    case RUNNING:
+                        running++;
+                        break;
+                    default:
+                        break;
                 }
             }
             // Should be at least one of each

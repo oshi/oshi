@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -219,21 +219,21 @@ public final class LinuxNetworkIF extends AbstractNetworkIF {
 
     private static IfOperStatus parseIfOperStatus(String operState) {
         switch (operState) {
-        case "up":
-            return IfOperStatus.UP;
-        case "down":
-            return IfOperStatus.DOWN;
-        case "testing":
-            return IfOperStatus.TESTING;
-        case "dormant":
-            return IfOperStatus.DORMANT;
-        case "notpresent":
-            return IfOperStatus.NOT_PRESENT;
-        case "lowerlayerdown":
-            return IfOperStatus.LOWER_LAYER_DOWN;
-        case "unknown":
-        default:
-            return IfOperStatus.UNKNOWN;
+            case "up":
+                return IfOperStatus.UP;
+            case "down":
+                return IfOperStatus.DOWN;
+            case "testing":
+                return IfOperStatus.TESTING;
+            case "dormant":
+                return IfOperStatus.DORMANT;
+            case "notpresent":
+                return IfOperStatus.NOT_PRESENT;
+            case "lowerlayerdown":
+                return IfOperStatus.LOWER_LAYER_DOWN;
+            case "unknown":
+            default:
+                return IfOperStatus.UNKNOWN;
         }
     }
 }

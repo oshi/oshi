@@ -266,31 +266,31 @@ public final class EdidUtil {
         byte[][] desc = EdidUtil.getDescriptors(edid);
         for (byte[] b : desc) {
             switch (EdidUtil.getDescriptorType(b)) {
-            case 0xff:
-                sb.append("\n  Serial Number: ").append(EdidUtil.getDescriptorText(b));
-                break;
-            case 0xfe:
-                sb.append("\n  Unspecified Text: ").append(EdidUtil.getDescriptorText(b));
-                break;
-            case 0xfd:
-                sb.append("\n  Range Limits: ").append(EdidUtil.getDescriptorRangeLimits(b));
-                break;
-            case 0xfc:
-                sb.append("\n  Monitor Name: ").append(EdidUtil.getDescriptorText(b));
-                break;
-            case 0xfb:
-                sb.append("\n  White Point Data: ").append(ParseUtil.byteArrayToHexString(b));
-                break;
-            case 0xfa:
-                sb.append("\n  Standard Timing ID: ").append(ParseUtil.byteArrayToHexString(b));
-                break;
-            default:
-                if (EdidUtil.getDescriptorType(b) <= 0x0f && EdidUtil.getDescriptorType(b) >= 0x00) {
-                    sb.append("\n  Manufacturer Data: ").append(ParseUtil.byteArrayToHexString(b));
-                } else {
-                    sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(b));
-                }
-                break;
+                case 0xff:
+                    sb.append("\n  Serial Number: ").append(EdidUtil.getDescriptorText(b));
+                    break;
+                case 0xfe:
+                    sb.append("\n  Unspecified Text: ").append(EdidUtil.getDescriptorText(b));
+                    break;
+                case 0xfd:
+                    sb.append("\n  Range Limits: ").append(EdidUtil.getDescriptorRangeLimits(b));
+                    break;
+                case 0xfc:
+                    sb.append("\n  Monitor Name: ").append(EdidUtil.getDescriptorText(b));
+                    break;
+                case 0xfb:
+                    sb.append("\n  White Point Data: ").append(ParseUtil.byteArrayToHexString(b));
+                    break;
+                case 0xfa:
+                    sb.append("\n  Standard Timing ID: ").append(ParseUtil.byteArrayToHexString(b));
+                    break;
+                default:
+                    if (EdidUtil.getDescriptorType(b) <= 0x0f && EdidUtil.getDescriptorType(b) >= 0x00) {
+                        sb.append("\n  Manufacturer Data: ").append(ParseUtil.byteArrayToHexString(b));
+                    } else {
+                        sb.append("\n  Preferred Timing: ").append(EdidUtil.getTimingDescriptor(b));
+                    }
+                    break;
             }
         }
         return sb.toString();

@@ -75,8 +75,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
             final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-            boolean success = isSuccess((int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer,
-                    sizeSegment));
+            boolean success = isSuccess(
+                    (int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, sizeSegment));
             if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
                 LOG.error("Failed to get DNS domain name. Error code: {}", errorCode);

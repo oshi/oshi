@@ -53,33 +53,33 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                 String[] split = line.trim().split(":");
                 if (split.length == 2) {
                     switch (split[0]) {
-                    case "Bank Locator":
-                        bankLabel = split[1].trim();
-                        break;
-                    case "Locator":
-                        locator = "/" + split[1].trim();
-                        break;
-                    case "Size":
-                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
-                        break;
-                    case "Type":
-                        memoryType = split[1].trim();
-                        break;
-                    case "Speed":
-                        speed = ParseUtil.parseSpeed(split[1]);
-                        break;
-                    case "Manufacturer":
-                        manufacturer = split[1].trim();
-                        break;
-                    case "PartNumber":
-                    case "Part Number":
-                        partNumber = split[1].trim();
-                        break;
-                    case "Serial Number":
-                        serialNumber = split[1].trim();
-                        break;
-                    default:
-                        break;
+                        case "Bank Locator":
+                            bankLabel = split[1].trim();
+                            break;
+                        case "Locator":
+                            locator = "/" + split[1].trim();
+                            break;
+                        case "Size":
+                            capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
+                            break;
+                        case "Type":
+                            memoryType = split[1].trim();
+                            break;
+                        case "Speed":
+                            speed = ParseUtil.parseSpeed(split[1]);
+                            break;
+                        case "Manufacturer":
+                            manufacturer = split[1].trim();
+                            break;
+                        case "PartNumber":
+                        case "Part Number":
+                            partNumber = split[1].trim();
+                            break;
+                        case "Serial Number":
+                            serialNumber = split[1].trim();
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

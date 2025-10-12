@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The OSHI Project Contributors
+ * Copyright 2024-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.linux;

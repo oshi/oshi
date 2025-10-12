@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -19,15 +19,20 @@ import oshi.SystemInfo;
  * Test GlobalMemory
  */
 class VirtualMemoryTest {
+
+    protected VirtualMemory createVirtualMemory() {
+        SystemInfo si = new SystemInfo();
+        HardwareAbstractionLayer hal = si.getHardware();
+        GlobalMemory memory = hal.getMemory();
+        return memory.getVirtualMemory();
+    }
+
     /**
      * Test VirtualMemory.
      */
     @Test
-    void testGlobalMemory() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        GlobalMemory memory = hal.getMemory();
-        VirtualMemory vm = memory.getVirtualMemory();
+    void testVirtualMemory() {
+        VirtualMemory vm = createVirtualMemory();
         assertThat("VM object shouldn't be null", vm, is(notNullValue()));
 
         // Swap tests

@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@EnabledForJreRange(min = JRE.JAVA_24)
+@EnabledForJreRange(min = JRE.JAVA_25)
 public class SystemInfoFFMTest extends SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoFFMTest.class);
