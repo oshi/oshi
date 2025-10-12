@@ -48,7 +48,7 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
         try (Arena arena = Arena.ofConfined()) {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
-            if (MacMemoryUtil.callVmStat(arena, vmStats)) {
+            if (MacMemoryUtilFFM.callVmStat(arena, vmStats)) {
                 long swapPagesIn = ParseUtil.unsignedIntToLong(
                         vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
                 long swapPagesOut = ParseUtil.unsignedIntToLong(

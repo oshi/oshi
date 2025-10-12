@@ -18,11 +18,11 @@ import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
 
-final class MacMemoryUtil {
+final class MacMemoryUtilFFM {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacMemoryUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacMemoryUtilFFM.class);
 
-    private MacMemoryUtil() {
+    private MacMemoryUtilFFM() {
     }
 
     /**
