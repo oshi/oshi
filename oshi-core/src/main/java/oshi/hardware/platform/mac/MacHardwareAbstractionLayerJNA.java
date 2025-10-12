@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.hardware.platform.mac;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -9,6 +13,5 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     public GlobalMemory createMemory() {
         return new MacGlobalMemoryJNA();
     }
-
 
 }

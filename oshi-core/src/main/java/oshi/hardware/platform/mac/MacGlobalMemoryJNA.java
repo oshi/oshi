@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.hardware.platform.mac;
 
 import com.sun.jna.Native;
@@ -12,7 +16,6 @@ import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.platform.mac.SysctlUtil;
 
-
 @ThreadSafe
 final class MacGlobalMemoryJNA extends MacGlobalMemory {
 
@@ -21,9 +24,9 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
     @Override
     protected long queryVmStats() {
         try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
-             CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
+                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
             if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                size)) {
+                    size)) {
                 LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
                 return 0L;
             }

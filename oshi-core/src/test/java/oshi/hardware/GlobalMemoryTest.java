@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2025 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import oshi.SystemInfo;
-import oshi.software.os.OperatingSystem;
 
 /**
  * Test GlobalMemory

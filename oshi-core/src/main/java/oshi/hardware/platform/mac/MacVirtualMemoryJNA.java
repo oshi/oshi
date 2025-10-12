@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.hardware.platform.mac;
 
 import com.sun.jna.Native;
@@ -38,9 +42,9 @@ final class MacVirtualMemoryJNA extends MacVirtualMemory {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
         try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
-             CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
+                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
             if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                size)) {
+                    size)) {
                 swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
                 swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
             } else {

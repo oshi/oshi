@@ -24,10 +24,10 @@ public class SystemInfoFFM {
     static {
         String osName = System.getProperty("os.name");
         CURRENT_PLATFORM = switch (osName) {
-            case String name when name.startsWith("Linux") -> PlatformEnumFFM.LINUX;
-            case String name when name.startsWith("Mac") || name.startsWith("Darwin") -> PlatformEnumFFM.MACOS;
-            case String name when name.startsWith("Windows") -> PlatformEnumFFM.WINDOWS;
-            default -> PlatformEnumFFM.UNSUPPORTED;
+        case String name when name.startsWith("Linux") -> PlatformEnumFFM.LINUX;
+        case String name when name.startsWith("Mac") || name.startsWith("Darwin") -> PlatformEnumFFM.MACOS;
+        case String name when name.startsWith("Windows") -> PlatformEnumFFM.WINDOWS;
+        default -> PlatformEnumFFM.UNSUPPORTED;
         };
     }
 
@@ -45,19 +45,19 @@ public class SystemInfoFFM {
 
     private static OperatingSystem createOperatingSystem() {
         return switch (CURRENT_PLATFORM) {
-            case LINUX -> new LinuxOperatingSystem();
-            case MACOS -> new MacOperatingSystemFFM();
-            case WINDOWS -> new WindowsOperatingSystemFFM();
-            default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
+        case LINUX -> new LinuxOperatingSystem();
+        case MACOS -> new MacOperatingSystemFFM();
+        case WINDOWS -> new WindowsOperatingSystemFFM();
+        default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
         };
     }
 
     private static HardwareAbstractionLayer createHardware() {
         return switch (CURRENT_PLATFORM) {
-            case LINUX -> new LinuxHardwareAbstractionLayer();
-            case MACOS -> new MacHardwareAbstractionLayerFFM();
-            case WINDOWS -> new WindowsHardwareAbstractionLayer();
-            default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
+        case LINUX -> new LinuxHardwareAbstractionLayer();
+        case MACOS -> new MacHardwareAbstractionLayerFFM();
+        case WINDOWS -> new WindowsHardwareAbstractionLayer();
+        default -> throw new UnsupportedOperationException(NOT_SUPPORTED);
         };
     }
 

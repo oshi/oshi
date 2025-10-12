@@ -1,9 +1,12 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.hardware.platform.mac;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystem;
 import oshi.ffm.mac.MacSystemFunctions;
 import oshi.hardware.VirtualMemory;
 import oshi.util.platform.mac.SysctlUtilFFM;
@@ -13,12 +16,9 @@ import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
-import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.mac.MacSystem.VM_FREE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_INACTIVE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
-import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
 
 @ThreadSafe

@@ -56,7 +56,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     protected final int minor;
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-        .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
+            .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     protected MacOperatingSystem(int maxproc) {
         String version = System.getProperty("os.version");
@@ -132,7 +132,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     public OSThread getCurrentThread() {
         // Get oldest thread
         return getCurrentProcess().getThreadDetails().stream().sorted(Comparator.comparingLong(OSThread::getStartTime))
-            .findFirst().orElse(new MacOSThread(getProcessId()));
+                .findFirst().orElse(new MacOSThread(getProcessId()));
     }
 
     @Override

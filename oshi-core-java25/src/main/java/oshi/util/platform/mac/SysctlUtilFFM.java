@@ -178,13 +178,8 @@ public final class SysctlUtilFFM {
         }
     }
 
-    private static boolean sysctlbyname(
-        Arena arena,
-        MemorySegment name,
-        MemorySegment oldp,
-        MemorySegment oldlenp,
-        boolean logWarning
-    ) throws Throwable {
+    private static boolean sysctlbyname(Arena arena, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp,
+            boolean logWarning) throws Throwable {
         MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
         var result = MacSystemFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
         if (result != 0) {
@@ -208,7 +203,8 @@ public final class SysctlUtilFFM {
             MemorySegment mibSeg = arena.allocateFrom(JAVA_INT, mib);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, buffer.byteSize());
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int result = MacSystemFunctions.sysctl(callState, mibSeg, mib.length, buffer, sizeSeg, MemorySegment.NULL, 0L);
+            int result = MacSystemFunctions.sysctl(callState, mibSeg, mib.length, buffer, sizeSeg, MemorySegment.NULL,
+                    0L);
 
             if (result != 0) {
                 LOG.warn(SYSCTL_FAIL, Arrays.toString(mib), getErrno(callState));

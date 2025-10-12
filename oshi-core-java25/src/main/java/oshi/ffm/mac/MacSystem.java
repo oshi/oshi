@@ -333,30 +333,30 @@ public interface MacSystem {
 
     // VM Statistics structure for host_statistics calls
     StructLayout VM_STATISTICS = structLayout(//
-        JAVA_INT.withName("free_count"), // # of pages free
-        JAVA_INT.withName("active_count"), // # of pages active
-        JAVA_INT.withName("inactive_count"), // # of pages inactive
-        JAVA_INT.withName("wire_count"), // # of pages wired down
-        JAVA_INT.withName("zero_fill_count"), // # of zero fill pages
-        JAVA_INT.withName("reactivations"), // # of pages reactivated
-        JAVA_INT.withName("pageins"), // # of pageins
-        JAVA_INT.withName("pageouts"), // # of pageouts
-        JAVA_INT.withName("faults"), // # of faults
-        JAVA_INT.withName("cow_faults"), // # of copy-on-writes
-        JAVA_INT.withName("lookups"), // object cache lookups
-        JAVA_INT.withName("hits") // object cache hits
+            JAVA_INT.withName("free_count"), // # of pages free
+            JAVA_INT.withName("active_count"), // # of pages active
+            JAVA_INT.withName("inactive_count"), // # of pages inactive
+            JAVA_INT.withName("wire_count"), // # of pages wired down
+            JAVA_INT.withName("zero_fill_count"), // # of zero fill pages
+            JAVA_INT.withName("reactivations"), // # of pages reactivated
+            JAVA_INT.withName("pageins"), // # of pageins
+            JAVA_INT.withName("pageouts"), // # of pageouts
+            JAVA_INT.withName("faults"), // # of faults
+            JAVA_INT.withName("cow_faults"), // # of copy-on-writes
+            JAVA_INT.withName("lookups"), // object cache lookups
+            JAVA_INT.withName("hits") // object cache hits
     );
     PathElement VM_FREE_COUNT = groupElement("free_count");
     PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");
     PathElement VM_PAGEINS = groupElement("pageins");
     PathElement VM_PAGEOUTS = groupElement("pageouts");
 
-    StructLayout XSW_USAGE = MemoryLayout.structLayout(
-        JAVA_LONG.withName("xsu_total"),
-        JAVA_LONG.withName("xsu_avail"),
-        JAVA_LONG.withName("xsu_used"),
-        JAVA_INT.withName("xsu_pagesize"),
-        JAVA_INT.withName("xsu_encrypted")  // boolean padded to int
+    StructLayout XSW_USAGE = MemoryLayout.structLayout(//
+            JAVA_LONG.withName("xsu_total"), // total pages
+            JAVA_LONG.withName("xsu_avail"), // available pages
+            JAVA_LONG.withName("xsu_used"), // used pages
+            JAVA_INT.withName("xsu_pagesize"), // page size
+            JAVA_INT.withName("xsu_encrypted") // boolean padded to int
     );
     PathElement XSW_USAGE_USED = groupElement("xsu_used");
     PathElement XSW_USAGE_TOTAL = groupElement("xsu_total");

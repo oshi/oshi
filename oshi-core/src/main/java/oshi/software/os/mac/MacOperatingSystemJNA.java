@@ -73,11 +73,10 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
         return new MacInternetProtocolStats(isElevated());
     }
 
-
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
-            : System.getProperty("os.name");
+                : System.getProperty("os.name");
         String codeName = parseCodeName();
         String buildNumber = SysctlUtil.sysctl("kern.osversion", "");
         return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
@@ -94,7 +93,7 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
         int[] pids = new int[this.maxProc];
         Arrays.fill(pids, -1);
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids,
-            pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
+                pids.length * SystemB.INT_SIZE) / SystemB.INT_SIZE;
         for (int i = 0; i < numberOfProcesses; i++) {
             if (pids[i] >= 0) {
                 OSProcess proc = getProcess(pids[i]);
@@ -112,7 +111,6 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
         return proc.getState().equals(OSProcess.State.INVALID) ? null : proc;
     }
 
-
     @Override
     public int getProcessId() {
         return SystemB.INSTANCE.getpid();
@@ -123,19 +121,18 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
         return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
     }
 
-
     @Override
     public int getThreadCount() {
         // Get current pids, then slightly pad in case new process starts while
         // allocating array space
         int[] pids = new int[getProcessCount() + 10];
         int numberOfProcesses = SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length)
-            / SystemB.INT_SIZE;
+                / SystemB.INT_SIZE;
         int numberOfThreads = 0;
         try (Struct.CloseableProcTaskInfo taskInfo = new Struct.CloseableProcTaskInfo()) {
             for (int i = 0; i < numberOfProcesses; i++) {
                 int exit = SystemB.INSTANCE.proc_pidinfo(pids[i], SystemB.PROC_PIDTASKINFO, 0, taskInfo,
-                    taskInfo.size());
+                        taskInfo.size());
                 if (exit != -1) {
                     numberOfThreads += taskInfo.pti_threadnum;
                 }

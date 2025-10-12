@@ -1,3 +1,7 @@
+/*
+ * Copyright 2025 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
 package oshi.hardware.platform.mac;
 
 import org.slf4j.Logger;
@@ -13,13 +17,9 @@ import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
-import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_TOTAL;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_USED;
-import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
-import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
 
 @ThreadSafe
 final class MacVirtualMemoryFFM extends MacVirtualMemory {
@@ -49,8 +49,10 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
             if (MacMemoryUtil.callVmStat(arena, vmStats)) {
-                long swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
-                long swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
+                long swapPagesIn = ParseUtil.unsignedIntToLong(
+                        vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEINS)));
+                long swapPagesOut = ParseUtil.unsignedIntToLong(
+                        vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
                 return new Pair<>(swapPagesIn, swapPagesOut);
             }
             return new Pair<>(0L, 0L);
