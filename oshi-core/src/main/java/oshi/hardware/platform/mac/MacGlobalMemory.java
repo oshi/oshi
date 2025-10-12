@@ -88,26 +88,26 @@ abstract class MacGlobalMemory extends AbstractGlobalMemory {
                 String[] split = line.trim().split(":");
                 if (split.length == 2) {
                     switch (split[0]) {
-                    case "Size":
-                        capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
-                        break;
-                    case "Type":
-                        memoryType = split[1].trim();
-                        break;
-                    case "Speed":
-                        speed = ParseUtil.parseHertz(split[1]);
-                        break;
-                    case "Manufacturer":
-                        manufacturer = split[1].trim();
-                        break;
-                    case "Part Number":
-                        partNumber = split[1].trim();
-                        break;
-                    case "Serial Number":
-                        serialNumber = split[1].trim();
-                        break;
-                    default:
-                        break;
+                        case "Size":
+                            capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
+                            break;
+                        case "Type":
+                            memoryType = split[1].trim();
+                            break;
+                        case "Speed":
+                            speed = ParseUtil.parseHertz(split[1]);
+                            break;
+                        case "Manufacturer":
+                            manufacturer = split[1].trim();
+                            break;
+                        case "Part Number":
+                            partNumber = split[1].trim();
+                            break;
+                        case "Serial Number":
+                            serialNumber = split[1].trim();
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

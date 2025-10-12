@@ -269,18 +269,18 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
 
     private static TcpState stateLookup(int state) {
         return switch (state) {
-        case 0 -> CLOSED;
-        case 1 -> LISTEN;
-        case 2 -> SYN_SENT;
-        case 3 -> SYN_RECV;
-        case 4 -> ESTABLISHED;
-        case 5 -> CLOSE_WAIT;
-        case 6 -> FIN_WAIT_1;
-        case 7 -> CLOSING;
-        case 8 -> LAST_ACK;
-        case 9 -> FIN_WAIT_2;
-        case 10 -> TIME_WAIT;
-        default -> UNKNOWN;
+            case 0 -> CLOSED;
+            case 1 -> LISTEN;
+            case 2 -> SYN_SENT;
+            case 3 -> SYN_RECV;
+            case 4 -> ESTABLISHED;
+            case 5 -> CLOSE_WAIT;
+            case 6 -> FIN_WAIT_1;
+            case 7 -> CLOSING;
+            case 8 -> LAST_ACK;
+            case 9 -> FIN_WAIT_2;
+            case 10 -> TIME_WAIT;
+            default -> UNKNOWN;
         };
     }
 

@@ -186,14 +186,14 @@ public final class InstalledAppsData {
         }
         int type = lpType.getValue();
         switch (type) {
-        case REG_SZ:
-        case REG_EXPAND_SZ:
-            return registryGetString(hKey, value, lpType, lpcbData);
-        case REG_DWORD:
-            return registryGetDword(hKey, value, lpType, lpcbData);
-        default:
-            LOG.warn("Unsupported registry data type {} for {}", type, value);
-            return null;
+            case REG_SZ:
+            case REG_EXPAND_SZ:
+                return registryGetString(hKey, value, lpType, lpcbData);
+            case REG_DWORD:
+                return registryGetDword(hKey, value, lpType, lpcbData);
+            default:
+                LOG.warn("Unsupported registry data type {} for {}", type, value);
+                return null;
         }
     }
 

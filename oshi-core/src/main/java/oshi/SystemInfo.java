@@ -78,23 +78,23 @@ public class SystemInfo {
 
     private static OperatingSystem createOperatingSystem() {
         switch (CURRENT_PLATFORM) {
-        case WINDOWS:
-            return new WindowsOperatingSystem();
-        case LINUX:
-        case ANDROID:
-            return new LinuxOperatingSystem();
-        case MACOS:
-            return new MacOperatingSystemJNA();
-        case SOLARIS:
-            return new SolarisOperatingSystem();
-        case FREEBSD:
-            return new FreeBsdOperatingSystem();
-        case AIX:
-            return new AixOperatingSystem();
-        case OPENBSD:
-            return new OpenBsdOperatingSystem();
-        default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
+            case WINDOWS:
+                return new WindowsOperatingSystem();
+            case LINUX:
+            case ANDROID:
+                return new LinuxOperatingSystem();
+            case MACOS:
+                return new MacOperatingSystemJNA();
+            case SOLARIS:
+                return new SolarisOperatingSystem();
+            case FREEBSD:
+                return new FreeBsdOperatingSystem();
+            case AIX:
+                return new AixOperatingSystem();
+            case OPENBSD:
+                return new OpenBsdOperatingSystem();
+            default:
+                throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
         }
     }
 
@@ -109,23 +109,23 @@ public class SystemInfo {
 
     private static HardwareAbstractionLayer createHardware() {
         switch (CURRENT_PLATFORM) {
-        case WINDOWS:
-            return new WindowsHardwareAbstractionLayer();
-        case LINUX:
-        case ANDROID:
-            return new LinuxHardwareAbstractionLayer();
-        case MACOS:
-            return new MacHardwareAbstractionLayerJNA();
-        case SOLARIS:
-            return new SolarisHardwareAbstractionLayer();
-        case FREEBSD:
-            return new FreeBsdHardwareAbstractionLayer();
-        case AIX:
-            return new AixHardwareAbstractionLayer();
-        case OPENBSD:
-            return new OpenBsdHardwareAbstractionLayer();
-        default:
-            throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
+            case WINDOWS:
+                return new WindowsHardwareAbstractionLayer();
+            case LINUX:
+            case ANDROID:
+                return new LinuxHardwareAbstractionLayer();
+            case MACOS:
+                return new MacHardwareAbstractionLayerJNA();
+            case SOLARIS:
+                return new SolarisHardwareAbstractionLayer();
+            case FREEBSD:
+                return new FreeBsdHardwareAbstractionLayer();
+            case AIX:
+                return new AixHardwareAbstractionLayer();
+            case OPENBSD:
+                return new OpenBsdHardwareAbstractionLayer();
+            default:
+                throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
         }
     }
 }

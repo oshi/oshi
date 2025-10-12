@@ -184,12 +184,12 @@ public final class Advapi32UtilFFM {
             int size = lpcbData.get(JAVA_INT, 0);
 
             return switch (type) {
-            case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
-            case REG_DWORD -> registryGetDword(hKey, valueName);
-            default -> {
-                LOG.warn("Unsupported registry data type " + type + " for " + valueName);
-                yield null;
-            }
+                case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
+                case REG_DWORD -> registryGetDword(hKey, valueName);
+                default -> {
+                    LOG.warn("Unsupported registry data type " + type + " for " + valueName);
+                    yield null;
+                }
             };
         }
     }

@@ -64,28 +64,28 @@ class EdidUtilTest {
             String timing = EdidUtil.getTimingDescriptor(descs[i]);
             String range = EdidUtil.getDescriptorRangeLimits(descs[i]);
             switch (i) {
-            case 0:
-                assertThat("desc 0 type", type, is(0x565E00A0));
-                assertThat("desc 0 timing", timing, is("Clock 241MHz, Active Pixels 2560x1440 "));
-                assertThat("desc 0 range", range,
-                        is("Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz"));
-                break;
-            case 1:
-                assertThat("desc 1 type", type, is(0x1A1D0080));
-                assertThat("desc 1 timing", timing, is("Clock 74MHz, Active Pixels 1280x720 "));
-                assertThat("desc 1 range", range,
-                        is("Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz"));
-                break;
-            case 2:
-                assertThat("desc 2 type", type, is(0xFF));
-                assertThat("desc 2 descriptorText", EdidUtil.getDescriptorText(descs[i]), is("C02JM2PFF2GC"));
-                assertThat("desc 2 descriptorHex", ParseUtil.byteArrayToHexString(descs[i]), is(EDID_DESC3));
-                break;
-            case 3:
-                assertThat("desc 3 type", type, is(0xFC));
-                assertThat("desc 3 descriptorText", EdidUtil.getDescriptorText(descs[i]), is("Thunderbolt"));
-                break;
-            default:
+                case 0:
+                    assertThat("desc 0 type", type, is(0x565E00A0));
+                    assertThat("desc 0 timing", timing, is("Clock 241MHz, Active Pixels 2560x1440 "));
+                    assertThat("desc 0 range", range,
+                            is("Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz"));
+                    break;
+                case 1:
+                    assertThat("desc 1 type", type, is(0x1A1D0080));
+                    assertThat("desc 1 timing", timing, is("Clock 74MHz, Active Pixels 1280x720 "));
+                    assertThat("desc 1 range", range,
+                            is("Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz"));
+                    break;
+                case 2:
+                    assertThat("desc 2 type", type, is(0xFF));
+                    assertThat("desc 2 descriptorText", EdidUtil.getDescriptorText(descs[i]), is("C02JM2PFF2GC"));
+                    assertThat("desc 2 descriptorHex", ParseUtil.byteArrayToHexString(descs[i]), is(EDID_DESC3));
+                    break;
+                case 3:
+                    assertThat("desc 3 type", type, is(0xFC));
+                    assertThat("desc 3 descriptorText", EdidUtil.getDescriptorText(descs[i]), is("Thunderbolt"));
+                    break;
+                default:
             }
         }
     }

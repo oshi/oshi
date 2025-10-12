@@ -137,20 +137,20 @@ public final class PerfCounterQuery {
         if (result.getResultCount() > 0) {
             for (T prop : propertyEnum.getEnumConstants()) {
                 switch (result.getCIMType(prop)) {
-                case Wbemcli.CIM_UINT16:
-                    valueMap.put(prop, (long) WmiUtil.getUint16(result, prop, 0));
-                    break;
-                case Wbemcli.CIM_UINT32:
-                    valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));
-                    break;
-                case Wbemcli.CIM_UINT64:
-                    valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));
-                    break;
-                case Wbemcli.CIM_DATETIME:
-                    valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());
-                    break;
-                default:
-                    throw new ClassCastException("Unimplemented CIM Type Mapping.");
+                    case Wbemcli.CIM_UINT16:
+                        valueMap.put(prop, (long) WmiUtil.getUint16(result, prop, 0));
+                        break;
+                    case Wbemcli.CIM_UINT32:
+                        valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));
+                        break;
+                    case Wbemcli.CIM_UINT64:
+                        valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));
+                        break;
+                    case Wbemcli.CIM_DATETIME:
+                        valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());
+                        break;
+                    default:
+                        throw new ClassCastException("Unimplemented CIM Type Mapping.");
                 }
             }
         }

@@ -493,15 +493,15 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             for (Winsvc.ENUM_SERVICE_STATUS_PROCESS service : services) {
                 State state;
                 switch (service.ServiceStatusProcess.dwCurrentState) {
-                case 1:
-                    state = STOPPED;
-                    break;
-                case 4:
-                    state = RUNNING;
-                    break;
-                default:
-                    state = OTHER;
-                    break;
+                    case 1:
+                        state = STOPPED;
+                        break;
+                    case 4:
+                        state = RUNNING;
+                        break;
+                    default:
+                        state = OTHER;
+                        break;
                 }
                 svcArray.add(new OSService(service.lpDisplayName, service.ServiceStatusProcess.dwProcessId, state));
             }
