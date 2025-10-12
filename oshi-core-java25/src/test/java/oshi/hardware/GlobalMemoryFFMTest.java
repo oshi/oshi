@@ -9,7 +9,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import oshi.SystemInfoFFM;
 
-@EnabledForJreRange(min = JRE.JAVA_24)
+@EnabledForJreRange(min = JRE.JAVA_25)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GlobalMemoryFFMTest extends GlobalMemoryTest {
 

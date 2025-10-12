@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test OS
  */
-@EnabledForJreRange(min = JRE.JAVA_24)
+@EnabledForJreRange(min = JRE.JAVA_25)
 @TestInstance(Lifecycle.PER_CLASS)
 public class OperatingSystemFFMTest extends OperatingSystemTest {
     @Override

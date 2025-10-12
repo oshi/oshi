@@ -47,7 +47,7 @@ import oshi.software.os.OperatingSystem.ProcessSorting;
 /**
  * Test OS
  */
-@EnabledForJreRange(max = JRE.JAVA_23)
+@EnabledForJreRange(max = JRE.JAVA_25)
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemTest {
 
