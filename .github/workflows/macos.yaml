@@ -19,7 +19,7 @@ jobs:
       matrix:
         # Baseline support, Current LTS, Current GA, Current EA
         java: [11, 21, 25]
-        os: [macos-13, macos-14]
+        os: [macos-14, macos-15, macos-26]
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
 
