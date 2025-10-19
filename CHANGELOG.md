@@ -1,26 +1,25 @@
-# 6.9.1 (in progress)
+# 6.9.2 (in progress)
 
-##### New Features
-* [#2990](https://github.com/oshi/oshi/pull/2990): Add methods for calculating CPU usage with two arrays - [@dbwiddis](https://github.com/dbwiddis).
-* [#2991](https://github.com/oshi/oshi/pull/2991): Add installed apps, network params, internet protocols API in Windows FFM - [@rohan-coder02](https://github.com/rohan-coder02).
+* Your Contribution Here!
 
-##### Bug fixes / Improvements
-* [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
-* [#3006](https://github.com/oshi/oshi/pull/3006): Remove animal-sniffer-maven-plugin - [@arun-misra](https://github.com/arun-misra).
-
-# 6.9.0 (2025-09-18)
+# 6.9.0 (2025-09-18), 6.9.1 (2025-10-18)
 
 ##### New Features
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#2949](https://github.com/oshi/oshi/pull/2949): Implement MacOperatingSystem using FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#2959](https://github.com/oshi/oshi/pull/2959),
   [#2968](https://github.com/oshi/oshi/pull/2968): Implement WindowsOperatingSystem using FFM - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#2990](https://github.com/oshi/oshi/pull/2990): Add methods for calculating CPU usage with two arrays - [@dbwiddis](https://github.com/dbwiddis).
+* [#2991](https://github.com/oshi/oshi/pull/2991): Add installed apps, network params, internet protocols API in Windows FFM - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#3007](https://github.com/oshi/oshi/pull/3007): Add ffm implementation for hal.memory [@wolfs](https://github.com/wolfs).
 
 ##### Bug fixes / Improvements
 * [#2946](https://github.com/oshi/oshi/pull/2946): Add Hyper-V VM mac address - [@chunzhennn](https://github.com/chunzhennn).
 * [#2960](https://github.com/oshi/oshi/pull/2960): Include Apple Silicon MacDisplay registry options - [@dbwiddis](https://github.com/dbwiddis).
 * [#2966](https://github.com/oshi/oshi/pull/2966): Add macOS 26 (Tahoe) codename mapping - [@zacharee](https://github.com/zacharee).
 * [#2973](https://github.com/oshi/oshi/pull/2973): Handle DWORD registry keys in Windows Installed Apps implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
+* [#3006](https://github.com/oshi/oshi/pull/3006): Remove animal-sniffer-maven-plugin - [@arun-misra](https://github.com/arun-misra).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
