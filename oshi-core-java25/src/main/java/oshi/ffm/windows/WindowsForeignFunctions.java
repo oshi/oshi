@@ -21,7 +21,7 @@ import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES_LUID_OFFSET;
 import static oshi.ffm.windows.WinNTFFM.TOKEN_PRIVILEGES_PRIVILEGE_COUNT_OFFSET;
 
 /**
- * Utility class for working with the Foreign Function & Memory API (Java 24+). Provides helpers for library lookup,
+ * Utility class for working with the Foreign Function and Memory API. Provides helpers for library lookup,
  * downcalls, and UTF-16 string conversion.
  */
 public abstract class WindowsForeignFunctions extends ForeignFunctions {
