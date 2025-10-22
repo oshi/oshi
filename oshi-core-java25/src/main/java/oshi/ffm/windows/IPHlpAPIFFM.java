@@ -64,17 +64,16 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
     public static final StructLayout IP_ADDRESS_STRING_LAYOUT = structLayout(
             sequenceLayout(16, JAVA_BYTE).withName("String"));
 
-    public static final StructLayout IP_ADDR_STRING_LAYOUT = structLayout(ValueLayout.ADDRESS.withName("Next"),
+    public static final StructLayout IP_ADDR_STRING_LAYOUT = structLayout(ADDRESS.withName("Next"),
             IP_ADDRESS_STRING_LAYOUT.withName("IpAddress"), IP_ADDRESS_STRING_LAYOUT.withName("IpMask"),
-            ValueLayout.JAVA_INT.withName("Context"));
+            JAVA_INT.withName("Context"));
 
     public static final StructLayout FIXED_INFO_LAYOUT = structLayout(
             sequenceLayout(132, ValueLayout.JAVA_BYTE).withName("HostName"),
-            sequenceLayout(132, ValueLayout.JAVA_BYTE).withName("DomainName"),
-            ValueLayout.ADDRESS.withName("CurrentDnsServer"), IP_ADDR_STRING_LAYOUT.withName("DnsServerList"),
-            ValueLayout.JAVA_INT.withName("NodeType"), sequenceLayout(260, ValueLayout.JAVA_BYTE).withName("ScopeId"),
-            ValueLayout.JAVA_INT.withName("EnableRouting"), ValueLayout.JAVA_INT.withName("EnableProxy"),
-            ValueLayout.JAVA_INT.withName("EnableDns"));
+            sequenceLayout(132, ValueLayout.JAVA_BYTE).withName("DomainName"), ADDRESS.withName("CurrentDnsServer"),
+            IP_ADDR_STRING_LAYOUT.withName("DnsServerList"), JAVA_INT.withName("NodeType"),
+            sequenceLayout(260, ValueLayout.JAVA_BYTE).withName("ScopeId"), JAVA_INT.withName("EnableRouting"),
+            ValueLayout.JAVA_INT.withName("EnableProxy"), JAVA_INT.withName("EnableDns"));
 
     public static int GetNetworkParams(MemorySegment fixedInfo, MemorySegment bufferSize) throws Throwable {
         return (int) GetNetworkParams.invokeExact(fixedInfo, bufferSize);
@@ -97,9 +96,9 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
     private static final MethodHandle GetUdpStatisticsEx = downcall(IPHlpAPI, "GetUdpStatisticsEx", JAVA_INT, ADDRESS,
             JAVA_INT);
 
-    public static final StructLayout MIB_UDPSTATS_LAYOUT = structLayout(ValueLayout.JAVA_INT.withName("dwInDatagrams"),
-            ValueLayout.JAVA_INT.withName("dwNoPorts"), ValueLayout.JAVA_INT.withName("dwInErrors"),
-            ValueLayout.JAVA_INT.withName("dwOutDatagrams"), ValueLayout.JAVA_INT.withName("dwNumAddrs"));
+    public static final StructLayout MIB_UDPSTATS_LAYOUT = structLayout(JAVA_INT.withName("dwInDatagrams"),
+            JAVA_INT.withName("dwNoPorts"), JAVA_INT.withName("dwInErrors"), JAVA_INT.withName("dwOutDatagrams"),
+            JAVA_INT.withName("dwNumAddrs"));
 
     public static int GetUdpStatisticsEx(MemorySegment stats, int family) throws Throwable {
         return (int) GetUdpStatisticsEx.invokeExact(stats, family);

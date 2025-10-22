@@ -11,6 +11,7 @@ import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.WinNTFFM;
 import oshi.software.os.ApplicationInfo;
+import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.util.Memoizer;
@@ -105,6 +106,10 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     @Override
     public boolean isElevated() {
         return Advapi32UtilFFM.isCurrentProcessElevated();
+    }
+
+    public FileSystem getFileSystem() {
+        return new WindowsFileSystemFFM();
     }
 
     @Override
