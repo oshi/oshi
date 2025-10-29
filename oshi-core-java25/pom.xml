@@ -110,13 +110,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
                     <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
