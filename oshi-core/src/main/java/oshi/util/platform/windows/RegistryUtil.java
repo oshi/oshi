@@ -16,6 +16,7 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.platform.win32.WinReg.HKEYByReference;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
 import static com.sun.jna.platform.win32.WinNT.KEY_READ;
@@ -173,7 +174,7 @@ public final class RegistryUtil {
         // fall back to Hex
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
-            sb.append(String.format("%02X ", b));
+            sb.append(String.format(Locale.ROOT,"%02X ", b));
         }
 
         return sb.length() == 0 ? null : sb.toString();
