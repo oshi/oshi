@@ -46,7 +46,7 @@ public final class RegistryUtil {
     }
 
     /**
-     * Returns a registry value as a String. (with access flag) Currently supports String and Integer
+     * Returns a registry value as a Long. (with access flag) Currently supports String and Integer
      */
     public static long getLongValue(HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
@@ -114,7 +114,7 @@ public final class RegistryUtil {
     /**
      * Returns a registry value as a String. (without access flag) Currently supports String and Binary
      */
-    public static String getStringValue(WinReg.HKEY root, String path, String key) throws Win32Exception {
+    public static String getStringValue(WinReg.HKEY root, String path, String key) {
         try {
             Object val = Advapi32Util.registryGetValue(root, path, key);
             return registryValueToString(val);
@@ -127,8 +127,7 @@ public final class RegistryUtil {
     /**
      * Returns a registry value as a String. (with access flag) Currently supports String and Binary
      */
-    public static String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag)
-            throws Win32Exception {
+    public static String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
         return registryValueToString(val);
     }
@@ -174,7 +173,7 @@ public final class RegistryUtil {
         // fall back to Hex
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
-            sb.append(String.format(Locale.ROOT,"%02X ", b));
+            sb.append(String.format(Locale.ROOT, "%02X", b));
         }
 
         return sb.length() == 0 ? null : sb.toString();
