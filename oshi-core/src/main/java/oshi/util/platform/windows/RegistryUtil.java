@@ -13,13 +13,12 @@ import org.slf4j.LoggerFactory;
 import oshi.util.ParseUtil;
 
 import com.sun.jna.platform.win32.WinReg.HKEY;
-import com.sun.jna.platform.win32.WinReg.HKEYByReference;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Locale;
+import java.util.Objects;
 
 import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
 import static com.sun.jna.platform.win32.WinNT.KEY_READ;
+import static oshi.util.ParseUtil.decodeBinaryToString;
 
 public final class RegistryUtil {
 
@@ -56,12 +55,9 @@ public final class RegistryUtil {
     public static Object getRegistryValueOrNull(HKEY root, String path, String key, int accessFlag) {
         HKEY hKey = null;
         try {
-            hKey = getRegistryHKey(root, path, accessFlag);
+            hKey = Advapi32Util.registryGetKey(root, path, KEY_READ | accessFlag).getValue();
             Object value = Advapi32Util.registryGetValue(root, path, key);
-            if ((value instanceof Integer) || (value instanceof String && !((String) value).trim().isEmpty())
-                    || value instanceof byte[]) {
-                return value;
-            }
+            return Objects.isNull(value) ? null : value;
         } catch (Win32Exception e) {
             LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
         } finally {
@@ -75,15 +71,10 @@ public final class RegistryUtil {
         return null;
     }
 
-    private static HKEY getRegistryHKey(HKEY rootKey, String path, int accessFlag) {
-        HKEYByReference phkKey = new HKEYByReference();
-        int rc = ADV.RegOpenKeyEx(rootKey, path, 0, KEY_READ | accessFlag, phkKey);
-        if (rc != ERROR_SUCCESS) {
-            throw new Win32Exception(rc);
-        }
-        return phkKey.getValue();
-    }
-
+    /**
+     * Returns a registry value as a long. Supports Integer and String dates. Converts Unix timestamps (seconds)
+     * into milliseconds.
+     */
     private static long registryValueToLong(Object val) {
         if (val == null) {
             return 0L;
@@ -136,12 +127,14 @@ public final class RegistryUtil {
      * Decodes registry value to String using multiple fallback encodings.
      */
     private static String registryValueToString(Object val) {
-        if (val == null)
+        if (val == null) {
             return null;
+        }
 
         // Already a string (REG_SZ or REG_EXPAND_SZ)
-        if (val instanceof String)
+        if (val instanceof String) {
             return ((String) val).trim();
+        }
 
         // handle binary (REG_BINARY)
         if (val instanceof byte[]) {
@@ -151,31 +144,4 @@ public final class RegistryUtil {
         return null;
     }
 
-    /**
-     * Attempts to decode REG_BINARY into a string, trying UTF-16LE → UTF-8 → Windows-1252 → Hex fallback.
-     */
-    private static String decodeBinaryToString(byte[] bytes) {
-        if (bytes == null || bytes.length == 0)
-            return null;
-
-        String[] encodings = { "UTF-16LE", "UTF-8", "Windows-1252" };
-
-        for (String enc : encodings) {
-            try {
-                String decoded = new String(bytes, enc).trim();
-                if (!decoded.isEmpty()) {
-                    return decoded;
-                }
-            } catch (UnsupportedEncodingException e) {
-            }
-        }
-
-        // fall back to Hex
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format(Locale.ROOT, "%02X", b));
-        }
-
-        return sb.length() == 0 ? null : sb.toString();
-    }
 }

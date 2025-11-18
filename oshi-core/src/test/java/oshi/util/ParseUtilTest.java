@@ -49,6 +49,33 @@ class ParseUtilTest {
     }
 
     /**
+     * Verifies that UTF-16LE null-terminated binary data is decoded into a String.
+     */
+    @Test
+    void testDecodeUtf16LE() {
+        byte[] bytes = { 'A', 0, 'B', 0, 'C', 0, 0, 0 };
+        assertEquals("ABC", ParseUtil.decodeBinaryToString(bytes));
+    }
+
+    /**
+     * Verifies that Windows-1252 null-terminated binary data is decoded into a String.
+     */
+    @Test
+    void testDecodeCp1252() {
+        byte[] bytes = { 0x41, 0x42, 0x43, 0x00 };
+        assertEquals("ABC", ParseUtil.decodeBinaryToString(bytes));
+    }
+
+    /**
+     * Verifies that non-text binary data falls back to a hex string representation.
+     */
+    @Test
+    void testDecodeHexFallback() {
+        byte[] bytes = { 0x01, 0x02, 0x0A, (byte) 0xFF };
+        assertEquals("01 02 0A FF", ParseUtil.decodeBinaryToString(bytes));
+    }
+
+    /**
      * Test parse hertz.
      */
     @Test

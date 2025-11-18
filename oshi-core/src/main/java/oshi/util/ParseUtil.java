@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -30,6 +31,8 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,8 @@ import oshi.util.tuples.Triplet;
 public final class ParseUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
+
+    private static final Charset CP1252 = Charset.forName("Windows-1252");
 
     private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default. {}";
 
@@ -142,6 +147,31 @@ public final class ParseUtil {
             Locale.US);
 
     private ParseUtil() {
+    }
+
+    /**
+     * Decodes REG_BINARY to String. Supports UTF-16LE and Windows-1252 C-strings, otherwise returns a hex.
+     */
+    public static String decodeBinaryToString(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+
+        int len = bytes.length;
+
+        // Check for UTF-16LE null terminator (00 00)
+        if (len >= 2 && bytes[len - 1] == 0x00 && bytes[len - 2] == 0x00) {
+            return new String(bytes, StandardCharsets.UTF_16LE).trim();
+        }
+
+        // Check for Windows-1252 (single null terminator)
+        if (len >= 1 && bytes[len - 1] == 0x00) {
+            return new String(bytes, CP1252).trim();
+        }
+
+        // fall back to Hex
+        return IntStream.range(0, bytes.length).mapToObj(i -> String.format(Locale.ROOT, "%02X", bytes[i]))
+                .collect(Collectors.joining(" "));
     }
 
     /**
