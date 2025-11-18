@@ -30,11 +30,6 @@ import oshi.software.os.ApplicationInfo;
 import oshi.util.platform.windows.RegistryUtil;
 
 public final class InstalledAppsData {
-    private static final Logger LOG = LoggerFactory.getLogger(InstalledAppsData.class);
-
-    private static final Advapi32 ADV = Advapi32.INSTANCE;
-
-    private static final long THIRTY_YEARS_IN_SECS = 30L * 365 * 24 * 60 * 60;
 
     private InstalledAppsData() {
     }
