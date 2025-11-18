@@ -18,10 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinReg.HKEY;
