@@ -15,7 +15,7 @@ jobs:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
