@@ -22,6 +22,7 @@ import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
 
@@ -74,11 +75,10 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     continue;
                 }
 
-                String name = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
+                String name = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
                 String deviceId = "VideoController" + index++;
-                String vendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
-                String versionInfo = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
-                        DRIVER_VERSION);
+                String vendor = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
+                String versionInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
                 long vram = 0L;
 
                 if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE)) {
