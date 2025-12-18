@@ -121,37 +121,44 @@ public final class Who {
 
             if (count > 0) {
                 Pointer sessions = sessionsPtr.getValue();
-                String[] sessionIds = sessions.getStringArray(0, count);
+                if (sessions != null) {
+                    String[] sessionIds = sessions.getStringArray(0, count);
 
-                for (String sessionId : sessionIds) {
-                    try {
-                        PointerByReference usernamePtr = new PointerByReference();
-                        PointerByReference ttyPtr = new PointerByReference();
-                        PointerByReference remoteHostPtr = new PointerByReference();
-                        LongByReference startTimePtr = new LongByReference();
+                    for (String sessionId : sessionIds) {
+                        if (sessionId == null)
+                            continue;
+                        try {
+                            PointerByReference usernamePtr = new PointerByReference();
+                            PointerByReference ttyPtr = new PointerByReference();
+                            PointerByReference remoteHostPtr = new PointerByReference();
+                            LongByReference startTimePtr = new LongByReference();
 
-                        if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
-                                && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0) {
+                            if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
+                                    && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0
+                                    && usernamePtr.getValue() != null) {
 
-                            String user = usernamePtr.getValue().getString(0);
-                            long loginTime = startTimePtr.getValue() / 1000L; // Convert μs to ms
+                                String user = usernamePtr.getValue().getString(0);
+                                long loginTime = startTimePtr.getValue() / 1000L; // Convert μs to ms
 
-                            String tty = sessionId; // Default to session ID
-                            if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0) {
-                                tty = ttyPtr.getValue().getString(0);
+                                String tty = sessionId; // Default to session ID
+                                if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0
+                                        && ttyPtr.getValue() != null) {
+                                    tty = ttyPtr.getValue().getString(0);
+                                }
+
+                                String remoteHost = "";
+                                if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0
+                                        && remoteHostPtr.getValue() != null) {
+                                    remoteHost = remoteHostPtr.getValue().getString(0);
+                                }
+
+                                if (isSessionValid(user, tty, loginTime)) {
+                                    sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
+                                }
                             }
-
-                            String remoteHost = "";
-                            if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0) {
-                                remoteHost = remoteHostPtr.getValue().getString(0);
-                            }
-
-                            if (isSessionValid(user, tty, loginTime)) {
-                                sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
-                            }
+                        } catch (Exception e) {
+                            // Skip invalid session
                         }
-                    } catch (Exception e) {
-                        // Skip invalid session
                     }
                 }
             }
