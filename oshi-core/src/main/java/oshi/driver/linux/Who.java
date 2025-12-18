@@ -19,10 +19,16 @@ import com.sun.jna.Native;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.jna.platform.linux.LinuxLibc.LinuxUtmpx;
+import oshi.jna.platform.linux.Systemd;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Utility to query logged in users.
@@ -31,6 +37,23 @@ import oshi.util.ParseUtil;
 public final class Who {
 
     private static final LinuxLibc LIBC = LinuxLibc.INSTANCE;
+
+    /** This static field identifies if the systemd library can be loaded. */
+    public static final boolean HAS_SYSTEMD;
+
+    static {
+        boolean hasSystemd = false;
+        try {
+            if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWSYSTEMD, true)) {
+                @SuppressWarnings("unused")
+                Systemd lib = Systemd.INSTANCE;
+                hasSystemd = true;
+            }
+        } catch (UnsatisfiedLinkError e) {
+            // systemd not available
+        }
+        HAS_SYSTEMD = hasSystemd;
+    }
 
     private Who() {
     }
@@ -41,6 +64,14 @@ public final class Who {
      * @return A list of logged in user sessions
      */
     public static synchronized List<OSSession> queryUtxent() {
+        // Try systemd first if available
+        if (HAS_SYSTEMD) {
+            List<OSSession> systemdSessions = querySystemdNative();
+            if (!systemdSessions.isEmpty()) {
+                return systemdSessions;
+            }
+        }
+
         List<OSSession> whoList = new ArrayList<>();
         LinuxUtmpx ut;
         // Rewind
@@ -65,9 +96,9 @@ public final class Who {
             LIBC.endutxent();
         }
 
-        // If utmp returned no sessions, try systemd sessions as fallback
+        // If utmp returned no sessions, try systemd file fallback
         if (whoList.isEmpty()) {
-            whoList = querySystemdSessions();
+            whoList = querySystemdFiles();
             if (whoList.isEmpty()) {
                 // Final fallback to who command
                 return oshi.driver.unix.Who.queryWho();
@@ -77,11 +108,66 @@ public final class Who {
     }
 
     /**
-     * Query systemd sessions as fallback when utmp is not available.
+     * Query systemd sessions using native libsystemd calls.
      *
      * @return A list of logged in user sessions from systemd
      */
-    private static List<OSSession> querySystemdSessions() {
+    private static List<OSSession> querySystemdNative() {
+        List<OSSession> sessionList = new ArrayList<>();
+
+        try {
+            PointerByReference sessionsPtr = new PointerByReference();
+            int count = Systemd.INSTANCE.sd_get_sessions(sessionsPtr);
+
+            if (count > 0) {
+                Pointer sessions = sessionsPtr.getValue();
+                String[] sessionIds = sessions.getStringArray(0, count);
+
+                for (String sessionId : sessionIds) {
+                    try {
+                        PointerByReference usernamePtr = new PointerByReference();
+                        PointerByReference ttyPtr = new PointerByReference();
+                        PointerByReference remoteHostPtr = new PointerByReference();
+                        LongByReference startTimePtr = new LongByReference();
+
+                        if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
+                                && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0) {
+
+                            String user = usernamePtr.getValue().getString(0);
+                            long loginTime = startTimePtr.getValue() / 1000L; // Convert μs to ms
+
+                            String tty = sessionId; // Default to session ID
+                            if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0) {
+                                tty = ttyPtr.getValue().getString(0);
+                            }
+
+                            String remoteHost = "";
+                            if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0) {
+                                remoteHost = remoteHostPtr.getValue().getString(0);
+                            }
+
+                            if (isSessionValid(user, tty, loginTime)) {
+                                sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Skip invalid session
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // systemd calls failed, return empty list
+        }
+
+        return sessionList;
+    }
+
+    /**
+     * Query systemd sessions from files as fallback when native calls fail.
+     *
+     * @return A list of logged in user sessions from systemd
+     */
+    private static List<OSSession> querySystemdFiles() {
         List<OSSession> sessionList = new ArrayList<>();
 
         // Directly iterate /run/systemd/sessions/ directory
