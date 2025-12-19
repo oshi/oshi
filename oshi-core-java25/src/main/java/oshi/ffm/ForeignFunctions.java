@@ -57,6 +57,9 @@ public abstract class ForeignFunctions {
 
     /**
      * Lookup a library by name in the global arena.
+     *
+     * @param name the library name
+     * @return the symbol lookup for the library
      */
     public static SymbolLookup lib(String name) {
         return SymbolLookup.libraryLookup(name, Arena.global());
@@ -64,6 +67,12 @@ public abstract class ForeignFunctions {
 
     /**
      * Create a downcall handle for a symbol in a library.
+     *
+     * @param lib the symbol lookup
+     * @param symbol the symbol name
+     * @param resLayout the return layout
+     * @param argLayouts the argument layouts
+     * @return the method handle
      */
     public static MethodHandle downcall(SymbolLookup lib, String symbol, MemoryLayout resLayout,
             MemoryLayout... argLayouts) {
