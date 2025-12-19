@@ -27,8 +27,9 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import oshi.jna.ByRef.CloseableLongByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 
 /**
  * Utility to query logged in users.
@@ -45,12 +46,19 @@ public final class Who {
         boolean hasSystemd = false;
         try {
             if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWSYSTEMD, true)) {
-                @SuppressWarnings("unused")
-                Systemd lib = Systemd.INSTANCE;
-                hasSystemd = true;
+                // Test if required library and functions are available
+                try (CloseablePointerByReference ptr = new CloseablePointerByReference();
+                        CloseableLongByReference longPtr = new CloseableLongByReference()) {
+                    Systemd.INSTANCE.sd_get_sessions(ptr);
+                    Systemd.INSTANCE.sd_session_get_username(null, ptr);
+                    Systemd.INSTANCE.sd_session_get_start_time(null, longPtr);
+                    Systemd.INSTANCE.sd_session_get_tty(null, ptr);
+                    Systemd.INSTANCE.sd_session_get_remote_host(null, ptr);
+                    hasSystemd = true;
+                }
             }
-        } catch (UnsatisfiedLinkError e) {
-            // systemd not available
+        } catch (Throwable t) {
+            // systemd library or functions not available
         }
         HAS_SYSTEMD = hasSystemd;
     }
@@ -131,7 +139,7 @@ public final class Who {
                             PointerByReference usernamePtr = new PointerByReference();
                             PointerByReference ttyPtr = new PointerByReference();
                             PointerByReference remoteHostPtr = new PointerByReference();
-                            LongByReference startTimePtr = new LongByReference();
+                            CloseableLongByReference startTimePtr = new CloseableLongByReference();
 
                             if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
                                     && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0
