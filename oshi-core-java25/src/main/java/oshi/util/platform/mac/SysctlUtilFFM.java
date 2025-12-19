@@ -178,19 +178,6 @@ public final class SysctlUtilFFM {
         }
     }
 
-    private static boolean sysctlbyname(Arena arena, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp,
-            boolean logWarning) throws Throwable {
-        MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-        var result = MacSystemFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
-        if (result != 0) {
-            if (logWarning) {
-                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
-            }
-            return false;
-        }
-        return true;
-    }
-
     /**
      * Executes a sysctl call with a Memory Segment result
      *
@@ -215,5 +202,18 @@ public final class SysctlUtilFFM {
             LOG.warn("Failed to get sysctl value for {}", Arrays.toString(mib), e);
             return -1;
         }
+    }
+
+    private static boolean sysctlbyname(Arena arena, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp,
+            boolean logWarning) throws Throwable {
+        MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+        var result = MacSystemFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
+        if (result != 0) {
+            if (logWarning) {
+                LOG.warn(SYSCTL_FAIL, name, getErrno(callState));
+            }
+            return false;
+        }
+        return true;
     }
 }

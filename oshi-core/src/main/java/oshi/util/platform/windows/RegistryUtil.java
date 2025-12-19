@@ -33,6 +33,11 @@ public final class RegistryUtil {
 
     /**
      * Returns a registry value as a Long. (without access flag) Currently supports String and Integer
+     *
+     * @param root the registry root
+     * @param path the registry path
+     * @param key  the registry key
+     * @return the registry value as a long
      */
     public static long getLongValue(HKEY root, String path, String key) {
         try {
@@ -46,12 +51,27 @@ public final class RegistryUtil {
 
     /**
      * Returns a registry value as a Long. (with access flag) Currently supports String and Integer
+     *
+     * @param root       the registry root
+     * @param path       the registry path
+     * @param key        the registry key
+     * @param accessFlag the access flag
+     * @return the registry value as a long
      */
     public static long getLongValue(HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
         return registryValueToLong(val);
     }
 
+    /**
+     * Gets a registry value or null if not found
+     *
+     * @param root       the registry root
+     * @param path       the registry path
+     * @param key        the registry key
+     * @param accessFlag the access flag
+     * @return the registry value or null
+     */
     public static Object getRegistryValueOrNull(HKEY root, String path, String key, int accessFlag) {
         HKEY hKey = null;
         try {
@@ -72,8 +92,11 @@ public final class RegistryUtil {
     }
 
     /**
-     * Returns a registry value as a long. Supports Integer and String dates. Converts Unix timestamps (seconds)
-     * into milliseconds.
+     * Returns a registry value as a long. Supports Integer and String dates. Converts Unix timestamps (seconds) into
+     * milliseconds.
+     *
+     * @param val the registry value
+     * @return the value as a long
      */
     private static long registryValueToLong(Object val) {
         if (val == null) {
@@ -104,6 +127,11 @@ public final class RegistryUtil {
 
     /**
      * Returns a registry value as a String. (without access flag) Currently supports String and Binary
+     *
+     * @param root the registry root
+     * @param path the registry path
+     * @param key  the registry key
+     * @return the registry value as a string
      */
     public static String getStringValue(WinReg.HKEY root, String path, String key) {
         try {
@@ -117,6 +145,12 @@ public final class RegistryUtil {
 
     /**
      * Returns a registry value as a String. (with access flag) Currently supports String and Binary
+     *
+     * @param root       the registry root
+     * @param path       the registry path
+     * @param key        the registry key
+     * @param accessFlag the access flag
+     * @return the registry value as a string
      */
     public static String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
@@ -125,6 +159,9 @@ public final class RegistryUtil {
 
     /**
      * Decodes registry value to String using multiple fallback encodings.
+     *
+     * @param val the registry value
+     * @return the decoded string
      */
     private static String registryValueToString(Object val) {
         if (val == null) {

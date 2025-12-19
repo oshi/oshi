@@ -58,9 +58,12 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
-public class IPHlpAPIUtilFFM {
+public final class IPHlpAPIUtilFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(IPHlpAPIUtilFFM.class);
+
+    private IPHlpAPIUtilFFM() {
+    }
 
     public static String[] getDnsServers() {
         try (Arena arena = Arena.ofConfined()) {
@@ -97,8 +100,9 @@ public class IPHlpAPIUtilFFM {
 
                 dnsServerList = dnsServerList.get(ADDRESS,
                         IP_ADDR_STRING_LAYOUT.byteOffset(PathElement.groupElement("Next")));
-                if (dnsServerList.address() == 0)
+                if (dnsServerList.address() == 0) {
                     break;
+                }
             }
 
             return dnsServers.toArray(new String[0]);
