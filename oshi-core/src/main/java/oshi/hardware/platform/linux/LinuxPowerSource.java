@@ -85,7 +85,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                     for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
                         String syspath = entry.getName();
                         String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);
-                        if (!name.startsWith("ADP") && !name.startsWith("AC")) {
+                        if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
                             UdevDevice device = udev.deviceNewFromSyspath(syspath);
                             if (device != null) {
                                 try {
@@ -179,7 +179,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
             }
             for (File ps : psArr) {
                 String name = ps.getName();
-                if (!name.startsWith("ADP") && !name.startsWith("AC")) {
+                if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
                     // Skip if can't read uevent file
                     List<String> psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + "/" + name + "/uevent", false);
                     Map<String, String> psMap = new HashMap<>();
