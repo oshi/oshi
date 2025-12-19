@@ -4,13 +4,26 @@
  */
 package oshi.util.platform.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.ffm.windows.Advapi32FFM;
-import oshi.ffm.windows.Kernel32FFM;
-import oshi.ffm.windows.WinNTFFM;
-import oshi.ffm.windows.Win32Exception;
-import oshi.util.GlobalConfig;
+import static java.lang.foreign.MemorySegment.NULL;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
+import static oshi.ffm.windows.Advapi32FFM.OpenProcessToken;
+import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
+import static oshi.ffm.windows.Advapi32FFM.RegEnumKeyEx;
+import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
+import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
+import static oshi.ffm.windows.Advapi32FFM.RegQueryValueEx;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
+import static oshi.ffm.windows.WinNTFFM.KEY_READ;
+import static oshi.ffm.windows.WinNTFFM.REG_DWORD;
+import static oshi.ffm.windows.WinNTFFM.REG_EXPAND_SZ;
+import static oshi.ffm.windows.WinNTFFM.REG_SZ;
+import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -21,26 +34,14 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import static java.lang.foreign.MemorySegment.NULL;
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.Advapi32FFM.*;
-import static oshi.ffm.windows.Advapi32FFM.RegQueryValueEx;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
-import static oshi.ffm.windows.Advapi32FFM.OpenProcessToken;
-import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
-import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
-import static oshi.ffm.windows.Advapi32FFM.RegEnumKeyEx;
-import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
-import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
-import static oshi.ffm.windows.WinNTFFM.KEY_READ;
-import static oshi.ffm.windows.WinNTFFM.REG_DWORD;
-import static oshi.ffm.windows.WinNTFFM.REG_EXPAND_SZ;
-import static oshi.ffm.windows.WinNTFFM.REG_SZ;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
-import static oshi.util.Memoizer.memoize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.ffm.windows.Advapi32FFM;
+import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.windows.Win32Exception;
+import oshi.ffm.windows.WinNTFFM;
+import oshi.util.GlobalConfig;
 
 public final class Advapi32UtilFFM {
 

@@ -6,7 +6,7 @@
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
 
     <!-- Intentional style breaks -->
-    <suppress checks="ConstantName" files="ParseUtil\.java" lines="102-122"/>
+    <suppress checks="ConstantName" files="ParseUtil\.java" lines="107-127"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
 
     <!-- JNA convention  -->
@@ -19,11 +19,15 @@
     <suppress checks="ParameterName" files="[\\/]jna[\\/].*"/>
     <suppress checks="TypeName" files="[\\/]jna[\\/].*"/>
 
+    <suppress checks="MethodName" files="MacGlobalMemory\.java" lines="137"/>
+
     <!-- FFM convention -->
     <suppress checks="InterfaceIsType" files="[\\/]ffm[\\/].*"/>
     <suppress checks="ConstantName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="MethodName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="RecordComponentName" files=".*FFM\.java"/>
+    <suppress checks="LocalVariableName" files=".*FFM\.java"/>
+    <suppress checks="LocalFinalVariableName" files=".*FFM\.java"/>
 
     <!-- WIP, remove when done -->
     <suppress checks="TodoComment" files="MacOperatingSystemFFM\.java"/>
@@ -32,7 +36,7 @@
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 
     <!-- Protected final fields initialized in constructor -->
-    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="66-70"/>
+    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="52-56"/>
 
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>

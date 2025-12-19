@@ -151,6 +151,9 @@ public final class ParseUtil {
 
     /**
      * Decodes REG_BINARY to String. Supports UTF-16LE and Windows-1252 C-strings, otherwise returns a hex.
+     *
+     * @param bytes the byte array to decode
+     * @return the decoded string
      */
     public static String decodeBinaryToString(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {

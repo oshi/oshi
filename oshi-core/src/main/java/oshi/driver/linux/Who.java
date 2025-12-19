@@ -131,8 +131,9 @@ public final class Who {
                     String[] sessionIds = sessions.getStringArray(0, count);
 
                     for (String sessionId : sessionIds) {
-                        if (sessionId == null)
+                        if (sessionId == null) {
                             continue;
+                        }
                         try (CloseablePointerByReference usernamePtr = new CloseablePointerByReference();
                                 CloseablePointerByReference ttyPtr = new CloseablePointerByReference();
                                 CloseablePointerByReference remoteHostPtr = new CloseablePointerByReference();

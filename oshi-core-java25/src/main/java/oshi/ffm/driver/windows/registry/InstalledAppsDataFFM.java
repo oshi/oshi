@@ -69,8 +69,9 @@ public final class InstalledAppsDataFFM {
                             try {
                                 String name = registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayName", accessFlag));
-                                if (name == null)
+                                if (name == null) {
                                     continue;
+                                }
                                 String version = registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayVersion", accessFlag));
                                 String publisher = registryValueToString(

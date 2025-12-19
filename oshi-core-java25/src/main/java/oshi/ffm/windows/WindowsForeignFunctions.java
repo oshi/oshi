@@ -69,8 +69,9 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
         StringBuilder sb = new StringBuilder();
         for (int offset = 0;; offset += 2) { // 2 bytes per UTF-16 char
             char c = seg.get(JAVA_CHAR, offset);
-            if (c == '\0')
+            if (c == '\0') {
                 break; // null terminator
+            }
             sb.append(c);
         }
         return sb.toString();
@@ -87,8 +88,9 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < maxLen; i++) {
             byte b = seg.get(JAVA_BYTE, i);
-            if (b == 0)
+            if (b == 0) {
                 break;
+            }
             sb.append((char) b);
         }
         return sb.toString();
