@@ -27,7 +27,6 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 import oshi.jna.ByRef.CloseableLongByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 
@@ -123,8 +122,7 @@ public final class Who {
     private static List<OSSession> querySystemdNative() {
         List<OSSession> sessionList = new ArrayList<>();
 
-        try {
-            PointerByReference sessionsPtr = new PointerByReference();
+        try (CloseablePointerByReference sessionsPtr = new CloseablePointerByReference()) {
             int count = Systemd.INSTANCE.sd_get_sessions(sessionsPtr);
 
             if (count > 0) {
@@ -135,11 +133,10 @@ public final class Who {
                     for (String sessionId : sessionIds) {
                         if (sessionId == null)
                             continue;
-                        try {
-                            PointerByReference usernamePtr = new PointerByReference();
-                            PointerByReference ttyPtr = new PointerByReference();
-                            PointerByReference remoteHostPtr = new PointerByReference();
-                            CloseableLongByReference startTimePtr = new CloseableLongByReference();
+                        try (CloseablePointerByReference usernamePtr = new CloseablePointerByReference();
+                                CloseablePointerByReference ttyPtr = new CloseablePointerByReference();
+                                CloseablePointerByReference remoteHostPtr = new CloseablePointerByReference();
+                                CloseableLongByReference startTimePtr = new CloseableLongByReference()) {
 
                             if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
                                     && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0
