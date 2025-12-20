@@ -513,6 +513,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-changelog-plugin</artifactId>
                     <version>${maven-changelog-plugin.version}</version>
+                    <configuration>
+                        <!-- Use git log instead of deprecated git whatchanged which newer Git refuses to run -->
+                        <gitCommand>log</gitCommand>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -710,8 +714,7 @@
                         <configuration>
                             <rules>
                                 <RestrictImports>
-                                    <reason>Disallow dependencies not on
-                                        module path</reason>
+                                    <reason>Disallow dependencies not on module path</reason>
                                     <includeTestCode>true</includeTestCode>
                                     <bannedImports>
                                         <!-- Disallow all imports except explicitly allowed -->
@@ -892,6 +895,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changelog-plugin</artifactId>
+                <configuration>
+                    <gitCommand>log</gitCommand>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
