@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 /**
- * Provides Windows-specific Foreign Function & Memory (FFM) API implementations.
+ * Provides Windows-specific Foreign Function and Memory (FFM) API implementations.
  */
 package oshi.ffm.windows;

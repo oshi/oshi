@@ -1,13 +1,8 @@
-# 6.9.2 (in progress)
+# 6.9.3 (in progress)
 
-##### Bug fixes / Improvements
-* [#2974](https://github.com/oshi/oshi/pull/2974): Use simple xml parsing on MacInstalledApps, support more info/version from app plist, inclusing binary format - [@dyorgio](https://github.com/dyorgio).
-* [#2975](https://github.com/oshi/oshi/pull/2975): Query Mac apps in xml formatting using internal xml parsing utils - [@dyorgio](https://github.com/dyorgio).
-* [#3024](https://github.com/oshi/oshi/pull/3024): Add RegistryUtil class in oshi-core to handle unexpected registry types - [@rohan-coder02](https://github.com/rohan-coder02).
-* [#3040](https://github.com/oshi/oshi/pull/3040): Filter out any USBC powersources on Linux - [@mprins](https://github.com/mprins).
-* [#3041](https://github.com/oshi/oshi/pull/3041): Use systemd as preferred native method for session list - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.9.0 (2025-09-18), 6.9.1 (2025-10-18)
+# 6.9.0 (2025-09-18), 6.9.1 (2025-10-18), 6.9.2 (2025-12-20)
 
 ##### New Features
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
@@ -25,6 +20,11 @@
 * [#2973](https://github.com/oshi/oshi/pull/2973): Handle DWORD registry keys in Windows Installed Apps implementation - [@dbwiddis](https://github.com/dbwiddis).
 * [#2983](https://github.com/oshi/oshi/pull/2983): JNA 5.18.0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#3006](https://github.com/oshi/oshi/pull/3006): Remove animal-sniffer-maven-plugin - [@arun-misra](https://github.com/arun-misra).
+* [#2974](https://github.com/oshi/oshi/pull/2974): Use simple xml parsing on MacInstalledApps, support more info/version from app plist, inclusing binary format - [@dyorgio](https://github.com/dyorgio).
+* [#2975](https://github.com/oshi/oshi/pull/2975): Query Mac apps in xml formatting using internal xml parsing utils - [@dyorgio](https://github.com/dyorgio).
+* [#3024](https://github.com/oshi/oshi/pull/3024): Add RegistryUtil class in oshi-core to handle unexpected registry types - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#3040](https://github.com/oshi/oshi/pull/3040): Filter out any USBC powersources on Linux - [@mprins](https://github.com/mprins).
+* [#3041](https://github.com/oshi/oshi/pull/3041): Use systemd as preferred native method for session list - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 

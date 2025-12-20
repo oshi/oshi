@@ -28,7 +28,7 @@ final class MacMemoryUtilFFM {
     /**
      * Call host_statistics and put the result in vmStats.
      *
-     * @param arena the memory arena
+     * @param arena   the memory arena
      * @param vmStats the VM statistics memory segment
      * @return {@code true} when the call succeeded, {@code false} otherwise.
      */

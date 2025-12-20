@@ -68,9 +68,9 @@ public abstract class ForeignFunctions {
     /**
      * Create a downcall handle for a symbol in a library.
      *
-     * @param lib the symbol lookup
-     * @param symbol the symbol name
-     * @param resLayout the return layout
+     * @param lib        the symbol lookup
+     * @param symbol     the symbol name
+     * @param resLayout  the return layout
      * @param argLayouts the argument layouts
      * @return the method handle
      */
