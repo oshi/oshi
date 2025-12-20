@@ -9,6 +9,7 @@ import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static com.sun.jna.Pointer.nativeValue;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -40,29 +41,7 @@ public final class Who {
 
     private static final LinuxLibc LIBC = LinuxLibc.INSTANCE;
 
-    /** This static field identifies if the systemd library can be loaded. */
-    public static final boolean HAS_SYSTEMD;
-
-    static {
-        boolean hasSystemd = false;
-        try {
-            if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWSYSTEMD, true)) {
-                // Test if required library and functions are available
-                try (CloseablePointerByReference ptr = new CloseablePointerByReference();
-                        CloseableLongByReference longPtr = new CloseableLongByReference()) {
-                    Systemd.INSTANCE.sd_get_sessions(ptr);
-                    Systemd.INSTANCE.sd_session_get_username(null, ptr);
-                    Systemd.INSTANCE.sd_session_get_start_time(null, longPtr);
-                    Systemd.INSTANCE.sd_session_get_tty(null, ptr);
-                    Systemd.INSTANCE.sd_session_get_remote_host(null, ptr);
-                    hasSystemd = true;
-                }
-            }
-        } catch (Throwable t) {
-            // systemd library or functions not available
-        }
-        HAS_SYSTEMD = hasSystemd;
-    }
+    private static boolean useSystemd = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWSYSTEMD, true);
 
     private Who() {
     }
@@ -74,10 +53,15 @@ public final class Who {
      */
     public static synchronized List<OSSession> queryUtxent() {
         // Try systemd first if available
-        if (HAS_SYSTEMD) {
-            List<OSSession> systemdSessions = querySystemdNative();
-            if (!systemdSessions.isEmpty()) {
-                return systemdSessions;
+        if (useSystemd) {
+            try {
+                List<OSSession> systemdSessions = querySystemdNative();
+                if (!systemdSessions.isEmpty()) {
+                    return systemdSessions;
+                }
+            } catch (Throwable t) {
+                // systemd failed (probably UnsatisfiedLinkError), disable it for future calls
+                useSystemd = false;
             }
         }
 
@@ -129,7 +113,7 @@ public final class Who {
 
             if (count > 0) {
                 Pointer sessions = sessionsPtr.getValue();
-                if (nonNull(sessions) && !sessions.equals(Pointer.NULL)) {
+                if (nativeValue(sessions) != 0) {
                     try {
                         String[] sessionIds = sessions.getStringArray(0, count);
 
@@ -142,8 +126,7 @@ public final class Who {
                                 Pointer usernamePointer = null;
                                 try (CloseablePointerByReference usernamePtr = new CloseablePointerByReference()) {
                                     if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) != 0
-                                            || isNull(usernamePtr.getValue())
-                                            || usernamePtr.getValue().equals(Pointer.NULL)) {
+                                            || nativeValue(usernamePtr.getValue()) == 0) {
                                         continue; // Skip this session
                                     }
                                     usernamePointer = usernamePtr.getValue();
@@ -153,7 +136,7 @@ public final class Who {
                                 try {
                                     user = usernamePointer.getString(0);
                                 } finally {
-                                    Native.free(Pointer.nativeValue(usernamePointer));
+                                    Native.free(nativeValue(usernamePointer));
                                 }
 
                                 // Get start time
@@ -170,15 +153,15 @@ public final class Who {
                                 Pointer ttyPointer = null;
                                 try (CloseablePointerByReference ttyPtr = new CloseablePointerByReference()) {
                                     if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0
-                                            && nonNull(ttyPtr.getValue()) && !ttyPtr.getValue().equals(Pointer.NULL)) {
+                                            && nativeValue(ttyPtr.getValue()) != 0) {
                                         ttyPointer = ttyPtr.getValue();
                                     }
                                 }
-                                if (nonNull(ttyPointer)) {
+                                if (nativeValue(ttyPointer) != 0) {
                                     try {
                                         tty = ttyPointer.getString(0);
                                     } finally {
-                                        Native.free(Pointer.nativeValue(ttyPointer));
+                                        Native.free(nativeValue(ttyPointer));
                                     }
                                 }
 
@@ -187,16 +170,15 @@ public final class Who {
                                 Pointer remoteHostPointer = null;
                                 try (CloseablePointerByReference remoteHostPtr = new CloseablePointerByReference()) {
                                     if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0
-                                            && nonNull(remoteHostPtr.getValue())
-                                            && !remoteHostPtr.getValue().equals(Pointer.NULL)) {
+                                            && nativeValue(remoteHostPtr.getValue()) != 0) {
                                         remoteHostPointer = remoteHostPtr.getValue();
                                     }
                                 }
-                                if (nonNull(remoteHostPointer)) {
+                                if (nativeValue(remoteHostPointer) != 0) {
                                     try {
                                         remoteHost = remoteHostPointer.getString(0);
                                     } finally {
-                                        Native.free(Pointer.nativeValue(remoteHostPointer));
+                                        Native.free(nativeValue(remoteHostPointer));
                                     }
                                 }
 
@@ -208,8 +190,15 @@ public final class Who {
                             }
                         }
                     } finally {
-                        // Free the sessions array allocated by sd_get_sessions
-                        Native.free(Pointer.nativeValue(sessions));
+                        // Free all strings in the array first
+                        Pointer[] ptrs = sessions.getPointerArray(0, count);
+                        for (Pointer stringPtr : ptrs) {
+                            if (nativeValue(stringPtr) != 0) {
+                                Native.free(nativeValue(stringPtr));
+                            }
+                        }
+                        // Then free the sessions array itself
+                        Native.free(nativeValue(sessions));
                     }
                 }
             }
