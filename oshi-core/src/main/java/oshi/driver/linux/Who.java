@@ -7,6 +7,8 @@ package oshi.driver.linux;
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -85,7 +87,7 @@ public final class Who {
         LIBC.setutxent();
         try {
             // Iterate
-            while ((ut = LIBC.getutxent()) != null) {
+            while (nonNull(ut = LIBC.getutxent())) {
                 if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
                     String user = Native.toString(ut.ut_user, Charset.defaultCharset());
                     String device = Native.toString(ut.ut_line, Charset.defaultCharset());
@@ -127,44 +129,87 @@ public final class Who {
 
             if (count > 0) {
                 Pointer sessions = sessionsPtr.getValue();
-                if (sessions != null) {
-                    String[] sessionIds = sessions.getStringArray(0, count);
+                if (nonNull(sessions) && !sessions.equals(Pointer.NULL)) {
+                    try {
+                        String[] sessionIds = sessions.getStringArray(0, count);
 
-                    for (String sessionId : sessionIds) {
-                        if (sessionId == null) {
-                            continue;
-                        }
-                        try (CloseablePointerByReference usernamePtr = new CloseablePointerByReference();
-                                CloseablePointerByReference ttyPtr = new CloseablePointerByReference();
-                                CloseablePointerByReference remoteHostPtr = new CloseablePointerByReference();
-                                CloseableLongByReference startTimePtr = new CloseableLongByReference()) {
-
-                            if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) == 0
-                                    && Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) == 0
-                                    && usernamePtr.getValue() != null) {
-
-                                String user = usernamePtr.getValue().getString(0);
-                                long loginTime = startTimePtr.getValue() / 1000L; // Convert μs to ms
-
-                                String tty = sessionId; // Default to session ID
-                                if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0
-                                        && ttyPtr.getValue() != null) {
-                                    tty = ttyPtr.getValue().getString(0);
+                        for (String sessionId : sessionIds) {
+                            if (isNull(sessionId)) {
+                                continue;
+                            }
+                            try {
+                                // Get username
+                                Pointer usernamePointer = null;
+                                try (CloseablePointerByReference usernamePtr = new CloseablePointerByReference()) {
+                                    if (Systemd.INSTANCE.sd_session_get_username(sessionId, usernamePtr) != 0
+                                            || isNull(usernamePtr.getValue())
+                                            || usernamePtr.getValue().equals(Pointer.NULL)) {
+                                        continue; // Skip this session
+                                    }
+                                    usernamePointer = usernamePtr.getValue();
                                 }
 
+                                String user;
+                                try {
+                                    user = usernamePointer.getString(0);
+                                } finally {
+                                    Native.free(Pointer.nativeValue(usernamePointer));
+                                }
+
+                                // Get start time
+                                long loginTime;
+                                try (CloseableLongByReference startTimePtr = new CloseableLongByReference()) {
+                                    if (Systemd.INSTANCE.sd_session_get_start_time(sessionId, startTimePtr) != 0) {
+                                        continue; // Skip this session
+                                    }
+                                    loginTime = startTimePtr.getValue() / 1000L; // Convert μs to ms
+                                }
+
+                                // Get TTY (optional)
+                                String tty = sessionId; // Default to session ID
+                                Pointer ttyPointer = null;
+                                try (CloseablePointerByReference ttyPtr = new CloseablePointerByReference()) {
+                                    if (Systemd.INSTANCE.sd_session_get_tty(sessionId, ttyPtr) == 0
+                                            && nonNull(ttyPtr.getValue()) && !ttyPtr.getValue().equals(Pointer.NULL)) {
+                                        ttyPointer = ttyPtr.getValue();
+                                    }
+                                }
+                                if (nonNull(ttyPointer)) {
+                                    try {
+                                        tty = ttyPointer.getString(0);
+                                    } finally {
+                                        Native.free(Pointer.nativeValue(ttyPointer));
+                                    }
+                                }
+
+                                // Get remote host (optional)
                                 String remoteHost = "";
-                                if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0
-                                        && remoteHostPtr.getValue() != null) {
-                                    remoteHost = remoteHostPtr.getValue().getString(0);
+                                Pointer remoteHostPointer = null;
+                                try (CloseablePointerByReference remoteHostPtr = new CloseablePointerByReference()) {
+                                    if (Systemd.INSTANCE.sd_session_get_remote_host(sessionId, remoteHostPtr) == 0
+                                            && nonNull(remoteHostPtr.getValue())
+                                            && !remoteHostPtr.getValue().equals(Pointer.NULL)) {
+                                        remoteHostPointer = remoteHostPtr.getValue();
+                                    }
+                                }
+                                if (nonNull(remoteHostPointer)) {
+                                    try {
+                                        remoteHost = remoteHostPointer.getString(0);
+                                    } finally {
+                                        Native.free(Pointer.nativeValue(remoteHostPointer));
+                                    }
                                 }
 
                                 if (isSessionValid(user, tty, loginTime)) {
                                     sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
                                 }
+                            } catch (Exception e) {
+                                // Skip invalid session
                             }
-                        } catch (Exception e) {
-                            // Skip invalid session
                         }
+                    } finally {
+                        // Free the sessions array allocated by sd_get_sessions
+                        Native.free(Pointer.nativeValue(sessions));
                     }
                 }
             }
@@ -188,20 +233,20 @@ public final class Who {
         if (sessionsDir.exists() && sessionsDir.isDirectory()) {
             File[] sessionFiles = sessionsDir.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
 
-            if (sessionFiles != null) {
+            if (nonNull(sessionFiles)) {
                 for (File sessionFile : sessionFiles) {
                     try {
                         Map<String, String> sessionMap = FileUtil.getKeyValueMapFromFile(sessionFile.getPath(), "=");
 
                         String user = sessionMap.get("USER");
-                        if (user != null && !user.isEmpty()) {
+                        if (nonNull(user) && !user.isEmpty()) {
                             String tty = sessionMap.getOrDefault("TTY", sessionFile.getName());
                             String remoteHost = sessionMap.getOrDefault("REMOTE_HOST", "");
 
                             // Try to get login time from REALTIME field or file modification time
                             long loginTime = 0L;
                             String realtime = sessionMap.get("REALTIME");
-                            if (realtime != null) {
+                            if (nonNull(realtime)) {
                                 loginTime = ParseUtil.parseLongOrDefault(realtime, 0L) / 1000L; // Convert µs to ms
                             }
                             if (loginTime == 0L) {
