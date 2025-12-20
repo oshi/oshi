@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>6.9.2-SNAPSHOT</version>
+    <version>6.9.2</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -49,7 +49,7 @@
     <scm>
         <connection>scm:git:ssh://git@github.com/oshi/oshi.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/oshi/oshi.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>oshi-parent-6.9.2</tag>
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
     <issueManagement>
