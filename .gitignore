@@ -10,3 +10,5 @@ target
 oshi-core-shaded/dependency-reduced-pom.xml
 .github/keys
 lib/
+release.properties
+*.releaseBackup
