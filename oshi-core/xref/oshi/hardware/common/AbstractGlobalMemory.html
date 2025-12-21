@@ -61,33 +61,33 @@
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                  String[] split = line.trim().split(<span class="jxr_string">":"</span>);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">if</strong> (split.length == 2) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>                      <strong class="jxr_keyword">switch</strong> (split[0]) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Bank Locator"</span>:
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                          bankLabel = split[1].trim();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Locator"</span>:
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                          locator = <span class="jxr_string">"/"</span> + split[1].trim();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Size"</span>:
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                          capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Type"</span>:
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                          memoryType = split[1].trim();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Speed"</span>:
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          speed = ParseUtil.parseSpeed(split[1]);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Manufacturer"</span>:
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                          manufacturer = split[1].trim();
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"PartNumber"</span>:
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Part Number"</span>:
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                          partNumber = split[1].trim();
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Serial Number"</span>:
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          serialNumber = split[1].trim();
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                          <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Bank Locator"</span>:
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                              bankLabel = split[1].trim();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Locator"</span>:
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                              locator = <span class="jxr_string">"/"</span> + split[1].trim();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Size"</span>:
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                              capacity = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Type"</span>:
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                              memoryType = split[1].trim();
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Speed"</span>:
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                              speed = ParseUtil.parseSpeed(split[1]);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Manufacturer"</span>:
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                              manufacturer = split[1].trim();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"PartNumber"</span>:
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Part Number"</span>:
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                              partNumber = split[1].trim();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Serial Number"</span>:
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                              serialNumber = split[1].trim();
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                              <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                      }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              }

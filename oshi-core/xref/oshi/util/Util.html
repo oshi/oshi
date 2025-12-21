@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../apidocs/oshi/util/Util.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util;
@@ -55,7 +55,7 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @return True if the String matches or if the first character is ^ and the remainder of the String does not match.</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> wildcardMatch(String text, String pattern) {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">if</strong> (pattern.length() &gt; 0 &amp;&amp; pattern.charAt(0) == '^') {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">if</strong> (!pattern.isEmpty() &amp;&amp; pattern.charAt(0) == '^') {
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">return</strong> !wildcardMatch(text, pattern.substring(1));
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">return</strong> text.matches(pattern.replace(<span class="jxr_string">"?"</span>, <span class="jxr_string">".?"</span>).replace(<span class="jxr_string">"*"</span>, <span class="jxr_string">".*?"</span>));

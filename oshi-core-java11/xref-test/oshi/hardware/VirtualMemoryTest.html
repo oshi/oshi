@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/hardware/VirtualMemoryTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware;
@@ -27,30 +27,35 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Test GlobalMemory</em>
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">class</strong> <a name="VirtualMemoryTest" href="../../oshi/hardware/VirtualMemoryTest.html#VirtualMemoryTest">VirtualMemoryTest</a> {
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * Test VirtualMemory.</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      @Test
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">void</strong> testGlobalMemory() {
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>          HardwareAbstractionLayer hal = si.getHardware();
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          GlobalMemory memory = hal.getMemory();
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          VirtualMemory vm = memory.getVirtualMemory();
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(<span class="jxr_string">"VM object shouldn't be null"</span>, vm, is(notNullValue()));
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <em class="jxr_comment">// Swap tests</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          assertThat(<span class="jxr_string">"VM's swap pages in shouldn't be negative"</span>, vm.getSwapPagesIn(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(<span class="jxr_string">"VM's swap pages out shouldn't be negative"</span>, vm.getSwapPagesOut(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(<span class="jxr_string">"VM's swap total shouldn't be negative"</span>, vm.getSwapTotal(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(<span class="jxr_string">"VM's swap used shouldn't be negative"</span>, vm.getSwapUsed(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(<span class="jxr_string">"VM's swap used should be less than or equal to VM swap total"</span>, vm.getSwapUsed(),
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>                  is(lessThanOrEqualTo(vm.getSwapTotal())));
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(<span class="jxr_string">"VM's max should be greater than or qual to VM swap total"</span>, vm.getVirtualMax() &gt;= vm.getSwapTotal(),
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(<span class="jxr_string">"VM's virtual in use shouldn't be negative"</span>, vm.getVirtualInUse(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(<span class="jxr_string">"VM's toString contains 'Used'"</span>, vm.toString(), containsString(<span class="jxr_string">"Used"</span>));
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">protected</strong> VirtualMemory createVirtualMemory() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          HardwareAbstractionLayer hal = si.getHardware();
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          GlobalMemory memory = hal.getMemory();
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">return</strong> memory.getVirtualMemory();
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * Test VirtualMemory.</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      @Test
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">void</strong> testVirtualMemory() {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          VirtualMemory vm = createVirtualMemory();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(<span class="jxr_string">"VM object shouldn't be null"</span>, vm, is(notNullValue()));
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// Swap tests</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(<span class="jxr_string">"VM's swap pages in shouldn't be negative"</span>, vm.getSwapPagesIn(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(<span class="jxr_string">"VM's swap pages out shouldn't be negative"</span>, vm.getSwapPagesOut(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(<span class="jxr_string">"VM's swap total shouldn't be negative"</span>, vm.getSwapTotal(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(<span class="jxr_string">"VM's swap used shouldn't be negative"</span>, vm.getSwapUsed(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(<span class="jxr_string">"VM's swap used should be less than or equal to VM swap total"</span>, vm.getSwapUsed(),
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  is(lessThanOrEqualTo(vm.getSwapTotal())));
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(<span class="jxr_string">"VM's max should be greater than or qual to VM swap total"</span>, vm.getVirtualMax() &gt;= vm.getSwapTotal(),
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(<span class="jxr_string">"VM's virtual in use shouldn't be negative"</span>, vm.getVirtualInUse(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertThat(<span class="jxr_string">"VM's toString contains 'Used'"</span>, vm.toString(), containsString(<span class="jxr_string">"Used"</span>));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>

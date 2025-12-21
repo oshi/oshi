@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Win32Process xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/oshi/driver/windows/wmi/Win32Process.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.windows.wmi;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Objects;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryHandler;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Utility to query WMI class {@code Win32_Process}</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32Process" href="../../../../oshi/driver/windows/wmi/Win32Process.html#Win32Process">Win32Process</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String WIN32_PROCESS = <span class="jxr_string">"Win32_Process"</span>;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * Process command lines.</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> enum CommandLineProperty {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          PROCESSID, COMMANDLINE;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * Process properties accessible from WTSEnumerateProcesses in Vista+</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> enum ProcessXPProperty {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <a name="Win32Process" href="../../../../oshi/driver/windows/wmi/Win32Process.html#Win32Process">Win32Process</a>() {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * Returns process command lines</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * @param pidsToQuery Process IDs to query for command lines. Pass {@code null} to query all processes.</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @return A {@link WmiResult} containing process IDs and command lines used to start the provided processes.</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          String sb = WIN32_PROCESS;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">if</strong> (pidsToQuery != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              sb += <span class="jxr_string">" WHERE ProcessID="</span>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                      + pidsToQuery.stream().map(String::valueOf).collect(Collectors.joining(<span class="jxr_string">" OR PROCESSID="</span>));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          WmiQuery&lt;CommandLineProperty&gt; commandLineQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb, CommandLineProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(commandLineQuery);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * Returns process info</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @param pids Process IDs to query.</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @return Information on the provided processes.</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          String sb = WIN32_PROCESS;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">if</strong> (pids != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              sb += <span class="jxr_string">" WHERE ProcessID="</span>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      + pids.stream().map(String::valueOf).collect(Collectors.joining(<span class="jxr_string">" OR PROCESSID="</span>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          WmiQuery&lt;ProcessXPProperty&gt; processQueryXP = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(sb, ProcessXPProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(processQueryXP);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

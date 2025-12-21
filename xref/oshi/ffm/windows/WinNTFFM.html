@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>WinNTFFM xref</title>
+<link type="text/css" rel="stylesheet" href="../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../apidocs/oshi/ffm/windows/WinNTFFM.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2025 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm.windows;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemoryLayout;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.StructLayout;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.structLayout;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_SHORT;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="WinNTFFM" href="../../../oshi/ffm/windows/WinNTFFM.html#WinNTFFM">WinNTFFM</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">int</strong> EVENTLOG_BACKWARDS_READ = 0x0008;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">int</strong> EVENTLOG_SEQUENTIAL_READ = 0x0001;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">int</strong> KEY_READ = 0x20019;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">int</strong> KEY_WOW64_64KEY = 0x0100;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">int</strong> KEY_WOW64_32KEY = 0x0200;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">int</strong> REG_SZ = 1;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">int</strong> REG_EXPAND_SZ = 2;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">int</strong> REG_DWORD = 4;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">int</strong> SE_PRIVILEGE_ENABLED = 0x00000002;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">int</strong> TOKEN_QUERY = 0x0008;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">int</strong> TOKEN_ADJUST_PRIVILEGES = 0x0020;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">int</strong> TokenElevation = 20;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      StructLayout EVENTLOGRECORD = structLayout(JAVA_INT.withName(<span class="jxr_string">"Length"</span>), JAVA_INT.withName(<span class="jxr_string">"Reserved"</span>),
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              JAVA_INT.withName(<span class="jxr_string">"RecordNumber"</span>), JAVA_INT.withName(<span class="jxr_string">"TimeGenerated"</span>), JAVA_INT.withName(<span class="jxr_string">"TimeWritten"</span>),
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              JAVA_INT.withName(<span class="jxr_string">"EventID"</span>), JAVA_SHORT.withName(<span class="jxr_string">"EventType"</span>), JAVA_SHORT.withName(<span class="jxr_string">"NumStrings"</span>),
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              JAVA_SHORT.withName(<span class="jxr_string">"EventCategory"</span>), JAVA_SHORT.withName(<span class="jxr_string">"ReservedFlags"</span>), MemoryLayout.paddingLayout(4),
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              JAVA_INT.withName(<span class="jxr_string">"ClosingRecordNumber"</span>), JAVA_INT.withName(<span class="jxr_string">"StringOffset"</span>),
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              JAVA_INT.withName(<span class="jxr_string">"UserSidLength"</span>), JAVA_INT.withName(<span class="jxr_string">"UserSidOffset"</span>), JAVA_INT.withName(<span class="jxr_string">"DataLength"</span>),
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              JAVA_INT.withName(<span class="jxr_string">"DataOffset"</span>));
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      StructLayout LUID = structLayout(JAVA_INT.withName(<span class="jxr_string">"LowPart"</span>), JAVA_INT.withName(<span class="jxr_string">"HighPart"</span>));
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      StructLayout LUID_AND_ATTRIBUTES = structLayout(LUID.withName(<span class="jxr_string">"Luid"</span>), JAVA_INT.withName(<span class="jxr_string">"Attributes"</span>));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      StructLayout PERFORMANCE_INFORMATION = structLayout(JAVA_INT.withName(<span class="jxr_string">"cb"</span>), MemoryLayout.paddingLayout(4),
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              JAVA_LONG.withName(<span class="jxr_string">"CommitTotal"</span>), JAVA_LONG.withName(<span class="jxr_string">"CommitLimit"</span>), JAVA_LONG.withName(<span class="jxr_string">"CommitPeak"</span>),
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              JAVA_LONG.withName(<span class="jxr_string">"PhysicalTotal"</span>), JAVA_LONG.withName(<span class="jxr_string">"PhysicalAvailable"</span>),
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              JAVA_LONG.withName(<span class="jxr_string">"SystemCache"</span>), JAVA_LONG.withName(<span class="jxr_string">"KernelTotal"</span>), JAVA_LONG.withName(<span class="jxr_string">"KernelPaged"</span>),
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              JAVA_LONG.withName(<span class="jxr_string">"KernelNonpaged"</span>), JAVA_LONG.withName(<span class="jxr_string">"PageSize"</span>), JAVA_INT.withName(<span class="jxr_string">"HandleCount"</span>),
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              JAVA_INT.withName(<span class="jxr_string">"ProcessCount"</span>), JAVA_INT.withName(<span class="jxr_string">"ThreadCount"</span>), MemoryLayout.paddingLayout(4));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      StructLayout TOKEN_PRIVILEGES = structLayout(JAVA_INT.withName(<span class="jxr_string">"PrivilegeCount"</span>),
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              LUID_AND_ATTRIBUTES.withName(<span class="jxr_string">"Privileges"</span>));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      StructLayout TOKEN_ELEVATION = structLayout(JAVA_INT.withName(<span class="jxr_string">"TokenIsElevated"</span>));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">long</strong> OFFSET_TIME_GENERATED = EVENTLOGRECORD.byteOffset(MemoryLayout.PathElement.groupElement(<span class="jxr_string">"TimeGenerated"</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">long</strong> OFFSET_EVENTID = EVENTLOGRECORD.byteOffset(MemoryLayout.PathElement.groupElement(<span class="jxr_string">"EventID"</span>));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">long</strong> OFFSET_LENGTH = EVENTLOGRECORD.byteOffset(MemoryLayout.PathElement.groupElement(<span class="jxr_string">"Length"</span>));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">long</strong> TOKEN_PRIVILEGES_PRIVILEGE_COUNT_OFFSET = TOKEN_PRIVILEGES
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              .byteOffset(MemoryLayout.PathElement.groupElement(<span class="jxr_string">"PrivilegeCount"</span>));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">long</strong> TOKEN_PRIVILEGES_LUID_OFFSET = TOKEN_PRIVILEGES.byteOffset(MemoryLayout.PathElement.groupElement(<span class="jxr_string">"Privileges"</span>),
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              MemoryLayout.PathElement.groupElement(<span class="jxr_string">"Luid"</span>));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">long</strong> TOKEN_PRIVILEGES_ATTRIBUTES_OFFSET = TOKEN_PRIVILEGES.byteOffset(
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              MemoryLayout.PathElement.groupElement(<span class="jxr_string">"Privileges"</span>), MemoryLayout.PathElement.groupElement(<span class="jxr_string">"Attributes"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

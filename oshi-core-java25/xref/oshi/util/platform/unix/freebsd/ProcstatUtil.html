@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ProcstatUtil xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/oshi/util/platform/unix/freebsd/ProcstatUtil.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.platform.unix.freebsd;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * Reads from procstat into a map</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="ProcstatUtil" href="../../../../../oshi/util/platform/unix/freebsd/ProcstatUtil.html#ProcstatUtil">ProcstatUtil</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <a name="ProcstatUtil" href="../../../../../oshi/util/platform/unix/freebsd/ProcstatUtil.html#ProcstatUtil">ProcstatUtil</a>() {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * Gets a map containing current working directory info</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * @param pid a process ID, optional</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @return a map of process IDs to their current working directory. If {@code pid} is a negative number, all</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     *         processes are returned; otherwise the map may contain only a single element for {@code pid}</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, String&gt; getCwdMap(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          List&lt;String&gt; procstat = ExecutingCommand.runNative(<span class="jxr_string">"procstat -f "</span> + (pid &lt; 0 ? <span class="jxr_string">"-a"</span> : pid));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          Map&lt;Integer, String&gt; cwdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">for</strong> (String line : procstat) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              String[] split = ParseUtil.whitespaces.split(line.trim(), 10);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <strong class="jxr_keyword">if</strong> (split.length == 10 &amp;&amp; split[2].equals(<span class="jxr_string">"cwd"</span>)) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>                  cwdMap.put(ParseUtil.parseIntOrDefault(split[0], -1), split[9]);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">return</strong> cwdMap;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * Gets current working directory info</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * @param pid a process ID</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @return the current working directory for that process.</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getCwd(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;String&gt; procstat = ExecutingCommand.runNative(<span class="jxr_string">"procstat -f "</span> + pid);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (String line : procstat) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              String[] split = ParseUtil.whitespaces.split(line.trim(), 10);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">if</strong> (split.length == 10 &amp;&amp; split[2].equals(<span class="jxr_string">"cwd"</span>)) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">return</strong> split[9];
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * Gets open files</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @param pid The process ID</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @return the number of open files.</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> getOpenFiles(<strong class="jxr_keyword">int</strong> pid) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">long</strong> fd = 0L;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          List&lt;String&gt; procstat = ExecutingCommand.runNative(<span class="jxr_string">"procstat -f "</span> + pid);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">for</strong> (String line : procstat) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              String[] split = ParseUtil.whitespaces.split(line.trim(), 10);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> (split.length == 10 &amp;&amp; !<span class="jxr_string">"Vd-"</span>.contains(split[4])) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  fd++;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">return</strong> fd;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

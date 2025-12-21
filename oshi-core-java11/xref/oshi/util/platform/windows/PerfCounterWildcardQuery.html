@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/util/platform/windows/PerfCounterWildcardQuery.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2024 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.platform.windows;
@@ -233,20 +233,20 @@
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>                     List&lt;Long&gt; values = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                         <strong class="jxr_keyword">switch</strong> (result.getCIMType(prop)) {
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>                         <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT16:
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>                             values.add((<strong class="jxr_keyword">long</strong>) WmiUtil.getUint16(result, prop, i));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>                             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>                         <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT32:
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                             values.add(WmiUtil.getUint32asLong(result, prop, i));
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>                         <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT64:
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                             values.add(WmiUtil.getUint64(result, prop, i));
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>                             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>                         <strong class="jxr_keyword">case</strong> Wbemcli.CIM_DATETIME:
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>                             values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>                             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>                         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>                             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ClassCastException(<span class="jxr_string">"Unimplemented CIM Type Mapping."</span>);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>                             <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT16:
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                                 values.add((<strong class="jxr_keyword">long</strong>) WmiUtil.getUint16(result, prop, i));
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>                                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                             <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT32:
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                                 values.add(WmiUtil.getUint32asLong(result, prop, i));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                             <strong class="jxr_keyword">case</strong> Wbemcli.CIM_UINT64:
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                                 values.add(WmiUtil.getUint64(result, prop, i));
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                             <strong class="jxr_keyword">case</strong> Wbemcli.CIM_DATETIME:
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                                 values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ClassCastException(<span class="jxr_string">"Unimplemented CIM Type Mapping."</span>);
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>                         }
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>                     }
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>                     valuesMap.put(prop, values);

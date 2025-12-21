@@ -72,28 +72,28 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              String timing = EdidUtil.getTimingDescriptor(descs[i]);
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              String range = EdidUtil.getDescriptorRangeLimits(descs[i]);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">switch</strong> (i) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">case</strong> 0:
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  assertThat(<span class="jxr_string">"desc 0 type"</span>, type, is(0x565E00A0));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  assertThat(<span class="jxr_string">"desc 0 timing"</span>, timing, is(<span class="jxr_string">"Clock 241MHz, Active Pixels 2560x1440 "</span>));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertThat(<span class="jxr_string">"desc 0 range"</span>, range,
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          is(<span class="jxr_string">"Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz"</span>));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">case</strong> 1:
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  assertThat(<span class="jxr_string">"desc 1 type"</span>, type, is(0x1A1D0080));
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  assertThat(<span class="jxr_string">"desc 1 timing"</span>, timing, is(<span class="jxr_string">"Clock 74MHz, Active Pixels 1280x720 "</span>));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  assertThat(<span class="jxr_string">"desc 1 range"</span>, range,
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          is(<span class="jxr_string">"Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz"</span>));
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">case</strong> 2:
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  assertThat(<span class="jxr_string">"desc 2 type"</span>, type, is(0xFF));
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  assertThat(<span class="jxr_string">"desc 2 descriptorText"</span>, EdidUtil.getDescriptorText(descs[i]), is(<span class="jxr_string">"C02JM2PFF2GC"</span>));
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  assertThat(<span class="jxr_string">"desc 2 descriptorHex"</span>, ParseUtil.byteArrayToHexString(descs[i]), is(EDID_DESC3));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">case</strong> 3:
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  assertThat(<span class="jxr_string">"desc 3 type"</span>, type, is(0xFC));
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  assertThat(<span class="jxr_string">"desc 3 descriptorText"</span>, EdidUtil.getDescriptorText(descs[i]), is(<span class="jxr_string">"Thunderbolt"</span>));
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">case</strong> 0:
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      assertThat(<span class="jxr_string">"desc 0 type"</span>, type, is(0x565E00A0));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      assertThat(<span class="jxr_string">"desc 0 timing"</span>, timing, is(<span class="jxr_string">"Clock 241MHz, Active Pixels 2560x1440 "</span>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      assertThat(<span class="jxr_string">"desc 0 range"</span>, range,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                              is(<span class="jxr_string">"Field Rate -96-41 Hz vertical, 80-48 Hz horizontal, Max clock: 320 MHz"</span>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <strong class="jxr_keyword">case</strong> 1:
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      assertThat(<span class="jxr_string">"desc 1 type"</span>, type, is(0x1A1D0080));
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      assertThat(<span class="jxr_string">"desc 1 timing"</span>, timing, is(<span class="jxr_string">"Clock 74MHz, Active Pixels 1280x720 "</span>));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      assertThat(<span class="jxr_string">"desc 1 range"</span>, range,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                              is(<span class="jxr_string">"Field Rate -48-28 Hz vertical, 32-64 Hz horizontal, Max clock: -1280 MHz"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">case</strong> 2:
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      assertThat(<span class="jxr_string">"desc 2 type"</span>, type, is(0xFF));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      assertThat(<span class="jxr_string">"desc 2 descriptorText"</span>, EdidUtil.getDescriptorText(descs[i]), is(<span class="jxr_string">"C02JM2PFF2GC"</span>));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      assertThat(<span class="jxr_string">"desc 2 descriptorHex"</span>, ParseUtil.byteArrayToHexString(descs[i]), is(EDID_DESC3));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">case</strong> 3:
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      assertThat(<span class="jxr_string">"desc 3 type"</span>, type, is(0xFC));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      assertThat(<span class="jxr_string">"desc 3 descriptorText"</span>, EdidUtil.getDescriptorText(descs[i]), is(<span class="jxr_string">"Thunderbolt"</span>));
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">default</strong>:
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      }

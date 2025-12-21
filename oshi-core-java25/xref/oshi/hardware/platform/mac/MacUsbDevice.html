@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MacUsbDevice xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/mac/MacUsbDevice.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.mac;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFIndex;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IOIterator;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKit.IORegistryEntry;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.IOKitUtil;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractUsbDevice;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * Mac Usb Device</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  @Immutable
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractUsbDevice" href="../../../../oshi/hardware/common/AbstractUsbDevice.html#AbstractUsbDevice">AbstractUsbDevice</a> {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> CoreFoundation CF = CoreFoundation.INSTANCE;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IOUSB = <span class="jxr_string">"IOUSB"</span>;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IOSERVICE = <span class="jxr_string">"IOService"</span>;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a>(String name, String vendor, String vendorId, String productId, String serialNumber,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              String uniqueDeviceId, List&lt;UsbDevice&gt; connectedDevices) {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">super</strong>(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * (including internal devices).</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * false, USB devices (not controllers) are listed in a single flat list.</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     *             false, returns a flat list of devices excluding controllers.</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @return a list of {@link oshi.hardware.UsbDevice} objects.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;UsbDevice&gt; getUsbDevices(<strong class="jxr_keyword">boolean</strong> tree) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          List&lt;UsbDevice&gt; devices = getUsbDevices();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">if</strong> (tree) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">return</strong> devices;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          List&lt;UsbDevice&gt; deviceList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Top level is controllers; they won't be added to the list, but all</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// their connected devices will be</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">for</strong> (<a name="UsbDevice" href="../../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> device : devices) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              addDevicesToList(deviceList, device.getConnectedDevices());
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">return</strong> deviceList;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;UsbDevice&gt; getUsbDevices() {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// Maps to store information using RegistryEntryID as the key</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          Map&lt;Long, String&gt; nameMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Map&lt;Long, String&gt; vendorMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          Map&lt;Long, String&gt; vendorIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          Map&lt;Long, String&gt; productIdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          Map&lt;Long, String&gt; serialMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          Map&lt;Long, List&lt;Long&gt;&gt; hubMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          List&lt;Long&gt; usbControllers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          IORegistryEntry root = IOKitUtil.getRoot();
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// Iterate over children of root in the IOUSB plane. This does not include</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <em class="jxr_comment">// controllers so we have to check their parents</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          IOIterator iter = root.getChildIterator(IOUSB);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <em class="jxr_comment">// Define keys</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              CFStringRef locationIDKey = CFStringRef.createCFString(<span class="jxr_string">"locationID"</span>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              CFStringRef ioPropertyMatchKey = CFStringRef.createCFString(<span class="jxr_string">"IOPropertyMatch"</span>);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <em class="jxr_comment">// Get the device directly under each controller</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              IORegistryEntry device = iter.next();
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">while</strong> (device != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">long</strong> id = 0L;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <em class="jxr_comment">// The parent of this device in IOService plane is the controller</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  IORegistryEntry controller = device.getParentEntry(IOSERVICE);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <strong class="jxr_keyword">if</strong> (controller != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      <em class="jxr_comment">// Unique global identifier for this controller</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      id = controller.getRegistryEntryID();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <em class="jxr_comment">// Populate other data for the controller</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                      nameMap.put(id, controller.getName());
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      <em class="jxr_comment">// The only information we have in registry for this controller is</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     <em class="jxr_comment">// the locationID. Use that to search for matching PCI device to obtain</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                     <em class="jxr_comment">// more information for the controller</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                     CFTypeRef ref = controller.createCFProperty(locationIDKey);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     <strong class="jxr_keyword">if</strong> (ref != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                         getControllerIdByLocation(id, ref, locationIDKey, ioPropertyMatchKey, vendorIdMap,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                 productIdMap);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                         ref.release();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     controller.release();
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 usbControllers.add(id);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <em class="jxr_comment">// Now recursively add this device and its children to the maps</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <em class="jxr_comment">// id is the coontroller ID and the first parent ID</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 addDeviceAndChildrenToMaps(device, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         hubMap);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 device.release();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 device = iter.next();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>             locationIDKey.release();
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             ioPropertyMatchKey.release();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             iter.release();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         root.release();
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// Build tree and return</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         List&lt;UsbDevice&gt; controllerDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">for</strong> (Long controller : usbControllers) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             controllerDevices.add(getDeviceAndChildren(controller, <span class="jxr_string">"0000"</span>, <span class="jxr_string">"0000"</span>, nameMap, vendorMap, vendorIdMap,
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                     productIdMap, serialMap, hubMap));
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> controllerDevices;
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     * Recursively populate maps with information from a USB Device and its children</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * @param device       The device which, along with its children, should be added</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @param parentId     The id of the device's parent.</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * @param nameMap      the map of names</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * @param vendorMap    the map of vendors</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param vendorIdMap  the map of vendorIds</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @param productIdMap the map of productIds</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @param serialMap    the map of serial numbers</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @param hubMap       the map of hubs</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> addDeviceAndChildrenToMaps(IORegistryEntry device, <strong class="jxr_keyword">long</strong> parentId, Map&lt;Long, String&gt; nameMap,
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             Map&lt;Long, String&gt; vendorMap, Map&lt;Long, String&gt; vendorIdMap, Map&lt;Long, String&gt; productIdMap,
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             Map&lt;Long, String&gt; serialMap, Map&lt;Long, List&lt;Long&gt;&gt; hubMap) {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <em class="jxr_comment">// Unique global identifier for this device</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">long</strong> id = device.getRegistryEntryID();
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <em class="jxr_comment">// Store id as a child of parent in hubmap</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         hubMap.computeIfAbsent(parentId, x -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(id);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <em class="jxr_comment">// Get device name and store in map</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         nameMap.put(id, device.getName().trim());
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_comment">// Get vendor and store in map</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         String vendor = device.getStringProperty(<span class="jxr_string">"USB Vendor Name"</span>);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">if</strong> (vendor != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             vendorMap.put(id, vendor.trim());
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// Get vendorId and store in map</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         Long vendorId = device.getLongProperty(<span class="jxr_string">"idVendor"</span>);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">if</strong> (vendorId != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             vendorIdMap.put(id, String.format(Locale.ROOT, <span class="jxr_string">"%04x"</span>, 0xffff &amp; vendorId));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <em class="jxr_comment">// Get productId and store in map</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         Long productId = device.getLongProperty(<span class="jxr_string">"idProduct"</span>);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">if</strong> (productId != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             productIdMap.put(id, String.format(Locale.ROOT, <span class="jxr_string">"%04x"</span>, 0xffff &amp; productId));
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// Get serial and store in map</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         String serial = device.getStringProperty(<span class="jxr_string">"USB Serial Number"</span>);
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">if</strong> (serial != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             serialMap.put(id, serial.trim());
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <em class="jxr_comment">// Now get this device's children (if any) and recurse</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         IOIterator childIter = device.getChildIterator(IOUSB);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         IORegistryEntry childDevice = childIter.next();
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">while</strong> (childDevice != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             addDeviceAndChildrenToMaps(childDevice, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                     hubMap);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             childDevice.release();
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             childDevice = childIter.next();
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         childIter.release();
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> addDevicesToList(List&lt;UsbDevice&gt; deviceList, List&lt;UsbDevice&gt; list) {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">for</strong> (<a name="UsbDevice" href="../../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> device : list) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             deviceList.add(
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                     <strong class="jxr_keyword">new</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a>(device.getName(), device.getVendor(), device.getVendorId(), device.getProductId(),
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                             device.getSerialNumber(), device.getUniqueDeviceId(), Collections.emptyList()));
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             addDevicesToList(deviceList, device.getConnectedDevices());
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     * Looks up vendor and product id information for a USB Host Controller by cross-referencing the location</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * @param id                 The global unique ID for the host controller used as a key for maps</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @param locationId         The locationID of this controller returned from the registry</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * @param locationIDKey      A pointer to the locationID string</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @param ioPropertyMatchKey A pointer to the IOPropertyMatch string</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     * @param productIdMap       the map of productIds</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * @param vendorIdMap        the map of vendorIds</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> getControllerIdByLocation(<strong class="jxr_keyword">long</strong> id, CFTypeRef locationId, CFStringRef locationIDKey,
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             CFStringRef ioPropertyMatchKey, Map&lt;Long, String&gt; vendorIdMap, Map&lt;Long, String&gt; productIdMap) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <em class="jxr_comment">// Create a matching property dictionary from the locationId</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(), <strong class="jxr_keyword">new</strong> CFIndex(0),
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                 <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         propertyDict.setValue(locationIDKey, locationId);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         CFMutableDictionaryRef matchingDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(), <strong class="jxr_keyword">new</strong> CFIndex(0),
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         matchingDict.setValue(ioPropertyMatchKey, propertyDict);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// search for all IOservices that match the locationID</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <em class="jxr_comment">// getMatchingServices releases matchingDict</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         propertyDict.release();
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <em class="jxr_comment">// Iterate matching services looking for devices whose parents have the</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <em class="jxr_comment">// vendor and device ids</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">boolean</strong> found = false;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">if</strong> (serviceIterator != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             IORegistryEntry matchingService = serviceIterator.next();
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <strong class="jxr_keyword">while</strong> (matchingService != <strong class="jxr_keyword">null</strong> &amp;&amp; !found) {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                 <em class="jxr_comment">// Get the parent, which contains the keys we need</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 IORegistryEntry parent = matchingService.getParentEntry(IOSERVICE);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 <em class="jxr_comment">// look up the vendor-id by key</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                 <em class="jxr_comment">// vendor-id is a byte array of 4 bytes</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <strong class="jxr_keyword">if</strong> (parent != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                     byte[] vid = parent.getByteArrayProperty(<span class="jxr_string">"vendor-id"</span>);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                     <strong class="jxr_keyword">if</strong> (vid != <strong class="jxr_keyword">null</strong> &amp;&amp; vid.length &gt;= 2) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                         vendorIdMap.put(id, String.format(Locale.ROOT, <span class="jxr_string">"%02x%02x"</span>, vid[1], vid[0]));
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                         found = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                     }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                     <em class="jxr_comment">// look up the device-id by key</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>                     <em class="jxr_comment">// device-id is a byte array of 4 bytes</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                     byte[] pid = parent.getByteArrayProperty(<span class="jxr_string">"device-id"</span>);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                     <strong class="jxr_keyword">if</strong> (pid != <strong class="jxr_keyword">null</strong> &amp;&amp; pid.length &gt;= 2) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                         productIdMap.put(id, String.format(Locale.ROOT, <span class="jxr_string">"%02x%02x"</span>, pid[1], pid[0]));
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                         found = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                     }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                     parent.release();
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 <em class="jxr_comment">// iterate</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                 matchingService.release();
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 matchingService = serviceIterator.next();
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             serviceIterator.release();
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         }
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * Recursively creates MacUsbDevices by fetching information from maps to populate fields</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * @param registryEntryId The device unique registry id.</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     * @param vid             The default (parent) vendor ID</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @param pid             The default (parent) product ID</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     * @param nameMap         the map of names</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * @param vendorMap       the map of vendors</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     * @param vendorIdMap     the map of vendorIds</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * @param productIdMap    the map of productIds</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     * @param serialMap       the map of serial numbers</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">     * @param hubMap          the map of hubs</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">     * @return A MacUsbDevice corresponding to this device</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a> getDeviceAndChildren(Long registryEntryId, String vid, String pid,
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             Map&lt;Long, String&gt; nameMap, Map&lt;Long, String&gt; vendorMap, Map&lt;Long, String&gt; vendorIdMap,
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             Map&lt;Long, String&gt; productIdMap, Map&lt;Long, String&gt; serialMap, Map&lt;Long, List&lt;Long&gt;&gt; hubMap) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         String productId = productIdMap.getOrDefault(registryEntryId, pid);
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         List&lt;Long&gt; childIds = hubMap.getOrDefault(registryEntryId, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;());
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         List&lt;UsbDevice&gt; usbDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         <strong class="jxr_keyword">for</strong> (Long id : childIds) {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             usbDevices.add(getDeviceAndChildren(id, vendorId, productId, nameMap, vendorMap, vendorIdMap, productIdMap,
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                     serialMap, hubMap));
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         }
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         Collections.sort(usbDevices);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="MacUsbDevice" href="../../../../oshi/hardware/platform/mac/MacUsbDevice.html#MacUsbDevice">MacUsbDevice</a>(nameMap.getOrDefault(registryEntryId, vendorId + <span class="jxr_string">":"</span> + productId),
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 vendorMap.getOrDefault(registryEntryId, <span class="jxr_string">""</span>), vendorId, productId,
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 serialMap.getOrDefault(registryEntryId, <span class="jxr_string">""</span>), <span class="jxr_string">"0x"</span> + Long.toHexString(registryEntryId), usbDevices);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> }
+</pre>
+<hr/>
+<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

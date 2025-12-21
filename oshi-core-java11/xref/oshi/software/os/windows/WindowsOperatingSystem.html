@@ -501,15 +501,15 @@
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>             <strong class="jxr_keyword">for</strong> (Winsvc.ENUM_SERVICE_STATUS_PROCESS service : services) {
 <a class="jxr_linenumber" name="L494" href="#L494">494</a>                 State state;
 <a class="jxr_linenumber" name="L495" href="#L495">495</a>                 <strong class="jxr_keyword">switch</strong> (service.ServiceStatusProcess.dwCurrentState) {
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>                 <strong class="jxr_keyword">case</strong> 1:
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                     state = STOPPED;
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 <strong class="jxr_keyword">case</strong> 4:
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                     state = RUNNING;
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                     state = OTHER;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>                     <strong class="jxr_keyword">case</strong> 1:
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>                         state = STOPPED;
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>                     <strong class="jxr_keyword">case</strong> 4:
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>                         state = RUNNING;
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>                     <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>                         state = OTHER;
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>                         <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>                 }
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>                 svcArray.add(<strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../oshi/software/os/OSService.html#OSService">OSService</a>(service.lpDisplayName, service.ServiceStatusProcess.dwProcessId, state));
 <a class="jxr_linenumber" name="L507" href="#L507">507</a>             }

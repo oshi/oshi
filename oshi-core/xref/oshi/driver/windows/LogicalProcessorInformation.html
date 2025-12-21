@@ -76,29 +76,29 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">for</strong> (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX info : procInfo) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">switch</strong> (info.relationship) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <em class="jxr_comment">// could assign a package to more than one processor group</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.cacheSize,
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          Type.values()[cache.type]));
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  <em class="jxr_comment">// for Core, groupCount is always 1</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  cores.add(core.groupMask[0]);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">if</strong> (IS_WIN10_OR_GREATER) {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      coreEfficiencyMap.put(core.groupMask[0], (<strong class="jxr_keyword">int</strong>) core.efficiencyClass);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <em class="jxr_comment">// Ignore Group info</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorPackage:
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <em class="jxr_comment">// could assign a package to more than one processor group</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      packages.add(((PROCESSOR_RELATIONSHIP) info).groupMask);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                      caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.cacheSize,
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                              Type.values()[cache.type]));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationProcessorCore:
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      PROCESSOR_RELATIONSHIP core = ((PROCESSOR_RELATIONSHIP) info);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <em class="jxr_comment">// for Core, groupCount is always 1</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      cores.add(core.groupMask[0]);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      <strong class="jxr_keyword">if</strong> (IS_WIN10_OR_GREATER) {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                          coreEfficiencyMap.put(core.groupMask[0], (<strong class="jxr_keyword">int</strong>) core.efficiencyClass);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">case</strong> LOGICAL_PROCESSOR_RELATIONSHIP.RelationNumaNode:
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                      numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                      <em class="jxr_comment">// Ignore Group info</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                      <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              }
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          }
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// Windows doesn't define core, cache, and package numbers, so we define our own</em>

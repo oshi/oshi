@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/linux/LinuxPowerSource.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2024 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.linux;
@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                      <strong class="jxr_keyword">for</strong> (UdevListEntry entry = enumerate.getListEntry(); entry != <strong class="jxr_keyword">null</strong>; entry = entry.getNext()) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                          String syspath = entry.getName();
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                          String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                          <strong class="jxr_keyword">if</strong> (!name.startsWith(<span class="jxr_string">"ADP"</span>) &amp;&amp; !name.startsWith(<span class="jxr_string">"AC"</span>)) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                          <strong class="jxr_keyword">if</strong> (!name.startsWith(<span class="jxr_string">"ADP"</span>) &amp;&amp; !name.startsWith(<span class="jxr_string">"AC"</span>) &amp;&amp; !name.contains(<span class="jxr_string">"USBC"</span>)) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                              UdevDevice device = udev.deviceNewFromSyspath(syspath);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                              <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                                  <strong class="jxr_keyword">try</strong> {
@@ -187,7 +187,7 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>             }
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">for</strong> (File ps : psArr) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                 String name = ps.getName();
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">if</strong> (!name.startsWith(<span class="jxr_string">"ADP"</span>) &amp;&amp; !name.startsWith(<span class="jxr_string">"AC"</span>)) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">if</strong> (!name.startsWith(<span class="jxr_string">"ADP"</span>) &amp;&amp; !name.startsWith(<span class="jxr_string">"AC"</span>) &amp;&amp; !name.contains(<span class="jxr_string">"USBC"</span>)) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                     <em class="jxr_comment">// Skip if can't read uevent file</em>
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>                     List&lt;String&gt; psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + <span class="jxr_string">"/"</span> + name + <span class="jxr_string">"/uevent"</span>, false);
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                     Map&lt;String, String&gt; psMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
