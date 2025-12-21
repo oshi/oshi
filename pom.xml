@@ -134,7 +134,6 @@
         <spotless-plugin.version>3.1.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.6</jlibrehardwaremonitor.version>
         <!-- report only -->
-        <maven-changelog-plugin.version>3.0.0-M1</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.4</maven-surefire-report-plugin.version>
@@ -511,15 +510,6 @@
                 <!-- Report Only -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-changelog-plugin</artifactId>
-                    <version>${maven-changelog-plugin.version}</version>
-                    <configuration>
-                        <!-- Use git log instead of deprecated git whatchanged which newer Git refuses to run -->
-                        <gitCommand>log</gitCommand>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jxr-plugin</artifactId>
                     <version>${maven-jxr-plugin.version}</version>
                 </plugin>
@@ -892,13 +882,6 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-changelog-plugin</artifactId>
-                <configuration>
-                    <gitCommand>log</gitCommand>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
