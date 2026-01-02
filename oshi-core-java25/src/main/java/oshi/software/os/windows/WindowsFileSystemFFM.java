@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -11,6 +11,7 @@ import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PdhUtilFFM;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -148,9 +149,9 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
                         String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                        fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume, name,
-                                mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType, systemFreeBytes,
-                                usedFreeBytes, totalBytes, 0, 0));
+                        fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume,
+                                name, mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType,
+                                systemFreeBytes, usedFreeBytes, totalBytes, 0, 0));
                     }
                 } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
                 return fs;
@@ -181,8 +182,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        LOG.debug("FFM implementation for getOpenFileDescriptors is not yet available (WMI dependent)");
-        return -1;
+        return PdhUtilFFM.getOpenFileDescriptors();
     }
 
     @Override
