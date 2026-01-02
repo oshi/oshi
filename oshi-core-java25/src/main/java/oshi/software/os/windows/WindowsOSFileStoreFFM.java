@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -22,8 +22,8 @@ public class WindowsOSFileStoreFFM extends AbstractOSFileStore {
     private long totalInodes;
 
     public WindowsOSFileStoreFFM(String name, String volume, String label, String mount, String options, String uuid,
-                              String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-                              long freeInodes, long totalInodes) {
+            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
+            long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid);
         this.logicalVolume = logicalVolume;
         this.description = description;
