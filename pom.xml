@@ -142,7 +142,7 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <dependency-check-maven.version>12.1.9</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>12.3.1</puppycrawl.checkstyle.version>
+        <puppycrawl.checkstyle.version>13.0.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
