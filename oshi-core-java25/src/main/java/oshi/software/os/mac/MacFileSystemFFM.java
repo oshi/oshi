@@ -61,11 +61,7 @@ public class MacFileSystemFFM extends MacFileSystem {
     }
 
     // Called by MacOSFileStore
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
-        return getFileStoreMatching(nameToMatch, false);
-    }
-
-    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
             // Use getfsstat to find fileSystems
