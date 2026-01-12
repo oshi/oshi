@@ -27,9 +27,9 @@ public class WindowsOSFileStore extends AbstractOSFileStore {
     private long totalInodes;
 
     public WindowsOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-            long freeInodes, long totalInodes) {
-        super(name, volume, label, mount, options, uuid);
+            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
+            long totalSpace, long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid, local);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -83,8 +83,10 @@ public class WindowsOSFileStore extends AbstractOSFileStore {
     @Override
     public boolean updateAttributes() {
         // Check if we have the volume locally
-        List<OSFileStore> volumes = WindowsFileSystem.getLocalVolumes(getVolume());
-        if (volumes.isEmpty()) {
+        List<OSFileStore> volumes;
+        if (isLocal()) {
+            volumes = WindowsFileSystem.getLocalVolumes(getVolume());
+        } else {
             // Not locally, search WMI
             String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
             volumes = WindowsFileSystem.getWmiVolumes(nameToMatch, false);

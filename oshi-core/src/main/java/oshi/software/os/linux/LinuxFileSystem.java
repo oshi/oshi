@@ -97,11 +97,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
     }
 
     // called from LinuxOSFileStore
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap) {
-        return getFileStoreMatching(nameToMatch, uuidMap, false);
-    }
-
-    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap,
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap,
             boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
@@ -132,7 +128,8 @@ public class LinuxFileSystem extends AbstractFileSystem {
             String type = split[2];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+            boolean nonLocal = NETWORK_FS_TYPES.contains(type);
+            if ((localOnly && nonLocal)
                     || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
                             volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                 continue;
@@ -205,7 +202,7 @@ public class LinuxFileSystem extends AbstractFileSystem {
             }
 
             fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,
-                    logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
+                    !nonLocal, logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes, totalInodes));
         }
         return fsList;
     }

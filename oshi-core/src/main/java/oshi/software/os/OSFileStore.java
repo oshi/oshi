@@ -83,6 +83,13 @@ public interface OSFileStore {
     String getUUID();
 
     /**
+     * Is this Filesystem local?
+     * 
+     * @return <code>true</code> if the drive is local.
+     */
+    boolean isLocal();
+
+    /**
      * Free space on the drive. This space is unallocated but may require elevated permissions to write.
      *
      * @return Free space on the drive (in bytes)

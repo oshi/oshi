@@ -25,9 +25,9 @@ public class FreeBsdOSFileStore extends AbstractOSFileStore {
     private long totalInodes;
 
     public FreeBsdOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-            long freeInodes, long totalInodes) {
-        super(name, volume, label, mount, options, uuid);
+            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
+            long totalSpace, long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid, local);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -80,7 +80,7 @@ public class FreeBsdOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : new FreeBsdFileSystem().getFileStores()) {
+        for (OSFileStore fileStore : new FreeBsdFileSystem().getFileStores(isLocal())) {
             if (getName().equals(fileStore.getName()) && getVolume().equals(fileStore.getVolume())
                     && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();

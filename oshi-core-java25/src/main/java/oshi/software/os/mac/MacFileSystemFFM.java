@@ -107,7 +107,8 @@ public class MacFileSystemFFM extends MacFileSystem {
                         long files = statfs.get(JAVA_LONG, STATFS.byteOffset(F_FILES));
 
                         // Skip non-local drives if requested, and exclude pseudo file systems
-                        if ((localOnly && (flags & MNT_LOCAL) == 0) || !path.equals("/")
+                        boolean nonLocal = (flags & MNT_LOCAL) == 0;
+                        if ((localOnly && nonLocal) || !path.equals("/")
                                 && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
                                         FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                             continue;
@@ -188,7 +189,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                         }
 
                         fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),
-                                uuid == null ? "" : uuid, "", description, type, file.getFreeSpace(),
+                                uuid == null ? "" : uuid, !nonLocal, "", description, type, file.getFreeSpace(),
                                 file.getUsableSpace(), file.getTotalSpace(), ffree, files));
                     }
                 } finally {

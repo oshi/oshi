@@ -19,14 +19,16 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String mount;
     private String options;
     private String uuid;
+    private boolean local;
 
-    protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid) {
+    protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid, boolean local) {
         this.name = name;
         this.volume = volume;
         this.label = label;
         this.mount = mount;
         this.options = options;
         this.uuid = uuid;
+        this.local = local;
     }
 
     protected AbstractOSFileStore() {
@@ -63,11 +65,17 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     }
 
     @Override
+    public boolean isLocal() {
+        return this.local;
+    }
+
+    @Override
     public String toString() {
         return "OSFileStore [name=" + getName() + ", volume=" + getVolume() + ", label=" + getLabel()
                 + ", logicalVolume=" + getLogicalVolume() + ", mount=" + getMount() + ", description="
                 + getDescription() + ", fsType=" + getType() + ", options=\"" + getOptions() + "\", uuid=" + getUUID()
-                + ", freeSpace=" + getFreeSpace() + ", usableSpace=" + getUsableSpace() + ", totalSpace="
-                + getTotalSpace() + ", freeInodes=" + getFreeInodes() + ", totalInodes=" + getTotalInodes() + "]";
+                + ", isLocal=" + isLocal() + ", freeSpace=" + getFreeSpace() + ", usableSpace=" + getUsableSpace()
+                + ", totalSpace=" + getTotalSpace() + ", freeInodes=" + getFreeInodes() + ", totalInodes=" 
+                + getTotalInodes() + "]";
     }
 }

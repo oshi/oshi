@@ -101,7 +101,8 @@ public final class FreeBsdFileSystem extends AbstractFileSystem {
             String options = split[3];
 
             // Skip non-local drives if requested, and exclude pseudo file systems
-            if ((localOnly && NETWORK_FS_TYPES.contains(type))
+            boolean nonLocal = NETWORK_FS_TYPES.contains(type);
+            if ((localOnly && nonLocal)
                     || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
                             volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                 continue;
@@ -130,7 +131,7 @@ public final class FreeBsdFileSystem extends AbstractFileSystem {
             // Match UUID
             String uuid = uuidMap.getOrDefault(name, "");
 
-            fsList.add(new LinuxOSFileStore(name, volume, name, path, options, uuid, "", description, type, freeSpace,
+            fsList.add(new FreeBsdOSFileStore(name, volume, name, path, options, uuid, !nonLocal, "", description, type, freeSpace,
                     usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
                     inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L));
         }

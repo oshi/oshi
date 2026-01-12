@@ -46,11 +46,7 @@ public class AixFileSystem extends AbstractFileSystem {
     }
 
     // Called by AixOSFileStore
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch) {
-        return getFileStoreMatching(nameToMatch, false);
-    }
-
-    private static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -110,7 +106,8 @@ public class AixFileSystem extends AbstractFileSystem {
                 String options = split[4];
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
-                if ((localOnly && NETWORK_FS_TYPES.contains(type)) || !path.equals("/")
+                boolean nonLocal = NETWORK_FS_TYPES.contains(type);
+                if ((localOnly && nonLocal) || !path.equals("/")
                         && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
                                 FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                     continue;
@@ -144,7 +141,7 @@ public class AixFileSystem extends AbstractFileSystem {
                     description = "Mount Point";
                 }
 
-                fsList.add(new AixOSFileStore(name, volume, name, path, options, "", "", description, type, freeSpace,
+                fsList.add(new AixOSFileStore(name, volume, name, path, options, "", !nonLocal, "", description, type, freeSpace,
                         usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
                         inodeTotalMap.getOrDefault(volume, 0L)));
             }
