@@ -78,10 +78,22 @@ public class DetectVM {
         // Try well known MAC addresses
         List<NetworkIF> nifs = hw.getNetworkIFs();
         for (NetworkIF nif : nifs) {
+            // Filter out virtual adapters/switches that lack a physical connector
+            if (!nif.isConnectorPresent()) {
+                continue;
+            }
             String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
-            String oui = mac.length() > 7 ? mac.substring(0, 8) : mac;
-            if (vmMacAddressProps.containsKey(oui)) {
-                return vmMacAddressProps.getProperty(oui);
+            // Sanitize to only hex digits
+            String cleanMac = mac.replaceAll("[^0-9A-F]", "");
+            if (cleanMac.length() >= 6) {
+                // Extract OUI (first 6 hex digits) and format as XX:XX:XX
+                String oui = String.format(Locale.ROOT, "%s:%s:%s",
+                        cleanMac.substring(0, 2),
+                        cleanMac.substring(2, 4),
+                        cleanMac.substring(4, 6));
+                if (vmMacAddressProps.containsKey(oui)) {
+                    return vmMacAddressProps.getProperty(oui);
+                }
             }
         }
 
