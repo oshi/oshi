@@ -34,7 +34,7 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
       - name: Checkstyle
-        if: contains(matrix.java, '17')
+        if: contains(matrix.java, '21')
         run: ./mvnw checkstyle:check
       - name: Forbidden APIs
         if: contains(matrix.java, '11')
