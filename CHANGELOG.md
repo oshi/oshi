@@ -1,6 +1,7 @@
 # 6.9.3 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#3064](https://github.com/oshi/oshi/pull/3064): Handle binary registry values in WindowsGraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.9.0 (2025-09-18), 6.9.1 (2025-10-18), 6.9.2 (2025-12-20)
 
