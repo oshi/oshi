@@ -4,8 +4,9 @@ freebsd_task:
   skip: "!changesInclude('.cirrus.yml', '**/freebsd/**', '**/common/**', '**/unix/*', '**/util/**')"
   freebsd_instance:
     matrix:
-      image_family: freebsd-14-2
-      image_family: freebsd-15-0-snap
+      image_family: freebsd-14-3
+      image_family: freebsd-15-0-amd64-ufs
+      image_family: freebsd-16-0-snap
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk11

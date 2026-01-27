@@ -31,7 +31,7 @@ jobs:
           run: |
             ./mvnw clean test -B -Djacoco.skip=true
 
-  # Runs on OpenBSD 7.3 x86 VM
+  # Runs on OpenBSD 7.7 x86 VM
   testopenbsd:
     runs-on: ubuntu-24.04
     name: Test JDK 11, OpenBSD vm
@@ -41,6 +41,7 @@ jobs:
         id: test-openbsd
         uses: vmactions/openbsd-vm@v1
         with:
+          release: "7.7"
           usesh: false
           mem: 2048
           # note default jdk for maven is 8, but some maven plugins no longer work
@@ -88,9 +89,9 @@ jobs:
         username: oshi
         key: ${{ secrets.AIX_OSHI_KEY }}
         port: 22
-        script_stop: true
         command_timeout: 25m
         script: |
+          set -e
           source .profile
           cd ~/git/oshi
           git checkout master
@@ -115,9 +116,9 @@ jobs:
         username: oshi
         key: ${{ secrets.AIX_OSHI_KEY }}
         port: 22
-        script_stop: true
         command_timeout: 15m
         script: |
+          set -e
           rm -fR ~/.cache/JNA
           rm -fR ~/javashared*
           cd ~/git/oshi

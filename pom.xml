@@ -93,7 +93,7 @@
         <jna.version>5.18.1</jna.version>
         <slf4j.version>2.0.17</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
-        <junit.version>5.14.1</junit.version>
+        <junit.version>5.14.2</junit.version>
         <hamcrest.version>3.0</hamcrest.version>
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
@@ -126,24 +126,23 @@
         <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
         <maven-dependency-plugin.version>3.9.0</maven-dependency-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
-        <central-publishing-maven-plugin.version>0.9.0</central-publishing-maven-plugin.version>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
+        <properties-maven-plugin.version>1.3.0</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
-        <spotless-plugin.version>3.1.0</spotless-plugin.version>
+        <spotless-plugin.version>3.2.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.6</jlibrehardwaremonitor.version>
         <!-- report only -->
-        <maven-changelog-plugin.version>3.0.0-M1</maven-changelog-plugin.version>
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.5.4</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.2.2</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.20.1</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
-        <dependency-check-maven.version>12.1.9</dependency-check-maven.version>
-        <puppycrawl.checkstyle.version>12.3.0</puppycrawl.checkstyle.version>
+        <dependency-check-maven.version>12.2.0</dependency-check-maven.version>
+        <puppycrawl.checkstyle.version>13.0.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
@@ -509,15 +508,6 @@
                     </executions>
                 </plugin>
                 <!-- Report Only -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-changelog-plugin</artifactId>
-                    <version>${maven-changelog-plugin.version}</version>
-                    <configuration>
-                        <!-- Use git log instead of deprecated git whatchanged which newer Git refuses to run -->
-                        <gitCommand>log</gitCommand>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jxr-plugin</artifactId>
@@ -892,13 +882,6 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-changelog-plugin</artifactId>
-                <configuration>
-                    <gitCommand>log</gitCommand>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
