@@ -9,29 +9,55 @@ jobs:
   build:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           cache: maven
           java-version: 25
           distribution: zulu
+
       - name: Analyze with Coverity
-        run: |
-          wget -q https://scan.coverity.com/download/linux64 --post-data "token=$COVERITY_TOKEN&project=oshi%2Foshi" -O coverity_tool.tgz
-          tar -xf coverity_tool.tgz
-          ./cov-analysis-linux64-*/bin/cov-configure --java
-          ./cov-analysis-linux64-*/bin/cov-build --dir cov-int ./mvnw -B -DskipTests=true verify
-          tar czvf oshi.tgz cov-int
-          curl --form token=$COVERITY_TOKEN \
-            --form email=$EMAIL \
-            --form file=@oshi.tgz \
-            --form version="oshi/coverity_scan" \
-            --form description="Oshi Coverity Scan" \
-            https://scan.coverity.com/builds?project=oshi%2Foshi
+        shell: bash
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
           EMAIL: ${{ secrets.EMAIL }}
+          COVERITY_PROJECT: "oshi/oshi"
+        run: |
+          set -euo pipefail
+
+          # Download Coverity tool (Linux 64-bit) for this project
+          wget -q https://scan.coverity.com/download/linux64 \
+            --post-data "token=${COVERITY_TOKEN}&project=${COVERITY_PROJECT}" \
+            -O coverity_tool.tgz
+
+          tar -xzf coverity_tool.tgz
+
+          TOOL_DIR="$(echo cov-analysis-linux64-*/ | head -n 1)"
+          echo "Using Coverity tool dir: ${TOOL_DIR}"
+
+          # Configure Java capture
+          "${TOOL_DIR}bin/cov-configure" --java
+
+          # IMPORTANT: clean build under cov-build to ensure full capture
+          rm -rf cov-int
+          "${TOOL_DIR}bin/cov-build" --dir cov-int \
+            ./mvnw -B -DskipTests=true clean compile
+
+          # Package results for upload
+          tar -czf oshi.tgz cov-int
+
+          # Upload to Coverity Scan
+          curl --fail --silent --show-error \
+            --form token="${COVERITY_TOKEN}" \
+            --form email="${EMAIL}" \
+            --form file=@oshi.tgz \
+            --form version="oshi/coverity_scan" \
+            --form description="Oshi Coverity Scan" \
+            "https://scan.coverity.com/builds?project=oshi%2Foshi"
+
