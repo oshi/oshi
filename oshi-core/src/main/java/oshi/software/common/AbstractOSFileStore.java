@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.common;
@@ -21,7 +21,8 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String uuid;
     private boolean local;
 
-    protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid, boolean local) {
+    protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
+            boolean local) {
         this.name = name;
         this.volume = volume;
         this.label = label;
@@ -75,7 +76,7 @@ public abstract class AbstractOSFileStore implements OSFileStore {
                 + ", logicalVolume=" + getLogicalVolume() + ", mount=" + getMount() + ", description="
                 + getDescription() + ", fsType=" + getType() + ", options=\"" + getOptions() + "\", uuid=" + getUUID()
                 + ", isLocal=" + isLocal() + ", freeSpace=" + getFreeSpace() + ", usableSpace=" + getUsableSpace()
-                + ", totalSpace=" + getTotalSpace() + ", freeInodes=" + getFreeInodes() + ", totalInodes=" 
+                + ", totalSpace=" + getTotalSpace() + ", freeInodes=" + getFreeInodes() + ", totalInodes="
                 + getTotalInodes() + "]";
     }
 }

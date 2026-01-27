@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native;
@@ -125,8 +124,9 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 result.remove(volume);
                 result.add(new WindowsOSFileStore(wmiVolume.getName(), volume.getVolume(),
                         volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
-                        volume.getOptions(), volume.getUUID(), volume.isLocal(), "", volume.getDescription(), volume.getType(),
-                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0));
+                        volume.getOptions(), volume.getUUID(), volume.isLocal(), "", volume.getDescription(),
+                        volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0,
+                        0));
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
@@ -253,18 +253,18 @@ public class WindowsFileSystem extends AbstractFileSystem {
      */
     private static String getDriveType(String drive) {
         switch (Kernel32.INSTANCE.GetDriveType(drive)) {
-        case 2:
-            return "Removable drive";
-        case 3:
-            return "Fixed drive";
-        case 4:
-            return "Network drive";
-        case 5:
-            return "CD-ROM";
-        case 6:
-            return "RAM drive";
-        default:
-            return "Unknown drive type";
+            case 2:
+                return "Removable drive";
+            case 3:
+                return "Fixed drive";
+            case 4:
+                return "Network drive";
+            case 5:
+                return "CD-ROM";
+            case 6:
+                return "RAM drive";
+            default:
+                return "Unknown drive type";
         }
     }
 

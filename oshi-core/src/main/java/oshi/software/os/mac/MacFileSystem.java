@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -155,9 +155,9 @@ public class MacFileSystem extends AbstractFileSystem {
                     String type = Native.toString(fs[f].f_fstypename, StandardCharsets.UTF_8);
                     // Skip non-local drives if requested, skip system types
                     final int flags = fs[f].f_flags;
-                    boolean nonLocal = (flags & MNT_LOCAL) == 0;
+                    boolean isLocal = (flags & MNT_LOCAL) != 0;
                     // Skip non-local drives if requested, and exclude pseudo file systems
-                    if ((localOnly && nonLocal) || !path.equals("/")
+                    if ((localOnly && !isLocal) || !path.equals("/")
                             && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
                                     FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                         continue;
@@ -230,7 +230,7 @@ public class MacFileSystem extends AbstractFileSystem {
                     }
 
                     fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),
-                            uuid == null ? "" : uuid, !nonLocal, "", description, type, file.getFreeSpace(), 
+                            uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
                             file.getUsableSpace(), file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));
                 }
                 daVolumeNameKey.release();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -84,7 +84,7 @@ public interface OSFileStore {
 
     /**
      * Is this Filesystem local?
-     * 
+     *
      * @return <code>true</code> if the drive is local.
      */
     boolean isLocal();

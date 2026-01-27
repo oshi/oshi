@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -103,8 +103,8 @@ public class MacFileSystemFFM extends MacFileSystem {
                         long files = statfs.get(JAVA_LONG, STATFS.byteOffset(F_FILES));
 
                         // Skip non-local drives if requested, and exclude pseudo file systems
-                        boolean nonLocal = (flags & MNT_LOCAL) == 0;
-                        if ((localOnly && nonLocal) || !path.equals("/")
+                        boolean isLocal = (flags & MNT_LOCAL) != 0;
+                        if ((localOnly && !isLocal) || !path.equals("/")
                                 && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
                                         FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                             continue;
@@ -185,7 +185,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                         }
 
                         fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),
-                                uuid == null ? "" : uuid, !nonLocal, "", description, type, file.getFreeSpace(),
+                                uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
                                 file.getUsableSpace(), file.getTotalSpace(), ffree, files));
                     }
                 } finally {

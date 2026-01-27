@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -106,8 +106,8 @@ public class AixFileSystem extends AbstractFileSystem {
                 String options = split[4];
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
-                boolean nonLocal = NETWORK_FS_TYPES.contains(type);
-                if ((localOnly && nonLocal) || !path.equals("/")
+                boolean isLocal = !NETWORK_FS_TYPES.contains(type);
+                if ((localOnly && !isLocal) || !path.equals("/")
                         && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
                                 FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
                     continue;
@@ -141,8 +141,8 @@ public class AixFileSystem extends AbstractFileSystem {
                     description = "Mount Point";
                 }
 
-                fsList.add(new AixOSFileStore(name, volume, name, path, options, "", !nonLocal, "", description, type, freeSpace,
-                        usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
+                fsList.add(new AixOSFileStore(name, volume, name, path, options, "", isLocal, "", description, type,
+                        freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
                         inodeTotalMap.getOrDefault(volume, 0L)));
             }
         }
