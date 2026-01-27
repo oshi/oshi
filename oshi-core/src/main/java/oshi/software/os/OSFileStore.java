@@ -83,9 +83,16 @@ public interface OSFileStore {
     String getUUID();
 
     /**
-     * Is this Filesystem local?
+     * Indicates whether this file store is local, providing low-latency access.
+     * <p>
+     * Local file stores are directly attached storage that return immediate results for file operations. This excludes
+     * network-mounted file systems (e.g., NFS, CIFS/SMB, AFP) which may have higher latency or require network
+     * round-trips.
+     * <p>
+     * On macOS, this corresponds to the {@code MNT_LOCAL} mount flag. On other platforms, this returns {@code false}
+     * for file systems with network types such as {@code nfs}, {@code cifs}, {@code smbfs}, and {@code afs}.
      *
-     * @return <code>true</code> if the drive is local.
+     * @return {@code true} if the file store is locally attached (not a network drive); {@code false} otherwise
      */
     boolean isLocal();
 
