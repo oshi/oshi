@@ -1,6 +1,6 @@
 version: '{build}'
 
-image: Visual Studio 2017
+image: Visual Studio 2022
 
 skip_tags: true
 
@@ -18,17 +18,20 @@ only_commits:
 environment:
   TERM: dumb
   matrix:
-    - JAVA_HOME: C:\Program Files\Java\jdk11
+    - JAVA_HOME: C:\Program Files\Java\jdk17
 
 init:
   - git config --global --unset core.autocrlf
+  - set PATH=%JAVA_HOME%\bin;%PATH%
 
 install:
-  - ./mvnw --version
+  - echo JAVA_HOME=%JAVA_HOME%
+  - where java
   - java -version
+  - ./mvnw --version
 
 build_script:
-  - appveyor-retry ./mvnw clean package -Dmaven.test.skip=true
+  - appveyor-retry ./mvnw -B -DskipTests=true clean package
 
 test_script:
-  - ./mvnw test
+  - ./mvnw -B test
