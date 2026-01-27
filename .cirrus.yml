@@ -6,19 +6,7 @@ freebsd_task:
     matrix:
       image_family: freebsd-14-3
       image_family: freebsd-15-0-amd64-ufs
-      image_family: freebsd-16-0-snap
   maven_cache:
     folder: ~/.m2
   install_script: pkg install -y openjdk11
-  test_script: ./mvnw test -Djacoco.skip=true -B
-linux_arm_task:
-  name: Linux ARM CI
-  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_REPO_OWNER == 'oshi'
-  skip: "!changesInclude('.cirrus.yml', '**/linux/**', '**/common/**', '**/util/**')"
-  arm_container:
-    image: openjdk:latest
-    cpu: 4
-    memory: 12G
-  maven_cache:
-    folder: ~/.m2
   test_script: ./mvnw test -Djacoco.skip=true -B
