@@ -19,8 +19,8 @@ jobs:
         uses: actions/setup-java@v5
         with:
           cache: maven
-          java-version: 25
-          distribution: zulu
+          java-version: 21
+          distribution: temurin
 
       - name: Analyze with Coverity
         shell: bash
@@ -46,8 +46,10 @@ jobs:
 
           # IMPORTANT: clean build under cov-build to ensure full capture
           rm -rf cov-int
+
           "${TOOL_DIR}bin/cov-build" --dir cov-int \
-            ./mvnw -B -DskipTests=true clean compile
+            ./mvnw -B -DskipTests=true \
+            clean compile
 
           # Package results for upload
           tar -czf oshi.tgz cov-int
@@ -60,4 +62,3 @@ jobs:
             --form version="oshi/coverity_scan" \
             --form description="Oshi Coverity Scan" \
             "https://scan.coverity.com/builds?project=oshi%2Foshi"
-
