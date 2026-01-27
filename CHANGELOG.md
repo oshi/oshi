@@ -1,6 +1,5 @@
 # 6.9.3 (in progress)
 
-
 ##### Bug fixes / Improvements
 * [#3057](https://github.com/oshi/oshi/pull/3057): FileSystem fixes and optimization - [@dyorgio](https://github.com/dyorgio).
 * [#3064](https://github.com/oshi/oshi/pull/3064): Handle binary registry values in WindowsGraphicsCard - [@dbwiddis](https://github.com/dbwiddis).

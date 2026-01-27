@@ -142,8 +142,8 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
 
             fsList.add(new SolarisOSFileStore(name, volume, name, path, options, "", isLocal, "", description, type,
-                    freeSpace, usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
-                    inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L));
+                    freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(path, 0L),
+                    inodeTotalMap.getOrDefault(path, 0L)));
         }
         return fsList;
     }
