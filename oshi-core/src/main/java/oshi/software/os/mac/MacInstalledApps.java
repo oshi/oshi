@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -181,7 +181,8 @@ public final class MacInstalledApps {
                 pos = dictInner.indexOf("</date>", vOpen) + "</date>".length();
             } else if (startsWith(dictInner, vOpen, "<array>")) {
                 String inner = extractBalancedInner(dictInner, vOpen, "<array>", "</array>");
-                val = parseStringArray(inner);
+                String parsed = inner == null ? null : parseStringArray(inner);
+                val = parsed == null ? "" : parsed;
                 pos = dictInner.indexOf("</array>", vOpen) + "</array>".length();
             } else {
                 // other irrelevant tags: go to next tag
