@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.openbsd;
@@ -25,9 +25,9 @@ public class OpenBsdOSFileStore extends AbstractOSFileStore {
     private long totalInodes;
 
     public OpenBsdOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-            long freeInodes, long totalInodes) {
-        super(name, volume, label, mount, options, uuid);
+            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
+            long totalSpace, long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid, local);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -80,7 +80,7 @@ public class OpenBsdOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : OpenBsdFileSystem.getFileStoreMatching(getName())) {
+        for (OSFileStore fileStore : OpenBsdFileSystem.getFileStoreMatching(getName(), isLocal())) {
             if (getName().equals(fileStore.getName()) && getVolume().equals(fileStore.getVolume())
                     && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();

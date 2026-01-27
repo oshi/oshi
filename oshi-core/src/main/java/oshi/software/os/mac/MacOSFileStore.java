@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -25,9 +25,9 @@ public class MacOSFileStore extends AbstractOSFileStore {
     private long totalInodes;
 
     public MacOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-            long freeInodes, long totalInodes) {
-        super(name, volume, label, mount, options, uuid);
+            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
+            long totalSpace, long freeInodes, long totalInodes) {
+        super(name, volume, label, mount, options, uuid, local);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -80,7 +80,7 @@ public class MacOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : MacFileSystem.getFileStoreMatching(getName())) {
+        for (OSFileStore fileStore : MacFileSystem.getFileStoreMatching(getName(), isLocal())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();
                 this.description = fileStore.getDescription();
