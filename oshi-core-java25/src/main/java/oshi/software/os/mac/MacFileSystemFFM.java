@@ -123,9 +123,6 @@ public class MacFileSystemFFM extends MacFileSystem {
                         if (name.isEmpty()) {
                             name = file.getPath();
                         }
-                        if (nameToMatch != null && !nameToMatch.equals(name)) {
-                            continue;
-                        }
 
                         StringBuilder options = new StringBuilder((MNT_RDONLY & flags) == 0 ? "rw" : "ro");
                         String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
@@ -182,6 +179,10 @@ public class MacFileSystemFFM extends MacFileSystem {
                                     fsIter.release();
                                 }
                             }
+                        }
+
+                        if (nameToMatch != null && !nameToMatch.equals(name)) {
+                            continue;
                         }
 
                         fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),
