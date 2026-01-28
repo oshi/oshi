@@ -44,15 +44,15 @@ Documentation
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.9.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.9.2)
-  * JPMS: [oshi-core-java11-6.9.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.9.2)
-  * FFM: [oshi-core-java25-6.9.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.9.2)
+  * JDK8: [oshi-core-6.9.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.9.3)
+  * JPMS: [oshi-core-java11-6.9.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.9.3)
+  * FFM: [oshi-core-java25-6.9.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.9.3)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.9.3-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.9.3-SNAPSHOT)
-  * JPMS: [oshi-core-java11-6.9.3-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.9.3-SNAPSHOT/)
-  * FFM: [oshi-core-java25-6.9.3-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.9.3-SNAPSHOT/)
+  * JDK8: [oshi-core-6.9.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.9.4-SNAPSHOT)
+  * JPMS: [oshi-core-java11-6.9.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.9.4-SNAPSHOT/)
+  * FFM: [oshi-core-java25-6.9.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.9.4-SNAPSHOT/)
 
 OSHI Java 25+ Module
 ----------------------------
@@ -60,9 +60,9 @@ A new module, **`oshi-core-java25`**, is now available.
 
 - **Purpose:** This module intends to provide API-compatible implementations using the JDK Foreign Function & Memory (FFM) API, replacing JNA for native access over time with community contributions.
 - **Compatibility:**
-  - Compiles on **JDK 25++**.
+  - Compiles on **JDK 25+**.
   - Initial support is limited to operating systems with JDK 25 builds; broader OS support and migration of more native implementations will follow.
-  - Contributions are welcome and encuoraged!
+  - Contributions are welcome and encouraged!
 - **Usage:**
   - Use this dependency **in place of** `oshi-core`.
   - Import oshi.SystemInfoFFM instead of oshi.SystemInfo as the entry-point.
@@ -74,16 +74,20 @@ Usage
 -----
 1. Include OSHI and its dependencies on your classpath.
    - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle.
+   - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](https://github.com/oshi/oshi/blob/master/src/site/markdown/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
 2. Create a new instance of `SystemInfo`
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
 ```java
-SystemInfo si = new SystemInfo();
+SystemInfo si = new SystemInfo(); // or new SystemInfoFFM() on java25 version
 HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
 ```
+
+Sample Output
+-------------
 
 See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for examples. To see sample output for your machine:
 ```sh
@@ -97,6 +101,19 @@ git clone https://github.com/oshi/oshi.git && cd oshi
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-core/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://oshi.github.io/oshi/oshi-core/apidocs/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
 The `oshi-demo` artifact includes [several proof-of-concept examples](https://github.com/oshi/oshi/blob/master/oshi-demo/src/main/java/oshi/demo/) of using OSHI to obtain information, including a basic Swing GUI.
+
+You can run some of the demos using `jbang`:
+
+```sh
+# list all the aliases
+jbang alias list oshi/oshi
+
+# run the json demo
+jbang json@oshi/oshi
+
+#run the gui
+jbang gui@oshi/oshi
+```
 
 Supported Features
 ------------------
@@ -134,8 +151,8 @@ Tidelift will coordinate the fix and disclosure.
 
 Continuous Integration Test Status
 ----------------------------------
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/v489i8xoyfspxx7s?svg=true)](https://ci.appveyor.com/project/dbwiddis/oshi)
-[![Cirrus Build Status](https://api.cirrus-ci.com/github/oshi/oshi.svg)](https://cirrus-ci.com/github/oshi/oshi)
+[![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&amp;logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
+[![Cirrus CI Build Status](https://img.shields.io/cirrus/github/oshi/oshi/master.svg?logo=cirrusci&amp;logoColor=white)](https://cirrus-ci.com/github/oshi/oshi)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
 [![macOS CI](https://github.com/oshi/oshi/workflows/macOS%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22macOS+CI%22)
 [![Linux CI](https://github.com/oshi/oshi/workflows/Linux%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Linux+CI%22)

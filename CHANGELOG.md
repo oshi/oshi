@@ -1,10 +1,8 @@
-# 6.9.3 (in progress)
+# 6.9.4 (in progress)
 
-##### Bug fixes / Improvements
-* [#3057](https://github.com/oshi/oshi/pull/3057): FileSystem fixes and optimization - [@dyorgio](https://github.com/dyorgio).
-* [#3064](https://github.com/oshi/oshi/pull/3064): Handle binary registry values in WindowsGraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
+* Your contribution here!
 
-# 6.9.0 (2025-09-18), 6.9.1 (2025-10-18), 6.9.2 (2025-12-20)
+# 6.9.0 (2025-09-18), 6.9.1 (2025-10-18), 6.9.2 (2025-12-20), 6.9.3 (2025-01-28)
 
 ##### New Features
 * [#2925](https://github.com/oshi/oshi/pull/2925): Introduced oshi-core-java25 module that intends to provide FFM support - [@rohan-coder02](https://github.com/rohan-coder02).
@@ -27,6 +25,9 @@
 * [#3024](https://github.com/oshi/oshi/pull/3024): Add RegistryUtil class in oshi-core to handle unexpected registry types - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#3040](https://github.com/oshi/oshi/pull/3040): Filter out any USBC powersources on Linux - [@mprins](https://github.com/mprins).
 * [#3041](https://github.com/oshi/oshi/pull/3041): Use systemd as preferred native method for session list - [@dbwiddis](https://github.com/dbwiddis).
+* [#3057](https://github.com/oshi/oshi/pull/3057): FileSystem fixes and optimization - [@dyorgio](https://github.com/dyorgio).
+* [#3064](https://github.com/oshi/oshi/pull/3064): Handle binary registry values in WindowsGraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
+
 
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
