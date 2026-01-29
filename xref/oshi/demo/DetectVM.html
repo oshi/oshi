@@ -86,31 +86,43 @@
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// Try well known MAC addresses</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          List&lt;NetworkIF&gt; nifs = hw.getNetworkIFs();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">for</strong> (<a name="NetworkIF" href="../../oshi/hardware/NetworkIF.html#NetworkIF">NetworkIF</a> nif : nifs) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              String oui = mac.length() &gt; 7 ? mac.substring(0, 8) : mac;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (vmMacAddressProps.containsKey(oui)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">return</strong> vmMacAddressProps.getProperty(oui);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// Try well known models</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          String model = hw.getComputerSystem().getModel();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">for</strong> (String vm : vmModelArray) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">if</strong> (model.contains(vm)) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <strong class="jxr_keyword">return</strong> vm;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          String manufacturer = hw.getComputerSystem().getManufacturer();
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"Microsoft Corporation"</span>.equals(manufacturer) &amp;&amp; <span class="jxr_string">"Virtual Machine"</span>.equals(model)) {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Microsoft Hyper-V"</span>;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <em class="jxr_comment">// Filter out virtual adapters/switches that lack a physical connector</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">if</strong> (!nif.isConnectorPresent()) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <em class="jxr_comment">// Sanitize to only hex digits</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              String cleanMac = mac.replaceAll(<span class="jxr_string">"[^0-9A-F]"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">if</strong> (cleanMac.length() &gt;= 6) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <em class="jxr_comment">// Extract OUI (first 6 hex digits) and format as XX:XX:XX</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  String oui = String.format(Locale.ROOT, <span class="jxr_string">"%s:%s:%s"</span>,
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          cleanMac.substring(0, 2),
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          cleanMac.substring(2, 4),
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          cleanMac.substring(4, 6));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <strong class="jxr_keyword">if</strong> (vmMacAddressProps.containsKey(oui)) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      <strong class="jxr_keyword">return</strong> vmMacAddressProps.getProperty(oui);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              }
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          }
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>  
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// Couldn't find VM, return empty string</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// Try well known models</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         String model = hw.getComputerSystem().getModel();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">for</strong> (String vm : vmModelArray) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">if</strong> (model.contains(vm)) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 <strong class="jxr_keyword">return</strong> vm;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         String manufacturer = hw.getComputerSystem().getManufacturer();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"Microsoft Corporation"</span>.equals(manufacturer) &amp;&amp; <span class="jxr_string">"Virtual Machine"</span>.equals(model)) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Microsoft Hyper-V"</span>;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// Couldn't find VM, return empty string</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> }
 </pre>
 <hr/>
-<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>

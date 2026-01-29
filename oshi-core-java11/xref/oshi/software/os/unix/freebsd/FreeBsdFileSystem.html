@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../../apidocs/oshi/software/os/unix/freebsd/FreeBsdFileSystem.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.unix.freebsd;
@@ -22,94 +22,94 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractFileSystem;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOSFileStore;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileSystemUtil;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * volume, concrete file system or other implementation specific means of file storage.</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdFileSystem" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#FreeBsdFileSystem">FreeBsdFileSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractFileSystem" href="../../../../../oshi/software/common/AbstractFileSystem.html#AbstractFileSystem">AbstractFileSystem</a> {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_PATH_EXCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.path.excludes"</span>;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_PATH_INCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.path.includes"</span>;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_VOLUME_EXCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.volume.excludes"</span>;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_VOLUME_INCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.volume.includes"</span>;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_PATH_EXCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_PATH_EXCLUDES);
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_PATH_INCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_PATH_INCLUDES);
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_VOLUME_EXCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_VOLUME_EXCLUDES);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_VOLUME_INCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_VOLUME_INCLUDES);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Override
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> List&lt;OSFileStore&gt; getFileStores(<strong class="jxr_keyword">boolean</strong> localOnly) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// TODO map mount point to UUID?</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// is /etc/fstab useful for this?</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          Map&lt;String, String&gt; uuidMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <em class="jxr_comment">// Now grab dmssg output</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          String device = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"geom part list"</span>)) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Name: "</span>)) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  device = line.substring(line.lastIndexOf(' ') + 1);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// If we aren't working with a current partition, continue</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">if</strong> (device.isEmpty()) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              }
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              line = line.trim();
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"rawuuid:"</span>)) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  device = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <em class="jxr_comment">// Get inode usage data</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          Map&lt;String, Long&gt; inodeFreeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          Map&lt;String, Long&gt; inodeTotalMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"df -i"</span>)) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <em class="jxr_comment">/*- Sample Output:</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_comment">            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_comment">            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_comment">            */</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"/"</span>)) {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  String[] split = ParseUtil.whitespaces.split(line);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">if</strong> (split.length &gt; 7) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      <em class="jxr_comment">// total is used + free</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      inodeTotalMap.put(split[0],
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// Get mount table</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount -p"</span>)) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              String[] split = ParseUtil.whitespaces.split(fs);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">if</strong> (split.length &lt; 5) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <em class="jxr_comment">// 1st field is volume name</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <em class="jxr_comment">// 2nd field is mount point</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <em class="jxr_comment">// 3rd field is fs type</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <em class="jxr_comment">// 4th field is options</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <em class="jxr_comment">// other fields ignored</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              String volume = split[0];
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              String path = split[1];
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             String type = split[2];
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             String options = split[3];
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <em class="jxr_comment">// Skip non-local drives if requested, and exclude pseudo file systems</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> ((localOnly &amp;&amp; NETWORK_FS_TYPES.contains(type))
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileSystemUtil;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.unix.freebsd.BsdSysctlUtil;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * volume, concrete file system or other implementation specific means of file storage.</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdFileSystem" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdFileSystem.html#FreeBsdFileSystem">FreeBsdFileSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractFileSystem" href="../../../../../oshi/software/common/AbstractFileSystem.html#AbstractFileSystem">AbstractFileSystem</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_PATH_EXCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.path.excludes"</span>;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_PATH_INCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.path.includes"</span>;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_VOLUME_EXCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.volume.excludes"</span>;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_FREEBSD_FS_VOLUME_INCLUDES = <span class="jxr_string">"oshi.os.freebsd.filesystem.volume.includes"</span>;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_PATH_EXCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_PATH_EXCLUDES);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_PATH_INCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_PATH_INCLUDES);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_VOLUME_EXCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_VOLUME_EXCLUDES);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_VOLUME_INCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              .loadAndParseFileSystemConfig(OSHI_FREEBSD_FS_VOLUME_INCLUDES);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Override
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> List&lt;OSFileStore&gt; getFileStores(<strong class="jxr_keyword">boolean</strong> localOnly) {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <em class="jxr_comment">// TODO map mount point to UUID?</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// is /etc/fstab useful for this?</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          Map&lt;String, String&gt; uuidMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// Now grab dmssg output</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          String device = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"geom part list"</span>)) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Name: "</span>)) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  device = line.substring(line.lastIndexOf(' ') + 1);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <em class="jxr_comment">// If we aren't working with a current partition, continue</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">if</strong> (device.isEmpty()) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              line = line.trim();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"rawuuid:"</span>)) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  device = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          List&lt;OSFileStore&gt; fsList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// Get inode usage data</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Map&lt;String, Long&gt; inodeFreeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          Map&lt;String, Long&gt; inodeTotalMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(<span class="jxr_string">"df -i"</span>)) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <em class="jxr_comment">/*- Sample Output:</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_comment">            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_comment">            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_comment">            */</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"/"</span>)) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  <strong class="jxr_keyword">if</strong> (split.length &gt; 7) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      <em class="jxr_comment">// total is used + free</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      inodeTotalMap.put(split[0],
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                              inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// Get mount table</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount -p"</span>)) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              String[] split = ParseUtil.whitespaces.split(fs);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">if</strong> (split.length &lt; 5) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <em class="jxr_comment">// 1st field is volume name</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <em class="jxr_comment">// 2nd field is mount point</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <em class="jxr_comment">// 3rd field is fs type</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <em class="jxr_comment">// 4th field is options</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <em class="jxr_comment">// other fields ignored</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              String volume = split[0];
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              String path = split[1];
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              String type = split[2];
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             String options = split[3];
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <em class="jxr_comment">// Skip non-local drives if requested, and exclude pseudo file systems</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">boolean</strong> isLocal = !NETWORK_FS_TYPES.contains(type);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> ((localOnly &amp;&amp; !isLocal)
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>                     || !path.equals(<span class="jxr_string">"/"</span>) &amp;&amp; (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                             volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">continue</strong>;
@@ -138,8 +138,8 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             <em class="jxr_comment">// Match UUID</em>
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             String uuid = uuidMap.getOrDefault(name, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> 
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             fsList.add(<strong class="jxr_keyword">new</strong> <a name="LinuxOSFileStore" href="../../../../../oshi/software/os/linux/LinuxOSFileStore.html#LinuxOSFileStore">LinuxOSFileStore</a>(name, volume, name, path, options, uuid, <span class="jxr_string">""</span>, description, type, freeSpace,
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             fsList.add(<strong class="jxr_keyword">new</strong> <a name="FreeBsdOSFileStore" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSFileStore.html#FreeBsdOSFileStore">FreeBsdOSFileStore</a>(name, volume, name, path, options, uuid, isLocal, <span class="jxr_string">""</span>, description, type,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     freeSpace, usableSpace, totalSpace, inodeFreeMap.containsKey(path) ? inodeFreeMap.get(path) : 0L,
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                     inodeTotalMap.containsKey(path) ? inodeTotalMap.get(path) : 0L));
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> fsList;
@@ -163,6 +163,6 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> }
 </pre>
 <hr/>
-<div id="footer">© 2010–2025 <a href="https://github.com/oshi/">oshi</a></div>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
 </body>
 </html>
