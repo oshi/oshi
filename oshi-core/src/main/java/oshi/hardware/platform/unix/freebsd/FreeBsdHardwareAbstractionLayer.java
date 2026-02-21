@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -15,12 +15,14 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.UnixDisplay;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * FreeBsdHardwareAbstractionLayer class.
@@ -81,5 +83,10 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return FreeBsdGraphicsCard.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return UnixPrinter.getPrinters();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -15,11 +15,13 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixDisplay;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * SolarisHardwareAbstractionLayer class.
@@ -80,5 +82,10 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return SolarisGraphicsCard.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return UnixPrinter.getPrinters();
     }
 }

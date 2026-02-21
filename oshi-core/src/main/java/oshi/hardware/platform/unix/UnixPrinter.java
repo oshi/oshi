@@ -30,6 +30,10 @@ public final class UnixPrinter extends AbstractPrinter {
 
     private static final Logger LOG = LoggerFactory.getLogger(UnixPrinter.class);
 
+    // Local URI schemes for directly-attached or local printers
+    private static final String[] LOCAL_URI_PREFIXES = { "usb:", "parallel:", "serial:", "file:", "direct:", "hp:",
+            "lpd://127.", "lpd://localhost", "socket://127.", "socket://localhost" };
+
     private static final boolean HAS_CUPS;
 
     static {
@@ -226,10 +230,6 @@ public final class UnixPrinter extends AbstractPrinter {
         }
         return "";
     }
-
-    // Local URI schemes for directly-attached or local printers
-    private static final String[] LOCAL_URI_PREFIXES = { "usb:", "parallel:", "serial:", "file:", "direct:", "hp:",
-            "lpd:/127.", "lpd://localhost", "socket://127.", "socket://localhost" };
 
     private static boolean isLocalUri(String uri) {
         if (uri.startsWith("/dev")) {
