@@ -8,15 +8,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Printer;
+import oshi.jna.platform.unix.Cups;
+import oshi.jna.platform.unix.Cups.CupsDest;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Abstract Printer with CUPS-based default implementation for Unix-like systems.
  */
 @Immutable
 public abstract class AbstractPrinter implements Printer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractPrinter.class);
+
+    /** Identifies whether libcups is available. */
+    public static final boolean HAS_CUPS;
+
+    static {
+        boolean hasCups = false;
+        try {
+            @SuppressWarnings("unused")
+            Cups lib = Cups.INSTANCE;
+            hasCups = true;
+        } catch (UnsatisfiedLinkError e) {
+            LOG.debug("libcups not found. Falling back to lpstat command.");
+        }
+        HAS_CUPS = hasCups;
+    }
 
     private final String name;
     private final String driverName;
@@ -72,12 +98,89 @@ public abstract class AbstractPrinter implements Printer {
     }
 
     /**
-     * Gets printers using CUPS lpstat command. This is the default implementation for Unix-like systems (Linux, macOS,
-     * BSD).
+     * Gets printers using CUPS. Uses libcups if available, otherwise falls back to lpstat command.
      *
      * @return A list of printers.
      */
     public static List<Printer> getPrintersFromCups() {
+        if (HAS_CUPS) {
+            return getPrintersFromLibCups();
+        }
+        return getPrintersFromLpstat();
+    }
+
+    /**
+     * Gets printers using libcups native library.
+     *
+     * @return A list of printers.
+     */
+    private static List<Printer> getPrintersFromLibCups() {
+        List<Printer> printers = new ArrayList<>();
+        PointerByReference destsRef = new PointerByReference();
+        int numDests = Cups.INSTANCE.cupsGetDests(destsRef);
+        Pointer destsPtr = destsRef.getValue();
+
+        if (destsPtr != null && numDests > 0) {
+            try {
+                int destSize = new CupsDest().size();
+                for (int i = 0; i < numDests; i++) {
+                    CupsDest dest = new CupsDest(destsPtr.share((long) i * destSize));
+
+                    String name = dest.name;
+                    boolean isDefault = dest.is_default != 0;
+
+                    // Get options
+                    String deviceUri = "";
+                    String printerInfo = "";
+                    String printerState = "";
+
+                    if (dest.num_options > 0 && dest.options != null) {
+                        deviceUri = getOption(dest, "device-uri");
+                        printerInfo = getOption(dest, "printer-info");
+                        printerState = getOption(dest, "printer-state");
+                    }
+
+                    PrinterStatus status = parseStateFromCups(printerState);
+                    boolean isLocal = deviceUri.startsWith("usb:") || deviceUri.startsWith("/dev")
+                            || deviceUri.startsWith("parallel:") || deviceUri.startsWith("serial:");
+
+                    printers.add(new CupsPrinter(name, printerInfo, status, isDefault, isLocal, deviceUri));
+                }
+            } finally {
+                Cups.INSTANCE.cupsFreeDests(numDests, destsPtr);
+            }
+        }
+        return printers;
+    }
+
+    private static String getOption(CupsDest dest, String optionName) {
+        String value = Cups.INSTANCE.cupsGetOption(optionName, dest.num_options, dest.options);
+        return value != null ? value : "";
+    }
+
+    private static PrinterStatus parseStateFromCups(String state) {
+        if (state.isEmpty()) {
+            return PrinterStatus.UNKNOWN;
+        }
+        int stateInt = ParseUtil.parseIntOrDefault(state, -1);
+        switch (stateInt) {
+            case Cups.IPP_PRINTER_IDLE:
+                return PrinterStatus.IDLE;
+            case Cups.IPP_PRINTER_PROCESSING:
+                return PrinterStatus.PRINTING;
+            case Cups.IPP_PRINTER_STOPPED:
+                return PrinterStatus.OFFLINE;
+            default:
+                return PrinterStatus.UNKNOWN;
+        }
+    }
+
+    /**
+     * Gets printers using lpstat command. Fallback when libcups is not available.
+     *
+     * @return A list of printers.
+     */
+    private static List<Printer> getPrintersFromLpstat() {
         List<Printer> printers = new ArrayList<>();
         String defaultPrinter = getDefaultPrinterFromCups();
 
