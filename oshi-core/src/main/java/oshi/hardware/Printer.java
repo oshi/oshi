@@ -41,6 +41,13 @@ public interface Printer {
     PrinterStatus getStatus();
 
     /**
+     * Retrieves the reason for the current printer status, if available.
+     *
+     * @return A string describing the status reason (e.g., "Paper Jam", "media-empty"), or empty string if none.
+     */
+    String getStatusReason();
+
+    /**
      * Indicates whether this is the default printer.
      *
      * @return {@code true} if this is the default printer, {@code false} otherwise.

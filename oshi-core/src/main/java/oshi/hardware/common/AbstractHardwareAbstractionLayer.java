@@ -17,6 +17,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * Common fields or methods used by platform-specific implementations of HardwareAbstractionLayer
@@ -87,6 +88,6 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     @Override
     public List<Printer> getPrinters() {
-        return AbstractPrinter.getPrintersFromCups();
+        return UnixPrinter.getPrinters();
     }
 }

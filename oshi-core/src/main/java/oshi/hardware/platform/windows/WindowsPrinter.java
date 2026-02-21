@@ -22,9 +22,14 @@ import oshi.util.platform.windows.WmiUtil;
 @Immutable
 final class WindowsPrinter extends AbstractPrinter {
 
-    WindowsPrinter(String name, String driverName, String description, PrinterStatus status, boolean isDefault,
-            boolean isLocal, String portName) {
-        super(name, driverName, description, status, isDefault, isLocal, portName);
+    // DetectedErrorState: 0=Unknown, 1=Other, 2=No Error, 3=Low Paper, 4=No Paper,
+    // 5=Low Toner, 6=No Toner, 7=Door Open, 8=Jammed, 9=Offline, 10=Service Requested, 11=Output Bin Full
+    private static final String[] ERROR_STATE_NAMES = { "Unknown", "Other", "", "Low Paper", "No Paper", "Low Toner",
+            "No Toner", "Door Open", "Jammed", "Offline", "Service Requested", "Output Bin Full" };
+
+    WindowsPrinter(String name, String driverName, String description, PrinterStatus status, String statusReason,
+            boolean isDefault, boolean isLocal, String portName) {
+        super(name, driverName, description, status, statusReason, isDefault, isLocal, portName);
     }
 
     /**
@@ -41,12 +46,13 @@ final class WindowsPrinter extends AbstractPrinter {
             String driverName = WmiUtil.getString(result, PrinterProperty.DRIVERNAME, i);
             String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
             int statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
+            int errorState = WmiUtil.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
             boolean isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
             boolean isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
             String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
 
-            printers.add(new WindowsPrinter(name, driverName, description, parseStatus(statusCode), isDefault, isLocal,
-                    portName));
+            printers.add(new WindowsPrinter(name, driverName, description, parseStatus(statusCode, errorState),
+                    parseErrorState(errorState), isDefault, isLocal, portName));
         }
         return printers;
     }
@@ -60,11 +66,21 @@ final class WindowsPrinter extends AbstractPrinter {
     }
 
     /**
-     * Parses Win32_Printer PrinterStatus codes.
+     * Parses Win32_Printer PrinterStatus and DetectedErrorState codes.
      * https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-printer
+     *
+     * DetectedErrorState values: 0=Unknown, 1=Other, 2=No Error, 3=Low Paper, 4=No Paper, 5=Low Toner, 6=No Toner,
+     * 7=Door Open, 8=Jammed, 9=Offline, 10=Service Requested, 11=Output Bin Full.
+     *
+     * We treat values >= 4 as ERROR (hard failures preventing printing). Low consumable warnings (3=Low Paper, 5=Low
+     * Toner) pass through to PrinterStatus check since the printer can still function. Callers can check
+     * getStatusReason() for details.
      */
-    private static PrinterStatus parseStatus(int code) {
-        switch (code) {
+    private static PrinterStatus parseStatus(int statusCode, int errorState) {
+        if (errorState == 4 || errorState == 6 || errorState >= 7) {
+            return PrinterStatus.ERROR;
+        }
+        switch (statusCode) {
             case 1: // Other
             case 2: // Unknown
                 return PrinterStatus.UNKNOWN;
@@ -80,5 +96,12 @@ final class WindowsPrinter extends AbstractPrinter {
             default:
                 return PrinterStatus.UNKNOWN;
         }
+    }
+
+    private static String parseErrorState(int errorState) {
+        if (errorState >= 0 && errorState < ERROR_STATE_NAMES.length) {
+            return ERROR_STATE_NAMES[errorState];
+        }
+        return "";
     }
 }
