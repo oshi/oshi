@@ -32,6 +32,7 @@ public final class Prtvtoc {
         // Sample output - see man prtvtoc
         if (prtvotc.size() > 1) {
             int bytesPerSector = 0;
+            String volumeName = "";
             String[] split;
             // We have a result, parse partition table
             for (String line : prtvotc) {
@@ -42,6 +43,18 @@ public final class Prtvtoc {
                         split = ParseUtil.whitespaces.split(line);
                         if (split.length > 0) {
                             bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);
+                        }
+                    } else if (line.contains("Volume Name")) {
+                        int idx = line.indexOf("Volume Name");
+                        if (idx >= 0) {
+                            // Format: "* Volume Name: <label>" or similar
+                            String remainder = line.substring(idx + "Volume Name".length()).trim();
+                            if (remainder.startsWith(":")) {
+                                remainder = remainder.substring(1).trim();
+                            }
+                            if (!remainder.isEmpty()) {
+                                volumeName = remainder;
+                            }
                         }
                     }
                 } else if (bytesPerSector > 0) {
@@ -131,8 +144,8 @@ public final class Prtvtoc {
                         if (split.length > 6) {
                             mountPoint = split[6];
                         }
-                        partList.add(
-                                new HWPartition(identification, name, type, "", partSize, major, minor, mountPoint));
+                        partList.add(new HWPartition(identification, name, type, "", volumeName, partSize, major,
+                                minor, mountPoint));
                     }
                 }
             }
