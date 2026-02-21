@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.freebsd.disk;
@@ -76,8 +76,8 @@ public final class GeomPartList {
                         // Minor # is filesize of /dev entry.
                         int minor = ParseUtil
                                 .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-                        partList.add(
-                                new HWPartition(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
+                        partList.add(new HWPartition(identification, partName, type, uuid, label, size, 0, minor,
+                                mountPoint));
                         partName = null;
                         identification = Constants.UNKNOWN;
                         type = Constants.UNKNOWN;

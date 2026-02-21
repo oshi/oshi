@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris.disk;
@@ -73,69 +73,69 @@ public final class Prtvtoc {
                         // Second field is tag. Parse:
                         String name;
                         switch (ParseUtil.parseIntOrDefault(split[1], 0)) {
-                        case 0x01:
-                        case 0x18:
-                            name = "boot";
-                            break;
-                        case 0x02:
-                            name = "root";
-                            break;
-                        case 0x03:
-                            name = "swap";
-                            break;
-                        case 0x04:
-                            name = "usr";
-                            break;
-                        case 0x05:
-                            name = "backup";
-                            break;
-                        case 0x06:
-                            name = "stand";
-                            break;
-                        case 0x07:
-                            name = "var";
-                            break;
-                        case 0x08:
-                            name = "home";
-                            break;
-                        case 0x09:
-                            name = "altsctr";
-                            break;
-                        case 0x0a:
-                            name = "cache";
-                            break;
-                        case 0x0b:
-                            name = "reserved";
-                            break;
-                        case 0x0c:
-                            name = "system";
-                            break;
-                        case 0x0e:
-                            name = "public region";
-                            break;
-                        case 0x0f:
-                            name = "private region";
-                            break;
-                        default:
-                            name = Constants.UNKNOWN;
-                            break;
+                            case 0x01:
+                            case 0x18:
+                                name = "boot";
+                                break;
+                            case 0x02:
+                                name = "root";
+                                break;
+                            case 0x03:
+                                name = "swap";
+                                break;
+                            case 0x04:
+                                name = "usr";
+                                break;
+                            case 0x05:
+                                name = "backup";
+                                break;
+                            case 0x06:
+                                name = "stand";
+                                break;
+                            case 0x07:
+                                name = "var";
+                                break;
+                            case 0x08:
+                                name = "home";
+                                break;
+                            case 0x09:
+                                name = "altsctr";
+                                break;
+                            case 0x0a:
+                                name = "cache";
+                                break;
+                            case 0x0b:
+                                name = "reserved";
+                                break;
+                            case 0x0c:
+                                name = "system";
+                                break;
+                            case 0x0e:
+                                name = "public region";
+                                break;
+                            case 0x0f:
+                                name = "private region";
+                                break;
+                            default:
+                                name = Constants.UNKNOWN;
+                                break;
                         }
                         // Third field is flags.
                         String type;
                         // First character writable, second is mountable
                         switch (split[2]) {
-                        case "00":
-                            type = "wm";
-                            break;
-                        case "10":
-                            type = "rm";
-                            break;
-                        case "01":
-                            type = "wu";
-                            break;
-                        default:
-                            type = "ru";
-                            break;
+                            case "00":
+                                type = "wm";
+                                break;
+                            case "10":
+                                type = "rm";
+                                break;
+                            case "01":
+                                type = "wu";
+                                break;
+                            default:
+                                type = "ru";
+                                break;
                         }
                         // Fifth field is sector count
                         long partSize = bytesPerSector * ParseUtil.parseLongOrDefault(split[4], 0L);
@@ -144,8 +144,8 @@ public final class Prtvtoc {
                         if (split.length > 6) {
                             mountPoint = split[6];
                         }
-                        partList.add(new HWPartition(identification, name, type, "", volumeName, partSize, major,
-                                minor, mountPoint));
+                        partList.add(new HWPartition(identification, name, type, "", volumeName, partSize, major, minor,
+                                mountPoint));
                     }
                 }
             }
