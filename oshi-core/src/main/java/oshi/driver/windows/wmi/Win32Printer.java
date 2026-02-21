@@ -24,7 +24,7 @@ public final class Win32Printer {
      * Printer properties from WMI
      */
     public enum PrinterProperty {
-        NAME, DRIVERNAME, PRINTERSTATUS, DEFAULT, LOCAL, PORTNAME;
+        NAME, DRIVERNAME, PRINTERSTATUS, DEFAULT, LOCAL, PORTNAME, DESCRIPTION;
     }
 
     private Win32Printer() {

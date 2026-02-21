@@ -27,6 +27,13 @@ public interface Printer {
     String getDriverName();
 
     /**
+     * Retrieves the user-friendly description of the printer.
+     *
+     * @return The printer description.
+     */
+    String getDescription();
+
+    /**
      * Retrieves the current status of the printer.
      *
      * @return The printer status.

@@ -46,15 +46,17 @@ public abstract class AbstractPrinter implements Printer {
 
     private final String name;
     private final String driverName;
+    private final String description;
     private final PrinterStatus status;
     private final boolean isDefault;
     private final boolean isLocal;
     private final String portName;
 
-    protected AbstractPrinter(String name, String driverName, PrinterStatus status, boolean isDefault, boolean isLocal,
-            String portName) {
+    protected AbstractPrinter(String name, String driverName, String description, PrinterStatus status,
+            boolean isDefault, boolean isLocal, String portName) {
         this.name = name;
         this.driverName = driverName;
+        this.description = description;
         this.status = status;
         this.isDefault = isDefault;
         this.isLocal = isLocal;
@@ -69,6 +71,11 @@ public abstract class AbstractPrinter implements Printer {
     @Override
     public String getDriverName() {
         return driverName;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     @Override
@@ -93,8 +100,24 @@ public abstract class AbstractPrinter implements Printer {
 
     @Override
     public String toString() {
-        return "Printer [name=" + name + ", driverName=" + driverName + ", status=" + status + ", isDefault="
-                + isDefault + ", isLocal=" + isLocal + ", portName=" + portName + "]";
+        return "Printer [name=" + name + ", driverName=" + driverName + ", description=" + description + ", status="
+                + status + ", isDefault=" + isDefault + ", isLocal=" + isLocal + ", portName="
+                + redactPortName(portName) + "]";
+    }
+
+    private static String redactPortName(String portName) {
+        if (portName == null || portName.isEmpty()) {
+            return "";
+        }
+        int schemeEnd = portName.indexOf("://");
+        if (schemeEnd > 0) {
+            int atIndex = portName.indexOf('@', schemeEnd + 3);
+            if (atIndex > schemeEnd + 3) {
+                // Has userinfo - redact it
+                return portName.substring(0, schemeEnd + 3) + "***" + portName.substring(atIndex);
+            }
+        }
+        return portName;
     }
 
     /**
@@ -132,19 +155,23 @@ public abstract class AbstractPrinter implements Printer {
                     // Get options
                     String deviceUri = "";
                     String printerInfo = "";
+                    String printerMakeModel = "";
                     String printerState = "";
 
                     if (dest.num_options > 0 && dest.options != null) {
                         deviceUri = getOption(dest, "device-uri");
                         printerInfo = getOption(dest, "printer-info");
+                        printerMakeModel = getOption(dest, "printer-make-and-model");
                         printerState = getOption(dest, "printer-state");
                     }
 
                     PrinterStatus status = parseStateFromCups(printerState);
                     boolean isLocal = deviceUri.startsWith("usb:") || deviceUri.startsWith("/dev")
-                            || deviceUri.startsWith("parallel:") || deviceUri.startsWith("serial:");
+                            || deviceUri.startsWith("parallel:") || deviceUri.startsWith("serial:")
+                            || deviceUri.startsWith("file:");
 
-                    printers.add(new CupsPrinter(name, printerInfo, status, isDefault, isLocal, deviceUri));
+                    printers.add(new CupsPrinter(name, printerMakeModel, printerInfo, status, isDefault, isLocal,
+                            deviceUri));
                 }
             } finally {
                 Cups.INSTANCE.cupsFreeDests(numDests, destsPtr);
@@ -194,13 +221,15 @@ public abstract class AbstractPrinter implements Printer {
                     PrinterStatus status = parseStatusFromLpstat(line);
                     boolean isDefault = name.equals(defaultPrinter);
 
-                    // Get additional info from lpstat -v
+                    // Get additional info
                     String portName = getPortForPrinter(name);
                     boolean isLocal = portName.startsWith("usb:") || portName.startsWith("/dev")
-                            || portName.startsWith("parallel:");
+                            || portName.startsWith("parallel:") || portName.startsWith("serial:")
+                            || portName.startsWith("file:");
                     String driverName = getDriverForPrinter(name);
+                    String description = getDescriptionForPrinter(name);
 
-                    printers.add(new CupsPrinter(name, driverName, status, isDefault, isLocal, portName));
+                    printers.add(new CupsPrinter(name, driverName, description, status, isDefault, isLocal, portName));
                 }
             }
         }
@@ -236,7 +265,7 @@ public abstract class AbstractPrinter implements Printer {
 
     private static String getPortForPrinter(String printerName) {
         // lpstat -v gives: "device for PrinterName: uri"
-        for (String line : ExecutingCommand.runNative("lpstat -v " + printerName)) {
+        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-v", printerName })) {
             if (line.contains("device for")) {
                 int colonIdx = line.indexOf(':', line.indexOf("device for"));
                 if (colonIdx >= 0 && colonIdx < line.length() - 1) {
@@ -248,9 +277,23 @@ public abstract class AbstractPrinter implements Printer {
     }
 
     private static String getDriverForPrinter(String printerName) {
-        // lpoptions -p printer -l can give make/model, but simpler to use lpstat -l -p
-        for (String line : ExecutingCommand.runNative("lpstat -l -p " + printerName)) {
-            // Look for Description or make/model info
+        // lpoptions -p printer gives printer-make-and-model (IPP attribute matching Win32_Printer.DRIVERNAME)
+        for (String line : ExecutingCommand.runNative(new String[] { "lpoptions", "-p", printerName })) {
+            int idx = line.indexOf("printer-make-and-model='");
+            if (idx >= 0) {
+                int start = idx + 24; // length of "printer-make-and-model='"
+                int end = line.indexOf('\'', start);
+                if (end > start) {
+                    return line.substring(start, end);
+                }
+            }
+        }
+        return "";
+    }
+
+    private static String getDescriptionForPrinter(String printerName) {
+        // lpstat -l -p gives Description (user-friendly label)
+        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-l", "-p", printerName })) {
             if (line.trim().startsWith("Description:")) {
                 return line.substring(line.indexOf(':') + 1).trim();
             }
@@ -263,9 +306,9 @@ public abstract class AbstractPrinter implements Printer {
      */
     @Immutable
     private static final class CupsPrinter extends AbstractPrinter {
-        CupsPrinter(String name, String driverName, PrinterStatus status, boolean isDefault, boolean isLocal,
-                String portName) {
-            super(name, driverName, status, isDefault, isLocal, portName);
+        CupsPrinter(String name, String driverName, String description, PrinterStatus status, boolean isDefault,
+                boolean isLocal, String portName) {
+            super(name, driverName, description, status, isDefault, isLocal, portName);
         }
     }
 }

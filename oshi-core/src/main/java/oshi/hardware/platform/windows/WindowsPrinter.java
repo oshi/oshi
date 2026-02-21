@@ -22,9 +22,9 @@ import oshi.util.platform.windows.WmiUtil;
 @Immutable
 final class WindowsPrinter extends AbstractPrinter {
 
-    WindowsPrinter(String name, String driverName, PrinterStatus status, boolean isDefault, boolean isLocal,
-            String portName) {
-        super(name, driverName, status, isDefault, isLocal, portName);
+    WindowsPrinter(String name, String driverName, String description, PrinterStatus status, boolean isDefault,
+            boolean isLocal, String portName) {
+        super(name, driverName, description, status, isDefault, isLocal, portName);
     }
 
     /**
@@ -39,12 +39,14 @@ final class WindowsPrinter extends AbstractPrinter {
         for (int i = 0; i < result.getResultCount(); i++) {
             String name = WmiUtil.getString(result, PrinterProperty.NAME, i);
             String driverName = WmiUtil.getString(result, PrinterProperty.DRIVERNAME, i);
+            String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
             int statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
             boolean isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
             boolean isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
             String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
 
-            printers.add(new WindowsPrinter(name, driverName, parseStatus(statusCode), isDefault, isLocal, portName));
+            printers.add(new WindowsPrinter(name, driverName, description, parseStatus(statusCode), isDefault, isLocal,
+                    portName));
         }
         return printers;
     }
