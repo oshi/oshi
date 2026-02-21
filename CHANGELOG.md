@@ -1,6 +1,7 @@
-# 6.9.4 (in progress)
+# 6.10.0 (in progress)
 
-* Your contribution here!
+##### New Features
+* [#2949](https://github.com/oshi/oshi/pull/2949): Add new API for Printer info - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.9.0 (2025-09-18), 6.9.1 (2025-10-18), 6.9.2 (2025-12-20), 6.9.3 (2025-01-28)
 

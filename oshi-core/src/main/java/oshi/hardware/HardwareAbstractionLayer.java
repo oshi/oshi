@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -126,4 +126,13 @@ public interface HardwareAbstractionLayer {
      * @return A list of objects or an empty list if none are present.
      */
     List<GraphicsCard> getGraphicsCards();
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.Printer} objects, representing printers.
+     *
+     * @return A list of Printer objects or an empty list if none are present.
+     */
+    default List<Printer> getPrinters() {
+        return Collections.emptyList();
+    }
 }

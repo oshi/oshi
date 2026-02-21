@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -15,6 +15,7 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 
 /**
@@ -82,5 +83,10 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
     @Override
     public List<NetworkIF> getNetworkIFs() {
         return getNetworkIFs(false);
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return AbstractPrinter.getPrintersFromCups();
     }
 }
