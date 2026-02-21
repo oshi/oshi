@@ -47,6 +47,7 @@ public final class GeomPartList {
         String identification = Constants.UNKNOWN;
         String type = Constants.UNKNOWN;
         String uuid = Constants.UNKNOWN;
+        String label = "";
         long size = 0;
         String mountPoint = "";
 
@@ -75,11 +76,13 @@ public final class GeomPartList {
                         // Minor # is filesize of /dev entry.
                         int minor = ParseUtil
                                 .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-                        partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));
+                        partList.add(
+                                new HWPartition(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
                         partName = null;
                         identification = Constants.UNKNOWN;
                         type = Constants.UNKNOWN;
                         uuid = Constants.UNKNOWN;
+                        label = "";
                         size = 0;
                     }
                     // Verify new entry is a partition
@@ -101,6 +104,8 @@ public final class GeomPartList {
                             uuid = split[1];
                         } else if (line.startsWith("type:")) {
                             type = split[1];
+                        } else if (line.startsWith("label:") && split.length >= 2 && !"(null)".equals(split[1])) {
+                            label = split[1];
                         }
                     }
                 }
@@ -110,7 +115,7 @@ public final class GeomPartList {
             // Process last partition
             if (partName != null) {
                 int minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-                partList.add(new HWPartition(identification, partName, type, uuid, size, 0, minor, mountPoint));
+                partList.add(new HWPartition(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
             }
             // Process last diskstore
             if (!partList.isEmpty()) {
