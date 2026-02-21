@@ -45,16 +45,14 @@ public final class Prtvtoc {
                             bytesPerSector = ParseUtil.parseIntOrDefault(split[1], 0);
                         }
                     } else if (line.contains("Volume Name")) {
+                        // Format: "* Volume Name: <label>" or similar
                         int idx = line.indexOf("Volume Name");
-                        if (idx >= 0) {
-                            // Format: "* Volume Name: <label>" or similar
-                            String remainder = line.substring(idx + "Volume Name".length()).trim();
-                            if (remainder.startsWith(":")) {
-                                remainder = remainder.substring(1).trim();
-                            }
-                            if (!remainder.isEmpty()) {
-                                volumeName = remainder;
-                            }
+                        String remainder = line.substring(idx + "Volume Name".length()).trim();
+                        if (remainder.startsWith(":")) {
+                            remainder = remainder.substring(1).trim();
+                        }
+                        if (!remainder.isEmpty()) {
+                            volumeName = remainder;
                         }
                     }
                 } else if (bytesPerSector > 0) {

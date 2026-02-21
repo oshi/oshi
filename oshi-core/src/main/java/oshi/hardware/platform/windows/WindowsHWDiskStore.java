@@ -306,9 +306,14 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
                     Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive.getA(), volumeChr, GUID_BUFSIZE);
                     String uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
                     char[] labelChr = new char[LABEL_BUFSIZE];
-                    Kernel32.INSTANCE.GetVolumeInformation(logicalDrive.getA(), labelChr, LABEL_BUFSIZE, null, null,
-                            null, null, 0);
-                    String label = new String(labelChr).trim();
+                    String label = "";
+                    if (Kernel32.INSTANCE.GetVolumeInformation(logicalDrive.getA(), labelChr, LABEL_BUFSIZE, null, null,
+                            null, null, 0)) {
+                        label = new String(labelChr).trim();
+                    } else {
+                        int error = Kernel32.INSTANCE.GetLastError();
+                        LOG.debug("Failed to get volume label for {}: error code {}", logicalDrive.getA(), error);
+                    }
                     HWPartition pt = new HWPartition(
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),

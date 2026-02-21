@@ -104,7 +104,7 @@ public final class GeomPartList {
                             uuid = split[1];
                         } else if (line.startsWith("type:")) {
                             type = split[1];
-                        } else if (line.startsWith("label:") && split.length >= 2 && !"(null)".equals(split[1])) {
+                        } else if (line.startsWith("label:") && !"(null)".equals(split[1])) {
                             label = split[1];
                         }
                     }

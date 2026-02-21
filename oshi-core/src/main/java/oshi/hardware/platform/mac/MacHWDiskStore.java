@@ -239,8 +239,9 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                         if (result == null) {
                                             name = type;
                                         } else {
-                                            name = CFUtil.cfPointerToString(result);
-                                            label = name;
+                                            String volumeName = CFUtil.cfPointerToString(result);
+                                            name = volumeName;
+                                            label = volumeName;
                                         }
                                         diskInfo.release();
                                     }
