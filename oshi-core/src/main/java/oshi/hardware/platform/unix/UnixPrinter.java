@@ -77,6 +77,9 @@ public final class UnixPrinter extends AbstractPrinter {
             try {
                 CupsDest[] dests = (CupsDest[]) new CupsDest(destsPtr).toArray(numDests);
                 for (CupsDest dest : dests) {
+                    if (dest.name == null) {
+                        continue;
+                    }
                     String name = dest.name;
                     boolean isDefault = dest.is_default != 0;
 
