@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -23,11 +23,13 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixDisplay;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * AIXHardwareAbstractionLayer class.
@@ -93,5 +95,10 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return AixGraphicsCard.getGraphicsCards(lscfg);
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return UnixPrinter.getPrinters();
     }
 }

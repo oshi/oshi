@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi;
@@ -39,6 +39,7 @@ import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
@@ -148,6 +149,9 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
         logger.info("Checking Graphics Cards...");
         printGraphicsCards(hal.getGraphicsCards());
+
+        logger.info("Checking Printers...");
+        printPrinters(hal.getPrinters());
 
         StringBuilder output = new StringBuilder();
         for (String line : oshi) {
@@ -478,6 +482,17 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         } else {
             for (GraphicsCard card : list) {
                 oshi.add(" " + String.valueOf(card));
+            }
+        }
+    }
+
+    protected static void printPrinters(List<Printer> list) {
+        oshi.add("Printers:");
+        if (list.isEmpty()) {
+            oshi.add(" None detected.");
+        } else {
+            for (Printer printer : list) {
+                oshi.add(" " + String.valueOf(printer));
             }
         }
     }

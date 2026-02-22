@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -15,10 +15,12 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * MacHardwareAbstractionLayer class.
@@ -79,5 +81,10 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return MacGraphicsCard.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return UnixPrinter.getPrinters();
     }
 }

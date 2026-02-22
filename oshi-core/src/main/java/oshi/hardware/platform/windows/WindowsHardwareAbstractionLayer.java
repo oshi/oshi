@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -16,6 +16,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
@@ -85,5 +86,10 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return WindowsGraphicsCard.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return WindowsPrinter.getPrinters();
     }
 }
