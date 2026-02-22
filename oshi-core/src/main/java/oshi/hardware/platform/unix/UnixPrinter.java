@@ -96,7 +96,9 @@ public final class UnixPrinter extends AbstractPrinter {
 
                     PrinterStatus status = parseStateFromCups(printerState, stateReasons);
                     String statusReason = "none".equals(stateReasons) ? "" : stateReasons;
-                    boolean isLocal = isLocalUri(deviceUri);
+                    // Use printer-type bit flag for locality (device-uri not available to non-root)
+                    int printerType = ParseUtil.parseIntOrDefault(getOption(dest, "printer-type"), 0);
+                    boolean isLocal = (printerType & Cups.CUPS_PRINTER_REMOTE) == 0;
 
                     printers.add(new UnixPrinter(name, printerMakeModel, printerInfo, status, statusReason, isDefault,
                             isLocal, deviceUri));

@@ -24,6 +24,9 @@ public interface Cups extends Library {
     int IPP_PRINTER_PROCESSING = 4;
     int IPP_PRINTER_STOPPED = 5;
 
+    // Printer type bit flags from cups/cups.h
+    int CUPS_PRINTER_REMOTE = 0x0002;
+
     /**
      * CUPS destination (printer) structure.
      */
