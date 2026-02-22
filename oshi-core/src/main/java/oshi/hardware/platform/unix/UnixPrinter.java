@@ -5,8 +5,10 @@
 package oshi.hardware.platform.unix;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +75,8 @@ public final class UnixPrinter extends AbstractPrinter {
 
         if (destsPtr != null && numDests > 0) {
             try {
-                int destSize = new CupsDest().size();
-                for (int i = 0; i < numDests; i++) {
-                    CupsDest dest = new CupsDest(destsPtr.share((long) i * destSize));
-
+                CupsDest[] dests = (CupsDest[]) new CupsDest(destsPtr).toArray(numDests);
+                for (CupsDest dest : dests) {
                     String name = dest.name;
                     boolean isDefault = dest.is_default != 0;
 
@@ -140,6 +140,10 @@ public final class UnixPrinter extends AbstractPrinter {
         List<Printer> printers = new ArrayList<>();
         String defaultPrinter = getDefaultPrinter();
 
+        // Pre-fetch printer info with aggregated commands to reduce subprocess spawning
+        Map<String, String> portMap = parsePortMap();
+        Map<String, String> descriptionMap = parseDescriptionMap();
+
         for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-p" })) {
             if (line.startsWith("printer ")) {
                 String[] parts = line.split("\\s+");
@@ -148,10 +152,10 @@ public final class UnixPrinter extends AbstractPrinter {
                     PrinterStatus status = parseStatusFromLpstat(line);
                     boolean isDefault = name.equals(defaultPrinter);
 
-                    String portName = getPortForPrinter(name);
+                    String portName = portMap.getOrDefault(name, "");
                     boolean isLocal = isLocalUri(portName);
                     String driverName = getDriverForPrinter(name);
-                    String description = getDescriptionForPrinter(name);
+                    String description = descriptionMap.getOrDefault(name, "");
                     String statusReason = getStatusReasonFromLpstat(line);
 
                     printers.add(new UnixPrinter(name, driverName, description, status, statusReason, isDefault,
@@ -160,6 +164,58 @@ public final class UnixPrinter extends AbstractPrinter {
             }
         }
         return printers;
+    }
+
+    private static Map<String, String> parsePortMap() {
+        Map<String, String> map = new HashMap<>();
+        // lpstat -v output: "device for PrinterName: uri"
+        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-v" })) {
+            if (line.contains("device for")) {
+                int forIdx = line.indexOf("device for ") + 11;
+                int colonIdx = line.indexOf(':', forIdx);
+                if (colonIdx > forIdx) {
+                    String name = line.substring(forIdx, colonIdx).trim();
+                    String uri = line.substring(colonIdx + 1).trim();
+                    map.put(name, uri);
+                }
+            }
+        }
+        return map;
+    }
+
+    private static Map<String, String> parseDescriptionMap() {
+        Map<String, String> map = new HashMap<>();
+        String currentPrinter = null;
+        // lpstat -l -p output: "printer PrinterName ..." followed by "\tDescription: ..."
+        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-l", "-p" })) {
+            if (line.startsWith("printer ")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2) {
+                    currentPrinter = parts[1];
+                }
+            } else if (currentPrinter != null && line.trim().startsWith("Description:")) {
+                String desc = line.substring(line.indexOf(':') + 1).trim();
+                map.put(currentPrinter, desc);
+            }
+        }
+        return map;
+    }
+
+    // Retrieves driver via lpoptions which requires a per-printer subprocess call.
+    // On systems with many printers, this may add latency.
+    private static String getDriverForPrinter(String printerName) {
+        // lpoptions -p requires per-printer call as there's no global option
+        for (String line : ExecutingCommand.runNative(new String[] { "lpoptions", "-p", printerName })) {
+            int idx = line.indexOf("printer-make-and-model='");
+            if (idx >= 0) {
+                int start = idx + 24;
+                int end = line.indexOf('\'', start);
+                if (end > start) {
+                    return line.substring(start, end);
+                }
+            }
+        }
+        return "";
     }
 
     private static String getDefaultPrinter() {
@@ -192,41 +248,6 @@ public final class UnixPrinter extends AbstractPrinter {
         int dashIdx = line.indexOf(" - ");
         if (dashIdx > 0) {
             return line.substring(dashIdx + 3).trim();
-        }
-        return "";
-    }
-
-    private static String getPortForPrinter(String printerName) {
-        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-v", printerName })) {
-            if (line.contains("device for")) {
-                int colonIdx = line.indexOf(':', line.indexOf("device for"));
-                if (colonIdx >= 0 && colonIdx < line.length() - 1) {
-                    return line.substring(colonIdx + 1).trim();
-                }
-            }
-        }
-        return "";
-    }
-
-    private static String getDriverForPrinter(String printerName) {
-        for (String line : ExecutingCommand.runNative(new String[] { "lpoptions", "-p", printerName })) {
-            int idx = line.indexOf("printer-make-and-model='");
-            if (idx >= 0) {
-                int start = idx + 24;
-                int end = line.indexOf('\'', start);
-                if (end > start) {
-                    return line.substring(start, end);
-                }
-            }
-        }
-        return "";
-    }
-
-    private static String getDescriptionForPrinter(String printerName) {
-        for (String line : ExecutingCommand.runNative(new String[] { "lpstat", "-l", "-p", printerName })) {
-            if (line.trim().startsWith("Description:")) {
-                return line.substring(line.indexOf(':') + 1).trim();
-            }
         }
         return "";
     }

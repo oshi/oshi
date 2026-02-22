@@ -130,6 +130,7 @@ Supported Features
 * USB Devices
 * Connected displays (with EDID info), graphics and audio cards
 * Sensors (temperature, fan speeds, voltage) on some hardware
+* Printers (name, status, driver)
 
 Support
 -------
