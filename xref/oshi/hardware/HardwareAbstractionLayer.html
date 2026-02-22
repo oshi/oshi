@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../apidocs/oshi/hardware/HardwareAbstractionLayer.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware;
@@ -134,7 +134,16 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return A list of objects or an empty list if none are present.</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     List&lt;GraphicsCard&gt; getGraphicsCards();
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * Instantiates a list of {@link oshi.hardware.Printer} objects, representing printers.</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @return A list of Printer objects or an empty list if none are present.</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">default</strong> List&lt;Printer&gt; getPrinters() {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
