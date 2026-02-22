@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -87,9 +87,7 @@ public class DetectVM {
             String cleanMac = mac.replaceAll("[^0-9A-F]", "");
             if (cleanMac.length() >= 6) {
                 // Extract OUI (first 6 hex digits) and format as XX:XX:XX
-                String oui = String.format(Locale.ROOT, "%s:%s:%s",
-                        cleanMac.substring(0, 2),
-                        cleanMac.substring(2, 4),
+                String oui = String.format(Locale.ROOT, "%s:%s:%s", cleanMac.substring(0, 2), cleanMac.substring(2, 4),
                         cleanMac.substring(4, 6));
                 if (vmMacAddressProps.containsKey(oui)) {
                     return vmMacAddressProps.getProperty(oui);

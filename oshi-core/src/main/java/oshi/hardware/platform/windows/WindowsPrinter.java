@@ -75,6 +75,10 @@ final class WindowsPrinter extends AbstractPrinter {
      * We treat values >= 4 as ERROR (hard failures preventing printing). Low consumable warnings (3=Low Paper, 5=Low
      * Toner) pass through to PrinterStatus check since the printer can still function. Callers can check
      * getStatusReason() for details.
+     *
+     * @param statusCode The PrinterStatus code from WMI.
+     * @param errorState The DetectedErrorState code from WMI.
+     * @return The corresponding PrinterStatus enum value.
      */
     private static PrinterStatus parseStatus(int statusCode, int errorState) {
         if (errorState == 4 || errorState == 6 || errorState >= 7) {
