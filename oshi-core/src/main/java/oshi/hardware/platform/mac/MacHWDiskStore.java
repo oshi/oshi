@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -224,6 +224,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                 String partBsdName = sdService.getStringProperty("BSD Name");
                                 String name = partBsdName;
                                 String type = "";
+                                String label = "";
                                 // Get the DiskArbitration dictionary for
                                 // this partition
                                 DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session,
@@ -238,7 +239,9 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                         if (result == null) {
                                             name = type;
                                         } else {
-                                            name = CFUtil.cfPointerToString(result);
+                                            String volumeName = CFUtil.cfPointerToString(result);
+                                            name = volumeName;
+                                            label = volumeName;
                                         }
                                         diskInfo.release();
                                     }
@@ -250,7 +253,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                 Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
                                 String uuid = sdService.getStringProperty("UUID");
                                 partitions.add(new HWPartition(partBsdName, name, type,
-                                        uuid == null ? Constants.UNKNOWN : uuid, size == null ? 0L : size,
+                                        uuid == null ? Constants.UNKNOWN : uuid, label, size == null ? 0L : size,
                                         bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                 // iterate
                                 sdService.release();

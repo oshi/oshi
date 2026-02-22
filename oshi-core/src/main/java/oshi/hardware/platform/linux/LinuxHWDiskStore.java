@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -54,6 +54,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 
     private static final String ID_FS_TYPE = "ID_FS_TYPE";
     private static final String ID_FS_UUID = "ID_FS_UUID";
+    private static final String ID_FS_LABEL = "ID_FS_LABEL";
     private static final String ID_MODEL = "ID_MODEL";
     private static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
 
@@ -191,6 +192,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                                         : device.getPropertyValue(ID_FS_TYPE),
                                                 device.getPropertyValue(ID_FS_UUID) == null ? ""
                                                         : device.getPropertyValue(ID_FS_UUID),
+                                                device.getPropertyValue(ID_FS_LABEL) == null ? ""
+                                                        : device.getPropertyValue(ID_FS_LABEL),
                                                 ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
                                                         * SECTORSIZE,
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
@@ -230,6 +233,8 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
                                                         : device.getPropertyValue(ID_FS_TYPE),
                                                 device.getPropertyValue(ID_FS_UUID) == null ? ""
                                                         : device.getPropertyValue(ID_FS_UUID),
+                                                device.getPropertyValue(ID_FS_LABEL) == null ? ""
+                                                        : device.getPropertyValue(ID_FS_LABEL),
                                                 ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
                                                         * SECTORSIZE,
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),

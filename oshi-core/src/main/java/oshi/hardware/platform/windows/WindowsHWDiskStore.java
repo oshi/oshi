@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -56,6 +56,8 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     // A reasonable size for the buffer to accommodate the largest possible volume
     // GUID path is 50 characters.
     private static final int GUID_BUFSIZE = 100;
+    // Windows allows up to 32 characters for NTFS volume labels; +1 for null terminator
+    private static final int LABEL_BUFSIZE = 33;
 
     private long reads = 0L;
     private long readBytes = 0L;
@@ -303,10 +305,19 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
                     char[] volumeChr = new char[GUID_BUFSIZE];
                     Kernel32.INSTANCE.GetVolumeNameForVolumeMountPoint(logicalDrive.getA(), volumeChr, GUID_BUFSIZE);
                     String uuid = ParseUtil.parseUuidOrDefault(new String(volumeChr).trim(), "");
+                    char[] labelChr = new char[LABEL_BUFSIZE];
+                    String label = "";
+                    if (Kernel32.INSTANCE.GetVolumeInformation(logicalDrive.getA(), labelChr, LABEL_BUFSIZE, null, null,
+                            null, null, 0)) {
+                        label = new String(labelChr).trim();
+                    } else {
+                        int error = Kernel32.INSTANCE.GetLastError();
+                        LOG.debug("Failed to get volume label for {}: error code {}", logicalDrive.getA(), error);
+                    }
                     HWPartition pt = new HWPartition(
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
                             WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
-                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid, label,
                             logicalDrive.getB(),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
                             WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i),
