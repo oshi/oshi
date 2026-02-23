@@ -15,7 +15,7 @@
     <description>Demo classes demonstrating OSHI usage.</description>
 
     <properties>
-        <jackson.version>2.21.0</jackson.version>
+        <jackson.version>2.21.1</jackson.version>
         <jfreechart.version>1.5.6</jfreechart.version>
     </properties>
 
