@@ -1,6 +1,6 @@
 # 6.10.1 (in progress)
 
-* Your contribution here!
+* [#3082](https://github.com/oshi/oshi/pull/3082): Introduce OSProcess.getMemoryFootprint method. - [@dyorgio](https://github.com/dyorgio).
 
 # 6.10.0 (2026-02-22)
 
