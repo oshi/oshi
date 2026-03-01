@@ -124,6 +124,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
+    private long memoryFootprint;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -309,6 +310,11 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getMemoryFootprint() {
+        return this.memoryFootprint;
+    }
+
+    @Override
     public long getKernelTime() {
         return this.kernelTime;
     }
@@ -450,6 +456,8 @@ public class MacOSProcess extends AbstractOSProcess {
             this.priority = taskAllInfo.ptinfo.pti_priority;
             this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
             this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
+            // Default/fallback: RSS. Will be overwritten by phys_footprint when available.
+            this.memoryFootprint = this.residentSetSize;
             this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;
             this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;
             this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
@@ -466,6 +474,7 @@ public class MacOSProcess extends AbstractOSProcess {
                 if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                     this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
                     this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
+                    this.memoryFootprint = rUsageInfoV2.ri_phys_footprint;
                 }
             }
         }
