@@ -167,7 +167,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
-    private lgon memoryFootprint;
+    private long memoryFootprint;
     private long kernelTime;
     private long userTime;
     private long startTime;
