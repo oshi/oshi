@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -193,6 +193,23 @@ public interface OSProcess {
      */
     long getResidentSetSize();
 
+    /**
+     * Gets a platform-specific estimate of the process's physical memory "footprint".
+     * <p>
+     * This is intended to align with what end users commonly expect when comparing
+     * against OS-native task managers (e.g., Activity Monitor on macOS).
+     * </p>
+     * <ul>
+     *   <li><b>macOS</b>: returns {@code ri_phys_footprint} from {@code proc_pid_rusage()} when available.</li>
+     *   <li><b>Windows/Linux/Unix</b>: default implementation returns {@link #getResidentSetSize()}.</li>
+     * </ul>
+     *
+     * @return the process memory footprint, or the best available approximation.
+     */
+    default long getMemoryFootprint() {
+        return getResidentSetSize();
+    }
+    
     /**
      * Gets kernel/system (privileged) time used by the process.
      *
