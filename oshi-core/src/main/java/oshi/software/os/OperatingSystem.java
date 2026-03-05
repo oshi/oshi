@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -89,8 +89,8 @@ public interface OperatingSystem {
         /**
          * Sort by decreasing memory footprint size
          */
-        public static final Comparator<OSProcess> FOOTPRINT_DESC = Comparator.comparingLong(OSProcess::getMemoryFootprint)
-                .reversed();
+        public static final Comparator<OSProcess> FOOTPRINT_DESC = Comparator
+                .comparingLong(OSProcess::getMemoryFootprint).reversed();
         /**
          * Sort by up time, newest processes first
          */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -549,7 +549,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
 
             // Get rusage info for newer OS versions
-            if (this.majorVersion > 10 || this.minorVersion >= 9) {
+            if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
                 MemorySegment rusage = arena.allocate(RUSAGEINFOV2);
                 if (0 == proc_pid_rusage(pid, RUSAGE_INFO_V2, rusage)) {
                     this.bytesRead = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESREAD));
