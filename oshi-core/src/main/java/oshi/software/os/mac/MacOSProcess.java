@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -423,27 +423,27 @@ public class MacOSProcess extends AbstractOSProcess {
             }
 
             switch (taskAllInfo.pbsd.pbi_status) {
-            case SSLEEP:
-                this.state = SLEEPING;
-                break;
-            case SWAIT:
-                this.state = WAITING;
-                break;
-            case SRUN:
-                this.state = RUNNING;
-                break;
-            case SIDL:
-                this.state = NEW;
-                break;
-            case SZOMB:
-                this.state = ZOMBIE;
-                break;
-            case SSTOP:
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
+                case SSLEEP:
+                    this.state = SLEEPING;
+                    break;
+                case SWAIT:
+                    this.state = WAITING;
+                    break;
+                case SRUN:
+                    this.state = RUNNING;
+                    break;
+                case SIDL:
+                    this.state = NEW;
+                    break;
+                case SZOMB:
+                    this.state = ZOMBIE;
+                    break;
+                case SSTOP:
+                    this.state = STOPPED;
+                    break;
+                default:
+                    this.state = OTHER;
+                    break;
             }
             this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
             this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
@@ -469,7 +469,7 @@ public class MacOSProcess extends AbstractOSProcess {
             this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
             this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
         }
-        if (this.majorVersion > 10 || this.minorVersion >= 9) {
+        if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
             try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {
                 if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                     this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;

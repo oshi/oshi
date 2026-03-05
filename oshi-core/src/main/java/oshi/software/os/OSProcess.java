@@ -194,22 +194,19 @@ public interface OSProcess {
     long getResidentSetSize();
 
     /**
-     * Gets a platform-specific estimate of the process's physical memory "footprint".
+     * Gets the process's physical memory "footprint", a platform-specific estimate of the memory which would be freed
+     * if the process were killed.
      * <p>
-     * This is intended to align with what end users commonly expect when comparing
-     * against OS-native task managers (e.g., Activity Monitor on macOS).
-     * </p>
-     * <ul>
-     *   <li><b>macOS</b>: returns {@code ri_phys_footprint} from {@code proc_pid_rusage()} when available.</li>
-     *   <li><b>Windows/Linux/Unix</b>: default implementation returns {@link #getResidentSetSize()}.</li>
-     * </ul>
+     * On macOS, this aligns with the Memory display on the Activity Monitor.
+     * <p>
+     * Defaults to the same value as {@link #getResidentSetSize()} otherwise.
      *
      * @return the process memory footprint, or the best available approximation.
      */
     default long getMemoryFootprint() {
         return getResidentSetSize();
     }
-    
+
     /**
      * Gets kernel/system (privileged) time used by the process.
      *
