@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -127,6 +127,8 @@ class OperatingSystemTest {
         assertThat("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process resident set size should be 0 or higher", proc.getResidentSetSize(),
+                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current running process memory footprint size should be 0 or higher", proc.getMemoryFootprint(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
                 is(greaterThanOrEqualTo(0L)));

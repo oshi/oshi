@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -192,6 +192,20 @@ public interface OSProcess {
      * @return the Resident Set Size
      */
     long getResidentSetSize();
+
+    /**
+     * Gets the process's physical memory "footprint", a platform-specific estimate of the memory which would be freed
+     * if the process were killed.
+     * <p>
+     * On macOS, this aligns with the Memory display on the Activity Monitor.
+     * <p>
+     * Defaults to the same value as {@link #getResidentSetSize()} otherwise.
+     *
+     * @return the process memory footprint, or the best available approximation.
+     */
+    default long getMemoryFootprint() {
+        return getResidentSetSize();
+    }
 
     /**
      * Gets kernel/system (privileged) time used by the process.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.mac;
@@ -201,6 +201,7 @@ public interface MacSystem {
     );
     PathElement RI_DISKIO_BYTESREAD = groupElement("ri_diskio_bytesread");
     PathElement RI_DISKIO_BYTESWRITTEN = groupElement("ri_diskio_byteswritten");
+    PathElement RI_PHYS_FOOTPRINT = groupElement("ri_phys_footprint");
 
     StructLayout VNODE_INFO_PATH = structLayout(//
             paddingLayout(152 * 8), // vnode_info but we don't need its data
