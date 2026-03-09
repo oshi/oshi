@@ -84,6 +84,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
+    private long privateResidentMemory;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -211,6 +212,11 @@ public class LinuxOSProcess extends AbstractOSProcess {
     @Override
     public long getResidentMemory() {
         return this.residentSetSize;
+    }
+
+    @Override
+    public long getPrivateResidentMemory() {
+        return this.privateResidentMemory;
     }
 
     @Override
@@ -349,6 +355,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         Map<String, String> status = FileUtil
                 .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), ":");
         String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, getProcessID()));
+        String statm = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STATM, getProcessID()));
         if (stat.isEmpty()) {
             this.state = INVALID;
             return false;
@@ -380,7 +387,19 @@ public class LinuxOSProcess extends AbstractOSProcess {
         this.threadCount = (int) statArray[ProcPidStat.THREAD_COUNT.ordinal()];
         this.priority = (int) statArray[ProcPidStat.PRIORITY.ordinal()];
         this.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];
-        this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();
+        // Parse /proc/[pid]/statm for resident and shared pages (all in pages)
+        // Fields: size resident shared text lib data dt
+        String[] statmFields = ParseUtil.whitespaces.split(statm);
+        if (statmFields.length > 2) {
+            long resident = ParseUtil.parseLongOrDefault(statmFields[1], 0L);
+            long shared = ParseUtil.parseLongOrDefault(statmFields[2], 0L);
+            long pageSize = LinuxOperatingSystem.getPageSize();
+            this.residentSetSize = resident * pageSize;
+            this.privateResidentMemory = (resident - shared) * pageSize;
+        } else {
+            this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();
+            this.privateResidentMemory = this.residentSetSize;
+        }
         this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
