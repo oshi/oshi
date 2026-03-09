@@ -178,7 +178,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         }
     }
 
-    private static final MethodHandle GetDiskFreeSpaceEx = downcall(K32, "GetDiskFreeSpaceExA", JAVA_INT, ADDRESS,
+    private static final MethodHandle GetDiskFreeSpaceEx = downcall(K32, "GetDiskFreeSpaceExW", JAVA_INT, ADDRESS,
             ADDRESS, ADDRESS, ADDRESS);
 
     public static OptionalInt GetDiskFreeSpaceEx(MemorySegment lpDirectoryName,
@@ -256,6 +256,29 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             return OptionalInt.of((int) SetErrorMode.invokeExact(uMode));
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.SetErrorMode failed", t);
+            return OptionalInt.empty();
+        }
+    }
+
+    private static final MethodHandle GetVolumeNameForVolumeMountPoint = downcall(K32,
+            "GetVolumeNameForVolumeMountPointW", JAVA_INT, ADDRESS, ADDRESS, JAVA_INT);
+
+    /**
+     * Retrieves a volume GUID path for the volume that is associated with the specified volume mount point.
+     *
+     * @param lpszVolumeMountPoint the path of a mounted folder or a drive letter (e.g., "C:\\")
+     * @param lpszVolumeName       buffer to receive the volume GUID path
+     * @param cchBufferLength      size of the buffer in characters
+     * @return nonzero if successful, zero otherwise
+     */
+    public static OptionalInt GetVolumeNameForVolumeMountPoint(MemorySegment lpszVolumeMountPoint,
+            MemorySegment lpszVolumeName, int cchBufferLength) {
+        try {
+            int result = (int) GetVolumeNameForVolumeMountPoint.invokeExact(lpszVolumeMountPoint, lpszVolumeName,
+                    cchBufferLength);
+            return OptionalInt.of(result);
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetVolumeNameForVolumeMountPoint failed: {}", t.getMessage());
             return OptionalInt.empty();
         }
     }
