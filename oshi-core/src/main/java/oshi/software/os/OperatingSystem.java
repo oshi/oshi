@@ -89,7 +89,7 @@ public interface OperatingSystem {
         /**
          * Sort by decreasing private resident memory size
          */
-        public static final Comparator<OSProcess> FOOTPRINT_DESC = Comparator
+        public static final Comparator<OSProcess> PRIVATE_RSS_DESC = Comparator
                 .comparingLong(OSProcess::getPrivateResidentMemory).reversed();
         /**
          * Sort by up time, newest processes first
