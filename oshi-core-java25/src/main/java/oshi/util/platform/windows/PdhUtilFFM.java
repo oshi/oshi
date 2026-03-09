@@ -80,7 +80,7 @@ public class PdhUtilFFM {
             }
 
         } catch (Throwable t) {
-            LOG.debug("PDH getOpenFileDescriptors failed", t.getMessage());
+            LOG.debug("PDH getOpenFileDescriptors failed: {}", t.getMessage(), t);
             return -1;
         }
 

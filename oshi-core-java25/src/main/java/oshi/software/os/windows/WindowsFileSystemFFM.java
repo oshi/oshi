@@ -7,6 +7,7 @@ package oshi.software.os.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -93,7 +94,30 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
         // Begin with all the local volumes
         result = getLocalVolumes(null);
-        LOG.debug("FFM implementation for getFileStores currently consists of only local volumes and not WMI volumes");
+
+        // Build a map of existing mount point to OSFileStore
+        Map<String, OSFileStore> volumeMap = new HashMap<>();
+        for (OSFileStore volume : result) {
+            volumeMap.put(volume.getMount(), volume);
+        }
+
+        // Iterate through volumes in WMI and update description (if it exists)
+        // or add new if it doesn't (expected for network drives)
+        for (OSFileStore wmiVolume : getWmiVolumes(null, localOnly)) {
+            if (volumeMap.containsKey(wmiVolume.getMount())) {
+                // If the volume is already in our list, update the name field
+                // using WMI's more verbose name and update label if needed
+                OSFileStore volume = volumeMap.get(wmiVolume.getMount());
+                result.remove(volume);
+                result.add(new WindowsOSFileStoreFFM(wmiVolume.getName(), volume.getVolume(),
+                        volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
+                        volume.getOptions(), volume.getUUID(), "", volume.getDescription(), volume.getType(),
+                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0));
+            } else if (!localOnly) {
+                // Otherwise add the new volume in its entirety
+                result.add(wmiVolume);
+            }
+        }
         return result;
     }
 
@@ -143,15 +167,15 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
                         Kernel32FFM.GetDiskFreeSpaceEx(toWideString(arena, volume), userFreeBytesBuf, totalBytesBuf,
                                 systemFreeBytesBuf);
-                        long systemFreeBytes = systemFreeBytesBuf.get(JAVA_INT, 0);
-                        long totalBytes = totalBytesBuf.get(JAVA_INT, 0);
-                        long usedFreeBytes = userFreeBytesBuf.get(JAVA_INT, 0);
+                        long systemFreeBytes = systemFreeBytesBuf.get(JAVA_LONG, 0);
+                        long totalBytes = totalBytesBuf.get(JAVA_LONG, 0);
+                        long userFreeBytes = userFreeBytesBuf.get(JAVA_LONG, 0);
 
                         String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
                         fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume,
                                 name, mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType,
-                                systemFreeBytes, usedFreeBytes, totalBytes, 0, 0));
+                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0));
                     }
                 } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
                 return fs;
@@ -169,7 +193,16 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
      */
     private static String getDriveType(MemorySegment mountBuf) {
         int type = Kernel32FFM.GetDriveType(mountBuf).orElse(-1);
+        return getDriveTypeString(type);
+    }
 
+    /**
+     * Converts a drive type integer to a description string.
+     *
+     * @param type the drive type from GetDriveType
+     * @return A drive type description
+     */
+    private static String getDriveTypeString(int type) {
         return switch (type) {
             case 2 -> "Removable drive";
             case 3 -> "Fixed drive";
@@ -178,6 +211,51 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
             case 6 -> "RAM drive";
             default -> "Unknown drive type";
         };
+    }
+
+    /**
+     * Gets logical drives listed in WMI.
+     *
+     * @param nameToMatch an optional string to filter match, null otherwise
+     * @param localOnly   whether to only search local drives
+     * @return A list of {@link OSFileStore} objects representing all WMI volumes
+     */
+    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+        List<OSFileStore> fs = new ArrayList<>();
+        List<Win32LogicalDiskFFM.LogicalDiskInfo> drives = Win32LogicalDiskFFM.queryLogicalDisk(nameToMatch, localOnly);
+
+        try (Arena arena = Arena.ofConfined()) {
+            for (Win32LogicalDiskFFM.LogicalDiskInfo drive : drives) {
+                long free = drive.getFreeSpace();
+                long total = drive.getSize();
+                String description = drive.getDescription();
+                String name = drive.getName();
+                String label = drive.getVolumeName();
+                String options = drive.getAccess() == 1 ? "ro" : "rw";
+                int type = drive.getDriveType();
+                String volume;
+
+                if (type != 4) {
+                    // Local drive - get volume GUID path
+                    MemorySegment mountPoint = toWideString(arena, name + "\\");
+                    MemorySegment volumeBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
+                    Kernel32FFM.GetVolumeNameForVolumeMountPoint(mountPoint, volumeBuf, BUFSIZE);
+                    volume = readWideString(volumeBuf);
+                } else {
+                    // Network drive
+                    volume = drive.getProviderName();
+                    String[] split = volume.split("\\\\");
+                    if (split.length > 1 && !split[split.length - 1].isEmpty()) {
+                        description = split[split.length - 1];
+                    }
+                }
+
+                fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
+                        label, name + "\\", options, "", "", getDriveTypeString(type),
+                        drive.getFileSystem(), free, free, total, 0, 0));
+            }
+        }
+        return fs;
     }
 
     @Override

@@ -80,9 +80,9 @@ public class WindowsOSFileStoreFFM extends AbstractOSFileStore {
         // Check if we have the volume locally
         List<OSFileStore> volumes = WindowsFileSystemFFM.getLocalVolumes(getVolume());
         if (volumes.isEmpty()) {
-            // Not locally, search WMI
+            // Not locally, search WMI using FFM-based implementation
             String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
-            volumes = WindowsFileSystem.getWmiVolumes(nameToMatch, false);
+            volumes = WindowsFileSystemFFM.getWmiVolumes(nameToMatch, false);
         }
         for (OSFileStore fileStore : volumes) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
