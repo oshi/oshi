@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -40,9 +40,9 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final long serialVersionUID = 1L;
 
     private static final String PROCESSES = "Processes";
-    private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "VSZ", "RSS", "% Memory",
-            "Process Name" };
-    private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.08, 0.35 };
+    private static final String[] COLUMNS = { "PID", "PPID", "Threads", "% CPU", "Cumulative", "VSZ", "RSS", "Memory",
+            "% Memory", "Process Name" };
+    private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.09, 0.09, 0.09, 0.07, 0.29 };
 
     private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
@@ -136,7 +136,7 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
                 } else if (cumulativeCpuButton.isSelected()) {
                     processSortValueMap.put(p, p.getProcessCpuLoadCumulative());
                 } else {
-                    processSortValueMap.put(p, (double) p.getResidentSetSize());
+                    processSortValueMap.put(p, (double) p.getPrivateResidentMemory());
                 }
             }
         }
@@ -165,9 +165,10 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
                 procArr[i][4] = String.format(Locale.ROOT, "%.1f", 100d * p.getProcessCpuLoadCumulative());
             }
             procArr[i][5] = FormatUtil.formatBytes(p.getVirtualSize());
-            procArr[i][6] = FormatUtil.formatBytes(p.getResidentSetSize());
-            procArr[i][7] = String.format(Locale.ROOT, "%.1f", 100d * p.getResidentSetSize() / totalMem);
-            procArr[i][8] = p.getName();
+            procArr[i][6] = FormatUtil.formatBytes(p.getResidentMemory());
+            procArr[i][7] = FormatUtil.formatBytes(p.getPrivateResidentMemory());
+            procArr[i][8] = String.format(Locale.ROOT, "%.1f", 100d * p.getPrivateResidentMemory() / totalMem);
+            procArr[i][9] = p.getName();
         }
         // Re-populate snapshot map
         priorSnapshotMap.clear();
