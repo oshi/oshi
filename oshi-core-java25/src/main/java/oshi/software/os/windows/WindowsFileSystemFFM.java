@@ -112,7 +112,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 result.add(new WindowsOSFileStoreFFM(wmiVolume.getName(), volume.getVolume(),
                         volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
                         volume.getOptions(), volume.getUUID(), "", volume.getDescription(), volume.getType(),
-                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0));
+                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0, true));
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
@@ -175,7 +175,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
                         fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume,
                                 name, mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType,
-                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0));
+                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0, true));
                     }
                 } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
                 return fs;
@@ -252,7 +252,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
                 fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
                         label, name + "\\", options, "", "", getDriveTypeString(type),
-                        drive.getFileSystem(), free, free, total, 0, 0));
+                        drive.getFileSystem(), free, free, total, 0, 0, type != 4));
             }
         }
         return fs;

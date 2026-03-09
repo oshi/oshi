@@ -23,8 +23,8 @@ public class WindowsOSFileStoreFFM extends AbstractOSFileStore {
 
     public WindowsOSFileStoreFFM(String name, String volume, String label, String mount, String options, String uuid,
             String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
-            long freeInodes, long totalInodes) {
-        super(name, volume, label, mount, options, uuid);
+            long freeInodes, long totalInodes, boolean local) {
+        super(name, volume, label, mount, options, uuid, local);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
