@@ -130,6 +130,13 @@ class OperatingSystemTest {
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process private resident memory size should be 0 or higher",
                 proc.getPrivateResidentMemory(), is(greaterThanOrEqualTo(0L)));
+        if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")) {
+            assertThat("Deprecated getResidentSetSize on Windows should match getPrivateResidentMemory",
+                    proc.getResidentSetSize(), is(proc.getPrivateResidentMemory()));
+        } else {
+            assertThat("Deprecated getResidentSetSize should match getResidentMemory", proc.getResidentSetSize(),
+                    is(proc.getResidentMemory()));
+        }
         assertThat("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process time elapsed in user mode should be 0 or higher", proc.getUserTime(),
