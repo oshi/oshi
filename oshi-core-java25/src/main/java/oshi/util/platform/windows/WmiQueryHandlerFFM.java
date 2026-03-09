@@ -16,6 +16,8 @@ import oshi.ffm.windows.com.IWbemServicesFFM;
 import oshi.ffm.windows.com.Ole32FFM;
 import oshi.ffm.windows.com.WbemcliFFM;
 
+import oshi.util.GlobalConfig;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
@@ -37,6 +39,18 @@ import static java.lang.foreign.MemorySegment.NULL;
 public class WmiQueryHandlerFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandlerFFM.class);
+
+    // Global timeout from configuration, default 10 seconds (-1 for infinite)
+    private static final int GLOBAL_TIMEOUT = GlobalConfig.get(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT, 10000);
+
+    static {
+        if (GLOBAL_TIMEOUT == 0 || GLOBAL_TIMEOUT < -1) {
+            throw new GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT);
+        }
+    }
+
+    // Instance timeout
+    private int wmiTimeout = GLOBAL_TIMEOUT;
 
     // Track failed WMI classes to avoid repeated failures
     private final Set<String> failedWmiClassNames = new HashSet<>();
@@ -134,7 +148,7 @@ public class WmiQueryHandlerFFM {
                     try {
                         // Enumerate results
                         while (true) {
-                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum, arena);
+                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum, wmiTimeout, arena);
 
                             if (nextResult.isComplete() || !nextResult.hasObject()) {
                                 break;
@@ -255,6 +269,24 @@ public class WmiQueryHandlerFFM {
             comThreading = Ole32FFM.COINIT_APARTMENTTHREADED;
         }
         return comThreading;
+    }
+
+    /**
+     * Gets the current WMI timeout in milliseconds.
+     *
+     * @return the current timeout (-1 for infinite)
+     */
+    public int getWmiTimeout() {
+        return wmiTimeout;
+    }
+
+    /**
+     * Sets the WMI timeout in milliseconds.
+     *
+     * @param wmiTimeout the timeout to set (-1 for infinite)
+     */
+    public void setWmiTimeout(int wmiTimeout) {
+        this.wmiTimeout = wmiTimeout;
     }
 
     /**
