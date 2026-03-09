@@ -83,14 +83,14 @@ public interface OperatingSystem {
         /**
          * Sort by decreasing Resident Set Size (RSS)
          */
-        public static final Comparator<OSProcess> RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)
+        public static final Comparator<OSProcess> RSS_DESC = Comparator.comparingLong(OSProcess::getResidentMemory)
                 .reversed();
 
         /**
-         * Sort by decreasing memory footprint size
+         * Sort by decreasing private resident memory size
          */
         public static final Comparator<OSProcess> FOOTPRINT_DESC = Comparator
-                .comparingLong(OSProcess::getMemoryFootprint).reversed();
+                .comparingLong(OSProcess::getPrivateResidentMemory).reversed();
         /**
          * Sort by up time, newest processes first
          */

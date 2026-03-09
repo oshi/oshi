@@ -126,10 +126,10 @@ class OperatingSystemTest {
         }
         assertThat("Current running process virtual memory size should be 0 or higher", proc.getVirtualSize(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process resident set size should be 0 or higher", proc.getResidentSetSize(),
+        assertThat("Current running process resident set size should be 0 or higher", proc.getResidentMemory(),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Current running process memory footprint size should be 0 or higher", proc.getMemoryFootprint(),
-                is(greaterThanOrEqualTo(0L)));
+        assertThat("Current running process private resident memory size should be 0 or higher",
+                proc.getPrivateResidentMemory(), is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process time elapsed in system/kernel should be 0 or higher", proc.getKernelTime(),
                 is(greaterThanOrEqualTo(0L)));
         assertThat("Current running process time elapsed in user mode should be 0 or higher", proc.getUserTime(),

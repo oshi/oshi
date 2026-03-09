@@ -347,12 +347,12 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
     }
 
     @Override
-    public long getMemoryFootprint() {
+    public long getPrivateResidentMemory() {
         return this.memoryFootprint;
     }
 

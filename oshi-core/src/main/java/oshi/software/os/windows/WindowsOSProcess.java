@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -194,8 +194,19 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * On Windows, delegates to {@link #getPrivateResidentMemory()} for backwards compatibility with prior behavior that
+     * returned the Private Working Set.
+     */
+    @Override
+    public long getResidentSetSize() {
+        return getPrivateResidentMemory();
     }
 
     @Override

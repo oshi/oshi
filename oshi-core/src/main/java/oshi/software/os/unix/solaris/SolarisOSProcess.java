@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -196,7 +196,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
     }
 
@@ -393,25 +393,25 @@ public class SolarisOSProcess extends AbstractOSProcess {
     static State getStateFromOutput(char stateValue) {
         State state;
         switch (stateValue) {
-        case 'O':
-            state = RUNNING;
-            break;
-        case 'S':
-            state = SLEEPING;
-            break;
-        case 'R':
-        case 'W':
-            state = WAITING;
-            break;
-        case 'Z':
-            state = ZOMBIE;
-            break;
-        case 'T':
-            state = STOPPED;
-            break;
-        default:
-            state = OTHER;
-            break;
+            case 'O':
+                state = RUNNING;
+                break;
+            case 'S':
+                state = SLEEPING;
+                break;
+            case 'R':
+            case 'W':
+                state = WAITING;
+                break;
+            case 'Z':
+                state = ZOMBIE;
+                break;
+            case 'T':
+                state = STOPPED;
+                break;
+            default:
+                state = OTHER;
+                break;
         }
         return state;
     }

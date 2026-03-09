@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -194,7 +194,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
     }
 
@@ -370,29 +370,29 @@ public class AixOSProcess extends AbstractOSProcess {
     static State getStateFromOutput(char stateValue) {
         State state;
         switch (stateValue) {
-        case 'O':
-            state = INVALID;
-            break;
-        case 'R':
-        case 'A':
-            state = RUNNING;
-            break;
-        case 'I':
-            state = WAITING;
-            break;
-        case 'S':
-        case 'W':
-            state = SLEEPING;
-            break;
-        case 'Z':
-            state = ZOMBIE;
-            break;
-        case 'T':
-            state = STOPPED;
-            break;
-        default:
-            state = OTHER;
-            break;
+            case 'O':
+                state = INVALID;
+                break;
+            case 'R':
+            case 'A':
+                state = RUNNING;
+                break;
+            case 'I':
+                state = WAITING;
+                break;
+            case 'S':
+            case 'W':
+                state = SLEEPING;
+                break;
+            case 'Z':
+                state = ZOMBIE;
+                break;
+            case 'T':
+                state = STOPPED;
+                break;
+            default:
+                state = OTHER;
+                break;
         }
         return state;
     }
