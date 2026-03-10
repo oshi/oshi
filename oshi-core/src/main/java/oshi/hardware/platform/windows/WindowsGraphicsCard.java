@@ -6,6 +6,7 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -35,16 +36,21 @@ import oshi.util.tuples.Triplet;
  * <p>
  * VRAM detection priority:
  * <ol>
- * <li>{@code DXGI_ADAPTER_DESC.DedicatedVideoMemory} — the authoritative Windows API value, not subject to the 2 GiB
- * cap that affects the 32-bit registry field.</li>
- * <li>{@code HardwareInformation.qwMemorySize} (64-bit registry value) — used when DXGI enumeration is unavailable or
- * no adapter match is found.</li>
+ * <li>{@code DXGI_ADAPTER_DESC.DedicatedVideoMemory}: the authoritative Windows API value, not subject to the 2 GiB cap
+ * that affects the 32-bit registry field.</li>
+ * <li>{@code HardwareInformation.qwMemorySize} (64-bit registry value): used when DXGI enumeration is unavailable or no
+ * adapter match is found.</li>
  * </ol>
  *
  * <p>
  * {@code HardwareInformation.MemorySize} (32-bit) is intentionally not used: Windows writes the sentinel value
  * {@code 0x7FFFF000} (~2 GiB) into this field for GPUs with more than 2 GiB of dedicated VRAM, making it unreliable for
  * modern discrete GPUs.
+ *
+ * <p>
+ * When DXGI is available, ghost adapters (stale registry entries from hardware no longer present) are excluded because
+ * {@code IDXGIFactory::EnumAdapters} only enumerates physically present adapters. The returned list is ordered to match
+ * DXGI enumeration order, which places the primary desktop adapter first.
  */
 @Immutable
 final class WindowsGraphicsCard extends AbstractGraphicsCard {
@@ -75,16 +81,25 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     /**
      * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
+     * <p>
+     * When DXGI is available, ghost adapters are excluded and the list is ordered with the primary desktop adapter
+     * first. On systems without DXGI, all registry entries are returned in registry key order.
+     *
      * @return List of {@link oshi.hardware.platform.windows.WindowsGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
-        List<GraphicsCard> cardList = new ArrayList<>();
+        // Query DXGI once. Fails gracefully to empty list if unavailable.
+        List<DxgiAdapterInfo> dxgiAdapters = WindowsDxgi.queryAdapters();
+        boolean dxgiAvailable = !dxgiAdapters.isEmpty();
+        // Mutable copy for match-and-consume (prevents same adapter matching two registry entries).
+        List<DxgiAdapterInfo> remainingDxgi = new ArrayList<>(dxgiAdapters);
 
-        // Query DXGI once for all adapters. Fails gracefully to empty list if unavailable.
-        // Use a mutable copy so matched entries can be consumed, preventing the same
-        // DxgiAdapterInfo from being assigned to two registry cards with identical PCI IDs
-        // (e.g. identical multi-GPU configurations).
-        List<DxgiAdapterInfo> dxgiAdapters = new ArrayList<>(WindowsDxgi.queryAdapters());
+        // When DXGI is available, collect cards keyed by their DXGI enumeration index so the
+        // final list is ordered primary-adapter-first (DXGI guarantees adapter 0 is the primary
+        // desktop adapter). Registry entries with no DXGI match are ghost adapters and excluded.
+        // When DXGI is unavailable, fall back to simple insertion order.
+        TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
+        List<GraphicsCard> cardList = new ArrayList<>();
 
         int index = 1;
         String[] keys = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, DISPLAY_DEVICES_REGISTRY_PATH);
@@ -116,12 +131,15 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 // legitimate DedicatedVideoMemory == 0 (e.g. a software/render-only adapter) is
                 // preserved and does not trigger the registry fallback.
                 long vram = -1L;
-                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(dxgiAdapters, pciVendorId, pciDeviceId, name);
+                int dxgiIndex = -1;
+                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
-                    // Consume the matched entry so it cannot be assigned to a second registry card
-                    // with the same PCI IDs (e.g. identical multi-GPU configurations).
-                    dxgiAdapters.remove(dxgiMatch);
+                    dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
+                } else if (dxgiAvailable) {
+                    // DXGI is available but this registry entry has no matching adapter:
+                    // it is a ghost device (stale driver from hardware no longer present). Skip it.
+                    continue;
                 }
 
                 // Fallback: 64-bit registry value qwMemorySize, only when DXGI had no match.
@@ -138,10 +156,22 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 // HardwareInformation.MemorySize (32-bit) is intentionally omitted: Windows caps
                 // it at 0x7FFFF000 (~2 GiB) for GPUs with more VRAM, making it unreliable.
 
-                cardList.add(new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
+                GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
                         Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram));
+                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram);
+                // Remove dxgiMatch from remainingDxgi only after the card is successfully
+                // constructed. This ensures that if earlier registry reads in this try block
+                // throw a Win32Exception, dxgiMatch remains in remainingDxgi and is still
+                // available for subsequent iterations or WMI fallback processing.
+                if (dxgiMatch != null) {
+                    remainingDxgi.remove(dxgiMatch);
+                }
+                if (dxgiIndex >= 0) {
+                    dxgiOrdered.put(dxgiIndex, card);
+                } else {
+                    cardList.add(card);
+                }
             } catch (Win32Exception e) {
                 if (e.getErrorCode() != WinError.ERROR_ACCESS_DENIED) {
                     // Ignore access denied errors, re-throw others
@@ -150,10 +180,14 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             }
         }
 
-        if (cardList.isEmpty()) {
-            return getGraphicsCardsFromWmi(dxgiAdapters);
+        // Merge: DXGI-ordered cards first (primary adapter at index 0), then any non-DXGI cards.
+        List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
+        result.addAll(cardList);
+
+        if (result.isEmpty()) {
+            return getGraphicsCardsFromWmi(remainingDxgi);
         }
-        return cardList;
+        return result;
     }
 
     /**
@@ -171,8 +205,20 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     private static List<GraphicsCard> getGraphicsCardsFromWmi(List<DxgiAdapterInfo> dxgiAdapters) {
         List<GraphicsCard> cardList = new ArrayList<>();
         if (IS_VISTA_OR_GREATER) {
+            boolean dxgiAvailable = !dxgiAdapters.isEmpty();
+            // dxgiAdapters is not mutated; remainingDxgi is the working copy consumed during matching.
+            // dxgiAdapters is retained as the stable reference for indexOf ordering lookups.
+            List<DxgiAdapterInfo> remainingDxgi = new ArrayList<>(dxgiAdapters);
+            TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
+
             WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
             for (int index = 0; index < cards.getResultCount(); index++) {
+                // ConfigManagerErrorCode 0 = working properly; non-zero = disabled/error (ghost device).
+                // When DXGI is unavailable, keep all entries for maximum compatibility.
+                if (dxgiAvailable
+                        && WmiUtil.getUint32(cards, VideoControllerProperty.CONFIGMANAGERERRORCODE, index) != 0) {
+                    continue;
+                }
                 String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
                 Triplet<String, String, String> idPair = ParseUtil.parseDeviceIdToVendorProductSerial(
                         WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
@@ -198,17 +244,27 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                         WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
                 int pciVendorId = pciIds == null ? 0 : pciIds.getA();
                 int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
-                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(dxgiAdapters, pciVendorId, pciDeviceId, name);
+                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 long vram;
+                int dxgiIndex = -1;
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
-                    dxgiAdapters.remove(dxgiMatch);
+                    dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
+                    remainingDxgi.remove(dxgiMatch);
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
                 }
-                cardList.add(new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
-                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram));
+                GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
+                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram);
+                if (dxgiIndex >= 0) {
+                    dxgiOrdered.put(dxgiIndex, card);
+                } else {
+                    cardList.add(card);
+                }
             }
+            List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
+            result.addAll(cardList);
+            return result;
         }
         return cardList;
     }

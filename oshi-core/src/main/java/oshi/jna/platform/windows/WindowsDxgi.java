@@ -54,7 +54,7 @@ public final class WindowsDxgi {
     private static final com.sun.jna.platform.win32.Guid.IID IID_IDXGI_FACTORY = new com.sun.jna.platform.win32.Guid.IID(
             "{7B7166EC-21C7-44AE-B21A-C9AE321AE369}");
 
-    // DXGI_ERROR_NOT_FOUND — returned by EnumAdapters when index is out of range
+    // DXGI_ERROR_NOT_FOUND: returned by EnumAdapters when index is out of range
     private static final int DXGI_ERROR_NOT_FOUND = 0x887A0002;
 
     private WindowsDxgi() {
