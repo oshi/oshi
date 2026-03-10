@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.windows;
@@ -78,6 +78,21 @@ public final class WindowsDxgi {
          * @return HRESULT
          */
         int CreateDXGIFactory(REFIID riid, PointerByReference ppFactory);
+    }
+
+    private static final boolean DXGI_AVAILABLE;
+    static {
+        boolean available = false;
+        try {
+            @SuppressWarnings("unused")
+            DxgiLib lib = DxgiLib.INSTANCE;
+            available = true;
+        } catch (UnsatisfiedLinkError e) {
+            LOG.debug("dxgi.dll not available: {}", e.getMessage());
+        } catch (NoClassDefFoundError e) {
+            LOG.debug("JNA DxgiLib class failed to load: {}", e.getMessage());
+        }
+        DXGI_AVAILABLE = available;
     }
 
     // -------------------------------------------------------------------------
@@ -206,16 +221,13 @@ public final class WindowsDxgi {
      * @return list of {@link DxgiAdapterInfo}, one per adapter; empty if DXGI is unavailable
      */
     public static List<DxgiAdapterInfo> queryAdapters() {
+        if (!DXGI_AVAILABLE) {
+            return Collections.emptyList();
+        }
         PointerByReference ppFactory = new PointerByReference();
         REFIID riid = new REFIID(IID_IDXGI_FACTORY);
 
-        int hr;
-        try {
-            hr = DxgiLib.INSTANCE.CreateDXGIFactory(riid, ppFactory);
-        } catch (UnsatisfiedLinkError e) {
-            LOG.debug("dxgi.dll not available: {}", e.getMessage());
-            return Collections.emptyList();
-        }
+        int hr = DxgiLib.INSTANCE.CreateDXGIFactory(riid, ppFactory);
 
         if (COMUtils.FAILED(new HRESULT(hr))) {
             LOG.debug("CreateDXGIFactory failed: 0x{}", Integer.toHexString(hr));
