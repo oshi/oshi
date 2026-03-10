@@ -6,8 +6,6 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -28,6 +26,7 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.platform.windows.WmiUtil;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -59,9 +58,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static final String QW_MEMORY_SIZE = "HardwareInformation.qwMemorySize";
     public static final String MATCHING_DEVICE_ID = "MatchingDeviceId";
     public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
-
-    // Matches PCI VEN_xxxx&DEV_xxxx in a MatchingDeviceId string (case-insensitive)
-    private static final Pattern VEN_DEV_PATTERN = Pattern.compile("(?i)ven_([0-9a-f]{4}).*dev_([0-9a-f]{4})");
 
     /**
      * Constructor for WindowsGraphicsCard
@@ -109,17 +105,11 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String versionInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
 
                 // Parse PCI vendor/device IDs from MatchingDeviceId (e.g. "pci\ven_8086&dev_56a0&...")
-                int pciVendorId = 0;
-                int pciDeviceId = 0;
                 String matchingDeviceId = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
                         MATCHING_DEVICE_ID);
-                if (matchingDeviceId != null) {
-                    Matcher m = VEN_DEV_PATTERN.matcher(matchingDeviceId);
-                    if (m.find()) {
-                        pciVendorId = ParseUtil.hexStringToInt(m.group(1), 0);
-                        pciDeviceId = ParseUtil.hexStringToInt(m.group(2), 0);
-                    }
-                }
+                Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(matchingDeviceId);
+                int pciVendorId = pciIds == null ? 0 : pciIds.getA();
+                int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
 
                 // Primary: DXGI DedicatedVideoMemory.
                 // Track whether a DXGI match was found separately from the vram value, so that a
@@ -208,8 +198,10 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 // Prefer DXGI DedicatedVideoMemory when a match can be found via the PCI IDs
                 // extracted from PNPDEVICEID. Fall back to WMI AdapterRAM (32-bit capped) only
                 // when no DXGI match is available.
-                int pciVendorId = idPair == null ? 0 : ParseUtil.hexStringToInt(idPair.getA().replace("0x", ""), 0);
-                int pciDeviceId = idPair == null ? 0 : ParseUtil.hexStringToInt(idPair.getB().replace("0x", ""), 0);
+                Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(
+                        WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
+                int pciVendorId = pciIds == null ? 0 : pciIds.getA();
+                int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
                 DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(dxgiAdapters, pciVendorId, pciDeviceId, name);
                 long vram;
                 if (dxgiMatch != null) {
