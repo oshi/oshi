@@ -6,6 +6,8 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
@@ -15,10 +17,12 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.driver.windows.DxgiAdapterInfo;
 import oshi.driver.windows.wmi.Win32VideoController;
 import oshi.driver.windows.wmi.Win32VideoController.VideoControllerProperty;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.jna.platform.windows.WindowsDxgi;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
@@ -27,19 +31,37 @@ import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
 
 /**
- * Graphics Card obtained from WMI
+ * Graphics Card obtained from the Windows registry, with VRAM sourced from DXGI.
+ *
+ * <p>
+ * VRAM detection priority:
+ * <ol>
+ * <li>{@code DXGI_ADAPTER_DESC.DedicatedVideoMemory} — the authoritative Windows API value, not subject to the 2 GiB
+ * cap that affects the 32-bit registry field.</li>
+ * <li>{@code HardwareInformation.qwMemorySize} (64-bit registry value) — used when DXGI enumeration is unavailable or
+ * no adapter match is found.</li>
+ * </ol>
+ *
+ * <p>
+ * {@code HardwareInformation.MemorySize} (32-bit) is intentionally not used: Windows writes the sentinel value
+ * {@code 0x7FFFF000} (~2 GiB) into this field for GPUs with more than 2 GiB of dedicated VRAM, making it unreliable for
+ * modern discrete GPUs.
  */
 @Immutable
 final class WindowsGraphicsCard extends AbstractGraphicsCard {
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
+
     public static final String ADAPTER_STRING = "HardwareInformation.AdapterString";
     public static final String DRIVER_DESC = "DriverDesc";
     public static final String DRIVER_VERSION = "DriverVersion";
     public static final String VENDOR = "ProviderName";
     public static final String QW_MEMORY_SIZE = "HardwareInformation.qwMemorySize";
-    public static final String MEMORY_SIZE = "HardwareInformation.MemorySize";
+    public static final String MATCHING_DEVICE_ID = "MatchingDeviceId";
     public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
+
+    // Matches PCI VEN_xxxx&DEV_xxxx in a MatchingDeviceId string (case-insensitive)
+    private static final Pattern VEN_DEV_PATTERN = Pattern.compile("(?i)ven_([0-9a-f]{4}).*dev_([0-9a-f]{4})");
 
     /**
      * Constructor for WindowsGraphicsCard
@@ -62,6 +84,9 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();
 
+        // Query DXGI once for all adapters. Fails gracefully to empty list if unavailable.
+        List<DxgiAdapterInfo> dxgiAdapters = WindowsDxgi.queryAdapters();
+
         int index = 1;
         String[] keys = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, DISPLAY_DEVICES_REGISTRY_PATH);
         for (String key : keys) {
@@ -79,24 +104,35 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String deviceId = "VideoController" + index++;
                 String vendor = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
                 String versionInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
-                long vram = 0L;
 
-                String memKey = Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE)
-                        ? QW_MEMORY_SIZE
-                        : (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, MEMORY_SIZE)
-                                ? MEMORY_SIZE
-                                : null);
-                if (memKey != null) {
-                    Object genericValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, memKey);
-                    if (genericValue instanceof Long) {
-                        vram = (long) genericValue;
-                    } else if (genericValue instanceof Integer) {
-                        vram = Integer.toUnsignedLong((int) genericValue);
-                    } else if (genericValue instanceof byte[]) {
-                        byte[] bytes = (byte[]) genericValue;
-                        vram = ParseUtil.byteArrayToLong(bytes, bytes.length, false);
+                // Parse PCI vendor/device IDs from MatchingDeviceId (e.g. "pci\ven_8086&dev_56a0&...")
+                int pciVendorId = 0;
+                int pciDeviceId = 0;
+                String matchingDeviceId = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
+                        MATCHING_DEVICE_ID);
+                if (matchingDeviceId != null) {
+                    Matcher m = VEN_DEV_PATTERN.matcher(matchingDeviceId);
+                    if (m.find()) {
+                        pciVendorId = ParseUtil.hexStringToInt(m.group(1), 0);
+                        pciDeviceId = ParseUtil.hexStringToInt(m.group(2), 0);
                     }
                 }
+
+                // Primary: DXGI DedicatedVideoMemory
+                long vram = 0L;
+                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(dxgiAdapters, pciVendorId, pciDeviceId, name);
+                if (dxgiMatch != null) {
+                    vram = dxgiMatch.getDedicatedVideoMemory();
+                }
+
+                // Fallback: 64-bit registry value qwMemorySize
+                if (vram <= 0 && Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE)) {
+                    Object regValue = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, QW_MEMORY_SIZE);
+                    vram = registryValueToVram(regValue);
+                }
+
+                // HardwareInformation.MemorySize (32-bit) is intentionally omitted: Windows caps
+                // it at 0x7FFFF000 (~2 GiB) for GPUs with more VRAM, making it unreliable.
 
                 cardList.add(new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
                         Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
@@ -114,6 +150,17 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             return getGraphicsCardsFromWmi();
         }
         return cardList;
+    }
+
+    /**
+     * Converts a registry value (REG_QWORD as Long, REG_DWORD as Integer, or REG_BINARY as byte[]) to a VRAM size in
+     * bytes. REG_BINARY is interpreted as little-endian.
+     *
+     * @param value the registry value object
+     * @return the VRAM size in bytes, or 0 if the value type is unrecognised
+     */
+    static long registryValueToVram(Object value) {
+        return WindowsDxgi.registryValueToVram(value);
     }
 
     // fall back if something went wrong
@@ -140,6 +187,9 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 } else {
                     versionInfo = Constants.UNKNOWN;
                 }
+                // WMI AdapterRAM is also 32-bit capped, but it is the only value available here.
+                // DXGI is not available in the WMI fallback path because we have no registry key
+                // to extract PCI IDs from for matching.
                 long vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
                 cardList.add(new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram));
