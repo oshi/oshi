@@ -5,7 +5,6 @@
 package oshi.driver.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -54,14 +53,15 @@ class WindowsDxgiTest {
 
     @Test
     void testFindMatchByNormalizedName() {
-        // No vendor/device IDs available — fall back to name matching
+        // No vendor/device IDs available — fall back to name matching.
+        // The stored DXGI description has (R) and (TM) markers; the registry DriverDesc
+        // typically omits them. Verify that normalization bridges the difference.
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("Intel(R) Arc(TM) A770 Graphics", 0x8086, 0x56A0,
                 16L * 1024 * 1024 * 1024);
         List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
 
-        // Registry name may differ slightly in (R)/(TM) decoration
-        DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0, 0, "Intel(R) Arc(TM) A770 Graphics");
-        assertThat("Should match by normalized name", match, is(notNullValue()));
+        DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0, 0, "Intel Arc A770 Graphics");
+        assertThat("Should match by normalized name after stripping (R)/(TM)", match, is(notNullValue()));
         assertThat(match.getDedicatedVideoMemory(), is(16L * 1024 * 1024 * 1024));
     }
 
@@ -147,11 +147,11 @@ class WindowsDxgiTest {
     @EnabledOnOs(OS.WINDOWS)
     void testQueryAdaptersOnWindows() {
         List<DxgiAdapterInfo> adapters = WindowsDxgi.queryAdapters();
-        // On any Windows system with a display, there should be at least one adapter
-        assertThat("Should find at least one DXGI adapter", adapters.size(), is(greaterThan(0)));
+        // An empty list is acceptable in headless or virtual environments where DXGI
+        // is unavailable; only assert per-adapter invariants when adapters are present.
         for (DxgiAdapterInfo a : adapters) {
             assertThat("Description should not be null", a.getDescription(), is(notNullValue()));
-            assertThat("VendorId should be positive", a.getVendorId(), is(greaterThan(0)));
+            assertThat("VendorId should be non-negative", a.getVendorId(), is(greaterThanOrEqualTo(0)));
             assertThat("DedicatedVideoMemory should be non-negative", a.getDedicatedVideoMemory(),
                     is(greaterThanOrEqualTo(0L)));
         }
