@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -124,6 +124,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
+    private long memoryFootprint;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -304,8 +305,13 @@ public class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
+    }
+
+    @Override
+    public long getPrivateResidentMemory() {
+        return this.memoryFootprint;
     }
 
     @Override
@@ -417,27 +423,27 @@ public class MacOSProcess extends AbstractOSProcess {
             }
 
             switch (taskAllInfo.pbsd.pbi_status) {
-            case SSLEEP:
-                this.state = SLEEPING;
-                break;
-            case SWAIT:
-                this.state = WAITING;
-                break;
-            case SRUN:
-                this.state = RUNNING;
-                break;
-            case SIDL:
-                this.state = NEW;
-                break;
-            case SZOMB:
-                this.state = ZOMBIE;
-                break;
-            case SSTOP:
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
+                case SSLEEP:
+                    this.state = SLEEPING;
+                    break;
+                case SWAIT:
+                    this.state = WAITING;
+                    break;
+                case SRUN:
+                    this.state = RUNNING;
+                    break;
+                case SIDL:
+                    this.state = NEW;
+                    break;
+                case SZOMB:
+                    this.state = ZOMBIE;
+                    break;
+                case SSTOP:
+                    this.state = STOPPED;
+                    break;
+                default:
+                    this.state = OTHER;
+                    break;
             }
             this.parentProcessID = taskAllInfo.pbsd.pbi_ppid;
             this.userID = Integer.toString(taskAllInfo.pbsd.pbi_uid);
@@ -450,6 +456,8 @@ public class MacOSProcess extends AbstractOSProcess {
             this.priority = taskAllInfo.ptinfo.pti_priority;
             this.virtualSize = taskAllInfo.ptinfo.pti_virtual_size;
             this.residentSetSize = taskAllInfo.ptinfo.pti_resident_size;
+            // Default/fallback: RSS. Will be overwritten by phys_footprint when available.
+            this.memoryFootprint = this.residentSetSize;
             this.kernelTime = taskAllInfo.ptinfo.pti_total_system / TICKS_PER_MS;
             this.userTime = taskAllInfo.ptinfo.pti_total_user / TICKS_PER_MS;
             this.startTime = taskAllInfo.pbsd.pbi_start_tvsec * 1000L + taskAllInfo.pbsd.pbi_start_tvusec / 1000L;
@@ -461,11 +469,12 @@ public class MacOSProcess extends AbstractOSProcess {
             this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
             this.contextSwitches = taskAllInfo.ptinfo.pti_csw;
         }
-        if (this.majorVersion > 10 || this.minorVersion >= 9) {
+        if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
             try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {
                 if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
                     this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
                     this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
+                    this.memoryFootprint = rUsageInfoV2.ri_phys_footprint;
                 }
             }
         }

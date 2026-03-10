@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -83,8 +83,14 @@ public interface OperatingSystem {
         /**
          * Sort by decreasing Resident Set Size (RSS)
          */
-        public static final Comparator<OSProcess> RSS_DESC = Comparator.comparingLong(OSProcess::getResidentSetSize)
+        public static final Comparator<OSProcess> RSS_DESC = Comparator.comparingLong(OSProcess::getResidentMemory)
                 .reversed();
+
+        /**
+         * Sort by decreasing private resident memory size
+         */
+        public static final Comparator<OSProcess> PRIVATE_RSS_DESC = Comparator
+                .comparingLong(OSProcess::getPrivateResidentMemory).reversed();
         /**
          * Sort by up time, newest processes first
          */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -94,7 +94,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
     private int threadCount;
     private int priority;
     private long virtualSize;
-    private long residentSetSize;
+    private long workingSetSize;
+    private long privateWorkingSetSize;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -194,8 +195,25 @@ public class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
+    public long getResidentMemory() {
+        return this.workingSetSize;
+    }
+
+    @Override
+    public long getPrivateResidentMemory() {
+        return this.privateWorkingSetSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * On Windows, delegates to {@link #getPrivateResidentMemory()} for backwards compatibility with prior behavior that
+     * returned the Private Working Set.
+     */
+    @Deprecated
+    @Override
     public long getResidentSetSize() {
-        return this.residentSetSize;
+        return getPrivateResidentMemory();
     }
 
     @Override
@@ -304,7 +322,8 @@ public class WindowsOSProcess extends AbstractOSProcess {
         this.threadCount = wts.getThreadCount();
         this.priority = pcb.getPriority();
         this.virtualSize = wts.getVirtualSize();
-        this.residentSetSize = pcb.getResidentSetSize();
+        this.workingSetSize = pcb.getWorkingSetSize();
+        this.privateWorkingSetSize = pcb.getPrivateWorkingSetSize();
         this.kernelTime = wts.getKernelTime();
         this.userTime = wts.getUserTime();
         this.startTime = pcb.getStartTime();

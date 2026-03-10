@@ -1,6 +1,7 @@
-# 6.10.1 (in progress)
+# 6.11.0 (in progress)
 
-* Your contribution here!
+##### New Features
+* [#3082](https://github.com/oshi/oshi/pull/3082): Add `getResidentMemory()` and `getPrivateResidentMemory()` to OSProcess, separating true RSS from the private/footprint memory shown by graphical system monitors. Deprecate `getResidentSetSize()` - [@dyorgio](https://github.com/dyorgio), [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.10.0 (2026-02-22)
 

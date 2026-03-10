@@ -332,13 +332,14 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
         List<OSProcess> procs = os.getProcesses(ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, 5);
-        oshi.add("   PID  %CPU %MEM       VSZ       RSS Name");
+        oshi.add("   PID  %CPU %MEM       VSZ       RSS   Private Name");
         for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
-            oshi.add(String.format(Locale.ROOT, " %5d %5.1f %4.1f %9s %9s %s", p.getProcessID(),
+            oshi.add(String.format(Locale.ROOT, " %5d %5.1f %4.1f %9s %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
-                    100d * p.getResidentSetSize() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
-                    FormatUtil.formatBytes(p.getResidentSetSize()), p.getName()));
+                    100d * p.getResidentMemory() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
+                    FormatUtil.formatBytes(p.getResidentMemory()), FormatUtil.formatBytes(p.getPrivateResidentMemory()),
+                    p.getName()));
         }
         OSProcess p = os.getProcess(os.getProcessId());
         oshi.add("Current process arguments: ");

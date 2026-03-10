@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -72,7 +72,8 @@ public final class ProcessPerformanceData {
                         new PerfCounterBlock(name,
                                 (Integer) processInstanceMap.get(ProcessPerformanceProperty.CREATINGPROCESSID),
                                 (Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITYBASE),
-                                (Long) processInstanceMap.get(ProcessPerformanceProperty.PRIVATEBYTES), ctime, upTime,
+                                (Long) processInstanceMap.get(ProcessPerformanceProperty.WORKINGSETPRIVATE),
+                                (Long) processInstanceMap.get(ProcessPerformanceProperty.WORKINGSET), ctime, upTime,
                                 (Long) processInstanceMap.get(ProcessPerformanceProperty.IOREADBYTESPERSEC),
                                 (Long) processInstanceMap.get(ProcessPerformanceProperty.IOWRITEBYTESPERSEC),
                                 (Integer) processInstanceMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC)));
@@ -113,7 +114,8 @@ public final class ProcessPerformanceData {
         List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITYBASE);
         List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.IOREADBYTESPERSEC);
         List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.IOWRITEBYTESPERSEC);
-        List<Long> workingSetSizeList = valueMap.get(ProcessPerformanceProperty.PRIVATEBYTES);
+        List<Long> privateWorkingSetList = valueMap.get(ProcessPerformanceProperty.WORKINGSETPRIVATE);
+        List<Long> workingSetList = valueMap.get(ProcessPerformanceProperty.WORKINGSET);
         List<Long> elapsedTimeList = valueMap.get(ProcessPerformanceProperty.ELAPSEDTIME);
         List<Long> pageFaultsList = valueMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC);
 
@@ -133,8 +135,9 @@ public final class ProcessPerformanceData {
                 }
                 processMap.put(pid,
                         new PerfCounterBlock(instances.get(inst), ppidList.get(inst).intValue(),
-                                priorityList.get(inst).intValue(), workingSetSizeList.get(inst), ctime, upTime,
-                                ioReadList.get(inst), ioWriteList.get(inst), pageFaultsList.get(inst).intValue()));
+                                priorityList.get(inst).intValue(), privateWorkingSetList.get(inst),
+                                workingSetList.get(inst), ctime, upTime, ioReadList.get(inst), ioWriteList.get(inst),
+                                pageFaultsList.get(inst).intValue()));
             }
         }
         return processMap;
@@ -148,19 +151,21 @@ public final class ProcessPerformanceData {
         private final String name;
         private final int parentProcessID;
         private final int priority;
-        private final long residentSetSize;
+        private final long privateWorkingSetSize;
+        private final long workingSetSize;
         private final long startTime;
         private final long upTime;
         private final long bytesRead;
         private final long bytesWritten;
         private final int pageFaults;
 
-        public PerfCounterBlock(String name, int parentProcessID, int priority, long residentSetSize, long startTime,
-                long upTime, long bytesRead, long bytesWritten, int pageFaults) {
+        public PerfCounterBlock(String name, int parentProcessID, int priority, long privateWorkingSetSize,
+                long workingSetSize, long startTime, long upTime, long bytesRead, long bytesWritten, int pageFaults) {
             this.name = name;
             this.parentProcessID = parentProcessID;
             this.priority = priority;
-            this.residentSetSize = residentSetSize;
+            this.privateWorkingSetSize = privateWorkingSetSize;
+            this.workingSetSize = workingSetSize;
             this.startTime = startTime;
             this.upTime = upTime;
             this.bytesRead = bytesRead;
@@ -190,10 +195,17 @@ public final class ProcessPerformanceData {
         }
 
         /**
-         * @return the residentSetSize
+         * @return the Private Working Set size
          */
-        public long getResidentSetSize() {
-            return residentSetSize;
+        public long getPrivateWorkingSetSize() {
+            return privateWorkingSetSize;
+        }
+
+        /**
+         * @return the Working Set size (RSS)
+         */
+        public long getWorkingSetSize() {
+            return workingSetSize;
         }
 
         /**

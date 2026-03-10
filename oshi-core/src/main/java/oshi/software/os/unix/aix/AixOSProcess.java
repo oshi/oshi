@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -49,6 +49,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 
 /**
  * OSProcess implementation
@@ -77,6 +78,7 @@ public class AixOSProcess extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
+    private long privateResidentMemory;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -88,12 +90,12 @@ public class AixOSProcess extends AbstractOSProcess {
     private Supplier<perfstat_process_t[]> procCpu;
     private final AixOperatingSystem os;
 
-    public AixOSProcess(int pid, Pair<Long, Long> userSysCpuTime, Supplier<perfstat_process_t[]> procCpu,
+    public AixOSProcess(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<perfstat_process_t[]> procCpu,
             AixOperatingSystem os) {
         super(pid);
         this.procCpu = procCpu;
         this.os = os;
-        updateAttributes(userSysCpuTime);
+        updateAttributes(cpuMem);
     }
 
     private AixPsInfo queryPsInfo() {
@@ -194,8 +196,13 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
+    }
+
+    @Override
+    public long getPrivateResidentMemory() {
+        return this.privateResidentMemory;
     }
 
     @Override
@@ -320,14 +327,15 @@ public class AixOSProcess extends AbstractOSProcess {
         for (perfstat_process_t stat : perfstat) {
             int statpid = (int) stat.pid;
             if (statpid == getProcessID()) {
-                return updateAttributes(new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
+                return updateAttributes(new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
+                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
             }
         }
         this.state = State.INVALID;
         return false;
     }
 
-    private boolean updateAttributes(Pair<Long, Long> userSysCpuTime) {
+    private boolean updateAttributes(Quartet<Long, Long, Long, Long> cpuMem) {
         AixPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
@@ -350,8 +358,14 @@ public class AixOSProcess extends AbstractOSProcess {
         // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.userTime = userSysCpuTime.getA();
-        this.kernelTime = userSysCpuTime.getB();
+        this.userTime = cpuMem.getA();
+        this.kernelTime = cpuMem.getB();
+        if (cpuMem.getC() > 0) {
+            this.residentSetSize = cpuMem.getC();
+            this.privateResidentMemory = cpuMem.getD();
+        } else {
+            this.privateResidentMemory = this.residentSetSize;
+        }
         this.commandLineBackup = Native.toString(info.pr_psargs);
         this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
@@ -370,29 +384,29 @@ public class AixOSProcess extends AbstractOSProcess {
     static State getStateFromOutput(char stateValue) {
         State state;
         switch (stateValue) {
-        case 'O':
-            state = INVALID;
-            break;
-        case 'R':
-        case 'A':
-            state = RUNNING;
-            break;
-        case 'I':
-            state = WAITING;
-            break;
-        case 'S':
-        case 'W':
-            state = SLEEPING;
-            break;
-        case 'Z':
-            state = ZOMBIE;
-            break;
-        case 'T':
-            state = STOPPED;
-            break;
-        default:
-            state = OTHER;
-            break;
+            case 'O':
+                state = INVALID;
+                break;
+            case 'R':
+            case 'A':
+                state = RUNNING;
+                break;
+            case 'I':
+                state = WAITING;
+                break;
+            case 'S':
+            case 'W':
+                state = SLEEPING;
+                break;
+            case 'Z':
+                state = ZOMBIE;
+                break;
+            case 'T':
+                state = STOPPED;
+                break;
+            default:
+                state = OTHER;
+                break;
         }
         return state;
     }

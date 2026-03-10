@@ -50,9 +50,9 @@ Stable Release Version
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.10.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.10.1-SNAPSHOT)
-  * JPMS: [oshi-core-java11-6.10.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.10.1-SNAPSHOT/)
-  * FFM: [oshi-core-java25-6.10.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.10.1-SNAPSHOT/)
+  * JDK8: [oshi-core-6.11.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.11.0-SNAPSHOT)
+  * JPMS: [oshi-core-java11-6.11.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.11.0-SNAPSHOT/)
+  * FFM: [oshi-core-java25-6.11.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.11.0-SNAPSHOT/)
 
 OSHI Java 25+ Module
 ----------------------------

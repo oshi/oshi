@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -233,7 +233,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
     }
 
@@ -390,27 +390,27 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private boolean updateAttributes(Map<PsKeywords, String> psMap) {
         long now = System.currentTimeMillis();
         switch (psMap.get(PsKeywords.STATE).charAt(0)) {
-        case 'R':
-            this.state = RUNNING;
-            break;
-        case 'I':
-        case 'S':
-            this.state = SLEEPING;
-            break;
-        case 'D':
-        case 'L':
-        case 'U':
-            this.state = WAITING;
-            break;
-        case 'Z':
-            this.state = ZOMBIE;
-            break;
-        case 'T':
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
+            case 'R':
+                this.state = RUNNING;
+                break;
+            case 'I':
+            case 'S':
+                this.state = SLEEPING;
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                this.state = WAITING;
+                break;
+            case 'Z':
+                this.state = ZOMBIE;
+                break;
+            case 'T':
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
         }
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
         this.user = psMap.get(PsKeywords.USER);

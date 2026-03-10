@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -40,6 +40,7 @@ import static oshi.ffm.mac.MacSystem.PTI_VIRTUAL_SIZE;
 import static oshi.ffm.mac.MacSystem.PVI_CDIR;
 import static oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESREAD;
 import static oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESWRITTEN;
+import static oshi.ffm.mac.MacSystem.RI_PHYS_FOOTPRINT;
 import static oshi.ffm.mac.MacSystem.RLIMIT;
 import static oshi.ffm.mac.MacSystem.RLIM_CUR;
 import static oshi.ffm.mac.MacSystem.RLIM_MAX;
@@ -166,6 +167,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     private int priority;
     private long virtualSize;
     private long residentSetSize;
+    private long memoryFootprint;
     private long kernelTime;
     private long userTime;
     private long startTime;
@@ -345,8 +347,13 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     }
 
     @Override
-    public long getResidentSetSize() {
+    public long getResidentMemory() {
         return this.residentSetSize;
+    }
+
+    @Override
+    public long getPrivateResidentMemory() {
+        return this.memoryFootprint;
     }
 
     @Override
@@ -521,6 +528,8 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.priority = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PRIORITY));
             this.virtualSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_VIRTUAL_SIZE));
             this.residentSetSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_RESIDENT_SIZE));
+            // Default/fallback: RSS. Will be overwritten by phys_footprint when available.
+            this.memoryFootprint = this.residentSetSize;
             this.kernelTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_SYSTEM)) / TICKS_PER_MS;
             this.userTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_USER)) / TICKS_PER_MS;
 
@@ -540,11 +549,12 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
 
             // Get rusage info for newer OS versions
-            if (this.majorVersion > 10 || this.minorVersion >= 9) {
+            if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
                 MemorySegment rusage = arena.allocate(RUSAGEINFOV2);
                 if (0 == proc_pid_rusage(pid, RUSAGE_INFO_V2, rusage)) {
                     this.bytesRead = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESREAD));
                     this.bytesWritten = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESWRITTEN));
+                    this.memoryFootprint = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_PHYS_FOOTPRINT));
                 }
             }
 

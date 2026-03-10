@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -178,20 +178,48 @@ public interface OSProcess {
     long getVirtualSize();
 
     /**
-     * Gets the Resident Set Size (RSS). Used to show how much memory is allocated to that process and is in RAM. It
-     * does not include memory that is swapped out. It does include memory from shared libraries as long as the pages
-     * from those libraries are actually in memory. It does include all stack and heap memory.
-     * <p>
-     * On Windows, returns the Private Working Set size, which should match the "Memory" column in the Windows Task
-     * Manager.
+     * Returns the total amount of physical memory (RAM) currently mapped to the process's address space. This value
+     * represents the Resident Set Size (RSS) and includes both private memory and memory shared with other processes
+     * (such as shared libraries). This aligns with the reporting behavior of standard command-line utilities like
+     * {@code ps} and {@code top}.
      * <p>
      * On Linux, returns the RSS value from {@code /proc/[pid]/stat}, which may be inaccurate because of a
      * kernel-internal scalability optimization. If accurate values are required, read {@code /proc/[pid]/smaps} using
      * {@link FileUtil#getKeyValueMapFromFile(String, String)}.
      *
-     * @return the Resident Set Size
+     * @return The resident set size in bytes.
      */
-    long getResidentSetSize();
+    long getResidentMemory();
+
+    /**
+     * Returns an estimate of the portion of physical memory (RAM) uniquely attributed to this process. This metric
+     * excludes shared libraries and other memory segments mapped by multiple processes, providing a more accurate
+     * representation of the process's individual impact on system resources. This value aligns with the primary
+     * "Memory" column in graphical system monitors, such as Windows Task Manager, macOS Activity Monitor, and the GNOME
+     * System Monitor.
+     *
+     * @return The private or "footprint" resident memory in bytes if available. Defaults to
+     *         {@link #getResidentMemory()} otherwise.
+     */
+    default long getPrivateResidentMemory() {
+        return getResidentMemory();
+    }
+
+    /**
+     * Gets the Resident Set Size (RSS). Used to show how much memory is allocated to that process and is in RAM. It
+     * does not include memory that is swapped out. It does include memory from shared libraries as long as the pages
+     * from those libraries are actually in memory. It does include all stack and heap memory.
+     *
+     * @return the Resident Set Size
+     * @deprecated Use {@link #getResidentMemory()} for the true RSS value, or {@link #getPrivateResidentMemory()} for
+     *             the private working set / footprint value displayed by graphical system monitors. On Windows, this
+     *             method delegates to {@link #getPrivateResidentMemory()} for backwards compatibility; on all other
+     *             platforms it delegates to {@link #getResidentMemory()}.
+     */
+    @Deprecated
+    default long getResidentSetSize() {
+        return getResidentMemory();
+    }
 
     /**
      * Gets kernel/system (privileged) time used by the process.
