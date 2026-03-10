@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.wmi;
@@ -24,7 +24,7 @@ public final class Win32VideoController {
      * Video Controller properties
      */
     public enum VideoControllerProperty {
-        ADAPTERCOMPATIBILITY, ADAPTERRAM, DRIVERVERSION, NAME, PNPDEVICEID;
+        ADAPTERCOMPATIBILITY, ADAPTERRAM, CONFIGMANAGERERRORCODE, DRIVERVERSION, NAME, PNPDEVICEID;
     }
 
     private Win32VideoController() {
