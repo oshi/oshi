@@ -87,7 +87,8 @@ public final class ParseUtil {
     /*
      * Pattern for Windows DeviceID vendor and product ID without requiring a trailing instance component. Matches both
      * full PNPDeviceID strings (PCI\VEN_8086&DEV_56A0&...\instance) and bare MatchingDeviceId values
-     * (pci\ven_8086&dev_56a0&...) that lack the trailing backslash.
+     * (pci\ven_8086&dev_56a0&...) that lack the trailing backslash. Case-insensitive to handle both the uppercase
+     * PNPDeviceID format and the lowercase MatchingDeviceId registry values.
      */
     private static final Pattern VENDOR_PRODUCT_ID = Pattern
             .compile("(?i).*(?:VID|VEN)_(\\p{XDigit}{4})&(?:PID|DEV)_(\\p{XDigit}{4}).*");
@@ -1035,7 +1036,7 @@ public final class ParseUtil {
      * <p>
      * Handles both full PNPDeviceID strings such as {@code PCI\VEN_8086&DEV_56A0&SUBSYS_...&REV_08\instance} and bare
      * {@code MatchingDeviceId} registry values such as {@code pci\ven_8086&dev_56a0&subsys_...} that lack a trailing
-     * backslash instance component. Also handles USB {@code VID_xxxx&PID_xxxx} format.
+     * backslash instance component. Also handles USB {@code VID_xxxx&PID_xxxx} format. Matching is case-insensitive.
      *
      * @param deviceId The DeviceID or MatchingDeviceId string
      * @return A {@link Pair} of (vendorId, productId) as integers, or {@code null} if the string does not contain a

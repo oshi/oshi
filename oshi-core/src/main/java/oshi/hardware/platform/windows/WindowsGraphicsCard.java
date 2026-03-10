@@ -151,7 +151,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         }
 
         if (cardList.isEmpty()) {
-            return getGraphicsCardsFromWmi();
+            return getGraphicsCardsFromWmi(dxgiAdapters);
         }
         return cardList;
     }
@@ -168,10 +168,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     }
 
     // fall back if something went wrong
-    private static List<GraphicsCard> getGraphicsCardsFromWmi() {
-        return getGraphicsCardsFromWmi(new ArrayList<>(WindowsDxgi.queryAdapters()));
-    }
-
     private static List<GraphicsCard> getGraphicsCardsFromWmi(List<DxgiAdapterInfo> dxgiAdapters) {
         List<GraphicsCard> cardList = new ArrayList<>();
         if (IS_VISTA_OR_GREATER) {
