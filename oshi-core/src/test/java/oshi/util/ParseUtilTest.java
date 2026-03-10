@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -540,6 +540,36 @@ class ParseUtilTest {
         idsAndSerial = ParseUtil
                 .parseDeviceIdToVendorProductSerial("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
         assertThat("Vender and Product IDs should not have parsed", idsAndSerial, is(nullValue()));
+    }
+
+    @Test
+    void testParseDeviceIdToVendorProductIds() {
+        // Full PNPDeviceID with trailing instance — same inputs as the Serial test
+        Pair<Integer, Integer> ids = ParseUtil
+                .parseDeviceIdToVendorProductIds("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
+        assertThat("PCI full deviceID failed to parse", ids, is(notNullValue()));
+        assertThat("Vendor ID", ids.getA(), is(0x10DE));
+        assertThat("Product ID", ids.getB(), is(0x134B));
+
+        // USB VID/PID with serial
+        ids = ParseUtil.parseDeviceIdToVendorProductIds("USB\\VID_045E&PID_07C6\\000001000000");
+        assertThat("USB VID/PID failed to parse", ids, is(notNullValue()));
+        assertThat("Vendor ID", ids.getA(), is(0x045E));
+        assertThat("Product ID", ids.getB(), is(0x07C6));
+
+        // Bare MatchingDeviceId — no trailing backslash instance (the case VEN_DEV_PATTERN handled)
+        ids = ParseUtil.parseDeviceIdToVendorProductIds("pci\\ven_8086&dev_56a0&subsys_00008086&rev_08");
+        assertThat("Bare MatchingDeviceId failed to parse", ids, is(notNullValue()));
+        assertThat("Vendor ID", ids.getA(), is(0x8086));
+        assertThat("Product ID", ids.getB(), is(0x56A0));
+
+        // Too-long hex groups — should not parse
+        ids = ParseUtil
+                .parseDeviceIdToVendorProductIds("PCI\\VEN_80286&DEV_19116&SUBSYS_00141414&REV_07\\3&11583659&0&10");
+        assertThat("Over-length IDs should not have parsed", ids, is(nullValue()));
+
+        // Null input
+        assertThat("Null should return null", ParseUtil.parseDeviceIdToVendorProductIds(null), is(nullValue()));
     }
 
     @Test
