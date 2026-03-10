@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -44,6 +44,7 @@ import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Quartet;
 
 /**
  * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for
@@ -139,16 +140,17 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         // Fetch user/system times from perfstat
         perfstat_process_t[] perfstat = procCpu.get();
-        Map<Integer, Pair<Long, Long>> cpuMap = new HashMap<>();
+        Map<Integer, Quartet<Long, Long, Long, Long>> cpuMemMap = new HashMap<>();
         for (perfstat_process_t stat : perfstat) {
             int statpid = (int) stat.pid;
             if (pid < 0 || statpid == pid) {
-                cpuMap.put(statpid, new Pair<>((long) stat.ucpu_time, (long) stat.scpu_time));
+                cpuMemMap.put(statpid, new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
+                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
             }
         }
 
         // Keys of this map are pids
-        for (Entry<Integer, Pair<Long, Long>> entry : cpuMap.entrySet()) {
+        for (Entry<Integer, Quartet<Long, Long, Long, Long>> entry : cpuMemMap.entrySet()) {
             OSProcess proc = new AixOSProcess(entry.getKey(), entry.getValue(), procCpu, this);
             if (proc.getState() != INVALID) {
                 procs.add(proc);
