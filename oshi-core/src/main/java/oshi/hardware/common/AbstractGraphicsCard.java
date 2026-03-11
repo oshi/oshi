@@ -75,6 +75,21 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
         builder.append(this.vendor);
         builder.append(", vRam=");
         builder.append(this.vram);
+        long vramUsed = getVramUsed();
+        if (vramUsed >= 0) {
+            builder.append(", vramUsed=");
+            builder.append(vramUsed);
+        }
+        long sharedUsed = getSharedMemoryUsed();
+        if (sharedUsed >= 0) {
+            builder.append(", sharedMemUsed=");
+            builder.append(sharedUsed);
+        }
+        double utilization = getGpuUtilization();
+        if (utilization >= 0) {
+            builder.append(", utilization=");
+            builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", utilization));
+        }
         builder.append(", versionInfo=[");
         builder.append(this.versionInfo);
         builder.append("]]");
