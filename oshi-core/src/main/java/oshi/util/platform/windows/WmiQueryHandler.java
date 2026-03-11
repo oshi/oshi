@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -127,22 +127,23 @@ public class WmiQueryHandler {
             }
             result = query.execute(wmiTimeout);
         } catch (COMException e) {
-            // Ignore any exceptions with OpenHardwareMonitor
-            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())) {
+            // Ignore any exceptions with OpenHardwareMonitor or LibreHardwareMonitor
+            if (!WmiUtil.OHM_NAMESPACE.equals(query.getNameSpace())
+                    && !WmiUtil.LHM_NAMESPACE.equals(query.getNameSpace())) {
                 final int hresult = e.getHresult() == null ? -1 : e.getHresult().intValue();
                 switch (hresult) {
-                case Wbemcli.WBEM_E_INVALID_NAMESPACE:
-                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                    break;
-                case Wbemcli.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));
-                    break;
-                default:
-                    handleComException(query, e);
-                    break;
+                    case Wbemcli.WBEM_E_INVALID_NAMESPACE:
+                        LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                        break;
+                    case Wbemcli.WBEM_E_INVALID_CLASS:
+                        LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                        break;
+                    case Wbemcli.WBEM_E_INVALID_QUERY:
+                        LOG.warn("COM exception: Invalid Query: {}", WmiUtil.queryToString(query));
+                        break;
+                    default:
+                        handleComException(query, e);
+                        break;
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }
@@ -206,17 +207,17 @@ public class WmiQueryHandler {
     protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
         switch (hres.intValue()) {
-        // Successful local initialization (S_OK) or was already initialized
-        // (S_FALSE) but still needs uninit
-        case COMUtils.S_OK:
-        case COMUtils.S_FALSE:
-            return true;
-        // COM was already initialized with a different threading model
-        case WinError.RPC_E_CHANGED_MODE:
-            return false;
-        // Any other results is impossible
-        default:
-            throw new COMException("Failed to initialize COM library.", hres);
+            // Successful local initialization (S_OK) or was already initialized
+            // (S_FALSE) but still needs uninit
+            case COMUtils.S_OK:
+            case COMUtils.S_FALSE:
+                return true;
+            // COM was already initialized with a different threading model
+            case WinError.RPC_E_CHANGED_MODE:
+                return false;
+            // Any other results is impossible
+            default:
+                throw new COMException("Failed to initialize COM library.", hres);
         }
     }
 

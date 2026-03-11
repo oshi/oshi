@@ -1,14 +1,15 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuTicks;
 
 /**
- * An abstract Sound Card
+ * An abstract Graphics Card
  */
 @Immutable
 public abstract class AbstractGraphicsCard implements GraphicsCard {
@@ -78,5 +79,25 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
         builder.append(this.versionInfo);
         builder.append("]]");
         return builder.toString();
+    }
+
+    @Override
+    public GpuTicks getGpuTicks() {
+        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+    }
+
+    @Override
+    public double getGpuUtilization() {
+        return -1d;
+    }
+
+    @Override
+    public long getVramUsed() {
+        return -1L;
+    }
+
+    @Override
+    public long getSharedMemoryUsed() {
+        return -1L;
     }
 }
