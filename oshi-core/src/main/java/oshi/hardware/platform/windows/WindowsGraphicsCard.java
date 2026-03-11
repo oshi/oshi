@@ -319,7 +319,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
 
     /**
      * Queries LHM WMI for GPU hardware entries and returns a map from normalized GPU name to LHM parent identifier.
-     * Returns an empty map if LHM is not running.
+     * Returns an empty map if LHM is not running. If two GPU entries normalize to the same name the key is mapped to an
+     * empty string so callers skip LHM for that ambiguous name rather than returning the wrong adapter's metrics.
      *
      * @return map of normalized GPU name to LHM hardware identifier
      */
@@ -331,7 +332,14 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String identifier = WmiUtil.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
                 String hwName = WmiUtil.getString(hw, LhmHardwareProperty.NAME, i);
                 if (!identifier.isEmpty() && !hwName.isEmpty()) {
-                    map.put(WindowsDxgi.normalizeName(hwName), identifier);
+                    String norm = WindowsDxgi.normalizeName(hwName);
+                    if (map.containsKey(norm)) {
+                        // Two adapters with the same normalized name: mark ambiguous so neither
+                        // is used (empty string is the "skip LHM" sentinel for callers).
+                        map.put(norm, "");
+                    } else {
+                        map.put(norm, identifier);
+                    }
                 }
             }
         } catch (Exception e) {
