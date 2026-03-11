@@ -83,4 +83,40 @@ public interface GraphicsCard {
      * @return bytes of shared memory in use, or -1 if unavailable
      */
     long getSharedMemoryUsed();
+
+    /**
+     * Returns the GPU temperature.
+     *
+     * @return temperature in degrees Celsius, or -1 if unavailable
+     */
+    double getTemperature();
+
+    /**
+     * Returns the GPU power consumption.
+     *
+     * @return power draw in watts, or -1 if unavailable
+     */
+    double getPowerDraw();
+
+    /**
+     * Returns the current GPU core clock speed.
+     *
+     * @return core clock in MHz, or -1 if unavailable
+     */
+    long getCoreClockMhz();
+
+    /**
+     * Returns the current GPU memory clock speed.
+     *
+     * @return memory clock in MHz, or -1 if unavailable
+     */
+    long getMemoryClockMhz();
+
+    /**
+     * Returns the GPU fan speed as a percentage of maximum. Returns -1 for passively cooled GPUs or GPUs without fan
+     * sensors.
+     *
+     * @return fan speed in the range 0.0 to 100.0, or -1 if unavailable
+     */
+    double getFanSpeedPercent();
 }
