@@ -201,8 +201,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             // Try to match by reading the uevent name or just use the first card if only one
             String driverPath = devicePath + "/driver";
             String driver = readDriverName(driverPath);
-            // Return the first card that has a driver symlink; name matching is best-effort
-            // since sysfs does not expose the marketing name directly.
+            // sysfs does not expose the GPU marketing name, so reliable name matching is not
+            // possible. Return the first card that has a driver symlink as a best-effort result.
+            // On multi-GPU systems this may select the wrong card; accurate matching would
+            // require correlating PCI slot names from uevent files with lspci output (future work).
             if (!driver.isEmpty()) {
                 return new Pair<>(devicePath, driver);
             }
@@ -239,7 +241,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         String driver = driverName.toLowerCase(Locale.ROOT);
         if ("amdgpu".equals(driver)) {
             int pct = FileUtil.getIntFromFile(drmDevicePath + "/gpu_busy_percent");
-            return pct >= 0 ? pct : -1d;
+            return pct >= 0 ? pct / 100.0 : -1d;
         }
         if ("i915".equals(driver) || "xe".equals(driver)) {
             return intelFreqUtilization();
@@ -249,11 +251,12 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     }
 
     private double intelFreqUtilization() {
+        // Frequency ratio is a rough proxy for GPU utilization; not measured core utilization.
         String gtPath = drmDevicePath + "/../gt/gt0";
         long actual = FileUtil.getLongFromFile(gtPath + "/rps_act_freq_mhz");
         long max = FileUtil.getLongFromFile(gtPath + "/rps_max_freq_mhz");
         if (actual > 0 && max > 0) {
-            return Math.min(100d, actual * 100d / max);
+            return Math.min(1.0, actual / (double) max);
         }
         return -1d;
     }

@@ -174,7 +174,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                    luidPrefix = buildLuidPrefix(dxgiMatch.getVendorId(), dxgiMatch.getDeviceId(), name);
+                    luidPrefix = buildLuidPrefix();
                 } else if (dxgiAvailable) {
                     // DXGI is available but this registry entry has no matching adapter:
                     // it is a ghost device (stale driver from hardware no longer present). Skip it.
@@ -294,7 +294,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                    luidPrefix = buildLuidPrefix(dxgiMatch.getVendorId(), dxgiMatch.getDeviceId(), name);
+                    luidPrefix = buildLuidPrefix();
                     remainingDxgi.remove(dxgiMatch);
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
@@ -347,12 +347,9 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * Since DXGI does not expose the LUID directly in {@code DXGI_ADAPTER_DESC}, we enumerate PDH GPU Adapter Memory
      * instances and match by adapter name to discover the LUID. Falls back to an empty string if no match is found.
      *
-     * @param vendorId    PCI vendor ID of the adapter
-     * @param deviceId    PCI device ID of the adapter
-     * @param adapterName adapter name from the registry
      * @return PDH LUID instance prefix string, or empty string if not determinable
      */
-    private static String buildLuidPrefix(int vendorId, int deviceId, String adapterName) {
+    private static String buildLuidPrefix() {
         Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
                 .queryGpuAdapterMemoryCounters();
         List<String> instances = adapterData.getA();
@@ -424,7 +421,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 for (int i = 0; i < sensors.getResultCount(); i++) {
                     String sensorName = WmiUtil.getString(sensors, LhmSensorProperty.NAME, i);
                     if ("GPU Core".equals(sensorName)) {
-                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
+                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i) / 100.0;
                     }
                 }
             } catch (Exception e) {

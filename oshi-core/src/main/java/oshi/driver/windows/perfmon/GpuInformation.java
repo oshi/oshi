@@ -4,7 +4,6 @@
  */
 package oshi.driver.windows.perfmon;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -73,9 +72,6 @@ public final class GpuInformation {
      * @return pair of instance name list and counter value map
      */
     public static Pair<List<String>, Map<GpuEngineProperty, List<Long>>> queryGpuEngineCounters() {
-        if (PerfmonDisabled.PERF_OS_DISABLED) {
-            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
-        }
         return PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, GPU_ENGINE);
     }
 
@@ -85,9 +81,6 @@ public final class GpuInformation {
      * @return pair of instance name list and counter value map
      */
     public static Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> queryGpuAdapterMemoryCounters() {
-        if (PerfmonDisabled.PERF_OS_DISABLED) {
-            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
-        }
         return PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuAdapterMemoryProperty.class,
                 GPU_ADAPTER_MEMORY);
     }

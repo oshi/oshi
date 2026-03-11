@@ -36,4 +36,9 @@ public final class DefaultGpuTicks implements GpuTicks {
     public long getActiveTicks() {
         return activeTicks;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultGpuTicks{timestamp=" + timestamp + ", activeTicks=" + activeTicks + '}';
+    }
 }

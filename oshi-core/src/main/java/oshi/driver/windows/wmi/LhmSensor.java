@@ -48,7 +48,9 @@ public final class LhmSensor {
         sb.append("\" AND SensorType=\"").append(sensorType).append('"');
         WmiQuery<LhmSensorProperty> query = new WmiQuery<>(WmiUtil.LHM_NAMESPACE, sb.toString(),
                 LhmSensorProperty.class);
-        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query, true);
+        WmiQueryHandler handler = WmiQueryHandler.createInstance();
+        Objects.requireNonNull(handler, "WmiQueryHandler.createInstance() returned null for LhmSensor queries");
+        return handler.queryWMI(query, true);
     }
 
     /**
@@ -60,7 +62,10 @@ public final class LhmSensor {
         WmiQuery<LhmHardwareProperty> query = new WmiQuery<>(WmiUtil.LHM_NAMESPACE,
                 "Hardware WHERE HardwareType=\"GpuNvidia\" OR HardwareType=\"GpuAmd\" OR HardwareType=\"GpuIntel\"",
                 LhmHardwareProperty.class);
-        return Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query, true);
+        WmiQueryHandler handler = WmiQueryHandler.createInstance();
+        Objects.requireNonNull(handler,
+                "WmiQueryHandler.createInstance() returned null for LhmSensor hardware queries");
+        return handler.queryWMI(query, true);
     }
 
     /**
