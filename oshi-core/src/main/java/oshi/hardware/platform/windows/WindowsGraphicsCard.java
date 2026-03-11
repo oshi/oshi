@@ -446,7 +446,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 for (int i = 0; i < sensors.getResultCount(); i++) {
                     String sensorName = WmiUtil.getString(sensors, LhmSensorProperty.NAME, i);
                     if ("GPU Core".equals(sensorName)) {
-                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i) / 100.0;
+                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
                     }
                 }
             } catch (Exception e) {

@@ -129,7 +129,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
             if (result != null) {
                 CFNumberRef num = new CFNumberRef(result);
                 long raw = num.longValue();
-                return raw / GPU_UTIL_DIVISOR;
+                return raw / GPU_UTIL_DIVISOR * 100.0;
             }
             // Fallback: "Device Utilization %" (already 0-100 integer on some drivers)
             CFStringRef devUtilKey = CFStringRef.createCFString(DEVICE_UTIL_KEY);
@@ -137,7 +137,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
             devUtilKey.release();
             if (result != null) {
                 CFNumberRef num = new CFNumberRef(result);
-                return num.longValue() / 100.0;
+                return num.longValue();
             }
         } finally {
             perfStats.release();

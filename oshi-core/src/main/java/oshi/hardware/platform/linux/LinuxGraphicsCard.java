@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuTicks;
@@ -28,8 +25,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 final class LinuxGraphicsCard extends AbstractGraphicsCard {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxGraphicsCard.class);
 
     private static final String DRM_PATH = "/sys/class/drm/";
 
@@ -250,8 +245,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         if (target == null || target.isEmpty()) {
             return "";
         }
-        // The symlink target ends with the driver module name, e.g. ".../kernel/drivers/gpu/drm/amdgpu/amdgpu.ko"
-        // or the symlink itself points to a directory named after the driver.
+        // The symlink target resolves to a driver directory,
+        // e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.
         int lastSlash = target.lastIndexOf('/');
         return lastSlash >= 0 ? target.substring(lastSlash + 1) : target;
     }
@@ -274,7 +269,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         String driver = driverName.toLowerCase(Locale.ROOT);
         if ("amdgpu".equals(driver)) {
             int pct = FileUtil.getIntFromFile(drmDevicePath + "/gpu_busy_percent");
-            return pct >= 0 ? pct / 100.0 : -1d;
+            return pct >= 0 ? pct : -1d;
         }
         if ("i915".equals(driver) || "xe".equals(driver)) {
             return intelFreqUtilization();
@@ -289,7 +284,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         long actual = FileUtil.getLongFromFile(gtPath + "/rps_act_freq_mhz");
         long max = FileUtil.getLongFromFile(gtPath + "/rps_max_freq_mhz");
         if (actual > 0 && max > 0) {
-            return Math.min(1.0, actual / (double) max);
+            return Math.min(100.0, actual * 100.0 / max);
         }
         return -1d;
     }
