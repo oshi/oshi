@@ -426,8 +426,10 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         }
 
         // GPU Engine instance names: pid_<PID>_luid_0xHHHH_0xLLLL_phys_0_eng_<N>_engtype_<TYPE>
-        // Group by engine type, sum across all PIDs, then take the max across engine types.
-        // GPU engines are parallel pipelines; max represents overall adapter utilization.
+        // First sum per-PID rows into per-engine-type totals, then sum across all engine types.
+        // Summing across types gives the total cumulative active ticks for the adapter; deltas
+        // between two snapshots correctly reflect overall GPU work regardless of which engine
+        // type is busiest at any given moment.
         Map<String, Long> engineTypeSums = new HashMap<>();
         String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
         for (int i = 0; i < Math.min(instances.size(), runningTimes.size()); i++) {
@@ -442,8 +444,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             engineTypeSums.merge(engType, ticks, Long::sum);
         }
 
-        long maxTicks = engineTypeSums.values().stream().mapToLong(Long::longValue).max().orElse(0L);
-        return new DefaultGpuTicks(timestamp, maxTicks);
+        long totalTicks = engineTypeSums.values().stream().mapToLong(Long::longValue).sum();
+        return new DefaultGpuTicks(timestamp, totalTicks);
     }
 
     @Override
