@@ -409,7 +409,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
 
     @Override
     public GpuTicks getGpuTicks() {
-        // Timestamp in 100ns units: System.nanoTime() / 100
+        // Monotonic timestamp in 100ns units via System.nanoTime(); matches GpuTicks.getTimestamp() contract.
         long timestamp = System.nanoTime() / 100L;
 
         if (luidPrefix.isEmpty()) {

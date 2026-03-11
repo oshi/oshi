@@ -17,9 +17,10 @@ import oshi.annotation.concurrent.Immutable;
 public interface GpuTicks {
 
     /**
-     * Wall-clock time in 100-nanosecond units at which this snapshot was captured.
+     * Monotonic timestamp in 100-nanosecond units at which this snapshot was captured, sourced from
+     * {@link System#nanoTime()}. Suitable for computing elapsed time between two snapshots; not a wall-clock time.
      *
-     * @return timestamp in 100ns units
+     * @return monotonic timestamp in 100ns units
      */
     long getTimestamp();
 
