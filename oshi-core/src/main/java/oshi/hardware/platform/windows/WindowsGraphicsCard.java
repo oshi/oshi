@@ -174,7 +174,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                    luidPrefix = buildLuidPrefix();
+                    luidPrefix = buildLuidPrefix(dxgiMatch);
                 } else if (dxgiAvailable) {
                     // DXGI is available but this registry entry has no matching adapter:
                     // it is a ghost device (stale driver from hardware no longer present). Skip it.
@@ -294,7 +294,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                    luidPrefix = buildLuidPrefix();
+                    luidPrefix = buildLuidPrefix(dxgiMatch);
                     remainingDxgi.remove(dxgiMatch);
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
@@ -340,16 +340,40 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * Builds the PDH LUID instance prefix used to match GPU Engine and GPU Adapter Memory counter instances to this
-     * adapter. The prefix has the form {@code luid_0xHHHHHHHH_0xLLLLLLLL_phys_0} (case-insensitive in PDH).
+     * Builds the PDH LUID instance prefix for the given DXGI adapter. The prefix has the form
+     * {@code luid_0xHHHHHHHH_0xLLLLLLLL_phys_0} matching the Windows PDH GPU Engine and GPU Adapter Memory counter
+     * instance names.
      *
      * <p>
-     * Since DXGI does not expose the LUID directly in {@code DXGI_ADAPTER_DESC}, we enumerate PDH GPU Adapter Memory
-     * instances and match by adapter name to discover the LUID. Falls back to an empty string if no match is found.
+     * The LUID is read directly from {@code DXGI_ADAPTER_DESC.AdapterLuid}, so this method works correctly on multi-GPU
+     * systems. A zero LUID (both parts zero) indicates the adapter did not supply a valid LUID; in that case an empty
+     * string is returned and PDH metrics will report {@code -1}.
+     *
+     * @param adapter the DXGI adapter info containing the LUID
+     * @return PDH LUID instance prefix string, or empty string if the LUID is zero
+     */
+    private static String buildLuidPrefix(DxgiAdapterInfo adapter) {
+        int low = adapter.getLuidLowPart();
+        int high = adapter.getLuidHighPart();
+        if (low == 0 && high == 0) {
+            // Zero LUID is invalid; fall back to PDH enumeration for single-GPU case.
+            return buildLuidPrefixFromPdh();
+        }
+        return String.format(Locale.ROOT, "luid_0x%08x_0x%08x_phys_0", high, low);
+    }
+
+    /**
+     * Fallback LUID prefix discovery by enumerating PDH GPU Adapter Memory instances. Used when the DXGI adapter
+     * reports a zero LUID.
+     *
+     * <p>
+     * Only reliable on single-GPU systems: when multiple GPU Adapter Memory instances are present, the correct
+     * per-adapter mapping cannot be determined without a valid LUID, so an empty string is returned and PDH metrics
+     * will report {@code -1}.
      *
      * @return PDH LUID instance prefix string, or empty string if not determinable
      */
-    private static String buildLuidPrefix() {
+    private static String buildLuidPrefixFromPdh() {
         Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
                 .queryGpuAdapterMemoryCounters();
         List<String> instances = adapterData.getA();

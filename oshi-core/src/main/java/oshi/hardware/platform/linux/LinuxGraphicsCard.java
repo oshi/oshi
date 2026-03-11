@@ -88,7 +88,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             // Skip until line contains "VGA" or "3D controller"
             if (prefix.equals("Class") && (line.contains("VGA") || line.contains("3D controller"))) {
                 found = true;
-            } else if (prefix.equals("Device") && !found && split.length > 1) {
+            } else if (prefix.equals("Slot") && split.length > 1) {
+                // Capture PCI slot address (e.g. "01:00.0") for use with lspci -s
                 lookupDevice = split[1].trim();
             }
             if (found) {

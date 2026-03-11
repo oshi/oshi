@@ -32,6 +32,13 @@ public final class LhmSensor {
         NAME, VALUE, PARENT;
     }
 
+    /**
+     * LHM Hardware properties.
+     */
+    public enum LhmHardwareProperty {
+        IDENTIFIER, NAME;
+    }
+
     private LhmSensor() {
     }
 
@@ -66,12 +73,5 @@ public final class LhmSensor {
         Objects.requireNonNull(handler,
                 "WmiQueryHandler.createInstance() returned null for LhmSensor hardware queries");
         return handler.queryWMI(query, true);
-    }
-
-    /**
-     * LHM Hardware properties.
-     */
-    public enum LhmHardwareProperty {
-        IDENTIFIER, NAME;
     }
 }
