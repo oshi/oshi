@@ -95,7 +95,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (found) {
                 if (split.length < 2) {
                     // Save previous card
-                    Pair<String, String> drmInfo = findDrmInfo(name);
+                    Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
                             queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
@@ -123,7 +123,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // If we haven't yet written the last card do so now
         if (found) {
-            Pair<String, String> drmInfo = findDrmInfo(name);
+            Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
             cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
                     queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
@@ -159,7 +159,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
-                    Pair<String, String> drmInfo = findDrmInfo(name);
+                    Pair<String, String> drmInfo = findDrmInfo(null);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                             drmInfo.getA(), drmInfo.getB()));
@@ -178,7 +178,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                 }
             }
         }
-        Pair<String, String> drmInfo = findDrmInfo(name);
+        Pair<String, String> drmInfo = findDrmInfo(null);
         cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                 drmInfo.getA(), drmInfo.getB()));
@@ -186,31 +186,63 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * Finds the sysfs DRM device path and driver name for a GPU by matching card names under /sys/class/drm/cardN.
+     * Finds the sysfs DRM device path and driver name for a GPU by matching against the PCI slot address from the
+     * uevent file under each DRM card's device directory.
      *
-     * @param gpuName the GPU name from lspci/lshw
+     * <p>
+     * When {@code pciSlot} is non-null, each card's {@code device/uevent} file is read and the {@code PCI_SLOT_NAME}
+     * key is compared against the supplied slot (e.g. {@code "0000:01:00.0"} or {@code "01:00.0"}). The first card
+     * whose slot matches is returned. If no match is found, or if {@code pciSlot} is null (lshw path), the first card
+     * with a non-empty driver symlink is returned as a best-effort fallback.
+     *
+     * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match
      * @return pair of (drmDevicePath, driverName), both empty strings if not found
      */
-    private static Pair<String, String> findDrmInfo(String gpuName) {
+    private static Pair<String, String> findDrmInfo(String pciSlot) {
         File drmDir = new File(DRM_PATH);
         File[] cards = drmDir.listFiles(f -> f.getName().matches("card\\d+"));
         if (cards == null) {
             return new Pair<>("", "");
         }
+        Pair<String, String> firstWithDriver = null;
         for (File card : cards) {
             String devicePath = card.getAbsolutePath() + "/device";
-            // Try to match by reading the uevent name or just use the first card if only one
-            String driverPath = devicePath + "/driver";
-            String driver = readDriverName(driverPath);
-            // sysfs does not expose the GPU marketing name, so reliable name matching is not
-            // possible. Return the first card that has a driver symlink as a best-effort result.
-            // On multi-GPU systems this may select the wrong card; accurate matching would
-            // require correlating PCI slot names from uevent files with lspci output (future work).
-            if (!driver.isEmpty()) {
-                return new Pair<>(devicePath, driver);
+            String driver = readDriverName(devicePath + "/driver");
+            if (driver.isEmpty()) {
+                continue;
+            }
+            if (firstWithDriver == null) {
+                firstWithDriver = new Pair<>(devicePath, driver);
+            }
+            // Attempt PCI slot match via uevent
+            if (pciSlot != null) {
+                String slotName = readUeventValue(devicePath + "/uevent", "PCI_SLOT_NAME");
+                // uevent may use domain-qualified form "0000:01:00.0"; strip domain if needed
+                if (slotName.endsWith(pciSlot)) {
+                    return new Pair<>(devicePath, driver);
+                }
             }
         }
-        return new Pair<>("", "");
+        // Fall back to first card with a driver symlink
+        return firstWithDriver != null ? firstWithDriver : new Pair<>("", "");
+    }
+
+    /**
+     * Reads a key=value entry from a sysfs uevent file.
+     *
+     * @param ueventPath absolute path to the uevent file
+     * @param key        the key to look up (e.g. {@code "PCI_SLOT_NAME"})
+     * @return the value string, or empty string if not found
+     */
+    private static String readUeventValue(String ueventPath, String key) {
+        List<String> lines = FileUtil.readFile(ueventPath);
+        String prefix = key + "=";
+        for (String line : lines) {
+            if (line.startsWith(prefix)) {
+                return line.substring(prefix.length()).trim();
+            }
+        }
+        return "";
     }
 
     private static String readDriverName(String driverSymlink) {

@@ -18,7 +18,7 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
     private final String deviceId;
     private final String vendor;
     private final String versionInfo;
-    private long vram;
+    private final long vram;
 
     /**
      * Constructor for AbstractGraphicsCard

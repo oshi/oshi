@@ -5,6 +5,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -323,7 +324,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return map of normalized GPU name to LHM hardware identifier
      */
     private static Map<String, String> buildLhmParentMap() {
-        Map<String, String> map = new java.util.HashMap<>();
+        Map<String, String> map = new HashMap<>();
         try {
             WmiResult<LhmHardwareProperty> hw = LhmSensor.queryGpuHardware();
             for (int i = 0; i < hw.getResultCount(); i++) {
@@ -419,9 +420,9 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         // GPU Engine instance names: pid_<PID>_luid_0xHHHH_0xLLLL_phys_0_eng_<N>_engtype_<TYPE>
         // Group by engine type, sum across all PIDs, then take the max across engine types.
         // GPU engines are parallel pipelines; max represents overall adapter utilization.
-        Map<String, Long> engineTypeSums = new java.util.HashMap<>();
+        Map<String, Long> engineTypeSums = new HashMap<>();
         String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-        for (int i = 0; i < instances.size(); i++) {
+        for (int i = 0; i < Math.min(instances.size(), runningTimes.size()); i++) {
             String inst = instances.get(i).toLowerCase(Locale.ROOT);
             if (!inst.contains(luidLower)) {
                 continue;
@@ -466,7 +467,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             List<Long> dedicated = values.get(GpuAdapterMemoryProperty.DEDICATED_USAGE);
             if (dedicated != null) {
                 String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-                for (int i = 0; i < instances.size(); i++) {
+                int limit = Math.min(instances.size(), dedicated.size());
+                for (int i = 0; i < limit; i++) {
                     if (instances.get(i).toLowerCase(Locale.ROOT).contains(luidLower)) {
                         return dedicated.get(i);
                     }
@@ -505,7 +507,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         List<Long> shared = values.get(GpuAdapterMemoryProperty.SHARED_USAGE);
         if (shared != null) {
             String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-            for (int i = 0; i < instances.size(); i++) {
+            int limit = Math.min(instances.size(), shared.size());
+            for (int i = 0; i < limit; i++) {
                 if (instances.get(i).toLowerCase(Locale.ROOT).contains(luidLower)) {
                     return shared.get(i);
                 }
