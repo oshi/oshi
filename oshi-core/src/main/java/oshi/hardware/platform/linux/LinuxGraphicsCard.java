@@ -1,37 +1,56 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import oshi.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuTicks;
 import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * Graphics card info obtained by lshw
+ * Graphics card info obtained by lshw, with dynamic metrics from sysfs DRM driver files.
  */
-@Immutable
+@ThreadSafe
 final class LinuxGraphicsCard extends AbstractGraphicsCard {
+
+    private static final String DRM_PATH = "/sys/class/drm/";
+
+    // sysfs path for this card's device directory, e.g. /sys/class/drm/card0/device
+    // Empty string if this card has no associated DRM sysfs entry.
+    private final String drmDevicePath;
+
+    // Driver name detected from the sysfs driver symlink, e.g. "amdgpu", "i915", "xe", "nvidia"
+    private final String driverName;
 
     /**
      * Constructor for LinuxGraphicsCard
      *
-     * @param name        The name
-     * @param deviceId    The device ID
-     * @param vendor      The vendor
-     * @param versionInfo The version info
-     * @param vram        The VRAM
+     * @param name          The name
+     * @param deviceId      The device ID
+     * @param vendor        The vendor
+     * @param versionInfo   The version info
+     * @param vram          The VRAM
+     * @param drmDevicePath sysfs device path for this card, or empty string if unavailable
+     * @param driverName    driver name (e.g. "amdgpu"), or empty string if unknown
      */
-    LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram, String drmDevicePath,
+            String driverName) {
         super(name, deviceId, vendor, versionInfo, vram);
+        this.drmDevicePath = drmDevicePath;
+        this.driverName = driverName;
     }
 
     /**
@@ -64,15 +83,17 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             // Skip until line contains "VGA" or "3D controller"
             if (prefix.equals("Class") && (line.contains("VGA") || line.contains("3D controller"))) {
                 found = true;
-            } else if (prefix.equals("Device") && !found && split.length > 1) {
+            } else if (prefix.equals("Slot") && split.length > 1) {
+                // Capture PCI slot address (e.g. "01:00.0") for use with lspci -s
                 lookupDevice = split[1].trim();
             }
             if (found) {
                 if (split.length < 2) {
                     // Save previous card
+                    Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                            queryLspciMemorySize(lookupDevice)));
+                            queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -97,9 +118,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // If we haven't yet written the last card do so now
         if (found) {
+            Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
             cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    queryLspciMemorySize(lookupDevice)));
+                    queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
         }
         return cardList;
     }
@@ -132,8 +154,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
+                    Pair<String, String> drmInfo = findDrmInfo(null);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
-                            versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram));
+                            versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
+                            drmInfo.getA(), drmInfo.getB()));
                     versionInfoList.clear();
                 }
             } else if (split.length == 2) {
@@ -149,8 +173,139 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                 }
             }
         }
+        Pair<String, String> drmInfo = findDrmInfo(null);
         cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
-                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram));
+                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
+                drmInfo.getA(), drmInfo.getB()));
         return cardList;
+    }
+
+    /**
+     * Finds the sysfs DRM device path and driver name for a GPU by matching against the PCI slot address from the
+     * uevent file under each DRM card's device directory.
+     *
+     * <p>
+     * When {@code pciSlot} is non-null, each card's {@code device/uevent} file is read and the {@code PCI_SLOT_NAME}
+     * key is compared against the supplied slot (e.g. {@code "0000:01:00.0"} or {@code "01:00.0"}). The first card
+     * whose slot matches is returned. If no match is found, or if {@code pciSlot} is null (lshw path), the first card
+     * with a non-empty driver symlink is returned as a best-effort fallback.
+     *
+     * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match
+     * @return pair of (drmDevicePath, driverName), both empty strings if not found
+     */
+    private static Pair<String, String> findDrmInfo(String pciSlot) {
+        File drmDir = new File(DRM_PATH);
+        File[] cards = drmDir.listFiles(f -> f.getName().matches("card\\d+"));
+        if (cards == null) {
+            return new Pair<>("", "");
+        }
+        Pair<String, String> firstWithDriver = null;
+        for (File card : cards) {
+            String devicePath = card.getAbsolutePath() + "/device";
+            String driver = readDriverName(devicePath + "/driver");
+            if (driver.isEmpty()) {
+                continue;
+            }
+            if (firstWithDriver == null) {
+                firstWithDriver = new Pair<>(devicePath, driver);
+            }
+            // Attempt PCI slot match via uevent
+            if (pciSlot != null) {
+                String slotName = readUeventValue(devicePath + "/uevent", "PCI_SLOT_NAME");
+                // uevent may use domain-qualified form "0000:01:00.0"; strip domain if needed
+                if (slotName.endsWith(pciSlot)) {
+                    return new Pair<>(devicePath, driver);
+                }
+            }
+        }
+        // Fall back to first card with a driver symlink
+        return firstWithDriver != null ? firstWithDriver : new Pair<>("", "");
+    }
+
+    /**
+     * Reads a key=value entry from a sysfs uevent file.
+     *
+     * @param ueventPath absolute path to the uevent file
+     * @param key        the key to look up (e.g. {@code "PCI_SLOT_NAME"})
+     * @return the value string, or empty string if not found
+     */
+    private static String readUeventValue(String ueventPath, String key) {
+        List<String> lines = FileUtil.readFile(ueventPath);
+        String prefix = key + "=";
+        for (String line : lines) {
+            if (line.startsWith(prefix)) {
+                return line.substring(prefix.length()).trim();
+            }
+        }
+        return "";
+    }
+
+    private static String readDriverName(String driverSymlink) {
+        String target = FileUtil.readSymlinkTarget(new File(driverSymlink));
+        if (target == null || target.isEmpty()) {
+            return "";
+        }
+        // The symlink target resolves to a driver directory,
+        // e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.
+        int lastSlash = target.lastIndexOf('/');
+        return lastSlash >= 0 ? target.substring(lastSlash + 1) : target;
+    }
+
+    // -------------------------------------------------------------------------
+    // Dynamic metric implementations
+    // -------------------------------------------------------------------------
+
+    @Override
+    public GpuTicks getGpuTicks() {
+        // Tick-level counters are not available through sysfs on Linux.
+        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+    }
+
+    @Override
+    public double getGpuUtilization() {
+        if (drmDevicePath.isEmpty()) {
+            return -1d;
+        }
+        String driver = driverName.toLowerCase(Locale.ROOT);
+        if ("amdgpu".equals(driver)) {
+            int pct = FileUtil.getIntFromFile(drmDevicePath + "/gpu_busy_percent");
+            return pct >= 0 ? pct : -1d;
+        }
+        if ("i915".equals(driver) || "xe".equals(driver)) {
+            return intelFreqUtilization();
+        }
+        // nvidia / nouveau and others: not available via sysfs
+        return -1d;
+    }
+
+    private double intelFreqUtilization() {
+        // Frequency ratio is a rough proxy for GPU utilization; not measured core utilization.
+        String gtPath = drmDevicePath + "/../gt/gt0";
+        long actual = FileUtil.getLongFromFile(gtPath + "/rps_act_freq_mhz");
+        long max = FileUtil.getLongFromFile(gtPath + "/rps_max_freq_mhz");
+        if (actual > 0 && max > 0) {
+            return Math.min(100.0, actual * 100.0 / max);
+        }
+        return -1d;
+    }
+
+    @Override
+    public long getVramUsed() {
+        if (drmDevicePath.isEmpty()) {
+            return -1L;
+        }
+        String driver = driverName.toLowerCase(Locale.ROOT);
+        if ("amdgpu".equals(driver)) {
+            long used = FileUtil.getLongFromFile(drmDevicePath + "/mem_info_vram_used");
+            return used >= 0 ? used : -1L;
+        }
+        // Intel integrated GPUs use system memory; dedicated VRAM usage not exposed in sysfs.
+        // NVIDIA requires NVML (Phase 2).
+        return -1L;
+    }
+
+    @Override
+    public long getSharedMemoryUsed() {
+        return -1L;
     }
 }

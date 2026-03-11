@@ -22,18 +22,25 @@ public final class DxgiAdapterInfo {
     private final int vendorId;
     private final int deviceId;
     private final long dedicatedVideoMemory;
+    private final int luidLowPart;
+    private final int luidHighPart;
 
     /**
      * @param description          adapter description string from {@code DXGI_ADAPTER_DESC.Description}
      * @param vendorId             PCI vendor ID
      * @param deviceId             PCI device ID
      * @param dedicatedVideoMemory dedicated video memory in bytes
+     * @param luidLowPart          low 32 bits of the adapter LUID
+     * @param luidHighPart         high 32 bits of the adapter LUID
      */
-    public DxgiAdapterInfo(String description, int vendorId, int deviceId, long dedicatedVideoMemory) {
+    public DxgiAdapterInfo(String description, int vendorId, int deviceId, long dedicatedVideoMemory, int luidLowPart,
+            int luidHighPart) {
         this.description = description;
         this.vendorId = vendorId;
         this.deviceId = deviceId;
         this.dedicatedVideoMemory = dedicatedVideoMemory;
+        this.luidLowPart = luidLowPart;
+        this.luidHighPart = luidHighPart;
     }
 
     /**
@@ -72,9 +79,28 @@ public final class DxgiAdapterInfo {
         return dedicatedVideoMemory;
     }
 
+    /**
+     * Returns the low 32 bits of the adapter LUID.
+     *
+     * @return LUID low part
+     */
+    public int getLuidLowPart() {
+        return luidLowPart;
+    }
+
+    /**
+     * Returns the high 32 bits of the adapter LUID.
+     *
+     * @return LUID high part
+     */
+    public int getLuidHighPart() {
+        return luidHighPart;
+    }
+
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "DxgiAdapterInfo{desc='%s', vendor=0x%04X, device=0x%04X, vram=%d}",
-                description, vendorId, deviceId, dedicatedVideoMemory);
+        return String.format(Locale.ROOT,
+                "DxgiAdapterInfo{desc='%s', vendor=0x%04X, device=0x%04X, vram=%d, luid=0x%08X_0x%08X}", description,
+                vendorId, deviceId, dedicatedVideoMemory, luidHighPart, luidLowPart);
     }
 }

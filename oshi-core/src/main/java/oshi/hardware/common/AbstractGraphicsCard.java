@@ -1,14 +1,15 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuTicks;
 
 /**
- * An abstract Sound Card
+ * An abstract Graphics Card
  */
 @Immutable
 public abstract class AbstractGraphicsCard implements GraphicsCard {
@@ -17,7 +18,7 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
     private final String deviceId;
     private final String vendor;
     private final String versionInfo;
-    private long vram;
+    private final long vram;
 
     /**
      * Constructor for AbstractGraphicsCard
@@ -74,9 +75,44 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
         builder.append(this.vendor);
         builder.append(", vRam=");
         builder.append(this.vram);
+        long vramUsed = getVramUsed();
+        if (vramUsed >= 0) {
+            builder.append(", vramUsed=");
+            builder.append(vramUsed);
+        }
+        long sharedUsed = getSharedMemoryUsed();
+        if (sharedUsed >= 0) {
+            builder.append(", sharedMemUsed=");
+            builder.append(sharedUsed);
+        }
+        double utilization = getGpuUtilization();
+        if (utilization >= 0) {
+            builder.append(", utilization=");
+            builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", utilization));
+        }
         builder.append(", versionInfo=[");
         builder.append(this.versionInfo);
         builder.append("]]");
         return builder.toString();
+    }
+
+    @Override
+    public GpuTicks getGpuTicks() {
+        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+    }
+
+    @Override
+    public double getGpuUtilization() {
+        return -1d;
+    }
+
+    @Override
+    public long getVramUsed() {
+        return -1L;
+    }
+
+    @Override
+    public long getSharedMemoryUsed() {
+        return -1L;
     }
 }

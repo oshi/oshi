@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -28,6 +28,13 @@ public final class WmiUtil {
      * running would result in unnecessary log messages.
      */
     public static final String OHM_NAMESPACE = "ROOT\\OpenHardwareMonitor";
+
+    /**
+     * The namespace where LibreHardwareMonitor publishes to WMI,
+     * <code>LHM_NAMESPACE="ROOT\\LibreHardwareMonitor"</code>. This namespace is not built-in to WMI, so if LHM is not
+     * running would result in unnecessary log messages.
+     */
+    public static final String LHM_NAMESPACE = "ROOT\\LibreHardwareMonitor";
 
     private static final String CLASS_CAST_MSG = "%s is not a %s type. CIM Type is %d and VT type is %d";
 

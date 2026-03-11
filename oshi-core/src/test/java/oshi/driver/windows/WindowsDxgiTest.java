@@ -29,8 +29,9 @@ class WindowsDxgiTest {
     @Test
     void testFindMatchByVendorAndDeviceId() {
         DxgiAdapterInfo arc = new DxgiAdapterInfo("Intel(R) Arc(TM) A770 Graphics", 0x8086, 0x56A0,
-                16L * 1024 * 1024 * 1024);
-        DxgiAdapterInfo igpu = new DxgiAdapterInfo("Intel(R) UHD Graphics 770", 0x8086, 0x4680, 128L * 1024 * 1024);
+                16L * 1024 * 1024 * 1024, 0, 0);
+        DxgiAdapterInfo igpu = new DxgiAdapterInfo("Intel(R) UHD Graphics 770", 0x8086, 0x4680, 128L * 1024 * 1024, 0,
+                0);
         List<DxgiAdapterInfo> adapters = Arrays.asList(arc, igpu);
 
         DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0x8086, 0x56A0, "Intel Arc A770");
@@ -41,10 +42,10 @@ class WindowsDxgiTest {
     @Test
     void testFindMatchByVendorAndDeviceIdPicksFirst() {
         // Two adapters with same IDs (multi-GPU) — first one wins
-        DxgiAdapterInfo first = new DxgiAdapterInfo("NVIDIA GeForce RTX 4090", 0x10DE, 0x2684,
-                24L * 1024 * 1024 * 1024);
+        DxgiAdapterInfo first = new DxgiAdapterInfo("NVIDIA GeForce RTX 4090", 0x10DE, 0x2684, 24L * 1024 * 1024 * 1024,
+                0, 0);
         DxgiAdapterInfo second = new DxgiAdapterInfo("NVIDIA GeForce RTX 4090", 0x10DE, 0x2684,
-                24L * 1024 * 1024 * 1024);
+                24L * 1024 * 1024 * 1024, 0, 0);
         List<DxgiAdapterInfo> adapters = Arrays.asList(first, second);
 
         DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090");
@@ -57,7 +58,7 @@ class WindowsDxgiTest {
         // The stored DXGI description has (R) and (TM) markers; the registry DriverDesc
         // typically omits them. Verify that normalization bridges the difference.
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("Intel(R) Arc(TM) A770 Graphics", 0x8086, 0x56A0,
-                16L * 1024 * 1024 * 1024);
+                16L * 1024 * 1024 * 1024, 0, 0);
         List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
 
         DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0, 0, "Intel Arc A770 Graphics");
@@ -68,7 +69,7 @@ class WindowsDxgiTest {
     @Test
     void testFindMatchNoMatchReturnsNull() {
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("AMD Radeon RX 7900 XTX", 0x1002, 0x744C,
-                24L * 1024 * 1024 * 1024);
+                24L * 1024 * 1024 * 1024, 0, 0);
         List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
 
         DxgiAdapterInfo match = WindowsDxgi.findMatch(adapters, 0x8086, 0x56A0, "Intel Arc A770");
@@ -84,7 +85,7 @@ class WindowsDxgiTest {
     @Test
     void testFindMatchZeroIdsUsesNameFallback() {
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("AMD Radeon RX 7900 XTX", 0x1002, 0x744C,
-                24L * 1024 * 1024 * 1024);
+                24L * 1024 * 1024 * 1024, 0, 0);
         List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
 
         // vendorId=0 and deviceId=0 should skip ID matching and try name

@@ -258,9 +258,12 @@ public final class WindowsDxgi {
                         desc.read();
                         String name = Native.toString(desc.Description);
                         long vram = desc.DedicatedVideoMemory.longValue();
-                        result.add(new DxgiAdapterInfo(name, desc.VendorId, desc.DeviceId, vram));
-                        LOG.debug("DXGI adapter {}: '{}' vendor=0x{} device=0x{} vram={}", i, name,
-                                Integer.toHexString(desc.VendorId), Integer.toHexString(desc.DeviceId), vram);
+                        result.add(new DxgiAdapterInfo(name, desc.VendorId, desc.DeviceId, vram,
+                                desc.AdapterLuidLowPart, desc.AdapterLuidHighPart));
+                        LOG.debug("DXGI adapter {}: '{}' vendor=0x{} device=0x{} vram={} luid=0x{}_0x{}", i, name,
+                                Integer.toHexString(desc.VendorId), Integer.toHexString(desc.DeviceId), vram,
+                                Integer.toHexString(desc.AdapterLuidHighPart),
+                                Integer.toHexString(desc.AdapterLuidLowPart));
                     } else {
                         LOG.debug("IDXGIAdapter::GetDesc({}) failed: 0x{}", i, Integer.toHexString(descHr.intValue()));
                     }
