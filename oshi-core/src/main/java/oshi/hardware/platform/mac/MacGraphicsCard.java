@@ -19,6 +19,7 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.IOReportDriver;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuTicks;
 import oshi.hardware.common.AbstractGraphicsCard;
@@ -26,6 +27,7 @@ import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SmcUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -133,12 +135,21 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
 
     @Override
     public GpuTicks getGpuTicks() {
-        // macOS does not expose cumulative GPU tick counters via IOKit.
+        if (IS_APPLE_SILICON) {
+            return IOReportDriver.sampleGpuTicks();
+        }
+        // macOS does not expose cumulative GPU tick counters via IOKit for Intel.
         return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
     }
 
     @Override
     public double getGpuUtilization() {
+        if (IS_APPLE_SILICON) {
+            double util = IOReportDriver.sampleGpuUtilization();
+            if (util >= 0) {
+                return util;
+            }
+        }
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
             return -1d;
@@ -203,6 +214,19 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
 
     @Override
     public double getTemperature() {
+        if (IS_APPLE_SILICON) {
+            com.sun.jna.platform.mac.IOKit.IOConnect conn = SmcUtil.smcOpen();
+            if (conn != null) {
+                try {
+                    double temp = SmcUtil.smcGetFirstFloat(conn, SmcUtil.SMC_KEYS_GPU_TEMP_AS);
+                    if (temp > 0) {
+                        return temp;
+                    }
+                } finally {
+                    SmcUtil.smcClose(conn);
+                }
+            }
+        }
         // Some Intel Macs expose GPU temperature in PerformanceStatistics as "Temperature(C)"
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
@@ -228,6 +252,20 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
     // getPowerDraw, getCoreClockMhz, getMemoryClockMhz, getFanSpeedPercent:
     // Not reliably available through public IOKit APIs for GPUs on macOS.
     // Inherited default implementations return -1.
+
+    @Override
+    public double getPowerDraw() {
+        if (IS_APPLE_SILICON) {
+            return IOReportDriver.samplePowerWatts();
+        }
+        return -1d;
+    }
+
+    @Override
+    public long getCoreClockMhz() {
+        // CLPC channel not currently subscribed in IOReportDriver.
+        return -1L;
+    }
 
     /**
      * Queries the IOAccelerator PerformanceStatistics dictionary for the GPU matching this card's name.
