@@ -14,7 +14,6 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -636,7 +635,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     @Override
     public double getTemperature() {
         // Priority 1: NVML
-        Pointer nvmlDevice = findNvmlDevice();
+        String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             double val = NvmlUtil.getTemperature(nvmlDevice);
             if (val >= 0) {
@@ -658,7 +657,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     @Override
     public double getPowerDraw() {
         // Priority 1: NVML
-        Pointer nvmlDevice = findNvmlDevice();
+        String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             double val = NvmlUtil.getPowerDraw(nvmlDevice);
             if (val >= 0) {
@@ -684,7 +683,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     @Override
     public long getCoreClockMhz() {
         // Priority 1: NVML
-        Pointer nvmlDevice = findNvmlDevice();
+        String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             long val = NvmlUtil.getCoreClockMhz(nvmlDevice);
             if (val >= 0) {
@@ -707,7 +706,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     @Override
     public long getMemoryClockMhz() {
         // Priority 1: NVML
-        Pointer nvmlDevice = findNvmlDevice();
+        String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             long val = NvmlUtil.getMemoryClockMhz(nvmlDevice);
             if (val >= 0) {
@@ -730,7 +729,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     @Override
     public double getFanSpeedPercent() {
         // Priority 1: NVML
-        Pointer nvmlDevice = findNvmlDevice();
+        String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             double val = NvmlUtil.getFanSpeedPercent(nvmlDevice);
             if (val >= 0) {
@@ -754,18 +753,18 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * Finds the NVML device handle for this card. Tries PCI bus ID first, then falls back to name matching.
+     * Finds the stable NVML device identifier for this card. Tries PCI bus ID first, then falls back to name matching.
      *
-     * @return NVML device handle, or null if NVML unavailable or no match
+     * @return stable device identifier string, or null if NVML unavailable or no match
      */
-    private Pointer findNvmlDevice() {
+    private String findNvmlDevice() {
         if (!NvmlUtil.isAvailable()) {
             return null;
         }
         if (!pciBusId.isEmpty()) {
-            Pointer handle = NvmlUtil.findDevice(pciBusId);
-            if (handle != null) {
-                return handle;
+            String id = NvmlUtil.findDevice(pciBusId);
+            if (id != null) {
+                return id;
             }
         }
         return NvmlUtil.findDeviceByName(getName());
