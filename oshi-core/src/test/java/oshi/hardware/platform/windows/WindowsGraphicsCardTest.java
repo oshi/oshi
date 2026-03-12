@@ -53,4 +53,44 @@ class WindowsGraphicsCardTest {
     void testParsePciBusNumberNonNumericAfterPrefix() {
         assertThat(WindowsGraphicsCard.parsePciBusNumber("PCI bus X, device 0, function 0"), is(-1));
     }
+
+    @Test
+    void testParsePciDevice() {
+        assertThat(WindowsGraphicsCard.parsePciDevice("PCI bus 1, device 2, function 3"), is(2));
+    }
+
+    @Test
+    void testParsePciDeviceNull() {
+        assertThat(WindowsGraphicsCard.parsePciDevice(null), is(-1));
+    }
+
+    @Test
+    void testParsePciFunction() {
+        assertThat(WindowsGraphicsCard.parsePciFunction("PCI bus 1, device 2, function 3"), is(3));
+    }
+
+    @Test
+    void testParsePciFunctionNull() {
+        assertThat(WindowsGraphicsCard.parsePciFunction(null), is(-1));
+    }
+
+    @Test
+    void testBuildPciBusId() {
+        assertThat(WindowsGraphicsCard.buildPciBusId("PCI bus 1, device 0, function 0"), is("0000:01:00.0"));
+    }
+
+    @Test
+    void testBuildPciBusIdHighValues() {
+        assertThat(WindowsGraphicsCard.buildPciBusId("PCI bus 255, device 31, function 7"), is("0000:ff:1f.7"));
+    }
+
+    @Test
+    void testBuildPciBusIdUnparseable() {
+        assertThat(WindowsGraphicsCard.buildPciBusId("not a pci string"), is(""));
+    }
+
+    @Test
+    void testBuildPciBusIdNull() {
+        assertThat(WindowsGraphicsCard.buildPciBusId(null), is(""));
+    }
 }

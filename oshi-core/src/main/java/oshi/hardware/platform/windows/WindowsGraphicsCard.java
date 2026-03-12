@@ -195,6 +195,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                     luidPrefix = buildLuidPrefix(dxgiMatch);
                     pciBusNumber = parsePciBusNumber(locationInfo);
+                    pciBusId = buildPciBusId(locationInfo);
                 } else if (dxgiAvailable) {
                     // DXGI is available but this registry entry has no matching adapter:
                     // it is a ghost device (stale driver from hardware no longer present). Skip it.
@@ -392,6 +393,65 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         int end = lower.indexOf(',', start);
         String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
         return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Parses the PCI device number from a Windows registry {@code LocationInformation} string.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI device number, or -1 if not parseable
+     */
+    static int parsePciDevice(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int devIdx = lower.indexOf("device ");
+        if (devIdx < 0) {
+            return -1;
+        }
+        int start = devIdx + 7;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Parses the PCI function number from a Windows registry {@code LocationInformation} string.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI function number, or -1 if not parseable
+     */
+    static int parsePciFunction(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int fnIdx = lower.indexOf("function ");
+        if (fnIdx < 0) {
+            return -1;
+        }
+        int start = fnIdx + 9;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Builds a PCI bus ID string in {@code "0000:BB:DD.F"} format from a Windows registry {@code LocationInformation}
+     * string. Returns an empty string if any component cannot be parsed.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI bus ID string, or empty string if not parseable
+     */
+    static String buildPciBusId(String locationInfo) {
+        int bus = parsePciBusNumber(locationInfo);
+        int device = parsePciDevice(locationInfo);
+        int function = parsePciFunction(locationInfo);
+        if (bus < 0 || device < 0 || function < 0) {
+            return "";
+        }
+        return String.format(Locale.ROOT, "0000:%02x:%02x.%x", bus, device, function);
     }
 
     /**

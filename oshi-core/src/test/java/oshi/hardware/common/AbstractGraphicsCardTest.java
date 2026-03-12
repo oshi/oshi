@@ -63,10 +63,25 @@ class AbstractGraphicsCardTest {
         }
     }
 
+    /**
+     * Minimal subclass that only implements getGpuTicks(), leaving all Phase 2 methods to AbstractGraphicsCard's
+     * defaults. Used to verify the default sentinel values without overriding them.
+     */
+    private static final class MinimalStubGraphicsCard extends AbstractGraphicsCard {
+        MinimalStubGraphicsCard() {
+            super("Minimal GPU", "0x0000", "MinimalVendor", "v0.0", 0L);
+        }
+
+        @Override
+        public GpuTicks getGpuTicks() {
+            return new DefaultGpuTicks(0L, 0L);
+        }
+    }
+
     @Test
     void testDefaultSentinelValues() {
-        // Use a stub with all sentinels to verify the contract
-        AbstractGraphicsCard card = new StubGraphicsCard(-1d, -1d, -1L, -1L, -1d);
+        // Uses MinimalStubGraphicsCard so all Phase 2 getters come from AbstractGraphicsCard itself
+        AbstractGraphicsCard card = new MinimalStubGraphicsCard();
         assertThat(card.getTemperature(), is(-1d));
         assertThat(card.getPowerDraw(), is(-1d));
         assertThat(card.getCoreClockMhz(), is(-1L));
@@ -126,5 +141,16 @@ class AbstractGraphicsCardTest {
         assertThat(s, containsString("deviceId=0xDEAD"));
         assertThat(s, containsString("vendor=TestVendor"));
         assertThat(s, containsString("versionInfo=[v1.0]"));
+    }
+
+    @Test
+    void testToStringIncludesZeroValues() {
+        // Zero is a valid reading (>= 0); toString must include it, not treat it as sentinel
+        String s = new StubGraphicsCard(0d, 0d, 0L, 0L, 0d).toString();
+        assertThat(s, containsString("temp=0.0°C"));
+        assertThat(s, containsString("power=0.0W"));
+        assertThat(s, containsString("coreClock=0MHz"));
+        assertThat(s, containsString("memClock=0MHz"));
+        assertThat(s, containsString("fan=0.0%"));
     }
 }

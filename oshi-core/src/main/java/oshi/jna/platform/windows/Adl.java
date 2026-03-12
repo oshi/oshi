@@ -53,21 +53,21 @@ public interface Adl {
                 IntByReference lpCurrentValue);
     }
 
-    @FieldOrder({ "iSize", "iAdapterIndex", "strAdapterName", "strDisplayName", "iPresent", "iExist", "iVendorID",
-            "iBusNumber", "iDeviceNumber", "iFunctionNumber", "strUDID", "strDriverPath", "strDriverPathExt",
+    @FieldOrder({ "iSize", "iAdapterIndex", "strUDID", "iBusNumber", "iDeviceNumber", "iFunctionNumber", "iVendorID",
+            "strAdapterName", "strDisplayName", "iPresent", "iExist", "strDriverPath", "strDriverPathExt",
             "strPNPString", "iOSDisplayIndex" })
     class AdapterInfo extends Structure {
         public int iSize;
         public int iAdapterIndex;
+        public byte[] strUDID = new byte[256];
+        public int iBusNumber;
+        public int iDeviceNumber;
+        public int iFunctionNumber;
+        public int iVendorID;
         public byte[] strAdapterName = new byte[256];
         public byte[] strDisplayName = new byte[256];
         public int iPresent;
         public int iExist;
-        public int iVendorID;
-        public int iBusNumber;
-        public int iDeviceNumber;
-        public int iFunctionNumber;
-        public byte[] strUDID = new byte[256];
         public byte[] strDriverPath = new byte[256];
         public byte[] strDriverPathExt = new byte[256];
         public byte[] strPNPString = new byte[256];
@@ -76,8 +76,8 @@ public interface Adl {
 
     @FieldOrder({ "iCoreClock", "iMemoryClock", "iDCEFClock", "iGFXClock", "iUVDClock", "iVCEClock",
             "iGPUActivityPercent", "iCurrentCorePerformanceLevel", "iCurrentMemoryPerformanceLevel",
-            "iCurrentDCEFPerformanceLevel", "iCurrentGFXPerformanceLevel", "iUVDPerformanceLevel", "iVDDC", "iVDDCI",
-            "iCurrentBusSpeed", "iCurrentBusLanes", "iMaximumBusLanes" })
+            "iCurrentDCEFPerformanceLevel", "iCurrentGFXPerformanceLevel", "iUVDPerformanceLevel",
+            "iVCEPerformanceLevel", "iCurrentBusSpeed", "iCurrentBusLanes", "iMaximumBusLanes", "iVDDC", "iVDDCI" })
     class ADLODNPerformanceStatus extends Structure {
         public int iCoreClock;
         public int iMemoryClock;
@@ -91,15 +91,16 @@ public interface Adl {
         public int iCurrentDCEFPerformanceLevel;
         public int iCurrentGFXPerformanceLevel;
         public int iUVDPerformanceLevel;
-        public int iVDDC;
-        public int iVDDCI;
+        public int iVCEPerformanceLevel;
         public int iCurrentBusSpeed;
         public int iCurrentBusLanes;
         public int iMaximumBusLanes;
+        public int iVDDC;
+        public int iVDDCI;
     }
 
     @FieldOrder({ "iMode", "iFanControlMode", "iCurrentFanSpeedMode", "iCurrentFanSpeed", "iTargetFanSpeed",
-            "iTargetTemperature", "iMinFanLimit", "iMinPerformanceClock" })
+            "iTargetTemperature", "iMinPerformanceClock", "iMinFanLimit" })
     class ADLODNFanControl extends Structure {
         public int iMode;
         public int iFanControlMode;
@@ -107,7 +108,7 @@ public interface Adl {
         public int iCurrentFanSpeed;
         public int iTargetFanSpeed;
         public int iTargetTemperature;
-        public int iMinFanLimit;
         public int iMinPerformanceClock;
+        public int iMinFanLimit;
     }
 }

@@ -141,15 +141,20 @@ public final class AdlUtil {
         if (adaptersEnumerated) {
             return;
         }
-        busToIndex = enumerateAdapters(context);
-        adaptersEnumerated = true;
-        LOG.debug("ADL enumerated {} adapter(s)", busToIndex.size());
+        Map<Integer, Integer> result = enumerateAdapters(context);
+        if (result != null) {
+            busToIndex = result;
+            adaptersEnumerated = true;
+            LOG.debug("ADL enumerated {} adapter(s)", busToIndex.size());
+        } else {
+            LOG.debug("ADL adapter enumeration failed; will retry on next call");
+        }
     }
 
     private static Map<Integer, Integer> enumerateAdapters(Pointer ctx) {
         IntByReference numRef = new IntByReference();
         if (Holder.LIB.ADL2_Adapter_NumberOfAdapters_Get(ctx, numRef) != Adl.ADL_OK) {
-            return Collections.emptyMap();
+            return null;
         }
         int num = numRef.getValue();
         if (num <= 0) {
@@ -160,7 +165,7 @@ public final class AdlUtil {
             info.iSize = info.size();
         }
         if (Holder.LIB.ADL2_Adapter_AdapterInfo_Get(ctx, infos, infos[0].size() * num) != Adl.ADL_OK) {
-            return Collections.emptyMap();
+            return null;
         }
         Map<Integer, Integer> map = new HashMap<>();
         for (AdapterInfo info : infos) {
