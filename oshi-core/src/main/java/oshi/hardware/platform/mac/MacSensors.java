@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -11,6 +11,12 @@ import com.sun.jna.platform.mac.IOKit.IOConnect;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_TEMP;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE_AS;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_NUM;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_SPEED;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
 
 /**
  * Sensors from SMC
@@ -24,34 +30,56 @@ final class MacSensors extends AbstractSensors {
     @Override
     public double queryCpuTemperature() {
         IOConnect conn = SmcUtil.smcOpen();
-        double temp = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_TEMP);
-        SmcUtil.smcClose(conn);
-        if (temp > 0d) {
-            return temp;
+        if (conn == null) {
+            return 0d;
         }
-        return 0d;
+        try {
+            double temp = SmcUtil.smcGetFirstFloat(conn, SMC_KEYS_CPU_TEMP_AS);
+            if (temp <= 0d) {
+                temp = SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_TEMP);
+            }
+            return temp;
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
     }
 
     @Override
     public int[] queryFanSpeeds() {
-        // If we don't have fan # try to get it
         IOConnect conn = SmcUtil.smcOpen();
-        if (this.numFans == 0) {
-            this.numFans = (int) SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM);
+        if (conn == null) {
+            return new int[this.numFans];
         }
-        int[] fanSpeeds = new int[this.numFans];
-        for (int i = 0; i < this.numFans; i++) {
-            fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(Locale.ROOT, SmcUtil.SMC_KEY_FAN_SPEED, i));
+        try {
+            if (this.numFans == 0) {
+                this.numFans = (int) SmcUtil.smcGetLong(conn, SMC_KEY_FAN_NUM);
+            }
+            int[] fanSpeeds = new int[this.numFans];
+            for (int i = 0; i < this.numFans; i++) {
+                fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(Locale.ROOT, SMC_KEY_FAN_SPEED, i));
+            }
+            return fanSpeeds;
+        } finally {
+            SmcUtil.smcClose(conn);
         }
-        SmcUtil.smcClose(conn);
-        return fanSpeeds;
     }
 
     @Override
     public double queryCpuVoltage() {
         IOConnect conn = SmcUtil.smcOpen();
-        double volts = SmcUtil.smcGetFloat(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE) / 1000d;
-        SmcUtil.smcClose(conn);
-        return volts;
+        if (conn == null) {
+            return 0d;
+        }
+        try {
+            // Apple Silicon: VP0C is flt already in volts, no scaling needed
+            double volts = SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE_AS);
+            if (volts > 0d) {
+                return volts;
+            }
+            // Intel: VC0C is FPE2 in millivolts, divide by 1000 to get volts
+            return SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE) / 1000d;
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
     }
 }
