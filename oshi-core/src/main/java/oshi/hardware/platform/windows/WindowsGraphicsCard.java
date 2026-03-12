@@ -39,6 +39,8 @@ import oshi.jna.platform.windows.WindowsDxgi;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.gpu.AdlUtil;
+import oshi.util.gpu.NvmlUtil;
 import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
@@ -86,6 +88,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static final String VENDOR = "ProviderName";
     public static final String QW_MEMORY_SIZE = "HardwareInformation.qwMemorySize";
     public static final String MATCHING_DEVICE_ID = "MatchingDeviceId";
+    public static final String LOCATION_INFORMATION = "LocationInformation";
     public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
 
     // PDH instance prefix for this adapter's LUID, e.g. "luid_0x00000000_0x0001234_phys_0"
@@ -95,22 +98,32 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     // LHM hardware identifier for this GPU, e.g. "/gpu-nvidia/0". Empty if LHM is not available.
     private final String lhmParent;
 
+    // PCI bus number from DXGI, used to correlate with ADL. -1 if unknown.
+    private final int pciBusNumber;
+
+    // PCI bus ID string for NVML correlation, e.g. "0000:01:00.0". Empty if unknown.
+    private final String pciBusId;
+
     /**
      * Constructor for WindowsGraphicsCard
      *
-     * @param name        The name
-     * @param deviceId    The device ID
-     * @param vendor      The vendor
-     * @param versionInfo The version info
-     * @param vram        The VRAM
-     * @param luidPrefix  PDH LUID instance prefix for this adapter, or empty string if unknown
-     * @param lhmParent   LHM hardware identifier for this GPU, or empty string if unavailable
+     * @param name         The name
+     * @param deviceId     The device ID
+     * @param vendor       The vendor
+     * @param versionInfo  The version info
+     * @param vram         The VRAM
+     * @param luidPrefix   PDH LUID instance prefix for this adapter, or empty string if unknown
+     * @param lhmParent    LHM hardware identifier for this GPU, or empty string if unavailable
+     * @param pciBusNumber PCI bus number for ADL correlation, or -1 if unknown
+     * @param pciBusId     PCI bus ID string for NVML correlation, or empty string if unknown
      */
     WindowsGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram, String luidPrefix,
-            String lhmParent) {
+            String lhmParent, int pciBusNumber, String pciBusId) {
         super(name, deviceId, vendor, versionInfo, vram);
         this.luidPrefix = luidPrefix;
         this.lhmParent = lhmParent;
+        this.pciBusNumber = pciBusNumber;
+        this.pciBusId = pciBusId;
     }
 
     /**
@@ -171,11 +184,17 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 long vram = -1L;
                 int dxgiIndex = -1;
                 String luidPrefix = "";
+                int pciBusNumber = -1;
+                String pciBusId = "";
+                String locationInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
+                        LOCATION_INFORMATION);
                 DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                     luidPrefix = buildLuidPrefix(dxgiMatch);
+                    pciBusNumber = parsePciBusNumber(locationInfo);
+                    pciBusId = buildPciBusId(locationInfo);
                 } else if (dxgiAvailable) {
                     // DXGI is available but this registry entry has no matching adapter:
                     // it is a ghost device (stale driver from hardware no longer present). Skip it.
@@ -202,7 +221,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
                         Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram, luidPrefix, lhmParent);
+                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram, luidPrefix, lhmParent,
+                        pciBusNumber, pciBusId);
                 // Remove dxgiMatch from remainingDxgi only after the card is successfully
                 // constructed. This ensures that if earlier registry reads in this try block
                 // throw a Win32Exception, dxgiMatch remains in remainingDxgi and is still
@@ -292,6 +312,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 long vram;
                 int dxgiIndex = -1;
                 String luidPrefix = "";
+                int pciBusNumber = -1;
+                String pciBusId = "";
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
@@ -303,7 +325,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String lhmParent = lhmParentMap.getOrDefault(WindowsDxgi.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
                 GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
-                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent);
+                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
+                        pciBusNumber, pciBusId);
                 if (dxgiIndex >= 0) {
                     dxgiOrdered.put(dxgiIndex, card);
                 } else {
@@ -346,6 +369,88 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             LOG.debug("LHM GPU hardware query failed (LHM may not be running): {}", e.getMessage());
         }
         return map;
+    }
+
+    /**
+     * Parses the PCI bus number from a Windows registry {@code LocationInformation} string of the form
+     * {@code "PCI bus N, device N, function N"}.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI bus number, or -1 if not parseable
+     */
+    static int parsePciBusNumber(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        // Format: "PCI bus N, device N, function N" (case-insensitive)
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int busIdx = lower.indexOf("pci bus ");
+        if (busIdx < 0) {
+            return -1;
+        }
+        int start = busIdx + 8;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Parses the PCI device number from a Windows registry {@code LocationInformation} string.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI device number, or -1 if not parseable
+     */
+    static int parsePciDevice(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int devIdx = lower.indexOf("device ");
+        if (devIdx < 0) {
+            return -1;
+        }
+        int start = devIdx + 7;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Parses the PCI function number from a Windows registry {@code LocationInformation} string.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI function number, or -1 if not parseable
+     */
+    static int parsePciFunction(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int fnIdx = lower.indexOf("function ");
+        if (fnIdx < 0) {
+            return -1;
+        }
+        int start = fnIdx + 9;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
+    }
+
+    /**
+     * Builds a PCI bus ID string in {@code "0000:BB:DD.F"} format from a Windows registry {@code LocationInformation}
+     * string. Returns an empty string if any component cannot be parsed.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI bus ID string, or empty string if not parseable
+     */
+    static String buildPciBusId(String locationInfo) {
+        int bus = parsePciBusNumber(locationInfo);
+        int device = parsePciDevice(locationInfo);
+        int function = parsePciFunction(locationInfo);
+        if (bus < 0 || device < 0 || function < 0) {
+            return "";
+        }
+        return String.format(Locale.ROOT, "0000:%02x:%02x.%x", bus, device, function);
     }
 
     /**
@@ -525,5 +630,179 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             }
         }
         return -1L;
+    }
+
+    @Override
+    public double getTemperature() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getTemperature(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: ADL
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtil.getTemperature(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 3: LHM
+        return lhmFloatSensor("Temperature", "GPU Core");
+    }
+
+    @Override
+    public double getPowerDraw() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getPowerDraw(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: ADL
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtil.getPowerDraw(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 3: LHM
+        double lhm = lhmFloatSensor("Power", "GPU Package");
+        if (lhm >= 0) {
+            return lhm;
+        }
+        return lhmFloatSensor("Power", "GPU Power");
+    }
+
+    @Override
+    public long getCoreClockMhz() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            long val = NvmlUtil.getCoreClockMhz(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: ADL
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            long val = AdlUtil.getCoreClockMhz(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 3: LHM
+        double lhm = lhmFloatSensor("Clock", "GPU Core");
+        return lhm >= 0 ? (long) lhm : -1L;
+    }
+
+    @Override
+    public long getMemoryClockMhz() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            long val = NvmlUtil.getMemoryClockMhz(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: ADL
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            long val = AdlUtil.getMemoryClockMhz(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 3: LHM
+        double lhm = lhmFloatSensor("Clock", "GPU Memory");
+        return lhm >= 0 ? (long) lhm : -1L;
+    }
+
+    @Override
+    public double getFanSpeedPercent() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getFanSpeedPercent(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: ADL
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtil.getFanSpeedPercent(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 3: LHM Control sensor (percentage)
+        double lhm = lhmFloatSensor("Control", "GPU Fan");
+        if (lhm >= 0) {
+            return lhm;
+        }
+        return lhmFloatSensor("Control", "GPU Fan 1");
+    }
+
+    /**
+     * Finds the stable NVML device identifier for this card. Tries PCI bus ID first, then falls back to name matching.
+     *
+     * @return stable device identifier string, or null if NVML unavailable or no match
+     */
+    private String findNvmlDevice() {
+        if (!NvmlUtil.isAvailable()) {
+            return null;
+        }
+        if (!pciBusId.isEmpty()) {
+            String id = NvmlUtil.findDevice(pciBusId);
+            if (id != null) {
+                return id;
+            }
+        }
+        return NvmlUtil.findDeviceByName(getName());
+    }
+
+    /**
+     * Finds the ADL adapter index for this card by PCI bus number.
+     *
+     * @return ADL adapter index, or -1 if ADL unavailable or no match
+     */
+    private int findAdlIndex() {
+        if (!AdlUtil.isAvailable() || pciBusNumber < 0) {
+            return -1;
+        }
+        return AdlUtil.findAdapterIndex(pciBusNumber);
+    }
+
+    /**
+     * Queries a single float sensor value from LHM.
+     *
+     * @param sensorType LHM sensor type string
+     * @param sensorName LHM sensor name string
+     * @return sensor value, or -1 if LHM unavailable, parent empty, or sensor not found
+     */
+    private double lhmFloatSensor(String sensorType, String sensorName) {
+        if (lhmParent.isEmpty()) {
+            return -1d;
+        }
+        try {
+            WmiResult<LhmSensorProperty> sensors = LhmSensor.querySensors(lhmParent, sensorType);
+            for (int i = 0; i < sensors.getResultCount(); i++) {
+                if (sensorName.equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
+                    return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("LHM {} {} query failed: {}", sensorType, sensorName, e.getMessage());
+        }
+        return -1d;
     }
 }

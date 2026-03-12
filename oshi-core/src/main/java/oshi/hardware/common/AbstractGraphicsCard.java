@@ -90,6 +90,33 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
             builder.append(", utilization=");
             builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", utilization));
         }
+        double temp = getTemperature();
+        if (temp >= 0) {
+            builder.append(", temp=");
+            builder.append(String.format(java.util.Locale.ROOT, "%.1f°C", temp));
+        }
+        double power = getPowerDraw();
+        if (power >= 0) {
+            builder.append(", power=");
+            builder.append(String.format(java.util.Locale.ROOT, "%.1fW", power));
+        }
+        long coreClock = getCoreClockMhz();
+        if (coreClock >= 0) {
+            builder.append(", coreClock=");
+            builder.append(coreClock);
+            builder.append("MHz");
+        }
+        long memClock = getMemoryClockMhz();
+        if (memClock >= 0) {
+            builder.append(", memClock=");
+            builder.append(memClock);
+            builder.append("MHz");
+        }
+        double fan = getFanSpeedPercent();
+        if (fan >= 0) {
+            builder.append(", fan=");
+            builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", fan));
+        }
         builder.append(", versionInfo=[");
         builder.append(this.versionInfo);
         builder.append("]]");
@@ -114,5 +141,30 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
     @Override
     public long getSharedMemoryUsed() {
         return -1L;
+    }
+
+    @Override
+    public double getTemperature() {
+        return -1d;
+    }
+
+    @Override
+    public double getPowerDraw() {
+        return -1d;
+    }
+
+    @Override
+    public long getCoreClockMhz() {
+        return -1L;
+    }
+
+    @Override
+    public long getMemoryClockMhz() {
+        return -1L;
+    }
+
+    @Override
+    public double getFanSpeedPercent() {
+        return -1d;
     }
 }

@@ -170,6 +170,34 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
         return -1L;
     }
 
+    @Override
+    public double getTemperature() {
+        // Some Intel Macs expose GPU temperature in PerformanceStatistics as "Temperature(C)"
+        CFMutableDictionaryRef perfStats = queryPerfStats();
+        if (perfStats == null) {
+            return -1d;
+        }
+        try {
+            CFStringRef tempKey = CFStringRef.createCFString("Temperature(C)");
+            Pointer result = perfStats.getValue(tempKey);
+            tempKey.release();
+            if (result != null) {
+                CFNumberRef num = new CFNumberRef(result);
+                long val = num.longValue();
+                if (val > 0) {
+                    return val;
+                }
+            }
+        } finally {
+            perfStats.release();
+        }
+        return -1d;
+    }
+
+    // getPowerDraw, getCoreClockMhz, getMemoryClockMhz, getFanSpeedPercent:
+    // Not reliably available through public IOKit APIs for GPUs on macOS.
+    // Inherited default implementations return -1.
+
     /**
      * Queries the IOAccelerator PerformanceStatistics dictionary for the GPU matching this card's name.
      *

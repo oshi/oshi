@@ -18,7 +18,9 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.gpu.NvmlUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Graphics card info obtained by lshw, with dynamic metrics from sysfs DRM driver files.
@@ -35,6 +37,9 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     // Driver name detected from the sysfs driver symlink, e.g. "amdgpu", "i915", "xe", "nvidia"
     private final String driverName;
 
+    // PCI bus ID string for NVML correlation, e.g. "0000:01:00.0". Empty if unknown.
+    private final String pciBusId;
+
     /**
      * Constructor for LinuxGraphicsCard
      *
@@ -45,12 +50,14 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param vram          The VRAM
      * @param drmDevicePath sysfs device path for this card, or empty string if unavailable
      * @param driverName    driver name (e.g. "amdgpu"), or empty string if unknown
+     * @param pciBusId      PCI bus ID for NVML correlation, or empty string if unknown
      */
     LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram, String drmDevicePath,
-            String driverName) {
+            String driverName, String pciBusId) {
         super(name, deviceId, vendor, versionInfo, vram);
         this.drmDevicePath = drmDevicePath;
         this.driverName = driverName;
+        this.pciBusId = pciBusId;
     }
 
     /**
@@ -90,10 +97,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (found) {
                 if (split.length < 2) {
                     // Save previous card
-                    Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
+                    Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                            queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
+                            queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -118,10 +125,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // If we haven't yet written the last card do so now
         if (found) {
-            Pair<String, String> drmInfo = findDrmInfo(lookupDevice);
+            Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
             cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB()));
+                    queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
         }
         return cardList;
     }
@@ -149,17 +156,19 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         List<String> versionInfoList = new ArrayList<>();
         long vram = 0;
         int cardNum = 0;
+        String busInfo = null;
         for (String line : lshw) {
             String[] split = line.trim().split(":");
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
-                    Pair<String, String> drmInfo = findDrmInfo(null);
+                    Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
-                            drmInfo.getA(), drmInfo.getB()));
+                            drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
                     versionInfoList.clear();
                 }
+                busInfo = null;
             } else if (split.length == 2) {
                 String prefix = split[0];
                 if (prefix.equals("product")) {
@@ -170,19 +179,23 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                     versionInfoList.add(line.trim());
                 } else if (prefix.startsWith("resources")) {
                     vram = ParseUtil.parseLshwResourceString(split[1].trim());
+                } else if (prefix.equals("bus info")) {
+                    // lshw reports PCI slot as "pci@0000:01:00.0"; strip the "pci@" prefix
+                    String raw = split[1].trim();
+                    busInfo = raw.startsWith("pci@") ? raw.substring(4) : raw;
                 }
             }
         }
-        Pair<String, String> drmInfo = findDrmInfo(null);
+        Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
         cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
-                drmInfo.getA(), drmInfo.getB()));
+                drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
         return cardList;
     }
 
     /**
-     * Finds the sysfs DRM device path and driver name for a GPU by matching against the PCI slot address from the
-     * uevent file under each DRM card's device directory.
+     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU by matching against the PCI slot address
+     * from the uevent file under each DRM card's device directory.
      *
      * <p>
      * When {@code pciSlot} is non-null, each card's {@code device/uevent} file is read and the {@code PCI_SLOT_NAME}
@@ -191,35 +204,32 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      * with a non-empty driver symlink is returned as a best-effort fallback.
      *
      * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match
-     * @return pair of (drmDevicePath, driverName), both empty strings if not found
+     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found
      */
-    private static Pair<String, String> findDrmInfo(String pciSlot) {
+    private static Triplet<String, String, String> findDrmInfo(String pciSlot) {
         File drmDir = new File(DRM_PATH);
         File[] cards = drmDir.listFiles(f -> f.getName().matches("card\\d+"));
         if (cards == null) {
-            return new Pair<>("", "");
+            return new Triplet<>("", "", "");
         }
-        Pair<String, String> firstWithDriver = null;
+        Triplet<String, String, String> firstWithDriver = null;
         for (File card : cards) {
             String devicePath = card.getAbsolutePath() + "/device";
             String driver = readDriverName(devicePath + "/driver");
             if (driver.isEmpty()) {
                 continue;
             }
+            String slotName = readUeventValue(devicePath + "/uevent", "PCI_SLOT_NAME");
             if (firstWithDriver == null) {
-                firstWithDriver = new Pair<>(devicePath, driver);
+                firstWithDriver = new Triplet<>(devicePath, driver, slotName);
             }
             // Attempt PCI slot match via uevent
-            if (pciSlot != null) {
-                String slotName = readUeventValue(devicePath + "/uevent", "PCI_SLOT_NAME");
-                // uevent may use domain-qualified form "0000:01:00.0"; strip domain if needed
-                if (slotName.endsWith(pciSlot)) {
-                    return new Pair<>(devicePath, driver);
-                }
+            if (pciSlot != null && slotName.endsWith(pciSlot)) {
+                return new Triplet<>(devicePath, driver, slotName);
             }
         }
         // Fall back to first card with a driver symlink
-        return firstWithDriver != null ? firstWithDriver : new Pair<>("", "");
+        return firstWithDriver != null ? firstWithDriver : new Triplet<>("", "", "");
     }
 
     /**
@@ -307,5 +317,193 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     @Override
     public long getSharedMemoryUsed() {
         return -1L;
+    }
+
+    @Override
+    public double getTemperature() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getTemperature(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: hwmon temp1_input (millidegrees C -> degrees C)
+        String hwmon = findHwmonPath();
+        if (!hwmon.isEmpty()) {
+            long milliC = FileUtil.getLongFromFile(hwmon + "/temp1_input");
+            if (milliC > 0) {
+                return milliC / 1000.0;
+            }
+        }
+        return -1d;
+    }
+
+    @Override
+    public double getPowerDraw() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getPowerDraw(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: hwmon power1_average (microwatts -> watts); AMD only
+        String hwmon = findHwmonPath();
+        if (!hwmon.isEmpty()) {
+            long microW = FileUtil.getLongFromFile(hwmon + "/power1_average");
+            if (microW > 0) {
+                return microW / 1_000_000.0;
+            }
+        }
+        return -1d;
+    }
+
+    @Override
+    public long getCoreClockMhz() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            long val = NvmlUtil.getCoreClockMhz(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        if (drmDevicePath.isEmpty()) {
+            return -1L;
+        }
+        String driver = driverName.toLowerCase(Locale.ROOT);
+        // AMD: try hwmon freq1_input (Hz -> MHz), then pp_dpm_sclk active state
+        if ("amdgpu".equals(driver)) {
+            String hwmon = findHwmonPath();
+            if (!hwmon.isEmpty()) {
+                long hz = FileUtil.getLongFromFile(hwmon + "/freq1_input");
+                if (hz > 0) {
+                    return hz / 1_000_000L;
+                }
+            }
+            return parseDpmActiveMhz(drmDevicePath + "/pp_dpm_sclk");
+        }
+        // Intel: rps_cur_freq_mhz
+        if ("i915".equals(driver) || "xe".equals(driver)) {
+            long mhz = FileUtil.getLongFromFile(drmDevicePath + "/../gt/gt0/rps_cur_freq_mhz");
+            return mhz > 0 ? mhz : -1L;
+        }
+        return -1L;
+    }
+
+    @Override
+    public long getMemoryClockMhz() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            long val = NvmlUtil.getMemoryClockMhz(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        if (drmDevicePath.isEmpty()) {
+            return -1L;
+        }
+        String driver = driverName.toLowerCase(Locale.ROOT);
+        // AMD: try hwmon freq2_input (Hz -> MHz), then pp_dpm_mclk active state
+        if ("amdgpu".equals(driver)) {
+            String hwmon = findHwmonPath();
+            if (!hwmon.isEmpty()) {
+                long hz = FileUtil.getLongFromFile(hwmon + "/freq2_input");
+                if (hz > 0) {
+                    return hz / 1_000_000L;
+                }
+            }
+            return parseDpmActiveMhz(drmDevicePath + "/pp_dpm_mclk");
+        }
+        return -1L;
+    }
+
+    @Override
+    public double getFanSpeedPercent() {
+        // Priority 1: NVML
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = NvmlUtil.getFanSpeedPercent(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        // Priority 2: hwmon fan1_input / fan1_max (AMD)
+        String hwmon = findHwmonPath();
+        if (!hwmon.isEmpty()) {
+            long fanRpm = FileUtil.getLongFromFile(hwmon + "/fan1_input");
+            long fanMax = FileUtil.getLongFromFile(hwmon + "/fan1_max");
+            if (fanRpm > 0 && fanMax > 0) {
+                return Math.min(100.0, fanRpm * 100.0 / fanMax);
+            }
+            // Fallback: PWM percentage
+            long pwm = FileUtil.getLongFromFile(hwmon + "/pwm1");
+            if (pwm > 0) {
+                return pwm / 255.0 * 100.0;
+            }
+        }
+        return -1d;
+    }
+
+    /**
+     * Finds the hwmon directory for this card via the direct sysfs path {@code drmDevicePath/hwmon/hwmonN}.
+     *
+     * @return absolute path to the hwmon directory, or empty string if not found
+     */
+    private String findHwmonPath() {
+        if (drmDevicePath.isEmpty()) {
+            return "";
+        }
+        File hwmonDir = new File(drmDevicePath + "/hwmon");
+        File[] entries = hwmonDir.listFiles(f -> f.getName().startsWith("hwmon"));
+        if (entries != null && entries.length > 0) {
+            return entries[0].getAbsolutePath();
+        }
+        return "";
+    }
+
+    /**
+     * Parses the active clock frequency from a {@code pp_dpm_sclk} or {@code pp_dpm_mclk} sysfs file. The active state
+     * is marked with {@code *}, e.g. {@code "1: 800Mhz *"}.
+     *
+     * @param path absolute path to the pp_dpm file
+     * @return active clock in MHz, or -1 if not parseable
+     */
+    private static long parseDpmActiveMhz(String path) {
+        for (String line : FileUtil.readFile(path, false)) {
+            if (line.endsWith("*")) {
+                // Format: "N: <value>Mhz *" or "N: <value>MHz *"
+                int mhzIdx = line.toLowerCase(Locale.ROOT).indexOf("mhz");
+                if (mhzIdx > 0) {
+                    int start = line.lastIndexOf(' ', mhzIdx - 1);
+                    if (start >= 0) {
+                        return ParseUtil.parseLongOrDefault(line.substring(start + 1, mhzIdx), -1L);
+                    }
+                }
+            }
+        }
+        return -1L;
+    }
+
+    /**
+     * Finds the stable NVML device identifier for this card. Tries PCI bus ID first, then falls back to name matching.
+     *
+     * @return stable device identifier string, or null if NVML unavailable or no match
+     */
+    private String findNvmlDevice() {
+        if (!NvmlUtil.isAvailable()) {
+            return null;
+        }
+        if (!pciBusId.isEmpty()) {
+            String id = NvmlUtil.findDevice(pciBusId);
+            if (id != null) {
+                return id;
+            }
+        }
+        return NvmlUtil.findDeviceByName(getName());
     }
 }
