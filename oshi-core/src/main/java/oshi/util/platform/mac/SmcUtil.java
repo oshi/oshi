@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.mac;
@@ -55,6 +55,11 @@ public final class SmcUtil {
     public static final String SMC_KEY_FAN_SPEED = "F%dAc";
     public static final String SMC_KEY_CPU_TEMP = "TC0P";
     public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
+
+    /** Apple Silicon keys, tried in order until one returns a positive value. */
+    public static final String[] SMC_KEYS_CPU_TEMP_AS = { "Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D" };
+    public static final String[] SMC_KEYS_GPU_TEMP_AS = { "Tg05", "Tg0D", "Tg0f", "Tg0j" };
+    public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
     public static final byte SMC_CMD_READ_BYTES = 5;
     public static final byte SMC_CMD_READ_KEYINFO = 9;
@@ -124,6 +129,23 @@ public final class SmcUtil {
             }
         }
         // Read failed
+        return 0d;
+    }
+
+    /**
+     * Get the first positive value from a list of SMC keys.
+     *
+     * @param conn The connection
+     * @param keys The keys to try in order
+     * @return The first value greater than 0, or 0 if all keys fail
+     */
+    public static double smcGetFirstFloat(IOConnect conn, String... keys) {
+        for (String key : keys) {
+            double val = smcGetFloat(conn, key);
+            if (val > 0d) {
+                return val;
+            }
+        }
         return 0d;
     }
 
