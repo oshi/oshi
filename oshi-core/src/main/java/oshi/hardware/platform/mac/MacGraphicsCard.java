@@ -7,9 +7,7 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.regex.Pattern;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
@@ -28,6 +26,7 @@ import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Graphics card info obtained by system_profiler SPDisplaysDataType, with dynamic metrics from IOKit IOAccelerator
@@ -36,8 +35,6 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 final class MacGraphicsCard extends AbstractGraphicsCard {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacGraphicsCard.class);
-
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     // IOAccelerator PerformanceStatistics dictionary keys
@@ -45,9 +42,15 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
     private static final String GPU_CORE_UTIL_KEY = "GPU Core Utilization";
     private static final String DEVICE_UTIL_KEY = "Device Utilization %";
     private static final String VRAM_USED_KEY = "vramUsedBytes";
+    private static final String VRAM_USED_KEY_AS = "In use system memory";
+
+    private static final boolean IS_APPLE_SILICON = "aarch64".equals(System.getProperty("os.arch"));
 
     // Divisor for GPU Core Utilization raw value (unsigned 32-bit scaled to 0-100%)
     private static final double GPU_UTIL_DIVISOR = 0xFFFFFFFFL;
+
+    // Matches Unicode ® and ™ as well as ASCII (R), (r), (TM), (tm) variants
+    private static final Pattern TRADEMARK_PATTERN = Pattern.compile("[®™]|\\([Rr]\\)|\\([Tt][Mm]\\)");
 
     /**
      * Constructor for MacGraphicsCard
@@ -85,7 +88,7 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
                     if (cardNum++ > 0) {
                         cardList.add(new MacGraphicsCard(name, deviceId, vendor,
                                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                                vram));
+                                resolveVram(vram, name)));
                         versionInfoList.clear();
                     }
                     name = split[1].trim();
@@ -101,8 +104,27 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
             }
         }
         cardList.add(new MacGraphicsCard(name, deviceId, vendor,
-                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram));
+                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
+                resolveVram(vram, name)));
         return cardList;
+    }
+
+    /**
+     * Resolves the VRAM for a graphics card. On Apple Silicon, unified memory is used for both CPU and GPU, so the
+     * total system memory is used as the VRAM when no dedicated VRAM is reported.
+     *
+     * @param parsedVram  the VRAM parsed from system_profiler output
+     * @param chipsetName the chipset name from system_profiler output
+     * @return the resolved VRAM in bytes
+     */
+    private static long resolveVram(long parsedVram, String chipsetName) {
+        if (parsedVram > 0) {
+            return parsedVram;
+        }
+        if (chipsetName.contains("Apple")) {
+            return SysctlUtil.sysctl("hw.memsize", 0L);
+        }
+        return parsedVram;
     }
 
     // -------------------------------------------------------------------------
@@ -152,9 +174,18 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
             return -1L;
         }
         try {
-            CFStringRef vramKey = CFStringRef.createCFString(VRAM_USED_KEY);
+            String primaryKey = IS_APPLE_SILICON ? VRAM_USED_KEY_AS : VRAM_USED_KEY;
+            String fallbackKey = IS_APPLE_SILICON ? VRAM_USED_KEY : VRAM_USED_KEY_AS;
+            CFStringRef vramKey = CFStringRef.createCFString(primaryKey);
             Pointer result = perfStats.getValue(vramKey);
             vramKey.release();
+            if (result != null) {
+                CFNumberRef num = new CFNumberRef(result);
+                return num.longValue();
+            }
+            CFStringRef vramKeyFallback = CFStringRef.createCFString(fallbackKey);
+            result = perfStats.getValue(vramKeyFallback);
+            vramKeyFallback.release();
             if (result != null) {
                 CFNumberRef num = new CFNumberRef(result);
                 return num.longValue();
@@ -265,8 +296,8 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
         if (model == null || model.isEmpty()) {
             return false;
         }
-        String normModel = model.toLowerCase(Locale.ROOT).replace("(r)", "").replace("(tm)", "").trim();
-        String normName = getName().toLowerCase(Locale.ROOT).replace("(r)", "").replace("(tm)", "").trim();
+        String normModel = TRADEMARK_PATTERN.matcher(model.toLowerCase(Locale.ROOT)).replaceAll("").trim();
+        String normName = TRADEMARK_PATTERN.matcher(getName().toLowerCase(Locale.ROOT)).replaceAll("").trim();
         return normModel.equals(normName) || normModel.contains(normName);
     }
 }
