@@ -7,13 +7,10 @@ package oshi.util.gpu;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -51,15 +48,12 @@ public final class AdlUtil {
     // Library loading (holder pattern — loads the .dll once)
     // -------------------------------------------------------------------------
 
-    // Retains Memory objects allocated by the ADL malloc callback until ADL frees them via the C runtime.
-    // ADL calls our callback to allocate and then calls C free() directly — we cannot intercept the free,
-    // so we keep all allocations alive for the process lifetime to prevent GC from collecting them early.
-    private static final Set<Memory> ADL_ALLOCATIONS = ConcurrentHashMap.newKeySet();
-
     private static final class Holder {
         static final AdlLibrary LIB;
         static final boolean LIBRARY_LOADED;
-        // Keep a reference to the malloc callback to prevent GC while ADL holds a native pointer to it.
+        // Strong reference prevents GC of the callback while ADL holds a native function pointer to it.
+        // Uses raw Pointer (not Memory) because ADL frees the native allocation directly via C free().
+        // Memory's destructor would double-free the same address.
         @SuppressWarnings("unused")
         static final AdlMallocCallback MALLOC_CB;
 
@@ -74,9 +68,11 @@ public final class AdlUtil {
                     lib = Native.load("atiadlxy", AdlLibrary.class);
                 }
                 cb = size -> {
-                    Memory mem = new Memory((long) size);
-                    ADL_ALLOCATIONS.add(mem);
-                    return mem;
+                    if (size <= 0) {
+                        return Pointer.NULL;
+                    }
+                    long addr = Native.malloc((long) size);
+                    return addr == 0L ? Pointer.NULL : new Pointer(addr);
                 };
                 loaded = true;
                 LOG.debug("ADL library loaded");
