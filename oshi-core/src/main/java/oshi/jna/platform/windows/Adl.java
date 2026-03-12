@@ -4,8 +4,8 @@
  */
 package oshi.jna.platform.windows;
 
-import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -23,8 +23,8 @@ public interface Adl {
     int ADL_FAN_SPEED_MODE_PERCENT = 1;
     int ADL_OVERDRIVE_TEMPERATURE_EDGE = 1;
 
-    /** ADL malloc callback: allocates memory and returns a pointer. */
-    interface AdlMallocCallback extends Callback {
+    /** ADL malloc callback: allocates memory and returns a pointer. Uses __stdcall per ADL SDK. */
+    interface AdlMallocCallback extends StdCallLibrary.StdCallCallback {
         Pointer invoke(int size);
     }
 
@@ -54,7 +54,8 @@ public interface Adl {
     }
 
     @FieldOrder({ "iSize", "iAdapterIndex", "strAdapterName", "strDisplayName", "iPresent", "iExist", "iVendorID",
-            "iBusNumber", "iDeviceNumber", "iFunctionNumber" })
+            "iBusNumber", "iDeviceNumber", "iFunctionNumber", "strUDID", "strDriverPath", "strDriverPathExt",
+            "strPNPString", "iOSDisplayIndex" })
     class AdapterInfo extends Structure {
         public int iSize;
         public int iAdapterIndex;
@@ -66,32 +67,47 @@ public interface Adl {
         public int iBusNumber;
         public int iDeviceNumber;
         public int iFunctionNumber;
+        public byte[] strUDID = new byte[256];
+        public byte[] strDriverPath = new byte[256];
+        public byte[] strDriverPathExt = new byte[256];
+        public byte[] strPNPString = new byte[256];
+        public int iOSDisplayIndex;
     }
 
-    @FieldOrder({ "iGPUActivityPercent", "iCurrentCorePerformanceLevel", "iCurrentMemoryPerformanceLevel", "iCoreClock",
-            "iMemoryClock", "iVDDC", "iCurrentBusSpeed", "iCurrentBusLanes", "iMaximumBusLanes", "iReserved" })
+    @FieldOrder({ "iCoreClock", "iMemoryClock", "iDCEFClock", "iGFXClock", "iUVDClock", "iVCEClock",
+            "iGPUActivityPercent", "iCurrentCorePerformanceLevel", "iCurrentMemoryPerformanceLevel",
+            "iCurrentDCEFPerformanceLevel", "iCurrentGFXPerformanceLevel", "iUVDPerformanceLevel", "iVDDC", "iVDDCI",
+            "iCurrentBusSpeed", "iCurrentBusLanes", "iMaximumBusLanes" })
     class ADLODNPerformanceStatus extends Structure {
+        public int iCoreClock;
+        public int iMemoryClock;
+        public int iDCEFClock;
+        public int iGFXClock;
+        public int iUVDClock;
+        public int iVCEClock;
         public int iGPUActivityPercent;
         public int iCurrentCorePerformanceLevel;
         public int iCurrentMemoryPerformanceLevel;
-        public int iCoreClock;
-        public int iMemoryClock;
+        public int iCurrentDCEFPerformanceLevel;
+        public int iCurrentGFXPerformanceLevel;
+        public int iUVDPerformanceLevel;
         public int iVDDC;
+        public int iVDDCI;
         public int iCurrentBusSpeed;
         public int iCurrentBusLanes;
         public int iMaximumBusLanes;
-        public int iReserved;
     }
 
-    @FieldOrder({ "iMode", "iFanControlFlag", "iCurrentFanSpeed", "iTargetFanSpeed", "iTargetTemperature",
-            "iMinPerformanceClock", "iThrottlingRPM" })
+    @FieldOrder({ "iMode", "iFanControlMode", "iCurrentFanSpeedMode", "iCurrentFanSpeed", "iTargetFanSpeed",
+            "iTargetTemperature", "iMinFanLimit", "iMinPerformanceClock" })
     class ADLODNFanControl extends Structure {
         public int iMode;
-        public int iFanControlFlag;
+        public int iFanControlMode;
+        public int iCurrentFanSpeedMode;
         public int iCurrentFanSpeed;
         public int iTargetFanSpeed;
         public int iTargetTemperature;
+        public int iMinFanLimit;
         public int iMinPerformanceClock;
-        public int iThrottlingRPM;
     }
 }

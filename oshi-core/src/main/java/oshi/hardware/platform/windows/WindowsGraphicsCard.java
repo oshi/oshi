@@ -89,6 +89,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     public static final String VENDOR = "ProviderName";
     public static final String QW_MEMORY_SIZE = "HardwareInformation.qwMemorySize";
     public static final String MATCHING_DEVICE_ID = "MatchingDeviceId";
+    public static final String LOCATION_INFORMATION = "LocationInformation";
     public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
 
     // PDH instance prefix for this adapter's LUID, e.g. "luid_0x00000000_0x0001234_phys_0"
@@ -186,13 +187,14 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String luidPrefix = "";
                 int pciBusNumber = -1;
                 String pciBusId = "";
+                String locationInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
+                        LOCATION_INFORMATION);
                 DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                     luidPrefix = buildLuidPrefix(dxgiMatch);
-                    // PCI bus number is not reliably available from registry MatchingDeviceId on Windows.
-                    // ADL correlation via pciBusNumber is left as -1; NVML uses name-based fallback.
+                    pciBusNumber = parsePciBusNumber(locationInfo);
                 } else if (dxgiAvailable) {
                     // DXGI is available but this registry entry has no matching adapter:
                     // it is a ghost device (stale driver from hardware no longer present). Skip it.
@@ -316,8 +318,6 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                     luidPrefix = buildLuidPrefix(dxgiMatch);
-                    // PCI bus number is not reliably available from registry MatchingDeviceId on Windows.
-                    // ADL correlation via pciBusNumber is left as -1; NVML uses name-based fallback.
                     remainingDxgi.remove(dxgiMatch);
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
@@ -369,6 +369,29 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             LOG.debug("LHM GPU hardware query failed (LHM may not be running): {}", e.getMessage());
         }
         return map;
+    }
+
+    /**
+     * Parses the PCI bus number from a Windows registry {@code LocationInformation} string of the form
+     * {@code "PCI bus N, device N, function N"}.
+     *
+     * @param locationInfo the LocationInformation registry value
+     * @return PCI bus number, or -1 if not parseable
+     */
+    static int parsePciBusNumber(String locationInfo) {
+        if (locationInfo == null || locationInfo.isEmpty()) {
+            return -1;
+        }
+        // Format: "PCI bus N, device N, function N" (case-insensitive)
+        String lower = locationInfo.toLowerCase(Locale.ROOT);
+        int busIdx = lower.indexOf("pci bus ");
+        if (busIdx < 0) {
+            return -1;
+        }
+        int start = busIdx + 8;
+        int end = lower.indexOf(',', start);
+        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
+        return ParseUtil.parseIntOrDefault(numStr, -1);
     }
 
     /**

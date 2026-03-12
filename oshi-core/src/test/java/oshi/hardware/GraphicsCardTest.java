@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware;
@@ -34,6 +34,13 @@ class GraphicsCardTest {
                     is(greaterThanOrEqualTo(6)));
             assertThat("Graphics card's version information length should be at least 2",
                     graphicsCard.getVersionInfo().length(), is(greaterThanOrEqualTo(2)));
+
+            // Phase 2: dynamic metrics must be either a valid reading or the sentinel -1
+            assertThat("Temperature must be >= -1", graphicsCard.getTemperature(), is(greaterThanOrEqualTo(-1d)));
+            assertThat("Power draw must be >= -1", graphicsCard.getPowerDraw(), is(greaterThanOrEqualTo(-1d)));
+            assertThat("Core clock must be >= -1", graphicsCard.getCoreClockMhz(), is(greaterThanOrEqualTo(-1L)));
+            assertThat("Memory clock must be >= -1", graphicsCard.getMemoryClockMhz(), is(greaterThanOrEqualTo(-1L)));
+            assertThat("Fan speed must be >= -1", graphicsCard.getFanSpeedPercent(), is(greaterThanOrEqualTo(-1d)));
         }
     }
 }

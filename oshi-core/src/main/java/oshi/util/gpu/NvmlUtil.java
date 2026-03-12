@@ -5,9 +5,9 @@
 package oshi.util.gpu;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +66,11 @@ public final class NvmlUtil {
         }
     }
 
-    // Lazy device enumeration state — written once, read-only thereafter
+    // Lazy device enumeration state — written once on first successful enumeration, read-only thereafter.
+    // Stores PCI bus ID strings (stable identifiers) rather than Pointer handles, which are only valid
+    // within a single nvmlInit/nvmlShutdown scope.
     private static volatile boolean devicesEnumerated = false;
-    private static volatile Map<String, Pointer> devices = Collections.emptyMap();
+    private static volatile Set<String> deviceBusIds = Collections.emptySet();
 
     private NvmlUtil() {
     }
@@ -105,25 +107,34 @@ public final class NvmlUtil {
     }
 
     /**
-     * Enumerates device handles on first call after a successful init. Subsequent calls are no-ops. Must be called
-     * while NVML is initialized (i.e. between nvmlInit and nvmlUninit).
+     * Enumerates device PCI bus IDs on first call after a successful init. Only sets {@code devicesEnumerated} on
+     * success so transient NVML failures allow a retry on the next call. Must be called while NVML is initialized.
      */
     private static void ensureDevicesEnumerated() {
         if (devicesEnumerated) {
             return;
         }
-        devices = enumerateDevices();
-        devicesEnumerated = true;
-        LOG.debug("NVML enumerated {} device(s)", devices.size());
+        Set<String> ids = enumerateDeviceBusIds();
+        if (ids != null) {
+            deviceBusIds = ids;
+            devicesEnumerated = true;
+            LOG.debug("NVML enumerated {} device(s)", deviceBusIds.size());
+        }
     }
 
-    private static Map<String, Pointer> enumerateDevices() {
+    /**
+     * Returns a set of PCI bus ID strings for all NVML devices, or {@code null} on NVML error (so the caller can
+     * distinguish a real failure from a legitimate empty result).
+     *
+     * @return set of PCI bus ID strings, or {@code null} on NVML error
+     */
+    private static Set<String> enumerateDeviceBusIds() {
         IntByReference countRef = new IntByReference();
         if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return Collections.emptyMap();
+            return null;
         }
         int count = countRef.getValue();
-        Map<String, Pointer> map = new HashMap<>();
+        Set<String> ids = new HashSet<>();
         for (int i = 0; i < count; i++) {
             PointerByReference handleRef = new PointerByReference();
             if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
@@ -135,15 +146,80 @@ public final class NvmlUtil {
                 pci.read();
                 String busId = Native.toString(pci.busId).toLowerCase(Locale.ROOT);
                 if (!busId.isEmpty()) {
-                    map.put(busId, handle);
+                    ids.add(busId);
                 }
                 String legacyId = Native.toString(pci.busIdLegacy).toLowerCase(Locale.ROOT);
-                if (!legacyId.isEmpty() && !map.containsKey(legacyId)) {
-                    map.put(legacyId, handle);
+                if (!legacyId.isEmpty()) {
+                    ids.add(legacyId);
                 }
             }
         }
-        return Collections.unmodifiableMap(map);
+        return Collections.unmodifiableSet(ids);
+    }
+
+    /**
+     * Acquires a fresh device handle within the current init scope by matching the given PCI bus ID fragment. Must be
+     * called while NVML is initialized.
+     *
+     * @param pciBusId PCI bus ID fragment to match
+     * @return device handle Pointer, or {@code null} if not found
+     */
+    private static Pointer acquireHandleByBusId(String pciBusId) {
+        IntByReference countRef = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
+            return null;
+        }
+        String needle = pciBusId.toLowerCase(Locale.ROOT);
+        int count = countRef.getValue();
+        for (int i = 0; i < count; i++) {
+            PointerByReference handleRef = new PointerByReference();
+            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
+                continue;
+            }
+            Pointer handle = handleRef.getValue();
+            NvmlPciInfo pci = new NvmlPciInfo();
+            if (Holder.LIB.nvmlDeviceGetPciInfo_v3(handle, pci) == Nvml.NVML_SUCCESS) {
+                pci.read();
+                String busId = Native.toString(pci.busId).toLowerCase(Locale.ROOT);
+                String legacyId = Native.toString(pci.busIdLegacy).toLowerCase(Locale.ROOT);
+                if (busId.contains(needle) || needle.contains(busId) || legacyId.contains(needle)
+                        || needle.contains(legacyId)) {
+                    return handle;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Acquires a fresh device handle within the current init scope by matching the GPU name. Must be called while NVML
+     * is initialized.
+     *
+     * @param gpuName GPU name to match (case-insensitive substring)
+     * @return device handle Pointer, or {@code null} if not found
+     */
+    private static Pointer acquireHandleByName(String gpuName) {
+        IntByReference countRef = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
+            return null;
+        }
+        String needle = gpuName.toLowerCase(Locale.ROOT);
+        int count = countRef.getValue();
+        for (int i = 0; i < count; i++) {
+            PointerByReference handleRef = new PointerByReference();
+            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
+                continue;
+            }
+            Pointer handle = handleRef.getValue();
+            byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
+            if (Holder.LIB.nvmlDeviceGetName(handle, nameBuf, nameBuf.length) == Nvml.NVML_SUCCESS) {
+                String name = Native.toString(nameBuf).toLowerCase(Locale.ROOT);
+                if (name.contains(needle) || needle.contains(name)) {
+                    return handle;
+                }
+            }
+        }
+        return null;
     }
 
     // -------------------------------------------------------------------------
@@ -177,13 +253,7 @@ public final class NvmlUtil {
         }
         try {
             ensureDevicesEnumerated();
-            String needle = pciBusId.toLowerCase(Locale.ROOT);
-            for (Map.Entry<String, Pointer> entry : devices.entrySet()) {
-                if (entry.getKey().contains(needle) || needle.contains(entry.getKey())) {
-                    return entry.getValue();
-                }
-            }
-            return null;
+            return acquireHandleByBusId(pciBusId);
         } finally {
             nvmlUninit();
         }
@@ -205,17 +275,7 @@ public final class NvmlUtil {
         }
         try {
             ensureDevicesEnumerated();
-            String needle = gpuName.toLowerCase(Locale.ROOT);
-            for (Pointer handle : devices.values()) {
-                byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
-                if (Holder.LIB.nvmlDeviceGetName(handle, nameBuf, nameBuf.length) == Nvml.NVML_SUCCESS) {
-                    String name = Native.toString(nameBuf).toLowerCase(Locale.ROOT);
-                    if (name.contains(needle) || needle.contains(name)) {
-                        return handle;
-                    }
-                }
-            }
-            return null;
+            return acquireHandleByName(gpuName);
         } finally {
             nvmlUninit();
         }

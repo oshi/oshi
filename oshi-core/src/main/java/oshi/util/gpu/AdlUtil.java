@@ -7,6 +7,8 @@ package oshi.util.gpu;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,11 @@ public final class AdlUtil {
     // Library loading (holder pattern — loads the .dll once)
     // -------------------------------------------------------------------------
 
+    // Retains Memory objects allocated by the ADL malloc callback until ADL frees them via the C runtime.
+    // ADL calls our callback to allocate and then calls C free() directly — we cannot intercept the free,
+    // so we keep all allocations alive for the process lifetime to prevent GC from collecting them early.
+    private static final Set<Memory> ADL_ALLOCATIONS = ConcurrentHashMap.newKeySet();
+
     private static final class Holder {
         static final AdlLibrary LIB;
         static final boolean LIBRARY_LOADED;
@@ -66,7 +73,11 @@ public final class AdlUtil {
                 } catch (UnsatisfiedLinkError e) {
                     lib = Native.load("atiadlxy", AdlLibrary.class);
                 }
-                cb = size -> new Memory((long) size);
+                cb = size -> {
+                    Memory mem = new Memory((long) size);
+                    ADL_ALLOCATIONS.add(mem);
+                    return mem;
+                };
                 loaded = true;
                 LOG.debug("ADL library loaded");
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
@@ -373,7 +384,7 @@ public final class AdlUtil {
             ADLODNFanControl fan = new ADLODNFanControl();
             if (Holder.LIB.ADL2_OverdriveN_FanControl_Get(ctx, adapterIndex, fan) == Adl.ADL_OK) {
                 fan.read();
-                if (fan.iMode == Adl.ADL_FAN_SPEED_MODE_PERCENT) {
+                if (fan.iFanControlMode == Adl.ADL_FAN_SPEED_MODE_PERCENT) {
                     return fan.iCurrentFanSpeed;
                 }
                 // RPM mode: no max available here, return -1

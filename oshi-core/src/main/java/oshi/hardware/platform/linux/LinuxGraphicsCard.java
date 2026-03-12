@@ -158,17 +158,19 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         List<String> versionInfoList = new ArrayList<>();
         long vram = 0;
         int cardNum = 0;
+        String busInfo = null;
         for (String line : lshw) {
             String[] split = line.trim().split(":");
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
-                    Triplet<String, String, String> drmInfo = findDrmInfo(null);
+                    Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                             drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
                     versionInfoList.clear();
                 }
+                busInfo = null;
             } else if (split.length == 2) {
                 String prefix = split[0];
                 if (prefix.equals("product")) {
@@ -179,10 +181,14 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                     versionInfoList.add(line.trim());
                 } else if (prefix.startsWith("resources")) {
                     vram = ParseUtil.parseLshwResourceString(split[1].trim());
+                } else if (prefix.equals("bus info")) {
+                    // lshw reports PCI slot as "pci@0000:01:00.0"; strip the "pci@" prefix
+                    String raw = split[1].trim();
+                    busInfo = raw.startsWith("pci@") ? raw.substring(4) : raw;
                 }
             }
         }
-        Triplet<String, String, String> drmInfo = findDrmInfo(null);
+        Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
         cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                 drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
