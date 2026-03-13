@@ -251,6 +251,9 @@ public final class IOReportDriver {
             }
             subscription = sub;
             subscribedChannels = new CFDictionaryRef(subPtr);
+            // Shutdown hook releases native resources on JVM exit.
+            // A follow-up issue should unify setup/teardown across all OS drivers.
+            Runtime.getRuntime().addShutdownHook(new Thread(IOReportDriver::cleanup, "oshi-ioreport-cleanup"));
             return true;
         } catch (Exception e) {
             return false;
@@ -263,6 +266,33 @@ public final class IOReportDriver {
             if (energyChannels != null) {
                 energyChannels.release();
             }
+        }
+    }
+
+    /**
+     * Releases all static IOReport resources. Called automatically via a JVM shutdown hook.
+     *
+     * <p>
+     * This method is terminal: after it returns, {@code initAttempted} remains {@code true} so {@code ensureInit()}
+     * will not attempt to re-subscribe. Re-initialization after cleanup is not supported. A follow-up issue should
+     * unify setup/teardown across all OS platform drivers.
+     */
+    static synchronized void cleanup() {
+        if (prevSampleUtil != null) {
+            prevSampleUtil.release();
+            prevSampleUtil = null;
+        }
+        if (prevSamplePower != null) {
+            prevSamplePower.release();
+            prevSamplePower = null;
+        }
+        if (subscribedChannels != null) {
+            subscribedChannels.release();
+            subscribedChannels = null;
+        }
+        if (subscription != null) {
+            subscription.release();
+            subscription = null;
         }
     }
 
