@@ -78,6 +78,11 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
      * GPU subscriptions (e.g. Apple Silicon via IOReport) this involves kernel-level IPC and should not be called in
      * hot paths. Cache the result if repeated string representations are needed.
      *
+     * <p>
+     * Delta-based metrics ({@link GpuStats#getGpuUtilization()} and {@link GpuStats#getPowerDraw()}) always return -1
+     * on the first call after a session is opened, so they will not appear in this output. Use a persistent
+     * {@link GpuStats} session with a polling loop to obtain those values.
+     *
      * @return a human-readable description of this graphics card
      */
     @Override

@@ -22,15 +22,32 @@ import oshi.driver.windows.wmi.LhmSensor;
 import oshi.driver.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.gpu.AdlUtil;
 import oshi.util.gpu.NvmlUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * Windows {@link GpuStats} session. Dynamic metrics are sourced from PDH GPU Engine / GPU Adapter Memory counters,
- * LibreHardwareMonitor WMI sensors, NVML, and ADL — using the same priority ordering as {@link WindowsGraphicsCard}.
+ * Windows {@link GpuStats} session.
+ *
+ * <p>
+ * Metric source priority by method:
+ * <ul>
+ * <li>{@code getGpuTicks()}: PDH GPU Engine counters ({@code Running Time} / {@code Running Time_Base}).</li>
+ * <li>{@code getGpuUtilization()}: LHM WMI {@code GPU Core} load sensor. Returns -1 when LHM is not running; use
+ * {@code getGpuTicks()} as an alternative.</li>
+ * <li>{@code getVramUsed()}: PDH GPU Adapter Memory {@code DedicatedUsage}, then LHM {@code GPU Memory Used}.</li>
+ * <li>{@code getSharedMemoryUsed()}: PDH GPU Adapter Memory {@code SharedUsage}.</li>
+ * <li>{@code getTemperature()}: NVML, then ADL, then LHM {@code GPU Core} temperature.</li>
+ * <li>{@code getPowerDraw()}: NVML, then ADL, then LHM {@code GPU Package} / {@code GPU Power}.</li>
+ * <li>{@code getCoreClockMhz()}: NVML, then ADL, then LHM {@code GPU Core} clock.</li>
+ * <li>{@code getMemoryClockMhz()}: NVML, then ADL, then LHM {@code GPU Memory} clock.</li>
+ * <li>{@code getFanSpeedPercent()}: NVML, then ADL, then LHM {@code GPU Fan} / {@code GPU Fan 1}.</li>
+ * </ul>
+ *
+ * <p>
+ * PDH metrics require a valid LUID prefix (populated from DXGI). NVML requires an NVIDIA GPU with the NVML library
+ * present. ADL requires an AMD GPU with the ADL library present. LHM requires LibreHardwareMonitor to be running.
  */
 @ThreadSafe
 final class WindowsGpuStats implements GpuStats {
@@ -73,30 +90,42 @@ final class WindowsGpuStats implements GpuStats {
     @Override
     public synchronized GpuTicks getGpuTicks() {
         checkOpen();
-        long timestamp = System.nanoTime() / 100L;
         if (luidPrefix.isEmpty()) {
-            return new DefaultGpuTicks(timestamp, -1L);
+            return new GpuTicks(0L, 0L);
         }
         Pair<List<String>, Map<GpuEngineProperty, List<Long>>> engineData = GpuInformation.queryGpuEngineCounters();
         List<String> instances = engineData.getA();
         Map<GpuEngineProperty, List<Long>> values = engineData.getB();
         List<Long> runningTimes = values.get(GpuEngineProperty.RUNNING_TIME);
-        if (instances.isEmpty() || runningTimes == null) {
-            return new DefaultGpuTicks(timestamp, -1L);
+        List<Long> runningTimeBases = values.get(GpuEngineProperty.RUNNING_TIME_BASE);
+        if (instances.isEmpty() || runningTimes == null || runningTimeBases == null) {
+            return new GpuTicks(0L, 0L);
         }
-        Map<String, Long> engineTypeSums = new HashMap<>();
+        Map<String, Long> activeByType = new HashMap<>();
+        Map<String, Long> baseByType = new HashMap<>();
         String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-        for (int i = 0; i < Math.min(instances.size(), runningTimes.size()); i++) {
+        int limit = Math.min(instances.size(), Math.min(runningTimes.size(), runningTimeBases.size()));
+        for (int i = 0; i < limit; i++) {
             String inst = instances.get(i).toLowerCase(Locale.ROOT);
             if (!inst.contains(luidLower)) {
                 continue;
             }
             int engTypeIdx = inst.lastIndexOf("_engtype_");
             String engType = engTypeIdx >= 0 ? inst.substring(engTypeIdx) : inst;
-            engineTypeSums.merge(engType, runningTimes.get(i), Long::sum);
+            activeByType.merge(engType, runningTimes.get(i), Long::sum);
+            baseByType.merge(engType, runningTimeBases.get(i), Long::sum);
         }
-        long totalTicks = engineTypeSums.values().stream().mapToLong(Long::longValue).sum();
-        return new DefaultGpuTicks(timestamp, engineTypeSums.isEmpty() ? -1L : totalTicks);
+        if (activeByType.isEmpty()) {
+            return new GpuTicks(0L, 0L);
+        }
+        long totalActive = 0L;
+        long totalBase = 0L;
+        for (String key : activeByType.keySet()) {
+            totalActive += activeByType.get(key);
+            totalBase += baseByType.getOrDefault(key, 0L);
+        }
+        long idle = totalBase >= totalActive ? totalBase - totalActive : 0L;
+        return new GpuTicks(totalActive, idle);
     }
 
     @Override

@@ -25,13 +25,21 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClient;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.platform.mac.SmcUtil;
 
 /**
- * macOS {@link GpuStats} session. On Apple Silicon, GPU ticks, utilization, and power are sourced from an
- * {@link IOReportClient} subscription. Temperature is read from SMC. VRAM used and utilization fallback use the
- * IOAccelerator PerformanceStatistics dictionary (both Apple Silicon and Intel).
+ * macOS {@link GpuStats} session.
+ *
+ * <p>
+ * On Apple Silicon, GPU ticks, utilization, and power are sourced from an {@link IOReportClient} subscription.
+ * Utilization falls back to IOAccelerator PerformanceStatistics when the IOReport subscription fails or returns -1.
+ * Temperature is read from SMC first, then falls back to IOAccelerator {@code Temperature(C)}.
+ *
+ * <p>
+ * On Intel Mac, utilization and VRAM used are sourced from IOAccelerator PerformanceStatistics.
+ *
+ * <p>
+ * Clock speeds, fan speed, and shared memory are not available on any macOS path and always return -1.
  */
 @ThreadSafe
 final class MacGpuStats implements GpuStats {
@@ -84,7 +92,7 @@ final class MacGpuStats implements GpuStats {
         if (isAppleSilicon && ioReportClient != null) {
             return ioReportClient.sampleGpuTicks();
         }
-        return new DefaultGpuTicks(System.nanoTime() / 100L, -1L);
+        return new GpuTicks(0L, 0L);
     }
 
     @Override

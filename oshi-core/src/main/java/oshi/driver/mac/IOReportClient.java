@@ -16,7 +16,6 @@ import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 
 import oshi.hardware.GpuTicks;
-import oshi.hardware.common.DefaultGpuTicks;
 import oshi.jna.platform.mac.IOReport;
 import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
 
@@ -44,11 +43,6 @@ public final class IOReportClient {
     private final IOReport ioReport;
     private final IOReportSubscriptionRef subscription;
     private final CFDictionaryRef subscribedChannels;
-
-    // Previous sample for ticks delta; accumulated total for cumulative counter
-    private CFDictionaryRef prevSampleTicks;
-    private long prevTicksTimestamp;
-    private long accumulatedActiveTicks;
 
     // Previous sample for utilization delta
     private CFDictionaryRef prevSampleUtil;
@@ -118,67 +112,36 @@ public final class IOReportClient {
     }
 
     /**
-     * Returns a {@link GpuTicks} snapshot with a cumulative GPU active-ticks counter (in 100 ns wall-clock units),
-     * built by accumulating per-interval deltas from {@code IOReportCreateSamplesDelta}. Each interval's contribution
-     * is normalised from IOReport's internal tick frequency to wall-clock units via
-     * {@code active * dtWallClock / total}, where {@code total} is the IOReport interval duration in IOReport ticks and
-     * {@code dtWallClock} is the elapsed wall-clock interval. This ensures that {@code dActive / dtWallClock} yields
-     * the correct utilization fraction regardless of the IOReport tick rate.
-     *
-     * <p>
-     * The first call primes the baseline and returns {@code activeTicks = -1}. Subsequent calls return the accumulated
-     * total.
+     * Returns a {@link GpuTicks} snapshot of cumulative GPU active and idle ticks in raw IOReport residency units. The
+     * kernel residency counters are monotonically increasing; callers diff two snapshots to compute utilization:
+     * {@code dActive / (dActive + dIdle)}.
      *
      * @return GpuTicks snapshot; never null
      */
     public synchronized GpuTicks sampleGpuTicks() {
-        long timestamp = System.nanoTime() / 100L;
         if (closed) {
-            return new DefaultGpuTicks(timestamp, -1L);
+            return new GpuTicks(0L, 0L);
         }
         CFDictionaryRef sample = null;
         try {
             sample = ioReport.IOReportCreateSamples(subscription, subscribedChannels, null);
             if (sample == null) {
-                return new DefaultGpuTicks(timestamp, -1L);
-            }
-            if (prevSampleTicks == null) {
-                prevSampleTicks = sample;
-                prevTicksTimestamp = timestamp;
-                sample = null;
-                return new DefaultGpuTicks(timestamp, -1L);
-            }
-            long prevTimestamp = prevTicksTimestamp;
-            CFDictionaryRef delta = ioReport.IOReportCreateSamplesDelta(prevSampleTicks, sample, null);
-            prevSampleTicks.release();
-            prevSampleTicks = sample;
-            prevTicksTimestamp = timestamp;
-            sample = null;
-            if (delta == null) {
-                return new DefaultGpuTicks(timestamp, accumulatedActiveTicks);
+                return new GpuTicks(0L, 0L);
             }
             try {
-                ChannelStates cs = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-                if (!cs.getStates().isEmpty()) {
-                    long off = cs.getStates().getOrDefault(STATE_OFF, 0L);
-                    long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
-                    long active = total - off;
-                    // IOReport residency ticks run at a different frequency than System.nanoTime().
-                    // Normalise to wall-clock 100ns units: activeWallClock = active * dtWallClock / total
-                    // where dtWallClock is the elapsed wall-clock interval and total is the IOReport
-                    // interval duration in IOReport ticks. This is equivalent to utilization * dtWallClock,
-                    // matching the active/total ratio used by sampleGpuUtilization().
-                    long dtWallClock = timestamp - prevTimestamp;
-                    if (total > 0 && active > 0 && dtWallClock > 0) {
-                        accumulatedActiveTicks += active * dtWallClock / total;
-                    }
+                ChannelStates cs = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (cs.getStates().isEmpty()) {
+                    return new GpuTicks(0L, 0L);
                 }
+                long idle = cs.getStates().getOrDefault(STATE_OFF, 0L);
+                long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
+                return new GpuTicks(total - idle, idle);
             } finally {
-                delta.release();
+                sample.release();
+                sample = null;
             }
-            return new DefaultGpuTicks(timestamp, accumulatedActiveTicks);
         } catch (Exception e) {
-            return new DefaultGpuTicks(timestamp, -1L);
+            return new GpuTicks(0L, 0L);
         } finally {
             if (sample != null) {
                 sample.release();
@@ -297,10 +260,6 @@ public final class IOReportClient {
             return;
         }
         closed = true;
-        if (prevSampleTicks != null) {
-            prevSampleTicks.release();
-            prevSampleTicks = null;
-        }
         if (prevSampleUtil != null) {
             prevSampleUtil.release();
             prevSampleUtil = null;

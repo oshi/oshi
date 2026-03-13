@@ -24,11 +24,10 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <h2>One-shot vs. polling</h2>
  * <p>
  * Instantaneous metrics (temperature, VRAM used, clock speeds, fan speed) can be read from a freshly opened session
- * with a single call. However, <em>delta-based</em> metrics — {@link #getGpuUtilization()}, {@link #getPowerDraw()},
- * and the tick-derived utilization from {@link #getGpuTicks()} — require at least two samples separated by a meaningful
- * time interval (typically 500 ms or more) to produce a valid result. On the first call after a session is opened these
- * methods return {@code -1} while they record the initial baseline; subsequent calls return the value computed over the
- * elapsed interval.
+ * with a single call. However, <em>delta-based</em> metrics — {@link #getGpuUtilization()} and {@link #getPowerDraw()}
+ * — require at least two samples separated by a meaningful time interval to produce a valid result. On the first call
+ * after a session is opened these methods return {@code -1} while they record the initial baseline; subsequent calls
+ * return the value computed over the elapsed interval.
  *
  * <h2>Recommended polling pattern</h2>
  * <p>
@@ -39,20 +38,20 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <pre>{@code
  * try (GpuStats stats = card.createStatsSession()) {
  *
- *     // Prime all delta-based metrics so the first real iteration returns a value.
- *     GpuTicks prev = stats.getGpuTicks(); // returns activeTicks=-1; used as prev in first iteration
+ *     // Prime delta-based metrics so the first real iteration has a valid baseline.
+ *     GpuTicks prev = stats.getGpuTicks();
  *     stats.getPowerDraw(); // establishes power baseline; returns -1
  *     stats.getGpuUtilization(); // establishes utilization baseline; returns -1
  *
  *     for (int i = 0; i < ITERATIONS; i++) {
  *         Thread.sleep(1_000L);
  *
- *         // Tick-derived utilization: delta active / delta elapsed * 100
+ *         // Tick-derived utilization: dActive / (dActive + dIdle) * 100
  *         GpuTicks curr = stats.getGpuTicks();
- *         long dtTicks = curr.getTimestamp() - prev.getTimestamp();
  *         long dActive = curr.getActiveTicks() - prev.getActiveTicks();
- *         double tickUtil = (dtTicks > 0 && prev.getActiveTicks() >= 0 && dActive >= 0) ? dActive * 100.0 / dtTicks
- *                 : -1d;
+ *         long dIdle = curr.getIdleTicks() - prev.getIdleTicks();
+ *         long dTotal = dActive + dIdle;
+ *         double tickUtil = dTotal > 0 ? dActive * 100.0 / dTotal : -1d;
  *         prev = curr;
  *
  *         // API-reported utilization (delta computed internally by the session)
@@ -95,33 +94,22 @@ public interface GpuStats extends AutoCloseable {
     boolean isClosed();
 
     /**
-     * Returns an atomic snapshot of cumulative GPU active time and a monotonic timestamp at which it was captured, both
-     * in 100-nanosecond units. The timestamp is derived from {@link System#nanoTime()} and is suitable for computing
-     * elapsed time between two snapshots; it is not a wall-clock time.
-     *
-     * <p>
-     * This method returns a cumulative counter built from per-interval deltas, not a raw hardware counter. To derive
-     * utilization, take two snapshots separated by a known interval and compute:
+     * Returns a snapshot of cumulative GPU active and idle ticks in opaque, platform-native units. The counters are
+     * monotonically increasing; diff two snapshots to compute utilization:
      *
      * <pre>{@code
-     * long dtTicks = curr.getTimestamp() - prev.getTimestamp();
      * long dActive = curr.getActiveTicks() - prev.getActiveTicks();
-     * double utilPct = (dtTicks > 0 && prev.getActiveTicks() >= 0 && dActive >= 0) ? dActive * 100.0 / dtTicks : -1d;
+     * long dIdle = curr.getIdleTicks() - prev.getIdleTicks();
+     * long dTotal = dActive + dIdle;
+     * double utilPct = dTotal > 0 ? dActive * 100.0 / dTotal : -1d;
      * }</pre>
      *
      * <p>
-     * Because the counter is built from deltas, the <em>first call</em> after a session is opened primes the internal
-     * baseline and returns {@code activeTicks = -1}. Subsequent calls return a valid cumulative value. To ensure the
-     * first polling iteration returns a valid tick delta, call this method once during a seeding/priming step before
-     * the polling loop begins (the returned snapshot with {@code activeTicks = -1} is used as {@code prev}).
+     * Both counters are {@code 0} on platforms where tick-level GPU metrics are not available (see {@link GpuTicks} for
+     * the sentinel semantics). Use {@link #getGpuUtilization()} as an alternative.
      *
-     * <p>
-     * {@code getActiveTicks()} returns {@code -1} on platforms where tick-level GPU metrics are not available (e.g.
-     * non-Apple-Silicon macOS, Windows without PDH counters). Use {@link #getGpuUtilization()} as an alternative.
-     *
-     * @return an immutable {@link GpuTicks} snapshot; never null
-     * @throws IllegalStateException if the session has been closed; obtain a new session via
-     *                               {@link GraphicsCard#createStatsSession()}
+     * @return a {@link GpuTicks} snapshot; never null
+     * @throws IllegalStateException if the session has been closed
      */
     GpuTicks getGpuTicks();
 
@@ -191,8 +179,9 @@ public interface GpuStats extends AutoCloseable {
      * }</pre>
      *
      * <p>
-     * On platforms where power is not sourced from an energy counter (e.g. Windows NVML/ADL/LHM), the value is
-     * instantaneous and does not require priming.
+     * On platforms where power is read directly from a hardware sensor rather than derived from an energy counter (e.g.
+     * Windows via NVML/ADL/LHM), the value is instantaneous and does not require priming. On macOS Apple Silicon, power
+     * is derived from an IOReport energy counter and does require priming.
      *
      * @return power draw in watts, or -1 if unavailable or not yet primed
      * @throws IllegalStateException if the session has been closed; obtain a new session via

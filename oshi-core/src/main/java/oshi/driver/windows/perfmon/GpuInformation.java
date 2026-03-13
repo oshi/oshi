@@ -30,7 +30,9 @@ public final class GpuInformation {
         // First element: instance filter (all instances)
         NAME("*"),
         // Running time in 100ns units (raw cumulative counter)
-        RUNNING_TIME("Running Time");
+        RUNNING_TIME("Running Time"),
+        // Total elapsed time in 100ns units (SecondValue of Running Time counter; idle = base - active)
+        RUNNING_TIME_BASE("Running Time_Base");
 
         private final String counter;
 

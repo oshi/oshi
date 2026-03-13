@@ -52,7 +52,7 @@ class AbstractGraphicsCardTest {
                 @Override
                 public GpuTicks getGpuTicks() {
                     checkOpen();
-                    return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+                    return new GpuTicks(System.nanoTime() / 100L, 0L);
                 }
 
                 @Override
@@ -196,7 +196,7 @@ class AbstractGraphicsCardTest {
             assertThat(stats.getFanSpeedPercent(), is(-1d));
             GpuTicks ticks = stats.getGpuTicks();
             assertThat(ticks, is(notNullValue()));
-            assertThat(ticks.getActiveTicks(), is(-1L));
+            assertThat(ticks.getActiveTicks(), is(0L));
         }
     }
 }

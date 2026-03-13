@@ -34,56 +34,35 @@ class IOReportClientTest {
         IOReportClient client = IOReportClient.create();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         try {
-            GpuTicks ticks = client.sampleGpuTicks();
-            assertThat("sampleGpuTicks should never return null", ticks, is(notNullValue()));
+            assertThat("sampleGpuTicks should never return null", client.sampleGpuTicks(), is(notNullValue()));
         } finally {
             client.close();
         }
     }
 
     @Test
-    void testSampleGpuTicksTimestampPositive() {
+    void testSampleGpuTicksNonNegative() {
         IOReportClient client = IOReportClient.create();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         try {
             GpuTicks ticks = client.sampleGpuTicks();
-            assertThat("Timestamp should be positive", ticks.getTimestamp(), is(greaterThan(0L)));
+            assertThat("activeTicks should be non-negative", ticks.getActiveTicks(), is(greaterThanOrEqualTo(0L)));
+            assertThat("idleTicks should be non-negative", ticks.getIdleTicks(), is(greaterThanOrEqualTo(0L)));
         } finally {
             client.close();
         }
     }
 
     @Test
-    void testSampleGpuTicksActiveTicksNonNegative() {
+    void testSampleGpuTicksTotalPositive() {
         IOReportClient client = IOReportClient.create();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         try {
-            // First call primes the baseline; activeTicks is -1 by contract.
-            client.sampleGpuTicks();
             GpuTicks ticks = client.sampleGpuTicks();
-            assertThat("Active ticks should be non-negative after priming", ticks.getActiveTicks(),
-                    is(greaterThanOrEqualTo(0L)));
-        } finally {
-            client.close();
-        }
-    }
-
-    @Test
-    void testSampleGpuTicksFirstCallPositive() {
-        IOReportClient client = IOReportClient.create();
-        Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
-        try {
-            // First call primes the baseline and returns activeTicks=-1 by contract.
-            GpuTicks prime = client.sampleGpuTicks();
-            assertThat("Priming call should return activeTicks=-1", prime.getActiveTicks(), is(-1L));
-            Thread.sleep(50);
-            GpuTicks ticks = client.sampleGpuTicks();
-            Assumptions.assumeTrue(ticks.getActiveTicks() > 0,
+            Assumptions.assumeTrue(ticks.getActiveTicks() + ticks.getIdleTicks() > 0,
                     "Skipping: IOReport GPU ticks unavailable (no GPU or sandboxed CI environment)");
-            assertThat("Second call should return positive cumulative active ticks", ticks.getActiveTicks(),
+            assertThat("active + idle should be positive", ticks.getActiveTicks() + ticks.getIdleTicks(),
                     is(greaterThan(0L)));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         } finally {
             client.close();
         }
@@ -94,15 +73,13 @@ class IOReportClientTest {
         IOReportClient client = IOReportClient.create();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         try {
-            // First call primes; second and third calls carry cumulative values.
-            client.sampleGpuTicks();
             GpuTicks first = client.sampleGpuTicks();
             Thread.sleep(150);
             GpuTicks second = client.sampleGpuTicks();
-            assertThat("Timestamp should be non-decreasing between samples", second.getTimestamp(),
-                    is(greaterThanOrEqualTo(first.getTimestamp())));
-            assertThat("Active ticks should be non-decreasing between samples", second.getActiveTicks(),
+            assertThat("activeTicks should be non-decreasing", second.getActiveTicks(),
                     is(greaterThanOrEqualTo(first.getActiveTicks())));
+            assertThat("idleTicks should be non-decreasing", second.getIdleTicks(),
+                    is(greaterThanOrEqualTo(first.getIdleTicks())));
         } finally {
             client.close();
         }
@@ -139,7 +116,8 @@ class IOReportClientTest {
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         client.close();
         GpuTicks ticks = client.sampleGpuTicks();
-        assertThat("Closed client should return unavailable-tick snapshot", ticks.getActiveTicks(), is(-1L));
+        assertThat("Closed client should return activeTicks=0", ticks.getActiveTicks(), is(0L));
+        assertThat("Closed client should return idleTicks=0", ticks.getIdleTicks(), is(0L));
         assertThat("Closed client power should return -1", client.samplePowerWatts(), is(-1d));
         assertThat("Closed client utilization should return -1", client.sampleGpuUtilization(), is(-1d));
     }

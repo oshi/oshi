@@ -10,15 +10,18 @@ import java.util.Locale;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.hardware.common.DefaultGpuTicks;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.gpu.NvmlUtil;
 
 /**
- * Linux {@link GpuStats} session. Dynamic metrics are sourced from sysfs DRM driver files and NVML, using the same
- * priority ordering as {@link LinuxGraphicsCard}. The hwmon path and driver-specific sysfs paths are resolved once at
- * construction time.
+ * Linux {@link GpuStats} session. Dynamic metrics are sourced in priority order: NVML (NVIDIA GPUs), then sysfs DRM
+ * driver files under {@code /sys/class/drm/cardN/device/}. The hwmon path and driver-specific sysfs paths are resolved
+ * once at construction time.
+ *
+ * <p>
+ * GPU ticks are not available on Linux and always return {@code (0L, 0L)}. Shared memory is not available and always
+ * returns -1.
  */
 @ThreadSafe
 final class LinuxGpuStats implements GpuStats {
@@ -60,7 +63,7 @@ final class LinuxGpuStats implements GpuStats {
     @Override
     public synchronized GpuTicks getGpuTicks() {
         checkOpen();
-        return new DefaultGpuTicks(System.nanoTime() / 100L, -1L);
+        return new GpuTicks(0L, 0L);
     }
 
     @Override
@@ -75,6 +78,8 @@ final class LinuxGpuStats implements GpuStats {
             return pct >= 0 ? pct : -1d;
         }
         if ("i915".equals(driver) || "xe".equals(driver)) {
+            // Approximates utilization as actual_freq / max_freq; not a true busy-time percentage
+            // but the best available metric without kernel tracepoints.
             long actual = FileUtil.getLongFromFile(gt0Path + "/rps_act_freq_mhz");
             long max = FileUtil.getLongFromFile(gt0Path + "/rps_max_freq_mhz");
             if (actual >= 0 && max > 0) {

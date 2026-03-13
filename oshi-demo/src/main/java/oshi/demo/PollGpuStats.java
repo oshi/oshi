@@ -12,6 +12,7 @@ import oshi.annotation.SuppressForbidden;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
+import oshi.util.FormatUtil;
 
 /**
  * Demonstrates GPU metrics by polling all graphics cards 10 times at 1-second intervals using the session-based
@@ -37,12 +38,12 @@ public final class PollGpuStats {
         for (GraphicsCard card : cards) {
             System.out.printf(Locale.ROOT, "GPU   : %s%n", card.getName());
             System.out.printf(Locale.ROOT, "Vendor: %s%n", card.getVendor());
-            System.out.printf(Locale.ROOT, "VRAM  : %s%n", formatBytes(card.getVRam()));
+            System.out.printf(Locale.ROOT, "VRAM  : %s%n", FormatUtil.formatBytes(card.getVRam()));
             System.out.println();
         }
 
         int nameWidth = cards.stream().mapToInt(c -> c.getName().length()).max().orElse(10);
-        String hdr = String.format(Locale.ROOT, "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %8s", "Card",
+        String hdr = String.format(Locale.ROOT, "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %10s", "Card",
                 "Ticks%", "API Util%", "VRAM Used", "Temp(C)", "Power(W)", "Clock(MHz)");
         System.out.println(hdr);
         StringBuilder sep = new StringBuilder(hdr.length());
@@ -56,10 +57,9 @@ public final class PollGpuStats {
         try {
             for (int i = 0; i < cards.size(); i++) {
                 sessions[i] = cards.get(i).createStatsSession();
-                // Prime all delta-based metrics so the first real iteration has a valid baseline
                 prev[i] = sessions[i].getGpuTicks();
-                sessions[i].getGpuUtilization();
                 sessions[i].getPowerDraw();
+                sessions[i].getGpuUtilization();
             }
 
             for (int iter = 0; iter < ITERATIONS; iter++) {
@@ -68,10 +68,10 @@ public final class PollGpuStats {
                     GraphicsCard card = cards.get(i);
                     GpuStats stats = sessions[i];
                     GpuTicks curr = stats.getGpuTicks();
-                    long dtTicks = curr.getTimestamp() - prev[i].getTimestamp();
                     long dActive = curr.getActiveTicks() - prev[i].getActiveTicks();
-                    String tickStr = dtTicks > 0 && prev[i].getActiveTicks() >= 0 && dActive >= 0
-                            ? String.format(Locale.ROOT, "%5.1f%%", dActive * 100.0 / dtTicks)
+                    long dIdle = curr.getIdleTicks() - prev[i].getIdleTicks();
+                    long dTotal = dActive + dIdle;
+                    String tickStr = dTotal > 0 ? String.format(Locale.ROOT, "%5.1f%%", dActive * 100.0 / dTotal)
                             : "n/a";
                     prev[i] = curr;
 
@@ -81,10 +81,10 @@ public final class PollGpuStats {
                     double power = stats.getPowerDraw();
                     long clock = stats.getCoreClockMhz();
 
-                    System.out.printf(Locale.ROOT, "%-" + nameWidth + "s  %8s  %9s  %10s  %8s  %8s  %8s%n",
+                    System.out.printf(Locale.ROOT, "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %10s%n",
                             card.getName(), tickStr,
                             apiUtil >= 0 ? String.format(Locale.ROOT, "%.1f%%", apiUtil) : "n/a",
-                            vramUsed >= 0 ? formatBytes(vramUsed) : "n/a",
+                            vramUsed >= 0 ? FormatUtil.formatBytes(vramUsed) : "n/a",
                             temp >= 0 ? String.format(Locale.ROOT, "%.1f", temp) : "n/a",
                             power >= 0 ? String.format(Locale.ROOT, "%.2f", power) : "n/a",
                             clock >= 0 ? Long.toString(clock) : "n/a");
@@ -102,16 +102,4 @@ public final class PollGpuStats {
         }
     }
 
-    private static String formatBytes(long bytes) {
-        if (bytes < 0) {
-            return "n/a";
-        }
-        if (bytes >= 1L << 30) {
-            return String.format(Locale.ROOT, "%.1f GiB", bytes / (double) (1L << 30));
-        }
-        if (bytes >= 1L << 20) {
-            return String.format(Locale.ROOT, "%.1f MiB", bytes / (double) (1L << 20));
-        }
-        return String.format(Locale.ROOT, "%d B", bytes);
-    }
 }
