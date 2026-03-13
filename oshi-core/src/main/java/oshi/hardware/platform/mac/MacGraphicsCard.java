@@ -21,6 +21,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportDriver;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.hardware.common.DefaultGpuTicks;
@@ -65,6 +66,11 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
      */
     MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
+    }
+
+    @Override
+    public GpuStats createStatsSession() {
+        return new MacGpuStats(IS_APPLE_SILICON, getName());
     }
 
     /**

@@ -32,6 +32,7 @@ import oshi.driver.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.windows.wmi.Win32VideoController;
 import oshi.driver.windows.wmi.Win32VideoController.VideoControllerProperty;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.hardware.common.DefaultGpuTicks;
@@ -124,6 +125,11 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
         this.lhmParent = lhmParent;
         this.pciBusNumber = pciBusNumber;
         this.pciBusId = pciBusId;
+    }
+
+    @Override
+    public GpuStats createStatsSession() {
+        return new WindowsGpuStats(luidPrefix, lhmParent, pciBusNumber, pciBusId, getName());
     }
 
     /**

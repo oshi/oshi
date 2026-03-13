@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.hardware.common.DefaultGpuTicks;
@@ -58,6 +59,11 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         this.drmDevicePath = drmDevicePath;
         this.driverName = driverName;
         this.pciBusId = pciBusId;
+    }
+
+    @Override
+    public GpuStats createStatsSession() {
+        return new LinuxGpuStats(drmDevicePath, driverName, pciBusId, getName());
     }
 
     /**
