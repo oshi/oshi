@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -102,41 +102,45 @@ public final class LinuxPowerSource extends AbstractPowerSource {
 
                                         // Debian/Ubuntu provides Energy. Fedora/RHEL provides Charge.
                                         psCurrentCapacity = ParseUtil.parseIntOrDefault(
-                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_NOW"), -1);
+                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_NOW"), -1) / 1000;
                                         if (psCurrentCapacity < 0) {
                                             psCurrentCapacity = ParseUtil.parseIntOrDefault(
-                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_NOW"), -1);
+                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_NOW"), -1) / 1000;
+                                            psCapacityUnits = CapacityUnits.MAH;
+                                        } else {
+                                            psCapacityUnits = CapacityUnits.MWH;
                                         }
                                         psMaxCapacity = ParseUtil.parseIntOrDefault(
-                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_FULL"), 1);
+                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_FULL"), 1) / 1000;
                                         if (psMaxCapacity < 0) {
                                             psMaxCapacity = ParseUtil.parseIntOrDefault(
-                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_FULL"), 1);
+                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_FULL"), 1) / 1000;
                                         }
                                         psDesignCapacity = ParseUtil.parseIntOrDefault(
-                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1);
+                                                device.getPropertyValue("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1) / 1000;
                                         if (psDesignCapacity < 0) {
                                             psDesignCapacity = ParseUtil.parseIntOrDefault(
-                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1);
+                                                    device.getPropertyValue("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1)
+                                                    / 1000;
                                         }
 
                                         // Debian/Ubuntu provides Voltage and Power.
                                         // Fedora/RHEL provides Voltage and Current.
-                                        psVoltage = ParseUtil.parseIntOrDefault(
-                                                device.getPropertyValue("POWER_SUPPLY_VOLTAGE_NOW"), -1);
+                                        psVoltage = ParseUtil.parseDoubleOrDefault(
+                                                device.getPropertyValue("POWER_SUPPLY_VOLTAGE_NOW"), -1) / 1_000_000d;
                                         // From Physics we know P = IV so I = P/V
                                         if (psVoltage > 0) {
                                             String power = device.getPropertyValue("POWER_SUPPLY_POWER_NOW");
                                             String current = device.getPropertyValue("POWER_SUPPLY_CURRENT_NOW");
                                             if (power == null) {
-                                                psAmperage = ParseUtil.parseIntOrDefault(current, 0);
+                                                psAmperage = ParseUtil.parseDoubleOrDefault(current, 0) / 1000d;
                                                 psPowerUsageRate = psAmperage * psVoltage;
                                             } else if (current == null) {
-                                                psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);
+                                                psPowerUsageRate = ParseUtil.parseDoubleOrDefault(power, 0) / 1000d;
                                                 psAmperage = psPowerUsageRate / psVoltage;
                                             } else {
-                                                psAmperage = ParseUtil.parseIntOrDefault(current, 0);
-                                                psPowerUsageRate = ParseUtil.parseIntOrDefault(power, 0);
+                                                psAmperage = ParseUtil.parseDoubleOrDefault(current, 0) / 1000d;
+                                                psPowerUsageRate = ParseUtil.parseDoubleOrDefault(power, 0) / 1000d;
                                             }
                                         }
 
@@ -200,32 +204,43 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                                 -100) / 100d;
                     }
                     if (psMap.containsKey("POWER_SUPPLY_ENERGY_NOW")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_NOW"), -1);
+                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_NOW"), -1)
+                                / 1000;
+                        psCapacityUnits = CapacityUnits.MWH;
                     } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_NOW")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_NOW"), -1);
+                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_NOW"), -1)
+                                / 1000;
+                        psCapacityUnits = CapacityUnits.MAH;
                     }
                     if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL"), 1);
+                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL"), 1)
+                                / 1000;
                     } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL"), 1);
+                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL"), 1)
+                                / 1000;
                     }
                     if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL_DESIGN")) {
-                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1);
+                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1)
+                                / 1000;
                     } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL_DESIGN")) {
-                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1);
+                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1)
+                                / 1000;
                     }
                     // Debian/Ubuntu provides Voltage and Power.
                     // Fedora/RHEL provides Voltage and Current.
                     if (psMap.containsKey("POWER_SUPPLY_VOLTAGE_NOW")) {
-                        psVoltage = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_VOLTAGE_NOW"), -1);
+                        psVoltage = ParseUtil.parseDoubleOrDefault(psMap.get("POWER_SUPPLY_VOLTAGE_NOW"), -1)
+                                / 1_000_000d;
                     }
                     // From Physics we know P = IV so I = P/V
                     if (psVoltage > 0) {
                         if (psMap.containsKey("POWER_SUPPLY_POWER_NOW")) {
-                            psPowerUsageRate = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_POWER_NOW"), -1);
+                            psPowerUsageRate = ParseUtil.parseDoubleOrDefault(psMap.get("POWER_SUPPLY_POWER_NOW"), -1)
+                                    / 1000d;
                         }
                         if (psMap.containsKey("POWER_SUPPLY_CURRENT_NOW")) {
-                            psAmperage = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CURRENT_NOW"), -1);
+                            psAmperage = ParseUtil.parseDoubleOrDefault(psMap.get("POWER_SUPPLY_CURRENT_NOW"), -1)
+                                    / 1000d;
                         }
                         if (psPowerUsageRate < 0 && psAmperage >= 0) {
                             psPowerUsageRate = psAmperage * psVoltage;
