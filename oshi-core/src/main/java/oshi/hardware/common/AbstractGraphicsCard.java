@@ -4,12 +4,19 @@
  */
 package oshi.hardware.common;
 
+import java.util.Locale;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuStats;
 
 /**
  * An abstract Graphics Card
+ *
+ * <p>
+ * Note: {@link #toString()} opens a native {@link GpuStats} session via {@link #createStatsSession()} to sample dynamic
+ * metrics. This may have performance implications if called frequently; callers should avoid it in hot paths or cache
+ * the result if needed.
  */
 @Immutable
 public abstract class AbstractGraphicsCard implements GraphicsCard {
@@ -80,7 +87,9 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
         builder.append(this.vendor);
         builder.append(", vRam=");
         builder.append(this.vram);
-        try (GpuStats stats = createStatsSession()) {
+        GpuStats stats = null;
+        try {
+            stats = createStatsSession();
             long vramUsed = stats.getVramUsed();
             if (vramUsed >= 0) {
                 builder.append(", vramUsed=");
@@ -94,17 +103,17 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
             double utilization = stats.getGpuUtilization();
             if (utilization >= 0) {
                 builder.append(", utilization=");
-                builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", utilization));
+                builder.append(String.format(Locale.ROOT, "%.1f%%", utilization));
             }
             double temp = stats.getTemperature();
             if (temp >= 0) {
                 builder.append(", temp=");
-                builder.append(String.format(java.util.Locale.ROOT, "%.1f°C", temp));
+                builder.append(String.format(Locale.ROOT, "%.1f°C", temp));
             }
             double power = stats.getPowerDraw();
             if (power >= 0) {
                 builder.append(", power=");
-                builder.append(String.format(java.util.Locale.ROOT, "%.1fW", power));
+                builder.append(String.format(Locale.ROOT, "%.1fW", power));
             }
             long coreClock = stats.getCoreClockMhz();
             if (coreClock >= 0) {
@@ -121,7 +130,13 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
             double fan = stats.getFanSpeedPercent();
             if (fan >= 0) {
                 builder.append(", fan=");
-                builder.append(String.format(java.util.Locale.ROOT, "%.1f%%", fan));
+                builder.append(String.format(Locale.ROOT, "%.1f%%", fan));
+            }
+        } catch (Exception e) {
+            builder.append(", metricsUnavailable");
+        } finally {
+            if (stats != null) {
+                stats.close();
             }
         }
         builder.append(", versionInfo=[");

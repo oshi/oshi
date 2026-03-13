@@ -24,9 +24,9 @@ import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
  * Instance-based helper that owns a single IOReport subscription for GPU Stats and Energy Model channels.
  *
  * <p>
- * Unlike {@link IOReportDriver} (which uses process-wide static state), each {@code IOReportClient} instance holds its
- * own subscription and previous-sample state, making it suitable for use inside a {@link oshi.hardware.GpuStats}
- * session with explicit lifecycle management.
+ * Unlike the former static {@code IOReportDriver} (which used process-wide static state), each {@code IOReportClient}
+ * instance holds its own subscription and previous-sample state, making it suitable for use inside a
+ * {@link oshi.hardware.GpuStats} session with explicit lifecycle management.
  *
  * <p>
  * Call {@link #close()} when done to release all CoreFoundation references. After {@code close()}, all sampling methods
@@ -231,7 +231,8 @@ public final class IOReportClient {
                 if (energyUj < 0) {
                     return -1d;
                 }
-                // microjoules / nanoseconds * 1000 = watts (1 µJ/ns = 1 mW)
+                // energyUj / dtNanos * 1e9 = watts; equivalently energyUj * 1000.0 / dtNanos
+                // (µJ / ns = µJ / (µs * 1000) = W / 1000 * 1e6 / 1000 → energyUj * 1e9 / dtNanos W)
                 return energyUj * 1000.0 / dtNanos;
             } finally {
                 delta.release();

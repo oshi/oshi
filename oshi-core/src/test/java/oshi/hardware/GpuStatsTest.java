@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
@@ -105,19 +106,24 @@ class GpuStatsTest {
         List<Callable<Void>> tasks = new ArrayList<>();
         for (int i = 0; i < threads; i++) {
             tasks.add(() -> {
-                if (!stats.isClosed()) {
-                    stats.getGpuTicks();
-                    stats.getTemperature();
-                    stats.getPowerDraw();
-                }
+                stats.getGpuTicks();
+                stats.getTemperature();
+                stats.getPowerDraw();
                 return null;
             });
         }
-        List<Future<Void>> futures = pool.invokeAll(tasks);
-        pool.shutdown();
+        List<Future<Void>> futures;
+        try {
+            futures = pool.invokeAll(tasks);
+        } finally {
+            pool.shutdown();
+            if (!pool.awaitTermination(5L, TimeUnit.SECONDS)) {
+                pool.shutdownNow();
+            }
+        }
         stats.close();
         for (Future<Void> f : futures) {
-            f.get(); // rethrows any exception from the task
+            f.get();
         }
     }
 }

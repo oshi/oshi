@@ -15,7 +15,8 @@ import oshi.hardware.GpuTicks;
 
 /**
  * Demonstrates GPU metrics by polling all graphics cards 10 times at 1-second intervals using the session-based
- * {@link GpuStats} API. Each iteration opens a session, samples metrics, and closes it via try-with-resources.
+ * {@link GpuStats} API. One session per card is held open for the entire polling window so that session-scoped native
+ * state (e.g. IOReport power baselines on macOS) is preserved across iterations.
  */
 public final class GpuStatsDemo {
 
@@ -49,24 +50,27 @@ public final class GpuStatsDemo {
             sep.append('-');
         System.out.println(sep.toString());
 
-        // Seed first tick snapshots (one session per card, closed immediately after seeding)
+        // Open one session per card for the entire polling window
+        GpuStats[] sessions = new GpuStats[cards.size()];
         GpuTicks[] prev = new GpuTicks[cards.size()];
-        for (int i = 0; i < cards.size(); i++) {
-            try (GpuStats stats = cards.get(i).createStatsSession()) {
-                prev[i] = stats.getGpuTicks();
-                stats.getPowerDraw(); // prime power delta
-            }
-        }
-
-        for (int iter = 0; iter < ITERATIONS; iter++) {
-            Thread.sleep(INTERVAL_MS);
+        try {
             for (int i = 0; i < cards.size(); i++) {
-                GraphicsCard card = cards.get(i);
-                try (GpuStats stats = card.createStatsSession()) {
+                sessions[i] = cards.get(i).createStatsSession();
+                prev[i] = sessions[i].getGpuTicks();
+                sessions[i].getPowerDraw(); // prime the power delta so the first real iteration has a valid baseline
+            }
+
+            for (int iter = 0; iter < ITERATIONS; iter++) {
+                Thread.sleep(INTERVAL_MS);
+                for (int i = 0; i < cards.size(); i++) {
+                    GraphicsCard card = cards.get(i);
+                    GpuStats stats = sessions[i];
                     GpuTicks curr = stats.getGpuTicks();
                     long dtTicks = curr.getTimestamp() - prev[i].getTimestamp();
                     long dActive = curr.getActiveTicks() - prev[i].getActiveTicks();
-                    double tickUtil = dtTicks > 0 && dActive >= 0 ? dActive * 100.0 / dtTicks : -1d;
+                    String tickStr = dtTicks > 0 && dActive >= 0
+                            ? String.format(Locale.ROOT, "%5.1f%%", dActive * 100.0 / dtTicks)
+                            : "n/a";
                     prev[i] = curr;
 
                     double apiUtil = stats.getGpuUtilization();
@@ -75,17 +79,23 @@ public final class GpuStatsDemo {
                     double power = stats.getPowerDraw();
                     long clock = stats.getCoreClockMhz();
 
-                    System.out.printf(Locale.ROOT, "%-" + nameWidth + "s  %7.1f%%  %9s  %10s  %8s  %8s  %8s%n",
-                            card.getName(), tickUtil >= 0 ? tickUtil : Double.NaN,
+                    System.out.printf(Locale.ROOT, "%-" + nameWidth + "s  %8s  %9s  %10s  %8s  %8s  %8s%n",
+                            card.getName(), tickStr,
                             apiUtil >= 0 ? String.format(Locale.ROOT, "%.1f%%", apiUtil) : "n/a",
                             vramUsed >= 0 ? formatBytes(vramUsed) : "n/a",
                             temp >= 0 ? String.format(Locale.ROOT, "%.1f", temp) : "n/a",
                             power >= 0 ? String.format(Locale.ROOT, "%.2f", power) : "n/a",
                             clock >= 0 ? Long.toString(clock) : "n/a");
                 }
+                if (cards.size() > 1) {
+                    System.out.println();
+                }
             }
-            if (cards.size() > 1) {
-                System.out.println();
+        } finally {
+            for (GpuStats s : sessions) {
+                if (s != null) {
+                    s.close();
+                }
             }
         }
     }

@@ -47,6 +47,11 @@ final class WindowsGpuStats implements GpuStats {
 
     private volatile boolean closed;
 
+    // Cached device lookups; null = not yet resolved, empty = unavailable
+    private volatile String cachedNvmlDevice;
+    // Integer.MIN_VALUE = not yet resolved, -1 = unavailable
+    private volatile int cachedAdlIndex = Integer.MIN_VALUE;
+
     WindowsGpuStats(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
         this.luidPrefix = luidPrefix;
         this.lhmParent = lhmParent;
@@ -115,20 +120,9 @@ final class WindowsGpuStats implements GpuStats {
     @Override
     public long getVramUsed() {
         checkOpen();
-        if (!luidPrefix.isEmpty()) {
-            Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
-                    .queryGpuAdapterMemoryCounters();
-            List<String> instances = adapterData.getA();
-            List<Long> dedicated = adapterData.getB().get(GpuAdapterMemoryProperty.DEDICATED_USAGE);
-            if (dedicated != null) {
-                String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-                int limit = Math.min(instances.size(), dedicated.size());
-                for (int i = 0; i < limit; i++) {
-                    if (instances.get(i).toLowerCase(Locale.ROOT).contains(luidLower)) {
-                        return dedicated.get(i);
-                    }
-                }
-            }
+        long pdhResult = queryAdapterMemory(GpuAdapterMemoryProperty.DEDICATED_USAGE);
+        if (pdhResult >= 0) {
+            return pdhResult;
         }
         if (!lhmParent.isEmpty()) {
             try {
@@ -152,20 +146,7 @@ final class WindowsGpuStats implements GpuStats {
         if (luidPrefix.isEmpty()) {
             return -1L;
         }
-        Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
-                .queryGpuAdapterMemoryCounters();
-        List<String> instances = adapterData.getA();
-        List<Long> shared = adapterData.getB().get(GpuAdapterMemoryProperty.SHARED_USAGE);
-        if (shared != null) {
-            String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
-            int limit = Math.min(instances.size(), shared.size());
-            for (int i = 0; i < limit; i++) {
-                if (instances.get(i).toLowerCase(Locale.ROOT).contains(luidLower)) {
-                    return shared.get(i);
-                }
-            }
-        }
-        return -1L;
+        return queryAdapterMemory(GpuAdapterMemoryProperty.SHARED_USAGE);
     }
 
     @Override
@@ -284,24 +265,55 @@ final class WindowsGpuStats implements GpuStats {
         }
     }
 
-    private String findNvmlDevice() {
-        if (!NvmlUtil.isAvailable()) {
-            return null;
+    private long queryAdapterMemory(GpuAdapterMemoryProperty property) {
+        if (luidPrefix.isEmpty()) {
+            return -1L;
         }
-        if (!pciBusId.isEmpty()) {
-            String id = NvmlUtil.findDevice(pciBusId);
-            if (id != null) {
-                return id;
+        Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
+                .queryGpuAdapterMemoryCounters();
+        List<String> instances = adapterData.getA();
+        List<Long> values = adapterData.getB().get(property);
+        if (values != null) {
+            String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
+            int limit = Math.min(instances.size(), values.size());
+            for (int i = 0; i < limit; i++) {
+                if (instances.get(i).toLowerCase(Locale.ROOT).contains(luidLower)) {
+                    return values.get(i);
+                }
             }
         }
-        return NvmlUtil.findDeviceByName(cardName);
+        return -1L;
+    }
+
+    private String findNvmlDevice() {
+        if (cachedNvmlDevice != null) {
+            return cachedNvmlDevice.isEmpty() ? null : cachedNvmlDevice;
+        }
+        if (!NvmlUtil.isAvailable()) {
+            cachedNvmlDevice = "";
+            return null;
+        }
+        String id = null;
+        if (!pciBusId.isEmpty()) {
+            id = NvmlUtil.findDevice(pciBusId);
+        }
+        if (id == null) {
+            id = NvmlUtil.findDeviceByName(cardName);
+        }
+        cachedNvmlDevice = id != null ? id : "";
+        return id;
     }
 
     private int findAdlIndex() {
+        if (cachedAdlIndex != Integer.MIN_VALUE) {
+            return cachedAdlIndex;
+        }
         if (!AdlUtil.isAvailable() || pciBusNumber < 0) {
+            cachedAdlIndex = -1;
             return -1;
         }
-        return AdlUtil.findAdapterIndex(pciBusNumber);
+        cachedAdlIndex = AdlUtil.findAdapterIndex(pciBusNumber);
+        return cachedAdlIndex;
     }
 
     private double lhmFloatSensor(String sensorType, String sensorName) {

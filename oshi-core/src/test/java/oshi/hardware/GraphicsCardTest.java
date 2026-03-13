@@ -31,8 +31,9 @@ class GraphicsCardTest {
                     is(greaterThanOrEqualTo(6)));
             assertThat("Graphics card's version information length should be at least 2",
                     graphicsCard.getVersionInfo().length(), is(greaterThanOrEqualTo(2)));
-            assertThat("createStatsSession() must never return null", graphicsCard.createStatsSession(),
-                    is(notNullValue()));
+            try (GpuStats session = graphicsCard.createStatsSession()) {
+                assertThat("createStatsSession() must never return null", session, is(notNullValue()));
+            }
         }
     }
 }

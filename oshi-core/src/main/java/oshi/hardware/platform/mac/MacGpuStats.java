@@ -5,6 +5,7 @@
 package oshi.hardware.platform.mac;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.jna.Pointer;
@@ -12,9 +13,13 @@ import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClient;
@@ -31,6 +36,7 @@ import oshi.util.platform.mac.SmcUtil;
 @ThreadSafe
 final class MacGpuStats implements GpuStats {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStats.class);
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private static final String PERF_STATS_KEY = "PerformanceStatistics";
@@ -53,10 +59,14 @@ final class MacGpuStats implements GpuStats {
         this.isAppleSilicon = isAppleSilicon;
         this.cardName = cardName;
         this.ioReportClient = isAppleSilicon ? IOReportClient.create() : null;
+        if (isAppleSilicon && ioReportClient == null) {
+            LOG.warn("IOReport subscription failed for '{}'; GPU ticks, utilization, and power will be unavailable",
+                    cardName);
+        }
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closed = true;
         if (ioReportClient != null) {
             ioReportClient.close();
@@ -138,7 +148,7 @@ final class MacGpuStats implements GpuStats {
     }
 
     @Override
-    public long getSharedMemoryUsed() {
+    public synchronized long getSharedMemoryUsed() {
         checkOpen();
         return -1L;
     }
@@ -147,7 +157,7 @@ final class MacGpuStats implements GpuStats {
     public synchronized double getTemperature() {
         checkOpen();
         if (isAppleSilicon) {
-            com.sun.jna.platform.mac.IOKit.IOConnect conn = SmcUtil.smcOpen();
+            IOConnect conn = SmcUtil.smcOpen();
             if (conn != null) {
                 try {
                     double temp = SmcUtil.smcGetFirstFloat(conn, SmcUtil.SMC_KEYS_GPU_TEMP_AS);
@@ -189,19 +199,19 @@ final class MacGpuStats implements GpuStats {
     }
 
     @Override
-    public long getCoreClockMhz() {
+    public synchronized long getCoreClockMhz() {
         checkOpen();
         return -1L;
     }
 
     @Override
-    public long getMemoryClockMhz() {
+    public synchronized long getMemoryClockMhz() {
         checkOpen();
         return -1L;
     }
 
     @Override
-    public double getFanSpeedPercent() {
+    public synchronized double getFanSpeedPercent() {
         checkOpen();
         return -1d;
     }
@@ -261,6 +271,10 @@ final class MacGpuStats implements GpuStats {
         }
         String normModel = TRADEMARK_PATTERN.matcher(model.toLowerCase(Locale.ROOT)).replaceAll("").trim();
         String normName = TRADEMARK_PATTERN.matcher(cardName.toLowerCase(Locale.ROOT)).replaceAll("").trim();
-        return normModel.equals(normName) || normModel.contains(normName);
+        if (normModel.equals(normName)) {
+            return true;
+        }
+        Matcher m = Pattern.compile("\\b" + Pattern.quote(normName) + "\\b").matcher(normModel);
+        return m.find();
     }
 }

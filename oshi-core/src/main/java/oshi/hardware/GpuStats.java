@@ -35,8 +35,9 @@ public interface GpuStats extends AutoCloseable {
     boolean isClosed();
 
     /**
-     * Returns an atomic snapshot of cumulative GPU active time and the wall-clock timestamp at which it was captured,
-     * both in 100-nanosecond units.
+     * Returns an atomic snapshot of cumulative GPU active time and a monotonic timestamp at which it was captured, both
+     * in 100-nanosecond units. The timestamp is derived from {@link System#nanoTime()} and is suitable for computing
+     * deltas between snapshots but is not a wall-clock time.
      *
      * @return an immutable {@link GpuTicks} snapshot; never null
      * @throws IllegalStateException if the session has been closed
