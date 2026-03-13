@@ -87,7 +87,7 @@ public interface GpuStats extends AutoCloseable {
     void close();
 
     /**
-     * Returns {@code true} if {@link #close()} has been called on this session.
+     * Returns {@code true} if {@link #close()} has been called on this session. Does not throw.
      *
      * @return true if this session is closed
      */
@@ -114,7 +114,8 @@ public interface GpuStats extends AutoCloseable {
      * {@link #getGpuUtilization()} as an alternative source of utilization data.
      *
      * @return an immutable {@link GpuTicks} snapshot; never null
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     GpuTicks getGpuTicks();
 
@@ -135,7 +136,8 @@ public interface GpuStats extends AutoCloseable {
      * }</pre>
      *
      * @return utilization in the range 0.0 to 100.0, or -1 if not available or not yet primed
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     double getGpuUtilization();
 
@@ -143,7 +145,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the amount of dedicated VRAM currently in use.
      *
      * @return bytes of VRAM in use, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     long getVramUsed();
 
@@ -151,7 +154,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the amount of shared system memory currently used by this GPU.
      *
      * @return bytes of shared memory in use, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     long getSharedMemoryUsed();
 
@@ -159,7 +163,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the GPU temperature.
      *
      * @return temperature in degrees Celsius, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     double getTemperature();
 
@@ -184,7 +189,8 @@ public interface GpuStats extends AutoCloseable {
      * instantaneous and does not require priming.
      *
      * @return power draw in watts, or -1 if unavailable or not yet primed
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     double getPowerDraw();
 
@@ -192,7 +198,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the current GPU core clock speed.
      *
      * @return core clock in MHz, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     long getCoreClockMhz();
 
@@ -200,7 +207,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the current GPU memory clock speed.
      *
      * @return memory clock in MHz, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     long getMemoryClockMhz();
 
@@ -208,7 +216,8 @@ public interface GpuStats extends AutoCloseable {
      * Returns the GPU fan speed as a percentage of maximum.
      *
      * @return fan speed in the range 0.0 to 100.0, or -1 if unavailable
-     * @throws IllegalStateException if the session has been closed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
      */
     double getFanSpeedPercent();
 }

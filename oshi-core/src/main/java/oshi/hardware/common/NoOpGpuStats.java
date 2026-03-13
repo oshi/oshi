@@ -85,7 +85,8 @@ public final class NoOpGpuStats implements GpuStats {
 
     private void checkOpen() {
         if (closed.get()) {
-            throw new IllegalStateException("GpuStats session is closed");
+            throw new IllegalStateException(
+                    "GpuStats session has been closed. Obtain a new session via GraphicsCard.createStatsSession().");
         }
     }
 }

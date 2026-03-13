@@ -68,6 +68,7 @@ class GpuStatsTest {
     }
 
     @Test
+    @SuppressWarnings("resource") // 'captured' is an alias for 'stats'; closed by the try-with-resources above
     void testTryWithResourcesClosesSession() {
         GpuStats captured;
         try (GpuStats stats = new NoOpGpuStats()) {
@@ -84,7 +85,6 @@ class GpuStatsTest {
             try (GpuStats stats = card.createStatsSession()) {
                 assertThat("createStatsSession must not return null", stats, is(notNullValue()));
                 assertThat("Session must be open", stats.isClosed(), is(false));
-                // All metric methods must return sentinel or valid value without throwing
                 assertThat(stats.getGpuTicks(), is(notNullValue()));
                 assertThat(stats.getGpuUtilization() >= -1d, is(true));
                 assertThat(stats.getVramUsed() >= -1L, is(true));
@@ -95,6 +95,53 @@ class GpuStatsTest {
                 assertThat(stats.getMemoryClockMhz() >= -1L, is(true));
                 assertThat(stats.getFanSpeedPercent() >= -1d, is(true));
             }
+        }
+    }
+
+    /**
+     * Full lifecycle: sentinel/priming phase, poll phase, shutdown, then verify all methods throw post-close.
+     */
+    @Test
+    void testRealCardSessionFullLifecycle() throws InterruptedException {
+        SystemInfo si = new SystemInfo();
+        for (GraphicsCard card : si.getHardware().getGraphicsCards()) {
+            GpuStats stats = card.createStatsSession();
+            try {
+                // Phase 1: sentinel / priming — delta-based metrics return -1 on first call
+                assertThat("Session open after creation", stats.isClosed(), is(false));
+                assertThat("getGpuTicks non-null on first call", stats.getGpuTicks(), is(notNullValue()));
+                assertThat("getGpuUtilization >= -1 on first call", stats.getGpuUtilization() >= -1d, is(true));
+                assertThat("getPowerDraw >= -1 on first call", stats.getPowerDraw() >= -1d, is(true));
+                assertThat("getVramUsed >= -1", stats.getVramUsed() >= -1L, is(true));
+                assertThat("getSharedMemoryUsed >= -1", stats.getSharedMemoryUsed() >= -1L, is(true));
+                assertThat("getTemperature >= -1", stats.getTemperature() >= -1d, is(true));
+                assertThat("getCoreClockMhz >= -1", stats.getCoreClockMhz() >= -1L, is(true));
+                assertThat("getMemoryClockMhz >= -1", stats.getMemoryClockMhz() >= -1L, is(true));
+                assertThat("getFanSpeedPercent >= -1", stats.getFanSpeedPercent() >= -1d, is(true));
+
+                // Phase 2: poll — after an interval, delta-based metrics return valid value or sentinel
+                Thread.sleep(500L);
+                assertThat("getGpuTicks non-null after interval", stats.getGpuTicks(), is(notNullValue()));
+                assertThat("getGpuUtilization >= -1 after interval", stats.getGpuUtilization() >= -1d, is(true));
+                assertThat("getPowerDraw >= -1 after interval", stats.getPowerDraw() >= -1d, is(true));
+                assertThat("getVramUsed >= -1 after interval", stats.getVramUsed() >= -1L, is(true));
+                assertThat("getTemperature >= -1 after interval", stats.getTemperature() >= -1d, is(true));
+            } finally {
+                // Phase 3: shutdown
+                stats.close();
+            }
+
+            // Phase 4: post-close — all metric methods must throw IllegalStateException
+            assertThat("Session closed after close()", stats.isClosed(), is(true));
+            assertThrows(IllegalStateException.class, stats::getGpuTicks);
+            assertThrows(IllegalStateException.class, stats::getGpuUtilization);
+            assertThrows(IllegalStateException.class, stats::getVramUsed);
+            assertThrows(IllegalStateException.class, stats::getSharedMemoryUsed);
+            assertThrows(IllegalStateException.class, stats::getTemperature);
+            assertThrows(IllegalStateException.class, stats::getPowerDraw);
+            assertThrows(IllegalStateException.class, stats::getCoreClockMhz);
+            assertThrows(IllegalStateException.class, stats::getMemoryClockMhz);
+            assertThrows(IllegalStateException.class, stats::getFanSpeedPercent);
         }
     }
 

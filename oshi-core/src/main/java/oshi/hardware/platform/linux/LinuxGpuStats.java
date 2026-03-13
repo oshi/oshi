@@ -222,7 +222,8 @@ final class LinuxGpuStats implements GpuStats {
 
     private void checkOpen() {
         if (closed) {
-            throw new IllegalStateException("GpuStats session is closed");
+            throw new IllegalStateException(
+                    "GpuStats session has been closed. Obtain a new session via GraphicsCard.createStatsSession().");
         }
     }
 

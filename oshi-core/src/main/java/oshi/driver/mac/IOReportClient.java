@@ -21,11 +21,11 @@ import oshi.jna.platform.mac.IOReport;
 import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
 
 /**
- * Instance-based helper that owns a single IOReport subscription for GPU Stats and Energy Model channels.
+ * Manages a single IOReport subscription for GPU Stats and Energy Model channels, providing per-instance sampling of
+ * GPU active ticks, utilization, and power draw.
  *
  * <p>
- * Unlike the former static {@code IOReportDriver} (which used process-wide static state), each {@code IOReportClient}
- * instance holds its own subscription and previous-sample state, making it suitable for use inside a
+ * Each instance holds its own subscription and previous-sample state, making it suitable for use inside a
  * {@link oshi.hardware.GpuStats} session with explicit lifecycle management.
  *
  * <p>

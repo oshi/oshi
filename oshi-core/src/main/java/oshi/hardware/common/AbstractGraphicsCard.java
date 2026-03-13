@@ -12,11 +12,6 @@ import oshi.hardware.GpuStats;
 
 /**
  * An abstract Graphics Card
- *
- * <p>
- * Note: {@link #toString()} opens a native {@link GpuStats} session via {@link #createStatsSession()} to sample dynamic
- * metrics. This may have performance implications if called frequently; callers should avoid it in hot paths or cache
- * the result if needed.
  */
 @Immutable
 public abstract class AbstractGraphicsCard implements GraphicsCard {
@@ -74,6 +69,17 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
         return new NoOpGpuStats();
     }
 
+    /**
+     * Returns a string representation of this graphics card including any available dynamic metrics.
+     *
+     * <p>
+     * <strong>Performance note:</strong> this method opens a native {@link GpuStats} session via
+     * {@link #createStatsSession()}, samples all available metrics, then closes the session. On platforms with native
+     * GPU subscriptions (e.g. Apple Silicon via IOReport) this involves kernel-level IPC and should not be called in
+     * hot paths. Cache the result if repeated string representations are needed.
+     *
+     * @return a human-readable description of this graphics card
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
