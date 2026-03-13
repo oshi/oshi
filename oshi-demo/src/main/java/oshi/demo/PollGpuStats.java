@@ -18,12 +18,12 @@ import oshi.hardware.GpuTicks;
  * {@link GpuStats} API. One session per card is held open for the entire polling window so that session-scoped native
  * state (e.g. IOReport power baselines on macOS) is preserved across iterations.
  */
-public final class GpuStatsDemo {
+public final class PollGpuStats {
 
     private static final int ITERATIONS = 10;
     private static final long INTERVAL_MS = 1_000L;
 
-    private GpuStatsDemo() {
+    private PollGpuStats() {
     }
 
     @SuppressForbidden(reason = "Using System.out in a demo class")
@@ -58,6 +58,8 @@ public final class GpuStatsDemo {
                 sessions[i] = cards.get(i).createStatsSession();
                 prev[i] = sessions[i].getGpuTicks();
                 sessions[i].getPowerDraw(); // prime the power delta so the first real iteration has a valid baseline
+                sessions[i].getGpuUtilization(); // prime the utilization delta so the first real iteration has a valid
+                                                 // baseline
             }
 
             for (int iter = 0; iter < ITERATIONS; iter++) {

@@ -15,8 +15,7 @@ import oshi.annotation.concurrent.Immutable;
  *
  * <p>
  * Live metrics (utilization, temperature, power, clocks, fan speed, VRAM used) are accessed through a {@link GpuStats}
- * session obtained via {@link #createStatsSession()}. Use try-with-resources to ensure the session is closed and native
- * resources are released:
+ * session obtained via {@link #createStatsSession()}. For a single snapshot, use try-with-resources:
  *
  * <pre>{@code
  * try (GpuStats stats = card.createStatsSession()) {
@@ -24,6 +23,10 @@ import oshi.annotation.concurrent.Immutable;
  *     double power = stats.getPowerDraw();
  * }
  * }</pre>
+ *
+ * <p>
+ * For repeated polling, hold the session open across iterations to preserve internal delta state. See {@link GpuStats}
+ * for a full polling example and details on which metrics require priming.
  */
 @Immutable
 public interface GraphicsCard {

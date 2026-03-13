@@ -60,8 +60,8 @@ final class MacGpuStats implements GpuStats {
         this.cardName = cardName;
         this.ioReportClient = isAppleSilicon ? IOReportClient.create() : null;
         if (isAppleSilicon && ioReportClient == null) {
-            LOG.warn("IOReport subscription failed for '{}'; GPU ticks, utilization, and power will be unavailable",
-                    cardName);
+            LOG.warn("IOReport subscription failed for '{}'; GPU ticks and power will be unavailable."
+                    + " Utilization will fall back to IOAccelerator PerformanceStatistics.", cardName);
         }
     }
 
@@ -232,30 +232,32 @@ final class MacGpuStats implements GpuStats {
         try {
             IORegistryEntry service = iter.next();
             while (service != null) {
+                CFMutableDictionaryRef result = null;
                 try {
                     CFMutableDictionaryRef props = service.createCFProperties();
                     if (props != null) {
-                        Pointer modelPtr = props.getValue(modelKey);
-                        boolean matches = false;
-                        if (modelPtr != null) {
-                            matches = matchesName(new CFStringRef(modelPtr).stringValue());
-                        }
-                        if (matches) {
-                            Pointer statsPtr = props.getValue(perfStatsKey);
-                            if (statsPtr != null) {
-                                CFMutableDictionaryRef stats = new CFMutableDictionaryRef();
-                                stats.setPointer(statsPtr);
-                                CF.CFRetain(stats);
-                                props.release();
-                                return stats;
+                        try {
+                            Pointer modelPtr = props.getValue(modelKey);
+                            if (modelPtr != null && matchesName(new CFStringRef(modelPtr).stringValue())) {
+                                Pointer statsPtr = props.getValue(perfStatsKey);
+                                if (statsPtr != null) {
+                                    CFMutableDictionaryRef stats = new CFMutableDictionaryRef();
+                                    stats.setPointer(statsPtr);
+                                    CF.CFRetain(stats);
+                                    result = stats;
+                                }
                             }
+                        } finally {
+                            props.release();
                         }
-                        props.release();
                     }
                 } finally {
                     service.release();
-                    service = iter.next();
                 }
+                if (result != null) {
+                    return result;
+                }
+                service = iter.next();
             }
         } finally {
             iter.release();

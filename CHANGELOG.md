@@ -4,7 +4,8 @@
 * [#3082](https://github.com/oshi/oshi/pull/3082): Add `getResidentMemory()` and `getPrivateResidentMemory()` to OSProcess, separating true RSS from the private/footprint memory shown by graphical system monitors. Deprecate `getResidentSetSize()` - [@dyorgio](https://github.com/dyorgio), [@dbwiddis](https://github.com/dbwiddis).
 * [#3088](https://github.com/oshi/oshi/pull/3088),
   [#3089](https://github.com/oshi/oshi/pull/3089),
-  [#3092](https://github.com/oshi/oshi/pull/3092): Add GPU metrics to GraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
+  [#3092](https://github.com/oshi/oshi/pull/3092),
+  [#3095](https://github.com/oshi/oshi/pull/3095): Add GPU metrics to GraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#3086](https://github.com/oshi/oshi/pull/3086): DXGI-based VRAM detection for Windows GPU adapters - [@dbwiddis](https://github.com/dbwiddis).
