@@ -92,6 +92,11 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             // Skip until line contains "VGA" or "3D controller"
             if (prefix.equals("Class") && (line.contains("VGA") || line.contains("3D controller"))) {
                 found = true;
+                lookupDevice = null;
+                name = Constants.UNKNOWN;
+                deviceId = Constants.UNKNOWN;
+                vendor = Constants.UNKNOWN;
+                versionInfoList.clear();
             } else if (prefix.equals("Slot") && split.length > 1) {
                 // Capture PCI slot address (e.g. "01:00.0") for use with lspci -s
                 lookupDevice = split[1].trim();
@@ -102,7 +107,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                     Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                            queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+                            lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(),
+                            drmInfo.getB(), drmInfo.getC()));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -119,7 +125,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                         } else {
                             vendor = split[1].trim();
                         }
-                    } else if (prefix.equals("Rev:")) {
+                    } else if (prefix.equals("Rev")) {
                         versionInfoList.add(line.trim());
                     }
                 }
@@ -130,7 +136,8 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
             Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
             cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    queryLspciMemorySize(lookupDevice), drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+                    lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
+                    drmInfo.getC()));
         }
         return cardList;
     }
@@ -160,7 +167,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         int cardNum = 0;
         String busInfo = null;
         for (String line : lshw) {
-            String[] split = line.trim().split(":");
+            String[] split = line.trim().split(":", 2);
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
@@ -182,16 +189,20 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                 } else if (prefix.startsWith("resources")) {
                     vram = ParseUtil.parseLshwResourceString(split[1].trim());
                 } else if (prefix.equals("bus info")) {
-                    // lshw reports PCI slot as "pci@0000:01:00.0"; strip the "pci@" prefix
-                    String raw = split[1].trim();
+                    // lshw reports PCI slot as "pci@0000:01:00.0"; the value contains multiple
+                    // colons so we locate the first colon in the original line to get the full value.
+                    int colonIdx = line.indexOf(':');
+                    String raw = colonIdx >= 0 ? line.substring(colonIdx + 1).trim() : "";
                     busInfo = raw.startsWith("pci@") ? raw.substring(4) : raw;
                 }
             }
         }
-        Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
-        cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
-                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
-                drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+        if (cardNum > 0) {
+            Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
+            cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
+                    versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
+                    drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+        }
         return cardList;
     }
 

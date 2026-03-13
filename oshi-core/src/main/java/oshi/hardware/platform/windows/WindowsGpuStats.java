@@ -45,12 +45,12 @@ final class WindowsGpuStats implements GpuStats {
     private final String pciBusId;
     private final String cardName;
 
-    private volatile boolean closed;
+    private boolean closed;
 
     // Cached device lookups; null = not yet resolved, empty = unavailable
-    private volatile String cachedNvmlDevice;
+    private String cachedNvmlDevice;
     // Integer.MIN_VALUE = not yet resolved, -1 = unavailable
-    private volatile int cachedAdlIndex = Integer.MIN_VALUE;
+    private int cachedAdlIndex = Integer.MIN_VALUE;
 
     WindowsGpuStats(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
         this.luidPrefix = luidPrefix;
@@ -61,28 +61,28 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closed = true;
     }
 
     @Override
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return closed;
     }
 
     @Override
-    public GpuTicks getGpuTicks() {
+    public synchronized GpuTicks getGpuTicks() {
         checkOpen();
         long timestamp = System.nanoTime() / 100L;
         if (luidPrefix.isEmpty()) {
-            return new DefaultGpuTicks(timestamp, 0L);
+            return new DefaultGpuTicks(timestamp, -1L);
         }
         Pair<List<String>, Map<GpuEngineProperty, List<Long>>> engineData = GpuInformation.queryGpuEngineCounters();
         List<String> instances = engineData.getA();
         Map<GpuEngineProperty, List<Long>> values = engineData.getB();
         List<Long> runningTimes = values.get(GpuEngineProperty.RUNNING_TIME);
         if (instances.isEmpty() || runningTimes == null) {
-            return new DefaultGpuTicks(timestamp, 0L);
+            return new DefaultGpuTicks(timestamp, -1L);
         }
         Map<String, Long> engineTypeSums = new HashMap<>();
         String luidLower = luidPrefix.toLowerCase(Locale.ROOT);
@@ -96,11 +96,11 @@ final class WindowsGpuStats implements GpuStats {
             engineTypeSums.merge(engType, runningTimes.get(i), Long::sum);
         }
         long totalTicks = engineTypeSums.values().stream().mapToLong(Long::longValue).sum();
-        return new DefaultGpuTicks(timestamp, totalTicks);
+        return new DefaultGpuTicks(timestamp, engineTypeSums.isEmpty() ? -1L : totalTicks);
     }
 
     @Override
-    public double getGpuUtilization() {
+    public synchronized double getGpuUtilization() {
         checkOpen();
         if (!lhmParent.isEmpty()) {
             try {
@@ -118,7 +118,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public long getVramUsed() {
+    public synchronized long getVramUsed() {
         checkOpen();
         long pdhResult = queryAdapterMemory(GpuAdapterMemoryProperty.DEDICATED_USAGE);
         if (pdhResult >= 0) {
@@ -141,7 +141,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public long getSharedMemoryUsed() {
+    public synchronized long getSharedMemoryUsed() {
         checkOpen();
         if (luidPrefix.isEmpty()) {
             return -1L;
@@ -150,7 +150,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public double getTemperature() {
+    public synchronized double getTemperature() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -170,7 +170,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public double getPowerDraw() {
+    public synchronized double getPowerDraw() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -194,7 +194,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public long getCoreClockMhz() {
+    public synchronized long getCoreClockMhz() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -215,7 +215,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public long getMemoryClockMhz() {
+    public synchronized long getMemoryClockMhz() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -236,7 +236,7 @@ final class WindowsGpuStats implements GpuStats {
     }
 
     @Override
-    public double getFanSpeedPercent() {
+    public synchronized double getFanSpeedPercent() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {

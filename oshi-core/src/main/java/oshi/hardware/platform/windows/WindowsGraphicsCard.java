@@ -318,7 +318,8 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                     luidPrefix = buildLuidPrefix(dxgiMatch);
-                    remainingDxgi.remove(dxgiMatch);
+                    // pciBusNumber and pciBusId are not available via WMI; leave as -1 / empty.
+                    // ADL and NVML correlation will be skipped for cards enumerated via this path.
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
                 }
@@ -327,6 +328,12 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
                         pciBusNumber, pciBusId);
+                // Remove dxgiMatch from remainingDxgi only after the card is successfully
+                // constructed, matching the registry path's defensive pattern so that a
+                // failure during construction leaves the match available for subsequent entries.
+                if (dxgiMatch != null) {
+                    remainingDxgi.remove(dxgiMatch);
+                }
                 if (dxgiIndex >= 0) {
                     dxgiOrdered.put(dxgiIndex, card);
                 } else {

@@ -34,9 +34,9 @@ final class LinuxGpuStats implements GpuStats {
     private final String gt0Path;
 
     // Cached NVML device id; null means not yet resolved, empty string means unavailable
-    private volatile String nvmlDeviceId;
+    private String nvmlDeviceId;
 
-    private volatile boolean closed;
+    private boolean closed;
 
     LinuxGpuStats(String drmDevicePath, String driverName, String pciBusId, String cardName) {
         this.drmDevicePath = drmDevicePath;
@@ -48,23 +48,23 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closed = true;
     }
 
     @Override
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return closed;
     }
 
     @Override
-    public GpuTicks getGpuTicks() {
+    public synchronized GpuTicks getGpuTicks() {
         checkOpen();
-        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+        return new DefaultGpuTicks(System.nanoTime() / 100L, -1L);
     }
 
     @Override
-    public double getGpuUtilization() {
+    public synchronized double getGpuUtilization() {
         checkOpen();
         if (drmDevicePath.isEmpty()) {
             return -1d;
@@ -85,7 +85,7 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public long getVramUsed() {
+    public synchronized long getVramUsed() {
         checkOpen();
         if (drmDevicePath.isEmpty()) {
             return -1L;
@@ -98,13 +98,13 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public long getSharedMemoryUsed() {
+    public synchronized long getSharedMemoryUsed() {
         checkOpen();
         return -1L;
     }
 
     @Override
-    public double getTemperature() {
+    public synchronized double getTemperature() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -123,7 +123,7 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public double getPowerDraw() {
+    public synchronized double getPowerDraw() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -142,7 +142,7 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public long getCoreClockMhz() {
+    public synchronized long getCoreClockMhz() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -172,7 +172,7 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public long getMemoryClockMhz() {
+    public synchronized long getMemoryClockMhz() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
@@ -197,7 +197,7 @@ final class LinuxGpuStats implements GpuStats {
     }
 
     @Override
-    public double getFanSpeedPercent() {
+    public synchronized double getFanSpeedPercent() {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {

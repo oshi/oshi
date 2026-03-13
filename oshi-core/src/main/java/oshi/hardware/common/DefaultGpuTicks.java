@@ -19,8 +19,8 @@ public final class DefaultGpuTicks implements GpuTicks {
     /**
      * Creates a new snapshot.
      *
-     * @param timestamp   wall-clock time in 100ns units
-     * @param activeTicks cumulative GPU active time in 100ns units, or 0 if unavailable
+     * @param timestamp   monotonic time in 100ns units, from {@link System#nanoTime()}
+     * @param activeTicks cumulative GPU active time in 100ns units, or -1 if unavailable
      */
     public DefaultGpuTicks(long timestamp, long activeTicks) {
         this.timestamp = timestamp;

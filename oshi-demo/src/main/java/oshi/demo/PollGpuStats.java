@@ -56,10 +56,10 @@ public final class PollGpuStats {
         try {
             for (int i = 0; i < cards.size(); i++) {
                 sessions[i] = cards.get(i).createStatsSession();
+                // Prime all delta-based metrics so the first real iteration has a valid baseline
                 prev[i] = sessions[i].getGpuTicks();
-                sessions[i].getPowerDraw(); // prime the power delta so the first real iteration has a valid baseline
-                sessions[i].getGpuUtilization(); // prime the utilization delta so the first real iteration has a valid
-                                                 // baseline
+                sessions[i].getGpuUtilization();
+                sessions[i].getPowerDraw();
             }
 
             for (int iter = 0; iter < ITERATIONS; iter++) {
@@ -70,7 +70,7 @@ public final class PollGpuStats {
                     GpuTicks curr = stats.getGpuTicks();
                     long dtTicks = curr.getTimestamp() - prev[i].getTimestamp();
                     long dActive = curr.getActiveTicks() - prev[i].getActiveTicks();
-                    String tickStr = dtTicks > 0 && dActive >= 0
+                    String tickStr = dtTicks > 0 && prev[i].getActiveTicks() >= 0 && dActive >= 0
                             ? String.format(Locale.ROOT, "%5.1f%%", dActive * 100.0 / dtTicks)
                             : "n/a";
                     prev[i] = curr;

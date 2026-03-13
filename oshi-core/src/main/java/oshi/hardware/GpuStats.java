@@ -39,8 +39,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <pre>{@code
  * try (GpuStats stats = card.createStatsSession()) {
  *
- *     // Prime delta-based metrics so the first real iteration returns a value.
- *     GpuTicks prev = stats.getGpuTicks();
+ *     // Prime all delta-based metrics so the first real iteration returns a value.
+ *     GpuTicks prev = stats.getGpuTicks(); // returns activeTicks=-1; used as prev in first iteration
  *     stats.getPowerDraw(); // establishes power baseline; returns -1
  *     stats.getGpuUtilization(); // establishes utilization baseline; returns -1
  *
@@ -51,7 +51,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  *         GpuTicks curr = stats.getGpuTicks();
  *         long dtTicks = curr.getTimestamp() - prev.getTimestamp();
  *         long dActive = curr.getActiveTicks() - prev.getActiveTicks();
- *         double tickUtil = (dtTicks > 0 && dActive >= 0) ? dActive * 100.0 / dtTicks : -1d;
+ *         double tickUtil = (dtTicks > 0 && prev.getActiveTicks() >= 0 && dActive >= 0) ? dActive * 100.0 / dtTicks
+ *                 : -1d;
  *         prev = curr;
  *
  *         // API-reported utilization (delta computed internally by the session)
@@ -99,19 +100,24 @@ public interface GpuStats extends AutoCloseable {
      * elapsed time between two snapshots; it is not a wall-clock time.
      *
      * <p>
-     * This method returns a raw cumulative counter, not a percentage. To derive utilization, take two snapshots
-     * separated by a known interval and compute:
+     * This method returns a cumulative counter built from per-interval deltas, not a raw hardware counter. To derive
+     * utilization, take two snapshots separated by a known interval and compute:
      *
      * <pre>{@code
      * long dtTicks = curr.getTimestamp() - prev.getTimestamp();
      * long dActive = curr.getActiveTicks() - prev.getActiveTicks();
-     * double utilPct = (dtTicks > 0 && dActive >= 0) ? dActive * 100.0 / dtTicks : -1d;
+     * double utilPct = (dtTicks > 0 && prev.getActiveTicks() >= 0 && dActive >= 0) ? dActive * 100.0 / dtTicks : -1d;
      * }</pre>
      *
      * <p>
-     * {@code getActiveTicks()} returns {@code 0} on platforms where tick-level GPU metrics are not available (e.g.
-     * non-Apple-Silicon macOS, Windows without PDH counters). In that case the delta will always be zero; use
-     * {@link #getGpuUtilization()} as an alternative source of utilization data.
+     * Because the counter is built from deltas, the <em>first call</em> after a session is opened primes the internal
+     * baseline and returns {@code activeTicks = -1}. Subsequent calls return a valid cumulative value. To ensure the
+     * first polling iteration returns a valid tick delta, call this method once during a seeding/priming step before
+     * the polling loop begins (the returned snapshot with {@code activeTicks = -1} is used as {@code prev}).
+     *
+     * <p>
+     * {@code getActiveTicks()} returns {@code -1} on platforms where tick-level GPU metrics are not available (e.g.
+     * non-Apple-Silicon macOS, Windows without PDH counters). Use {@link #getGpuUtilization()} as an alternative.
      *
      * @return an immutable {@link GpuTicks} snapshot; never null
      * @throws IllegalStateException if the session has been closed; obtain a new session via

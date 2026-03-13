@@ -45,6 +45,11 @@ public final class IOReportClient {
     private final IOReportSubscriptionRef subscription;
     private final CFDictionaryRef subscribedChannels;
 
+    // Previous sample for ticks delta; accumulated total for cumulative counter
+    private CFDictionaryRef prevSampleTicks;
+    private long prevTicksTimestamp;
+    private long accumulatedActiveTicks;
+
     // Previous sample for utilization delta
     private CFDictionaryRef prevSampleUtil;
 
@@ -113,29 +118,67 @@ public final class IOReportClient {
     }
 
     /**
-     * Returns a {@link GpuTicks} snapshot with cumulative GPU active ticks (in 100 ns units). Returns a zero-ticks
-     * snapshot if closed or sampling fails.
+     * Returns a {@link GpuTicks} snapshot with a cumulative GPU active-ticks counter (in 100 ns wall-clock units),
+     * built by accumulating per-interval deltas from {@code IOReportCreateSamplesDelta}. Each interval's contribution
+     * is normalised from IOReport's internal tick frequency to wall-clock units via
+     * {@code active * dtWallClock / total}, where {@code total} is the IOReport interval duration in IOReport ticks and
+     * {@code dtWallClock} is the elapsed wall-clock interval. This ensures that {@code dActive / dtWallClock} yields
+     * the correct utilization fraction regardless of the IOReport tick rate.
+     *
+     * <p>
+     * The first call primes the baseline and returns {@code activeTicks = -1}. Subsequent calls return the accumulated
+     * total.
      *
      * @return GpuTicks snapshot; never null
      */
     public synchronized GpuTicks sampleGpuTicks() {
         long timestamp = System.nanoTime() / 100L;
         if (closed) {
-            return new DefaultGpuTicks(timestamp, 0L);
+            return new DefaultGpuTicks(timestamp, -1L);
         }
         CFDictionaryRef sample = null;
         try {
             sample = ioReport.IOReportCreateSamples(subscription, subscribedChannels, null);
             if (sample == null) {
-                return new DefaultGpuTicks(timestamp, 0L);
+                return new DefaultGpuTicks(timestamp, -1L);
             }
-            Map<String, Long> states = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-            long off = states.getOrDefault(STATE_OFF, 0L);
-            long total = states.values().stream().mapToLong(Long::longValue).sum();
-            long active = total - off;
-            return new DefaultGpuTicks(timestamp, active > 0 ? active : 0L);
+            if (prevSampleTicks == null) {
+                prevSampleTicks = sample;
+                prevTicksTimestamp = timestamp;
+                sample = null;
+                return new DefaultGpuTicks(timestamp, -1L);
+            }
+            long prevTimestamp = prevTicksTimestamp;
+            CFDictionaryRef delta = ioReport.IOReportCreateSamplesDelta(prevSampleTicks, sample, null);
+            prevSampleTicks.release();
+            prevSampleTicks = sample;
+            prevTicksTimestamp = timestamp;
+            sample = null;
+            if (delta == null) {
+                return new DefaultGpuTicks(timestamp, accumulatedActiveTicks);
+            }
+            try {
+                ChannelStates cs = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (!cs.getStates().isEmpty()) {
+                    long off = cs.getStates().getOrDefault(STATE_OFF, 0L);
+                    long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
+                    long active = total - off;
+                    // IOReport residency ticks run at a different frequency than System.nanoTime().
+                    // Normalise to wall-clock 100ns units: activeWallClock = active * dtWallClock / total
+                    // where dtWallClock is the elapsed wall-clock interval and total is the IOReport
+                    // interval duration in IOReport ticks. This is equivalent to utilization * dtWallClock,
+                    // matching the active/total ratio used by sampleGpuUtilization().
+                    long dtWallClock = timestamp - prevTimestamp;
+                    if (total > 0 && active > 0 && dtWallClock > 0) {
+                        accumulatedActiveTicks += active * dtWallClock / total;
+                    }
+                }
+            } finally {
+                delta.release();
+            }
+            return new DefaultGpuTicks(timestamp, accumulatedActiveTicks);
         } catch (Exception e) {
-            return new DefaultGpuTicks(timestamp, 0L);
+            return new DefaultGpuTicks(timestamp, -1L);
         } finally {
             if (sample != null) {
                 sample.release();
@@ -171,12 +214,12 @@ public final class IOReportClient {
                 return -1d;
             }
             try {
-                Map<String, Long> states = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-                if (states.isEmpty()) {
+                ChannelStates cs = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (cs.getStates().isEmpty()) {
                     return -1d;
                 }
-                long off = states.getOrDefault(STATE_OFF, 0L);
-                long total = states.values().stream().mapToLong(Long::longValue).sum();
+                long off = cs.getStates().getOrDefault(STATE_OFF, 0L);
+                long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
                 long active = total - off;
                 return total > 0 ? active * 100.0 / total : -1d;
             } finally {
@@ -254,6 +297,10 @@ public final class IOReportClient {
             return;
         }
         closed = true;
+        if (prevSampleTicks != null) {
+            prevSampleTicks.release();
+            prevSampleTicks = null;
+        }
         if (prevSampleUtil != null) {
             prevSampleUtil.release();
             prevSampleUtil = null;
@@ -297,12 +344,25 @@ public final class IOReportClient {
         return -1L;
     }
 
-    private Map<String, Long> extractChannelStates(CFDictionaryRef dict, String group, String subgroup) {
+    /** Holds the merged state-residency map and the number of IOReport channels that contributed to it. */
+    private static final class ChannelStates {
+        private final Map<String, Long> states;
+
+        ChannelStates(Map<String, Long> states) {
+            this.states = states;
+        }
+
+        Map<String, Long> getStates() {
+            return states;
+        }
+    }
+
+    private ChannelStates extractChannelStates(CFDictionaryRef dict, String group, String subgroup) {
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try {
             Pointer arrPtr = dict.getValue(channelsKey);
             if (arrPtr == null) {
-                return Collections.emptyMap();
+                return new ChannelStates(Collections.emptyMap());
             }
             CFArrayRef arr = new CFArrayRef(arrPtr);
             int count = arr.getCount();
@@ -336,7 +396,7 @@ public final class IOReportClient {
                     }
                 }
             }
-            return result;
+            return new ChannelStates(result);
         } finally {
             channelsKey.release();
         }

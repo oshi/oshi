@@ -80,9 +80,11 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
                 }
             }
         }
-        cardList.add(new MacGraphicsCard(name, deviceId, vendor,
-                versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                resolveVram(vram, name)));
+        if (cardNum > 0) {
+            cardList.add(new MacGraphicsCard(name, deviceId, vendor,
+                    versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
+                    resolveVram(vram, name)));
+        }
         return cardList;
     }
 

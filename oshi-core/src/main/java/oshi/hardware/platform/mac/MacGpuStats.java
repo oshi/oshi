@@ -53,7 +53,7 @@ final class MacGpuStats implements GpuStats {
     // Non-null only on Apple Silicon
     private final IOReportClient ioReportClient;
 
-    private volatile boolean closed;
+    private boolean closed;
 
     MacGpuStats(boolean isAppleSilicon, String cardName) {
         this.isAppleSilicon = isAppleSilicon;
@@ -74,7 +74,7 @@ final class MacGpuStats implements GpuStats {
     }
 
     @Override
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return closed;
     }
 
@@ -84,7 +84,7 @@ final class MacGpuStats implements GpuStats {
         if (isAppleSilicon && ioReportClient != null) {
             return ioReportClient.sampleGpuTicks();
         }
-        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+        return new DefaultGpuTicks(System.nanoTime() / 100L, -1L);
     }
 
     @Override

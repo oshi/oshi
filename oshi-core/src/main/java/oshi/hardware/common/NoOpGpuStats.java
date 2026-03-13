@@ -12,7 +12,8 @@ import oshi.hardware.GpuTicks;
 
 /**
  * A no-op {@link GpuStats} implementation returned by platforms that do not support a native stats session. All metric
- * methods return sentinel values ({@code -1} or a zero-tick snapshot). {@link #close()} is idempotent.
+ * methods return sentinel values ({@code -1}, or a {@link oshi.hardware.GpuTicks} snapshot with {@code activeTicks} of
+ * {@code -1}). {@link #close()} is idempotent.
  */
 @ThreadSafe
 public final class NoOpGpuStats implements GpuStats {
@@ -32,7 +33,7 @@ public final class NoOpGpuStats implements GpuStats {
     @Override
     public GpuTicks getGpuTicks() {
         checkOpen();
-        return new DefaultGpuTicks(System.nanoTime() / 100L, 0L);
+        return new DefaultGpuTicks(System.nanoTime() / 100L, -1L);
     }
 
     @Override

@@ -196,7 +196,7 @@ class AbstractGraphicsCardTest {
             assertThat(stats.getFanSpeedPercent(), is(-1d));
             GpuTicks ticks = stats.getGpuTicks();
             assertThat(ticks, is(notNullValue()));
-            assertThat(ticks.getActiveTicks(), is(0L));
+            assertThat(ticks.getActiveTicks(), is(-1L));
         }
     }
 }
