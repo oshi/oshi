@@ -119,4 +119,16 @@ public interface GraphicsCard {
      * @return fan speed in the range 0.0 to 100.0, or -1 if unavailable
      */
     double getFanSpeedPercent();
+
+    /**
+     * Opens a new {@link GpuStats} session for sampling dynamic GPU metrics. The caller is responsible for closing the
+     * session when done, preferably via try-with-resources.
+     *
+     * <p>
+     * Never returns null and never throws. Platforms that do not support a native session return a no-op instance whose
+     * metric methods return sentinel values.
+     *
+     * @return a new, open {@link GpuStats} session
+     */
+    GpuStats createStatsSession();
 }

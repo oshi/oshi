@@ -6,6 +6,7 @@ package oshi.hardware.common;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 
 /**
@@ -166,5 +167,10 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
     @Override
     public double getFanSpeedPercent() {
         return -1d;
+    }
+
+    @Override
+    public GpuStats createStatsSession() {
+        return new NoOpGpuStats();
     }
 }
