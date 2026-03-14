@@ -175,8 +175,12 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                     cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                             drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
-                    versionInfoList.clear();
                 }
+                name = Constants.UNKNOWN;
+                deviceId = Constants.UNKNOWN;
+                vendor = Constants.UNKNOWN;
+                vram = 0;
+                versionInfoList.clear();
                 busInfo = null;
             } else if (split.length == 2) {
                 String prefix = split[0];

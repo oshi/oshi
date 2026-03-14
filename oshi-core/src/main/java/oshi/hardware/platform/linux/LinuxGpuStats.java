@@ -92,6 +92,13 @@ final class LinuxGpuStats implements GpuStats {
     @Override
     public synchronized long getVramUsed() {
         checkOpen();
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            long val = NvmlUtil.getVramUsed(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
         if (drmDevicePath.isEmpty()) {
             return -1L;
         }

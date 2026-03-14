@@ -79,9 +79,10 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
      * hot paths. Cache the result if repeated string representations are needed.
      *
      * <p>
-     * Delta-based metrics ({@link GpuStats#getGpuUtilization()} and {@link GpuStats#getPowerDraw()}) always return -1
-     * on the first call after a session is opened, so they will not appear in this output. Use a persistent
-     * {@link GpuStats} session with a polling loop to obtain those values.
+     * Delta-based metric backends ({@link GpuStats#getGpuUtilization()} and {@link GpuStats#getPowerDraw()}) may return
+     * -1 on the first call after a session is opened while they record the initial baseline. Backends that read
+     * instantaneous values (e.g. Linux sysfs and the macOS IOAccelerator fallback) can return a valid value on the
+     * first call. Use a persistent {@link GpuStats} session with a polling loop for reliable delta values.
      *
      * @return a human-readable description of this graphics card
      */

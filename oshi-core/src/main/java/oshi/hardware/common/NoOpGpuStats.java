@@ -11,8 +11,12 @@ import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 
 /**
- * A no-op {@link GpuStats} implementation returned by platforms that do not support a native stats session. All metric
- * methods return sentinel values ({@code -1}). {@link #close()} is idempotent.
+ * A no-op {@link GpuStats} implementation returned by platforms that do not support a native stats session.
+ *
+ * <p>
+ * While the session is open, all primitive metric getters return {@code -1} (or {@code -1L} / {@code -1d}), except
+ * {@link #getGpuTicks()} which returns {@code new GpuTicks(0L, 0L)} as its sentinel. After {@link #close()} is called,
+ * all getters throw {@link IllegalStateException}. {@link #close()} is idempotent.
  */
 @ThreadSafe
 public final class NoOpGpuStats implements GpuStats {

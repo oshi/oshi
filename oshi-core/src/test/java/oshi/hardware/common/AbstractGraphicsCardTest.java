@@ -114,7 +114,9 @@ class AbstractGraphicsCardTest {
 
     @Test
     void testCreateStatsSessionNeverNull() {
-        assertThat(new StubGraphicsCard(-1d, -1d, -1L, -1L, -1d).createStatsSession(), is(notNullValue()));
+        try (GpuStats session = new StubGraphicsCard(-1d, -1d, -1L, -1L, -1d).createStatsSession()) {
+            assertThat(session, is(notNullValue()));
+        }
     }
 
     @Test
