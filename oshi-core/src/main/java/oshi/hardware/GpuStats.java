@@ -24,10 +24,10 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <h2>One-shot vs. polling</h2>
  * <p>
  * Instantaneous metrics (temperature, VRAM used, clock speeds, fan speed) can be read from a freshly opened session
- * with a single call. However, <em>delta-based</em> metrics — {@link #getGpuUtilization()} and {@link #getPowerDraw()}
- * — require at least two samples separated by a meaningful time interval to produce a valid result. On the first call
- * after a session is opened these methods return {@code -1} while they record the initial baseline; subsequent calls
- * return the value computed over the elapsed interval.
+ * with a single call. For <em>delta-based</em> metrics — {@link #getGpuUtilization()} and {@link #getPowerDraw()} —
+ * behaviour on the first call is implementation-dependent: some backends return an immediate reading, while others
+ * record an initial baseline and return {@code -1} until a second sample is taken. Callers that need a guaranteed valid
+ * value on the first polling iteration should prime these methods once before the loop begins.
  *
  * <h2>Recommended polling pattern</h2>
  * <p>
@@ -118,15 +118,16 @@ public interface GpuStats extends AutoCloseable {
      * current sample and the previous one recorded by this session.
      *
      * <p>
-     * Because this metric is delta-based, the <em>first call</em> after a session is opened records the initial
-     * baseline sample and returns {@code -1}. Subsequent calls return the utilization computed over the interval since
-     * the previous call. To ensure the first polling iteration returns a valid value, call this method once during a
-     * seeding/priming step before the polling loop begins:
+     * Behaviour on the first call is implementation-dependent. Backends that derive utilization from an energy or
+     * residency counter record an initial baseline on the first call and return {@code -1}; subsequent calls return the
+     * utilization computed over the elapsed interval. Backends that read an instantaneous hardware register may return
+     * a valid value immediately. To ensure the first polling iteration returns a valid value on delta-based backends,
+     * call this method once as a priming step before the polling loop begins:
      *
      * <pre>{@code
-     * stats.getGpuUtilization(); // prime — discards -1 return value
+     * stats.getGpuUtilization(); // prime — may return -1 on delta-based backends
      * Thread.sleep(intervalMs);
-     * double util = stats.getGpuUtilization(); // now returns a valid percentage
+     * double util = stats.getGpuUtilization(); // valid on all backends
      * }</pre>
      *
      * @return utilization in the range 0.0 to 100.0, or -1 if not available or not yet primed
@@ -163,25 +164,20 @@ public interface GpuStats extends AutoCloseable {
     double getTemperature();
 
     /**
-     * Returns the GPU power consumption, computed internally as an energy delta between the current sample and the
-     * previous one recorded by this session.
+     * Returns the GPU power consumption. On backends that derive power from an energy counter (e.g. macOS Apple Silicon
+     * via IOReport), this is computed as a delta between the current sample and the previous one; the first call
+     * records the initial baseline and returns {@code -1}. On backends that read an instantaneous hardware sensor (e.g.
+     * Windows via NVML/ADL/LHM), a valid value may be returned immediately.
      *
      * <p>
-     * Because this metric is delta-based, the <em>first call</em> after a session is opened records the initial energy
-     * baseline and returns {@code -1}. Subsequent calls return the average power in watts over the interval since the
-     * previous call. To ensure the first polling iteration returns a valid value, call this method once during a
-     * seeding/priming step before the polling loop begins:
+     * To ensure the first polling iteration returns a valid value on delta-based backends, call this method once as a
+     * priming step before the polling loop begins:
      *
      * <pre>{@code
-     * stats.getPowerDraw(); // prime — discards -1 return value
+     * stats.getPowerDraw(); // prime — may return -1 on delta-based backends
      * Thread.sleep(intervalMs);
-     * double watts = stats.getPowerDraw(); // now returns a valid wattage
+     * double watts = stats.getPowerDraw(); // valid on all backends
      * }</pre>
-     *
-     * <p>
-     * On platforms where power is read directly from a hardware sensor rather than derived from an energy counter (e.g.
-     * Windows via NVML/ADL/LHM), the value is instantaneous and does not require priming. On macOS Apple Silicon, power
-     * is derived from an IOReport energy counter and does require priming.
      *
      * @return power draw in watts, or -1 if unavailable or not yet primed
      * @throws IllegalStateException if the session has been closed; obtain a new session via

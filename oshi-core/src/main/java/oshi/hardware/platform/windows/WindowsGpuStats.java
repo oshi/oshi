@@ -34,8 +34,8 @@ import oshi.util.tuples.Pair;
  * Metric source priority by method:
  * <ul>
  * <li>{@code getGpuTicks()}: PDH GPU Engine counters ({@code Running Time} / {@code Running Time_Base}).</li>
- * <li>{@code getGpuUtilization()}: LHM WMI {@code GPU Core} load sensor. Returns -1 when LHM is not running; use
- * {@code getGpuTicks()} as an alternative.</li>
+ * <li>{@code getGpuUtilization()}: LHM WMI {@code GPU Core} load sensor. Falls back to PDH tick-delta
+ * ({@code getGpuTicks()} delta) when LHM is not running; returns -1 on the first call (priming).</li>
  * <li>{@code getVramUsed()}: PDH GPU Adapter Memory {@code DedicatedUsage}, then LHM {@code GPU Memory Used}.</li>
  * <li>{@code getSharedMemoryUsed()}: PDH GPU Adapter Memory {@code SharedUsage}.</li>
  * <li>{@code getTemperature()}: NVML, then ADL, then LHM {@code GPU Core} temperature.</li>
@@ -68,6 +68,8 @@ final class WindowsGpuStats implements GpuStats {
     private String cachedNvmlDevice;
     // Integer.MIN_VALUE = not yet resolved, -1 = unavailable
     private int cachedAdlIndex = Integer.MIN_VALUE;
+    // Previous tick snapshot for PDH-based utilization fallback; null = not yet sampled
+    private GpuTicks prevUtilTicks;
 
     WindowsGpuStats(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
         this.luidPrefix = luidPrefix;
@@ -143,6 +145,16 @@ final class WindowsGpuStats implements GpuStats {
                 LOG.debug("LHM GPU utilization query failed: {}", e.getMessage());
             }
         }
+        // Fallback: derive utilization from PDH tick counters
+        GpuTicks curr = getGpuTicks();
+        if (prevUtilTicks != null) {
+            long dActive = curr.getActiveTicks() - prevUtilTicks.getActiveTicks();
+            long dIdle = curr.getIdleTicks() - prevUtilTicks.getIdleTicks();
+            long dTotal = dActive + dIdle;
+            prevUtilTicks = curr;
+            return dTotal > 0 ? dActive * 100.0 / dTotal : -1d;
+        }
+        prevUtilTicks = curr;
         return -1d;
     }
 

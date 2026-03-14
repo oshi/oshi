@@ -5,6 +5,7 @@
 package oshi.hardware;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,6 +27,20 @@ import oshi.hardware.common.NoOpGpuStats;
  * Tests the GpuStats session lifecycle contract.
  */
 class GpuStatsTest {
+
+    @Test
+    void testGpuTicksFieldsAndToString() {
+        GpuTicks ticks = new GpuTicks(123L, 456L);
+        assertThat("activeTicks", ticks.getActiveTicks(), is(123L));
+        assertThat("idleTicks", ticks.getIdleTicks(), is(456L));
+        String s = ticks.toString();
+        assertThat("toString contains activeTicks value", s, containsString("123"));
+        assertThat("toString contains idleTicks value", s, containsString("456"));
+
+        GpuTicks sentinel = new GpuTicks(0L, 0L);
+        assertThat("sentinel activeTicks", sentinel.getActiveTicks(), is(0L));
+        assertThat("sentinel idleTicks", sentinel.getIdleTicks(), is(0L));
+    }
 
     @Test
     void testNoOpSessionLifecycle() {

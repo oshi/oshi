@@ -21,11 +21,18 @@ import oshi.hardware.GpuTicks;
 class IOReportClientTest {
 
     @Test
-    void testCreateReturnsNullOrNonNull() {
-        // create() returns null on Intel Mac or sandboxed CI; that is valid
+    void testCreateAndCloseDoesNotThrow() {
+        // create() returns null on Intel Mac or sandboxed CI; both are valid.
+        // When non-null, verify the client is usable (returns a non-null ticks snapshot)
+        // and that close() completes without throwing.
         IOReportClient client = IOReportClient.create();
         if (client != null) {
-            client.close();
+            try {
+                assertThat("sampleGpuTicks must not return null on a live client", client.sampleGpuTicks(),
+                        is(notNullValue()));
+            } finally {
+                client.close();
+            }
         }
     }
 

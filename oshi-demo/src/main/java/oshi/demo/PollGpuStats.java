@@ -96,7 +96,11 @@ public final class PollGpuStats {
         } finally {
             for (GpuStats s : sessions) {
                 if (s != null) {
-                    s.close();
+                    try {
+                        s.close();
+                    } catch (Exception e) {
+                        // best-effort: attempt to close all sessions even if one throws
+                    }
                 }
             }
         }

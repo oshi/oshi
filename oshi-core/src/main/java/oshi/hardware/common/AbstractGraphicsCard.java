@@ -148,7 +148,11 @@ public abstract class AbstractGraphicsCard implements GraphicsCard {
             builder.append(", metricsUnavailable");
         } finally {
             if (stats != null) {
-                stats.close();
+                try {
+                    stats.close();
+                } catch (Exception e) {
+                    // best-effort cleanup; toString must not propagate close() failures
+                }
             }
         }
         builder.append(", versionInfo=[");

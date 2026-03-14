@@ -225,7 +225,7 @@ public final class NvmlUtil {
     private static int countMatchesByName(String gpuName) {
         IntByReference countRef = new IntByReference();
         if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return 0;
+            return -1;
         }
         String needle = gpuName.toLowerCase(Locale.ROOT);
         int total = countRef.getValue();
@@ -319,6 +319,13 @@ public final class NvmlUtil {
             ensureDevicesEnumerated();
             // Check for ambiguous name matches before committing to the first hit.
             int matchCount = countMatchesByName(gpuName);
+            if (matchCount < 0) {
+                // nvmlDeviceGetCount_v2 failed; cannot enumerate devices
+                return null;
+            }
+            if (matchCount == 0) {
+                return null;
+            }
             if (matchCount > 1) {
                 LOG.warn("NVML name match for '{}' is ambiguous ({} devices match); use PCI bus ID for reliable"
                         + " device identification", gpuName, matchCount);
