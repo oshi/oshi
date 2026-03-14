@@ -7,9 +7,26 @@ package oshi.hardware;
 import oshi.annotation.concurrent.Immutable;
 
 /**
+ * Represents a graphics card (GPU) installed in the system.
+ *
  * <p>
- * GraphicsCard interface.
- * </p>
+ * Identity fields ({@link #getName()}, {@link #getDeviceId()}, {@link #getVendor()}, {@link #getVersionInfo()},
+ * {@link #getVRam()}) are static and safe to read at any time.
+ *
+ * <p>
+ * Live metrics (utilization, temperature, power, clocks, fan speed, VRAM used) are accessed through a {@link GpuStats}
+ * session obtained via {@link #createStatsSession()}. For a single snapshot, use try-with-resources:
+ *
+ * <pre>{@code
+ * try (GpuStats stats = card.createStatsSession()) {
+ *     double temp = stats.getTemperature();
+ *     double power = stats.getPowerDraw();
+ * }
+ * }</pre>
+ *
+ * <p>
+ * For repeated polling, hold the session open across iterations to preserve internal delta state. See {@link GpuStats}
+ * for a full polling example and details on which metrics require priming.
  */
 @Immutable
 public interface GraphicsCard {
@@ -51,72 +68,14 @@ public interface GraphicsCard {
     long getVRam();
 
     /**
-     * Returns an atomic snapshot of cumulative GPU active time and the wall-clock timestamp at which it was captured,
-     * both in 100-nanosecond units. Callers can compute utilization by taking two snapshots and calculating
-     * {@code (delta activeTicks) / (delta timestamp) * 100}.
+     * Opens a new {@link GpuStats} session for sampling dynamic GPU metrics. The caller is responsible for closing the
+     * session when done, preferably via try-with-resources.
      *
      * <p>
-     * Returns a snapshot with {@code activeTicks == 0} on platforms that do not support tick-level counters. Never
-     * returns null.
+     * Never returns null and never throws. Platforms that do not support a native session return a no-op instance whose
+     * metric methods return sentinel values.
      *
-     * @return an immutable {@link GpuTicks} snapshot
+     * @return a new, open {@link GpuStats} session
      */
-    GpuTicks getGpuTicks();
-
-    /**
-     * Returns the instantaneous GPU core utilization as a percentage.
-     *
-     * @return utilization in the range 0.0 to 100.0, or -1 if not available on this platform
-     */
-    double getGpuUtilization();
-
-    /**
-     * Returns the amount of dedicated VRAM currently in use.
-     *
-     * @return bytes of VRAM in use, or -1 if unavailable
-     */
-    long getVramUsed();
-
-    /**
-     * Returns the amount of shared system memory currently used by this GPU.
-     *
-     * @return bytes of shared memory in use, or -1 if unavailable
-     */
-    long getSharedMemoryUsed();
-
-    /**
-     * Returns the GPU temperature.
-     *
-     * @return temperature in degrees Celsius, or -1 if unavailable
-     */
-    double getTemperature();
-
-    /**
-     * Returns the GPU power consumption.
-     *
-     * @return power draw in watts, or -1 if unavailable
-     */
-    double getPowerDraw();
-
-    /**
-     * Returns the current GPU core clock speed.
-     *
-     * @return core clock in MHz, or -1 if unavailable
-     */
-    long getCoreClockMhz();
-
-    /**
-     * Returns the current GPU memory clock speed.
-     *
-     * @return memory clock in MHz, or -1 if unavailable
-     */
-    long getMemoryClockMhz();
-
-    /**
-     * Returns the GPU fan speed as a percentage of maximum. Returns -1 for passively cooled GPUs or GPUs without fan
-     * sensors.
-     *
-     * @return fan speed in the range 0.0 to 100.0, or -1 if unavailable
-     */
-    double getFanSpeedPercent();
+    GpuStats createStatsSession();
 }

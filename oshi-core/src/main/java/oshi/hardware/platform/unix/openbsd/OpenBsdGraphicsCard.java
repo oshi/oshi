@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -41,7 +41,7 @@ final class OpenBsdGraphicsCard extends AbstractGraphicsCard {
     /**
      * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
-     * @return List of {@link oshi.hardware.platform.unix.freebsd.OpenBsdGraphicsCard} objects.
+     * @return List of {@link oshi.hardware.platform.unix.openbsd.OpenBsdGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();

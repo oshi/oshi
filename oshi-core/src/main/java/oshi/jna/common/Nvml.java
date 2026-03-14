@@ -55,11 +55,11 @@ public interface Nvml {
         public int memory;
     }
 
-    @FieldOrder({ "total", "used", "free" })
+    @FieldOrder({ "total", "free", "used" })
     class NvmlMemory extends Structure {
         public long total;
-        public long used;
         public long free;
+        public long used;
     }
 
     @FieldOrder({ "busIdLegacy", "domain", "bus", "device", "pciDeviceId", "pciSubSystemId", "busId" })

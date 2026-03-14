@@ -222,6 +222,30 @@ public final class NvmlUtil {
         return null;
     }
 
+    private static int countMatchesByName(String gpuName) {
+        IntByReference countRef = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
+            return -1;
+        }
+        String needle = gpuName.toLowerCase(Locale.ROOT);
+        int total = countRef.getValue();
+        int matches = 0;
+        for (int i = 0; i < total; i++) {
+            PointerByReference handleRef = new PointerByReference();
+            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
+                continue;
+            }
+            byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
+            if (Holder.LIB.nvmlDeviceGetName(handleRef.getValue(), nameBuf, nameBuf.length) == Nvml.NVML_SUCCESS) {
+                String name = Native.toString(nameBuf).toLowerCase(Locale.ROOT);
+                if (name.contains(needle) || needle.contains(name)) {
+                    matches++;
+                }
+            }
+        }
+        return matches;
+    }
+
     // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
@@ -293,6 +317,20 @@ public final class NvmlUtil {
         }
         try {
             ensureDevicesEnumerated();
+            // Check for ambiguous name matches before committing to the first hit.
+            int matchCount = countMatchesByName(gpuName);
+            if (matchCount < 0) {
+                // nvmlDeviceGetCount_v2 failed; cannot enumerate devices
+                return null;
+            }
+            if (matchCount == 0) {
+                return null;
+            }
+            if (matchCount > 1) {
+                LOG.warn("NVML name match for '{}' is ambiguous ({} devices match); use PCI bus ID for reliable"
+                        + " device identification", gpuName, matchCount);
+                return null;
+            }
             // Acquire a handle by name to confirm the device exists, then extract its bus ID.
             Pointer handle = acquireHandleByName(gpuName);
             if (handle == null) {

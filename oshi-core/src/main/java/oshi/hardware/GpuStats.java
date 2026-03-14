@@ -1,0 +1,214 @@
+/*
+ * Copyright 2026 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.hardware;
+
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * A session handle for sampling dynamic GPU metrics. Obtain an instance via {@link GraphicsCard#createStatsSession()}.
+ *
+ * <h2>Session lifecycle</h2>
+ * <p>
+ * Each session may hold native resources (IOReport subscriptions, device handles, etc.) that are released when
+ * {@link #close()} is called. Always close the session when done, preferably via try-with-resources:
+ *
+ * <pre>{@code
+ * try (GpuStats stats = card.createStatsSession()) {
+ *     double temp = stats.getTemperature();
+ *     double power = stats.getPowerDraw();
+ * }
+ * }</pre>
+ *
+ * <h2>One-shot vs. polling</h2>
+ * <p>
+ * Instantaneous metrics (temperature, VRAM used, clock speeds, fan speed) can be read from a freshly opened session
+ * with a single call. For <em>delta-based</em> metrics — {@link #getGpuUtilization()} and {@link #getPowerDraw()} —
+ * behaviour on the first call is implementation-dependent: some backends return an immediate reading, while others
+ * record an initial baseline and return {@code -1} until a second sample is taken. Callers that need a guaranteed valid
+ * value on the first polling iteration should prime these methods once before the loop begins.
+ *
+ * <h2>Recommended polling pattern</h2>
+ * <p>
+ * For repeated polling, hold a single session open for the entire polling window rather than opening and closing one
+ * per iteration. This preserves the internal baseline state across iterations and avoids the overhead of re-creating
+ * native subscriptions on every sample:
+ *
+ * <pre>{@code
+ * try (GpuStats stats = card.createStatsSession()) {
+ *
+ *     // Prime delta-based metrics so the first real iteration has a valid baseline.
+ *     GpuTicks prev = stats.getGpuTicks();
+ *     stats.getPowerDraw(); // establishes power baseline; returns -1
+ *     stats.getGpuUtilization(); // establishes utilization baseline; returns -1
+ *
+ *     for (int i = 0; i < ITERATIONS; i++) {
+ *         Thread.sleep(1_000L);
+ *
+ *         // Tick-derived utilization: dActive / (dActive + dIdle) * 100
+ *         GpuTicks curr = stats.getGpuTicks();
+ *         long dActive = curr.getActiveTicks() - prev.getActiveTicks();
+ *         long dIdle = curr.getIdleTicks() - prev.getIdleTicks();
+ *         long dTotal = dActive + dIdle;
+ *         double tickUtil = dTotal > 0 ? dActive * 100.0 / dTotal : -1d;
+ *         prev = curr;
+ *
+ *         // API-reported utilization (delta computed internally by the session)
+ *         double apiUtil = stats.getGpuUtilization();
+ *
+ *         // Instantaneous metrics
+ *         double temp = stats.getTemperature();
+ *         double power = stats.getPowerDraw();
+ *         long clock = stats.getCoreClockMhz();
+ *     }
+ * }
+ * }</pre>
+ *
+ * <h2>Sentinel values</h2>
+ * <p>
+ * All metric methods return {@code -1} (or {@code -1L} for {@code long} results) when the metric is unavailable on the
+ * current platform, when the session has not yet accumulated enough samples to compute a delta, or when the underlying
+ * native query fails. Callers should treat any negative return value as "not available" and display it accordingly
+ * (e.g. "n/a") rather than as a meaningful measurement.
+ *
+ * <h2>Thread safety</h2>
+ * <p>
+ * All methods are safe for concurrent use from multiple threads.
+ */
+@ThreadSafe
+public interface GpuStats extends AutoCloseable {
+
+    /**
+     * Releases any native resources held by this session. Safe to call multiple times; subsequent calls after the first
+     * are no-ops. Does not throw checked exceptions.
+     */
+    @Override
+    void close();
+
+    /**
+     * Returns {@code true} if {@link #close()} has been called on this session. Does not throw.
+     *
+     * @return true if this session is closed
+     */
+    boolean isClosed();
+
+    /**
+     * Returns a snapshot of cumulative GPU active and idle ticks in opaque, platform-native units. The counters are
+     * monotonically increasing; diff two snapshots to compute utilization:
+     *
+     * <pre>{@code
+     * long dActive = curr.getActiveTicks() - prev.getActiveTicks();
+     * long dIdle = curr.getIdleTicks() - prev.getIdleTicks();
+     * long dTotal = dActive + dIdle;
+     * double utilPct = dTotal > 0 ? dActive * 100.0 / dTotal : -1d;
+     * }</pre>
+     *
+     * <p>
+     * Both counters are {@code 0} on platforms where tick-level GPU metrics are not available (see {@link GpuTicks} for
+     * the sentinel semantics). Use {@link #getGpuUtilization()} as an alternative.
+     *
+     * @return a {@link GpuTicks} snapshot; never null
+     * @throws IllegalStateException if the session has been closed
+     */
+    GpuTicks getGpuTicks();
+
+    /**
+     * Returns the instantaneous GPU core utilization as a percentage, computed internally as a delta between the
+     * current sample and the previous one recorded by this session.
+     *
+     * <p>
+     * Behaviour on the first call is implementation-dependent. Backends that derive utilization from an energy or
+     * residency counter record an initial baseline on the first call and return {@code -1}; subsequent calls return the
+     * utilization computed over the elapsed interval. Backends that read an instantaneous hardware register may return
+     * a valid value immediately. To ensure the first polling iteration returns a valid value on delta-based backends,
+     * call this method once as a priming step before the polling loop begins:
+     *
+     * <pre>{@code
+     * stats.getGpuUtilization(); // prime — may return -1 on delta-based backends
+     * Thread.sleep(intervalMs);
+     * double util = stats.getGpuUtilization(); // valid on all backends
+     * }</pre>
+     *
+     * @return utilization in the range 0.0 to 100.0, or -1 if not available or not yet primed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    double getGpuUtilization();
+
+    /**
+     * Returns the amount of dedicated VRAM currently in use.
+     *
+     * @return bytes of VRAM in use, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    long getVramUsed();
+
+    /**
+     * Returns the amount of shared system memory currently used by this GPU.
+     *
+     * @return bytes of shared memory in use, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    long getSharedMemoryUsed();
+
+    /**
+     * Returns the GPU temperature.
+     *
+     * @return temperature in degrees Celsius, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    double getTemperature();
+
+    /**
+     * Returns the GPU power consumption. On backends that derive power from an energy counter (e.g. macOS Apple Silicon
+     * via IOReport), this is computed as a delta between the current sample and the previous one; the first call
+     * records the initial baseline and returns {@code -1}. On backends that read an instantaneous hardware sensor (e.g.
+     * Windows via NVML/ADL/LHM), a valid value may be returned immediately.
+     *
+     * <p>
+     * To ensure the first polling iteration returns a valid value on delta-based backends, call this method once as a
+     * priming step before the polling loop begins:
+     *
+     * <pre>{@code
+     * stats.getPowerDraw(); // prime — may return -1 on delta-based backends
+     * Thread.sleep(intervalMs);
+     * double watts = stats.getPowerDraw(); // valid on all backends
+     * }</pre>
+     *
+     * @return power draw in watts, or -1 if unavailable or not yet primed
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    double getPowerDraw();
+
+    /**
+     * Returns the current GPU core clock speed.
+     *
+     * @return core clock in MHz, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    long getCoreClockMhz();
+
+    /**
+     * Returns the current GPU memory clock speed.
+     *
+     * @return memory clock in MHz, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    long getMemoryClockMhz();
+
+    /**
+     * Returns the GPU fan speed as a percentage of maximum.
+     *
+     * @return fan speed in the range 0.0 to 100.0, or -1 if unavailable
+     * @throws IllegalStateException if the session has been closed; obtain a new session via
+     *                               {@link GraphicsCard#createStatsSession()}
+     */
+    double getFanSpeedPercent();
+}
