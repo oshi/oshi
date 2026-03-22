@@ -110,17 +110,19 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
         if (!result.succeeded()) {
             return "";
         }
-        int vt = VariantFFM.getVt(result.variant());
-        if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
+        try {
+            int vt = VariantFFM.getVt(result.variant());
+            if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
+                return "";
+            }
+            if (vt == VariantFFM.VT_BSTR) {
+                return VariantFFM.getBstrVal(result.variant(), arena);
+            }
+            LOG.debug("Expected VT_BSTR but got VT type: {}", vt);
             return "";
-        }
-        if (vt == VariantFFM.VT_BSTR) {
-            String value = VariantFFM.getBstrVal(result.variant(), arena);
+        } finally {
             VariantFFM.clear(result.variant());
-            return value;
         }
-        LOG.debug("Expected VT_BSTR but got VT type: {}", vt);
-        return "";
     }
 
     /**
@@ -136,19 +138,23 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
         if (!result.succeeded()) {
             return 0;
         }
-        int vt = VariantFFM.getVt(result.variant());
-        if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
-            return 0;
-        }
-        return switch (vt) {
-            case VariantFFM.VT_I4, VariantFFM.VT_UI4, VariantFFM.VT_INT, VariantFFM.VT_UINT ->
-                    VariantFFM.getIntVal(result.variant());
-            case VariantFFM.VT_I2, VariantFFM.VT_UI2 -> VariantFFM.getShortVal(result.variant()) & 0xFFFF;
-            default -> {
-                LOG.debug("Expected integer VT type but got: {}", vt);
-                yield 0;
+        try {
+            int vt = VariantFFM.getVt(result.variant());
+            if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
+                return 0;
             }
-        };
+            return switch (vt) {
+                case VariantFFM.VT_I4, VariantFFM.VT_UI4, VariantFFM.VT_INT, VariantFFM.VT_UINT ->
+                        VariantFFM.getIntVal(result.variant());
+                case VariantFFM.VT_I2, VariantFFM.VT_UI2 -> VariantFFM.getShortVal(result.variant()) & 0xFFFF;
+                default -> {
+                    LOG.debug("Expected integer VT type but got: {}", vt);
+                    yield 0;
+                }
+            };
+        } finally {
+            VariantFFM.clear(result.variant());
+        }
     }
 
     /**
@@ -164,29 +170,32 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
         if (!result.succeeded()) {
             return 0L;
         }
-        int vt = VariantFFM.getVt(result.variant());
-        if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
-            return 0L;
-        }
-        // CIM_UINT64 is returned as VT_BSTR
-        if (vt == VariantFFM.VT_BSTR) {
-            String strVal = VariantFFM.getBstrVal(result.variant(), arena);
-            VariantFFM.clear(result.variant());
-            try {
-                return Long.parseUnsignedLong(strVal);
-            } catch (NumberFormatException e) {
+        try {
+            int vt = VariantFFM.getVt(result.variant());
+            if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return 0L;
             }
+            // CIM_UINT64 is returned as VT_BSTR
+            if (vt == VariantFFM.VT_BSTR) {
+                String strVal = VariantFFM.getBstrVal(result.variant(), arena);
+                try {
+                    return Long.parseUnsignedLong(strVal);
+                } catch (NumberFormatException e) {
+                    return 0L;
+                }
+            }
+            if (vt == VariantFFM.VT_I8 || vt == VariantFFM.VT_UI8) {
+                return VariantFFM.getLongVal(result.variant());
+            }
+            // Handle 32-bit integers
+            if (vt == VariantFFM.VT_I4 || vt == VariantFFM.VT_UI4) {
+                return Integer.toUnsignedLong(VariantFFM.getIntVal(result.variant()));
+            }
+            LOG.debug("Expected long VT type but got: {}", vt);
+            return 0L;
+        } finally {
+            VariantFFM.clear(result.variant());
         }
-        if (vt == VariantFFM.VT_I8 || vt == VariantFFM.VT_UI8) {
-            return VariantFFM.getLongVal(result.variant());
-        }
-        // Handle 32-bit integers
-        if (vt == VariantFFM.VT_I4 || vt == VariantFFM.VT_UI4) {
-            return Integer.toUnsignedLong(VariantFFM.getIntVal(result.variant()));
-        }
-        LOG.debug("Expected long VT type but got: {}", vt);
-        return 0L;
     }
 
     /**
@@ -202,14 +211,18 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
         if (!result.succeeded()) {
             return false;
         }
-        int vt = VariantFFM.getVt(result.variant());
-        if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
+        try {
+            int vt = VariantFFM.getVt(result.variant());
+            if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
+                return false;
+            }
+            if (vt == VariantFFM.VT_BOOL) {
+                return VariantFFM.getBoolVal(result.variant());
+            }
+            LOG.debug("Expected VT_BOOL but got VT type: {}", vt);
             return false;
+        } finally {
+            VariantFFM.clear(result.variant());
         }
-        if (vt == VariantFFM.VT_BOOL) {
-            return VariantFFM.getBoolVal(result.variant());
-        }
-        LOG.debug("Expected VT_BOOL but got VT type: {}", vt);
-        return false;
     }
 }

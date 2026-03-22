@@ -66,14 +66,16 @@ public final class IWbemServicesFFM extends ComObjectFFM {
         if (pServices == null || pServices.equals(NULL)) {
             return Optional.empty();
         }
+        MemorySegment bstrQueryLang = NULL;
+        MemorySegment bstrQuery = NULL;
         try {
             MemorySegment vtable = getVtable(pServices, arena);
             MemorySegment fnExecQuery = getVtableFunction(vtable, WbemcliFFM.IWBEMSERVICES_EXECQUERY);
             MethodHandle mh = createDowncall(fnExecQuery, EXEC_QUERY_DESC);
 
             // Allocate BSTRs
-            MemorySegment bstrQueryLang = BStrFFM.fromString(arena, WQL);
-            MemorySegment bstrQuery = BStrFFM.fromString(arena, query);
+            bstrQueryLang = BStrFFM.fromString(arena, WQL);
+            bstrQuery = BStrFFM.fromString(arena, query);
             MemorySegment ppEnum = arena.allocate(ADDRESS);
 
             int hr = (int) mh.invokeExact(
@@ -85,10 +87,6 @@ public final class IWbemServicesFFM extends ComObjectFFM {
                     ppEnum
             );
 
-            // Free BSTRs
-            BStrFFM.free(bstrQueryLang);
-            BStrFFM.free(bstrQuery);
-
             if (Ole32FFM.failed(hr)) {
                 LOG.debug("IWbemServices.ExecQuery failed with HRESULT: 0x{}", Integer.toHexString(hr));
                 return Optional.empty();
@@ -98,6 +96,13 @@ public final class IWbemServicesFFM extends ComObjectFFM {
         } catch (Throwable t) {
             LOG.debug("IWbemServicesFFM.execQuery failed", t);
             return Optional.empty();
+        } finally {
+            if (!bstrQueryLang.equals(NULL)) {
+                BStrFFM.free(bstrQueryLang);
+            }
+            if (!bstrQuery.equals(NULL)) {
+                BStrFFM.free(bstrQuery);
+            }
         }
     }
 

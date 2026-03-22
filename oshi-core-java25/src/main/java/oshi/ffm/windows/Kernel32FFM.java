@@ -27,6 +27,18 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     private static final SymbolLookup K32 = lib("Kernel32");
 
+    /**
+     * INVALID_HANDLE_VALUE constant (-1) used by Windows API to indicate failure.
+     */
+    private static final long INVALID_HANDLE_VALUE = -1L;
+
+    /**
+     * Checks if a handle represents INVALID_HANDLE_VALUE.
+     */
+    private static boolean isInvalidHandle(MemorySegment handle) {
+        return handle == null || handle.address() == INVALID_HANDLE_VALUE;
+    }
+
     private static final MethodHandle CloseHandle = downcall(K32, "CloseHandle", JAVA_INT, ADDRESS);
 
     public static OptionalInt CloseHandle(MemorySegment handle) {
@@ -43,7 +55,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     public static Optional<MemorySegment> FindFirstVolume(MemorySegment lpszVolumeName, int cchBufferLength) {
         try {
             MemorySegment handle = (MemorySegment) FindFirstVolume.invokeExact(lpszVolumeName, cchBufferLength);
-            if (handle == null || handle.equals(MemorySegment.NULL)) {
+            if (isInvalidHandle(handle)) {
                 int error = (int) GetLastError.invokeExact();
                 LOG.error("FindFirstVolume failed with error: {}", error);
                 return Optional.empty();

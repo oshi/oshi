@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandle;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+import static java.lang.foreign.ValueLayout.JAVA_FLOAT;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -190,7 +191,7 @@ public final class VariantFFM extends WindowsForeignFunctions {
      * @return the float value
      */
     public static float getFloatVal(MemorySegment variant) {
-        return variant.get(JAVA_INT, DATA_OFFSET); // Read as int bits
+        return variant.get(JAVA_FLOAT, DATA_OFFSET);
     }
 
     /**

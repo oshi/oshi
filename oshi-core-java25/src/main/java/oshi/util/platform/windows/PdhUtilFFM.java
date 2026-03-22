@@ -24,6 +24,7 @@ import static oshi.ffm.windows.PdhFFM.PDH_FMT_LARGE;
 import static oshi.ffm.windows.PdhFFM.PDH_MORE_DATA;
 import static oshi.ffm.windows.PdhFFM.PDH_FMT_COUNTERVALUE_ITEM_LAYOUT;
 import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 public class PdhUtilFFM {
@@ -66,12 +67,20 @@ public class PdhUtilFFM {
                 int count = itemCount.get(JAVA_INT, 0);
                 long offset = 0;
                 long itemSize = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT.byteSize();
+                long szNameOffset = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT.byteOffset(groupElement("szName"));
+                long valueOffset = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT
+                        .byteOffset(groupElement("FmtValue"), groupElement("Value"), groupElement("largeValue"));
 
-                for (int i = 0; i < count - 1; i++) {
+                for (int i = 0; i < count; i++) {
                     MemorySegment item = buffer.asSlice(offset, itemSize);
-                    long value = item.get(JAVA_LONG, PDH_FMT_COUNTERVALUE_ITEM_LAYOUT
-                            .byteOffset(groupElement("FmtValue"), groupElement("Value"), groupElement("largeValue")));
-                    totalHandles += value;
+                    // Read instance name pointer and convert to string
+                    MemorySegment szNamePtr = item.get(ADDRESS, szNameOffset);
+                    String instanceName = readWideString(szNamePtr);
+                    // Skip the _Total instance (case-insensitive)
+                    if (!"_Total".equalsIgnoreCase(instanceName)) {
+                        long value = item.get(JAVA_LONG, valueOffset);
+                        totalHandles += value;
+                    }
                     offset += itemSize;
                 }
 

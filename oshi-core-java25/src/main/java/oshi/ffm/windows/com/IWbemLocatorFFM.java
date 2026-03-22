@@ -16,7 +16,6 @@ import java.util.Optional;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 /**
@@ -67,7 +66,7 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
             ADDRESS,    // strUser
             ADDRESS,    // strPassword
             ADDRESS,    // strLocale
-            JAVA_LONG,  // lSecurityFlags
+            JAVA_INT,   // lSecurityFlags
             ADDRESS,    // strAuthority
             ADDRESS,    // pCtx
             ADDRESS     // ppNamespace
@@ -85,13 +84,14 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
         if (pLocator == null || pLocator.equals(NULL)) {
             return Optional.empty();
         }
+        MemorySegment bstrNamespace = null;
         try {
             MemorySegment vtable = getVtable(pLocator, arena);
             MemorySegment fnConnectServer = getVtableFunction(vtable, WbemcliFFM.IWBEMLOCATOR_CONNECTSERVER);
             MethodHandle mh = createDowncall(fnConnectServer, CONNECT_SERVER_DESC);
 
             // Allocate BSTR for namespace
-            MemorySegment bstrNamespace = BStrFFM.fromString(arena, namespace);
+            bstrNamespace = BStrFFM.fromString(arena, namespace);
             MemorySegment ppServices = arena.allocate(ADDRESS);
 
             int hr = (int) mh.invokeExact(
@@ -100,14 +100,11 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
                     NULL,           // user
                     NULL,           // password
                     NULL,           // locale
-                    0L,             // security flags
+                    0,              // security flags
                     NULL,           // authority
                     NULL,           // context
                     ppServices
             );
-
-            // Free the BSTR
-            BStrFFM.free(bstrNamespace);
 
             if (Ole32FFM.failed(hr)) {
                 LOG.debug("IWbemLocator.ConnectServer failed with HRESULT: 0x{}", Integer.toHexString(hr));
@@ -118,6 +115,10 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
         } catch (Throwable t) {
             LOG.debug("IWbemLocatorFFM.connectServer failed", t);
             return Optional.empty();
+        } finally {
+            if (bstrNamespace != null) {
+                BStrFFM.free(bstrNamespace);
+            }
         }
     }
 }

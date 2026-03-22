@@ -21,10 +21,13 @@ import oshi.util.GlobalConfig;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 import static java.lang.foreign.MemorySegment.NULL;
@@ -49,17 +52,20 @@ public class WmiQueryHandlerFFM {
         }
     }
 
-    // Instance timeout
-    private int wmiTimeout = GLOBAL_TIMEOUT;
+    // Instance timeout (thread-safe)
+    private final AtomicInteger wmiTimeout = new AtomicInteger(GLOBAL_TIMEOUT);
 
-    // Track failed WMI classes to avoid repeated failures
-    private final Set<String> failedWmiClassNames = new HashSet<>();
+    // Cache failed WMI classes (thread-safe) - matches JNA behavior
+    private final Set<String> failedWmiClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    // Preferred threading model
-    private int comThreading = Ole32FFM.COINIT_MULTITHREADED;
+    // Preferred threading model (thread-safe)
+    private final AtomicInteger comThreading = new AtomicInteger(Ole32FFM.COINIT_MULTITHREADED);
 
-    // Track initialization of Security
-    private boolean securityInitialized = false;
+    // Track initialization of Security (thread-safe)
+    private final AtomicBoolean securityInitialized = new AtomicBoolean(false);
+
+    // Lock for COM initialization
+    private final Object comInitLock = new Object();
 
     private static final WmiQueryHandlerFFM INSTANCE = new WmiQueryHandlerFFM();
 
@@ -90,6 +96,7 @@ public class WmiQueryHandlerFFM {
             java.util.function.Supplier<T> resultFactory,
             TriConsumer<MemorySegment, Arena, T> rowProcessor) {
 
+        // Check if class previously failed - skip to avoid repeated failures
         if (failedWmiClassNames.contains(wmiClassName)) {
             return new ArrayList<>();
         }
@@ -148,7 +155,7 @@ public class WmiQueryHandlerFFM {
                     try {
                         // Enumerate results
                         while (true) {
-                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum, wmiTimeout, arena);
+                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum, wmiTimeout.get(), arena);
 
                             if (nextResult.isComplete() || !nextResult.hasObject()) {
                                 break;
@@ -166,6 +173,8 @@ public class WmiQueryHandlerFFM {
                     } finally {
                         ComObjectFFM.safeRelease(pEnum, arena);
                     }
+
+
                 } finally {
                     ComObjectFFM.safeRelease(pServices, arena);
                 }
@@ -206,25 +215,30 @@ public class WmiQueryHandlerFFM {
      * @return true if COM was initialized and needs to be uninitialized
      */
     private boolean initCOM() {
-        boolean comInit = initCOM(comThreading);
+        boolean comInit = initCOM(comThreading.get());
         if (!comInit) {
             comInit = initCOM(switchComThreading());
         }
 
-        if (comInit && !securityInitialized) {
-            var hrOpt = Ole32FFM.CoInitializeSecurity(
-                    Ole32FFM.RPC_C_AUTHN_LEVEL_DEFAULT,
-                    Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE,
-                    Ole32FFM.EOAC_NONE);
+        if (comInit && !securityInitialized.get()) {
+            synchronized (comInitLock) {
+                // Double-check after acquiring lock
+                if (!securityInitialized.get()) {
+                    var hrOpt = Ole32FFM.CoInitializeSecurity(
+                            Ole32FFM.RPC_C_AUTHN_LEVEL_DEFAULT,
+                            Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE,
+                            Ole32FFM.EOAC_NONE);
 
-            if (hrOpt.isPresent()) {
-                int hr = hrOpt.getAsInt();
-                // RPC_E_TOO_LATE is OK - security already initialized
-                if (Ole32FFM.succeeded(hr) || hr == Ole32FFM.RPC_E_TOO_LATE) {
-                    securityInitialized = true;
-                } else {
-                    Ole32FFM.CoUninitialize();
-                    return false;
+                    if (hrOpt.isPresent()) {
+                        int hr = hrOpt.getAsInt();
+                        // RPC_E_TOO_LATE is OK - security already initialized
+                        if (Ole32FFM.succeeded(hr) || hr == Ole32FFM.RPC_E_TOO_LATE) {
+                            securityInitialized.set(true);
+                        } else {
+                            Ole32FFM.CoUninitialize();
+                            return false;
+                        }
+                    }
                 }
             }
         }
@@ -263,12 +277,14 @@ public class WmiQueryHandlerFFM {
      * @return the new threading model
      */
     private int switchComThreading() {
-        if (comThreading == Ole32FFM.COINIT_APARTMENTTHREADED) {
-            comThreading = Ole32FFM.COINIT_MULTITHREADED;
-        } else {
-            comThreading = Ole32FFM.COINIT_APARTMENTTHREADED;
+        synchronized (comInitLock) {
+            int current = comThreading.get();
+            int newValue = (current == Ole32FFM.COINIT_APARTMENTTHREADED)
+                    ? Ole32FFM.COINIT_MULTITHREADED
+                    : Ole32FFM.COINIT_APARTMENTTHREADED;
+            comThreading.set(newValue);
+            return newValue;
         }
-        return comThreading;
     }
 
     /**
@@ -277,7 +293,7 @@ public class WmiQueryHandlerFFM {
      * @return the current timeout (-1 for infinite)
      */
     public int getWmiTimeout() {
-        return wmiTimeout;
+        return wmiTimeout.get();
     }
 
     /**
@@ -286,7 +302,7 @@ public class WmiQueryHandlerFFM {
      * @param wmiTimeout the timeout to set (-1 for infinite)
      */
     public void setWmiTimeout(int wmiTimeout) {
-        this.wmiTimeout = wmiTimeout;
+        this.wmiTimeout.set(wmiTimeout);
     }
 
     /**

@@ -148,11 +148,20 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     MemorySegment systemFreeBytesBuf = arena.allocate(JAVA_LONG);
                     String volume = readWideString(volumeNameBuf);
 
-                    Kernel32FFM.GetVolumeInformation(toWideString(arena, volume), nameBuf, BUFSIZE, NULL, NULL,
-                            flagsBuf, fstypeBuf, 16);
+                    // Get volume information - skip if call fails
+                    var volInfoResult = Kernel32FFM.GetVolumeInformation(toWideString(arena, volume), nameBuf, BUFSIZE,
+                            NULL, NULL, flagsBuf, fstypeBuf, 16);
+                    if (volInfoResult.isEmpty() || volInfoResult.getAsInt() == 0) {
+                        continue;
+                    }
                     int flags = flagsBuf.get(JAVA_INT, 0);
 
-                    Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume), mountBuf, BUFSIZE, NULL);
+                    // Get volume path names - skip if call fails
+                    var pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
+                            mountBuf, BUFSIZE, NULL);
+                    if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
+                        continue;
+                    }
                     String mount = readWideString(mountBuf);
 
                     if (!mount.isEmpty() && (volumeToMatch == null || mount.equals(volumeToMatch))) {
@@ -165,8 +174,12 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                             options.append(',').append(moreOptions);
                         }
 
-                        Kernel32FFM.GetDiskFreeSpaceEx(toWideString(arena, volume), userFreeBytesBuf, totalBytesBuf,
-                                systemFreeBytesBuf);
+                        // Get disk free space - skip if call fails
+                        var diskSpaceResult = Kernel32FFM.GetDiskFreeSpaceEx(toWideString(arena, volume),
+                                userFreeBytesBuf, totalBytesBuf, systemFreeBytesBuf);
+                        if (diskSpaceResult.isEmpty() || diskSpaceResult.getAsInt() == 0) {
+                            continue;
+                        }
                         long systemFreeBytes = systemFreeBytesBuf.get(JAVA_LONG, 0);
                         long totalBytes = totalBytesBuf.get(JAVA_LONG, 0);
                         long userFreeBytes = userFreeBytesBuf.get(JAVA_LONG, 0);
