@@ -252,8 +252,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     // Local drive - get volume GUID path
                     MemorySegment mountPoint = toWideString(arena, name + "\\");
                     MemorySegment volumeBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
-                    Kernel32FFM.GetVolumeNameForVolumeMountPoint(mountPoint, volumeBuf, BUFSIZE);
-                    volume = readWideString(volumeBuf);
+                    volume = Kernel32FFM.GetVolumeNameForVolumeMountPoint(mountPoint, volumeBuf, BUFSIZE)
+                            ? readWideString(volumeBuf) : "";
                 } else {
                     // Network drive
                     volume = drive.getProviderName();

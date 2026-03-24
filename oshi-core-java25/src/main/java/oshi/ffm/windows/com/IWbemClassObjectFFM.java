@@ -89,7 +89,8 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
                     NULL            // flavor (not needed)
             );
 
-            int cimType = pType.get(JAVA_INT, 0);
+            // Only read pType on success; use CIM_ILLEGAL on failure
+            int cimType = Ole32FFM.succeeded(hr) ? pType.get(JAVA_INT, 0) : WbemcliFFM.CIM_ILLEGAL;
             return new GetResult(hr, pVal, cimType);
         } catch (Throwable t) {
             LOG.debug("IWbemClassObjectFFM.get failed", t);
@@ -107,10 +108,11 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
      */
     public static String getString(MemorySegment pObject, String propertyName, Arena arena) {
         GetResult result = get(pObject, propertyName, arena);
-        if (!result.succeeded()) {
-            return "";
-        }
+        // Always clear variant in finally, even on failed HRESULT
         try {
+            if (!result.succeeded()) {
+                return "";
+            }
             int vt = VariantFFM.getVt(result.variant());
             if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return "";
@@ -135,18 +137,22 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
      */
     public static int getInt(MemorySegment pObject, String propertyName, Arena arena) {
         GetResult result = get(pObject, propertyName, arena);
-        if (!result.succeeded()) {
-            return 0;
-        }
+        // Always clear variant in finally, even on failed HRESULT
         try {
+            if (!result.succeeded()) {
+                return 0;
+            }
             int vt = VariantFFM.getVt(result.variant());
             if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return 0;
             }
             return switch (vt) {
-                case VariantFFM.VT_I4, VariantFFM.VT_UI4, VariantFFM.VT_INT, VariantFFM.VT_UINT ->
-                        VariantFFM.getIntVal(result.variant());
-                case VariantFFM.VT_I2, VariantFFM.VT_UI2 -> VariantFFM.getShortVal(result.variant()) & 0xFFFF;
+                // Signed types: sign-extend to int
+                case VariantFFM.VT_I4, VariantFFM.VT_INT -> VariantFFM.getIntVal(result.variant());
+                case VariantFFM.VT_I2 -> VariantFFM.getShortVal(result.variant()); // sign-extends automatically
+                // Unsigned types: zero-extend to int
+                case VariantFFM.VT_UI4, VariantFFM.VT_UINT -> VariantFFM.getIntVal(result.variant());
+                case VariantFFM.VT_UI2 -> VariantFFM.getShortVal(result.variant()) & 0xFFFF;
                 default -> {
                     LOG.debug("Expected integer VT type but got: {}", vt);
                     yield 0;
@@ -167,10 +173,11 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
      */
     public static long getLong(MemorySegment pObject, String propertyName, Arena arena) {
         GetResult result = get(pObject, propertyName, arena);
-        if (!result.succeeded()) {
-            return 0L;
-        }
+        // Always clear variant in finally, even on failed HRESULT
         try {
+            if (!result.succeeded()) {
+                return 0L;
+            }
             int vt = VariantFFM.getVt(result.variant());
             if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return 0L;
@@ -184,11 +191,16 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
                     return 0L;
                 }
             }
+            // 64-bit types
             if (vt == VariantFFM.VT_I8 || vt == VariantFFM.VT_UI8) {
                 return VariantFFM.getLongVal(result.variant());
             }
-            // Handle 32-bit integers
-            if (vt == VariantFFM.VT_I4 || vt == VariantFFM.VT_UI4) {
+            // Signed 32-bit: sign-extend to long
+            if (vt == VariantFFM.VT_I4 || vt == VariantFFM.VT_INT) {
+                return VariantFFM.getIntVal(result.variant()); // sign-extends automatically
+            }
+            // Unsigned 32-bit: zero-extend to long
+            if (vt == VariantFFM.VT_UI4 || vt == VariantFFM.VT_UINT) {
                 return Integer.toUnsignedLong(VariantFFM.getIntVal(result.variant()));
             }
             LOG.debug("Expected long VT type but got: {}", vt);
@@ -208,10 +220,11 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
      */
     public static boolean getBoolean(MemorySegment pObject, String propertyName, Arena arena) {
         GetResult result = get(pObject, propertyName, arena);
-        if (!result.succeeded()) {
-            return false;
-        }
+        // Always clear variant in finally, even on failed HRESULT
         try {
+            if (!result.succeeded()) {
+                return false;
+            }
             int vt = VariantFFM.getVt(result.variant());
             if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return false;
