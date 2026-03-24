@@ -6,6 +6,7 @@ package oshi.ffm.windows.com;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.util.ParseUtil;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -150,9 +151,11 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
                 // Signed types: sign-extend to int
                 case VariantFFM.VT_I4, VariantFFM.VT_INT -> VariantFFM.getIntVal(result.variant());
                 case VariantFFM.VT_I2 -> VariantFFM.getShortVal(result.variant()); // sign-extends automatically
+                case VariantFFM.VT_I1 -> VariantFFM.getByteVal(result.variant()); // sign-extends automatically
                 // Unsigned types: zero-extend to int
                 case VariantFFM.VT_UI4, VariantFFM.VT_UINT -> VariantFFM.getIntVal(result.variant());
                 case VariantFFM.VT_UI2 -> VariantFFM.getShortVal(result.variant()) & 0xFFFF;
+                case VariantFFM.VT_UI1 -> VariantFFM.getByteVal(result.variant()) & 0xFF;
                 default -> {
                     LOG.debug("Expected integer VT type but got: {}", vt);
                     yield 0;
@@ -182,14 +185,14 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
             if (vt == VariantFFM.VT_NULL || vt == VariantFFM.VT_EMPTY) {
                 return 0L;
             }
-            // CIM_UINT64 is returned as VT_BSTR
+            // CIM_SINT64/CIM_UINT64 are returned as VT_BSTR
             if (vt == VariantFFM.VT_BSTR) {
                 String strVal = VariantFFM.getBstrVal(result.variant(), arena);
-                try {
-                    return Long.parseUnsignedLong(strVal);
-                } catch (NumberFormatException e) {
-                    return 0L;
+                // Use signed or unsigned parsing based on CIM type
+                if (result.cimType() == WbemcliFFM.CIM_SINT64) {
+                    return ParseUtil.parseLongOrDefault(strVal, 0L);
                 }
+                return ParseUtil.parseUnsignedLongOrDefault(strVal, 0L);
             }
             // 64-bit types
             if (vt == VariantFFM.VT_I8 || vt == VariantFFM.VT_UI8) {

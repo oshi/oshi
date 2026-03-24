@@ -78,10 +78,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
     }
 
-    static final long MAX_WINDOWS_HANDLES;
-    static {
-        MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
-    }
+    // Maximum file handles: 2^24 - 2^16 (assumes 64-bit Windows per FileSystem javadoc)
+    static final long MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
 
     public WindowsFileSystemFFM() {
         Kernel32FFM.SetErrorMode(SEM_FAILCRITICALERRORS);
@@ -101,18 +99,28 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
             volumeMap.put(volume.getMount(), volume);
         }
 
-        // Iterate through volumes in WMI and update description (if it exists)
+        // Iterate through volumes in WMI and update missing fields (if it exists)
         // or add new if it doesn't (expected for network drives)
         for (OSFileStore wmiVolume : getWmiVolumes(null, localOnly)) {
             if (volumeMap.containsKey(wmiVolume.getMount())) {
-                // If the volume is already in our list, update the name field
-                // using WMI's more verbose name and update label if needed
+                // If the volume is already in our list, preserve local values
+                // and only backfill missing fields from WMI
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
                 result.remove(volume);
-                result.add(new WindowsOSFileStoreFFM(wmiVolume.getName(), volume.getVolume(),
-                        volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
-                        volume.getOptions(), volume.getUUID(), "", volume.getDescription(), volume.getType(),
-                        volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0, true));
+                result.add(new WindowsOSFileStoreFFM(
+                        volume.getName(),  // preserve local name
+                        volume.getVolume(),
+                        volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
+                        volume.getMount(),
+                        volume.getOptions(),
+                        volume.getUUID(),
+                        "",
+                        volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
+                        volume.getType(),
+                        volume.getFreeSpace(),
+                        volume.getUsableSpace(),
+                        volume.getTotalSpace(),
+                        0, 0, true));
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);

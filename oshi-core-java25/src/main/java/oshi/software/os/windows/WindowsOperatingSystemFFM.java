@@ -128,8 +128,17 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
         return Kernel32UtilFFM.querySystemUptime();
     }
 
-    public int getThreadCount() {
+    @Override
+    public int getProcessCount() {
+        return getPerformanceInfoField("ProcessCount");
+    }
 
+    @Override
+    public int getThreadCount() {
+        return getPerformanceInfoField("ThreadCount");
+    }
+
+    private int getPerformanceInfoField(String fieldName) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment perfInfo = arena.allocate(PERFORMANCE_INFORMATION);
             int size = (int) PERFORMANCE_INFORMATION.byteSize();
@@ -139,12 +148,10 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 LOG.error("Failed to get Performance Info. Error code: {}", GetLastError());
                 return 0;
             }
-
-            int threadCount = perfInfo.get(JAVA_INT,
-                    PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement("ThreadCount")));
-            return threadCount;
+            return perfInfo.get(JAVA_INT,
+                    PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement(fieldName)));
         } catch (Throwable t) {
-            LOG.error("Exception getting thread count", t);
+            LOG.error("Exception getting {}", fieldName, t);
             return 0;
         }
     }

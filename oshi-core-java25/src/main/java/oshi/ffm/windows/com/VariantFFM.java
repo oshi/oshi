@@ -19,6 +19,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_FLOAT;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
@@ -172,6 +173,16 @@ public final class VariantFFM extends WindowsForeignFunctions {
      */
     public static short getShortVal(MemorySegment variant) {
         return variant.get(JAVA_SHORT, DATA_OFFSET);
+    }
+
+    /**
+     * Gets the byte value from a VARIANT (VT_I1, VT_UI1).
+     *
+     * @param variant the VARIANT memory segment
+     * @return the byte value
+     */
+    public static byte getByteVal(MemorySegment variant) {
+        return variant.get(JAVA_BYTE, DATA_OFFSET);
     }
 
     /**

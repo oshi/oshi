@@ -122,12 +122,12 @@ public final class Win32LogicalDiskFFM {
         boolean hasWhere = false;
 
         if (localOnly) {
-            whereClause.append("WHERE DriveType = 2 OR DriveType = 3 OR DriveType = 6");
+            whereClause.append("WHERE (DriveType = 2 OR DriveType = 3 OR DriveType = 6)");
             hasWhere = true;
         }
 
         if (nameToMatch != null) {
-            whereClause.append(hasWhere ? " AND" : "WHERE");
+            whereClause.append(hasWhere ? " AND" : " WHERE");
             whereClause.append(" Name=\"").append(nameToMatch).append("\"");
         }
 
