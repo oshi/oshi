@@ -20,11 +20,12 @@ public class WindowsOSFileStoreFFM extends AbstractOSFileStore {
     private long totalSpace;
     private long freeInodes;
     private long totalInodes;
+    private boolean local;
 
     public WindowsOSFileStoreFFM(String name, String volume, String label, String mount, String options, String uuid,
             String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
             long freeInodes, long totalInodes, boolean local) {
-        super(name, volume, label, mount, options, uuid, local);
+        super(name, volume, label, mount, options, uuid);
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -33,6 +34,7 @@ public class WindowsOSFileStoreFFM extends AbstractOSFileStore {
         this.totalSpace = totalSpace;
         this.freeInodes = freeInodes;
         this.totalInodes = totalInodes;
+        this.local = local;
     }
 
     @Override
