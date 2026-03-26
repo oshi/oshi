@@ -35,7 +35,7 @@ import oshi.util.platform.linux.SysPath;
 @ThreadSafe
 public final class LinuxPowerSource extends AbstractPowerSource {
 
-    private enum Prop {
+    enum Prop {
         POWER_SUPPLY_NAME, POWER_SUPPLY_STATUS, POWER_SUPPLY_CAPACITY, POWER_SUPPLY_PRESENT, POWER_SUPPLY_ONLINE,
         POWER_SUPPLY_ENERGY_NOW, POWER_SUPPLY_CHARGE_NOW, POWER_SUPPLY_ENERGY_FULL, POWER_SUPPLY_CHARGE_FULL,
         POWER_SUPPLY_ENERGY_FULL_DESIGN, POWER_SUPPLY_CHARGE_FULL_DESIGN, POWER_SUPPLY_VOLTAGE_NOW,
@@ -145,7 +145,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         return psList;
     }
 
-    private static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
+    static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
         String psName = props.getOrDefault(Prop.POWER_SUPPLY_NAME, name);
         String status = props.get(Prop.POWER_SUPPLY_STATUS);
         boolean psCharging = "Charging".equals(status);

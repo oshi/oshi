@@ -488,7 +488,7 @@ public final class ParseUtil {
     public static int parseIntOrDefault(String s, int defaultInt) {
         try {
             return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultInt;
         }
@@ -504,7 +504,7 @@ public final class ParseUtil {
     public static long parseLongOrDefault(String s, long defaultLong) {
         try {
             return Long.parseLong(s);
-        } catch (NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
         }
@@ -521,7 +521,7 @@ public final class ParseUtil {
     public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
         try {
             return new BigInteger(s).longValue();
-        } catch (NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultLong;
         }
@@ -537,7 +537,7 @@ public final class ParseUtil {
     public static double parseDoubleOrDefault(String s, double defaultDouble) {
         try {
             return Double.parseDouble(s);
-        } catch (NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             LOG.trace(DEFAULT_LOG_MSG, s, e);
             return defaultDouble;
         }
@@ -552,6 +552,9 @@ public final class ParseUtil {
      * @return The parsed number of seconds, or the default if parsing fails
      */
     public static long parseDHMSOrDefault(String s, long defaultLong) {
+        if (s == null) {
+            return defaultLong;
+        }
         Matcher m = DHMS.matcher(s);
         if (m.matches()) {
             long milliseconds = 0L;
@@ -581,6 +584,9 @@ public final class ParseUtil {
      * @return The parsed UUID, or the default if parsing fails
      */
     public static String parseUuidOrDefault(String s, String defaultStr) {
+        if (s == null) {
+            return defaultStr;
+        }
         Matcher m = UUID_PATTERN.matcher(s.toLowerCase(Locale.ROOT));
         if (m.matches()) {
             return m.group(1);
