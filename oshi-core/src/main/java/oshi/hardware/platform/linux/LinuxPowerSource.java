@@ -213,17 +213,17 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                         psCapacityUnits = CapacityUnits.MAH;
                     }
                     if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL"), 1)
+                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL"), 1)
                                 / 1000;
                     } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL")) {
-                        psCurrentCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL"), 1)
+                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL"), 1)
                                 / 1000;
                     }
                     if (psMap.containsKey("POWER_SUPPLY_ENERGY_FULL_DESIGN")) {
-                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1)
+                        psDesignCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_ENERGY_FULL_DESIGN"), 1)
                                 / 1000;
                     } else if (psMap.containsKey("POWER_SUPPLY_CHARGE_FULL_DESIGN")) {
-                        psMaxCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1)
+                        psDesignCapacity = ParseUtil.parseIntOrDefault(psMap.get("POWER_SUPPLY_CHARGE_FULL_DESIGN"), 1)
                                 / 1000;
                     }
                     // Debian/Ubuntu provides Voltage and Power.
@@ -246,7 +246,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
                             psPowerUsageRate = psAmperage * psVoltage;
                         } else if (psPowerUsageRate >= 0 && psAmperage < 0) {
                             psAmperage = psPowerUsageRate / psVoltage;
-                        } else {
+                        } else if (psPowerUsageRate < 0 && psAmperage < 0) {
                             psAmperage = 0;
                             psPowerUsageRate = 0;
                         }
