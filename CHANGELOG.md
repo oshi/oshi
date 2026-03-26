@@ -11,6 +11,7 @@
 * [#3086](https://github.com/oshi/oshi/pull/3086): DXGI-based VRAM detection for Windows GPU adapters - [@dbwiddis](https://github.com/dbwiddis).
 * [#3087](https://github.com/oshi/oshi/pull/3087): Filter disabled Windows GPU adapters and order by DXGI enumeration - [@dbwiddis](https://github.com/dbwiddis).
 * [#3091](https://github.com/oshi/oshi/pull/3091): Add Apple Silicon SMC sensor support - [@dbwiddis](https://github.com/dbwiddis).
+* [#3087](https://github.com/oshi/oshi/pull/3087): Correct PowerSupply units on Linux - [@benplotke](https://github.com/benplotke).
 
 # 6.10.0 (2026-02-22)
 

@@ -263,6 +263,7 @@ class ParseUtilTest {
     void testParseIntOrDefault() {
         assertThat("parse 123", ParseUtil.parseIntOrDefault("123", 45), is(123));
         assertThat("parse 45", ParseUtil.parseIntOrDefault("123X", 45), is(45));
+        assertThat("parse null", ParseUtil.parseIntOrDefault(null, 45), is(45));
     }
 
     /**
@@ -272,6 +273,7 @@ class ParseUtilTest {
     void testParseLongOrDefault() {
         assertThat("parse 123", ParseUtil.parseLongOrDefault("123", 45L), is(123L));
         assertThat("parse 45", ParseUtil.parseLongOrDefault("123L", 45L), is(45L));
+        assertThat("parse null", ParseUtil.parseLongOrDefault(null, 45L), is(45L));
     }
 
     /**
@@ -286,6 +288,7 @@ class ParseUtilTest {
         assertThat("parse 1L", ParseUtil.parseUnsignedLongOrDefault("18446744073709551615", 123L), is(-1L));
         assertThat("parse 0L", ParseUtil.parseUnsignedLongOrDefault("18446744073709551616", 45L), is(0L));
         assertThat("parse 123L", ParseUtil.parseUnsignedLongOrDefault("9223372036854775808L", 123L), is(123L));
+        assertThat("parse null", ParseUtil.parseUnsignedLongOrDefault(null, 123L), is(123L));
     }
 
     /**
@@ -295,6 +298,7 @@ class ParseUtilTest {
     void testParseDoubleOrDefault() {
         assertThat("parse 1.23d", ParseUtil.parseDoubleOrDefault("1.23", 4.5d), is(closeTo(1.23d, EPSILON)));
         assertThat("parse 4.5d", ParseUtil.parseDoubleOrDefault("one.twentythree", 4.5d), is(closeTo(4.5d, EPSILON)));
+        assertThat("parse null", ParseUtil.parseDoubleOrDefault(null, 4.5d), is(closeTo(4.5d, EPSILON)));
     }
 
     /**
@@ -309,6 +313,7 @@ class ParseUtilTest {
         assertThat("parse 184000L", ParseUtil.parseDHMSOrDefault("03:04", 0L), is(184000L));
         assertThat("parse 4000L", ParseUtil.parseDHMSOrDefault("04", 0L), is(4000L));
         assertThat("parse 0L", ParseUtil.parseDHMSOrDefault("04:05-06", 0L), is(0L));
+        assertThat("parse null", ParseUtil.parseDHMSOrDefault(null, 0L), is(0L));
     }
 
     /**
@@ -322,6 +327,7 @@ class ParseUtilTest {
                 ParseUtil.parseUuidOrDefault("The UUID is 123E4567-E89B-12D3-A456-426655440000!", "default"),
                 is("123e4567-e89b-12d3-a456-426655440000"));
         assertThat("parse foo or default", ParseUtil.parseUuidOrDefault("foo", "default"), is("default"));
+        assertThat("parse null", ParseUtil.parseUuidOrDefault(null, "default"), is("default"));
     }
 
     /**

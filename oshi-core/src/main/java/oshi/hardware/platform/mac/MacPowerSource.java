@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -150,7 +150,7 @@ public final class MacPowerSource extends AbstractPowerSource {
             if (bool != null) {
                 psCharging = bool;
             }
-            psDischarging = !psCharging;
+            psDischarging = !psCharging && !psPowerOnLine;
 
             smartBattery.release();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -218,20 +218,20 @@ public abstract class AbstractPowerSource implements PowerSource {
 
     private static List<PowerSource> getPowerSources() {
         switch (SystemInfo.getCurrentPlatform()) {
-        case WINDOWS:
-            return WindowsPowerSource.getPowerSources();
-        case MACOS:
-            return MacPowerSource.getPowerSources();
-        case LINUX:
-            return LinuxPowerSource.getPowerSources();
-        case SOLARIS:
-            return SolarisPowerSource.getPowerSources();
-        case FREEBSD:
-            return FreeBsdPowerSource.getPowerSources();
-        case AIX:
-            return AixPowerSource.getPowerSources();
-        default:
-            throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+            case WINDOWS:
+                return WindowsPowerSource.getPowerSources();
+            case MACOS:
+                return MacPowerSource.getPowerSources();
+            case LINUX:
+                return LinuxPowerSource.getPowerSources();
+            case SOLARIS:
+                return SolarisPowerSource.getPowerSources();
+            case FREEBSD:
+                return FreeBsdPowerSource.getPowerSources();
+            case AIX:
+                return AixPowerSource.getPowerSources();
+            default:
+                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
         }
     }
 
@@ -266,7 +266,7 @@ public abstract class AbstractPowerSource implements PowerSource {
         sb.append("SerialNumber: ").append(getSerialNumber()).append(", ");
         sb.append("Temperature: ");
         if (getTemperature() > 0) {
-            sb.append(getTemperature()).append("°C");
+            sb.append(getTemperature()).append("C");
         } else {
             sb.append(Constants.UNKNOWN);
         }
