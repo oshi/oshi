@@ -5,6 +5,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.util.Constants.UNKNOWN;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -24,7 +25,6 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
-import static oshi.util.Constants.UNKNOWN;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.SysPath;
@@ -37,17 +37,17 @@ public final class LinuxPowerSource extends AbstractPowerSource {
 
     private enum Prop {
         POWER_SUPPLY_NAME, POWER_SUPPLY_STATUS, POWER_SUPPLY_CAPACITY, POWER_SUPPLY_PRESENT, POWER_SUPPLY_ONLINE,
-        POWER_SUPPLY_ENERGY_NOW, POWER_SUPPLY_CHARGE_NOW,
-        POWER_SUPPLY_ENERGY_FULL, POWER_SUPPLY_CHARGE_FULL,
-        POWER_SUPPLY_ENERGY_FULL_DESIGN, POWER_SUPPLY_CHARGE_FULL_DESIGN,
-        POWER_SUPPLY_VOLTAGE_NOW, POWER_SUPPLY_POWER_NOW, POWER_SUPPLY_CURRENT_NOW,
-        POWER_SUPPLY_CYCLE_COUNT, POWER_SUPPLY_TECHNOLOGY, POWER_SUPPLY_MODEL_NAME,
-        POWER_SUPPLY_MANUFACTURER, POWER_SUPPLY_SERIAL_NUMBER
+        POWER_SUPPLY_ENERGY_NOW, POWER_SUPPLY_CHARGE_NOW, POWER_SUPPLY_ENERGY_FULL, POWER_SUPPLY_CHARGE_FULL,
+        POWER_SUPPLY_ENERGY_FULL_DESIGN, POWER_SUPPLY_CHARGE_FULL_DESIGN, POWER_SUPPLY_VOLTAGE_NOW,
+        POWER_SUPPLY_POWER_NOW, POWER_SUPPLY_CURRENT_NOW, POWER_SUPPLY_CYCLE_COUNT, POWER_SUPPLY_TECHNOLOGY,
+        POWER_SUPPLY_MODEL_NAME, POWER_SUPPLY_MANUFACTURER, POWER_SUPPLY_SERIAL_NUMBER, POWER_SUPPLY_TEMP,
+        POWER_SUPPLY_TIME_TO_EMPTY_NOW, POWER_SUPPLY_TIME_TO_FULL_NOW, POWER_SUPPLY_MANUFACTURE_YEAR,
+        POWER_SUPPLY_MANUFACTURE_MONTH, POWER_SUPPLY_MANUFACTURE_DAY
     }
 
     /**
-     * Initialization-on-demand holder: the map is only constructed if the non-udev
-     * path is reached, avoiding unnecessary work on systems where udev is available.
+     * Initialization-on-demand holder: the map is only constructed if the non-udev path is reached, avoiding
+     * unnecessary work on systems where udev is available.
      */
     private static final class PropByName {
         static final Map<String, Prop> MAP = new HashMap<>();
@@ -205,8 +205,22 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         String psManufacturer = props.getOrDefault(Prop.POWER_SUPPLY_MANUFACTURER, UNKNOWN);
         String psSerialNumber = props.getOrDefault(Prop.POWER_SUPPLY_SERIAL_NUMBER, UNKNOWN);
 
-        return new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent, -1d, -1d, psPowerUsageRate,
-                psVoltage, psAmperage, false, psCharging, psDischarging, psCapacityUnits, psCurrentCapacity,
-                psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, null, psManufacturer, psSerialNumber, 0d);
+        // TEMP is in tenths of degrees Celsius
+        int rawTemp = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_TEMP), -1);
+        double psTemperature = rawTemp >= 0 ? rawTemp / 10d : 0d;
+
+        // TIME_TO_EMPTY_NOW when discharging, TIME_TO_FULL_NOW when charging; both in seconds
+        Prop timeKey = psCharging ? Prop.POWER_SUPPLY_TIME_TO_FULL_NOW : Prop.POWER_SUPPLY_TIME_TO_EMPTY_NOW;
+        double psTimeRemainingInstant = ParseUtil.parseIntOrDefault(props.get(timeKey), -1);
+
+        int year = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_MANUFACTURE_YEAR), -1);
+        int month = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_MANUFACTURE_MONTH), -1);
+        int day = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_MANUFACTURE_DAY), -1);
+        LocalDate psManufactureDate = (year > 0 && month > 0 && day > 0) ? LocalDate.of(year, month, day) : null;
+
+        return new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent, -1d, psTimeRemainingInstant,
+                psPowerUsageRate, psVoltage, psAmperage, false, psCharging, psDischarging, psCapacityUnits,
+                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+                psManufacturer, psSerialNumber, psTemperature);
     }
 }
