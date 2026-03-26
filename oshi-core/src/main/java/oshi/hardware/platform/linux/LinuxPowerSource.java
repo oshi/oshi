@@ -183,14 +183,18 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         double psPowerUsageRate = 0d;
         double psAmperage = 0d;
         // From Physics we know P = IV so I = P/V
+        // Linux always reports POWER_NOW and CURRENT_NOW as non-negative; sign is
+        // conveyed by STATUS. Negate when discharging to match the PowerSource contract
+        // (positive = charging, negative = discharging).
+        double sign = psDischarging ? -1d : 1d;
         if (psVoltage > 0) {
             double rawPower = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_POWER_NOW), -1);
             double rawCurrent = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_CURRENT_NOW), -1);
             if (rawPower >= 0) {
-                psPowerUsageRate = rawPower / 1000d;
+                psPowerUsageRate = sign * rawPower / 1000d;
             }
             if (rawCurrent >= 0) {
-                psAmperage = rawCurrent / 1000d;
+                psAmperage = sign * rawCurrent / 1000d;
             }
             if (rawPower < 0 && rawCurrent >= 0) {
                 psPowerUsageRate = psAmperage * psVoltage;
