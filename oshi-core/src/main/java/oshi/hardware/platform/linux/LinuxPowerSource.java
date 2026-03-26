@@ -179,7 +179,7 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         int psDesignCapacity = rawDesign >= 0 ? rawDesign / 1000 : -1;
 
         // Debian/Ubuntu provides Voltage and Power. Fedora/RHEL provides Voltage and Current.
-        double psVoltage = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_VOLTAGE_NOW), -1) / 1_000_000d;
+        double psVoltage = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_VOLTAGE_NOW), -1d) / 1_000_000d;
         double psPowerUsageRate = 0d;
         double psAmperage = 0d;
         // From Physics we know P = IV so I = P/V
@@ -188,8 +188,8 @@ public final class LinuxPowerSource extends AbstractPowerSource {
         // (positive = charging, negative = discharging).
         double sign = psDischarging ? -1d : 1d;
         if (psVoltage > 0) {
-            double rawPower = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_POWER_NOW), -1);
-            double rawCurrent = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_CURRENT_NOW), -1);
+            double rawPower = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_POWER_NOW), -1d);
+            double rawCurrent = ParseUtil.parseDoubleOrDefault(props.get(Prop.POWER_SUPPLY_CURRENT_NOW), -1d);
             if (rawPower >= 0) {
                 psPowerUsageRate = sign * rawPower / 1000d;
             }
