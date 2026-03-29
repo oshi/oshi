@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.windows.com.BStrFFM;
 import oshi.ffm.windows.com.ComObjectFFM;
+import oshi.ffm.windows.com.FfmComException;
 import oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
 import oshi.ffm.windows.com.IWbemClassObjectFFM;
 import oshi.ffm.windows.com.IWbemLocatorFFM;
@@ -20,6 +21,7 @@ import oshi.util.GlobalConfig;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-
-import oshi.ffm.windows.com.FfmComException;
 
 import static java.lang.foreign.MemorySegment.NULL;
 
@@ -69,18 +69,44 @@ public class WmiQueryHandlerFFM {
     // Lock for COM initialization
     private final Object comInitLock = new Object();
 
-    private static final WmiQueryHandlerFFM INSTANCE = new WmiQueryHandlerFFM();
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    private WmiQueryHandlerFFM() {
+    // Factory to create this or a subclass
+    private static Class<? extends WmiQueryHandlerFFM> customClass = null;
+
+    protected WmiQueryHandlerFFM() {
     }
 
     /**
-     * Gets the singleton instance of the WMI query handler.
+     * Factory method to create an instance of this class. To override this class, use {@link #setInstanceClass(Class)}
+     * to define a subclass which extends {@link WmiQueryHandlerFFM}.
      *
-     * @return the singleton instance
+     * @return an instance of this class or a class defined by {@link #setInstanceClass(Class)}
      */
-    public static WmiQueryHandlerFFM getInstance() {
-        return INSTANCE;
+    public static synchronized WmiQueryHandlerFFM createInstance() {
+        if (customClass == null) {
+            return new WmiQueryHandlerFFM();
+        }
+        try {
+            return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
+        } catch (NoSuchMethodException | SecurityException e) {
+            LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            LOG.error("Failed to create a new instance of {}", customClass);
+        }
+        return null;
+    }
+
+    /**
+     * Define a subclass to be instantiated by {@link #createInstance()}. The class must extend
+     * {@link WmiQueryHandlerFFM}.
+     *
+     * @param instanceClass the class to instantiate with {@link #createInstance()}
+     */
+    public static synchronized void setInstanceClass(Class<? extends WmiQueryHandlerFFM> instanceClass) {
+        customClass = instanceClass;
     }
 
     /**
@@ -219,7 +245,7 @@ public class WmiQueryHandlerFFM {
      * @return true if COM was initialized and needs to be uninitialized
      * @throws FfmComException if COM initialization fails with an unexpected error
      */
-    private boolean initCOM() {
+    public boolean initCOM() {
         boolean comInit = initCOM(comThreading.get());
         if (!comInit) {
             comInit = initCOM(switchComThreading());
@@ -276,7 +302,7 @@ public class WmiQueryHandlerFFM {
     /**
      * Uninitializes COM library.
      */
-    private void unInitCOM() {
+    public void unInitCOM() {
         Ole32FFM.CoUninitialize();
     }
 
