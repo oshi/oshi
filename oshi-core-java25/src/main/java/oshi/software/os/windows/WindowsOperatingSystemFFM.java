@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -11,6 +11,7 @@ import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.WinNTFFM;
 import oshi.software.os.ApplicationInfo;
+import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.util.Memoizer;
@@ -108,6 +109,11 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     @Override
+    public FileSystem getFileSystem() {
+        return new WindowsFileSystemFFM();
+    }
+
+    @Override
     public int getProcessId() {
         return Kernel32FFM.GetCurrentProcessId().orElse(-1);
     }
@@ -122,8 +128,17 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
         return Kernel32UtilFFM.querySystemUptime();
     }
 
-    public int getThreadCount() {
+    @Override
+    public int getProcessCount() {
+        return getPerformanceInfoField("ProcessCount");
+    }
 
+    @Override
+    public int getThreadCount() {
+        return getPerformanceInfoField("ThreadCount");
+    }
+
+    private int getPerformanceInfoField(String fieldName) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment perfInfo = arena.allocate(PERFORMANCE_INFORMATION);
             int size = (int) PERFORMANCE_INFORMATION.byteSize();
@@ -133,12 +148,10 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 LOG.error("Failed to get Performance Info. Error code: {}", GetLastError());
                 return 0;
             }
-
-            int threadCount = perfInfo.get(JAVA_INT,
-                    PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement("ThreadCount")));
-            return threadCount;
+            return perfInfo.get(JAVA_INT,
+                    PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement(fieldName)));
         } catch (Throwable t) {
-            LOG.error("Exception getting thread count", t);
+            LOG.error("Exception getting {}", fieldName, t);
             return 0;
         }
     }

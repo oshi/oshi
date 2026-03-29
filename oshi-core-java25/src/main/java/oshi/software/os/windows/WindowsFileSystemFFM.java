@@ -1,0 +1,318 @@
+/*
+ * Copyright 2025-2026 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.software.os.windows;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
+import oshi.ffm.windows.Kernel32FFM;
+import oshi.software.common.AbstractFileSystem;
+import oshi.software.os.OSFileStore;
+import oshi.util.ParseUtil;
+import oshi.util.platform.windows.PdhUtilFFM;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.foreign.MemorySegment.NULL;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+
+@ThreadSafe
+public class WindowsFileSystemFFM extends AbstractFileSystem {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystemFFM.class);
+
+    private static final int BUFSIZE = 255;
+
+    private static final int SEM_FAILCRITICALERRORS = 0x0001;
+
+    private static final int FILE_CASE_SENSITIVE_SEARCH = 0x00000001;
+    private static final int FILE_CASE_PRESERVED_NAMES = 0x00000002;
+    private static final int FILE_FILE_COMPRESSION = 0x00000010;
+    private static final int FILE_DAX_VOLUME = 0x20000000;
+    private static final int FILE_NAMED_STREAMS = 0x00040000;
+    private static final int FILE_PERSISTENT_ACLS = 0x00000008;
+    private static final int FILE_READ_ONLY_VOLUME = 0x00080000;
+    private static final int FILE_SEQUENTIAL_WRITE_ONCE = 0x00100000;
+    private static final int FILE_SUPPORTS_ENCRYPTION = 0x00020000;
+    private static final int FILE_SUPPORTS_OBJECT_IDS = 0x00010000;
+    private static final int FILE_SUPPORTS_REPARSE_POINTS = 0x00000080;
+    private static final int FILE_SUPPORTS_SPARSE_FILES = 0x00000040;
+    private static final int FILE_SUPPORTS_TRANSACTIONS = 0x00200000;
+    private static final int FILE_SUPPORTS_USN_JOURNAL = 0x02000000;
+    private static final int FILE_UNICODE_ON_DISK = 0x00000004;
+    private static final int FILE_VOLUME_IS_COMPRESSED = 0x00008000;
+    private static final int FILE_VOLUME_QUOTAS = 0x00000020;
+
+    private static final Map<Integer, String> OPTIONS_MAP = new LinkedHashMap<>();
+    static {
+        OPTIONS_MAP.put(FILE_CASE_PRESERVED_NAMES, "casepn");
+        OPTIONS_MAP.put(FILE_CASE_SENSITIVE_SEARCH, "casess");
+        OPTIONS_MAP.put(FILE_FILE_COMPRESSION, "fcomp");
+        OPTIONS_MAP.put(FILE_DAX_VOLUME, "dax");
+        OPTIONS_MAP.put(FILE_NAMED_STREAMS, "streams");
+        OPTIONS_MAP.put(FILE_PERSISTENT_ACLS, "acls");
+        OPTIONS_MAP.put(FILE_SEQUENTIAL_WRITE_ONCE, "wronce");
+        OPTIONS_MAP.put(FILE_SUPPORTS_ENCRYPTION, "efs");
+        OPTIONS_MAP.put(FILE_SUPPORTS_OBJECT_IDS, "oids");
+        OPTIONS_MAP.put(FILE_SUPPORTS_REPARSE_POINTS, "reparse");
+        OPTIONS_MAP.put(FILE_SUPPORTS_SPARSE_FILES, "sparse");
+        OPTIONS_MAP.put(FILE_SUPPORTS_TRANSACTIONS, "trans");
+        OPTIONS_MAP.put(FILE_SUPPORTS_USN_JOURNAL, "journaled");
+        OPTIONS_MAP.put(FILE_UNICODE_ON_DISK, "unicode");
+        OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
+        OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
+    }
+
+    // Maximum file handles: 2^24 - 2^16 (assumes 64-bit Windows per FileSystem javadoc)
+    static final long MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
+
+    private static final int DRIVE_REMOVABLE = 2;
+    private static final int DRIVE_FIXED = 3;
+    private static final int DRIVE_REMOTE = 4;
+    private static final int DRIVE_CDROM = 5;
+    private static final int DRIVE_RAMDISK = 6;
+
+    /**
+     * Creates a new instance. Calls {@code SetErrorMode(SEM_FAILCRITICALERRORS)} to suppress system error dialogs for
+     * missing drives; this is a process-wide setting and is intentionally not restored, matching the behavior of the
+     * JNA {@code WindowsFileSystem} implementation.
+     */
+    public WindowsFileSystemFFM() {
+        Kernel32FFM.SetErrorMode(SEM_FAILCRITICALERRORS);
+    }
+
+    @Override
+    public List<OSFileStore> getFileStores(boolean localOnly) {
+        // Create list to hold results
+        ArrayList<OSFileStore> result;
+
+        // Begin with all the local volumes
+        result = getLocalVolumes(null);
+
+        // Build a map of existing mount point to OSFileStore
+        Map<String, OSFileStore> volumeMap = new HashMap<>();
+        for (OSFileStore volume : result) {
+            volumeMap.put(volume.getMount(), volume);
+        }
+
+        // Iterate through volumes in WMI and update missing fields (if it exists)
+        // or add new if it doesn't (expected for network drives)
+        for (OSFileStore wmiVolume : getWmiVolumes(null, localOnly)) {
+            if (volumeMap.containsKey(wmiVolume.getMount())) {
+                // If the volume is already in our list, preserve local values
+                // and only backfill missing fields from WMI
+                OSFileStore volume = volumeMap.get(wmiVolume.getMount());
+                int idx = result.indexOf(volume);
+                WindowsOSFileStoreFFM updated = new WindowsOSFileStoreFFM(volume.getName(), // preserve local name
+                        volume.getVolume(), volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
+                        volume.getMount(), volume.getOptions(), volume.getUUID(), "",
+                        volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
+                        volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0,
+                        true);
+                if (idx >= 0) {
+                    result.set(idx, updated);
+                } else {
+                    result.add(updated);
+                }
+            } else if (!localOnly) {
+                // Otherwise add the new volume in its entirety
+                result.add(wmiVolume);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * method for getting all mounted local drives.
+     *
+     * @param volumeToMatch an optional string to filter match, null otherwise
+     * @return A list of {@link OSFileStore} objects representing all local mounted volumes
+     */
+    static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
+        ArrayList<OSFileStore> fs = new ArrayList<>();
+
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment volumeNameBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
+            Optional<MemorySegment> hVolOpt = Kernel32FFM.FindFirstVolume(volumeNameBuf, BUFSIZE);
+            if (hVolOpt.isEmpty()) {
+                return fs;
+            }
+            MemorySegment hVol = hVolOpt.get();
+            try {
+                do {
+                    String volume = readWideString(volumeNameBuf);
+                    if (volumeToMatch != null && !volume.equals(volumeToMatch)) {
+                        continue;
+                    }
+                    MemorySegment fstypeBuf = arena.allocate(16 * JAVA_CHAR.byteSize());
+                    MemorySegment nameBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
+                    MemorySegment mountBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
+                    MemorySegment flagsBuf = arena.allocate(JAVA_INT);
+                    MemorySegment userFreeBytesBuf = arena.allocate(JAVA_LONG);
+                    MemorySegment totalBytesBuf = arena.allocate(JAVA_LONG);
+                    MemorySegment systemFreeBytesBuf = arena.allocate(JAVA_LONG);
+                    MemorySegment returnLengthBuf = arena.allocate(JAVA_INT);
+
+                    // Get volume information - skip if call fails
+                    var volInfoResult = Kernel32FFM.GetVolumeInformation(toWideString(arena, volume), nameBuf, BUFSIZE,
+                            NULL, NULL, flagsBuf, fstypeBuf, 16);
+                    if (volInfoResult.isEmpty() || volInfoResult.getAsInt() == 0) {
+                        continue;
+                    }
+                    int flags = flagsBuf.get(JAVA_INT, 0);
+
+                    // Get volume path names; retry with larger buffer if ERROR_MORE_DATA
+                    int mountBufSize = BUFSIZE;
+                    var pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
+                            mountBuf, mountBufSize, returnLengthBuf);
+                    if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
+                        if (Kernel32FFM.GetLastError().orElse(0) == 0x7A) { // ERROR_MORE_DATA
+                            mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
+                            mountBuf = arena.allocate((long) mountBufSize * JAVA_CHAR.byteSize());
+                            pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
+                                    mountBuf, mountBufSize, returnLengthBuf);
+                        }
+                    }
+                    if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
+                        continue;
+                    }
+                    String mount = readWideString(mountBuf);
+
+                    if (!mount.isEmpty()) {
+                        String name = readWideString(nameBuf);
+                        String fsType = readWideString(fstypeBuf);
+                        StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
+                        String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
+                                .map(Map.Entry::getValue).collect(Collectors.joining(","));
+                        if (!moreOptions.isEmpty()) {
+                            options.append(',').append(moreOptions);
+                        }
+
+                        // Get disk free space - skip if call fails
+                        var diskSpaceResult = Kernel32FFM.GetDiskFreeSpaceEx(toWideString(arena, volume),
+                                userFreeBytesBuf, totalBytesBuf, systemFreeBytesBuf);
+                        if (diskSpaceResult.isEmpty() || diskSpaceResult.getAsInt() == 0) {
+                            continue;
+                        }
+                        long systemFreeBytes = systemFreeBytesBuf.get(JAVA_LONG, 0);
+                        long totalBytes = totalBytesBuf.get(JAVA_LONG, 0);
+                        long userFreeBytes = userFreeBytesBuf.get(JAVA_LONG, 0);
+
+                        String uuid = ParseUtil.parseUuidOrDefault(volume, "");
+
+                        fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume,
+                                name, mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType,
+                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0, true));
+                    }
+                } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
+                return fs;
+            } finally {
+                Kernel32FFM.FindVolumeClose(hVol);
+            }
+        }
+    }
+
+    /**
+     * Private method for getting mounted drive type.
+     *
+     * @param mountBuf memory segment containing the mounted drive path
+     * @return A drive type description
+     */
+    private static String getDriveType(MemorySegment mountBuf) {
+        int type = Kernel32FFM.GetDriveType(mountBuf).orElse(-1);
+        return getDriveTypeString(type);
+    }
+
+    /**
+     * Converts a drive type integer to a description string.
+     *
+     * @param type the drive type from GetDriveType
+     * @return A drive type description
+     */
+    private static String getDriveTypeString(int type) {
+        return switch (type) {
+            case DRIVE_REMOVABLE -> "Removable drive";
+            case DRIVE_FIXED -> "Fixed drive";
+            case DRIVE_REMOTE -> "Network drive";
+            case DRIVE_CDROM -> "CD-ROM";
+            case DRIVE_RAMDISK -> "RAM drive";
+            default -> "Unknown drive type";
+        };
+    }
+
+    /**
+     * Gets logical drives listed in WMI.
+     *
+     * @param nameToMatch an optional string to filter match, null otherwise
+     * @param localOnly   whether to only search local drives
+     * @return A list of {@link OSFileStore} objects representing all WMI volumes
+     */
+    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+        List<OSFileStore> fs = new ArrayList<>();
+        List<Win32LogicalDiskFFM.LogicalDiskInfo> drives = Win32LogicalDiskFFM.queryLogicalDisk(nameToMatch, localOnly);
+
+        try (Arena arena = Arena.ofConfined()) {
+            for (Win32LogicalDiskFFM.LogicalDiskInfo drive : drives) {
+                long free = drive.getFreeSpace();
+                long total = drive.getSize();
+                String description = drive.getDescription();
+                String name = drive.getName();
+                String label = drive.getVolumeName();
+                String options = drive.getAccess() == 1 ? "ro" : "rw";
+                int type = drive.getDriveType();
+                String volume;
+
+                if (type != 4) {
+                    // Local drive - get volume GUID path
+                    MemorySegment mountPoint = toWideString(arena, name + "\\");
+                    MemorySegment volumeBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
+                    var volResult = Kernel32FFM.GetVolumeNameForVolumeMountPoint(mountPoint, volumeBuf, BUFSIZE);
+                    volume = (volResult.isPresent() && volResult.getAsInt() != 0) ? readWideString(volumeBuf) : "";
+                } else {
+                    // Network drive
+                    volume = drive.getProviderName();
+                    String[] split = volume.split("\\\\");
+                    if (split.length > 1 && !split[split.length - 1].isEmpty()) {
+                        description = split[split.length - 1];
+                    }
+                }
+
+                fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
+                        label, name + "\\", options, "", "", getDriveTypeString(type), drive.getFileSystem(), free,
+                        free, total, 0, 0, type != 4));
+            }
+        }
+        return fs;
+    }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return PdhUtilFFM.getOpenFileDescriptors();
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return MAX_WINDOWS_HANDLES;
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return MAX_WINDOWS_HANDLES;
+    }
+}

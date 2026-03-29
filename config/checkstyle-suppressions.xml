@@ -25,6 +25,7 @@
     <suppress checks="InterfaceIsType" files="[\\/]ffm[\\/].*"/>
     <suppress checks="ConstantName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="MethodName" files="[\\/]ffm[\\/].*"/>
+    <suppress checks="ParameterName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="RecordComponentName" files=".*FFM\.java"/>
     <suppress checks="LocalVariableName" files=".*FFM\.java"/>
     <suppress checks="LocalFinalVariableName" files=".*FFM\.java"/>
