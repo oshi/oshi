@@ -43,8 +43,8 @@ public class WmiQueryHandlerFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandlerFFM.class);
 
-    // Global timeout from configuration, default 10 seconds (-1 for infinite)
-    private static final int GLOBAL_TIMEOUT = GlobalConfig.get(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT, 10000);
+    // Global timeout from configuration, default -1 (infinite)
+    private static final int GLOBAL_TIMEOUT = GlobalConfig.get(GlobalConfig.OSHI_UTIL_WMI_TIMEOUT, -1);
 
     static {
         if (GLOBAL_TIMEOUT == 0 || GLOBAL_TIMEOUT < -1) {
