@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +63,11 @@ import oshi.util.Util;
 /**
  * A demonstration of access to many of OSHI's capabilities
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(max = JRE.JAVA_25)
 public class SystemInfoTest { // NOSONAR squid:S5786
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
-
-    protected static List<String> oshi = new ArrayList<>();
 
     /**
      * Test that this platform is implemented..
@@ -85,76 +86,81 @@ public class SystemInfoTest { // NOSONAR squid:S5786
      */
     public static void main(String[] args) {
 
+        logger.info("------------------------------------------------------------------------");
+        logger.info("Using JNA");
+        logger.info("------------------------------------------------------------------------");
         logger.info("Initializing System...");
         SystemInfo si = new SystemInfo();
 
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
 
-        printOperatingSystem(os);
+        List<String> lines = new ArrayList<>();
+
+        printOperatingSystem(lines, os);
 
         logger.info("Checking Installed Apps...");
-        printInstalledApps(os.getInstalledApplications());
+        printInstalledApps(lines, os.getInstalledApplications());
 
         logger.info("Checking computer system...");
-        printComputerSystem(hal.getComputerSystem());
+        printComputerSystem(lines, hal.getComputerSystem());
 
         logger.info("Checking Processor...");
-        printProcessor(hal.getProcessor());
+        printProcessor(lines, hal.getProcessor());
 
         logger.info("Checking Memory...");
-        printMemory(hal.getMemory());
+        printMemory(lines, hal.getMemory());
 
         logger.info("Checking CPU...");
-        printCpu(hal.getProcessor());
+        printCpu(lines, hal.getProcessor());
 
         logger.info("Checking Processes...");
-        printProcesses(os, hal.getMemory());
+        printProcesses(lines, os, hal.getMemory());
 
         logger.info("Checking Services...");
-        printServices(os);
+        printServices(lines, os);
 
         logger.info("Checking Sensors...");
-        printSensors(hal.getSensors());
+        printSensors(lines, hal.getSensors());
 
         logger.info("Checking Power sources...");
-        printPowerSources(hal.getPowerSources());
+        printPowerSources(lines, hal.getPowerSources());
 
         logger.info("Checking Disks...");
-        printDisks(hal.getDiskStores());
+        printDisks(lines, hal.getDiskStores());
 
         logger.info("Checking Logical Volume Groups ...");
-        printLVgroups(hal.getLogicalVolumeGroups());
+        printLVgroups(lines, hal.getLogicalVolumeGroups());
 
         logger.info("Checking File System...");
-        printFileSystem(os.getFileSystem());
+        printFileSystem(lines, os.getFileSystem());
 
         logger.info("Checking Network interfaces...");
-        printNetworkInterfaces(hal.getNetworkIFs());
+        printNetworkInterfaces(lines, hal.getNetworkIFs());
 
         logger.info("Checking Network parameters...");
-        printNetworkParameters(os.getNetworkParams());
+        printNetworkParameters(lines, os.getNetworkParams());
 
         logger.info("Checking IP statistics...");
-        printInternetProtocolStats(os.getInternetProtocolStats());
+        printInternetProtocolStats(lines, os.getInternetProtocolStats());
 
         logger.info("Checking Displays...");
-        printDisplays(hal.getDisplays());
+        printDisplays(lines, hal.getDisplays());
 
         logger.info("Checking USB Devices...");
-        printUsbDevices(hal.getUsbDevices(true));
+        printUsbDevices(lines, hal.getUsbDevices(true));
 
         logger.info("Checking Sound Cards...");
-        printSoundCards(hal.getSoundCards());
+        printSoundCards(lines, hal.getSoundCards());
 
         logger.info("Checking Graphics Cards...");
-        printGraphicsCards(hal.getGraphicsCards());
+        printGraphicsCards(lines, hal.getGraphicsCards());
 
         logger.info("Checking Printers...");
-        printPrinters(hal.getPrinters());
+        printPrinters(lines, hal.getPrinters());
 
         StringBuilder output = new StringBuilder();
-        for (String line : oshi) {
+        for (String line : lines) {
             output.append(line);
             if (line != null && !line.endsWith("\n")) {
                 output.append('\n');
@@ -163,32 +169,32 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }
 
-    protected static void printOperatingSystem(final OperatingSystem os) {
-        oshi.add(String.valueOf(os));
-        oshi.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
-        oshi.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
-        oshi.add("Running with" + (os.isElevated() ? "" : "out") + " elevated permissions.");
-        oshi.add("Sessions:");
+    protected static void printOperatingSystem(List<String> lines, final OperatingSystem os) {
+        lines.add(String.valueOf(os));
+        lines.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
+        lines.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
+        lines.add("Running with" + (os.isElevated() ? "" : "out") + " elevated permissions.");
+        lines.add("Sessions:");
         for (OSSession s : os.getSessions()) {
-            oshi.add(" " + s.toString());
+            lines.add(" " + s.toString());
         }
     }
 
-    private static void printInstalledApps(List<ApplicationInfo> installedApplications) {
-        oshi.add("Apps: ");
+    protected static void printInstalledApps(List<String> lines, List<ApplicationInfo> installedApplications) {
+        lines.add("Apps: ");
         for (int i = 0; i < 5 && i < installedApplications.size(); i++) {
-            oshi.add(" " + installedApplications.get(i).toString());
+            lines.add(" " + installedApplications.get(i).toString());
         }
     }
 
-    protected static void printComputerSystem(final ComputerSystem computerSystem) {
-        oshi.add("System: " + computerSystem.toString());
-        oshi.add(" Firmware: " + computerSystem.getFirmware().toString());
-        oshi.add(" Baseboard: " + computerSystem.getBaseboard().toString());
+    protected static void printComputerSystem(List<String> lines, final ComputerSystem computerSystem) {
+        lines.add("System: " + computerSystem.toString());
+        lines.add(" Firmware: " + computerSystem.getFirmware().toString());
+        lines.add(" Baseboard: " + computerSystem.getBaseboard().toString());
     }
 
-    protected static void printProcessor(CentralProcessor processor) {
-        oshi.add(processor.toString());
+    protected static void printProcessor(List<String> lines, CentralProcessor processor) {
+        lines.add(processor.toString());
 
         Map<Integer, Integer> efficiencyCount = new HashMap<>();
         int maxEfficiency = 0;
@@ -199,11 +205,11 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                 maxEfficiency = eff;
             }
         }
-        oshi.add(" Topology:");
-        oshi.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA",
+        lines.add(" Topology:");
+        lines.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA",
                 "PGrp"));
         for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
-            oshi.add(String.format(Locale.ROOT, "  %7s %4s %4d %4s %4d %4d",
+            lines.add(String.format(Locale.ROOT, "  %7s %4s %4d %4s %4d %4d",
                     processor.getLogicalProcessors().stream()
                             .filter(p -> p.getPhysicalProcessorNumber() == cpu.getPhysicalProcessorNumber())
                             .filter(p -> p.getPhysicalPackageNumber() == cpu.getPhysicalPackageNumber())
@@ -221,7 +227,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
         List<ProcessorCache> caches = processor.getProcessorCaches();
         if (!caches.isEmpty()) {
-            oshi.add(" Caches:");
+            lines.add(" Caches:");
         }
         for (int i = 0; i < caches.size(); i++) {
             ProcessorCache cache = caches.get(i);
@@ -240,33 +246,33 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                 }
                 sb.append("core)");
             }
-            oshi.add(sb.toString());
+            lines.add(sb.toString());
         }
     }
 
-    protected static void printMemory(GlobalMemory memory) {
-        oshi.add("Physical Memory: \n " + memory.toString());
+    protected static void printMemory(List<String> lines, GlobalMemory memory) {
+        lines.add("Physical Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
-        oshi.add("Virtual Memory: \n " + vm.toString());
+        lines.add("Virtual Memory: \n " + vm.toString());
         List<PhysicalMemory> pmList = memory.getPhysicalMemory();
         if (!pmList.isEmpty()) {
-            oshi.add("Physical Memory: ");
+            lines.add("Physical Memory: ");
             for (PhysicalMemory pm : pmList) {
-                oshi.add(" " + pm.toString());
+                lines.add(" " + pm.toString());
             }
         }
     }
 
-    protected static void printCpu(CentralProcessor processor) {
-        oshi.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
+    protected static void printCpu(List<String> lines, CentralProcessor processor) {
+        lines.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         long[][] prevProcTicks = processor.getProcessorCpuLoadTicks();
-        oshi.add("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
+        lines.add("CPU, IOWait, and IRQ ticks @ 0 sec:" + Arrays.toString(prevTicks));
         // Wait a second...
         Util.sleep(1000);
         long[] ticks = processor.getSystemCpuLoadTicks();
-        oshi.add("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
+        lines.add("CPU, IOWait, and IRQ ticks @ 1 sec:" + Arrays.toString(ticks));
         long user = ticks[TickType.USER.getIndex()] - prevTicks[TickType.USER.getIndex()];
         long nice = ticks[TickType.NICE.getIndex()] - prevTicks[TickType.NICE.getIndex()];
         long sys = ticks[TickType.SYSTEM.getIndex()] - prevTicks[TickType.SYSTEM.getIndex()];
@@ -277,14 +283,14 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         long steal = ticks[TickType.STEAL.getIndex()] - prevTicks[TickType.STEAL.getIndex()];
         long totalCpu = user + nice + sys + idle + iowait + irq + softirq + steal;
 
-        oshi.add(String.format(Locale.ROOT,
+        lines.add(String.format(Locale.ROOT,
                 "User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%",
                 100d * user / totalCpu, 100d * nice / totalCpu, 100d * sys / totalCpu, 100d * idle / totalCpu,
                 100d * iowait / totalCpu, 100d * irq / totalCpu, 100d * softirq / totalCpu, 100d * steal / totalCpu));
-        oshi.add(String.format(Locale.ROOT, "CPU load: %.1f%%",
+        lines.add(String.format(Locale.ROOT, "CPU load: %.1f%%",
                 processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100));
         double[] loadAverage = processor.getSystemLoadAverage(3);
-        oshi.add("CPU load averages:"
+        lines.add("CPU load averages:"
                 + (loadAverage[0] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[0]))
                 + (loadAverage[1] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[1]))
                 + (loadAverage[2] < 0 ? " N/A" : String.format(Locale.ROOT, " %.2f", loadAverage[2])));
@@ -294,14 +300,14 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         for (double avg : load) {
             procCpu.append(String.format(Locale.ROOT, " %.1f%%", avg * 100));
         }
-        oshi.add(procCpu.toString());
+        lines.add(procCpu.toString());
         long freq = processor.getProcessorIdentifier().getVendorFreq();
         if (freq > 0) {
-            oshi.add("Vendor Frequency: " + FormatUtil.formatHertz(freq));
+            lines.add("Vendor Frequency: " + FormatUtil.formatHertz(freq));
         }
         freq = processor.getMaxFreq();
         if (freq > 0) {
-            oshi.add("Max Frequency: " + FormatUtil.formatHertz(freq));
+            lines.add("Max Frequency: " + FormatUtil.formatHertz(freq));
         }
         long[] freqs = processor.getCurrentFreq();
         if (freqs[0] > 0) {
@@ -312,69 +318,69 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                 }
                 sb.append(FormatUtil.formatHertz(freqs[i]));
             }
-            oshi.add(sb.toString());
+            lines.add(sb.toString());
         }
         if (!processor.getFeatureFlags().isEmpty()) {
-            oshi.add("CPU Features:");
+            lines.add("CPU Features:");
             for (String features : processor.getFeatureFlags()) {
-                oshi.add("  " + features);
+                lines.add("  " + features);
             }
         }
     }
 
-    protected static void printProcesses(OperatingSystem os, GlobalMemory memory) {
+    protected static void printProcesses(List<String> lines, OperatingSystem os, GlobalMemory memory) {
         OSProcess myProc = os.getProcess(os.getProcessId());
         // current process will never be null. Other code should check for null here
-        oshi.add(
+        lines.add(
                 "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask()));
-        oshi.add("My TID: " + os.getThreadId() + " with details " + os.getCurrentThread());
+        lines.add("My TID: " + os.getThreadId() + " with details " + os.getCurrentThread());
 
-        oshi.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
+        lines.add("Processes: " + os.getProcessCount() + ", Threads: " + os.getThreadCount());
         // Sort by highest CPU
         List<OSProcess> procs = os.getProcesses(ProcessFiltering.ALL_PROCESSES, ProcessSorting.CPU_DESC, 5);
-        oshi.add("   PID  %CPU %MEM       VSZ       RSS   Private Name");
+        lines.add("   PID  %CPU %MEM       VSZ       RSS   Private Name");
         for (int i = 0; i < procs.size(); i++) {
             OSProcess p = procs.get(i);
-            oshi.add(String.format(Locale.ROOT, " %5d %5.1f %4.1f %9s %9s %9s %s", p.getProcessID(),
+            lines.add(String.format(Locale.ROOT, " %5d %5.1f %4.1f %9s %9s %9s %s", p.getProcessID(),
                     100d * (p.getKernelTime() + p.getUserTime()) / p.getUpTime(),
                     100d * p.getResidentMemory() / memory.getTotal(), FormatUtil.formatBytes(p.getVirtualSize()),
                     FormatUtil.formatBytes(p.getResidentMemory()), FormatUtil.formatBytes(p.getPrivateResidentMemory()),
                     p.getName()));
         }
         OSProcess p = os.getProcess(os.getProcessId());
-        oshi.add("Current process arguments: ");
+        lines.add("Current process arguments: ");
         for (String s : p.getArguments()) {
-            oshi.add("  " + s);
+            lines.add("  " + s);
         }
-        oshi.add("Current process environment: ");
+        lines.add("Current process environment: ");
         for (Entry<String, String> e : p.getEnvironmentVariables().entrySet()) {
-            oshi.add("  " + e.getKey() + "=" + e.getValue());
+            lines.add("  " + e.getKey() + "=" + e.getValue());
         }
     }
 
-    protected static void printServices(OperatingSystem os) {
-        oshi.add("Services: ");
-        oshi.add("   PID   State   Name");
+    protected static void printServices(List<String> lines, OperatingSystem os) {
+        lines.add("Services: ");
+        lines.add("   PID   State   Name");
         // DO 5 each of running and stopped
         int i = 0;
         for (OSService s : os.getServices()) {
             if (s.getState().equals(OSService.State.RUNNING) && i++ < 5) {
-                oshi.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+                lines.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
             }
         }
         i = 0;
         for (OSService s : os.getServices()) {
             if (s.getState().equals(OSService.State.STOPPED) && i++ < 5) {
-                oshi.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
+                lines.add(String.format(Locale.ROOT, " %5d  %7s  %s", s.getProcessID(), s.getState(), s.getName()));
             }
         }
     }
 
-    protected static void printSensors(Sensors sensors) {
-        oshi.add("Sensors: " + sensors.toString());
+    protected static void printSensors(List<String> lines, Sensors sensors) {
+        lines.add("Sensors: " + sensors.toString());
     }
 
-    protected static void printPowerSources(List<PowerSource> list) {
+    protected static void printPowerSources(List<String> lines, List<PowerSource> list) {
         StringBuilder sb = new StringBuilder("Power Sources: ");
         if (list.isEmpty()) {
             sb.append("Unknown");
@@ -382,41 +388,41 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         for (PowerSource powerSource : list) {
             sb.append("\n ").append(powerSource.toString());
         }
-        oshi.add(sb.toString());
+        lines.add(sb.toString());
     }
 
-    protected static void printDisks(List<HWDiskStore> list) {
-        oshi.add("Disks:");
+    protected static void printDisks(List<String> lines, List<HWDiskStore> list) {
+        lines.add("Disks:");
         for (HWDiskStore disk : list) {
-            oshi.add(" " + disk.toString());
+            lines.add(" " + disk.toString());
 
             List<HWPartition> partitions = disk.getPartitions();
             for (HWPartition part : partitions) {
-                oshi.add(" |-- " + part.toString());
+                lines.add(" |-- " + part.toString());
             }
         }
 
     }
 
-    protected static void printLVgroups(List<LogicalVolumeGroup> list) {
+    protected static void printLVgroups(List<String> lines, List<LogicalVolumeGroup> list) {
         if (!list.isEmpty()) {
-            oshi.add("Logical Volume Groups:");
+            lines.add("Logical Volume Groups:");
             for (LogicalVolumeGroup lvg : list) {
-                oshi.add(" " + lvg.toString());
+                lines.add(" " + lvg.toString());
             }
         }
     }
 
-    protected static void printFileSystem(FileSystem fileSystem) {
-        oshi.add("File System:");
+    protected static void printFileSystem(List<String> lines, FileSystem fileSystem) {
+        lines.add("File System:");
 
-        oshi.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
+        lines.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
 
         for (OSFileStore fs : fileSystem.getFileStores()) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            oshi.add(String.format(Locale.ROOT,
+            lines.add(String.format(Locale.ROOT,
                     " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
                             + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
                             + " and is mounted at %s",
@@ -428,7 +434,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         }
     }
 
-    protected static void printNetworkInterfaces(List<NetworkIF> list) {
+    protected static void printNetworkInterfaces(List<String> lines, List<NetworkIF> list) {
         StringBuilder sb = new StringBuilder("Network Interfaces:");
         if (list.isEmpty()) {
             sb.append(" Unknown");
@@ -437,63 +443,63 @@ public class SystemInfoTest { // NOSONAR squid:S5786
                 sb.append("\n ").append(net.toString());
             }
         }
-        oshi.add(sb.toString());
+        lines.add(sb.toString());
     }
 
-    protected static void printNetworkParameters(NetworkParams networkParams) {
-        oshi.add("Network parameters:\n " + networkParams.toString());
+    protected static void printNetworkParameters(List<String> lines, NetworkParams networkParams) {
+        lines.add("Network parameters:\n " + networkParams.toString());
     }
 
-    protected static void printInternetProtocolStats(InternetProtocolStats ip) {
-        oshi.add("Internet Protocol statistics:");
-        oshi.add(" TCPv4: " + ip.getTCPv4Stats());
-        oshi.add(" TCPv6: " + ip.getTCPv6Stats());
-        oshi.add(" UDPv4: " + ip.getUDPv4Stats());
-        oshi.add(" UDPv6: " + ip.getUDPv6Stats());
+    protected static void printInternetProtocolStats(List<String> lines, InternetProtocolStats ip) {
+        lines.add("Internet Protocol statistics:");
+        lines.add(" TCPv4: " + ip.getTCPv4Stats());
+        lines.add(" TCPv6: " + ip.getTCPv6Stats());
+        lines.add(" UDPv4: " + ip.getUDPv4Stats());
+        lines.add(" UDPv6: " + ip.getUDPv6Stats());
     }
 
-    protected static void printDisplays(List<Display> list) {
-        oshi.add("Displays:");
+    protected static void printDisplays(List<String> lines, List<Display> list) {
+        lines.add("Displays:");
         int i = 0;
         for (Display display : list) {
-            oshi.add(" Display " + i + ":");
-            oshi.add(String.valueOf(display));
+            lines.add(" Display " + i + ":");
+            lines.add(String.valueOf(display));
             i++;
         }
     }
 
-    protected static void printUsbDevices(List<UsbDevice> list) {
-        oshi.add("USB Devices:");
+    protected static void printUsbDevices(List<String> lines, List<UsbDevice> list) {
+        lines.add("USB Devices:");
         for (UsbDevice usbDevice : list) {
-            oshi.add(String.valueOf(usbDevice));
+            lines.add(String.valueOf(usbDevice));
         }
     }
 
-    protected static void printSoundCards(List<SoundCard> list) {
-        oshi.add("Sound Cards:");
+    protected static void printSoundCards(List<String> lines, List<SoundCard> list) {
+        lines.add("Sound Cards:");
         for (SoundCard card : list) {
-            oshi.add(" " + String.valueOf(card));
+            lines.add(" " + String.valueOf(card));
         }
     }
 
-    protected static void printGraphicsCards(List<GraphicsCard> list) {
-        oshi.add("Graphics Cards:");
+    protected static void printGraphicsCards(List<String> lines, List<GraphicsCard> list) {
+        lines.add("Graphics Cards:");
         if (list.isEmpty()) {
-            oshi.add(" None detected.");
+            lines.add(" None detected.");
         } else {
             for (GraphicsCard card : list) {
-                oshi.add(" " + String.valueOf(card));
+                lines.add(" " + String.valueOf(card));
             }
         }
     }
 
-    protected static void printPrinters(List<Printer> list) {
-        oshi.add("Printers:");
+    protected static void printPrinters(List<String> lines, List<Printer> list) {
+        lines.add("Printers:");
         if (list.isEmpty()) {
-            oshi.add(" None detected.");
+            lines.add(" None detected.");
         } else {
             for (Printer printer : list) {
-                oshi.add(" " + String.valueOf(printer));
+                lines.add(" " + String.valueOf(printer));
             }
         }
     }
