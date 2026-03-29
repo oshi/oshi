@@ -55,8 +55,8 @@ public class WmiQueryHandlerFFM {
     // Cache failed WMI classes (thread-safe) - matches JNA behavior
     private final Set<String> failedWmiClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    // Preferred threading model (thread-safe)
-    private final AtomicInteger comThreading = new AtomicInteger(Ole32FFM.COINIT_MULTITHREADED);
+    // Preferred threading model (guarded by comInitLock)
+    private int comThreading = Ole32FFM.COINIT_MULTITHREADED;
 
     // Track initialization of Security (thread-safe)
     private final AtomicBoolean securityInitialized = new AtomicBoolean(false);
@@ -237,9 +237,17 @@ public class WmiQueryHandlerFFM {
      * @throws FfmComException if COM initialization fails with an unexpected error
      */
     public boolean initCOM() {
-        boolean comInit = initCOM(comThreading.get());
+        int threading;
+        synchronized (comInitLock) {
+            threading = getComThreading();
+        }
+        boolean comInit = initCOM(threading);
         if (!comInit) {
-            comInit = initCOM(switchComThreading());
+            // Only switch if another thread hasn't already switched away from our value
+            int switched = switchComThreadingFrom(threading);
+            if (switched != threading) {
+                comInit = initCOM(switched);
+            }
         }
 
         if (comInit && !securityInitialized.get()) {
@@ -296,17 +304,43 @@ public class WmiQueryHandlerFFM {
     }
 
     /**
-     * Switches the COM threading model.
+     * Switches the COM threading model only if it still matches the expected value.
      *
-     * @return the new threading model
+     * @param expected the threading model we observed before the failed initCOM attempt
+     * @return the new threading model if switched, or the current value if already switched by another thread
      */
-    private int switchComThreading() {
+    public int switchComThreadingFrom(int expected) {
         synchronized (comInitLock) {
-            int current = comThreading.get();
-            int newValue = (current == Ole32FFM.COINIT_APARTMENTTHREADED) ? Ole32FFM.COINIT_MULTITHREADED
+            if (comThreading != expected) {
+                return comThreading;
+            }
+            return switchComThreading();
+        }
+    }
+
+    /**
+     * Returns the current threading model for COM initialization, as OSHI is required to match if an external program
+     * has COM initialized already.
+     *
+     * @return the current threading model
+     */
+    public int getComThreading() {
+        synchronized (comInitLock) {
+            return comThreading;
+        }
+    }
+
+    /**
+     * Switches the current threading model for COM initialization, as OSHI is required to match if an external program
+     * has COM initialized already.
+     *
+     * @return the new threading model after switching
+     */
+    public int switchComThreading() {
+        synchronized (comInitLock) {
+            comThreading = (comThreading == Ole32FFM.COINIT_APARTMENTTHREADED) ? Ole32FFM.COINIT_MULTITHREADED
                     : Ole32FFM.COINIT_APARTMENTTHREADED;
-            comThreading.set(newValue);
-            return newValue;
+            return comThreading;
         }
     }
 

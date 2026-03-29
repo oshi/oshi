@@ -179,9 +179,14 @@ public class WmiQueryHandler {
         boolean comInit = false;
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
-        comInit = initCOM(getComThreading());
+        int threading = getComThreading();
+        comInit = initCOM(threading);
         if (!comInit) {
-            comInit = initCOM(switchComThreading());
+            // Only switch if another thread hasn't already switched away from our value
+            int switched = switchComThreadingFrom(threading);
+            if (switched != threading) {
+                comInit = initCOM(switched);
+            }
         }
         // Step 2: --------------------------------------------------
         // Set general COM security levels --------------------------
@@ -236,7 +241,7 @@ public class WmiQueryHandler {
      *
      * @return The current threading model
      */
-    public int getComThreading() {
+    public synchronized int getComThreading() {
         return comThreading;
     }
 
@@ -246,13 +251,28 @@ public class WmiQueryHandler {
      *
      * @return The new threading model after switching
      */
-    public int switchComThreading() {
+    public synchronized int switchComThreading() {
         if (comThreading == Ole32.COINIT_APARTMENTTHREADED) {
             comThreading = Ole32.COINIT_MULTITHREADED;
         } else {
             comThreading = Ole32.COINIT_APARTMENTTHREADED;
         }
         return comThreading;
+    }
+
+    /**
+     * Switches the current threading model only if it still matches the expected value, avoiding a toggle race when
+     * multiple threads call {@link #initCOM()} concurrently.
+     *
+     * @param expected the threading model observed before the failed initCOM attempt
+     * @return the new threading model if switched, or the current value if already switched by another thread
+     */
+    public synchronized int switchComThreadingFrom(int expected) {
+        if (comThreading != expected) {
+            // Another thread already switched it, use the current value
+            return comThreading;
+        }
+        return switchComThreading();
     }
 
     /**
