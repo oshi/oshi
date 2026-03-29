@@ -140,6 +140,10 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
             MemorySegment hVol = hVolOpt.get();
             try {
                 do {
+                    String volume = readWideString(volumeNameBuf);
+                    if (volumeToMatch != null && !volume.equals(volumeToMatch)) {
+                        continue;
+                    }
                     MemorySegment fstypeBuf = arena.allocate(16 * JAVA_CHAR.byteSize());
                     MemorySegment nameBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
                     MemorySegment mountBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
@@ -147,7 +151,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     MemorySegment userFreeBytesBuf = arena.allocate(JAVA_LONG);
                     MemorySegment totalBytesBuf = arena.allocate(JAVA_LONG);
                     MemorySegment systemFreeBytesBuf = arena.allocate(JAVA_LONG);
-                    String volume = readWideString(volumeNameBuf);
+                    MemorySegment returnLengthBuf = arena.allocate(JAVA_INT);
 
                     // Get volume information - skip if call fails
                     var volInfoResult = Kernel32FFM.GetVolumeInformation(toWideString(arena, volume), nameBuf, BUFSIZE,
@@ -157,15 +161,24 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     }
                     int flags = flagsBuf.get(JAVA_INT, 0);
 
-                    // Get volume path names - skip if call fails
+                    // Get volume path names; retry with larger buffer if ERROR_MORE_DATA
+                    int mountBufSize = BUFSIZE;
                     var pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
-                            mountBuf, BUFSIZE, NULL);
+                            mountBuf, mountBufSize, returnLengthBuf);
+                    if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
+                        if (Kernel32FFM.GetLastError().orElse(0) == 0x7A) { // ERROR_MORE_DATA
+                            mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
+                            mountBuf = arena.allocate((long) mountBufSize * JAVA_CHAR.byteSize());
+                            pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(
+                                    toWideString(arena, volume), mountBuf, mountBufSize, returnLengthBuf);
+                        }
+                    }
                     if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
                         continue;
                     }
                     String mount = readWideString(mountBuf);
 
-                    if (!mount.isEmpty() && (volumeToMatch == null || volume.equals(volumeToMatch))) {
+                    if (!mount.isEmpty()) {
                         String name = readWideString(nameBuf);
                         String fsType = readWideString(fstypeBuf);
                         StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");

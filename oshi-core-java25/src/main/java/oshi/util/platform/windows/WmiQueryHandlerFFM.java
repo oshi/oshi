@@ -264,7 +264,7 @@ public class WmiQueryHandlerFFM {
                             securityInitialized.set(true);
                         } else {
                             Ole32FFM.CoUninitialize();
-                            return false;
+                            throw new FfmComException("Failed to initialize security.", hr);
                         }
                     }
                 }
