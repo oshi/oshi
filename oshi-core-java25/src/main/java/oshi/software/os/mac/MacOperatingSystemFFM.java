@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.Who;
-import oshi.driver.mac.WindowInfo;
+import oshi.driver.mac.WhoFFM;
+import oshi.driver.mac.WindowInfoFFM;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -97,8 +97,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
-        // TODO: migrate queryUtxent
-        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();
+        return USE_WHO_COMMAND ? super.getSessions() : WhoFFM.queryUtxent();
     }
 
     @Override
@@ -182,14 +181,12 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        // TODO: migrate
-        return new MacNetworkParams();
+        return new MacNetworkParamsFFM();
     }
 
     @Override
     public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
-        // TODO: migrate
-        return WindowInfo.queryDesktopWindows(visibleOnly);
+        return WindowInfoFFM.queryDesktopWindows(visibleOnly);
     }
 
 }

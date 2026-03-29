@@ -30,8 +30,8 @@
     <suppress checks="LocalVariableName" files=".*FFM\.java"/>
     <suppress checks="LocalFinalVariableName" files=".*FFM\.java"/>
 
-    <!-- WIP, remove when done -->
-    <suppress checks="TodoComment" files="MacOperatingSystemFFM\.java"/>
+    <!-- Apple naming convention for CoreGraphics constants (kCG prefix) -->
+    <suppress checks="ConstantName" files="WindowInfoFFM\.java"/>
 
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>

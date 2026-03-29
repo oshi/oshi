@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.mac;
@@ -153,6 +153,72 @@ public final class MacSystemFunctions extends ForeignFunctions {
 
     public static int getfsstat64(MemorySegment buffer, int bufsize, int flags) throws Throwable {
         return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
+    }
+
+    // void setutxent(void);
+
+    private static final MethodHandle setutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("setutxent"),
+            FunctionDescriptor.ofVoid());
+
+    public static void setutxent() throws Throwable {
+        setutxent.invokeExact();
+    }
+
+    // struct utmpx * getutxent(void);
+
+    private static final MethodHandle getutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("getutxent"),
+            FunctionDescriptor.of(ADDRESS));
+
+    public static MemorySegment getutxent() throws Throwable {
+        MemorySegment result = (MemorySegment) getutxent.invokeExact();
+        return result.equals(MemorySegment.NULL) ? null : result;
+    }
+
+    // void endutxent(void);
+
+    private static final MethodHandle endutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("endutxent"),
+            FunctionDescriptor.ofVoid());
+
+    public static void endutxent() throws Throwable {
+        endutxent.invokeExact();
+    }
+
+    // int gethostname(char *name, size_t namelen);
+
+    private static final MethodHandle gethostname = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("gethostname"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
+
+    public static int gethostname(MemorySegment name, long namelen) throws Throwable {
+        return (int) gethostname.invokeExact(name, namelen);
+    }
+
+    // int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
+
+    private static final MethodHandle getaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("getaddrinfo"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
+
+    public static int getaddrinfo(MemorySegment node, MemorySegment service, MemorySegment hints, MemorySegment res)
+            throws Throwable {
+        return (int) getaddrinfo.invokeExact(node, service, hints, res);
+    }
+
+    // void freeaddrinfo(struct addrinfo *res);
+
+    private static final MethodHandle freeaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("freeaddrinfo"),
+            FunctionDescriptor.ofVoid(ADDRESS));
+
+    public static void freeaddrinfo(MemorySegment res) throws Throwable {
+        freeaddrinfo.invokeExact(res);
+    }
+
+    // const char * gai_strerror(int ecode);
+
+    private static final MethodHandle gai_strerror = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("gai_strerror"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static String gai_strerror(int ecode) throws Throwable {
+        MemorySegment result = (MemorySegment) gai_strerror.invokeExact(ecode);
+        return result.equals(MemorySegment.NULL) ? "" : result.reinterpret(256).getString(0);
     }
 
     private static final MethodHandle mach_host_self_handle = LINKER

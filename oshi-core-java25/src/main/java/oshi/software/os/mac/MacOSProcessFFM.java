@@ -11,6 +11,8 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.mac.MacSystem.GROUP;
 import static oshi.ffm.mac.MacSystem.PASSWD;
+import static oshi.ffm.mac.MacSystem.MAXCOMLEN;
+import static oshi.ffm.mac.MacSystem.MAXPATHLEN;
 import static oshi.ffm.mac.MacSystem.PBI_COMM;
 import static oshi.ffm.mac.MacSystem.PBI_FLAGS;
 import static oshi.ffm.mac.MacSystem.PBI_GID;
@@ -484,7 +486,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             }
             if (this.name.isEmpty()) {
                 // pbi_comm contains first 16 characters of name
-                this.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM)).getString(0);
+                this.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM), MAXCOMLEN).getString(0);
             }
 
             // Get Process state based on status
@@ -563,7 +565,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             if (proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0L, vnodeInfo, (int) VNODE_PATH_INFO.byteSize()) > 0) {
                 // Get the current directory path using nested path elements
                 this.currentWorkingDirectory = vnodeInfo.asSlice(VNODE_PATH_INFO.byteOffset(PVI_CDIR))
-                        .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH)).getString(0);
+                        .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH), MAXPATHLEN).getString(0);
             }
         } catch (Throwable e) {
             this.state = INVALID;

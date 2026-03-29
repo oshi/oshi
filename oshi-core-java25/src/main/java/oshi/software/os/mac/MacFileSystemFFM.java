@@ -185,7 +185,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                             continue;
                         }
 
-                        fsList.add(new MacOSFileStore(name, volume, name, path, options.toString(),
+                        fsList.add(new MacOSFileStoreFFM(name, volume, name, path, options.toString(),
                                 uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
                                 file.getUsableSpace(), file.getTotalSpace(), ffree, files));
                     }

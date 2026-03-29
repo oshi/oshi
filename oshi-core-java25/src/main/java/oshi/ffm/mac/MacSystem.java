@@ -10,6 +10,7 @@ import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -82,6 +83,16 @@ public interface MacSystem {
     int UTX_LINESIZE = 32;
     int UTX_IDSIZE = 4;
     int UTX_HOSTSIZE = 256;
+
+    // utmpx entry types (utmpx.h)
+    int LOGIN_PROCESS = 6; // Session leader of a logged in user
+    int USER_PROCESS = 7; // Normal process
+
+    // getaddrinfo flags (netdb.h)
+    int AI_CANONNAME = 2;
+
+    // Maximum hostname length (sys/param.h)
+    int HOST_NAME_MAX = 255;
 
     int AF_INET = 2; // The Internet Protocol version 4 (IPv4) address family.
     int AF_INET6 = 30; // The Internet Protocol version 6 (IPv6) address family.
@@ -331,6 +342,69 @@ public interface MacSystem {
     );
     PathElement PFI = groupElement("pfi");
     PathElement PSI = groupElement("psi");
+
+    // utmpx structure (utmpx.h) — MacOS-specific layout
+    // Fields: ut_user, ut_id, ut_line, ut_pid, ut_type, ut_tv (timeval: tv_sec long + tv_usec int + 4 pad), ut_host,
+    // ut_pad
+    StructLayout UTMPX = structLayout(//
+            sequenceLayout(UTX_USERSIZE, JAVA_BYTE).withName("ut_user"), // login name [0..255]
+            sequenceLayout(UTX_IDSIZE, JAVA_BYTE).withName("ut_id"), // id [256..259]
+            sequenceLayout(UTX_LINESIZE, JAVA_BYTE).withName("ut_line"), // tty name [260..291]
+            JAVA_INT.withName("ut_pid"), // process id [292..295]
+            JAVA_SHORT.withName("ut_type"), // entry type [296..297]
+            paddingLayout(6), // align tv_sec (long) to 8-byte boundary [298..303]
+            JAVA_LONG.withName("ut_tv_sec"), // tv_sec [304..311]
+            JAVA_INT.withName("ut_tv_usec"), // tv_usec [312..315]
+            paddingLayout(4), // align ut_host to 8-byte boundary [316..319]
+            sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"), // host name [320..575]
+            sequenceLayout(16, JAVA_BYTE).withName("ut_pad") // reserved [576..591]
+    );
+    PathElement UT_USER = groupElement("ut_user");
+    PathElement UT_LINE = groupElement("ut_line");
+    PathElement UT_PID = groupElement("ut_pid");
+    PathElement UT_TYPE = groupElement("ut_type");
+    PathElement UT_TV_SEC = groupElement("ut_tv_sec");
+    PathElement UT_TV_USEC = groupElement("ut_tv_usec");
+    PathElement UT_HOST = groupElement("ut_host");
+
+    // addrinfo structure (netdb.h)
+    StructLayout ADDRINFO = structLayout(//
+            JAVA_INT.withName("ai_flags"), //
+            JAVA_INT.withName("ai_family"), //
+            JAVA_INT.withName("ai_socktype"), //
+            JAVA_INT.withName("ai_protocol"), //
+            JAVA_INT.withName("ai_addrlen"), //
+            paddingLayout(4), // align pointer to 8 bytes
+            ADDRESS.withName("ai_addr"), //
+            ADDRESS.withName("ai_canonname"), //
+            ADDRESS.withName("ai_next") //
+    );
+    PathElement AI_FLAGS = groupElement("ai_flags");
+    PathElement ADDRINFO_CANONNAME = groupElement("ai_canonname");
+
+    // CGPoint structure (CoreGraphics/CGGeometry.h)
+    StructLayout CG_POINT = structLayout(//
+            JAVA_DOUBLE.withName("x"), // CGFloat (double on 64-bit)
+            JAVA_DOUBLE.withName("y") //
+    );
+
+    // CGSize structure (CoreGraphics/CGGeometry.h)
+    StructLayout CG_SIZE = structLayout(//
+            JAVA_DOUBLE.withName("width"), // CGFloat
+            JAVA_DOUBLE.withName("height") //
+    );
+
+    // CGRect structure (CoreGraphics/CGGeometry.h)
+    StructLayout CG_RECT = structLayout(//
+            CG_POINT.withName("origin"), //
+            CG_SIZE.withName("size") //
+    );
+    PathElement CG_ORIGIN = groupElement("origin");
+    PathElement CG_SIZE_ELEM = groupElement("size");
+    PathElement CG_X = groupElement("x");
+    PathElement CG_Y = groupElement("y");
+    PathElement CG_WIDTH = groupElement("width");
+    PathElement CG_HEIGHT = groupElement("height");
 
     // VM Statistics structure for host_statistics calls
     StructLayout VM_STATISTICS = structLayout(//
