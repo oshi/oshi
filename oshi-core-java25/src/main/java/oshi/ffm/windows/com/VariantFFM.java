@@ -16,6 +16,7 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static oshi.ffm.windows.com.Ole32FFM.S_OK;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_FLOAT;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -226,6 +227,10 @@ public final class VariantFFM extends WindowsForeignFunctions {
      * @return HRESULT
      */
     public static int clear(MemorySegment variant) {
+        // Defensive null check: avoid passing a null pointer to VariantClear.
+        if (variant == null || variant.equals(MemorySegment.NULL)) {
+            return S_OK;
+        }
         try {
             return (int) VariantClear.invokeExact(variant);
         } catch (Throwable t) {
