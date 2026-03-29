@@ -82,6 +82,12 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
     // Maximum file handles: 2^24 - 2^16 (assumes 64-bit Windows per FileSystem javadoc)
     static final long MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
 
+    private static final int DRIVE_REMOVABLE = 2;
+    private static final int DRIVE_FIXED = 3;
+    private static final int DRIVE_REMOTE = 4;
+    private static final int DRIVE_CDROM = 5;
+    private static final int DRIVE_RAMDISK = 6;
+
     public WindowsFileSystemFFM() {
         Kernel32FFM.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
@@ -107,13 +113,18 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 // If the volume is already in our list, preserve local values
                 // and only backfill missing fields from WMI
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
-                result.remove(volume);
-                result.add(new WindowsOSFileStoreFFM(volume.getName(), // preserve local name
+                int idx = result.indexOf(volume);
+                WindowsOSFileStoreFFM updated = new WindowsOSFileStoreFFM(volume.getName(), // preserve local name
                         volume.getVolume(), volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
                         volume.getMount(), volume.getOptions(), volume.getUUID(), "",
                         volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
                         volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0,
-                        true));
+                        true);
+                if (idx >= 0) {
+                    result.set(idx, updated);
+                } else {
+                    result.add(updated);
+                }
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
@@ -169,8 +180,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                         if (Kernel32FFM.GetLastError().orElse(0) == 0x7A) { // ERROR_MORE_DATA
                             mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
                             mountBuf = arena.allocate((long) mountBufSize * JAVA_CHAR.byteSize());
-                            pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(
-                                    toWideString(arena, volume), mountBuf, mountBufSize, returnLengthBuf);
+                            pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
+                                    mountBuf, mountBufSize, returnLengthBuf);
                         }
                     }
                     if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
@@ -231,11 +242,11 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
      */
     private static String getDriveTypeString(int type) {
         return switch (type) {
-            case 2 -> "Removable drive";
-            case 3 -> "Fixed drive";
-            case 4 -> "Network drive";
-            case 5 -> "CD-ROM";
-            case 6 -> "RAM drive";
+            case DRIVE_REMOVABLE -> "Removable drive";
+            case DRIVE_FIXED -> "Fixed drive";
+            case DRIVE_REMOTE -> "Network drive";
+            case DRIVE_CDROM -> "CD-ROM";
+            case DRIVE_RAMDISK -> "RAM drive";
             default -> "Unknown drive type";
         };
     }

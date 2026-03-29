@@ -7,9 +7,9 @@ package oshi.util.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.com.ComObjectFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
+import oshi.ffm.windows.com.IUnknownFFM;
 import oshi.ffm.windows.com.IWbemLocatorFFM;
 import oshi.ffm.windows.com.IWbemServicesFFM;
 import oshi.ffm.windows.com.Ole32FFM;
@@ -189,18 +189,18 @@ public class WmiQueryHandlerFFM {
                                 rowProcessor.accept(pObject, arena, result);
                                 results.add(result);
                             } finally {
-                                ComObjectFFM.safeRelease(pObject, arena);
+                                IUnknownFFM.safeRelease(pObject, arena);
                             }
                         }
                     } finally {
-                        ComObjectFFM.safeRelease(pEnum, arena);
+                        IUnknownFFM.safeRelease(pEnum, arena);
                     }
 
                 } finally {
-                    ComObjectFFM.safeRelease(pServices, arena);
+                    IUnknownFFM.safeRelease(pServices, arena);
                 }
             } finally {
-                ComObjectFFM.safeRelease(pLocator, arena);
+                IUnknownFFM.safeRelease(pLocator, arena);
             }
         } catch (FfmComException e) {
             LOG.debug("COM exception querying {}: {}", wmiClassName, e.getMessage());
