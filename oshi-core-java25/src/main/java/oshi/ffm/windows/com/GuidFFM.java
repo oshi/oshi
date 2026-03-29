@@ -88,6 +88,9 @@ public final class GuidFFM {
 
     /**
      * CLSID_WbemLocator: {4590F811-1D3A-11D0-891F-00AA004B2E24}
+     *
+     * @param arena the arena for memory allocation
+     * @return a memory segment containing the CLSID_WbemLocator GUID
      */
     public static MemorySegment CLSID_WbemLocator(Arena arena) {
         return create(arena, 0x4590f811, 0x1d3a, 0x11d0, 0x89, 0x1f, 0x00, 0xaa, 0x00, 0x4b, 0x2e, 0x24);
@@ -95,6 +98,9 @@ public final class GuidFFM {
 
     /**
      * IID_IWbemLocator: {DC12A687-737F-11CF-884D-00AA004B2E24}
+     *
+     * @param arena the arena for memory allocation
+     * @return a memory segment containing the IID_IWbemLocator GUID
      */
     public static MemorySegment IID_IWbemLocator(Arena arena) {
         return create(arena, 0xdc12a687, 0x737f, 0x11cf, 0x88, 0x4d, 0x00, 0xaa, 0x00, 0x4b, 0x2e, 0x24);
@@ -102,6 +108,9 @@ public final class GuidFFM {
 
     /**
      * IID_IUnknown: {00000000-0000-0000-C000-000000000046}
+     *
+     * @param arena the arena for memory allocation
+     * @return a memory segment containing the IID_IUnknown GUID
      */
     public static MemorySegment IID_IUnknown(Arena arena) {
         return create(arena, 0x00000000, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);

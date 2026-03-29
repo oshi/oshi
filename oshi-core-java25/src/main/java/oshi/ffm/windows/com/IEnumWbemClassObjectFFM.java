@@ -47,6 +47,9 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
 
     /**
      * Result of a Next() call.
+     *
+     * @param hresult the HRESULT from the Next() call
+     * @param pObject the retrieved object pointer, or NULL if none
      */
     public record NextResult(int hresult, MemorySegment pObject) {
         public boolean hasObject() {

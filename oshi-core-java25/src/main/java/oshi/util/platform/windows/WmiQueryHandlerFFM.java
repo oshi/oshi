@@ -331,7 +331,9 @@ public class WmiQueryHandlerFFM {
     /**
      * Functional interface for processing WMI rows with three parameters.
      *
-     * @param <T> the result type
+     * @param <A> the first parameter type
+     * @param <B> the second parameter type
+     * @param <C> the third parameter type
      */
     @FunctionalInterface
     public interface TriConsumer<A, B, C> {

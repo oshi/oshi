@@ -49,6 +49,10 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
 
     /**
      * Result of a Get() call containing the VARIANT and CIM type.
+     *
+     * @param hresult the HRESULT from the Get() call
+     * @param variant the VARIANT memory segment containing the value
+     * @param cimType the CIM type of the property
      */
     public record GetResult(int hresult, MemorySegment variant, int cimType) {
         public boolean succeeded() {

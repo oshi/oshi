@@ -34,6 +34,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     /**
      * Checks if a handle represents INVALID_HANDLE_VALUE.
+     *
+     * @param handle the handle to check
+     * @return true if the handle is null or equals INVALID_HANDLE_VALUE
      */
     private static boolean isInvalidHandle(MemorySegment handle) {
         return handle == null || handle.address() == INVALID_HANDLE_VALUE;

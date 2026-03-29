@@ -27,7 +27,7 @@ import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
-public class PdhUtilFFM {
+public final class PdhUtilFFM {
 
     private PdhUtilFFM() {
     }
