@@ -49,7 +49,8 @@ public class ComObjectFFM extends ForeignFunctions {
         }
         // COM object layout: first pointer is the vtable pointer
         MemorySegment vtablePtr = pObject.reinterpret(PTR_SIZE, arena, null).get(ADDRESS, 0);
-        // Vtable contains function pointers - reinterpret with enough space
+        // Reinterpret with enough slots for IWbemLocator (7 methods) and IWbemServices (30 methods);
+        // 32 slots covers all COM interfaces used by this implementation
         return vtablePtr.reinterpret(PTR_SIZE * 32, arena, null);
     }
 

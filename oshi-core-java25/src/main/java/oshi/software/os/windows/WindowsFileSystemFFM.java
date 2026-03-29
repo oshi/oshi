@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
     private static final int FILE_VOLUME_IS_COMPRESSED = 0x00008000;
     private static final int FILE_VOLUME_QUOTAS = 0x00000020;
 
-    private static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
+    private static final Map<Integer, String> OPTIONS_MAP = new LinkedHashMap<>();
     static {
         OPTIONS_MAP.put(FILE_CASE_PRESERVED_NAMES, "casepn");
         OPTIONS_MAP.put(FILE_CASE_SENSITIVE_SEARCH, "casess");
@@ -164,7 +165,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     }
                     String mount = readWideString(mountBuf);
 
-                    if (!mount.isEmpty() && (volumeToMatch == null || mount.equals(volumeToMatch))) {
+                    if (!mount.isEmpty() && (volumeToMatch == null || volume.equals(volumeToMatch))) {
                         String name = readWideString(nameBuf);
                         String fsType = readWideString(fstypeBuf);
                         StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");

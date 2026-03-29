@@ -91,7 +91,8 @@ public class WmiQueryHandlerFFM {
                 | InvocationTargetException e) {
             LOG.error("Failed to create a new instance of {}", customClass);
         }
-        return null;
+        customClass = null;
+        return new WmiQueryHandlerFFM();
     }
 
     /**
@@ -205,7 +206,6 @@ public class WmiQueryHandlerFFM {
             LOG.debug("COM exception querying {}: {}", wmiClassName, e.getMessage());
         } catch (Exception e) {
             LOG.debug("WMI query failed for {}: {}", wmiClassName, e.getMessage());
-            failedWmiClassNames.add(wmiClassName);
         } finally {
             if (comInit) {
                 unInitCOM();
@@ -359,6 +359,10 @@ public class WmiQueryHandlerFFM {
      * @param wmiTimeout the timeout to set (-1 for infinite)
      */
     public void setWmiTimeout(int wmiTimeout) {
+        if (wmiTimeout == 0 || wmiTimeout < -1) {
+            throw new IllegalArgumentException(
+                    "WMI timeout must be -1 (infinite) or a positive integer, not " + wmiTimeout);
+        }
         this.wmiTimeout.set(wmiTimeout);
     }
 
