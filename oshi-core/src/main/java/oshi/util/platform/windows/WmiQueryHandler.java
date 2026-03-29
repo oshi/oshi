@@ -49,7 +49,7 @@ public class WmiQueryHandler {
     private int comThreading = Ole32.COINIT_MULTITHREADED;
 
     // Track initialization of Security
-    private boolean securityInitialized = false;
+    private volatile boolean securityInitialized = false;
 
     private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];

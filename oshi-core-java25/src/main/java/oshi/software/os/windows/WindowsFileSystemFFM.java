@@ -88,6 +88,11 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
     private static final int DRIVE_CDROM = 5;
     private static final int DRIVE_RAMDISK = 6;
 
+    /**
+     * Creates a new instance. Calls {@code SetErrorMode(SEM_FAILCRITICALERRORS)} to suppress system error dialogs for
+     * missing drives; this is a process-wide setting and is intentionally not restored, matching the behavior of the
+     * JNA {@code WindowsFileSystem} implementation.
+     */
     public WindowsFileSystemFFM() {
         Kernel32FFM.SetErrorMode(SEM_FAILCRITICALERRORS);
     }

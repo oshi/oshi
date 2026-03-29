@@ -18,9 +18,10 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 /**
- * FFM bindings for the COM IUnknown interface (QueryInterface, AddRef, Release).
+ * FFM helpers for the COM IUnknown interface methods AddRef and Release.
  * <p>
- * All COM interfaces inherit from IUnknown, so these vtable slots (0, 1, 2) are present on every COM object.
+ * All COM interfaces inherit from IUnknown, so vtable slots 1 (AddRef) and 2 (Release) are present on every COM object.
+ * QueryInterface (slot 0) is not implemented here.
  * </p>
  */
 public class IUnknownFFM extends ForeignFunctions {

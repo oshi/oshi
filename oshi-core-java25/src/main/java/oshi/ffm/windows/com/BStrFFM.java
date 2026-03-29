@@ -44,6 +44,9 @@ public final class BStrFFM extends WindowsForeignFunctions {
      * @return the BSTR pointer, or NULL if allocation failed
      */
     public static MemorySegment fromString(Arena arena, String str) {
+        if (str == null) {
+            return MemorySegment.NULL;
+        }
         try {
             MemorySegment wideStr = toWideString(arena, str);
             return (MemorySegment) SysAllocString.invokeExact(wideStr);

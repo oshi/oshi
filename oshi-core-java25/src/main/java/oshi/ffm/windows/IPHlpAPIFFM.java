@@ -7,7 +7,6 @@ package oshi.ffm.windows;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
-import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
 import static java.lang.foreign.MemoryLayout.structLayout;
@@ -69,11 +68,10 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
             JAVA_INT.withName("Context"));
 
     public static final StructLayout FIXED_INFO_LAYOUT = structLayout(
-            sequenceLayout(132, ValueLayout.JAVA_BYTE).withName("HostName"),
-            sequenceLayout(132, ValueLayout.JAVA_BYTE).withName("DomainName"), ADDRESS.withName("CurrentDnsServer"),
-            IP_ADDR_STRING_LAYOUT.withName("DnsServerList"), JAVA_INT.withName("NodeType"),
-            sequenceLayout(260, ValueLayout.JAVA_BYTE).withName("ScopeId"), JAVA_INT.withName("EnableRouting"),
-            ValueLayout.JAVA_INT.withName("EnableProxy"), JAVA_INT.withName("EnableDns"));
+            sequenceLayout(132, JAVA_BYTE).withName("HostName"), sequenceLayout(132, JAVA_BYTE).withName("DomainName"),
+            ADDRESS.withName("CurrentDnsServer"), IP_ADDR_STRING_LAYOUT.withName("DnsServerList"),
+            JAVA_INT.withName("NodeType"), sequenceLayout(260, JAVA_BYTE).withName("ScopeId"),
+            JAVA_INT.withName("EnableRouting"), JAVA_INT.withName("EnableProxy"), JAVA_INT.withName("EnableDns"));
 
     public static int GetNetworkParams(MemorySegment fixedInfo, MemorySegment bufferSize) throws Throwable {
         return (int) GetNetworkParams.invokeExact(fixedInfo, bufferSize);
