@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -356,6 +356,8 @@ final class WindowsSensors extends AbstractSensors {
 
             Method querySensorsMethod = libreHardwareManagerClass.getMethod("querySensors", String.class, String.class);
             return (List<?>) querySensorsMethod.invoke(instance, hardwareType, sensorType);
+        } catch (ClassNotFoundException e) {
+            LOG.trace("jLibreHardwareMonitor not available: {}", e.getMessage());
         } catch (Exception e) {
             LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
         }
