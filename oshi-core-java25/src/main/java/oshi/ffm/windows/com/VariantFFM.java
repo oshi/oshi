@@ -94,7 +94,7 @@ public final class VariantFFM extends WindowsForeignFunctions {
     /**
      * Size of a VARIANT in bytes.
      */
-    public static final long SIZE = 24; // Fixed size for 64-bit
+    public static final long SIZE = LAYOUT.byteSize();
 
     /**
      * Offset of the vt field.
