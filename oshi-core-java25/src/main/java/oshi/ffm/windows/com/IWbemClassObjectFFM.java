@@ -12,9 +12,6 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandle;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
@@ -35,20 +32,19 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
 
     // IWbemClassObject::Get function descriptor
     // HRESULT Get(
-    //   LPCWSTR wszName,          // property name
-    //   long lFlags,              // flags (0)
-    //   VARIANT* pVal,            // output value
-    //   CIMTYPE* pType,           // output CIM type (optional)
-    //   long* plFlavor            // output flavor (optional)
+    // LPCWSTR wszName, // property name
+    // long lFlags, // flags (0)
+    // VARIANT* pVal, // output value
+    // CIMTYPE* pType, // output CIM type (optional)
+    // long* plFlavor // output flavor (optional)
     // )
-    private static final FunctionDescriptor GET_DESC = FunctionDescriptor.of(
-            JAVA_INT,   // HRESULT return
-            ADDRESS,    // this
-            ADDRESS,    // wszName
-            JAVA_INT,   // lFlags
-            ADDRESS,    // pVal
-            ADDRESS,    // pType
-            ADDRESS     // plFlavor
+    private static final FunctionDescriptor GET_DESC = FunctionDescriptor.of(JAVA_INT, // HRESULT return
+            ADDRESS, // this
+            ADDRESS, // wszName
+            JAVA_INT, // lFlags
+            ADDRESS, // pVal
+            ADDRESS, // pType
+            ADDRESS // plFlavor
     );
 
     /**
@@ -81,13 +77,8 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
             MemorySegment pVal = VariantFFM.allocate(arena);
             MemorySegment pType = arena.allocate(JAVA_INT);
 
-            int hr = (int) mh.invokeExact(
-                    pObject,
-                    wszName,
-                    0,              // flags
-                    pVal,
-                    pType,
-                    NULL            // flavor (not needed)
+            int hr = (int) mh.invokeExact(pObject, wszName, 0, // flags
+                    pVal, pType, NULL // flavor (not needed)
             );
 
             // Only read pType on success; use CIM_ILLEGAL on failure

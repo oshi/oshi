@@ -11,7 +11,6 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandle;
-import java.util.Optional;
 import java.util.OptionalInt;
 
 import static java.lang.foreign.MemorySegment.NULL;
@@ -33,18 +32,17 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
 
     // IEnumWbemClassObject::Next function descriptor
     // HRESULT Next(
-    //   long lTimeout,            // timeout in milliseconds
-    //   ULONG uCount,             // number of objects to retrieve
-    //   IWbemClassObject** apObjects, // array of object pointers
-    //   ULONG* puReturned         // number of objects returned
+    // long lTimeout, // timeout in milliseconds
+    // ULONG uCount, // number of objects to retrieve
+    // IWbemClassObject** apObjects, // array of object pointers
+    // ULONG* puReturned // number of objects returned
     // )
-    private static final FunctionDescriptor NEXT_DESC = FunctionDescriptor.of(
-            JAVA_INT,   // HRESULT return
-            ADDRESS,    // this
-            JAVA_INT,   // lTimeout
-            JAVA_INT,   // uCount
-            ADDRESS,    // apObjects
-            ADDRESS     // puReturned
+    private static final FunctionDescriptor NEXT_DESC = FunctionDescriptor.of(JAVA_INT, // HRESULT return
+            ADDRESS, // this
+            JAVA_INT, // lTimeout
+            JAVA_INT, // uCount
+            ADDRESS, // apObjects
+            ADDRESS // puReturned
     );
 
     /**
@@ -80,13 +78,8 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
             MemorySegment apObjects = arena.allocate(ADDRESS);
             MemorySegment puReturned = arena.allocate(JAVA_INT);
 
-            int hr = (int) mh.invokeExact(
-                    pEnum,
-                    timeout,
-                    1,              // retrieve one object at a time
-                    apObjects,
-                    puReturned
-            );
+            int hr = (int) mh.invokeExact(pEnum, timeout, 1, // retrieve one object at a time
+                    apObjects, puReturned);
 
             int returned = puReturned.get(JAVA_INT, 0);
             MemorySegment pObject = returned > 0 ? apObjects.get(ADDRESS, 0) : NULL;

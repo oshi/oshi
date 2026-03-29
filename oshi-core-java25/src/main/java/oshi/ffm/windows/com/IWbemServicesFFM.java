@@ -37,20 +37,19 @@ public final class IWbemServicesFFM extends ComObjectFFM {
 
     // IWbemServices::ExecQuery function descriptor
     // HRESULT ExecQuery(
-    //   BSTR strQueryLanguage,    // "WQL"
-    //   BSTR strQuery,            // query string
-    //   long lFlags,              // flags
-    //   IWbemContext* pCtx,       // context (NULL)
-    //   IEnumWbemClassObject** ppEnum // output enumerator
+    // BSTR strQueryLanguage, // "WQL"
+    // BSTR strQuery, // query string
+    // long lFlags, // flags
+    // IWbemContext* pCtx, // context (NULL)
+    // IEnumWbemClassObject** ppEnum // output enumerator
     // )
-    private static final FunctionDescriptor EXEC_QUERY_DESC = FunctionDescriptor.of(
-            JAVA_INT,   // HRESULT return
-            ADDRESS,    // this
-            ADDRESS,    // strQueryLanguage
-            ADDRESS,    // strQuery
-            JAVA_INT,   // lFlags
-            ADDRESS,    // pCtx
-            ADDRESS     // ppEnum
+    private static final FunctionDescriptor EXEC_QUERY_DESC = FunctionDescriptor.of(JAVA_INT, // HRESULT return
+            ADDRESS, // this
+            ADDRESS, // strQueryLanguage
+            ADDRESS, // strQuery
+            JAVA_INT, // lFlags
+            ADDRESS, // pCtx
+            ADDRESS // ppEnum
     );
 
     /**
@@ -78,14 +77,8 @@ public final class IWbemServicesFFM extends ComObjectFFM {
             bstrQuery = BStrFFM.fromString(arena, query);
             MemorySegment ppEnum = arena.allocate(ADDRESS);
 
-            int hr = (int) mh.invokeExact(
-                    pServices,
-                    bstrQueryLang,
-                    bstrQuery,
-                    flags,
-                    NULL,           // context
-                    ppEnum
-            );
+            int hr = (int) mh.invokeExact(pServices, bstrQueryLang, bstrQuery, flags, NULL, // context
+                    ppEnum);
 
             if (Ole32FFM.failed(hr)) {
                 LOG.debug("IWbemServices.ExecQuery failed with HRESULT: 0x{}", Integer.toHexString(hr));
@@ -115,7 +108,7 @@ public final class IWbemServicesFFM extends ComObjectFFM {
      * @return the IEnumWbemClassObject enumerator, or empty if failed
      */
     public static Optional<MemorySegment> execQuery(MemorySegment pServices, String query, Arena arena) {
-        return execQuery(pServices, query,
-                WbemcliFFM.WBEM_FLAG_FORWARD_ONLY | WbemcliFFM.WBEM_FLAG_RETURN_IMMEDIATELY, arena);
+        return execQuery(pServices, query, WbemcliFFM.WBEM_FLAG_FORWARD_ONLY | WbemcliFFM.WBEM_FLAG_RETURN_IMMEDIATELY,
+                arena);
     }
 }

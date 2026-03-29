@@ -107,20 +107,12 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 // and only backfill missing fields from WMI
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
                 result.remove(volume);
-                result.add(new WindowsOSFileStoreFFM(
-                        volume.getName(),  // preserve local name
-                        volume.getVolume(),
-                        volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
-                        volume.getMount(),
-                        volume.getOptions(),
-                        volume.getUUID(),
-                        "",
+                result.add(new WindowsOSFileStoreFFM(volume.getName(), // preserve local name
+                        volume.getVolume(), volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
+                        volume.getMount(), volume.getOptions(), volume.getUUID(), "",
                         volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
-                        volume.getType(),
-                        volume.getFreeSpace(),
-                        volume.getUsableSpace(),
-                        volume.getTotalSpace(),
-                        0, 0, true));
+                        volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0,
+                        true));
             } else if (!localOnly) {
                 // Otherwise add the new volume in its entirety
                 result.add(wmiVolume);
@@ -261,8 +253,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     MemorySegment mountPoint = toWideString(arena, name + "\\");
                     MemorySegment volumeBuf = arena.allocate(BUFSIZE * JAVA_CHAR.byteSize());
                     var volResult = Kernel32FFM.GetVolumeNameForVolumeMountPoint(mountPoint, volumeBuf, BUFSIZE);
-                    volume = (volResult.isPresent() && volResult.getAsInt() != 0)
-                            ? readWideString(volumeBuf) : "";
+                    volume = (volResult.isPresent() && volResult.getAsInt() != 0) ? readWideString(volumeBuf) : "";
                 } else {
                     // Network drive
                     volume = drive.getProviderName();
@@ -273,8 +264,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 }
 
                 fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
-                        label, name + "\\", options, "", "", getDriveTypeString(type),
-                        drive.getFileSystem(), free, free, total, 0, 0, type != 4));
+                        label, name + "\\", options, "", "", getDriveTypeString(type), drive.getFileSystem(), free,
+                        free, total, 0, 0, type != 4));
             }
         }
         return fs;

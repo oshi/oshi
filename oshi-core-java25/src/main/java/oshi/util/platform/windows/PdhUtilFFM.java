@@ -68,8 +68,8 @@ public class PdhUtilFFM {
                 long offset = 0;
                 long itemSize = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT.byteSize();
                 long szNameOffset = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT.byteOffset(groupElement("szName"));
-                long valueOffset = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT
-                        .byteOffset(groupElement("FmtValue"), groupElement("Value"), groupElement("largeValue"));
+                long valueOffset = PDH_FMT_COUNTERVALUE_ITEM_LAYOUT.byteOffset(groupElement("FmtValue"),
+                        groupElement("Value"), groupElement("largeValue"));
 
                 for (int i = 0; i < count; i++) {
                     MemorySegment item = buffer.asSlice(offset, itemSize);

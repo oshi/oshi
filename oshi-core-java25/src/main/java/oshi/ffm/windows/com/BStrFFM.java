@@ -20,8 +20,8 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 /**
  * FFM utilities for handling BSTR (Basic String) - the string type used in COM automation.
  * <p>
- * A BSTR is a pointer to a null-terminated Unicode string preceded by a 4-byte length prefix.
- * The pointer points to the first character, not the length prefix.
+ * A BSTR is a pointer to a null-terminated Unicode string preceded by a 4-byte length prefix. The pointer points to the
+ * first character, not the length prefix.
  * </p>
  */
 public final class BStrFFM extends WindowsForeignFunctions {

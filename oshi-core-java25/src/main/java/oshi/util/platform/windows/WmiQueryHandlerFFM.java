@@ -7,11 +7,9 @@ package oshi.util.platform.windows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.com.BStrFFM;
 import oshi.ffm.windows.com.ComObjectFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
-import oshi.ffm.windows.com.IWbemClassObjectFFM;
 import oshi.ffm.windows.com.IWbemLocatorFFM;
 import oshi.ffm.windows.com.IWbemServicesFFM;
 import oshi.ffm.windows.com.Ole32FFM;
@@ -30,9 +28,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-
-import static java.lang.foreign.MemorySegment.NULL;
 
 /**
  * FFM-based utility to handle WMI Queries.
@@ -121,8 +116,7 @@ public class WmiQueryHandlerFFM {
      * @return list of result objects, empty list if query fails
      */
     public <T> List<T> queryWMI(String namespace, String wmiClassName, String whereClause,
-            java.util.function.Supplier<T> resultFactory,
-            TriConsumer<MemorySegment, Arena, T> rowProcessor) {
+            java.util.function.Supplier<T> resultFactory, TriConsumer<MemorySegment, Arena, T> rowProcessor) {
 
         // Check if class previously failed - skip to avoid repeated failures
         if (failedWmiClassNames.contains(wmiClassName)) {
@@ -160,10 +154,8 @@ public class WmiQueryHandlerFFM {
 
                 try {
                     // Set proxy blanket for security
-                    Ole32FFM.CoSetProxyBlanket(pServices, -1, -1,
-                            Ole32FFM.RPC_C_AUTHN_LEVEL_CALL,
-                            Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE,
-                            Ole32FFM.EOAC_NONE);
+                    Ole32FFM.CoSetProxyBlanket(pServices, -1, -1, Ole32FFM.RPC_C_AUTHN_LEVEL_CALL,
+                            Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE, Ole32FFM.EOAC_NONE);
 
                     // Build query
                     String query = "SELECT * FROM " + wmiClassName;
@@ -183,7 +175,8 @@ public class WmiQueryHandlerFFM {
                     try {
                         // Enumerate results
                         while (true) {
-                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum, wmiTimeout.get(), arena);
+                            IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum,
+                                    wmiTimeout.get(), arena);
 
                             if (nextResult.isComplete() || !nextResult.hasObject()) {
                                 break;
@@ -201,7 +194,6 @@ public class WmiQueryHandlerFFM {
                     } finally {
                         ComObjectFFM.safeRelease(pEnum, arena);
                     }
-
 
                 } finally {
                     ComObjectFFM.safeRelease(pServices, arena);
@@ -233,8 +225,7 @@ public class WmiQueryHandlerFFM {
      * @param rowProcessor  processor to populate result object from WMI row
      * @return list of result objects
      */
-    public <T> List<T> queryWMI(String wmiClassName, String whereClause,
-            java.util.function.Supplier<T> resultFactory,
+    public <T> List<T> queryWMI(String wmiClassName, String whereClause, java.util.function.Supplier<T> resultFactory,
             TriConsumer<MemorySegment, Arena, T> rowProcessor) {
         return queryWMI(WbemcliFFM.DEFAULT_NAMESPACE, wmiClassName, whereClause, resultFactory, rowProcessor);
     }
@@ -255,10 +246,8 @@ public class WmiQueryHandlerFFM {
             synchronized (comInitLock) {
                 // Double-check after acquiring lock
                 if (!securityInitialized.get()) {
-                    var hrOpt = Ole32FFM.CoInitializeSecurity(
-                            Ole32FFM.RPC_C_AUTHN_LEVEL_DEFAULT,
-                            Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE,
-                            Ole32FFM.EOAC_NONE);
+                    var hrOpt = Ole32FFM.CoInitializeSecurity(Ole32FFM.RPC_C_AUTHN_LEVEL_DEFAULT,
+                            Ole32FFM.RPC_C_IMP_LEVEL_IMPERSONATE, Ole32FFM.EOAC_NONE);
 
                     if (hrOpt.isPresent()) {
                         int hr = hrOpt.getAsInt();
@@ -314,8 +303,7 @@ public class WmiQueryHandlerFFM {
     private int switchComThreading() {
         synchronized (comInitLock) {
             int current = comThreading.get();
-            int newValue = (current == Ole32FFM.COINIT_APARTMENTTHREADED)
-                    ? Ole32FFM.COINIT_MULTITHREADED
+            int newValue = (current == Ole32FFM.COINIT_APARTMENTTHREADED) ? Ole32FFM.COINIT_MULTITHREADED
                     : Ole32FFM.COINIT_APARTMENTTHREADED;
             comThreading.set(newValue);
             return newValue;

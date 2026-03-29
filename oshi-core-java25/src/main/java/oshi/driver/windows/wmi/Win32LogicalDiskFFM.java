@@ -131,12 +131,9 @@ public final class Win32LogicalDiskFFM {
             whereClause.append(" Name=\"").append(nameToMatch).append("\"");
         }
 
-        return WmiQueryHandlerFFM.getInstance().queryWMI(
-                WIN32_LOGICAL_DISK,
-                whereClause.length() > 0 ? whereClause.toString() : null,
-                LogicalDiskInfo::new,
-                Win32LogicalDiskFFM::populateLogicalDiskInfo
-        );
+        return WmiQueryHandlerFFM.getInstance().queryWMI(WIN32_LOGICAL_DISK,
+                whereClause.length() > 0 ? whereClause.toString() : null, LogicalDiskInfo::new,
+                Win32LogicalDiskFFM::populateLogicalDiskInfo);
     }
 
     /**

@@ -70,8 +70,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
     }
 
     // CoInitializeEx
-    private static final MethodHandle CoInitializeEx = downcall(OLE32, "CoInitializeEx",
-            JAVA_INT, ADDRESS, JAVA_INT);
+    private static final MethodHandle CoInitializeEx = downcall(OLE32, "CoInitializeEx", JAVA_INT, ADDRESS, JAVA_INT);
 
     /**
      * Initializes the COM library for use by the calling thread.
@@ -104,29 +103,28 @@ public final class Ole32FFM extends WindowsForeignFunctions {
     }
 
     // CoInitializeSecurity
-    private static final MethodHandle CoInitializeSecurity = downcall(OLE32, "CoInitializeSecurity",
-            JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS);
+    private static final MethodHandle CoInitializeSecurity = downcall(OLE32, "CoInitializeSecurity", JAVA_INT, ADDRESS,
+            JAVA_INT, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS);
 
     /**
      * Registers security and sets the default security values for the process.
      *
-     * @param authnLevel the default authentication level
-     * @param impLevel   the default impersonation level
+     * @param authnLevel   the default authentication level
+     * @param impLevel     the default impersonation level
      * @param capabilities additional capabilities (EOAC_*)
      * @return HRESULT: S_OK if successful, RPC_E_TOO_LATE if already called, or error code
      */
     public static OptionalInt CoInitializeSecurity(int authnLevel, int impLevel, int capabilities) {
         try {
-            int hr = (int) CoInitializeSecurity.invokeExact(
-                    NULL,           // pSecDesc
-                    -1,             // cAuthSvc
-                    NULL,           // asAuthSvc
-                    NULL,           // pReserved1
-                    authnLevel,     // dwAuthnLevel
-                    impLevel,       // dwImpLevel
-                    NULL,           // pAuthList
-                    capabilities,   // dwCapabilities
-                    NULL            // pReserved3
+            int hr = (int) CoInitializeSecurity.invokeExact(NULL, // pSecDesc
+                    -1, // cAuthSvc
+                    NULL, // asAuthSvc
+                    NULL, // pReserved1
+                    authnLevel, // dwAuthnLevel
+                    impLevel, // dwImpLevel
+                    NULL, // pAuthList
+                    capabilities, // dwCapabilities
+                    NULL // pReserved3
             );
             return OptionalInt.of(hr);
         } catch (Throwable t) {
@@ -136,16 +134,16 @@ public final class Ole32FFM extends WindowsForeignFunctions {
     }
 
     // CoCreateInstance
-    private static final MethodHandle CoCreateInstance = downcall(OLE32, "CoCreateInstance",
-            JAVA_INT, ADDRESS, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+    private static final MethodHandle CoCreateInstance = downcall(OLE32, "CoCreateInstance", JAVA_INT, ADDRESS, ADDRESS,
+            JAVA_INT, ADDRESS, ADDRESS);
 
     /**
      * Creates a single uninitialized object of the class associated with a specified CLSID.
      *
-     * @param arena   the arena for memory allocation
-     * @param clsid   the CLSID of the object to create
-     * @param clsctx  the context in which the code that manages the object will run (CLSCTX_*)
-     * @param iid     the IID of the interface to obtain
+     * @param arena  the arena for memory allocation
+     * @param clsid  the CLSID of the object to create
+     * @param clsctx the context in which the code that manages the object will run (CLSCTX_*)
+     * @param iid    the IID of the interface to obtain
      * @return the interface pointer, or NULL if failed
      */
     public static MemorySegment CoCreateInstance(Arena arena, MemorySegment clsid, int clsctx, MemorySegment iid) {
@@ -164,32 +162,30 @@ public final class Ole32FFM extends WindowsForeignFunctions {
     }
 
     // CoSetProxyBlanket
-    private static final MethodHandle CoSetProxyBlanket = downcall(OLE32, "CoSetProxyBlanket",
-            JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT);
+    private static final MethodHandle CoSetProxyBlanket = downcall(OLE32, "CoSetProxyBlanket", JAVA_INT, ADDRESS,
+            JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT);
 
     /**
      * Sets the authentication information for a proxy.
      *
-     * @param pProxy     the proxy to set authentication on
-     * @param authnSvc   the authentication service (use -1 for default)
-     * @param authzSvc   the authorization service (use -1 for default)
-     * @param authnLevel the authentication level
-     * @param impLevel   the impersonation level
+     * @param pProxy       the proxy to set authentication on
+     * @param authnSvc     the authentication service (use -1 for default)
+     * @param authzSvc     the authorization service (use -1 for default)
+     * @param authnLevel   the authentication level
+     * @param impLevel     the impersonation level
      * @param capabilities additional capabilities
      * @return HRESULT
      */
-    public static OptionalInt CoSetProxyBlanket(MemorySegment pProxy, int authnSvc, int authzSvc,
-            int authnLevel, int impLevel, int capabilities) {
+    public static OptionalInt CoSetProxyBlanket(MemorySegment pProxy, int authnSvc, int authzSvc, int authnLevel,
+            int impLevel, int capabilities) {
         try {
-            int hr = (int) CoSetProxyBlanket.invokeExact(
-                    pProxy,
-                    authnSvc,       // dwAuthnSvc
-                    authzSvc,       // dwAuthzSvc
-                    NULL,           // pServerPrincName
-                    authnLevel,     // dwAuthnLevel
-                    impLevel,       // dwImpLevel
-                    NULL,           // pAuthInfo
-                    capabilities    // dwCapabilities
+            int hr = (int) CoSetProxyBlanket.invokeExact(pProxy, authnSvc, // dwAuthnSvc
+                    authzSvc, // dwAuthzSvc
+                    NULL, // pServerPrincName
+                    authnLevel, // dwAuthnLevel
+                    impLevel, // dwImpLevel
+                    NULL, // pAuthInfo
+                    capabilities // dwCapabilities
             );
             return OptionalInt.of(hr);
         } catch (Throwable t) {

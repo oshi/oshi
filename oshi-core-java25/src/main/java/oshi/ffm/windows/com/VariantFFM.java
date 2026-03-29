@@ -72,22 +72,15 @@ public final class VariantFFM extends WindowsForeignFunctions {
     public static final int VT_BYREF = 0x4000;
 
     /**
-     * The memory layout of a VARIANT structure (24 bytes on 64-bit).
-     * Layout: vt (2) + wReserved1 (2) + wReserved2 (2) + wReserved3 (2) + data (16)
+     * The memory layout of a VARIANT structure (24 bytes on 64-bit). Layout: vt (2) + wReserved1 (2) + wReserved2 (2) +
+     * wReserved3 (2) + data (16)
      */
-    public static final StructLayout LAYOUT = MemoryLayout.structLayout(
-            JAVA_SHORT.withName("vt"),
-            JAVA_SHORT.withName("wReserved1"),
-            JAVA_SHORT.withName("wReserved2"),
-            JAVA_SHORT.withName("wReserved3"),
-            MemoryLayout.unionLayout(
-                    JAVA_LONG.withName("llVal"),
-                    JAVA_INT.withName("lVal"),
-                    JAVA_SHORT.withName("iVal"),
-                    JAVA_DOUBLE.withName("dblVal"),
-                    ADDRESS.withName("bstrVal"),
-                    ADDRESS.withName("punkVal")
-            ).withName("data"),
+    public static final StructLayout LAYOUT = MemoryLayout.structLayout(JAVA_SHORT.withName("vt"),
+            JAVA_SHORT.withName("wReserved1"), JAVA_SHORT.withName("wReserved2"), JAVA_SHORT.withName("wReserved3"),
+            MemoryLayout
+                    .unionLayout(JAVA_LONG.withName("llVal"), JAVA_INT.withName("lVal"), JAVA_SHORT.withName("iVal"),
+                            JAVA_DOUBLE.withName("dblVal"), ADDRESS.withName("bstrVal"), ADDRESS.withName("punkVal"))
+                    .withName("data"),
             MemoryLayout.paddingLayout(8) // Padding to align to 24 bytes
     );
 
@@ -207,8 +200,7 @@ public final class VariantFFM extends WindowsForeignFunctions {
     }
 
     /**
-     * Gets the boolean value from a VARIANT (VT_BOOL).
-     * In COM, VARIANT_TRUE is -1 and VARIANT_FALSE is 0.
+     * Gets the boolean value from a VARIANT (VT_BOOL). In COM, VARIANT_TRUE is -1 and VARIANT_FALSE is 0.
      *
      * @param variant the VARIANT memory segment
      * @return the boolean value

@@ -16,13 +16,11 @@ import java.util.Optional;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 /**
  * FFM bindings for the IWbemLocator COM interface.
  * <p>
- * IWbemLocator is used to obtain the initial namespace pointer to IWbemServices
- * for WMI on a particular host computer.
+ * IWbemLocator is used to obtain the initial namespace pointer to IWbemServices for WMI on a particular host computer.
  * </p>
  */
 public final class IWbemLocatorFFM extends ComObjectFFM {
@@ -50,26 +48,25 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
 
     // IWbemLocator::ConnectServer function descriptor
     // HRESULT ConnectServer(
-    //   BSTR strNetworkResource,  // namespace path
-    //   BSTR strUser,             // user name (NULL for current)
-    //   BSTR strPassword,         // password (NULL for current)
-    //   BSTR strLocale,           // locale (NULL for current)
-    //   long lSecurityFlags,      // security flags
-    //   BSTR strAuthority,        // authority (NULL for NTLM)
-    //   IWbemContext* pCtx,       // context (NULL)
-    //   IWbemServices** ppNamespace // output
+    // BSTR strNetworkResource, // namespace path
+    // BSTR strUser, // user name (NULL for current)
+    // BSTR strPassword, // password (NULL for current)
+    // BSTR strLocale, // locale (NULL for current)
+    // long lSecurityFlags, // security flags
+    // BSTR strAuthority, // authority (NULL for NTLM)
+    // IWbemContext* pCtx, // context (NULL)
+    // IWbemServices** ppNamespace // output
     // )
-    private static final FunctionDescriptor CONNECT_SERVER_DESC = FunctionDescriptor.of(
-            JAVA_INT,   // HRESULT return
-            ADDRESS,    // this
-            ADDRESS,    // strNetworkResource
-            ADDRESS,    // strUser
-            ADDRESS,    // strPassword
-            ADDRESS,    // strLocale
-            JAVA_INT,   // lSecurityFlags
-            ADDRESS,    // strAuthority
-            ADDRESS,    // pCtx
-            ADDRESS     // ppNamespace
+    private static final FunctionDescriptor CONNECT_SERVER_DESC = FunctionDescriptor.of(JAVA_INT, // HRESULT return
+            ADDRESS, // this
+            ADDRESS, // strNetworkResource
+            ADDRESS, // strUser
+            ADDRESS, // strPassword
+            ADDRESS, // strLocale
+            JAVA_INT, // lSecurityFlags
+            ADDRESS, // strAuthority
+            ADDRESS, // pCtx
+            ADDRESS // ppNamespace
     );
 
     /**
@@ -94,17 +91,13 @@ public final class IWbemLocatorFFM extends ComObjectFFM {
             bstrNamespace = BStrFFM.fromString(arena, namespace);
             MemorySegment ppServices = arena.allocate(ADDRESS);
 
-            int hr = (int) mh.invokeExact(
-                    pLocator,
-                    bstrNamespace,
-                    NULL,           // user
-                    NULL,           // password
-                    NULL,           // locale
-                    0,              // security flags
-                    NULL,           // authority
-                    NULL,           // context
-                    ppServices
-            );
+            int hr = (int) mh.invokeExact(pLocator, bstrNamespace, NULL, // user
+                    NULL, // password
+                    NULL, // locale
+                    0, // security flags
+                    NULL, // authority
+                    NULL, // context
+                    ppServices);
 
             if (Ole32FFM.failed(hr)) {
                 LOG.debug("IWbemLocator.ConnectServer failed with HRESULT: 0x{}", Integer.toHexString(hr));
