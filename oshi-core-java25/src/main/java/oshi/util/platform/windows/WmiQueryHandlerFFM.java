@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+
+import oshi.ffm.windows.com.FfmComException;
 
 import static java.lang.foreign.MemorySegment.NULL;
 
@@ -181,6 +183,8 @@ public class WmiQueryHandlerFFM {
             } finally {
                 ComObjectFFM.safeRelease(pLocator, arena);
             }
+        } catch (FfmComException e) {
+            LOG.debug("COM exception querying {}: {}", wmiClassName, e.getMessage());
         } catch (Exception e) {
             LOG.debug("WMI query failed for {}: {}", wmiClassName, e.getMessage());
             failedWmiClassNames.add(wmiClassName);
@@ -213,6 +217,7 @@ public class WmiQueryHandlerFFM {
      * Initializes COM library.
      *
      * @return true if COM was initialized and needs to be uninitialized
+     * @throws FfmComException if COM initialization fails with an unexpected error
      */
     private boolean initCOM() {
         boolean comInit = initCOM(comThreading.get());
@@ -250,6 +255,7 @@ public class WmiQueryHandlerFFM {
      *
      * @param coInitThreading the threading model
      * @return true if successful
+     * @throws FfmComException if COM initialization fails with an unexpected error
      */
     private boolean initCOM(int coInitThreading) {
         var hrOpt = Ole32FFM.CoInitializeEx(coInitThreading);
@@ -258,9 +264,12 @@ public class WmiQueryHandlerFFM {
         }
         int hr = hrOpt.getAsInt();
         return switch (hr) {
+            // Successful initialization (S_OK) or already initialized (S_FALSE) but still needs uninit
             case Ole32FFM.S_OK, Ole32FFM.S_FALSE -> true;
+            // COM already initialized with a different threading model
             case Ole32FFM.RPC_E_CHANGED_MODE -> false;
-            default -> false;
+            // E_INVALIDARG, E_OUTOFMEMORY, or E_UNEXPECTED are possible per the docs
+            default -> throw new FfmComException("Failed to initialize COM library.", hr);
         };
     }
 

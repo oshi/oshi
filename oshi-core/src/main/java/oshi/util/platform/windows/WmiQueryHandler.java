@@ -173,6 +173,7 @@ public class WmiQueryHandler {
      * Initializes COM library and sets security to impersonate the local user
      *
      * @return True if COM was initialized and needs to be uninitialized, false otherwise
+     * @throws COMException if COM initialization fails with an unexpected error
      */
     public boolean initCOM() {
         boolean comInit = false;
@@ -203,6 +204,7 @@ public class WmiQueryHandler {
      *
      * @param coInitThreading The threading model
      * @return True if COM was initialized and needs to be uninitialized, false otherwise
+     * @throws COMException if COM initialization fails with an unexpected error
      */
     protected boolean initCOM(int coInitThreading) {
         WinNT.HRESULT hres = Ole32.INSTANCE.CoInitializeEx(null, coInitThreading);
@@ -215,7 +217,7 @@ public class WmiQueryHandler {
             // COM was already initialized with a different threading model
             case WinError.RPC_E_CHANGED_MODE:
                 return false;
-            // Any other results is impossible
+            // E_INVALIDARG, E_OUTOFMEMORY, or E_UNEXPECTED are possible per the docs
             default:
                 throw new COMException("Failed to initialize COM library.", hres);
         }
