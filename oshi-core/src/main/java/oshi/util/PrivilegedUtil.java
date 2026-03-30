@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -216,10 +218,14 @@ public final class PrivilegedUtil {
             return Collections.emptyList();
         }
 
-        // Execute sudo cat
-        String command = prefix + " cat " + filePath;
-        LOG.debug("Attempting privileged file read: {}", command);
-        return ExecutingCommand.runNative(command);
+        // Execute sudo cat using array to handle paths with spaces
+        List<String> cmdList = new ArrayList<>();
+        cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        cmdList.add("cat");
+        cmdList.add(filePath);
+        String[] cmdArray = cmdList.toArray(new String[0]);
+        LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
+        return ExecutingCommand.runNative(cmdArray);
     }
 
     /**
@@ -286,10 +292,14 @@ public final class PrivilegedUtil {
             return new byte[0];
         }
 
-        // Execute sudo cat and convert output to bytes
-        String command = prefix + " cat " + filePath;
-        LOG.debug("Attempting privileged file read: {}", command);
-        List<String> lines = ExecutingCommand.runNative(command);
+        // Execute sudo cat using array to handle paths with spaces
+        List<String> cmdList = new ArrayList<>();
+        cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        cmdList.add("cat");
+        cmdList.add(filePath);
+        String[] cmdArray = cmdList.toArray(new String[0]);
+        LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
+        List<String> lines = ExecutingCommand.runNative(cmdArray);
         if (lines.isEmpty()) {
             return new byte[0];
         }
