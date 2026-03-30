@@ -103,6 +103,25 @@ class GlobalConfigTest {
                 is(format(Locale.ROOT, "Invalid property: \"%s\" = test", PROPERTY)));
     }
 
+    @Test
+    void testSudoCommandProperties() {
+        // Test defaults are empty strings
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, ""), is(""));
+
+        // Test setting and getting
+        set(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, "sudo -n");
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, ""), is("sudo -n"));
+
+        set(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, "dmidecode,lshw");
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, ""), is("dmidecode,lshw"));
+
+        set(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, "/proc/%d/io,/sys/devices/virtual/dmi/id/product_serial");
+        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, ""),
+                is("/proc/%d/io,/sys/devices/virtual/dmi/id/product_serial"));
+    }
+
     private Properties propertiesWith(String value) {
         Properties updates = new Properties();
         updates.setProperty(PROPERTY, value);

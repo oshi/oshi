@@ -7,6 +7,7 @@ package oshi.driver.linux;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.PrivilegedUtil;
 import oshi.util.Util;
 import oshi.util.platform.linux.SysPath;
 
@@ -60,8 +61,8 @@ public final class Sysfs {
      */
     public static String queryProductSerial() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
-        // to enable access without root
-        String serial = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_serial");
+        // to enable access without root, or use privileged read fallback
+        String serial = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "product_serial");
         if (!serial.isEmpty() && !"None".equals(serial)) {
             return serial;
         }
@@ -75,8 +76,8 @@ public final class Sysfs {
      */
     public static String queryUUID() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
-        // to enable access without root
-        String uuid = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_uuid");
+        // to enable access without root, or use privileged read fallback
+        String uuid = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "product_uuid");
         if (!uuid.isEmpty() && !"None".equals(uuid)) {
             return uuid;
         }
@@ -128,7 +129,8 @@ public final class Sysfs {
      * @return The board serial number if available, null otherwise
      */
     public static String queryBoardSerial() {
-        final String boardSerial = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_serial").trim();
+        // Board serial is also root-only, use privileged read fallback
+        final String boardSerial = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "board_serial").trim();
         if (!boardSerial.isEmpty()) {
             return boardSerial;
         }

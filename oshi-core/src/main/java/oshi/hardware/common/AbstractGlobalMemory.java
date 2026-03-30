@@ -26,7 +26,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
         // dmidecode requires sudo permission but is the only option on Linux
         // and Unix
         List<PhysicalMemory> pmList = new ArrayList<>();
-        List<String> dmi = ExecutingCommand.runNative("dmidecode --type 17");
+        List<String> dmi = ExecutingCommand.runPrivilegedNative("dmidecode --type 17");
         int bank = 0;
         String bankLabel = Constants.UNKNOWN;
         String locator = "";

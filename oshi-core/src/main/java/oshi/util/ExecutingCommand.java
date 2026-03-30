@@ -159,4 +159,53 @@ public final class ExecutingCommand {
         return "";
     }
 
+    /**
+     * Executes a command that may require elevated privileges. If already running as root,
+     * delegates directly to {@link #runNative(String)}. Otherwise, if a sudo prefix is
+     * configured and the command is in the allowlist, prepends the prefix before execution.
+     * If the prefix is empty or the command is not in the allowlist, returns an empty list.
+     *
+     * @param cmdToRun Command to run
+     * @return A list of Strings representing the result of the command, or empty list if
+     *         the command failed or privilege requirements were not met
+     */
+    public static List<String> runPrivilegedNative(String cmdToRun) {
+        // If already elevated, run directly
+        if (UserGroupInfo.isElevated()) {
+            return runNative(cmdToRun);
+        }
+
+        // Get configured prefix
+        String prefix = PrivilegedUtil.getPrefix();
+        if (prefix.isEmpty()) {
+            LOG.debug("No sudo prefix configured, skipping privileged command: {}", cmdToRun);
+            return Collections.emptyList();
+        }
+
+        // Check if command is in allowlist
+        if (!PrivilegedUtil.isCommandAllowed(cmdToRun, PrivilegedUtil.getCommandAllowlist())) {
+            LOG.debug("Command not in allowlist, skipping: {}", cmdToRun);
+            return Collections.emptyList();
+        }
+
+        // Prepend prefix and execute
+        String privilegedCmd = prefix + " " + cmdToRun;
+        LOG.debug("Executing privileged command: {}", privilegedCmd);
+        return runNative(privilegedCmd);
+    }
+
+    /**
+     * Return first line of response for selected privileged command.
+     *
+     * @param cmd2launch String command to be launched with privilege escalation if needed
+     * @return String or empty string if command failed or privilege requirements were not met
+     */
+    public static String getFirstPrivilegedAnswer(String cmd2launch) {
+        List<String> sa = runPrivilegedNative(cmd2launch);
+        if (!sa.isEmpty()) {
+            return sa.get(0);
+        }
+        return "";
+    }
+
 }

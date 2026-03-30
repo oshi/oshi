@@ -7,7 +7,6 @@ package oshi.driver.linux;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.UserGroupInfo;
 
 /**
  * Utility to read info from {@code lshw}
@@ -26,19 +25,17 @@ public final class Lshw {
         String serial = null;
         String uuid = null;
 
-        if (UserGroupInfo.isElevated()) {
-            String modelMarker = "product:";
-            String serialMarker = "serial:";
-            String uuidMarker = "uuid:";
+        String modelMarker = "product:";
+        String serialMarker = "serial:";
+        String uuidMarker = "uuid:";
 
-            for (String checkLine : ExecutingCommand.runNative("lshw -C system")) {
-                if (checkLine.contains(modelMarker)) {
-                    model = checkLine.split(modelMarker)[1].trim();
-                } else if (checkLine.contains(serialMarker)) {
-                    serial = checkLine.split(serialMarker)[1].trim();
-                } else if (checkLine.contains(uuidMarker)) {
-                    uuid = checkLine.split(uuidMarker)[1].trim();
-                }
+        for (String checkLine : ExecutingCommand.runPrivilegedNative("lshw -C system")) {
+            if (checkLine.contains(modelMarker)) {
+                model = checkLine.split(modelMarker)[1].trim();
+            } else if (checkLine.contains(serialMarker)) {
+                serial = checkLine.split(serialMarker)[1].trim();
+            } else if (checkLine.contains(uuidMarker)) {
+                uuid = checkLine.split(uuidMarker)[1].trim();
             }
         }
         MODEL = model;

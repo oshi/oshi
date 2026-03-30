@@ -584,7 +584,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
         boolean procInfo = false;
         String marker = "Processor Information";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t 4")) {
+        for (String checkLine : ExecutingCommand.runPrivilegedNative("dmidecode -t 4")) {
             if (!procInfo && checkLine.contains(marker)) {
                 marker = "ID:";
                 procInfo = true;
