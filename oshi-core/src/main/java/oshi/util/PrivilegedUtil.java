@@ -1,24 +1,29 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
 
-import static oshi.util.GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST;
-import static oshi.util.GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST;
-import static oshi.util.GlobalConfig.OSHI_SUDOCOMMAND_PREFIX;
+import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST;
+import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST;
+import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX;
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +40,10 @@ public final class PrivilegedUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrivilegedUtil.class);
 
-    private static volatile Set<String> cachedCommandAllowlist;
-    private static volatile Set<String> cachedFileAllowlist;
-    private static volatile String lastCommandAllowlistConfig = "";
-    private static volatile String lastFileAllowlistConfig = "";
+    private static final Supplier<Set<String>> COMMAND_ALLOWLIST = memoize(PrivilegedUtil::queryCommandAllowlist,
+            defaultExpiration());
+    private static final Supplier<Set<String>> FILE_ALLOWLIST = memoize(PrivilegedUtil::queryFileAllowlist,
+            defaultExpiration());
 
     private PrivilegedUtil() {
     }
@@ -53,14 +58,10 @@ public final class PrivilegedUtil {
         if (allowlistConfig == null || allowlistConfig.trim().isEmpty()) {
             return Collections.emptySet();
         }
-        Set<String> allowlist = new HashSet<>();
-        for (String entry : allowlistConfig.split(",")) {
-            String trimmed = entry.trim();
-            if (!trimmed.isEmpty()) {
-                allowlist.add(trimmed);
-            }
-        }
-        return allowlist;
+        return Arrays.stream(allowlistConfig.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -110,70 +111,50 @@ public final class PrivilegedUtil {
     }
 
     /**
-     * Checks if a file path is allowed for privileged reading.
-     * Supports pattern matching with %d as a PID placeholder.
+     * Checks if a file path is allowed for privileged reading. Supports Java glob pattern matching.
      *
      * @param filePath  The file path to check
-     * @param allowlist Set of allowed file paths or patterns
+     * @param allowlist Set of allowed file paths or glob patterns
      * @return true if the file path matches an entry in the allowlist, false otherwise
      */
     public static boolean isFileAllowed(String filePath, Set<String> allowlist) {
         if (filePath == null || filePath.trim().isEmpty() || allowlist == null || allowlist.isEmpty()) {
             return false;
         }
-
+        Path path = Paths.get(filePath);
         for (String allowed : allowlist) {
-            if (allowed.equals(filePath)) {
+            PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + allowed);
+            if (matcher.matches(path)) {
                 return true;
-            }
-            // Handle %d placeholder for PID matching
-            if (allowed.contains("%d")) {
-                // Convert pattern like /proc/%d/io to regex /proc/\d+/io
-                String regex = Pattern.quote(allowed).replace("%d", "\\E\\d+\\Q");
-                // Clean up empty quote sections
-                regex = regex.replace("\\Q\\E", "");
-                if (filePath.matches(regex)) {
-                    return true;
-                }
             }
         }
         return false;
     }
 
+    private static Set<String> queryCommandAllowlist() {
+        return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""));
+    }
+
+    private static Set<String> queryFileAllowlist() {
+        return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""));
+    }
+
     /**
-     * Gets the cached command allowlist, parsing from config if needed.
+     * Gets the command allowlist, refreshing periodically from config.
      *
      * @return The current command allowlist
      */
     public static Set<String> getCommandAllowlist() {
-        String currentConfig = GlobalConfig.get(OSHI_SUDOCOMMAND_ALLOWLIST, "");
-        if (cachedCommandAllowlist == null || !currentConfig.equals(lastCommandAllowlistConfig)) {
-            synchronized (PrivilegedUtil.class) {
-                if (cachedCommandAllowlist == null || !currentConfig.equals(lastCommandAllowlistConfig)) {
-                    cachedCommandAllowlist = parseAllowlist(currentConfig);
-                    lastCommandAllowlistConfig = currentConfig;
-                }
-            }
-        }
-        return cachedCommandAllowlist;
+        return COMMAND_ALLOWLIST.get();
     }
 
     /**
-     * Gets the cached file allowlist, parsing from config if needed.
+     * Gets the file allowlist, refreshing periodically from config.
      *
      * @return The current file allowlist
      */
     public static Set<String> getFileAllowlist() {
-        String currentConfig = GlobalConfig.get(OSHI_SUDOCOMMAND_FILE_ALLOWLIST, "");
-        if (cachedFileAllowlist == null || !currentConfig.equals(lastFileAllowlistConfig)) {
-            synchronized (PrivilegedUtil.class) {
-                if (cachedFileAllowlist == null || !currentConfig.equals(lastFileAllowlistConfig)) {
-                    cachedFileAllowlist = parseAllowlist(currentConfig);
-                    lastFileAllowlistConfig = currentConfig;
-                }
-            }
-        }
-        return cachedFileAllowlist;
+        return FILE_ALLOWLIST.get();
     }
 
     /**
@@ -182,7 +163,7 @@ public final class PrivilegedUtil {
      * @return The prefix string, or empty string if not configured
      */
     public static String getPrefix() {
-        return GlobalConfig.get(OSHI_SUDOCOMMAND_PREFIX, "");
+        return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
     }
 
     /**
@@ -194,6 +175,17 @@ public final class PrivilegedUtil {
      * @return A list of Strings representing each line of the file, or empty list if unreadable
      */
     public static List<String> readFilePrivileged(String filePath) {
+        // If already elevated, delegate directly to FileUtil
+        if (UserGroupInfo.isElevated()) {
+            return FileUtil.readFile(filePath, false);
+        }
+
+        // Check if file is in allowlist
+        Set<String> fileAllowlist = getFileAllowlist();
+        if (!isFileAllowed(filePath, fileAllowlist)) {
+            return FileUtil.readFile(filePath, false);
+        }
+
         // First attempt normal read (silent failure)
         List<String> result = FileUtil.readFile(filePath, false);
         if (!result.isEmpty()) {
@@ -206,21 +198,12 @@ public final class PrivilegedUtil {
             return Collections.emptyList();
         }
 
-        // File exists but not readable - try privileged read
-        String prefix = getPrefix();
-        if (prefix.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Set<String> fileAllowlist = getFileAllowlist();
-        if (!isFileAllowed(filePath, fileAllowlist)) {
-            LOG.debug("File {} not in privileged allowlist", filePath);
-            return Collections.emptyList();
-        }
-
-        // Execute sudo cat using array to handle paths with spaces
+        // Build cat command, with prefix if configured
         List<String> cmdList = new ArrayList<>();
-        cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        String prefix = getPrefix();
+        if (!prefix.isEmpty()) {
+            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        }
         cmdList.add("cat");
         cmdList.add(filePath);
         String[] cmdArray = cmdList.toArray(new String[0]);
@@ -249,25 +232,29 @@ public final class PrivilegedUtil {
      * @param separator Character(s) in each line of the file that separate the key and the value
      * @return The map contained in the file, delimited by the separator, with the value whitespace trimmed
      */
-    public static java.util.Map<String, String> getKeyValueMapFromFilePrivileged(String filePath, String separator) {
-        java.util.Map<String, String> map = new java.util.HashMap<>();
-        List<String> lines = readFilePrivileged(filePath);
-        for (String line : lines) {
-            String[] parts = line.split(separator);
-            if (parts.length == 2) {
-                map.put(parts[0], parts[1].trim());
-            }
-        }
-        return map;
+    public static Map<String, String> getKeyValueMapFromFilePrivileged(String filePath, String separator) {
+        return ParseUtil.parseStringListToMap(readFilePrivileged(filePath), separator);
     }
 
     /**
      * Reads all bytes from a file with privileged fallback.
      *
-     * @param filePath The file to read
+     * @param filePath    The file to read
+     * @param reportError Whether to log errors reading the file
      * @return A byte array representing the file contents, or empty array if unreadable
      */
-    public static byte[] readAllBytesPrivileged(String filePath) {
+    public static byte[] readAllBytesPrivileged(String filePath, boolean reportError) {
+        // If already elevated, delegate directly to FileUtil
+        if (UserGroupInfo.isElevated()) {
+            return FileUtil.readAllBytes(filePath, reportError);
+        }
+
+        // Check if file is in allowlist
+        Set<String> fileAllowlist = getFileAllowlist();
+        if (!isFileAllowed(filePath, fileAllowlist)) {
+            return FileUtil.readAllBytes(filePath, reportError);
+        }
+
         // First attempt normal read
         byte[] result = FileUtil.readAllBytes(filePath, false);
         if (result.length > 0) {
@@ -280,38 +267,47 @@ public final class PrivilegedUtil {
             return new byte[0];
         }
 
-        // File exists but not readable - try privileged read
-        String prefix = getPrefix();
-        if (prefix.isEmpty()) {
-            return new byte[0];
-        }
-
-        Set<String> fileAllowlist = getFileAllowlist();
-        if (!isFileAllowed(filePath, fileAllowlist)) {
-            LOG.debug("File {} not in privileged allowlist", filePath);
-            return new byte[0];
-        }
-
-        // Execute sudo cat using array to handle paths with spaces
+        // Build cat command, with prefix if configured
         List<String> cmdList = new ArrayList<>();
-        cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        String prefix = getPrefix();
+        if (!prefix.isEmpty()) {
+            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        }
         cmdList.add("cat");
         cmdList.add(filePath);
         String[] cmdArray = cmdList.toArray(new String[0]);
         LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
-        List<String> lines = ExecutingCommand.runNative(cmdArray);
-        if (lines.isEmpty()) {
-            return new byte[0];
-        }
 
-        // Join lines with newlines and convert to bytes
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lines.size(); i++) {
-            sb.append(lines.get(i));
-            if (i < lines.size() - 1) {
-                sb.append('\n');
+        // Spawn process and read raw bytes to preserve binary content
+        return runCatAndReadBytes(cmdArray);
+    }
+
+    /**
+     * Spawns a process to run a command and reads the raw byte output.
+     *
+     * @param cmdArray The command to execute
+     * @return The raw bytes from the process stdout, or empty array on failure
+     */
+    private static byte[] runCatAndReadBytes(String[] cmdArray) {
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec(cmdArray);
+            try (java.io.InputStream is = p.getInputStream();
+                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    baos.write(buffer, 0, bytesRead);
+                }
+                return baos.toByteArray();
+            }
+        } catch (java.io.IOException e) {
+            LOG.debug("Failed to execute privileged cat command: {}", e.getMessage());
+            return new byte[0];
+        } finally {
+            if (p != null) {
+                p.destroy();
             }
         }
-        return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -77,7 +77,7 @@ public final class Lshw {
      */
     public static long queryCpuCapacity() {
         String capacityMarker = "capacity:";
-        for (String checkLine : ExecutingCommand.runNative("lshw -class processor")) {
+        for (String checkLine : ExecutingCommand.runPrivilegedNative("lshw -class processor")) {
             if (checkLine.contains(capacityMarker)) {
                 return ParseUtil.parseHertz(checkLine.split(capacityMarker)[1].trim());
             }

@@ -305,7 +305,7 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         try {
             return ParseUtil.parseIntOrDefault(
-                    Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).getFileName().toString(), 0);
+                    FileUtil.getFileName(Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).toString()), 0);
         } catch (IOException e) {
             return 0;
         }

@@ -65,9 +65,9 @@ public final class GlobalConfig {
     public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
     public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = "oshi.os.solaris.allowKstat2";
 
-    public static final String OSHI_SUDOCOMMAND_PREFIX = "oshi.sudocommand.prefix";
-    public static final String OSHI_SUDOCOMMAND_ALLOWLIST = "oshi.sudocommand.allowlist";
-    public static final String OSHI_SUDOCOMMAND_FILE_ALLOWLIST = "oshi.sudocommand.file.allowlist";
+    public static final String OSHI_OS_LINUX_PRIVILEGED_PREFIX = "oshi.os.linux.privileged.prefix";
+    public static final String OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST = "oshi.os.linux.privileged.allowlist";
+    public static final String OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST = "oshi.os.linux.privileged.file.allowlist";
 
     private GlobalConfig() {
     }

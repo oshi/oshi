@@ -158,7 +158,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     // Slower, use as backup
     private static List<GraphicsCard> getGraphicsCardsFromLshw() {
         List<GraphicsCard> cardList = new ArrayList<>();
-        List<String> lshw = ExecutingCommand.runNative("lshw -C display");
+        List<String> lshw = ExecutingCommand.runPrivilegedNative("lshw -C display");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
         String vendor = Constants.UNKNOWN;

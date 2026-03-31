@@ -384,18 +384,10 @@ public final class FileUtil {
      *         values are not parsed, an empty map is returned.
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        Map<String, String> map = new HashMap<>();
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
-        List<String> lines = FileUtil.readFile(filename, false);
-        for (String line : lines) {
-            String[] parts = line.split(separator);
-            if (parts.length == 2) {
-                map.put(parts[0], parts[1].trim());
-            }
-        }
-        return map;
+        return ParseUtil.parseStringListToMap(FileUtil.readFile(filename, false), separator);
     }
 
     /**
@@ -486,5 +478,20 @@ public final class FileUtil {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Extracts the file name from a path string using OS-dependent file separators.
+     *
+     * @param path The full path string
+     * @return The file name, or empty string if path is null or empty
+     */
+    public static String getFileName(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        Path p = Paths.get(path);
+        Path fileName = p.getFileName();
+        return fileName != null ? fileName.toString() : "";
     }
 }

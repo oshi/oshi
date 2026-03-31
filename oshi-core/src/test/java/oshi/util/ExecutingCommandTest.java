@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.parallel.Execution;
 
 import oshi.PlatformEnum;
@@ -30,6 +31,10 @@ class ExecutingCommandTest {
             ? "cmd.exe /C echo Test"
             : "echo Test";
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";
+
+    static boolean isElevated() {
+        return UserGroupInfo.isElevated();
+    }
 
     @BeforeEach
     void setUp() {
@@ -48,54 +53,41 @@ class ExecutingCommandTest {
     }
 
     @Test
+    @DisabledIf("isElevated")
     void testRunPrivilegedNativeNoConfig() {
-        // Without config, runPrivilegedNative should return empty list when not elevated
-        // (unless already running as root, which we can't control in tests)
-        if (!UserGroupInfo.isElevated()) {
-            List<String> result = ExecutingCommand.runPrivilegedNative("dmidecode -t system");
-            assertThat("no config should return empty", result, is(empty()));
-
-            String answer = ExecutingCommand.getFirstPrivilegedAnswer("dmidecode -t system");
-            assertThat("no config first answer should be empty", answer, is(emptyString()));
-        }
+        // Without config, runPrivilegedNative runs command directly
+        List<String> result = ExecutingCommand.runPrivilegedNative(ECHO);
+        assertThat("no config should run directly", result, hasSize(1));
     }
 
     @Test
+    @DisabledIf("isElevated")
     void testRunPrivilegedNativeNotInAllowlist() {
         // Configure prefix but don't include command in allowlist
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, "sudo -n");
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, "lshw");
+        // Command should still run without prefix
+        GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+        GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, "lshw");
 
-        if (!UserGroupInfo.isElevated()) {
-            // dmidecode is not in allowlist, should return empty
-            List<String> result = ExecutingCommand.runPrivilegedNative("dmidecode -t system");
-            assertThat("command not in allowlist should return empty", result, is(empty()));
-        }
+        // echo is not in allowlist, should run without prefix
+        List<String> result = ExecutingCommand.runPrivilegedNative(ECHO);
+        assertThat("command not in allowlist should run without prefix", result, hasSize(1));
     }
 
     @Test
-    void testRunPrivilegedNativeInAllowlist() {
-        // Configure prefix and include command in allowlist
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, "echo");
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, "test-command");
-
-        if (!UserGroupInfo.isElevated()) {
-            // This will execute "echo test-command arg" which should work
-            List<String> result = ExecutingCommand.runPrivilegedNative("test-command arg");
-            // The command "echo test-command arg" should output "test-command arg"
-            assertThat("command in allowlist with echo prefix", result, hasSize(1));
-            assertThat("output should be the command with args", result.get(0), is("test-command arg"));
-        }
+    @DisabledIf("isElevated")
+    void testRunPrivilegedNativeRunsCommand() {
+        // Without allowlist config, command runs directly without prefix
+        // Test that runPrivilegedNative actually executes the command
+        List<String> result = ExecutingCommand.runPrivilegedNative(ECHO);
+        assertThat("command should execute", result, hasSize(1));
+        assertThat("output should be Test", result.get(0), is("Test"));
     }
 
     @Test
-    void testGetFirstPrivilegedAnswerInAllowlist() {
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, "echo");
-        GlobalConfig.set(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, "hello");
-
-        if (!UserGroupInfo.isElevated()) {
-            String answer = ExecutingCommand.getFirstPrivilegedAnswer("hello world");
-            assertThat("first privileged answer", answer, is("hello world"));
-        }
+    @DisabledIf("isElevated")
+    void testGetFirstPrivilegedAnswer() {
+        // Test getFirstPrivilegedAnswer returns first line
+        String answer = ExecutingCommand.getFirstPrivilegedAnswer(ECHO);
+        assertThat("first privileged answer", answer, is("Test"));
     }
 }

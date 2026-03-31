@@ -160,32 +160,27 @@ public final class ExecutingCommand {
     }
 
     /**
-     * Executes a command that may require elevated privileges. If already running as root,
-     * delegates directly to {@link #runNative(String)}. Otherwise, if a sudo prefix is
-     * configured and the command is in the allowlist, prepends the prefix before execution.
-     * If the prefix is empty or the command is not in the allowlist, returns an empty list.
+     * Executes a command that may require elevated privileges. If already running as root
+     * or no sudo prefix is configured, delegates directly to {@link #runNative(String)}.
+     * If a sudo prefix is configured and the command is in the allowlist, prepends the
+     * prefix before execution. If the command is not in the allowlist, attempts to run
+     * without the prefix (the command may still succeed if permissions allow).
      *
      * @param cmdToRun Command to run
      * @return A list of Strings representing the result of the command, or empty list if
-     *         the command failed or privilege requirements were not met
+     *         the command failed
      */
     public static List<String> runPrivilegedNative(String cmdToRun) {
-        // If already elevated, run directly
-        if (UserGroupInfo.isElevated()) {
-            return runNative(cmdToRun);
-        }
-
-        // Get configured prefix
+        // If already elevated or no sudo prefix configured, run directly
         String prefix = PrivilegedUtil.getPrefix();
-        if (prefix.isEmpty()) {
-            LOG.debug("No sudo prefix configured, skipping privileged command: {}", cmdToRun);
-            return Collections.emptyList();
+        if (UserGroupInfo.isElevated() || prefix.isEmpty()) {
+            return runNative(cmdToRun);
         }
 
         // Check if command is in allowlist
         if (!PrivilegedUtil.isCommandAllowed(cmdToRun, PrivilegedUtil.getCommandAllowlist())) {
-            LOG.debug("Command not in allowlist, skipping: {}", cmdToRun);
-            return Collections.emptyList();
+            LOG.debug("Command not in allowlist, running without prefix: {}", cmdToRun);
+            return runNative(cmdToRun);
         }
 
         // Prepend prefix and execute
@@ -202,10 +197,10 @@ public final class ExecutingCommand {
      */
     public static String getFirstPrivilegedAnswer(String cmd2launch) {
         List<String> sa = runPrivilegedNative(cmd2launch);
-        if (!sa.isEmpty()) {
-            return sa.get(0);
+        if (sa.isEmpty()) {
+            return "";
         }
-        return "";
+        return sa.get(0);
     }
 
 }

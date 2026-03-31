@@ -277,7 +277,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         try (Stream<Path> path = Files.list(Paths.get(syspath))) {
             Optional<Path> first = path.filter(p -> p.toString().startsWith(nodePrefix)).findFirst();
             if (first.isPresent()) {
-                nodeId = ParseUtil.getFirstIntValue(first.get().getFileName().toString());
+                nodeId = ParseUtil.getFirstIntValue(FileUtil.getFileName(first.get().toString()));
             }
         } catch (IOException e) {
             // ignore

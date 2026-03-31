@@ -140,7 +140,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     private Map<String, String> queryEnvironmentVariables() {
         return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(PrivilegedUtil
-                .readAllBytesPrivileged(String.format(Locale.ROOT, ProcPath.PID_ENVIRON, getProcessID()))));
+                .readAllBytesPrivileged(String.format(Locale.ROOT, ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
     }
 
     @Override

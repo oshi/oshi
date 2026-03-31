@@ -104,22 +104,22 @@ class GlobalConfigTest {
     }
 
     @Test
-    void testSudoCommandProperties() {
+    void testLinuxPrivilegedProperties() {
         // Test defaults are empty strings
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, ""), is(""));
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, ""), is(""));
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""), is(""));
 
         // Test setting and getting
-        set(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, "sudo -n");
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_PREFIX, ""), is("sudo -n"));
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, ""), is("sudo -n"));
 
-        set(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, "dmidecode,lshw");
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_ALLOWLIST, ""), is("dmidecode,lshw"));
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, "dmidecode,lshw");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""), is("dmidecode,lshw"));
 
-        set(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, "/proc/%d/io,/sys/devices/virtual/dmi/id/product_serial");
-        assertThat(get(GlobalConfig.OSHI_SUDOCOMMAND_FILE_ALLOWLIST, ""),
-                is("/proc/%d/io,/sys/devices/virtual/dmi/id/product_serial"));
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, "/proc/*/io,/sys/devices/virtual/dmi/id/product_serial");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""),
+                is("/proc/*/io,/sys/devices/virtual/dmi/id/product_serial"));
     }
 
     private Properties propertiesWith(String value) {
