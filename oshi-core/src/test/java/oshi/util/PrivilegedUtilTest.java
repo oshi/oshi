@@ -16,14 +16,18 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 
 @Execution(SAME_THREAD)
+@EnabledOnOs(OS.LINUX)
 class PrivilegedUtilTest {
 
     @BeforeEach
     void setUp() {
         GlobalConfig.clear();
+        PrivilegedUtil.clearCaches();
     }
 
     @Test

@@ -16,6 +16,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 
 import oshi.PlatformEnum;
@@ -62,6 +64,7 @@ class ExecutingCommandTest {
 
     @Test
     @DisabledIf("isElevated")
+    @EnabledOnOs(OS.LINUX)
     void testRunPrivilegedNativeNotInAllowlist() {
         // Configure prefix but don't include command in allowlist
         // Command should still run without prefix

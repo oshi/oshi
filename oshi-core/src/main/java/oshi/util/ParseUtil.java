@@ -1461,7 +1461,7 @@ public final class ParseUtil {
     public static Map<String, String> parseStringListToMap(List<String> lines, String separator) {
         Map<String, String> map = new HashMap<>();
         for (String line : lines) {
-            String[] parts = line.split(separator);
+            String[] parts = line.split(separator, 2);
             if (parts.length == 2) {
                 map.put(parts[0], parts[1].trim());
             }

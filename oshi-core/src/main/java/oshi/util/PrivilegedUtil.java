@@ -40,10 +40,11 @@ public final class PrivilegedUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrivilegedUtil.class);
 
-    private static final Supplier<Set<String>> COMMAND_ALLOWLIST = memoize(PrivilegedUtil::queryCommandAllowlist,
+    private static volatile Supplier<Set<String>> commandAllowlist = memoize(PrivilegedUtil::queryCommandAllowlist,
             defaultExpiration());
-    private static final Supplier<Set<String>> FILE_ALLOWLIST = memoize(PrivilegedUtil::queryFileAllowlist,
+    private static volatile Supplier<Set<String>> fileAllowlist = memoize(PrivilegedUtil::queryFileAllowlist,
             defaultExpiration());
+    private static volatile Supplier<String> prefix = memoize(PrivilegedUtil::queryPrefix, defaultExpiration());
 
     private PrivilegedUtil() {
     }
@@ -54,7 +55,7 @@ public final class PrivilegedUtil {
      * @param allowlistConfig Comma-separated list of allowed entries
      * @return A Set of trimmed allowlist entries, or empty set if input is null/empty
      */
-    public static Set<String> parseAllowlist(String allowlistConfig) {
+    static Set<String> parseAllowlist(String allowlistConfig) {
         if (allowlistConfig == null || allowlistConfig.trim().isEmpty()) {
             return Collections.emptySet();
         }
@@ -85,7 +86,7 @@ public final class PrivilegedUtil {
         // Extract bare command name from path
         String cmdName = FileUtil.getFileName(cmdPath);
         if (cmdName.isEmpty()) {
-            cmdName = cmdPath;
+            return false;
         }
 
         // Check if command matches any entry in allowlist
@@ -124,6 +125,15 @@ public final class PrivilegedUtil {
         return false;
     }
 
+    private static String queryPrefix() {
+        switch (SystemInfo.getCurrentPlatform()) {
+            case LINUX:
+                return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
+            default:
+                return "";
+        }
+    }
+
     private static Set<String> queryCommandAllowlist() {
         switch (SystemInfo.getCurrentPlatform()) {
             case LINUX:
@@ -148,7 +158,7 @@ public final class PrivilegedUtil {
      * @return The current command allowlist
      */
     public static Set<String> getCommandAllowlist() {
-        return COMMAND_ALLOWLIST.get();
+        return commandAllowlist.get();
     }
 
     /**
@@ -157,7 +167,7 @@ public final class PrivilegedUtil {
      * @return The current file allowlist
      */
     public static Set<String> getFileAllowlist() {
-        return FILE_ALLOWLIST.get();
+        return fileAllowlist.get();
     }
 
     /**
@@ -166,12 +176,17 @@ public final class PrivilegedUtil {
      * @return The prefix string, or empty string if not configured or not supported on this platform
      */
     public static String getPrefix() {
-        switch (SystemInfo.getCurrentPlatform()) {
-            case LINUX:
-                return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
-            default:
-                return "";
-        }
+        return prefix.get();
+    }
+
+    /**
+     * Reinitializes the memoized suppliers. Only intended for use in tests to ensure config changes are picked up
+     * immediately after {@link GlobalConfig#clear()}.
+     */
+    static void clearCaches() {
+        commandAllowlist = memoize(PrivilegedUtil::queryCommandAllowlist, defaultExpiration());
+        fileAllowlist = memoize(PrivilegedUtil::queryFileAllowlist, defaultExpiration());
+        prefix = memoize(PrivilegedUtil::queryPrefix, defaultExpiration());
     }
 
     /**
@@ -192,18 +207,12 @@ public final class PrivilegedUtil {
         if (!Files.exists(path)) {
             return Collections.emptyList();
         }
-
-        // Build cat command, with prefix if configured
-        List<String> cmdList = new ArrayList<>();
-        String prefix = getPrefix();
-        if (!prefix.isEmpty()) {
-            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        // If directly readable or no prefix configured, no need for privilege escalation
+        if (Files.isReadable(path) || getPrefix().isEmpty()) {
+            return FileUtil.readFile(filePath, false);
         }
-        cmdList.add("cat");
-        cmdList.add(filePath);
-        String[] cmdArray = cmdList.toArray(new String[0]);
-        LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
-        return ExecutingCommand.runNative(cmdArray);
+
+        return ExecutingCommand.runNative(buildCatCommand(filePath));
     }
 
     /**
@@ -249,19 +258,13 @@ public final class PrivilegedUtil {
         if (!Files.exists(path)) {
             return new byte[0];
         }
-
-        // Build cat command, with prefix if configured
-        List<String> cmdList = new ArrayList<>();
-        String prefix = getPrefix();
-        if (!prefix.isEmpty()) {
-            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        // If directly readable or no prefix configured, no need for privilege escalation
+        if (Files.isReadable(path) || getPrefix().isEmpty()) {
+            return FileUtil.readAllBytes(filePath, reportError);
         }
-        cmdList.add("cat");
-        cmdList.add(filePath);
-        String[] cmdArray = cmdList.toArray(new String[0]);
-        LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
 
         // Spawn process and read raw bytes to preserve binary content
+        String[] cmdArray = buildCatCommand(filePath);
         try {
             Process p = Runtime.getRuntime().exec(cmdArray);
             try {
@@ -273,5 +276,18 @@ public final class PrivilegedUtil {
             LOG.debug("Failed to execute privileged cat command: {}", e.getMessage());
             return new byte[0];
         }
+    }
+
+    private static String[] buildCatCommand(String filePath) {
+        List<String> cmdList = new ArrayList<>();
+        String prefix = getPrefix();
+        if (!prefix.isEmpty()) {
+            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+        }
+        cmdList.add("cat");
+        cmdList.add(filePath);
+        String[] cmdArray = cmdList.toArray(new String[0]);
+        LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
+        return cmdArray;
     }
 }
