@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -64,6 +64,10 @@ public final class GlobalConfig {
 
     public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
     public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = "oshi.os.solaris.allowKstat2";
+
+    public static final String OSHI_OS_LINUX_PRIVILEGED_PREFIX = "oshi.os.linux.privileged.prefix";
+    public static final String OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST = "oshi.os.linux.privileged.allowlist";
+    public static final String OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST = "oshi.os.linux.privileged.file.allowlist";
 
     private GlobalConfig() {
     }

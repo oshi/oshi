@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -90,26 +90,7 @@ public final class ExecutingCommand {
         } finally {
             // Ensure all resources are released
             if (p != null) {
-                // Windows and Solaris don't close descriptors on destroy,
-                // so we must handle separately
-                if (Platform.isWindows() || Platform.isSolaris()) {
-                    try {
-                        p.getOutputStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                    try {
-                        p.getInputStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                    try {
-                        p.getErrorStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                }
-                p.destroy();
+                destroyProcess(p);
             }
         }
         return Collections.emptyList();
@@ -131,6 +112,29 @@ public final class ExecutingCommand {
             Thread.currentThread().interrupt();
         }
         return sa;
+    }
+
+    static void destroyProcess(Process p) {
+        // Windows and Solaris don't close descriptors on destroy,
+        // so we must handle separately
+        if (Platform.isWindows() || Platform.isSolaris()) {
+            try {
+                p.getOutputStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+            try {
+                p.getInputStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+            try {
+                p.getErrorStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+        }
+        p.destroy();
     }
 
     /**
@@ -157,6 +161,48 @@ public final class ExecutingCommand {
             return sa.get(answerIdx);
         }
         return "";
+    }
+
+    /**
+     * Executes a command that may require elevated privileges. If already running as root or no sudo prefix is
+     * configured, delegates directly to {@link #runNative(String)}. If a sudo prefix is configured and the command is
+     * in the allowlist, prepends the prefix before execution. If the command is not in the allowlist, attempts to run
+     * without the prefix (the command may still succeed if permissions allow).
+     *
+     * @param cmdToRun Command to run
+     * @return A list of Strings representing the result of the command, or empty list if the command failed
+     */
+    public static List<String> runPrivilegedNative(String cmdToRun) {
+        // If already elevated or no sudo prefix configured, run directly
+        String prefix = PrivilegedUtil.getPrefix();
+        if (UserGroupInfo.isElevated() || prefix.isEmpty()) {
+            return runNative(cmdToRun);
+        }
+
+        // Check if command is in allowlist
+        if (!PrivilegedUtil.isCommandAllowed(cmdToRun, PrivilegedUtil.getCommandAllowlist())) {
+            LOG.debug("Command not in allowlist, running without prefix: {}", cmdToRun);
+            return runNative(cmdToRun);
+        }
+
+        // Prepend prefix and execute
+        String privilegedCmd = prefix + " " + cmdToRun;
+        LOG.debug("Executing privileged command: {}", privilegedCmd);
+        return runNative(privilegedCmd);
+    }
+
+    /**
+     * Return first line of response for selected privileged command.
+     *
+     * @param cmd2launch String command to be launched with privilege escalation if needed
+     * @return String or empty string if command failed or privilege requirements were not met
+     */
+    public static String getFirstPrivilegedAnswer(String cmd2launch) {
+        List<String> sa = runPrivilegedNative(cmd2launch);
+        if (sa.isEmpty()) {
+            return "";
+        }
+        return sa.get(0);
     }
 
 }

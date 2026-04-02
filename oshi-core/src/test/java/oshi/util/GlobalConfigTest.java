@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -101,6 +101,26 @@ class GlobalConfigTest {
         set(PROPERTY, "test");
         assertThat(new PropertyException(PROPERTY).getMessage(),
                 is(format(Locale.ROOT, "Invalid property: \"%s\" = test", PROPERTY)));
+    }
+
+    @Test
+    void testLinuxPrivilegedProperties() {
+        // Test defaults are empty strings
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""), is(""));
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""), is(""));
+
+        // Test setting and getting
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, ""), is("sudo -n"));
+
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, "dmidecode,lshw");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""), is("dmidecode,lshw"));
+
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST,
+                "/proc/*/io,/sys/devices/virtual/dmi/id/product_serial");
+        assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""),
+                is("/proc/*/io,/sys/devices/virtual/dmi/id/product_serial"));
     }
 
     private Properties propertiesWith(String value) {

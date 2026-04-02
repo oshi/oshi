@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -19,7 +19,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +169,24 @@ public final class FileUtil {
             LOG.warn("File not found or not readable: {}", filename);
         }
         return new byte[0];
+    }
+
+    /**
+     * Reads all bytes from an InputStream.
+     *
+     * @param is The InputStream to read from
+     * @return the byte content, or empty array on failure
+     * @throws IOException if an I/O error occurs
+     */
+    static byte[] readAllBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        int read;
+        while ((read = is.read(buf)) != -1) {
+            baos.write(buf, 0, read);
+        }
+        baos.flush();
+        return baos.toByteArray();
     }
 
     /**
@@ -384,18 +401,10 @@ public final class FileUtil {
      *         values are not parsed, an empty map is returned.
      */
     public static Map<String, String> getKeyValueMapFromFile(String filename, String separator) {
-        Map<String, String> map = new HashMap<>();
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
-        List<String> lines = FileUtil.readFile(filename, false);
-        for (String line : lines) {
-            String[] parts = line.split(separator);
-            if (parts.length == 2) {
-                map.put(parts[0], parts[1].trim());
-            }
-        }
-        return map;
+        return ParseUtil.parseStringListToMap(FileUtil.readFile(filename, false), separator);
     }
 
     /**
@@ -463,14 +472,7 @@ public final class FileUtil {
      */
     public static byte[] readFileAsBytes(URL url) throws IOException {
         try (InputStream in = url.openStream()) {
-            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            byte[] data = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(data, 0, data.length)) != -1) {
-                buf.write(data, 0, bytesRead);
-            }
-            buf.flush();
-            return buf.toByteArray();
+            return readAllBytes(in);
         }
     }
 
@@ -486,5 +488,20 @@ public final class FileUtil {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Extracts the file name from a path string using OS-dependent file separators.
+     *
+     * @param path The full path string
+     * @return The file name, or empty string if path is null or empty
+     */
+    public static String getFileName(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        Path p = Paths.get(path);
+        Path fileName = p.getFileName();
+        return fileName != null ? fileName.toString() : "";
     }
 }

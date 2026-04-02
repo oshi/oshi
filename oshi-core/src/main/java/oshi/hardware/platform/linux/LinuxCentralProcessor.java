@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -277,7 +277,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         try (Stream<Path> path = Files.list(Paths.get(syspath))) {
             Optional<Path> first = path.filter(p -> p.toString().startsWith(nodePrefix)).findFirst();
             if (first.isPresent()) {
-                nodeId = ParseUtil.getFirstIntValue(first.get().getFileName().toString());
+                nodeId = ParseUtil.getFirstIntValue(FileUtil.getFileName(first.get().toString()));
             }
         } catch (IOException e) {
             // ignore
@@ -584,7 +584,7 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
     private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
         boolean procInfo = false;
         String marker = "Processor Information";
-        for (String checkLine : ExecutingCommand.runNative("dmidecode -t 4")) {
+        for (String checkLine : ExecutingCommand.runPrivilegedNative("dmidecode -t 4")) {
             if (!procInfo && checkLine.contains(marker)) {
                 marker = "ID:";
                 procInfo = true;

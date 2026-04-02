@@ -1452,6 +1452,24 @@ public final class ParseUtil {
     }
 
     /**
+     * Parses a list of strings into a map of string key-value pairs.
+     *
+     * @param lines     A list of strings, each containing a key-value pair separated by the separator
+     * @param separator The character(s) that separate the key and value in each line
+     * @return A map of String key-value pairs with the value whitespace trimmed
+     */
+    public static Map<String, String> parseStringListToMap(List<String> lines, String separator) {
+        Map<String, String> map = new HashMap<>();
+        for (String line : lines) {
+            int idx = line.indexOf(separator);
+            if (idx >= 0) {
+                map.put(line.substring(0, idx), line.substring(idx + separator.length()).trim());
+            }
+        }
+        return map;
+    }
+
+    /**
      * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch). This method is
      * useful for handling date formats across different operating systems, such as:
      * <ul>

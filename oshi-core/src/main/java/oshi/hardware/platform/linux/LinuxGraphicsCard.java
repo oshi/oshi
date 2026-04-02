@@ -158,7 +158,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     // Slower, use as backup
     private static List<GraphicsCard> getGraphicsCardsFromLshw() {
         List<GraphicsCard> cardList = new ArrayList<>();
-        List<String> lshw = ExecutingCommand.runNative("lshw -C display");
+        List<String> lshw = ExecutingCommand.runPrivilegedNative("lshw -C display");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
         String vendor = Constants.UNKNOWN;
@@ -274,7 +274,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // The symlink target resolves to a driver directory,
         // e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.
-        int lastSlash = target.lastIndexOf('/');
-        return lastSlash >= 0 ? target.substring(lastSlash + 1) : target;
+        String name = FileUtil.getFileName(target);
+        return name.isEmpty() ? target : name;
     }
 }
