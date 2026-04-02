@@ -61,70 +61,79 @@ final class MacFirmwareFFM extends AbstractFirmware {
 
         IORegistryEntry platformExpert = IOKitUtilFFM.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
-            IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
-            if (iter != null) {
-                IORegistryEntry entry = iter.next();
-                while (entry != null) {
-                    String entryName = entry.getName();
-                    if (entryName != null) {
-                        switch (entryName) {
-                            case "rom":
-                                byte[] data = entry.getByteArrayProperty("vendor");
-                                if (data != null) {
-                                    manufacturer = toUtf8(data);
+            try {
+                IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
+                if (iter != null) {
+                    try {
+                        IORegistryEntry entry = iter.next();
+                        while (entry != null) {
+                            try {
+                                String entryName = entry.getName();
+                                if (entryName != null) {
+                                    switch (entryName) {
+                                        case "rom":
+                                            byte[] data = entry.getByteArrayProperty("vendor");
+                                            if (data != null) {
+                                                manufacturer = toUtf8(data);
+                                            }
+                                            data = entry.getByteArrayProperty("version");
+                                            if (data != null) {
+                                                version = toUtf8(data);
+                                            }
+                                            data = entry.getByteArrayProperty("release-date");
+                                            if (data != null) {
+                                                releaseDate = toUtf8(data);
+                                            }
+                                            break;
+                                        case "chosen":
+                                            data = entry.getByteArrayProperty("booter-name");
+                                            if (data != null) {
+                                                name = toUtf8(data);
+                                            }
+                                            break;
+                                        case "efi":
+                                            data = entry.getByteArrayProperty("firmware-abi");
+                                            if (data != null) {
+                                                description = toUtf8(data);
+                                            }
+                                            break;
+                                        default:
+                                            if (Util.isBlank(name)) {
+                                                name = entry.getStringProperty("IONameMatch");
+                                            }
+                                            break;
+                                    }
                                 }
-                                data = entry.getByteArrayProperty("version");
-                                if (data != null) {
-                                    version = toUtf8(data);
-                                }
-                                data = entry.getByteArrayProperty("release-date");
-                                if (data != null) {
-                                    releaseDate = toUtf8(data);
-                                }
-                                break;
-                            case "chosen":
-                                data = entry.getByteArrayProperty("booter-name");
-                                if (data != null) {
-                                    name = toUtf8(data);
-                                }
-                                break;
-                            case "efi":
-                                data = entry.getByteArrayProperty("firmware-abi");
-                                if (data != null) {
-                                    description = toUtf8(data);
-                                }
-                                break;
-                            default:
-                                if (Util.isBlank(name)) {
-                                    name = entry.getStringProperty("IONameMatch");
-                                }
-                                break;
+                            } finally {
+                                entry.release();
+                            }
+                            entry = iter.next();
                         }
+                    } finally {
+                        iter.release();
                     }
-                    entry.release();
-                    entry = iter.next();
                 }
-                iter.release();
-            }
-            if (Util.isBlank(manufacturer)) {
-                byte[] data = platformExpert.getByteArrayProperty("manufacturer");
-                if (data != null) {
-                    manufacturer = toUtf8(data);
+                if (Util.isBlank(manufacturer)) {
+                    byte[] data = platformExpert.getByteArrayProperty("manufacturer");
+                    if (data != null) {
+                        manufacturer = toUtf8(data);
+                    }
                 }
-            }
-            if (Util.isBlank(version)) {
-                byte[] data = platformExpert.getByteArrayProperty("target-type");
-                if (data != null) {
-                    version = toUtf8(data);
+                if (Util.isBlank(version)) {
+                    byte[] data = platformExpert.getByteArrayProperty("target-type");
+                    if (data != null) {
+                        version = toUtf8(data);
+                    }
                 }
-            }
-            if (Util.isBlank(name)) {
-                byte[] data = platformExpert.getByteArrayProperty("device_type");
-                if (data != null) {
-                    name = toUtf8(data);
+                if (Util.isBlank(name)) {
+                    byte[] data = platformExpert.getByteArrayProperty("device_type");
+                    if (data != null) {
+                        name = toUtf8(data);
+                    }
                 }
+            } finally {
+                platformExpert.release();
             }
-            platformExpert.release();
         }
         return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(name) ? Constants.UNKNOWN : name,

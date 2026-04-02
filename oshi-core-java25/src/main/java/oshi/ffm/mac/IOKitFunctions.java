@@ -277,9 +277,9 @@ public final class IOKitFunctions extends ForeignFunctions {
     // kern_return_t IOServiceClose(io_connect_t connect);
 
     private static final MethodHandle IOServiceClose = LINKER
-            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOServiceClose"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
+            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOServiceClose"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
 
-    public static int IOServiceClose(MemorySegment connect) throws Throwable {
+    public static int IOServiceClose(int connect) throws Throwable {
         return (int) IOServiceClose.invokeExact(connect);
     }
 
@@ -289,9 +289,9 @@ public final class IOKitFunctions extends ForeignFunctions {
 
     private static final MethodHandle IOConnectCallStructMethod = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IOConnectCallStructMethod"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, JAVA_LONG, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_LONG, ADDRESS, ADDRESS));
 
-    public static int IOConnectCallStructMethod(MemorySegment connection, int selector, MemorySegment inputStruct,
+    public static int IOConnectCallStructMethod(int connection, int selector, MemorySegment inputStruct,
             long inputStructCnt, MemorySegment outputStruct, MemorySegment outputStructCnt) throws Throwable {
         return (int) IOConnectCallStructMethod.invokeExact(connection, selector, inputStruct, inputStructCnt,
                 outputStruct, outputStructCnt);

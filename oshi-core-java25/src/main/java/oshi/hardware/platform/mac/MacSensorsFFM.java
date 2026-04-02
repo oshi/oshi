@@ -4,7 +4,6 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.lang.foreign.MemorySegment;
 import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -24,12 +23,12 @@ import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS;
 @ThreadSafe
 final class MacSensorsFFM extends AbstractSensors {
 
-    private int numFans = 0;
+    private volatile int numFans = 0;
 
     @Override
     public double queryCpuTemperature() {
-        MemorySegment conn = SmcUtilFFM.smcOpen();
-        if (conn == null) {
+        int conn = SmcUtilFFM.smcOpen();
+        if (conn == 0) {
             return 0d;
         }
         try {
@@ -45,8 +44,8 @@ final class MacSensorsFFM extends AbstractSensors {
 
     @Override
     public int[] queryFanSpeeds() {
-        MemorySegment conn = SmcUtilFFM.smcOpen();
-        if (conn == null) {
+        int conn = SmcUtilFFM.smcOpen();
+        if (conn == 0) {
             return new int[this.numFans];
         }
         try {
@@ -65,8 +64,8 @@ final class MacSensorsFFM extends AbstractSensors {
 
     @Override
     public double queryCpuVoltage() {
-        MemorySegment conn = SmcUtilFFM.smcOpen();
-        if (conn == null) {
+        int conn = SmcUtilFFM.smcOpen();
+        if (conn == 0) {
             return 0d;
         }
         try {

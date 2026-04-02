@@ -4,7 +4,6 @@
  */
 package oshi.util.platform.mac;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
@@ -80,32 +79,32 @@ public final class SmcUtilFFM {
     /**
      * Open a connection to SMC.
      *
-     * @return The connection segment if successful, null if failure. Caller must close with {@link #smcClose}.
+     * @return The io_connect_t port (nonzero) if successful, 0 if failure. Caller must close with {@link #smcClose}.
      */
-    public static MemorySegment smcOpen() {
+    public static int smcOpen() {
         IOService smcService = IOKitUtilFFM.getMatchingService("AppleSMC");
         if (smcService == null) {
             LOG.error("Unable to locate AppleSMC service");
-            return null;
+            return 0;
         }
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment connPtr = arena.allocate(ADDRESS);
+            MemorySegment connPtr = arena.allocate(JAVA_INT);
             int task = mach_task_self();
             int result = IOServiceOpen(smcService.segment(), task, 0, connPtr);
             if (result == 0) {
-                MemorySegment conn = connPtr.get(ADDRESS, 0).reinterpret(Long.MAX_VALUE);
-                if (conn.equals(MemorySegment.NULL)) {
+                int conn = connPtr.get(JAVA_INT, 0);
+                if (conn == 0) {
                     LOG.error("IOServiceOpen returned null connect handle");
-                    return null;
+                    return 0;
                 }
                 return conn;
             }
-            LOG.error(
-                    String.format(Locale.ROOT, "Unable to open connection to AppleSMC service. Error: 0x%08x", result));
-            return null;
+            String hex = String.format(Locale.ROOT, "0x%08x", result);
+            LOG.error("Unable to open connection to AppleSMC service. Error: {}", hex);
+            return 0;
         } catch (Throwable e) {
             LOG.error("Exception opening SMC connection", e);
-            return null;
+            return 0;
         } finally {
             smcService.release();
         }
@@ -114,13 +113,10 @@ public final class SmcUtilFFM {
     /**
      * Close connection to SMC.
      *
-     * @param conn The connection segment returned by {@link #smcOpen}
+     * @param conn The io_connect_t port returned by {@link #smcOpen}
      * @return 0 if successful, nonzero if failure
      */
-    public static int smcClose(MemorySegment conn) {
-        if (conn == null) {
-            return -1;
-        }
+    public static int smcClose(int conn) {
         try {
             return IOServiceClose(conn);
         } catch (Throwable e) {
@@ -135,7 +131,7 @@ public final class SmcUtilFFM {
      * @param key  The key to retrieve
      * @return Double representing the value
      */
-    public static double smcGetFloat(MemorySegment conn, String key) {
+    public static double smcGetFloat(int conn, String key) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment val = arena.allocate(SMC_VAL);
             int result = smcReadKey(conn, key, val, arena);
@@ -166,7 +162,7 @@ public final class SmcUtilFFM {
      * @param keys The keys to try in order
      * @return The first value greater than 0, or 0 if all keys fail
      */
-    public static double smcGetFirstFloat(MemorySegment conn, String... keys) {
+    public static double smcGetFirstFloat(int conn, String... keys) {
         for (String key : keys) {
             double val = smcGetFloat(conn, key);
             if (val > 0d) {
@@ -183,7 +179,7 @@ public final class SmcUtilFFM {
      * @param key  The key to retrieve
      * @return Long representing the value
      */
-    public static long smcGetLong(MemorySegment conn, String key) {
+    public static long smcGetLong(int conn, String key) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment val = arena.allocate(SMC_VAL);
             int result = smcReadKey(conn, key, val, arena);
@@ -198,7 +194,7 @@ public final class SmcUtilFFM {
         return 0L;
     }
 
-    private static int smcReadKey(MemorySegment conn, String key, MemorySegment val, Arena arena) throws Throwable {
+    private static int smcReadKey(int conn, String key, MemorySegment val, Arena arena) throws Throwable {
         MemorySegment input = arena.allocate(SMC_KEY_DATA);
         MemorySegment output = arena.allocate(SMC_KEY_DATA);
 
@@ -228,7 +224,7 @@ public final class SmcUtilFFM {
         return result;
     }
 
-    private static int smcGetKeyInfo(MemorySegment conn, MemorySegment input, MemorySegment output, Arena arena)
+    private static int smcGetKeyInfo(int conn, MemorySegment input, MemorySegment output, Arena arena)
             throws Throwable {
         int key = input.get(JAVA_INT, SMC_KEY_DATA.byteOffset(SMC_KEY));
         int[] cached = KEY_INFO_CACHE.get(key);
@@ -249,8 +245,7 @@ public final class SmcUtilFFM {
         return result;
     }
 
-    private static int smcCall(MemorySegment conn, int index, MemorySegment input, MemorySegment output)
-            throws Throwable {
+    private static int smcCall(int conn, int index, MemorySegment input, MemorySegment output) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment outputSize = arena.allocate(JAVA_LONG);
             outputSize.set(JAVA_LONG, 0, SMC_KEY_DATA.byteSize());
