@@ -90,26 +90,7 @@ public final class ExecutingCommand {
         } finally {
             // Ensure all resources are released
             if (p != null) {
-                // Windows and Solaris don't close descriptors on destroy,
-                // so we must handle separately
-                if (Platform.isWindows() || Platform.isSolaris()) {
-                    try {
-                        p.getOutputStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                    try {
-                        p.getInputStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                    try {
-                        p.getErrorStream().close();
-                    } catch (IOException e) {
-                        // do nothing on failure
-                    }
-                }
-                p.destroy();
+                destroyProcess(p);
             }
         }
         return Collections.emptyList();
@@ -131,6 +112,29 @@ public final class ExecutingCommand {
             Thread.currentThread().interrupt();
         }
         return sa;
+    }
+
+    static void destroyProcess(Process p) {
+        // Windows and Solaris don't close descriptors on destroy,
+        // so we must handle separately
+        if (Platform.isWindows() || Platform.isSolaris()) {
+            try {
+                p.getOutputStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+            try {
+                p.getInputStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+            try {
+                p.getErrorStream().close();
+            } catch (IOException e) {
+                // do nothing on failure
+            }
+        }
+        p.destroy();
     }
 
     /**

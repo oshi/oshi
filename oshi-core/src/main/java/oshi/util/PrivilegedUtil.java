@@ -10,6 +10,7 @@ import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -261,35 +262,16 @@ public final class PrivilegedUtil {
         LOG.debug("Attempting privileged file read: {}", Arrays.toString(cmdArray));
 
         // Spawn process and read raw bytes to preserve binary content
-        return runCatAndReadBytes(cmdArray);
-    }
-
-    /**
-     * Spawns a process to run a command and reads the raw byte output.
-     *
-     * @param cmdArray The command to execute
-     * @return The raw bytes from the process stdout, or empty array on failure
-     */
-    private static byte[] runCatAndReadBytes(String[] cmdArray) {
-        Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdArray);
-            try (java.io.InputStream is = p.getInputStream();
-                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    baos.write(buffer, 0, bytesRead);
-                }
-                return baos.toByteArray();
+            Process p = Runtime.getRuntime().exec(cmdArray);
+            try {
+                return FileUtil.readAllBytes(p.getInputStream());
+            } finally {
+                ExecutingCommand.destroyProcess(p);
             }
-        } catch (java.io.IOException e) {
+        } catch (SecurityException | IOException e) {
             LOG.debug("Failed to execute privileged cat command: {}", e.getMessage());
             return new byte[0];
-        } finally {
-            if (p != null) {
-                p.destroy();
-            }
         }
     }
 }

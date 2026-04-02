@@ -172,6 +172,24 @@ public final class FileUtil {
     }
 
     /**
+     * Reads all bytes from an InputStream.
+     *
+     * @param is The InputStream to read from
+     * @return the byte content, or empty array on failure
+     * @throws IOException if an I/O error occurs
+     */
+    static byte[] readAllBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        int read;
+        while ((read = is.read(buf)) != -1) {
+            baos.write(buf, 0, read);
+        }
+        baos.flush();
+        return baos.toByteArray();
+    }
+
+    /**
      * Read an entire file at one time. Intended for unix /proc binary files to avoid reading file contents on iterative
      * reads.
      *
@@ -454,14 +472,7 @@ public final class FileUtil {
      */
     public static byte[] readFileAsBytes(URL url) throws IOException {
         try (InputStream in = url.openStream()) {
-            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            byte[] data = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(data, 0, data.length)) != -1) {
-                buf.write(data, 0, bytesRead);
-            }
-            buf.flush();
-            return buf.toByteArray();
+            return readAllBytes(in);
         }
     }
 
