@@ -436,4 +436,71 @@ public interface MacSystem {
     PathElement XSW_USAGE_USED = groupElement("xsu_used");
     PathElement XSW_USAGE_TOTAL = groupElement("xsu_total");
 
+    // SMC (System Management Controller) structures
+    // SMCKeyDataVers: major(1) + minor(1) + build(1) + reserved(1) + release(2) = 6 bytes
+    StructLayout SMC_KEY_DATA_VERS = structLayout(//
+            JAVA_BYTE.withName("major"), //
+            JAVA_BYTE.withName("minor"), //
+            JAVA_BYTE.withName("build"), //
+            JAVA_BYTE.withName("reserved"), //
+            JAVA_SHORT.withName("release") //
+    );
+
+    // SMCKeyDataPLimitData: version(2) + length(2) + cpuPLimit(4) + gpuPLimit(4) + memPLimit(4) = 16 bytes
+    StructLayout SMC_KEY_DATA_PLIMIT = structLayout(//
+            JAVA_SHORT.withName("version"), //
+            JAVA_SHORT.withName("length"), //
+            JAVA_INT.withName("cpuPLimit"), //
+            JAVA_INT.withName("gpuPLimit"), //
+            JAVA_INT.withName("memPLimit") //
+    );
+
+    // SMCKeyDataKeyInfo: dataSize(4) + dataType(4) + dataAttributes(1) + padding(3) = 12 bytes
+    StructLayout SMC_KEY_DATA_KEY_INFO = structLayout(//
+            JAVA_INT.withName("dataSize"), //
+            JAVA_INT.withName("dataType"), //
+            JAVA_BYTE.withName("dataAttributes"), //
+            paddingLayout(3) //
+    );
+    PathElement SMC_DATA_SIZE = groupElement("dataSize");
+    PathElement SMC_DATA_TYPE = groupElement("dataType");
+    PathElement SMC_DATA_ATTRIBUTES = groupElement("dataAttributes");
+
+    // SMCKeyData: key(4) + vers(6) + pad(2) + pLimitData(16) + keyInfo(12) + result(1) + status(1) + data8(1) +
+    // pad(1) + data32(4) + bytes[32] = 80 bytes
+    StructLayout SMC_KEY_DATA = structLayout(//
+            JAVA_INT.withName("key"), //
+            SMC_KEY_DATA_VERS.withName("vers"), //
+            paddingLayout(2), //
+            SMC_KEY_DATA_PLIMIT.withName("pLimitData"), //
+            SMC_KEY_DATA_KEY_INFO.withName("keyInfo"), //
+            JAVA_BYTE.withName("result"), //
+            JAVA_BYTE.withName("status"), //
+            JAVA_BYTE.withName("data8"), //
+            paddingLayout(1), //
+            JAVA_INT.withName("data32"), //
+            sequenceLayout(32, JAVA_BYTE).withName("bytes") //
+    );
+    PathElement SMC_KEY = groupElement("key");
+    PathElement SMC_KEY_INFO = groupElement("keyInfo");
+    PathElement SMC_RESULT = groupElement("result");
+    PathElement SMC_STATUS = groupElement("status");
+    PathElement SMC_DATA8 = groupElement("data8");
+    PathElement SMC_DATA32 = groupElement("data32");
+    PathElement SMC_BYTES = groupElement("bytes");
+
+    // SMCVal: key[5](5) + pad(3) + dataSize(4) + dataType[5](5) + pad(3) + bytes[32](32) = 52 bytes
+    StructLayout SMC_VAL = structLayout(//
+            sequenceLayout(5, JAVA_BYTE).withName("key"), //
+            paddingLayout(3), //
+            JAVA_INT.withName("dataSize"), //
+            sequenceLayout(5, JAVA_BYTE).withName("dataType"), //
+            paddingLayout(3), //
+            sequenceLayout(32, JAVA_BYTE).withName("bytes") //
+    );
+    PathElement SMC_VAL_KEY = groupElement("key");
+    PathElement SMC_VAL_DATA_SIZE = groupElement("dataSize");
+    PathElement SMC_VAL_DATA_TYPE = groupElement("dataType");
+    PathElement SMC_VAL_BYTES = groupElement("bytes");
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm;
@@ -28,6 +28,36 @@ public abstract class ForeignFunctions {
 
     public static SymbolLookup libraryLookup(String libraryName) {
         return SymbolLookup.libraryLookup(System.mapLibraryName(libraryName), LIBRARY_ARENA);
+    }
+
+    /**
+     * Search paths for macOS frameworks, in priority order.
+     * <ul>
+     * <li>{@code /System/Library/Frameworks} - Reserved strictly for Apple's core OS frameworks (e.g. IOKit,
+     * CoreFoundation, AppKit).</li>
+     * <li>{@code /Library/Frameworks} - Standard location for third-party frameworks available to all users (e.g. SDL2,
+     * GStreamer, or custom drivers).</li>
+     * </ul>
+     */
+    private static final String[] FRAMEWORK_SEARCH_PATHS = { "/System/Library/Frameworks", "/Library/Frameworks" };
+
+    /**
+     * Lookup a macOS framework by simple name, e.g. {@code "IOKit"}. Searches {@link #FRAMEWORK_SEARCH_PATHS} in order.
+     *
+     * @param frameworkName the framework name without path or extension
+     * @return the symbol lookup for the framework
+     * @throws IllegalArgumentException if the framework is not found in any search path
+     */
+    public static SymbolLookup frameworkLookup(String frameworkName) {
+        for (String base : FRAMEWORK_SEARCH_PATHS) {
+            try {
+                return SymbolLookup.libraryLookup(
+                        String.format("%s/%s.framework/%s", base, frameworkName, frameworkName), LIBRARY_ARENA);
+            } catch (IllegalArgumentException ignored) {
+                // Not found in this directory, try the next one
+            }
+        }
+        throw new IllegalArgumentException("Framework not found: " + frameworkName);
     }
 
     public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {

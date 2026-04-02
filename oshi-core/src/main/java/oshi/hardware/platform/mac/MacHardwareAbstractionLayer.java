@@ -8,7 +8,6 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
-import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
@@ -16,7 +15,6 @@ import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Printer;
-import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -29,18 +27,8 @@ import oshi.hardware.platform.unix.UnixPrinter;
 public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
-    public ComputerSystem createComputerSystem() {
-        return new MacComputerSystem();
-    }
-
-    @Override
     public CentralProcessor createProcessor() {
         return new MacCentralProcessor();
-    }
-
-    @Override
-    public Sensors createSensors() {
-        return new MacSensors();
     }
 
     @Override

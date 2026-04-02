@@ -24,8 +24,7 @@ import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
 @ThreadSafe
 final class MacSensors extends AbstractSensors {
 
-    // This shouldn't change once determined
-    private int numFans = 0;
+    private volatile int numFans = 0;
 
     @Override
     public double queryCpuTemperature() {
@@ -51,11 +50,13 @@ final class MacSensors extends AbstractSensors {
             return new int[this.numFans];
         }
         try {
-            if (this.numFans == 0) {
-                this.numFans = (int) SmcUtil.smcGetLong(conn, SMC_KEY_FAN_NUM);
+            int fans = this.numFans;
+            if (fans == 0) {
+                fans = (int) SmcUtil.smcGetLong(conn, SMC_KEY_FAN_NUM);
+                this.numFans = fans;
             }
-            int[] fanSpeeds = new int[this.numFans];
-            for (int i = 0; i < this.numFans; i++) {
+            int[] fanSpeeds = new int[fans];
+            for (int i = 0; i < fans; i++) {
                 fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(Locale.ROOT, SMC_KEY_FAN_SPEED, i));
             }
             return fanSpeeds;
