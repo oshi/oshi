@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.mac;
@@ -11,6 +11,7 @@ import static oshi.ffm.mac.CoreFoundation.kCFNumberSInt32Type;
 import static oshi.ffm.mac.CoreFoundation.kCFNumberSInt64Type;
 import static oshi.ffm.mac.CoreFoundation.kCFStringEncodingUTF8;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFAllocatorGetDefault;
+import static oshi.ffm.mac.CoreFoundationFunctions.CFBooleanGetValue;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetBytePtr;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDataGetLength;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFNumberGetValue;
@@ -347,6 +348,24 @@ public interface IOKit {
                     long length = CFDataGetLength(cfValue);
                     MemorySegment bytePtr = CFDataGetBytePtr(cfValue);
                     return getByteArrayFromNativePointer(bytePtr, length, arena);
+                } finally {
+                    releaseCFObjects(cfKey, cfValue);
+                }
+            } catch (Throwable e) {
+                return null;
+            }
+        }
+
+        public Boolean getBooleanProperty(String key) {
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment cfKey = createCFString(key, arena);
+                MemorySegment cfValue = null;
+                try {
+                    cfValue = createCFProperty(cfKey);
+                    if (cfValue.equals(MemorySegment.NULL)) {
+                        return null;
+                    }
+                    return CFBooleanGetValue(cfValue) != 0;
                 } finally {
                     releaseCFObjects(cfKey, cfValue);
                 }

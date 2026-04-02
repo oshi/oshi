@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -330,13 +330,13 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
             int udps_opackets, // 36
             int udps_noportmcast, // 48
             int udps_rcv6_swcsum, // 64
-            int udps_snd6_swcsum // 89
+            int udps_snd6_swcsum // 80
     ) {
     }
 
     private static BsdUdpstat queryUdpstat() {
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buffer = arena.allocate(1644);
+            MemorySegment buffer = arena.allocate(84);
             if (SysctlUtilFFM.sysctl("net.inet.udp.stats", buffer)) {
                 return new BsdUdpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 8),
                         buffer.get(JAVA_INT, 12), buffer.get(JAVA_INT, 36), buffer.get(JAVA_INT, 48),

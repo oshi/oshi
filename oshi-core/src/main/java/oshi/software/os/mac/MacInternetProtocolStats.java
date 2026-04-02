@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -209,30 +209,30 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
 
     private static TcpState stateLookup(int state) {
         switch (state) {
-        case 0:
-            return CLOSED;
-        case 1:
-            return LISTEN;
-        case 2:
-            return SYN_SENT;
-        case 3:
-            return SYN_RECV;
-        case 4:
-            return ESTABLISHED;
-        case 5:
-            return CLOSE_WAIT;
-        case 6:
-            return FIN_WAIT_1;
-        case 7:
-            return CLOSING;
-        case 8:
-            return LAST_ACK;
-        case 9:
-            return FIN_WAIT_2;
-        case 10:
-            return TIME_WAIT;
-        default:
-            return UNKNOWN;
+            case 0:
+                return CLOSED;
+            case 1:
+                return LISTEN;
+            case 2:
+                return SYN_SENT;
+            case 3:
+                return SYN_RECV;
+            case 4:
+                return ESTABLISHED;
+            case 5:
+                return CLOSE_WAIT;
+            case 6:
+                return FIN_WAIT_1;
+            case 7:
+                return CLOSING;
+            case 8:
+                return LAST_ACK;
+            case 9:
+                return FIN_WAIT_2;
+            case 10:
+                return TIME_WAIT;
+            default:
+                return UNKNOWN;
         }
     }
 
@@ -292,7 +292,7 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
     public static BsdUdpstat queryUdpstat() {
         BsdUdpstat ut = new BsdUdpstat();
         try (Memory m = SysctlUtil.sysctl("net.inet.udp.stats")) {
-            if (m != null && m.size() >= 1644) {
+            if (m != null && m.size() >= 84) {
                 ut.udps_ipackets = m.getInt(0);
                 ut.udps_hdrops = m.getInt(4);
                 ut.udps_badsum = m.getInt(8);

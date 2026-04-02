@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -80,7 +80,7 @@ public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats 
     private static BsdUdpstat queryUdpstat() {
         BsdUdpstat ut = new BsdUdpstat();
         try (Memory m = BsdSysctlUtil.sysctl("net.inet.udp.stats")) {
-            if (m != null && m.size() >= 1644) {
+            if (m != null && m.size() >= 84) {
                 ut.udps_ipackets = m.getInt(0);
                 ut.udps_hdrops = m.getInt(4);
                 ut.udps_badsum = m.getInt(8);

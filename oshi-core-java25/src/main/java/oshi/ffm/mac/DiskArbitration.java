@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.mac;
@@ -13,6 +13,7 @@ import static oshi.ffm.mac.DiskArbitrationFunctions.DASessionCreate;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import oshi.ffm.ForeignFunctions;
 import oshi.ffm.mac.CoreFoundation.CFAllocatorRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFTypeRef;
@@ -38,9 +39,13 @@ public interface DiskArbitration {
          * @return A reference to a new DASession
          */
         public static DASessionRef create(CFAllocatorRef allocator) {
-            MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
-            MemorySegment sessionSeg = DASessionCreate(allocSeg);
-            return new DASessionRef(sessionSeg);
+            try {
+                MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
+                MemorySegment sessionSeg = DASessionCreate(allocSeg);
+                return new DASessionRef(sessionSeg);
+            } catch (Throwable e) {
+                return new DASessionRef(MemorySegment.NULL);
+            }
         }
     }
 
@@ -65,9 +70,10 @@ public interface DiskArbitration {
                 MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
                 MemorySegment sessionSeg = session != null ? session.segment() : MemorySegment.NULL;
                 MemorySegment bsdNameSeg = arena.allocateFrom(bsdName);
-
                 MemorySegment diskSeg = DADiskCreateFromBSDName(allocSeg, sessionSeg, bsdNameSeg);
                 return new DADiskRef(diskSeg);
+            } catch (Throwable e) {
+                return new DADiskRef(MemorySegment.NULL);
             }
         }
 
@@ -81,12 +87,15 @@ public interface DiskArbitration {
          */
         public static DADiskRef createFromIOMedia(CFAllocatorRef allocator, DASessionRef session,
                 IOKit.IOObject media) {
-            MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
-            MemorySegment sessionSeg = session != null ? session.segment() : MemorySegment.NULL;
-            MemorySegment mediaSeg = media != null ? media.segment() : MemorySegment.NULL;
-
-            MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaSeg);
-            return new DADiskRef(diskSeg);
+            try {
+                MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
+                MemorySegment sessionSeg = session != null ? session.segment() : MemorySegment.NULL;
+                MemorySegment mediaSeg = media != null ? media.segment() : MemorySegment.NULL;
+                MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaSeg);
+                return new DADiskRef(diskSeg);
+            } catch (Throwable e) {
+                return new DADiskRef(MemorySegment.NULL);
+            }
         }
 
         /**
@@ -98,8 +107,12 @@ public interface DiskArbitration {
             if (isNull()) {
                 return new CFDictionaryRef(MemorySegment.NULL);
             }
-            MemorySegment dictSeg = DADiskCopyDescription(segment());
-            return new CFDictionaryRef(dictSeg);
+            try {
+                MemorySegment dictSeg = DADiskCopyDescription(segment());
+                return new CFDictionaryRef(dictSeg);
+            } catch (Throwable e) {
+                return new CFDictionaryRef(MemorySegment.NULL);
+            }
         }
 
         /**
@@ -111,11 +124,12 @@ public interface DiskArbitration {
             if (isNull()) {
                 return null;
             }
-            MemorySegment nameSeg = DADiskGetBSDName(segment());
-            if (nameSeg.equals(MemorySegment.NULL)) {
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment nameSeg = DADiskGetBSDName(segment());
+                return ForeignFunctions.getStringFromNativePointer(nameSeg, arena);
+            } catch (Throwable e) {
                 return null;
             }
-            return nameSeg.getString(0);
         }
     }
 }
