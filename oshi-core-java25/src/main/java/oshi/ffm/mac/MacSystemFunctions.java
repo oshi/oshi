@@ -243,4 +243,28 @@ public final class MacSystemFunctions extends ForeignFunctions {
             MemorySegment count) throws Throwable {
         return (int) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
     }
+
+    // kern_return_t host_processor_info(host_t host, processor_flavor_t flavor, natural_t *out_processor_count,
+    // processor_info_array_t *out_processor_info, mach_msg_type_number_t
+    // *out_processor_infoCnt);
+
+    private static final MethodHandle host_processor_info = LINKER.downcallHandle(
+            SYSTEM_LIBRARY.findOrThrow("host_processor_info"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
+
+    public static int host_processor_info(MemorySegment callState, int hostPort, int flavor,
+            MemorySegment processorCount, MemorySegment processorInfo, MemorySegment processorInfoCount)
+            throws Throwable {
+        return (int) host_processor_info.invokeExact(callState, hostPort, flavor, processorCount, processorInfo,
+                processorInfoCount);
+    }
+
+    // int getloadavg(double loadavg[], int nelem);
+
+    private static final MethodHandle getloadavg = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("getloadavg"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+
+    public static int getloadavg(MemorySegment loadavg, int nelem) throws Throwable {
+        return (int) getloadavg.invokeExact(loadavg, nelem);
+    }
 }
