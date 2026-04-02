@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -160,15 +160,13 @@ public final class ExecutingCommand {
     }
 
     /**
-     * Executes a command that may require elevated privileges. If already running as root
-     * or no sudo prefix is configured, delegates directly to {@link #runNative(String)}.
-     * If a sudo prefix is configured and the command is in the allowlist, prepends the
-     * prefix before execution. If the command is not in the allowlist, attempts to run
+     * Executes a command that may require elevated privileges. If already running as root or no sudo prefix is
+     * configured, delegates directly to {@link #runNative(String)}. If a sudo prefix is configured and the command is
+     * in the allowlist, prepends the prefix before execution. If the command is not in the allowlist, attempts to run
      * without the prefix (the command may still succeed if permissions allow).
      *
      * @param cmdToRun Command to run
-     * @return A list of Strings representing the result of the command, or empty list if
-     *         the command failed
+     * @return A list of Strings representing the result of the command, or empty list if the command failed
      */
     public static List<String> runPrivilegedNative(String cmdToRun) {
         // If already elevated or no sudo prefix configured, run directly

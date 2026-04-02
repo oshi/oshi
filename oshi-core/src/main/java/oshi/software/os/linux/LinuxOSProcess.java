@@ -139,8 +139,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(PrivilegedUtil
-                .readAllBytesPrivileged(String.format(Locale.ROOT, ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
+        return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(PrivilegedUtil.readAllBytesPrivileged(
+                String.format(Locale.ROOT, ProcPath.PID_ENVIRON, getProcessID()), LOG_PROCFS_WARNING)));
     }
 
     @Override
@@ -351,8 +351,8 @@ public class LinuxOSProcess extends AbstractOSProcess {
         }
         // Fetch all the values here
         // check for terminated process race condition after last one.
-        Map<String, String> io = PrivilegedUtil.getKeyValueMapFromFilePrivileged(
-                String.format(Locale.ROOT, ProcPath.PID_IO, getProcessID()), ":");
+        Map<String, String> io = PrivilegedUtil
+                .getKeyValueMapFromFilePrivileged(String.format(Locale.ROOT, ProcPath.PID_IO, getProcessID()), ":");
         Map<String, String> status = FileUtil
                 .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), ":");
         String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, getProcessID()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -305,7 +305,8 @@ public class LinuxOperatingSystem extends AbstractOperatingSystem {
         }
         try {
             return ParseUtil.parseIntOrDefault(
-                    FileUtil.getFileName(Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).toString()), 0);
+                    FileUtil.getFileName(Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).toString()),
+                    0);
         } catch (IOException e) {
             return 0;
         }

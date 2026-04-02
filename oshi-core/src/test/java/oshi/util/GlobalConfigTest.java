@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -117,7 +117,8 @@ class GlobalConfigTest {
         set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, "dmidecode,lshw");
         assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""), is("dmidecode,lshw"));
 
-        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, "/proc/*/io,/sys/devices/virtual/dmi/id/product_serial");
+        set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST,
+                "/proc/*/io,/sys/devices/virtual/dmi/id/product_serial");
         assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""),
                 is("/proc/*/io,/sys/devices/virtual/dmi/id/product_serial"));
     }

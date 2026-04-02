@@ -10,7 +10,6 @@ import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,9 +30,8 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Utility class for privileged command execution and file reading.
- * Provides methods to execute commands and read files with optional
- * privilege escalation via sudo when running as a non-root user.
+ * Utility class for privileged command execution and file reading. Provides methods to execute commands and read files
+ * with optional privilege escalation via sudo when running as a non-root user.
  */
 @ThreadSafe
 public final class PrivilegedUtil {
@@ -58,16 +56,13 @@ public final class PrivilegedUtil {
         if (allowlistConfig == null || allowlistConfig.trim().isEmpty()) {
             return Collections.emptySet();
         }
-        return Arrays.stream(allowlistConfig.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
+        return Arrays.stream(allowlistConfig.split(",")).map(String::trim).filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
 
     /**
-     * Checks if a command is allowed for privileged execution.
-     * Extracts the command name from the full command string and matches
-     * against the allowlist. Supports both bare names and full paths.
+     * Checks if a command is allowed for privileged execution. Extracts the command name from the full command string
+     * and matches against the allowlist. Supports both bare names and full paths.
      *
      * @param command   The full command string (e.g., "dmidecode -t system")
      * @param allowlist Set of allowed command names or paths
@@ -167,9 +162,8 @@ public final class PrivilegedUtil {
     }
 
     /**
-     * Reads a file with privileged fallback. First attempts normal read,
-     * then falls back to sudo cat if the file exists but is not readable
-     * and the file is in the allowlist.
+     * Reads a file with privileged fallback. First attempts normal read, then falls back to sudo cat if the file exists
+     * but is not readable and the file is in the allowlist.
      *
      * @param filePath The file to read
      * @return A list of Strings representing each line of the file, or empty list if unreadable
@@ -293,7 +287,7 @@ public final class PrivilegedUtil {
         try {
             p = Runtime.getRuntime().exec(cmdArray);
             try (java.io.InputStream is = p.getInputStream();
-                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 while ((bytesRead = is.read(buffer)) != -1) {
