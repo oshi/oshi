@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST;
 import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST;
 import static oshi.util.GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX;
@@ -268,14 +269,27 @@ public final class PrivilegedUtil {
         try {
             Process p = Runtime.getRuntime().exec(cmdArray);
             try {
-                return FileUtil.readAllBytes(p.getInputStream());
+                byte[] stdout = FileUtil.readAllBytes(p.getInputStream());
+                byte[] stderr = FileUtil.readAllBytes(p.getErrorStream());
+                int exitCode = p.waitFor();
+                if (exitCode == 0) {
+                    return stdout;
+                }
+                if (reportError) {
+                    LOG.error("Privileged cat exited with code {}: {}", exitCode, new String(stderr, UTF_8).trim());
+                } else {
+                    LOG.debug("Privileged cat exited with code {}: {}", exitCode, new String(stderr, UTF_8).trim());
+                }
             } finally {
                 ExecutingCommand.destroyProcess(p);
             }
-        } catch (SecurityException | IOException e) {
+        } catch (SecurityException | IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             LOG.debug("Failed to execute privileged cat command: {}", e.getMessage());
-            return new byte[0];
         }
+        return new byte[0];
     }
 
     private static String[] buildCatCommand(String filePath) {

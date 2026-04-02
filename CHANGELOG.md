@@ -6,6 +6,7 @@
   [#3089](https://github.com/oshi/oshi/pull/3089),
   [#3092](https://github.com/oshi/oshi/pull/3092),
   [#3095](https://github.com/oshi/oshi/pull/3095): Add GPU metrics to GraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
+* [#3107](https://github.com/oshi/oshi/pull/3107): Add configurable privilege escalation on Linux - [@rohan-coder02](https://github.com/rohan-coder02).
 
 ##### Bug fixes / Improvements
 * [#3086](https://github.com/oshi/oshi/pull/3086): DXGI-based VRAM detection for Windows GPU adapters - [@dbwiddis](https://github.com/dbwiddis).
