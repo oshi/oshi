@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -123,11 +124,21 @@ public final class PrivilegedUtil {
     }
 
     private static Set<String> queryCommandAllowlist() {
-        return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""));
+        switch (SystemInfo.getCurrentPlatform()) {
+            case LINUX:
+                return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""));
+            default:
+                return Collections.emptySet();
+        }
     }
 
     private static Set<String> queryFileAllowlist() {
-        return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""));
+        switch (SystemInfo.getCurrentPlatform()) {
+            case LINUX:
+                return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""));
+            default:
+                return Collections.emptySet();
+        }
     }
 
     /**
@@ -149,12 +160,17 @@ public final class PrivilegedUtil {
     }
 
     /**
-     * Gets the configured sudo command prefix.
+     * Gets the configured sudo command prefix for the current platform.
      *
-     * @return The prefix string, or empty string if not configured
+     * @return The prefix string, or empty string if not configured or not supported on this platform
      */
     public static String getPrefix() {
-        return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
+        switch (SystemInfo.getCurrentPlatform()) {
+            case LINUX:
+                return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
+            default:
+                return "";
+        }
     }
 
     /**
