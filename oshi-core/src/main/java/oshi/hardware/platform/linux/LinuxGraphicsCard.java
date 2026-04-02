@@ -274,7 +274,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // The symlink target resolves to a driver directory,
         // e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.
-        int lastSlash = target.lastIndexOf('/');
-        return lastSlash >= 0 ? target.substring(lastSlash + 1) : target;
+        String name = FileUtil.getFileName(target);
+        return name.isEmpty() ? target : name;
     }
 }

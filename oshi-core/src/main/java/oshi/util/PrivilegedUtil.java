@@ -81,10 +81,9 @@ public final class PrivilegedUtil {
         String cmdPath = tokens[0];
 
         // Extract bare command name from path
-        String cmdName = cmdPath;
-        int lastSlash = cmdPath.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < cmdPath.length() - 1) {
-            cmdName = cmdPath.substring(lastSlash + 1);
+        String cmdName = FileUtil.getFileName(cmdPath);
+        if (cmdName.isEmpty()) {
+            cmdName = cmdPath;
         }
 
         // Check if command matches any entry in allowlist
@@ -94,12 +93,9 @@ public final class PrivilegedUtil {
                 return true;
             }
             // If allowlist entry is a path, extract its name and compare
-            int allowedLastSlash = allowed.lastIndexOf('/');
-            if (allowedLastSlash >= 0 && allowedLastSlash < allowed.length() - 1) {
-                String allowedName = allowed.substring(allowedLastSlash + 1);
-                if (allowedName.equals(cmdName)) {
-                    return true;
-                }
+            String allowedName = FileUtil.getFileName(allowed);
+            if (!allowedName.isEmpty() && allowedName.equals(cmdName)) {
+                return true;
             }
         }
         return false;
