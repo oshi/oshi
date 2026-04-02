@@ -49,11 +49,13 @@ final class MacSensorsFFM extends AbstractSensors {
             return new int[this.numFans];
         }
         try {
-            if (this.numFans == 0) {
-                this.numFans = (int) SmcUtilFFM.smcGetLong(conn, SMC_KEY_FAN_NUM);
+            int fans = this.numFans;
+            if (fans == 0) {
+                fans = (int) SmcUtilFFM.smcGetLong(conn, SMC_KEY_FAN_NUM);
+                this.numFans = fans;
             }
-            int[] fanSpeeds = new int[this.numFans];
-            for (int i = 0; i < this.numFans; i++) {
+            int[] fanSpeeds = new int[fans];
+            for (int i = 0; i < fans; i++) {
                 fanSpeeds[i] = (int) SmcUtilFFM.smcGetFloat(conn, String.format(Locale.ROOT, SMC_KEY_FAN_SPEED, i));
             }
             return fanSpeeds;
