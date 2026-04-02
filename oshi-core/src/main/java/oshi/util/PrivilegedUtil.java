@@ -181,24 +181,12 @@ public final class PrivilegedUtil {
      * @return A list of Strings representing each line of the file, or empty list if unreadable
      */
     public static List<String> readFilePrivileged(String filePath) {
-        // If already elevated, delegate directly to FileUtil
-        if (UserGroupInfo.isElevated()) {
+        // If already elevated or file is not in the allowlist, delegate directly to FileUtil
+        if (UserGroupInfo.isElevated() || !isFileAllowed(filePath, getFileAllowlist())) {
             return FileUtil.readFile(filePath, false);
         }
 
-        // Check if file is in allowlist
-        Set<String> fileAllowlist = getFileAllowlist();
-        if (!isFileAllowed(filePath, fileAllowlist)) {
-            return FileUtil.readFile(filePath, false);
-        }
-
-        // First attempt normal read (silent failure)
-        List<String> result = FileUtil.readFile(filePath, false);
-        if (!result.isEmpty()) {
-            return result;
-        }
-
-        // Check if file exists but is unreadable
+        // Not elevated and file is in the allowlist: attempt privileged read via prefix + cat
         Path path = Paths.get(filePath);
         if (!Files.exists(path)) {
             return Collections.emptyList();
@@ -250,24 +238,12 @@ public final class PrivilegedUtil {
      * @return A byte array representing the file contents, or empty array if unreadable
      */
     public static byte[] readAllBytesPrivileged(String filePath, boolean reportError) {
-        // If already elevated, delegate directly to FileUtil
-        if (UserGroupInfo.isElevated()) {
+        // If already elevated or file is not in the allowlist, delegate directly to FileUtil
+        if (UserGroupInfo.isElevated() || !isFileAllowed(filePath, getFileAllowlist())) {
             return FileUtil.readAllBytes(filePath, reportError);
         }
 
-        // Check if file is in allowlist
-        Set<String> fileAllowlist = getFileAllowlist();
-        if (!isFileAllowed(filePath, fileAllowlist)) {
-            return FileUtil.readAllBytes(filePath, reportError);
-        }
-
-        // First attempt normal read
-        byte[] result = FileUtil.readAllBytes(filePath, false);
-        if (result.length > 0) {
-            return result;
-        }
-
-        // Check if file exists but is unreadable
+        // Not elevated and file is in the allowlist: attempt privileged read via prefix + cat
         Path path = Paths.get(filePath);
         if (!Files.exists(path)) {
             return new byte[0];
