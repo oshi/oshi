@@ -311,11 +311,13 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                             Boolean whole = media.getBooleanProperty("Whole");
                             if (Boolean.TRUE.equals(whole)) {
                                 DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, media);
-                                String bsdName = disk.getBSDName();
-                                if (bsdName != null) {
-                                    bsdNames.add(bsdName);
+                                if (!disk.isNull()) {
+                                    String bsdName = disk.getBSDName();
+                                    if (bsdName != null) {
+                                        bsdNames.add(bsdName);
+                                    }
+                                    disk.release();
                                 }
-                                disk.release();
                             }
                             media.release();
                             media = iter.next();
