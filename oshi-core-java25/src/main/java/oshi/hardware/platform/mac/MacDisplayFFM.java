@@ -49,24 +49,27 @@ final class MacDisplayFFM extends AbstractDisplay {
         try {
             IORegistryEntry sdService = serviceIterator.next();
             while (sdService != null) {
-                IORegistryEntry propertySource = null;
                 try {
-                    propertySource = childEntryName == null ? sdService : sdService.getChildEntry(childEntryName);
+                    IORegistryEntry propertySource = childEntryName == null ? sdService
+                            : sdService.getChildEntry(childEntryName);
                     if (propertySource != null) {
-                        java.lang.foreign.MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
-                        if (edidRaw != null && !edidRaw.equals(java.lang.foreign.MemorySegment.NULL)) {
-                            CFDataRef edid = new CFDataRef(edidRaw);
-                            try {
-                                byte[] bytes = edid.getBytes();
-                                if (bytes.length > 0) {
-                                    displays.add(new MacDisplayFFM(bytes));
+                        try {
+                            java.lang.foreign.MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
+                            if (edidRaw != null && !edidRaw.equals(java.lang.foreign.MemorySegment.NULL)) {
+                                CFDataRef edid = new CFDataRef(edidRaw);
+                                try {
+                                    byte[] bytes = edid.getBytes();
+                                    if (bytes.length > 0) {
+                                        displays.add(new MacDisplayFFM(bytes));
+                                    }
+                                } finally {
+                                    edid.release();
                                 }
-                            } finally {
-                                edid.release();
                             }
-                        }
-                        if (childEntryName != null) {
-                            propertySource.release();
+                        } finally {
+                            if (childEntryName != null) {
+                                propertySource.release();
+                            }
                         }
                     }
                 } finally {

@@ -258,7 +258,7 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                                     }
                                 }
                             } catch (Throwable e) {
-                                LOG.debug("Error building partition list for {}", bsdName);
+                                LOG.debug("Error building partition list for {}", bsdName, e);
                             }
                         } finally {
                             driveProps.release();
@@ -399,6 +399,13 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
         return diskList;
     }
 
+    /**
+     * Creates a map of {@link CFKey} to {@link CFStringRef} for use in IOKit/CoreFoundation lookups. Callers
+     * ({@link #getDisks()} and {@link #updateAttributes()}) are responsible for calling {@link CFStringRef#release()}
+     * on all values to avoid native memory leaks.
+     *
+     * @return a new map of all {@link CFKey} values to their corresponding {@link CFStringRef}
+     */
     private static Map<CFKey, CFStringRef> mapCFKeys() {
         Map<CFKey, CFStringRef> keyMap = new EnumMap<>(CFKey.class);
         for (CFKey cfKey : CFKey.values()) {

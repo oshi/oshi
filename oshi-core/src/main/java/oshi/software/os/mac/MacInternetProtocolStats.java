@@ -100,8 +100,8 @@ public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
         BsdIp6stat ip6 = ip6stat.get();
         BsdUdpstat udp = udpstat.get();
         return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-                ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
-                ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
+                Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
+                Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
     }
 
     @Override

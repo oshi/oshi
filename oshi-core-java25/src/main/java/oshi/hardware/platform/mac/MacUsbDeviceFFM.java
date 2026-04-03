@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.CoreFoundation.CFTypeRef;
@@ -29,6 +32,7 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
 
     private static final String IOUSB = "IOUSB";
     private static final String IOSERVICE = "IOService";
+    private static final Logger LOG = LoggerFactory.getLogger(MacUsbDeviceFFM.class);
 
     public MacUsbDeviceFFM(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
@@ -196,7 +200,7 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
                 }
             }
         } catch (Throwable e) {
-            // Ignore
+            LOG.debug("Failed to retrieve controller vendor/product IDs for id {}", id, e);
         }
     }
 

@@ -86,7 +86,11 @@ public final class MacPowerSourceFFM extends AbstractPowerSource {
                     int day = temp & 0x1f;
                     int month = (temp >> 5) & 0xf;
                     int year80 = (temp >> 9) & 0x7f;
-                    psManufactureDate = LocalDate.of(1980 + year80, month, day);
+                    try {
+                        psManufactureDate = LocalDate.of(1980 + year80, month, day);
+                    } catch (java.time.DateTimeException e) {
+                        // Corrupt bitfield — leave psManufactureDate as null
+                    }
                 }
 
                 temp = smartBattery.getIntegerProperty("DesignCapacity");
@@ -196,7 +200,8 @@ public final class MacPowerSourceFFM extends AbstractPowerSource {
                                 result = dict.getValue(maxCapacityKey);
                                 maxCapacity = new CFNumberRef(result).intValue();
                             }
-                            double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);
+                            double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
+                                    : Math.min(1d, currentCapacity / maxCapacity);
 
                             psList.add(new MacPowerSourceFFM(psName, fDeviceName, psRemainingCapacityPercent,
                                     psTimeRemainingEstimated, fTimeRemainingInstant, fPowerUsageRate, fVoltage,

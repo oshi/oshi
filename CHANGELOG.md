@@ -16,6 +16,7 @@
 * [#3014](https://github.com/oshi/oshi/pull/3014): Implement COM, WMI, PDH and FileSystem in Windows FFM - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#3104](https://github.com/oshi/oshi/pull/3104): Migrate remaining mac OperatingSystem JNA to FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#3109](https://github.com/oshi/oshi/pull/3109): Migrate macOS IOKit/SMC hardware to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3110](https://github.com/oshi/oshi/pull/3110): Add more macOS hardware FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.10.0 (2026-02-22)
 
