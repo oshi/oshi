@@ -19,6 +19,7 @@
 * [#3109](https://github.com/oshi/oshi/pull/3109),
   [#3110](https://github.com/oshi/oshi/pull/3110),
   [#3111](https://github.com/oshi/oshi/pull/3111): Migrate mac HardwareAbstractionLayer JNA to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3113](https://github.com/oshi/oshi/pull/3113): Implement FFM-based CUPS printer support for macOS - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.10.0 (2026-02-22)
 
