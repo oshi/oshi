@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.SystemInfoFFM;
+import oshi.ffm.SystemInfo;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class OperatingSystemFFMTest extends OperatingSystemTest {
     @Override
     protected OperatingSystem createOperatingSystem() {
-        return new SystemInfoFFM().getOperatingSystem();
+        return new SystemInfo().getOperatingSystem();
     }
 
     @EnabledOnOs(OS.MAC)

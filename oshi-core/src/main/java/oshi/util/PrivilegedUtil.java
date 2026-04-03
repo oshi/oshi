@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.SystemInfo;
+import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -127,7 +127,7 @@ public final class PrivilegedUtil {
     }
 
     private static String queryPrefix() {
-        switch (SystemInfo.getCurrentPlatform()) {
+        switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
             default:
@@ -136,7 +136,7 @@ public final class PrivilegedUtil {
     }
 
     private static Set<String> queryCommandAllowlist() {
-        switch (SystemInfo.getCurrentPlatform()) {
+        switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""));
             default:
@@ -145,7 +145,7 @@ public final class PrivilegedUtil {
     }
 
     private static Set<String> queryFileAllowlist() {
-        switch (SystemInfo.getCurrentPlatform()) {
+        switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""));
             default:

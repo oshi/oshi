@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -13,6 +13,7 @@ import static oshi.PlatformEnum.OPENBSD;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.util.platform.unix.openbsd.FstatUtil;
 
@@ -23,7 +24,7 @@ class FstatUtilTest {
 
     @Test
     void testFstat() {
-        if (SystemInfo.getCurrentPlatform().equals(OPENBSD)) {
+        if (PlatformEnum.getCurrentPlatform().equals(OPENBSD)) {
             int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
             assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -24,7 +24,7 @@ class ProcstatUtilTest {
 
     @Test
     void testProcstat() {
-        if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.FREEBSD)) {
+        if (PlatformEnum.getCurrentPlatform().equals(PlatformEnum.FREEBSD)) {
             int pid = new SystemInfo().getOperatingSystem().getProcessId();
 
             assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));

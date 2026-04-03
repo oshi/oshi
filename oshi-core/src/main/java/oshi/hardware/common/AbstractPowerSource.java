@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
-import oshi.SystemInfo;
+import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.platform.linux.LinuxPowerSource;
@@ -215,7 +215,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     }
 
     private static List<PowerSource> getPowerSources() {
-        switch (SystemInfo.getCurrentPlatform()) {
+        switch (PlatformEnum.getCurrentPlatform()) {
             case WINDOWS:
                 return WindowsPowerSource.getPowerSources();
             case MACOS:
@@ -230,7 +230,7 @@ public abstract class AbstractPowerSource implements PowerSource {
                 return AixPowerSource.getPowerSources();
             default:
                 throw new UnsupportedOperationException(
-                        "Operating system not supported: " + SystemInfo.getCurrentPlatform());
+                        "Operating system not supported: " + PlatformEnum.getCurrentPlatform());
         }
     }
 
