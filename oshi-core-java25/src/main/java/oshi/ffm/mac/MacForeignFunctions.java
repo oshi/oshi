@@ -41,8 +41,8 @@ public abstract class MacForeignFunctions extends ForeignFunctions {
     protected static SymbolLookup frameworkLookup(String frameworkName) {
         for (String base : FRAMEWORK_SEARCH_PATHS) {
             try {
-                return SymbolLookup.libraryLookup(
-                        String.format("%s/%s.framework/%s", base, frameworkName, frameworkName), LIBRARY_ARENA);
+                return SymbolLookup.libraryLookup(base + "/" + frameworkName + ".framework/" + frameworkName,
+                        LIBRARY_ARENA);
             } catch (IllegalArgumentException ignored) {
                 // Not found in this directory, try the next one
             }
