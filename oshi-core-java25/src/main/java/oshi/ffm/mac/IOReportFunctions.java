@@ -13,8 +13,6 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
-import oshi.ffm.ForeignFunctions;
-
 /**
  * Bindings for the private IOReport framework (Apple Silicon GPU residency and energy counters).
  *
@@ -23,7 +21,7 @@ import oshi.ffm.ForeignFunctions;
  * before calling any method; calling wrapper methods when {@code isAvailable()} returns {@code false} will result in a
  * {@link NullPointerException} since the underlying handles are not initialized.
  */
-public final class IOReportFunctions extends ForeignFunctions {
+public final class IOReportFunctions extends MacForeignFunctions {
 
     private IOReportFunctions() {
     }

@@ -17,49 +17,46 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
+/**
+ * Base class providing utility methods for working with the Java Foreign Function and Memory (FFM) API.
+ * <p>
+ * Subclasses use these helpers to load native libraries and frameworks, create downcall handles, and read data from
+ * native memory segments.
+ */
 public abstract class ForeignFunctions {
 
+    /** The native linker for the current platform. */
     protected static final Linker LINKER = Linker.nativeLinker();
+
+    /** A shared auto arena used for library symbol lookups. */
     protected static final Arena LIBRARY_ARENA = Arena.ofAuto();
+
+    /** Symbol lookup for libraries already loaded into the current process. */
     protected static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
+    /** Not intended for instantiation. */
     protected ForeignFunctions() {
     }
 
+    /**
+     * Lookup a native library by simple name, mapping it to the platform-specific filename (e.g. {@code "c"} →
+     * {@code "libc.so"} on Linux).
+     *
+     * @param libraryName the platform-independent library name
+     * @return the symbol lookup for the library
+     */
     public static SymbolLookup libraryLookup(String libraryName) {
         return SymbolLookup.libraryLookup(System.mapLibraryName(libraryName), LIBRARY_ARENA);
     }
 
     /**
-     * Search paths for macOS frameworks, in priority order.
-     * <ul>
-     * <li>{@code /System/Library/Frameworks} - Reserved strictly for Apple's core OS frameworks (e.g. IOKit,
-     * CoreFoundation, AppKit).</li>
-     * <li>{@code /Library/Frameworks} - Standard location for third-party frameworks available to all users (e.g. SDL2,
-     * GStreamer, or custom drivers).</li>
-     * </ul>
-     */
-    private static final String[] FRAMEWORK_SEARCH_PATHS = { "/System/Library/Frameworks", "/Library/Frameworks" };
-
-    /**
-     * Lookup a macOS framework by simple name, e.g. {@code "IOKit"}. Searches {@link #FRAMEWORK_SEARCH_PATHS} in order.
+     * Reinterpret a raw native pointer as a struct of the given layout, scoped to the provided arena.
      *
-     * @param frameworkName the framework name without path or extension
-     * @return the symbol lookup for the framework
-     * @throws IllegalArgumentException if the framework is not found in any search path
+     * @param pointer the native pointer
+     * @param layout  the struct layout
+     * @param arena   the arena to scope the resulting segment to
+     * @return a memory segment over the struct, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static SymbolLookup frameworkLookup(String frameworkName) {
-        for (String base : FRAMEWORK_SEARCH_PATHS) {
-            try {
-                return SymbolLookup.libraryLookup(
-                        String.format("%s/%s.framework/%s", base, frameworkName, frameworkName), LIBRARY_ARENA);
-            } catch (IllegalArgumentException ignored) {
-                // Not found in this directory, try the next one
-            }
-        }
-        throw new IllegalArgumentException("Framework not found: " + frameworkName);
-    }
-
     public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
@@ -67,6 +64,13 @@ public abstract class ForeignFunctions {
         return MemorySegment.ofAddress(pointer.address()).reinterpret(layout.byteSize(), arena, null);
     }
 
+    /**
+     * Read a null-terminated UTF-8 string from a raw native pointer.
+     *
+     * @param pointer the native pointer
+     * @param arena   the arena to scope the reinterpreted segment to
+     * @return the Java string, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
+     */
     public static String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
@@ -75,6 +79,14 @@ public abstract class ForeignFunctions {
         return MemorySegment.ofAddress(pointer.address()).reinterpret(1024, arena, null).getString(0);
     }
 
+    /**
+     * Copy {@code length} bytes from a raw native pointer into a Java byte array.
+     *
+     * @param pointer the native pointer
+     * @param length  the number of bytes to copy
+     * @param arena   the arena to scope the reinterpreted segment to
+     * @return the byte array, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
+     */
     public static byte[] getByteArrayFromNativePointer(MemorySegment pointer, long length, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
@@ -112,10 +124,21 @@ public abstract class ForeignFunctions {
         return LINKER.downcallHandle(sym, fd);
     }
 
+    /** Linker option to capture {@code errno} after a native call. */
     protected static final Linker.Option CAPTURE_CALL_STATE = Linker.Option.captureCallState("errno");
+
+    /** Layout of the captured call state segment, containing {@code errno}. */
     public static final StructLayout CAPTURED_STATE_LAYOUT = Linker.Option.captureStateLayout();
+
+    /** Handle to read the {@code errno} field from a captured call state segment. */
     protected static final VarHandle ERRNO_HANDLE = CAPTURED_STATE_LAYOUT.varHandle(PathElement.groupElement("errno"));
 
+    /**
+     * Read the {@code errno} value from a captured call state segment.
+     *
+     * @param callState the memory segment returned by a call made with {@link #CAPTURE_CALL_STATE}
+     * @return the {@code errno} value
+     */
     public static int getErrno(MemorySegment callState) {
         return (int) ERRNO_HANDLE.get(callState, 0);
     }

@@ -14,12 +14,10 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
-import oshi.ffm.ForeignFunctions;
-
 /**
  * Implementations of MacOS functions
  */
-public final class MacSystemFunctions extends ForeignFunctions {
+public final class MacSystemFunctions extends MacForeignFunctions {
 
     private MacSystemFunctions() {
     }

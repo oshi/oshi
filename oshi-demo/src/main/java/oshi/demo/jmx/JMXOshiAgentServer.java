@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx;
@@ -37,6 +37,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.annotation.SuppressForbidden;
 import oshi.demo.jmx.api.JMXOshiAgent;
@@ -101,14 +102,14 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         StrategyRegistrationPlatformMBeans platformMBeans = null;
         SystemInfo si = new SystemInfo();
 
-        switch (SystemInfo.getCurrentPlatform()) {
-        case WINDOWS:
-            platformMBeans = new WindowsStrategyRegistrattionPlatform();
-            contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);
-            break;
-        default:
-            System.out.println("Couldn't Initialize server ");
-            throw new Exception("Server could not be initialized");
+        switch (PlatformEnum.getCurrentPlatform()) {
+            case WINDOWS:
+                platformMBeans = new WindowsStrategyRegistrattionPlatform();
+                contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);
+                break;
+            default:
+                System.out.println("Couldn't Initialize server ");
+                throw new Exception("Server could not be initialized");
         }
 
         platformMBeans.registerMBeans(si, this.server);

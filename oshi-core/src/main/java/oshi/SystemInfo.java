@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi;
@@ -8,24 +8,22 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.Platform;
-
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
+import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
-import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
+import oshi.software.os.windows.WindowsOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
-import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
  * System information. This is the main entry point to OSHI.
@@ -34,10 +32,6 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * {@link oshi.software.os.OperatingSystem} (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
  */
 public class SystemInfo {
-
-    // The platform isn't going to change, and making this static enables easy
-    // access from outside this class
-    private static final PlatformEnum CURRENT_PLATFORM = PlatformEnum.getValue(Platform.getOSType());
 
     private static final String NOT_SUPPORTED = "Operating system not supported: ";
 
@@ -62,9 +56,11 @@ public class SystemInfo {
      * Gets the {@link PlatformEnum} value representing this system.
      *
      * @return Returns the current platform
+     * @deprecated Use {@link PlatformEnum#getCurrentPlatform()} instead.
      */
+    @Deprecated
     public static PlatformEnum getCurrentPlatform() {
-        return CURRENT_PLATFORM;
+        return PlatformEnum.getCurrentPlatform();
     }
 
     /**
@@ -77,14 +73,14 @@ public class SystemInfo {
     }
 
     private static OperatingSystem createOperatingSystem() {
-        switch (CURRENT_PLATFORM) {
-            case WINDOWS:
-                return new WindowsOperatingSystem();
+        switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
             case ANDROID:
                 return new LinuxOperatingSystem();
             case MACOS:
                 return new MacOperatingSystemJNA();
+            case WINDOWS:
+                return new WindowsOperatingSystem();
             case SOLARIS:
                 return new SolarisOperatingSystem();
             case FREEBSD:
@@ -94,7 +90,7 @@ public class SystemInfo {
             case OPENBSD:
                 return new OpenBsdOperatingSystem();
             default:
-                throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
+                throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
     }
 
@@ -108,14 +104,14 @@ public class SystemInfo {
     }
 
     private static HardwareAbstractionLayer createHardware() {
-        switch (CURRENT_PLATFORM) {
-            case WINDOWS:
-                return new WindowsHardwareAbstractionLayer();
+        switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
             case ANDROID:
                 return new LinuxHardwareAbstractionLayer();
             case MACOS:
                 return new MacHardwareAbstractionLayerJNA();
+            case WINDOWS:
+                return new WindowsHardwareAbstractionLayer();
             case SOLARIS:
                 return new SolarisHardwareAbstractionLayer();
             case FREEBSD:
@@ -125,7 +121,7 @@ public class SystemInfo {
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayer();
             default:
-                throw new UnsupportedOperationException(NOT_SUPPORTED + CURRENT_PLATFORM.getName());
+                throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
     }
 }

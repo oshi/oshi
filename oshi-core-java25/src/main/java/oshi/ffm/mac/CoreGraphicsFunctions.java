@@ -13,20 +13,18 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
-import oshi.ffm.ForeignFunctions;
-
 /**
  * FFM bindings for the CoreGraphics framework.
  * <p>
  * CoreGraphics provides low-level 2D rendering and, on macOS, services for working with display hardware and the
  * windowing system.
  */
-public final class CoreGraphicsFunctions extends ForeignFunctions {
+public final class CoreGraphicsFunctions extends MacForeignFunctions {
 
     private CoreGraphicsFunctions() {
     }
 
-    private static final SymbolLookup CORE_GRAPHICS = lib("CoreGraphics.framework/CoreGraphics");
+    private static final SymbolLookup CORE_GRAPHICS = frameworkLookup("CoreGraphics");
 
     // CFArrayRef CGWindowListCopyWindowInfo(CGWindowListOption option, CGWindowID relativeToWindow);
 

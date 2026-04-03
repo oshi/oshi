@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -98,7 +98,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
         for (OSFileStore store : fileStores) {
             fsCharts[i].setTitle(store.getName());
             List<Title> subtitles = new ArrayList<>();
-            if (SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
+            if (PlatformEnum.getCurrentPlatform().equals(PlatformEnum.WINDOWS)) {
                 subtitles.add(new TextTitle(store.getLabel()));
             }
             long usable = store.getUsableSpace();

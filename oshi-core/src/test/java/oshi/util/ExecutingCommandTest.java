@@ -21,7 +21,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 
 import oshi.PlatformEnum;
-import oshi.SystemInfo;
 
 /**
  * Test command line and returning the result of execution.
@@ -29,7 +28,7 @@ import oshi.SystemInfo;
 @Execution(SAME_THREAD)
 class ExecutingCommandTest {
 
-    private static final String ECHO = SystemInfo.getCurrentPlatform().equals(PlatformEnum.WINDOWS)
+    private static final String ECHO = PlatformEnum.getCurrentPlatform().equals(PlatformEnum.WINDOWS)
             ? "cmd.exe /C echo Test"
             : "echo Test";
     private static final String BAD_COMMAND = "noOSshouldHaveACommandNamedThis";

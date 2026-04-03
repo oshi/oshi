@@ -2,18 +2,7 @@
  * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import oshi.hardware.HardwareAbstractionLayer;
-import oshi.software.os.OperatingSystem;
+package oshi.ffm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -24,40 +13,53 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.PlatformEnumFFM;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(min = JRE.JAVA_25)
-public class SystemInfoFFMTest extends SystemInfoTest {
+public class SystemInfoTest extends oshi.SystemInfoTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(SystemInfoFFMTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
     /**
      * Test that this platform is implemented..
      */
-    @Override
     @Test
-    void testPlatformEnum() {
-        assertThat("Unsupported OS", SystemInfoFFM.getCurrentPlatform(), is(not(PlatformEnumFFM.UNSUPPORTED)));
+    @SuppressWarnings("deprecation")
+    void testPlatformEnumFFM() {
+        assertThat("Unsupported OS", PlatformEnumFFM.getCurrentPlatform(), is(not(PlatformEnumFFM.UNSUPPORTED)));
         // Exercise the main method
         main(null);
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testGetCurrentPlatform() {
-        PlatformEnumFFM platform = SystemInfoFFM.getCurrentPlatform();
-        assertNotNull(platform, "Platform should not be null");
-        assertNotEquals(PlatformEnumFFM.UNSUPPORTED, platform, "Platform should be recognized");
+        assertNotNull(PlatformEnumFFM.getCurrentPlatform(), "Platform should not be null");
+        assertNotEquals(PlatformEnumFFM.UNSUPPORTED, PlatformEnumFFM.getCurrentPlatform(),
+                "Platform should be recognized");
     }
 
     @Test
     void testGetOperatingSystem() {
-        SystemInfoFFM si = new SystemInfoFFM();
+        SystemInfo si = new SystemInfo();
         OperatingSystem os = si.getOperatingSystem();
         assertNotNull(os);
     }
 
     @Test
     void testGetHardware() {
-        SystemInfoFFM si = new SystemInfoFFM();
+        SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hw = si.getHardware();
         assertNotNull(hw);
     }
@@ -73,7 +75,7 @@ public class SystemInfoFFMTest extends SystemInfoTest {
         logger.info("Using FFM");
         logger.info("------------------------------------------------------------------------");
         logger.info("Initializing System...");
-        SystemInfoFFM si = new SystemInfoFFM();
+        SystemInfo si = new SystemInfo();
 
         HardwareAbstractionLayer hal = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();

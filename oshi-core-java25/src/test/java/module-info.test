@@ -1,6 +1,8 @@
 --add-opens
   com.github.oshi/oshi=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.ffm=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.hardware=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.hardware.common=org.junit.platform.commons

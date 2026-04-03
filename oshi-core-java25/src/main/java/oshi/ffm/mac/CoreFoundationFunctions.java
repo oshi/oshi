@@ -15,9 +15,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
-import oshi.ffm.ForeignFunctions;
-
-public final class CoreFoundationFunctions extends ForeignFunctions {
+public final class CoreFoundationFunctions extends MacForeignFunctions {
 
     private CoreFoundationFunctions() {
     }

@@ -4,6 +4,7 @@
 module com.github.oshi {
     // API
     exports oshi;
+    exports oshi.ffm;
     exports oshi.hardware;
     exports oshi.software.os;
     exports oshi.util;
