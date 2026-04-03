@@ -17,6 +17,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.Printer;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
+
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixPrinter;
 
@@ -32,14 +33,10 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     }
 
     @Override
-    public List<PowerSource> getPowerSources() {
-        return MacPowerSource.getPowerSources();
-    }
+    public abstract List<PowerSource> getPowerSources();
 
     @Override
-    public List<HWDiskStore> getDiskStores() {
-        return MacHWDiskStore.getDisks();
-    }
+    public abstract List<HWDiskStore> getDiskStores();
 
     @Override
     public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
@@ -47,19 +44,13 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     }
 
     @Override
-    public List<Display> getDisplays() {
-        return MacDisplay.getDisplays();
-    }
+    public abstract List<Display> getDisplays();
 
     @Override
-    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return MacNetworkIF.getNetworks(includeLocalInterfaces);
-    }
+    public abstract List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces);
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return MacUsbDevice.getUsbDevices(tree);
-    }
+    public abstract List<UsbDevice> getUsbDevices(boolean tree);
 
     @Override
     public List<SoundCard> getSoundCards() {
