@@ -8,7 +8,9 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.ComputerSystem;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.Display;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
@@ -25,6 +27,11 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     @Override
     public ComputerSystem createComputerSystem() {
         return new MacComputerSystem();
+    }
+
+    @Override
+    public CentralProcessor createProcessor() {
+        return new MacCentralProcessor();
     }
 
     @Override
@@ -60,5 +67,10 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return MacUsbDevice.getUsbDevices(tree);
+    }
+
+    @Override
+    public List<GraphicsCard> getGraphicsCards() {
+        return MacGraphicsCard.getGraphicsCards();
     }
 }

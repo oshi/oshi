@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
-import com.sun.jna.Platform;
-
 import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
@@ -231,7 +229,8 @@ public abstract class AbstractPowerSource implements PowerSource {
             case AIX:
                 return AixPowerSource.getPowerSources();
             default:
-                throw new UnsupportedOperationException("Operating system not supported: " + Platform.getOSType());
+                throw new UnsupportedOperationException(
+                        "Operating system not supported: " + SystemInfo.getCurrentPlatform());
         }
     }
 

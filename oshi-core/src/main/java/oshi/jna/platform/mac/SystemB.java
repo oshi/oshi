@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.mac;
@@ -171,4 +171,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     MacUtmpx getutxent();
 
     int proc_pidfdinfo(int pid, int fd, int flavor, Structure buffer, int buffersize);
+
+    // kern_return_t vm_deallocate(vm_map_t target_task, vm_address_t address, vm_size_t size);
+    int vm_deallocate(int targetTask, long address, long size);
 }

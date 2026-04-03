@@ -406,6 +406,12 @@ public interface MacSystem {
     PathElement CG_WIDTH = groupElement("width");
     PathElement CG_HEIGHT = groupElement("height");
 
+    // host_cpu_load_info structure (cpu_ticks[CPU_STATE_MAX])
+    StructLayout HOST_CPU_LOAD_INFO_DATA = structLayout(//
+            sequenceLayout(CPU_STATE_MAX, JAVA_INT).withName("cpu_ticks") //
+    );
+    PathElement CPU_TICKS = groupElement("cpu_ticks");
+
     // VM Statistics structure for host_statistics calls
     StructLayout VM_STATISTICS = structLayout(//
             JAVA_INT.withName("free_count"), // # of pages free

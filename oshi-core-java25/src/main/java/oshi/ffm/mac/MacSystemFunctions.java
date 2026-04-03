@@ -267,4 +267,13 @@ public final class MacSystemFunctions extends ForeignFunctions {
     public static int getloadavg(MemorySegment loadavg, int nelem) throws Throwable {
         return (int) getloadavg.invokeExact(loadavg, nelem);
     }
+
+    // kern_return_t vm_deallocate(vm_map_t target_task, vm_address_t address, vm_size_t size);
+
+    private static final MethodHandle vm_deallocate = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("vm_deallocate"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, JAVA_LONG));
+
+    public static int vm_deallocate(int targetTask, long address, long size) throws Throwable {
+        return (int) vm_deallocate.invokeExact(targetTask, address, size);
+    }
 }
