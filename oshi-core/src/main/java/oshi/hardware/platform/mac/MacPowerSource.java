@@ -64,7 +64,7 @@ public final class MacPowerSource extends AbstractPowerSource {
         CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
         int psCurrentCapacity = 0;
         int psMaxCapacity = 1;
-        int psDesignCapacity = 1;
+        int psDesignCapacity = -1;
         int psCycleCount = -1;
         String psChemistry = Constants.UNKNOWN;
         LocalDate psManufactureDate = null;
@@ -103,7 +103,11 @@ public final class MacPowerSource extends AbstractPowerSource {
                 int day = temp & 0x1f;
                 int month = (temp >> 5) & 0xf;
                 int year80 = (temp >> 9) & 0x7f;
-                psManufactureDate = LocalDate.of(1980 + year80, month, day);
+                try {
+                    psManufactureDate = LocalDate.of(1980 + year80, month, day);
+                } catch (java.time.DateTimeException e) {
+                    // Corrupt bitfield — leave psManufactureDate as null
+                }
             }
 
             temp = smartBattery.getIntegerProperty("DesignCapacity");
@@ -199,7 +203,8 @@ public final class MacPowerSource extends AbstractPowerSource {
                         CFNumberRef cap = new CFNumberRef(result);
                         maxCapacity = cap.intValue();
                     }
-                    double psRemainingCapacityPercent = Math.min(1d, currentCapacity / maxCapacity);
+                    double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
+                            : Math.min(1d, currentCapacity / maxCapacity);
                     // Add to list
                     psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,
                             psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,

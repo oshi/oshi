@@ -23,6 +23,7 @@ import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.DiskArbitration.DADiskRef;
 import oshi.ffm.mac.DiskArbitration.DASessionRef;
@@ -151,25 +152,35 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                             CFDictionaryRef properties = new CFDictionaryRef(propertiesSeg);
                             try {
                                 MemorySegment result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
-                                CFDictionaryRef statistics = new CFDictionaryRef(result);
-                                this.timeStamp = System.currentTimeMillis();
+                                if (!result.equals(MemorySegment.NULL)) {
+                                    CFDictionaryRef statistics = new CFDictionaryRef(result);
+                                    this.timeStamp = System.currentTimeMillis();
 
-                                result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
-                                this.reads = new CFNumberRef(result).longValue();
-                                result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
-                                this.readBytes = new CFNumberRef(result).longValue();
-                                result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
-                                this.writes = new CFNumberRef(result).longValue();
-                                result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
-                                this.writeBytes = new CFNumberRef(result).longValue();
+                                    result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
+                                    if (!result.equals(MemorySegment.NULL)) {
+                                        this.reads = new CFNumberRef(result).longValue();
+                                    }
+                                    result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
+                                    if (!result.equals(MemorySegment.NULL)) {
+                                        this.readBytes = new CFNumberRef(result).longValue();
+                                    }
+                                    result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
+                                    if (!result.equals(MemorySegment.NULL)) {
+                                        this.writes = new CFNumberRef(result).longValue();
+                                    }
+                                    result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
+                                    if (!result.equals(MemorySegment.NULL)) {
+                                        this.writeBytes = new CFNumberRef(result).longValue();
+                                    }
 
-                                MemorySegment readTimeResult = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
-                                MemorySegment writeTimeResult = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
-                                if (!readTimeResult.equals(MemorySegment.NULL)
-                                        && !writeTimeResult.equals(MemorySegment.NULL)) {
-                                    long xferTime = new CFNumberRef(readTimeResult).longValue();
-                                    xferTime += new CFNumberRef(writeTimeResult).longValue();
-                                    this.transferTime = xferTime / 1_000_000L;
+                                    MemorySegment readTimeResult = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
+                                    MemorySegment writeTimeResult = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
+                                    if (!readTimeResult.equals(MemorySegment.NULL)
+                                            && !writeTimeResult.equals(MemorySegment.NULL)) {
+                                        long xferTime = new CFNumberRef(readTimeResult).longValue();
+                                        xferTime += new CFNumberRef(writeTimeResult).longValue();
+                                        this.transferTime = xferTime / 1_000_000L;
+                                    }
                                 }
                             } finally {
                                 properties.release();
@@ -185,11 +196,9 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                     if (!drivePropsSeg.equals(MemorySegment.NULL)) {
                         CFDictionaryRef driveProps = new CFDictionaryRef(drivePropsSeg);
                         try {
-                            MemorySegment result = driveProps.getValue(cfKeyMap.get(CFKey.BSD_UNIT));
-                            CFNumberRef bsdUnit = new CFNumberRef(result);
-                            result = driveProps.getValue(cfKeyMap.get(CFKey.LEAF));
+                            MemorySegment bsdUnitSeg = driveProps.getValue(cfKeyMap.get(CFKey.BSD_UNIT));
                             // cfFalse is the value stored under LEAF key for whole disks
-                            MemorySegment cfFalseSeg = result;
+                            MemorySegment cfFalseSeg = driveProps.getValue(cfKeyMap.get(CFKey.LEAF));
 
                             try {
                                 CFAllocatorRef alloc = new CFAllocatorRef(
@@ -197,12 +206,12 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                                 CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
                                         CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                 MemorySegment.NULL, MemorySegment.NULL));
-                                // setValue uses CFTypeRef; wrap raw segments
-                                propertyDict.setValue(cfKeyMap.get(CFKey.BSD_UNIT), bsdUnit);
-                                // For WHOLE=false: use the cfFalse value from the drive properties
-                                oshi.ffm.mac.CoreFoundation.CFTypeRef cfFalse = new oshi.ffm.mac.CoreFoundation.CFTypeRef(
-                                        cfFalseSeg);
-                                propertyDict.setValue(cfKeyMap.get(CFKey.WHOLE), cfFalse);
+                                if (!bsdUnitSeg.equals(MemorySegment.NULL)) {
+                                    propertyDict.setValue(cfKeyMap.get(CFKey.BSD_UNIT), new CFNumberRef(bsdUnitSeg));
+                                }
+                                if (!cfFalseSeg.equals(MemorySegment.NULL)) {
+                                    propertyDict.setValue(cfKeyMap.get(CFKey.WHOLE), new CFTypeRef(cfFalseSeg));
+                                }
 
                                 CFMutableDictionaryRef partMatchingDict = new CFMutableDictionaryRef(
                                         CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
@@ -333,7 +342,9 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                                 MemorySegment result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
                                 model = CFUtilFFM.cfPointerToString(result);
                                 result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
-                                size = new CFNumberRef(result).longValue();
+                                if (!result.equals(MemorySegment.NULL)) {
+                                    size = new CFNumberRef(result).longValue();
+                                }
 
                                 if (!"Disk Image".equals(model)) {
                                     CFStringRef modelNameRef = CFStringRef.createCFString(model);

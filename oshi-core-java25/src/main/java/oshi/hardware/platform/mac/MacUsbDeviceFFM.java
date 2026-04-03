@@ -16,8 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.ffm.mac.CoreFoundation.CFAllocatorRef;
+import oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.CoreFoundation.CFTypeRef;
+import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.UsbDevice;
@@ -159,15 +162,12 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
             CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
         // Build matching dict: { IOPropertyMatch: { locationID: <locationId> } }
         try {
-            oshi.ffm.mac.CoreFoundation.CFAllocatorRef alloc = new oshi.ffm.mac.CoreFoundation.CFAllocatorRef(
-                    oshi.ffm.mac.CoreFoundationFunctions.CFAllocatorGetDefault());
-            oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef propertyDict = new oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef(
-                    oshi.ffm.mac.CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
-                            MemorySegment.NULL, MemorySegment.NULL));
+            CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
+            CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(CoreFoundationFunctions
+                    .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
             propertyDict.setValue(locationIDKey, locationId);
-            oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef matchingDict = new oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef(
-                    oshi.ffm.mac.CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
-                            MemorySegment.NULL, MemorySegment.NULL));
+            CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(CoreFoundationFunctions
+                    .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
             matchingDict.setValue(ioPropertyMatchKey, propertyDict);
 
             IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(matchingDict.segment());
