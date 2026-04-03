@@ -159,7 +159,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
             }
             return numberOfThreads;
         } catch (Throwable e) {
-            LOG.warn("Failed to query thread count", e.getMessage());
+            LOG.warn("Failed to query thread count: {}", e.getMessage(), e);
             return 0;
         }
     }
