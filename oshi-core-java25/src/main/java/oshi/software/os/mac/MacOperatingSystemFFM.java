@@ -146,30 +146,20 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     @Override
     public int getThreadCount() {
         try (Arena arena = Arena.ofConfined()) {
-            // Calculate size needed, add a small buffer
             int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
             MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
             numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, pidSegment, numberOfProcesses * INT_SIZE) / INT_SIZE;
-            // Use only the segment containing pids
-            return Arrays.stream(pidSegment.asSlice(0, numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT))
-                    .distinct().parallel().map(this::threadsPerProc).sum();
-        } catch (Throwable e) {
-            LOG.warn("Failed to query processes", e.getMessage());
-            return 0;
-        }
-    }
-
-    private int threadsPerProc(int pid) {
-        try (Arena arena = Arena.ofConfined()) {
+            int[] pids = pidSegment.asSlice(0, (long) numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT);
             MemorySegment buffer = arena.allocate(PROC_TASK_INFO);
-            int result = proc_pidinfo(pid, PROC_PIDTASKINFO, 0L, buffer, (int) PROC_TASK_INFO.byteSize());
-            if (result > 0) {
-                return buffer.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
+            int numberOfThreads = 0;
+            for (int pid : pids) {
+                if (proc_pidinfo(pid, PROC_PIDTASKINFO, 0L, buffer, (int) PROC_TASK_INFO.byteSize()) > 0) {
+                    numberOfThreads += buffer.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
+                }
             }
-            return 0;
+            return numberOfThreads;
         } catch (Throwable e) {
-            // if this is a common warning for short-lived processes may need a lower log level
-            LOG.warn("Failed to get threads for process {}:", pid, e.getMessage());
+            LOG.warn("Failed to query thread count", e.getMessage());
             return 0;
         }
     }

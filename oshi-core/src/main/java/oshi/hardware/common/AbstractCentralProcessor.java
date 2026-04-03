@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Platform;
-
+import oshi.PlatformEnum;
+import oshi.SystemInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.Auxv;
 import oshi.hardware.CentralProcessor;
@@ -301,7 +301,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         processorIdBytes |= (familyL & 0xff0) << 16; // shift high 8 bits
         // 13:12 – Processor Type, assume 0
         long hwcap = 0L;
-        if (Platform.isLinux()) {
+        if (SystemInfo.getCurrentPlatform() == PlatformEnum.LINUX) {
             hwcap = Auxv.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
         }
         if (hwcap > 0) {

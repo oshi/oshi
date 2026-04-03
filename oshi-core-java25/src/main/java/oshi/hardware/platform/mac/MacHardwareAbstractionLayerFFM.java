@@ -7,8 +7,10 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
@@ -18,6 +20,11 @@ import oshi.hardware.UsbDevice;
 
 @ThreadSafe
 public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstractionLayer {
+    @Override
+    public CentralProcessor createProcessor() {
+        return new MacCentralProcessorFFM();
+    }
+
     @Override
     public GlobalMemory createMemory() {
         return new MacGlobalMemoryFFM();
@@ -56,5 +63,10 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return MacUsbDeviceFFM.getUsbDevices(tree);
+    }
+
+    @Override
+    public List<GraphicsCard> getGraphicsCards() {
+        return MacGraphicsCardFFM.getGraphicsCards();
     }
 }
