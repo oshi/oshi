@@ -44,9 +44,9 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
+     * public method used by {@code AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
-     * @return List of {@link oshi.hardware.platform.mac.MacGraphicsCard} objects.
+     * @return List of {@link MacGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();
