@@ -127,13 +127,13 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
+     * public method used by {@code AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
      * <p>
      * When DXGI is available, ghost adapters are excluded and the list is ordered with the primary desktop adapter
      * first. On systems without DXGI, all registry entries are returned in registry key order.
      *
-     * @return List of {@link oshi.hardware.platform.windows.WindowsGraphicsCard} objects.
+     * @return List of {@link WindowsGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         // Query DXGI once. Fails gracefully to empty list if unavailable.

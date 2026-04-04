@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 The OSHI Project Contributors
+ * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -137,9 +137,9 @@ final class LinuxSoundCard extends AbstractSoundCard {
     }
 
     /**
-     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the sound cards.
+     * public method used by {@code AbstractHardwareAbstractionLayer} to access the sound cards.
      *
-     * @return List of {@link oshi.hardware.platform.linux.LinuxSoundCard} objects.
+     * @return List of {@link LinuxSoundCard} objects.
      */
     public static List<SoundCard> getSoundCards() {
         List<SoundCard> soundCards = new ArrayList<>();

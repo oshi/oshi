@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -36,9 +36,9 @@ final class SolarisGraphicsCard extends AbstractGraphicsCard {
     }
 
     /**
-     * public method used by {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} to access the graphics cards.
+     * public method used by {@code AbstractHardwareAbstractionLayer} to access the graphics cards.
      *
-     * @return List of {@link oshi.hardware.platform.unix.solaris.SolarisGraphicsCard} objects.
+     * @return List of {@link SolarisGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         List<GraphicsCard> cardList = new ArrayList<>();
