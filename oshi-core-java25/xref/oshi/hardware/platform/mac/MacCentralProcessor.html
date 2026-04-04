@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/mac/MacCentralProcessor.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.mac;
@@ -271,126 +271,135 @@
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>                 LOG.error(<span class="jxr_string">"Failed to update CPU Load. Error code: {}"</span>, Native.getLastError());
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>                 <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>             }
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> 
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 ticks[cpu][TickType.USER.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                         .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 ticks[cpu][TickType.NICE.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                         .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 ticks[cpu][TickType.SYSTEM.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                         .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 ticks[cpu][TickType.IDLE.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                         .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>     @Override
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         <em class="jxr_comment">// Not available on macOS since at least 10.3.9. Early versions may have</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <em class="jxr_comment">// provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <em class="jxr_comment">// it now fails (ENOENT) and there is no other reference to it in source code</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     }
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     @Override
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <em class="jxr_comment">// Not available on macOS since at least 10.3.9. Early versions may have</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <em class="jxr_comment">// provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// it now fails (ENOENT) and there is no other reference to it in source code</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String platformExpert() {
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         String manufacturer = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         IORegistryEntry platformExpert = IOKitUtil.getMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">if</strong> (platformExpert != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <em class="jxr_comment">// Get manufacturer from IOPlatformExpertDevice</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>             byte[] data = platformExpert.getByteArrayProperty(<span class="jxr_string">"manufacturer"</span>);
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>             <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 manufacturer = Native.toString(data, StandardCharsets.UTF_8);
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>             }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             platformExpert.release();
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         }
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> Util.isBlank(manufacturer) ? <span class="jxr_string">"Apple Inc."</span> : manufacturer;
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <em class="jxr_comment">// Called by initProcessorCount in the constructor</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <em class="jxr_comment">// These populate the physical processor id strings</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, String&gt; queryCompatibleStrings() {
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Map&lt;Integer, String&gt; compatibleStrMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// All CPUs are an IOPlatformDevice</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <em class="jxr_comment">// Iterate each CPU and save frequency and "compatible" strings</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"IOPlatformDevice"</span>);
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>             IORegistryEntry cpu = iter.next();
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>             <strong class="jxr_keyword">while</strong> (cpu != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 Matcher m = CPU_N.matcher(cpu.getName().toLowerCase(Locale.ROOT));
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>                     <strong class="jxr_keyword">int</strong> procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                     <em class="jxr_comment">// Compatible key is null-delimited C string array in byte array</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>                     byte[] data = cpu.getByteArrayProperty(<span class="jxr_string">"compatible"</span>);
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>                     <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                         <em class="jxr_comment">// Byte array is null delimited</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                         <em class="jxr_comment">// Example value for M2: "apple,blizzard", "ARM,v8"</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                         compatibleStrMap.put(procId,
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                                 <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>                     }
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 }
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 cpu.release();
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 cpu = iter.next();
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>             }
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>             iter.release();
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         }
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">return</strong> compatibleStrMap;
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
-<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <em class="jxr_comment">// Called when initiating instance variables which occurs after constructor has</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <em class="jxr_comment">// populated physical processors</em>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isArmCpu() {
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <strong class="jxr_keyword">return</strong> getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -&gt; id.contains(<span class="jxr_string">"arm"</span>));
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>     }
-<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> calculateNominalFrequencies() {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"AppleARMIODevice"</span>);
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 IORegistryEntry device = iter.next();
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                     <strong class="jxr_keyword">while</strong> (device != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>                         <strong class="jxr_keyword">if</strong> (device.getName().equalsIgnoreCase(<span class="jxr_string">"pmgr"</span>)) {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>                             performanceCoreFrequency = getMaxFreqFromByteArray(
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>                                     device.getByteArrayProperty(<span class="jxr_string">"voltage-states5-sram"</span>));
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                             efficiencyCoreFrequency = getMaxFreqFromByteArray(
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                                     device.getByteArrayProperty(<span class="jxr_string">"voltage-states1-sram"</span>));
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                         }
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                         device.release();
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                         device = iter.next();
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                     }
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                     <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                         device.release();
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     }
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                 }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>                 iter.release();
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>             }
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> getMaxFreqFromByteArray(byte[] data) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <em class="jxr_comment">// Max freq is 8 bytes from the end of the array</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong> &amp;&amp; data.length &gt;= 8) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             byte[] freqData = Arrays.copyOfRange(data, data.length - 8, data.length - 4);
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToLong(freqData, 4, false);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <strong class="jxr_keyword">return</strong> DEFAULT_FREQUENCY;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 <strong class="jxr_keyword">int</strong>[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; procCount.getValue(); cpu++) {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                     <strong class="jxr_keyword">int</strong> offset = cpu * SystemB.CPU_STATE_MAX;
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                     ticks[cpu][TickType.USER.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                             .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                     ticks[cpu][TickType.NICE.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                             .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                             .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                     ticks[cpu][TickType.IDLE.getIndex()] = <a name="FormatUtil" href="../../../../oshi/util/FormatUtil.html#FormatUtil">FormatUtil</a>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                             .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                     oshi.jna.platform.mac.SystemB.INSTANCE.vm_deallocate(SystemB.INSTANCE.mach_task_self(),
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                             com.sun.jna.Pointer.nativeValue(procCpuLoadInfo.getValue()),
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                             (<strong class="jxr_keyword">long</strong>) procInfoCount.getValue() * SystemB.INT_SIZE);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                     LOG.warn(<span class="jxr_string">"Failed to vm_deallocate processor info buffer"</span>, e);
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>             }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     @Override
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <em class="jxr_comment">// Not available on macOS since at least 10.3.9. Early versions may have</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <em class="jxr_comment">// it now fails (ENOENT) and there is no other reference to it in source code</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     }
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> 
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     @Override
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <em class="jxr_comment">// Not available on macOS since at least 10.3.9. Early versions may have</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         <em class="jxr_comment">// provided access to the vmmeter structure using sysctl [CTL_VM, VM_METER] but</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <em class="jxr_comment">// it now fails (ENOENT) and there is no other reference to it in source code</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String platformExpert() {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         String manufacturer = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         IORegistryEntry platformExpert = IOKitUtil.getMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">if</strong> (platformExpert != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             <em class="jxr_comment">// Get manufacturer from IOPlatformExpertDevice</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>             byte[] data = platformExpert.getByteArrayProperty(<span class="jxr_string">"manufacturer"</span>);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>             <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>             }
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>             platformExpert.release();
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">return</strong> Util.isBlank(manufacturer) ? <span class="jxr_string">"Apple Inc."</span> : manufacturer;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <em class="jxr_comment">// Called by initProcessorCount in the constructor</em>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <em class="jxr_comment">// These populate the physical processor id strings</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, String&gt; queryCompatibleStrings() {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         Map&lt;Integer, String&gt; compatibleStrMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// All CPUs are an IOPlatformDevice</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// Iterate each CPU and save frequency and "compatible" strings</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"IOPlatformDevice"</span>);
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             IORegistryEntry cpu = iter.next();
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             <strong class="jxr_keyword">while</strong> (cpu != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 Matcher m = CPU_N.matcher(cpu.getName().toLowerCase(Locale.ROOT));
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                     <strong class="jxr_keyword">int</strong> procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                     <em class="jxr_comment">// Compatible key is null-delimited C string array in byte array</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     byte[] data = cpu.getByteArrayProperty(<span class="jxr_string">"compatible"</span>);
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                         <em class="jxr_comment">// Byte array is null delimited</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                         <em class="jxr_comment">// Example value for M2: "apple,blizzard", "ARM,v8"</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                         compatibleStrMap.put(procId,
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                                 <strong class="jxr_keyword">new</strong> String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                     }
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 }
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 cpu.release();
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 cpu = iter.next();
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>             }
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             iter.release();
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         }
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">return</strong> compatibleStrMap;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>     }
+<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <em class="jxr_comment">// Called when initiating instance variables which occurs after constructor has</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <em class="jxr_comment">// populated physical processors</em>
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isArmCpu() {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <strong class="jxr_keyword">return</strong> getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -&gt; id.contains(<span class="jxr_string">"arm"</span>));
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> calculateNominalFrequencies() {
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         IOIterator iter = IOKitUtil.getMatchingServices(<span class="jxr_string">"AppleARMIODevice"</span>);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 IORegistryEntry device = iter.next();
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                     <strong class="jxr_keyword">while</strong> (device != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                         <strong class="jxr_keyword">if</strong> (device.getName().equalsIgnoreCase(<span class="jxr_string">"pmgr"</span>)) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                             performanceCoreFrequency = getMaxFreqFromByteArray(
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                                     device.getByteArrayProperty(<span class="jxr_string">"voltage-states5-sram"</span>));
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                             efficiencyCoreFrequency = getMaxFreqFromByteArray(
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                                     device.getByteArrayProperty(<span class="jxr_string">"voltage-states1-sram"</span>));
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                         }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                         device.release();
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                         device = iter.next();
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     }
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                     <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                         device.release();
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                     }
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                 }
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 iter.release();
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         }
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>     }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a> }
+<a class="jxr_linenumber" name="L385" href="#L385">385</a> 
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> getMaxFreqFromByteArray(byte[] data) {
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// Max freq is 8 bytes from the end of the array</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong> &amp;&amp; data.length &gt;= 8) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             byte[] freqData = Arrays.copyOfRange(data, data.length - 8, data.length - 4);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToLong(freqData, 4, false);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         }
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">return</strong> DEFAULT_FREQUENCY;
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

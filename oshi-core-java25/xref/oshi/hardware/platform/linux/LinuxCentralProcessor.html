@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/hardware/platform/linux/LinuxCentralProcessor.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.platform.linux;
@@ -285,7 +285,7 @@
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; path = Files.list(Paths.get(syspath))) {
 <a class="jxr_linenumber" name="L278" href="#L278">278</a>             Optional&lt;Path&gt; first = path.filter(p -&gt; p.toString().startsWith(nodePrefix)).findFirst();
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>             <strong class="jxr_keyword">if</strong> (first.isPresent()) {
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 nodeId = ParseUtil.getFirstIntValue(first.get().getFileName().toString());
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 nodeId = ParseUtil.getFirstIntValue(FileUtil.getFileName(first.get().toString()));
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>             }
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
 <a class="jxr_linenumber" name="L283" href="#L283">283</a>             <em class="jxr_comment">// ignore</em>
@@ -592,7 +592,7 @@
 <a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
 <a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
 <a class="jxr_linenumber" name="L586" href="#L586">586</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
 <a class="jxr_linenumber" name="L588" href="#L588">588</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
 <a class="jxr_linenumber" name="L589" href="#L589">589</a>                 marker = <span class="jxr_string">"ID:"</span>;
 <a class="jxr_linenumber" name="L590" href="#L590">590</a>                 procInfo = <strong class="jxr_keyword">true</strong>;

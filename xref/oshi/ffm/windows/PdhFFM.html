@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>PdhFFM xref</title>
+<link type="text/css" rel="stylesheet" href="../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../apidocs/oshi/ffm/windows/PdhFFM.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm.windows;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemoryLayout;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.StructLayout;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.structLayout;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="PdhFFM" href="../../../oshi/ffm/windows/PdhFFM.html#PdhFFM">PdhFFM</a> <strong class="jxr_keyword">extends</strong> <a name="WindowsForeignFunctions" href="../../../oshi/ffm/windows/WindowsForeignFunctions.html#WindowsForeignFunctions">WindowsForeignFunctions</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> SymbolLookup Pdh = lib(<span class="jxr_string">"Pdh"</span>);
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PDH_FMT_LARGE = 0x00000400;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PDH_MORE_DATA = 0x800007D2;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle PdhOpenQuery = downcall(Pdh, <span class="jxr_string">"PdhOpenQueryW"</span>, JAVA_INT, ADDRESS, ADDRESS,
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>              ADDRESS);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> PdhOpenQuery(MemorySegment dataSource, MemorySegment userData, MemorySegment query)
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) PdhOpenQuery.invokeExact(dataSource, userData, query);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle PdhAddEnglishCounter = downcall(Pdh, <span class="jxr_string">"PdhAddEnglishCounterW"</span>, JAVA_INT, ADDRESS,
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              ADDRESS, ADDRESS, ADDRESS);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> PdhAddEnglishCounter(MemorySegment query, MemorySegment counterPath, MemorySegment userData,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              MemorySegment counter) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) PdhAddEnglishCounter.invokeExact(query, counterPath, userData, counter);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle PdhCollectQueryData = downcall(Pdh, <span class="jxr_string">"PdhCollectQueryData"</span>, JAVA_INT, ADDRESS);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> PdhCollectQueryData(MemorySegment query) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) PdhCollectQueryData.invokeExact(query);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle PdhGetFormattedCounterArray = downcall(Pdh, <span class="jxr_string">"PdhGetFormattedCounterArrayW"</span>,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> PdhGetFormattedCounterArray(MemorySegment counter, <strong class="jxr_keyword">int</strong> format, MemorySegment bufferSize,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              MemorySegment itemCount, MemorySegment buffer) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) PdhGetFormattedCounterArray.invokeExact(counter, format, bufferSize, itemCount, buffer);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle PdhCloseQuery = downcall(Pdh, <span class="jxr_string">"PdhCloseQuery"</span>, JAVA_INT, ADDRESS);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> PdhCloseQuery(MemorySegment query) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) PdhCloseQuery.invokeExact(query);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MemoryLayout PDH_FMT_COUNTERVALUE_UNION = MemoryLayout.unionLayout(
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              JAVA_INT.withName(<span class="jxr_string">"longValue"</span>), JAVA_DOUBLE.withName(<span class="jxr_string">"doubleValue"</span>), JAVA_LONG.withName(<span class="jxr_string">"largeValue"</span>),
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              ADDRESS.withName(<span class="jxr_string">"AnsiStringValue"</span>), ADDRESS.withName(<span class="jxr_string">"WideStringValue"</span>));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> StructLayout PDH_FMT_COUNTERVALUE_LAYOUT = MemoryLayout.structLayout(
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              JAVA_INT.withName(<span class="jxr_string">"CStatus"</span>), MemoryLayout.paddingLayout(4), <em class="jxr_comment">// align union to 8 bytes</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              PDH_FMT_COUNTERVALUE_UNION.withName(<span class="jxr_string">"Value"</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> StructLayout PDH_FMT_COUNTERVALUE_ITEM_LAYOUT = structLayout(ADDRESS.withName(<span class="jxr_string">"szName"</span>),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              PDH_FMT_COUNTERVALUE_LAYOUT.withName(<span class="jxr_string">"FmtValue"</span>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

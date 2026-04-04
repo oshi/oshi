@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/mac/MacInternetProtocolStatsFFM.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2025 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.mac;
@@ -127,8 +127,8 @@
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         BsdIp6stat ip6 = ip6stat.get();
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         BsdUdpstat udp = udpstat.get();
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> 
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Override
@@ -338,13 +338,13 @@
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>             <strong class="jxr_keyword">int</strong> udps_opackets, <em class="jxr_comment">// 36</em>
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>             <strong class="jxr_keyword">int</strong> udps_noportmcast, <em class="jxr_comment">// 48</em>
 <a class="jxr_linenumber" name="L332" href="#L332">332</a>             <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum, <em class="jxr_comment">// 64</em>
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <strong class="jxr_keyword">int</strong> udps_snd6_swcsum <em class="jxr_comment">// 89</em>
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>             <strong class="jxr_keyword">int</strong> udps_snd6_swcsum <em class="jxr_comment">// 80</em>
 <a class="jxr_linenumber" name="L334" href="#L334">334</a>     ) {
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>     }
 <a class="jxr_linenumber" name="L336" href="#L336">336</a> 
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdUdpstat queryUdpstat() {
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             MemorySegment buffer = arena.allocate(1644);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>             MemorySegment buffer = arena.allocate(84);
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>             <strong class="jxr_keyword">if</strong> (SysctlUtilFFM.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>, buffer)) {
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> BsdUdpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 8),
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>                         buffer.get(JAVA_INT, 12), buffer.get(JAVA_INT, 36), buffer.get(JAVA_INT, 48),

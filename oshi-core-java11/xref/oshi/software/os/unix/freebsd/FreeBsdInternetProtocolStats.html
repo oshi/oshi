@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../../apidocs/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStats.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.unix.freebsd;
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> BsdUdpstat queryUdpstat() {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          BsdUdpstat ut = <strong class="jxr_keyword">new</strong> BsdUdpstat();
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">try</strong> (Memory m = BsdSysctlUtil.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>)) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 1644) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 84) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  ut.udps_ipackets = m.getInt(0);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  ut.udps_hdrops = m.getInt(4);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  ut.udps_badsum = m.getInt(8);

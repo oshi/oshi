@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../testapidocs/oshi/hardware/GraphicsCardTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware;
@@ -26,22 +26,22 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="GraphicsCardTest" href="../../oshi/hardware/GraphicsCardTest.html#GraphicsCardTest">GraphicsCardTest</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * Testing sound cards , each attribute.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Test
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">void</strong> testGraphicsCards() {
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          SystemInfo info = <strong class="jxr_keyword">new</strong> SystemInfo();
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">for</strong> (GraphicsCard graphicsCard : info.getHardware().getGraphicsCards()) {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>              assertThat(<span class="jxr_string">"Graphics card's name should not be null"</span>, graphicsCard.getName(), is(notNullValue()));
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>              assertThat(<span class="jxr_string">"Graphics card's vendor should not be null"</span>, graphicsCard.getVendor(), is(notNullValue()));
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>              assertThat(<span class="jxr_string">"Graphics card's VRAM should be at least zero"</span>, graphicsCard.getVRam(),
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>                      is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>              assertThat(<span class="jxr_string">"Graphics card's VRAM should be divisible by 1024"</span>, graphicsCard.getVRam() % 1024, is(0L));
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>              assertThat(<span class="jxr_string">"Graphics card's id number length should be at least 6"</span>, graphicsCard.getDeviceId().length(),
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>                      is(greaterThanOrEqualTo(6)));
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>              assertThat(<span class="jxr_string">"Graphics card's version information length should be at least 2"</span>,
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>                      graphicsCard.getVersionInfo().length(), is(greaterThanOrEqualTo(2)));
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">void</strong> testGraphicsCards() {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          SystemInfo info = <strong class="jxr_keyword">new</strong> SystemInfo();
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">for</strong> (GraphicsCard graphicsCard : info.getHardware().getGraphicsCards()) {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>              assertThat(<span class="jxr_string">"Graphics card's name should not be null"</span>, graphicsCard.getName(), is(notNullValue()));
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>              assertThat(<span class="jxr_string">"Graphics card's vendor should not be null"</span>, graphicsCard.getVendor(), is(notNullValue()));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>              assertThat(<span class="jxr_string">"Graphics card's VRAM should be at least zero"</span>, graphicsCard.getVRam(),
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>                      is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              assertThat(<span class="jxr_string">"Graphics card's VRAM should be divisible by 1024"</span>, graphicsCard.getVRam() % 1024, is(0L));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              assertThat(<span class="jxr_string">"Graphics card's id number length should be at least 6"</span>, graphicsCard.getDeviceId().length(),
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>                      is(greaterThanOrEqualTo(6)));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              assertThat(<span class="jxr_string">"Graphics card's version information length should be at least 2"</span>,
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                      graphicsCard.getVersionInfo().length(), is(greaterThanOrEqualTo(2)));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              <strong class="jxr_keyword">try</strong> (GpuStats session = graphicsCard.createStatsSession()) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                  assertThat(<span class="jxr_string">"createStatsSession() must never return null"</span>, session, is(notNullValue()));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              }
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>          }
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  }

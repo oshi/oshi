@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../apidocs/oshi/util/ExecutingCommand.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util;
@@ -98,76 +98,122 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <em class="jxr_comment">// Ensure all resources are released</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">if</strong> (p != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  <em class="jxr_comment">// Windows and Solaris don't close descriptors on destroy,</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <em class="jxr_comment">// so we must handle separately</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  <strong class="jxr_keyword">if</strong> (Platform.isWindows() || Platform.isSolaris()) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                          p.getOutputStream().close();
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                      } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                          <em class="jxr_comment">// do nothing on failure</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                         p.getInputStream().close();
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                         <em class="jxr_comment">// do nothing on failure</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                         p.getErrorStream().close();
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                         <em class="jxr_comment">// do nothing on failure</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                     }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 p.destroy();
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         }
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; getProcessOutput(Process p, String[] cmd) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         ArrayList&lt;String&gt; sa = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">try</strong> (BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 <strong class="jxr_keyword">new</strong> InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             String line;
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">while</strong> ((line = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 sa.add(line);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  destroyProcess(p);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; getProcessOutput(Process p, String[] cmd) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         ArrayList&lt;String&gt; sa = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">try</strong> (BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 <strong class="jxr_keyword">new</strong> InputStreamReader(p.getInputStream(), Charset.defaultCharset()))) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             String line;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">while</strong> ((line = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 sa.add(line);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             p.waitFor();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             LOG.trace(<span class="jxr_string">"Problem reading output from {}: {}"</span>, Arrays.toString(cmd), e.getMessage());
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException ie) {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             LOG.trace(<span class="jxr_string">"Interrupted while reading output from {}: {}"</span>, Arrays.toString(cmd), ie.getMessage());
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             Thread.currentThread().interrupt();
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">return</strong> sa;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> destroyProcess(Process p) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <em class="jxr_comment">// Windows and Solaris don't close descriptors on destroy,</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <em class="jxr_comment">// so we must handle separately</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">if</strong> (Platform.isWindows() || Platform.isSolaris()) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 p.getOutputStream().close();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <em class="jxr_comment">// do nothing on failure</em>
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             p.waitFor();
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>             LOG.trace(<span class="jxr_string">"Problem reading output from {}: {}"</span>, Arrays.toString(cmd), e.getMessage());
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException ie) {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             LOG.trace(<span class="jxr_string">"Interrupted while reading output from {}: {}"</span>, Arrays.toString(cmd), ie.getMessage());
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             Thread.currentThread().interrupt();
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">return</strong> sa;
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * Return first line of response for selected command.</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @param cmd2launch String command to be launched</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * @return String or empty string if command failed</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getFirstAnswer(String cmd2launch) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">return</strong> getAnswerAt(cmd2launch, 0);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * Return response on selected line index (0-based) after running selected command.</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * @param cmd2launch String command to be launched</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param answerIdx  int index of line in response of the command</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @return String whole line in response or empty string if invalid index or running of command fails</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getAnswerAt(String cmd2launch, <strong class="jxr_keyword">int</strong> answerIdx) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">if</strong> (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">return</strong> sa.get(answerIdx);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 p.getInputStream().close();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 <em class="jxr_comment">// do nothing on failure</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 p.getErrorStream().close();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <em class="jxr_comment">// do nothing on failure</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         p.destroy();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * Return first line of response for selected command.</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @param cmd2launch String command to be launched</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @return String or empty string if command failed</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getFirstAnswer(String cmd2launch) {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">return</strong> getAnswerAt(cmd2launch, 0);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * Return response on selected line index (0-based) after running selected command.</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @param cmd2launch String command to be launched</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     * @param answerIdx  int index of line in response of the command</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     * @return String whole line in response or empty string if invalid index or running of command fails</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getAnswerAt(String cmd2launch, <strong class="jxr_keyword">int</strong> answerIdx) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         List&lt;String&gt; sa = ExecutingCommand.runNative(cmd2launch);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">if</strong> (answerIdx &gt;= 0 &amp;&amp; answerIdx &lt; sa.size()) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">return</strong> sa.get(answerIdx);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * Executes a command that may require elevated privileges. If already running as root or no sudo prefix is</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * configured, delegates directly to {@link #runNative(String)}. If a sudo prefix is configured and the command is</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     * in the allowlist, prepends the prefix before execution. If the command is not in the allowlist, attempts to run</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * without the prefix (the command may still succeed if permissions allow).</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * @param cmdToRun Command to run</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * @return A list of Strings representing the result of the command, or empty list if the command failed</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; runPrivilegedNative(String cmdToRun) {
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <em class="jxr_comment">// If already elevated or no sudo prefix configured, run directly</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         String prefix = PrivilegedUtil.getPrefix();
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">if</strong> (UserGroupInfo.isElevated() || prefix.isEmpty()) {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>             <strong class="jxr_keyword">return</strong> runNative(cmdToRun);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <em class="jxr_comment">// Check if command is in allowlist</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (!PrivilegedUtil.isCommandAllowed(cmdToRun, PrivilegedUtil.getCommandAllowlist())) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>             LOG.debug(<span class="jxr_string">"Command not in allowlist, running without prefix: {}"</span>, cmdToRun);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">return</strong> runNative(cmdToRun);
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Prepend prefix and execute</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         String privilegedCmd = prefix + <span class="jxr_string">" "</span> + cmdToRun;
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         LOG.debug(<span class="jxr_string">"Executing privileged command: {}"</span>, privilegedCmd);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">return</strong> runNative(privilegedCmd);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">     * Return first line of response for selected privileged command.</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">     * @param cmd2launch String command to be launched with privilege escalation if needed</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">     * @return String or empty string if command failed or privilege requirements were not met</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getFirstPrivilegedAnswer(String cmd2launch) {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         List&lt;String&gt; sa = runPrivilegedNative(cmd2launch);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">if</strong> (sa.isEmpty()) {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         }
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">return</strong> sa.get(0);
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

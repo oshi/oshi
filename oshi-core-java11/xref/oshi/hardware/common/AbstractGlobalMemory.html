@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../apidocs/oshi/hardware/common/AbstractGlobalMemory.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2025 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common;
@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>          <em class="jxr_comment">// dmidecode requires sudo permission but is the only option on Linux</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>          <em class="jxr_comment">// and Unix</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>          List&lt;PhysicalMemory&gt; pmList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          List&lt;String&gt; dmi = ExecutingCommand.runNative(<span class="jxr_string">"dmidecode --type 17"</span>);
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          List&lt;String&gt; dmi = ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"dmidecode --type 17"</span>);
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">int</strong> bank = 0;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>          String bankLabel = Constants.UNKNOWN;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          String locator = <span class="jxr_string">""</span>;

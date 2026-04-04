@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/software/os/mac/MacInternetProtocolStats.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.mac;
@@ -108,8 +108,8 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         BsdIp6stat ip6 = ip6stat.get();
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         BsdUdpstat udp = udpstat.get();
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum),
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum), 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Override
@@ -217,30 +217,30 @@
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> 
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> TcpState stateLookup(<strong class="jxr_keyword">int</strong> state) {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">switch</strong> (state) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">case</strong> 0:
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">return</strong> CLOSED;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">case</strong> 1:
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">return</strong> LISTEN;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">case</strong> 2:
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">return</strong> SYN_SENT;
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">case</strong> 3:
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             <strong class="jxr_keyword">return</strong> SYN_RECV;
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">case</strong> 4:
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             <strong class="jxr_keyword">return</strong> ESTABLISHED;
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">case</strong> 5:
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">return</strong> CLOSE_WAIT;
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">case</strong> 6:
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <strong class="jxr_keyword">return</strong> FIN_WAIT_1;
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">case</strong> 7:
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>             <strong class="jxr_keyword">return</strong> CLOSING;
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">case</strong> 8:
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <strong class="jxr_keyword">return</strong> LAST_ACK;
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">case</strong> 9:
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             <strong class="jxr_keyword">return</strong> FIN_WAIT_2;
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">case</strong> 10:
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>             <strong class="jxr_keyword">return</strong> TIME_WAIT;
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">return</strong> UNKNOWN;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">case</strong> 0:
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                 <strong class="jxr_keyword">return</strong> CLOSED;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">case</strong> 1:
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>                 <strong class="jxr_keyword">return</strong> LISTEN;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">case</strong> 2:
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 <strong class="jxr_keyword">return</strong> SYN_SENT;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">case</strong> 3:
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                 <strong class="jxr_keyword">return</strong> SYN_RECV;
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">case</strong> 4:
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>                 <strong class="jxr_keyword">return</strong> ESTABLISHED;
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             <strong class="jxr_keyword">case</strong> 5:
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 <strong class="jxr_keyword">return</strong> CLOSE_WAIT;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">case</strong> 6:
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 <strong class="jxr_keyword">return</strong> FIN_WAIT_1;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">case</strong> 7:
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>                 <strong class="jxr_keyword">return</strong> CLOSING;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">case</strong> 8:
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                 <strong class="jxr_keyword">return</strong> LAST_ACK;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <strong class="jxr_keyword">case</strong> 9:
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>                 <strong class="jxr_keyword">return</strong> FIN_WAIT_2;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             <strong class="jxr_keyword">case</strong> 10:
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                 <strong class="jxr_keyword">return</strong> TIME_WAIT;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <strong class="jxr_keyword">return</strong> UNKNOWN;
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>         }
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
 <a class="jxr_linenumber" name="L238" href="#L238">238</a> 
@@ -300,7 +300,7 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> BsdUdpstat queryUdpstat() {
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>         BsdUdpstat ut = <strong class="jxr_keyword">new</strong> BsdUdpstat();
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>         <strong class="jxr_keyword">try</strong> (Memory m = SysctlUtil.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>)) {
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 1644) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>             <strong class="jxr_keyword">if</strong> (m != <strong class="jxr_keyword">null</strong> &amp;&amp; m.size() &gt;= 84) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>                 ut.udps_ipackets = m.getInt(0);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>                 ut.udps_hdrops = m.getInt(4);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>                 ut.udps_badsum = m.getInt(8);

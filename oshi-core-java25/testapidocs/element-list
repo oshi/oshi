@@ -23,7 +23,9 @@ oshi.driver.windows.wmi
 oshi.ffm
 oshi.ffm.driver.windows.registry
 oshi.ffm.mac
+oshi.ffm.unix
 oshi.ffm.windows
+oshi.ffm.windows.com
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.platform.linux
@@ -35,6 +37,7 @@ oshi.hardware.platform.unix.openbsd
 oshi.hardware.platform.unix.solaris
 oshi.hardware.platform.windows
 oshi.jna
+oshi.jna.common
 oshi.jna.platform.linux
 oshi.jna.platform.mac
 oshi.jna.platform.unix
@@ -49,6 +52,7 @@ oshi.software.os.unix.openbsd
 oshi.software.os.unix.solaris
 oshi.software.os.windows
 oshi.util
+oshi.util.gpu
 oshi.util.platform.linux
 oshi.util.platform.mac
 oshi.util.platform.unix.freebsd
