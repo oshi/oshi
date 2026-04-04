@@ -360,7 +360,12 @@
                         </archive>
                         <source>8</source>
                         <sourcepath>src/main/java</sourcepath>
-                        <detectLinks>true</detectLinks>
+                        <detectLinks>false</detectLinks>
+                        <links>
+                            <link>https://java-native-access.github.io/jna/${jna.version}/javadoc/</link>
+                            <link>https://javadoc.io/doc/org.junit.jupiter/junit-jupiter-api/${junit.version}/</link>
+                            <link>https://javadoc.io/doc/org.hamcrest/hamcrest/${hamcrest.version}/</link>
+                        </links>
                         <detectJavaApiLink>false</detectJavaApiLink>
                     </configuration>
                 </plugin>
@@ -585,31 +590,7 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
                 </plugin>
-                <!-- Eclipse -->
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>${m2e.lifecycle-mapping.version}</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>org.apache.maven.plugins</groupId>
-                                        <artifactId>maven-enforcer-plugin</artifactId>
-                                        <versionRange>[1.0.0,)</versionRange>
-                                        <goals>
-                                            <goal>enforce</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
+
             </plugins>
         </pluginManagement>
         <plugins>
@@ -929,6 +910,45 @@
     </reporting>
 
     <profiles>
+        <!-- Eclipse IDE only: lifecycle-mapping is not in Maven Central -->
+        <profile>
+            <id>m2e</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>${m2e.lifecycle-mapping.version}</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-enforcer-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>enforce</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore />
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
         <profile>
             <id>java11</id>
             <activation>

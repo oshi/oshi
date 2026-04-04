@@ -340,9 +340,9 @@ public interface OperatingSystem {
      * without introducing any additional conflicts. Users should note, however, that other operating system code may
      * access the same native code.
      * <p>
-     * The {@link oshi.driver.unix.Who#queryWho()} method produces similar output parsing the output of the
-     * Posix-standard {@code who} command, and may internally employ reentrant code on some platforms. Users may opt to
-     * use this command-line variant by default using the {@code oshi.os.unix.whoCommand} configuration property.
+     * The {@code Who#queryWho()} method produces similar output parsing the output of the Posix-standard {@code who}
+     * command, and may internally employ reentrant code on some platforms. Users may opt to use this command-line
+     * variant by default using the {@code oshi.os.unix.whoCommand} configuration property.
      *
      * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */

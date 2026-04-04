@@ -11,7 +11,7 @@ import java.util.Locale;
  *
  * <p>
  * Populated by {@link oshi.jna.platform.windows.WindowsDxgi#queryAdapters()} and used by
- * {@link oshi.hardware.platform.windows.WindowsGraphicsCard} to supply accurate VRAM values.
+ * {@code oshi.hardware.platform.windows.WindowsGraphicsCard} to supply accurate VRAM values.
  * {@code DedicatedVideoMemory} from {@code DXGI_ADAPTER_DESC} is the authoritative Windows API source for dedicated GPU
  * memory; it is not subject to the 2 GiB cap that affects the 32-bit registry value
  * {@code HardwareInformation.MemorySize}.
