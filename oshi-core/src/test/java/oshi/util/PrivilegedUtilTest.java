@@ -157,6 +157,7 @@ class PrivilegedUtilTest {
     @Test
     void testGetPrefixConfigured() {
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+        PrivilegedUtil.clearCaches();
         assertThat(PrivilegedUtil.getPrefix(), is("sudo -n"));
     }
 

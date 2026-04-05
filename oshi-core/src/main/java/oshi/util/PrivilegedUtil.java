@@ -12,6 +12,8 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,8 +119,9 @@ public final class PrivilegedUtil {
             return false;
         }
         Path path = Paths.get(filePath);
+        FileSystem fs = FileSystems.getDefault();
         for (String allowed : allowlist) {
-            PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + allowed);
+            PathMatcher matcher = fs.getPathMatcher("glob:" + allowed);
             if (matcher.matches(path)) {
                 return true;
             }
@@ -269,8 +272,12 @@ public final class PrivilegedUtil {
         try {
             Process p = Runtime.getRuntime().exec(cmdArray);
             try {
-                byte[] stdout = FileUtil.readAllBytes(p.getInputStream());
-                byte[] stderr = FileUtil.readAllBytes(p.getErrorStream());
+                byte[] stdout;
+                byte[] stderr;
+                try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream()) {
+                    stdout = FileUtil.readAllBytes(is);
+                    stderr = FileUtil.readAllBytes(es);
+                }
                 int exitCode = p.waitFor();
                 if (exitCode == 0) {
                     return stdout;
