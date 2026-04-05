@@ -28,7 +28,7 @@ import oshi.hardware.platform.unix.UnixPrinter;
  * LinuxHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public final class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
