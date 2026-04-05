@@ -8,6 +8,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.UsbDevice;
 
@@ -17,6 +18,11 @@ import oshi.hardware.UsbDevice;
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstractionLayer {
+
+    @Override
+    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
+        return LinuxNetworkIFJNA.getNetworks(includeLocalInterfaces);
+    }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
