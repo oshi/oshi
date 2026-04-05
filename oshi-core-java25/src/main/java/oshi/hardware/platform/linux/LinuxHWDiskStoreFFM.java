@@ -178,7 +178,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
             }
         } catch (Throwable e) {
             if (storeToUpdate == null) {
-                LOG.warn("Error enumerating disk stores: {}", e.getMessage());
+                LOG.warn("Error enumerating disk stores: {}", e.toString());
             }
             return Collections.emptyList();
         }

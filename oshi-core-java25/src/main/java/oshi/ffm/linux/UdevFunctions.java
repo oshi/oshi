@@ -126,7 +126,7 @@ public final class UdevFunctions extends ForeignFunctions {
                 available = true;
             }
         } catch (Throwable e) {
-            LOG.warn("Did not find udev library in operating system. Some features may not work.");
+            LOG.warn("Did not find udev library in operating system. Some features may not work. {}", e.toString());
         }
         AVAILABLE = available;
         udev_new = hNew;

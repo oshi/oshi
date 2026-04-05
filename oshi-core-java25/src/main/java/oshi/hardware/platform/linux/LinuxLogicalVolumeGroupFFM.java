@@ -99,7 +99,7 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
                 UdevFunctions.udev_unref(udev);
             }
         } catch (Throwable e) {
-            LOG.warn("Error enumerating logical volume groups: {}", e.getMessage());
+            LOG.warn("Error enumerating logical volume groups: {}", e.toString());
             return Collections.emptyList();
         }
         return logicalVolumesMap.entrySet().stream()

@@ -63,7 +63,7 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
                 UdevFunctions.udev_unref(udev);
             }
         } catch (Throwable e) {
-            LOG.warn("Error querying network interface model for {}: {}", name, e.getMessage());
+            LOG.warn("Error querying network interface model for {}: {}", name, e.toString());
         }
         return name;
     }
@@ -80,7 +80,7 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
             try {
                 ifList.add(new LinuxNetworkIFFFM(ni));
             } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+                LOG.debug("Network Interface Instantiation failed: {}", e.toString());
             }
         }
         return ifList;

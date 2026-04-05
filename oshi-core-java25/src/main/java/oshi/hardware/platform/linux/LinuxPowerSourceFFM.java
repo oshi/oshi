@@ -99,7 +99,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                 UdevFunctions.udev_unref(udev);
             }
         } catch (Throwable e) {
-            LOG.warn("Error enumerating power sources via udev, falling back to sysfs: {}", e.getMessage());
+            LOG.warn("Error enumerating power sources via udev, falling back to sysfs: {}", e.toString());
             return LinuxPowerSource.getPowerSources();
         }
         return psList;
