@@ -1,6 +1,7 @@
 # 6.11.1 (in progress)
 
-* Your contribution here!
+##### Bug fixes / Improvements
+* [#3117](https://github.com/oshi/oshi/pull/3117): Begin Linux FFM migration: udev-dependent HAL components - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04)
 

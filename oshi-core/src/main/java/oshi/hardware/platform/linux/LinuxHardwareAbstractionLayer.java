@@ -50,6 +50,7 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
         return UnixDisplay.getDisplays();
     }
 
+    @Override
     public List<SoundCard> getSoundCards() {
         return LinuxSoundCard.getSoundCards();
     }

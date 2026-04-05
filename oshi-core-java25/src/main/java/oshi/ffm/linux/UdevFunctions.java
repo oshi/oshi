@@ -85,11 +85,11 @@ public final class UdevFunctions extends ForeignFunctions {
             } else {
                 SymbolLookup lib = libraryLookup("udev");
                 hNew = LINKER.downcallHandle(lib.findOrThrow("udev_new"), FunctionDescriptor.of(ADDRESS));
-                hUnref = LINKER.downcallHandle(lib.findOrThrow("udev_unref"), FunctionDescriptor.of(ADDRESS, ADDRESS));
+                hUnref = LINKER.downcallHandle(lib.findOrThrow("udev_unref"), FunctionDescriptor.ofVoid(ADDRESS));
                 hEnumNew = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_new"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hEnumUnref = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_unref"),
-                        FunctionDescriptor.of(ADDRESS, ADDRESS));
+                        FunctionDescriptor.ofVoid(ADDRESS));
                 hEnumAddMatch = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_add_match_subsystem"),
                         FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
                 hEnumScan = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_scan_devices"),
@@ -103,7 +103,7 @@ public final class UdevFunctions extends ForeignFunctions {
                 hDevNewFromSyspath = LINKER.downcallHandle(lib.findOrThrow("udev_device_new_from_syspath"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS));
                 hDevUnref = LINKER.downcallHandle(lib.findOrThrow("udev_device_unref"),
-                        FunctionDescriptor.of(ADDRESS, ADDRESS));
+                        FunctionDescriptor.ofVoid(ADDRESS));
                 hDevGetParent = LINKER.downcallHandle(lib.findOrThrow("udev_device_get_parent"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hDevGetParentSubDev = LINKER.downcallHandle(

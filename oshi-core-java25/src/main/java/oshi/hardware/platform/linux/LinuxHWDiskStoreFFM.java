@@ -47,7 +47,9 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
 
     static List<HWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
         if (!HAS_UDEV) {
-            LOG.warn("Disk Store information requires libudev, which is not present.");
+            if (storeToUpdate == null) {
+                LOG.warn("Disk Store information requires libudev, which is not present.");
+            }
             return Collections.emptyList();
         }
         LinuxHWDiskStoreFFM store = null;
@@ -56,6 +58,12 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
 
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment udev = UdevFunctions.udev_new();
+            if (MemorySegment.NULL.equals(udev)) {
+                if (storeToUpdate == null) {
+                    LOG.warn("Failed to create udev context for disk store enumeration.");
+                }
+                return Collections.emptyList();
+            }
             try {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
                 try {
@@ -89,25 +97,27 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                         devSerial = UdevFunctions.getPropertyValue(device, DM_UUID, arena);
                                         store = new LinuxHWDiskStoreFFM(devnode, devModel,
                                                 devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
-                                        String vgName = UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena);
-                                        String lvName = UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena);
-                                        String fsType = UdevFunctions.getPropertyValue(device, ID_FS_TYPE, arena);
-                                        String fsUuid = UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena);
-                                        String fsLabel = UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena);
-                                        String sysname = UdevFunctions
-                                                .getString(UdevFunctions.udev_device_get_sysname(device), arena);
-                                        store.getMutablePartitionList().add(new HWPartition(
-                                                getPartitionNameForDmDevice(vgName, lvName), sysname,
-                                                fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid,
-                                                fsLabel == null ? "" : fsLabel,
-                                                ParseUtil.parseLongOrDefault(
-                                                        UdevFunctions.getSysattrValue(device, SIZE, arena), 0L)
-                                                        * SECTORSIZE,
-                                                ParseUtil.parseIntOrDefault(
-                                                        UdevFunctions.getPropertyValue(device, MAJOR, arena), 0),
-                                                ParseUtil.parseIntOrDefault(
-                                                        UdevFunctions.getPropertyValue(device, MINOR, arena), 0),
-                                                getMountPointOfDmDevice(vgName, lvName)));
+                                        if (devSerial != null && devSerial.startsWith("LVM-")) {
+                                            String vgName = UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena);
+                                            String lvName = UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena);
+                                            String fsType = UdevFunctions.getPropertyValue(device, ID_FS_TYPE, arena);
+                                            String fsUuid = UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena);
+                                            String fsLabel = UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena);
+                                            String sysname = UdevFunctions
+                                                    .getString(UdevFunctions.udev_device_get_sysname(device), arena);
+                                            store.getMutablePartitionList().add(new HWPartition(
+                                                    getPartitionNameForDmDevice(vgName, lvName), sysname,
+                                                    fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid,
+                                                    fsLabel == null ? "" : fsLabel,
+                                                    ParseUtil.parseLongOrDefault(
+                                                            UdevFunctions.getSysattrValue(device, SIZE, arena), 0L)
+                                                            * SECTORSIZE,
+                                                    ParseUtil.parseIntOrDefault(
+                                                            UdevFunctions.getPropertyValue(device, MAJOR, arena), 0),
+                                                    ParseUtil.parseIntOrDefault(
+                                                            UdevFunctions.getPropertyValue(device, MINOR, arena), 0),
+                                                    getMountPointOfDmDevice(vgName, lvName)));
+                                        }
                                     } else {
                                         store = new LinuxHWDiskStoreFFM(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,
@@ -135,6 +145,8 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                             String name = devnode;
                                             String sysname = UdevFunctions
                                                     .getString(UdevFunctions.udev_device_get_sysname(device), arena);
+                                            String sysPath = UdevFunctions
+                                                    .getString(UdevFunctions.udev_device_get_syspath(device), arena);
                                             String fsType = UdevFunctions.getPropertyValue(device, ID_FS_TYPE, arena);
                                             String fsUuid = UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena);
                                             String fsLabel = UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena);
@@ -149,7 +161,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                                     ParseUtil.parseIntOrDefault(
                                                             UdevFunctions.getPropertyValue(device, MINOR, arena), 0),
                                                     mountsMap.getOrDefault(name,
-                                                            getDependentNamesFromHoldersDirectory(sysname))));
+                                                            getDependentNamesFromHoldersDirectory(sysPath))));
                                         }
                                     }
                                 }
@@ -165,7 +177,9 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                 UdevFunctions.udev_unref(udev);
             }
         } catch (Throwable e) {
-            LOG.warn("Error enumerating disk stores: {}", e.getMessage());
+            if (storeToUpdate == null) {
+                LOG.warn("Error enumerating disk stores: {}", e.getMessage());
+            }
             return Collections.emptyList();
         }
         finalizePartitions(result);

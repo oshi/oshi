@@ -42,6 +42,6 @@ public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstrac
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return LinuxPowerSource.getPowerSources();
+        return LinuxPowerSourceJNA.getPowerSources();
     }
 }

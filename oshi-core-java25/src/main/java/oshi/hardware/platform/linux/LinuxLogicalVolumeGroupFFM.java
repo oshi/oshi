@@ -103,7 +103,8 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
             return Collections.emptyList();
         }
         return logicalVolumesMap.entrySet().stream()
-                .map(e -> new LinuxLogicalVolumeGroupFFM(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))
+                .map(e -> new LinuxLogicalVolumeGroupFFM(e.getKey(), e.getValue(),
+                        physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
                 .collect(Collectors.toList());
     }
 }
