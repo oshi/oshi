@@ -83,7 +83,7 @@ public final class UdevFunctions extends ForeignFunctions {
             if (!GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV, true)) {
                 LOG.info("Loading of udev not allowed by configuration. Some features may not work.");
             } else {
-                SymbolLookup lib = libraryLookup("udev");
+                SymbolLookup lib = loadUdevLibrary();
                 hNew = LINKER.downcallHandle(lib.findOrThrow("udev_new"), FunctionDescriptor.of(ADDRESS));
                 hUnref = LINKER.downcallHandle(lib.findOrThrow("udev_unref"), FunctionDescriptor.ofVoid(ADDRESS));
                 hEnumNew = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_new"),
@@ -149,6 +149,25 @@ public final class UdevFunctions extends ForeignFunctions {
         udev_device_get_subsystem = hDevGetSubsystem;
         udev_device_get_sysattr_value = hDevGetSysattr;
         udev_device_get_property_value = hDevGetProperty;
+    }
+
+    /**
+     * Attempts to load libudev by trying the unversioned name first, then known versioned sonames. The unversioned
+     * {@code libudev.so} is only present when the development package is installed; the versioned names are present on
+     * all runtime installations.
+     *
+     * @return the {@link SymbolLookup} for libudev
+     * @throws IllegalArgumentException if none of the candidate names can be loaded
+     */
+    private static SymbolLookup loadUdevLibrary() {
+        for (String name : new String[] { "udev", "libudev.so.1", "libudev.so.0" }) {
+            try {
+                return name.startsWith("lib") ? SymbolLookup.libraryLookup(name, LIBRARY_ARENA) : libraryLookup(name);
+            } catch (IllegalArgumentException ignored) {
+                // try next candidate name
+            }
+        }
+        throw new IllegalArgumentException("Cannot open library: libudev (tried udev, libudev.so.1, libudev.so.0)");
     }
 
     /**
