@@ -12,7 +12,6 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.Printer;
@@ -46,10 +45,6 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     @Override
     public Sensors createSensors() {
         return new LinuxSensors();
-    }
-
-    public List<HWDiskStore> getDiskStores() {
-        return LinuxHWDiskStore.getDisks();
     }
 
     @Override
