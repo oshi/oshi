@@ -1,19 +1,28 @@
 /*
- * Copyright 2025-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
 
-import com.sun.jna.platform.linux.Udev;
-import com.sun.jna.platform.linux.Udev.UdevContext;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.tuples.Quartet;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.sun.jna.platform.linux.Udev;
+import com.sun.jna.platform.linux.Udev.UdevContext;
+import com.sun.jna.platform.linux.Udev.UdevDevice;
+import com.sun.jna.platform.linux.Udev.UdevEnumerate;
+import com.sun.jna.platform.linux.Udev.UdevListEntry;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.tuples.Quartet;
 
 /**
  * JNA-based Linux central processor implementation. Extends {@link LinuxCentralProcessor}, overriding udev-dependent
@@ -48,7 +57,7 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
             return queryCurrentFreqFromSysfs(freqs);
         }
         try {
-            return queryCurrentFreqFromUdev(udev, freqs);
+            return readCurrentFreqFromUdev(udev, freqs);
         } finally {
             udev.unref();
         }
@@ -64,9 +73,85 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
             return queryMaxFreqFromSysfs();
         }
         try {
-            return queryMaxFreqFromUdev(udev);
+            return readMaxFreqFromUdev(udev);
         } finally {
             udev.unref();
         }
+    }
+
+    private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev(
+            UdevContext udev) {
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Set<ProcessorCache> caches = new HashSet<>();
+        Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
+        Map<Integer, String> modAliasMap = new HashMap<>();
+        UdevEnumerate enumerate = udev.enumerateNew();
+        try {
+            enumerate.addMatchSubsystem("cpu");
+            enumerate.scanDevices();
+            for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
+                String syspath = entry.getName(); // /sys/devices/system/cpu/cpuX
+                UdevDevice device = udev.deviceNewFromSyspath(syspath);
+                String modAlias = null;
+                if (device != null) {
+                    try {
+                        modAlias = device.getPropertyValue("MODALIAS");
+                    } finally {
+                        device.unref();
+                    }
+                }
+                logProcs.add(getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
+            }
+        } finally {
+            enumerate.unref();
+        }
+        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
+    }
+
+    private static boolean readCurrentFreqFromUdev(UdevContext udev, long[] freqs) {
+        long max = 0L;
+        UdevEnumerate enumerate = udev.enumerateNew();
+        try {
+            enumerate.addMatchSubsystem("cpu");
+            enumerate.scanDevices();
+            for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
+                String syspath = entry.getName();
+                int cpu = ParseUtil.getFirstIntValue(syspath);
+                if (cpu >= 0 && cpu < freqs.length) {
+                    freqs[cpu] = FileUtil.getLongFromFile(syspath + "/cpufreq/scaling_cur_freq");
+                    if (freqs[cpu] == 0) {
+                        freqs[cpu] = FileUtil.getLongFromFile(syspath + "/cpufreq/cpuinfo_cur_freq");
+                    }
+                    if (max < freqs[cpu]) {
+                        max = freqs[cpu];
+                    }
+                }
+            }
+        } finally {
+            enumerate.unref();
+        }
+        if (max > 0L) {
+            for (int i = 0; i < freqs.length; i++) {
+                freqs[i] *= 1000L;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static long readMaxFreqFromUdev(UdevContext udev) {
+        UdevEnumerate enumerate = udev.enumerateNew();
+        try {
+            enumerate.addMatchSubsystem("cpu");
+            enumerate.scanDevices();
+            UdevListEntry entry = enumerate.getListEntry();
+            if (entry != null) {
+                String syspath = entry.getName();
+                return queryMaxFreqFromCpuFreqPath(syspath.substring(0, syspath.lastIndexOf('/')) + "/cpufreq");
+            }
+        } finally {
+            enumerate.unref();
+        }
+        return -1L;
     }
 }

@@ -4,7 +4,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 import static oshi.util.platform.linux.ProcPath.MODEL;
 
@@ -30,11 +29,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.linux.Udev.UdevContext;
-import com.sun.jna.platform.linux.Udev.UdevDevice;
-import com.sun.jna.platform.linux.Udev.UdevEnumerate;
-import com.sun.jna.platform.linux.Udev.UdevListEntry;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Lshw;
 import oshi.driver.linux.proc.CpuInfo;
@@ -54,7 +48,7 @@ import oshi.util.tuples.Quartet;
  * A CPU as defined in Linux /proc.
  */
 @ThreadSafe
-class LinuxCentralProcessor extends AbstractCentralProcessor {
+abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
@@ -169,9 +163,7 @@ class LinuxCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Attempt to read from sysfs
-        Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = HAS_UDEV
-                ? readTopologyWithUdev()
-                : readTopologyFromSysfs();
+        Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = readTopologyWithUdev();
         // This sometimes fails so fall back to CPUID
         if (topology.getA().isEmpty()) {
             topology = readTopologyFromCpuinfo();
@@ -201,43 +193,11 @@ class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Reads CPU topology using udev. Subclasses override to provide the udev implementation; this base implementation
-     * delegates to the sysfs fallback.
+     * Reads CPU topology using udev. Subclasses provide the implementation.
      *
      * @return topology quartet of logical processors, caches, core efficiency map, and mod alias map
      */
-    protected Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev() {
-        return readTopologyFromSysfs();
-    }
-
-    protected static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromUdev(
-            UdevContext udev) {
-        List<LogicalProcessor> logProcs = new ArrayList<>();
-        Set<ProcessorCache> caches = new HashSet<>();
-        Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
-        Map<Integer, String> modAliasMap = new HashMap<>();
-        UdevEnumerate enumerate = udev.enumerateNew();
-        try {
-            enumerate.addMatchSubsystem("cpu");
-            enumerate.scanDevices();
-            for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
-                String syspath = entry.getName(); // /sys/devices/system/cpu/cpuX
-                UdevDevice device = udev.deviceNewFromSyspath(syspath);
-                String modAlias = null;
-                if (device != null) {
-                    try {
-                        modAlias = device.getPropertyValue("MODALIAS");
-                    } finally {
-                        device.unref();
-                    }
-                }
-                logProcs.add(getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
-            }
-        } finally {
-            enumerate.unref();
-        }
-        return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
-    }
+    protected abstract Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev();
 
     protected static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         List<LogicalProcessor> logProcs = new ArrayList<>();
@@ -462,46 +422,13 @@ class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fills the freqs array from udev cpu-freq source. Returns true if successful (max > 0). Subclasses override to
-     * provide the udev implementation; this base implementation uses sysfs directly.
+     * Fills the freqs array from udev cpu-freq source. Returns true if successful (max > 0). Subclasses provide the
+     * implementation.
      *
      * @param freqs array to fill with per-logical-processor frequencies in Hz
      * @return true if frequencies were successfully read
      */
-    protected boolean queryCurrentFreqFromUdev(long[] freqs) {
-        return queryCurrentFreqFromSysfs(freqs);
-    }
-
-    protected static boolean queryCurrentFreqFromUdev(UdevContext udev, long[] freqs) {
-        long max = 0L;
-        UdevEnumerate enumerate = udev.enumerateNew();
-        try {
-            enumerate.addMatchSubsystem("cpu");
-            enumerate.scanDevices();
-            for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
-                String syspath = entry.getName();
-                int cpu = ParseUtil.getFirstIntValue(syspath);
-                if (cpu >= 0 && cpu < freqs.length) {
-                    freqs[cpu] = FileUtil.getLongFromFile(syspath + "/cpufreq/scaling_cur_freq");
-                    if (freqs[cpu] == 0) {
-                        freqs[cpu] = FileUtil.getLongFromFile(syspath + "/cpufreq/cpuinfo_cur_freq");
-                    }
-                    if (max < freqs[cpu]) {
-                        max = freqs[cpu];
-                    }
-                }
-            }
-        } finally {
-            enumerate.unref();
-        }
-        if (max > 0L) {
-            for (int i = 0; i < freqs.length; i++) {
-                freqs[i] *= 1000L;
-            }
-            return true;
-        }
-        return false;
-    }
+    protected abstract boolean queryCurrentFreqFromUdev(long[] freqs);
 
     protected static boolean queryCurrentFreqFromSysfs(long[] freqs) {
         long max = 0L;
@@ -541,30 +468,11 @@ class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Queries the max CPU frequency from udev. Subclasses override to provide the udev implementation; this base
-     * implementation uses sysfs directly.
+     * Queries the max CPU frequency from udev. Subclasses provide the implementation.
      *
      * @return max frequency in Hz, or -1 if unavailable
      */
-    protected long queryMaxFreqFromUdev() {
-        return queryMaxFreqFromSysfs();
-    }
-
-    protected static long queryMaxFreqFromUdev(UdevContext udev) {
-        UdevEnumerate enumerate = udev.enumerateNew();
-        try {
-            enumerate.addMatchSubsystem("cpu");
-            enumerate.scanDevices();
-            UdevListEntry entry = enumerate.getListEntry();
-            if (entry != null) {
-                String syspath = entry.getName();
-                return queryMaxFreqFromCpuFreqPath(syspath.substring(0, syspath.lastIndexOf('/')) + "/cpufreq");
-            }
-        } finally {
-            enumerate.unref();
-        }
-        return -1L;
-    }
+    protected abstract long queryMaxFreqFromUdev();
 
     protected static long queryMaxFreqFromSysfs() {
         return queryMaxFreqFromCpuFreqPath(SysPath.CPU.substring(0, SysPath.CPU.length() - 1) + "/cpufreq");
