@@ -47,8 +47,8 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
      * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
      * (including internal devices).
      *
-     * @param tree If true, returns a list of controllers with their device tree. If false, returns a flat list
-     *             excluding controllers.
+     * @param tree If true, returns a list of controllers with their device tree. If false, returns a flat list of all
+     *             devices (including controllers) with no nested connectedDevices.
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
