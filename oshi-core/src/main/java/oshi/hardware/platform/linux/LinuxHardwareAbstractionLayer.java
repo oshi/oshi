@@ -37,7 +37,7 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
 
     @Override
     public CentralProcessor createProcessor() {
-        return new LinuxCentralProcessor();
+        return new LinuxCentralProcessorJNA();
     }
 
     @Override
