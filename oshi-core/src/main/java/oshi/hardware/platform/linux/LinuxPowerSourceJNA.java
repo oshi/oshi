@@ -52,6 +52,9 @@ public final class LinuxPowerSourceJNA extends LinuxPowerSource {
         }
         List<PowerSource> psList = new ArrayList<>();
         UdevContext udev = Udev.INSTANCE.udev_new();
+        if (udev == null) {
+            return LinuxPowerSource.getPowerSources();
+        }
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
             try {

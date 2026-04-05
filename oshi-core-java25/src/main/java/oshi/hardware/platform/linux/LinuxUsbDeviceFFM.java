@@ -81,6 +81,9 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
 
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment udev = UdevFunctions.udev_new();
+            if (MemorySegment.NULL.equals(udev)) {
+                return Collections.emptyList();
+            }
             try {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
                 try {

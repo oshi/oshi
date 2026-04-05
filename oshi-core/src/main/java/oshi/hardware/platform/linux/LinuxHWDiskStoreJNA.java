@@ -58,6 +58,9 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
         Map<String, String> mountsMap = readMountsMap();
 
         UdevContext udev = Udev.INSTANCE.udev_new();
+        if (udev == null) {
+            return Collections.emptyList();
+        }
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
             try {
@@ -83,20 +86,22 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                                 devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
-                                        store.getMutablePartitionList()
-                                                .add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName),
-                                                        device.getSysname(),
-                                                        device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                                : device.getPropertyValue(ID_FS_TYPE),
-                                                        device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                                : device.getPropertyValue(ID_FS_UUID),
-                                                        device.getPropertyValue(ID_FS_LABEL) == null ? ""
-                                                                : device.getPropertyValue(ID_FS_LABEL),
-                                                        ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                                * SECTORSIZE,
-                                                        ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                                        ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                                        getMountPointOfDmDevice(vgName, lvName)));
+                                        if (vgName != null && lvName != null && devSerial != null
+                                                && devSerial.startsWith("LVM-")) {
+                                            store.getMutablePartitionList().add(new HWPartition(
+                                                    getPartitionNameForDmDevice(vgName, lvName), device.getSysname(),
+                                                    device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
+                                                            : device.getPropertyValue(ID_FS_TYPE),
+                                                    device.getPropertyValue(ID_FS_UUID) == null ? ""
+                                                            : device.getPropertyValue(ID_FS_UUID),
+                                                    device.getPropertyValue(ID_FS_LABEL) == null ? ""
+                                                            : device.getPropertyValue(ID_FS_LABEL),
+                                                    ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                                            * SECTORSIZE,
+                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
+                                                    getMountPointOfDmDevice(vgName, lvName)));
+                                        }
                                     } else {
                                         store = new LinuxHWDiskStoreJNA(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,
@@ -130,7 +135,7 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
                                                 mountsMap.getOrDefault(name,
-                                                        getDependentNamesFromHoldersDirectory(device.getSysname()))));
+                                                        getDependentNamesFromHoldersDirectory(device.getSyspath()))));
                                     }
                                 }
                             }

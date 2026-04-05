@@ -44,6 +44,9 @@ final class LinuxLogicalVolumeGroupJNA extends LinuxLogicalVolumeGroup {
         Map<String, Set<String>> physicalVolumesMap = queryPhysicalVolumes();
 
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();
+        if (udev == null) {
+            return Collections.emptyList();
+        }
         try {
             Udev.UdevEnumerate enumerate = udev.enumerateNew();
             try {
