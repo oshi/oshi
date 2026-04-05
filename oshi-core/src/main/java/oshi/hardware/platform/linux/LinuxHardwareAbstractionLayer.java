@@ -15,11 +15,9 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.PowerSource;
 import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
-import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.UnixDisplay;
 import oshi.hardware.platform.unix.UnixPrinter;
@@ -28,7 +26,7 @@ import oshi.hardware.platform.unix.UnixPrinter;
  * LinuxHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -50,12 +48,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return new LinuxSensors();
     }
 
-    @Override
-    public List<PowerSource> getPowerSources() {
-        return LinuxPowerSource.getPowerSources();
-    }
-
-    @Override
     public List<HWDiskStore> getDiskStores() {
         return LinuxHWDiskStore.getDisks();
     }
@@ -75,12 +67,6 @@ public class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLa
         return LinuxNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
-    @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return LinuxUsbDevice.getUsbDevices(tree);
-    }
-
-    @Override
     public List<SoundCard> getSoundCards() {
         return LinuxSoundCard.getSoundCards();
     }
