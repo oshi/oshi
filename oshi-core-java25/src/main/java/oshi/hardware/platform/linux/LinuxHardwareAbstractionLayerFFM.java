@@ -5,6 +5,8 @@
 package oshi.hardware.platform.linux;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.PowerSource;
+import oshi.hardware.UsbDevice;
 
 /**
  * FFM-based hardware abstraction layer for Linux. Extends {@link LinuxHardwareAbstractionLayer}, overriding methods as
@@ -12,4 +14,14 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstractionLayer {
+
+    @Override
+    public List<PowerSource> getPowerSources() {
+        return LinuxPowerSourceFFM.getPowerSources();
+    }
+
+    @Override
+    public List<UsbDevice> getUsbDevices(boolean tree) {
+        return LinuxUsbDeviceFFM.getUsbDevices(tree);
+    }
 }
