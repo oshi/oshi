@@ -12,8 +12,6 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.LogicalVolumeGroup;
-import oshi.hardware.NetworkIF;
 import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
@@ -48,18 +46,8 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     }
 
     @Override
-    public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
-        return LinuxLogicalVolumeGroup.getLogicalVolumeGroups();
-    }
-
-    @Override
     public List<Display> getDisplays() {
         return UnixDisplay.getDisplays();
-    }
-
-    @Override
-    public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return LinuxNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     public List<SoundCard> getSoundCards() {

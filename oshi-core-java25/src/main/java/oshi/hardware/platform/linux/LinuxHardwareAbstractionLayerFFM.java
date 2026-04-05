@@ -8,6 +8,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.UsbDevice;
@@ -18,6 +19,11 @@ import oshi.hardware.UsbDevice;
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstractionLayer {
+
+    @Override
+    public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return LinuxLogicalVolumeGroupFFM.getLogicalVolumeGroups();
+    }
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
