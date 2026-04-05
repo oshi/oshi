@@ -55,6 +55,9 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
         List<PowerSource> psList = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment udev = UdevFunctions.udev_new();
+            if (MemorySegment.NULL.equals(udev)) {
+                return LinuxPowerSource.getPowerSources();
+            }
             try {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
                 try {
