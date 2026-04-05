@@ -4,32 +4,19 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.platform.linux.Udev;
-import com.sun.jna.platform.linux.Udev.UdevContext;
-import com.sun.jna.platform.linux.Udev.UdevDevice;
-import com.sun.jna.platform.linux.Udev.UdevEnumerate;
-import com.sun.jna.platform.linux.Udev.UdevListEntry;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
-import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.linux.DevPath;
@@ -39,34 +26,32 @@ import oshi.util.platform.linux.ProcPath;
  * Linux hard disk implementation.
  */
 @ThreadSafe
-public final class LinuxHWDiskStore extends AbstractHWDiskStore {
+public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxHWDiskStore.class);
+    protected static final String BLOCK = "block";
+    protected static final String DISK = "disk";
+    protected static final String PARTITION = "partition";
 
-    private static final String BLOCK = "block";
-    private static final String DISK = "disk";
-    private static final String PARTITION = "partition";
+    protected static final String STAT = "stat";
+    protected static final String SIZE = "size";
+    protected static final String MINOR = "MINOR";
+    protected static final String MAJOR = "MAJOR";
 
-    private static final String STAT = "stat";
-    private static final String SIZE = "size";
-    private static final String MINOR = "MINOR";
-    private static final String MAJOR = "MAJOR";
+    protected static final String ID_FS_TYPE = "ID_FS_TYPE";
+    protected static final String ID_FS_UUID = "ID_FS_UUID";
+    protected static final String ID_FS_LABEL = "ID_FS_LABEL";
+    protected static final String ID_MODEL = "ID_MODEL";
+    protected static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
 
-    private static final String ID_FS_TYPE = "ID_FS_TYPE";
-    private static final String ID_FS_UUID = "ID_FS_UUID";
-    private static final String ID_FS_LABEL = "ID_FS_LABEL";
-    private static final String ID_MODEL = "ID_MODEL";
-    private static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
+    protected static final String DM_UUID = "DM_UUID";
+    protected static final String DM_VG_NAME = "DM_VG_NAME";
+    protected static final String DM_LV_NAME = "DM_LV_NAME";
+    protected static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
 
-    private static final String DM_UUID = "DM_UUID";
-    private static final String DM_VG_NAME = "DM_VG_NAME";
-    private static final String DM_LV_NAME = "DM_LV_NAME";
-    private static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
-
-    private static final int SECTORSIZE = 512;
+    protected static final int SECTORSIZE = 512;
 
     // Get a list of orders to pass to ParseUtil
-    private static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];
+    protected static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];
     static {
         for (UdevStat stat : UdevStat.values()) {
             UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
@@ -75,7 +60,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
 
     // There are at least 11 elements in udev stat output or sometimes 15. We want
     // the rightmost 11 or 15 if there is leading text.
-    private static final int UDEV_STAT_LENGTH;
+    protected static final int UDEV_STAT_LENGTH;
     static {
         String stat = FileUtil.getStringFromFile(ProcPath.DISKSTATS);
         int statLength = 11;
@@ -94,7 +79,7 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
     private long timeStamp = 0L;
     private List<HWPartition> partitionList = new ArrayList<>();
 
-    private LinuxHWDiskStore(String name, String model, String serial, long size) {
+    protected LinuxHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
@@ -138,139 +123,35 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         return this.partitionList;
     }
 
-    /**
-     * Gets the disks on this machine
-     *
-     * @return a list of {@link HWDiskStore} objects representing the disks
-     */
-    public static List<HWDiskStore> getDisks() {
-        return getDisks(null);
+    protected void setDiskStats(long reads, long readBytes, long writes, long writeBytes, long currentQueueLength,
+            long transferTime, long timeStamp) {
+        this.reads = reads;
+        this.readBytes = readBytes;
+        this.writes = writes;
+        this.writeBytes = writeBytes;
+        this.currentQueueLength = currentQueueLength;
+        this.transferTime = transferTime;
+        this.timeStamp = timeStamp;
     }
 
-    private static List<HWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
-        if (!HAS_UDEV) {
-            LOG.warn("Disk Store information requires libudev, which is not present.");
-            return Collections.emptyList();
-        }
-        LinuxHWDiskStore store = null;
-        List<HWDiskStore> result = new ArrayList<>();
-
-        Map<String, String> mountsMap = readMountsMap();
-
-        UdevContext udev = Udev.INSTANCE.udev_new();
-        try {
-            UdevEnumerate enumerate = udev.enumerateNew();
-            try {
-                enumerate.addMatchSubsystem(BLOCK);
-                enumerate.scanDevices();
-                for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
-                    String syspath = entry.getName();
-                    UdevDevice device = udev.deviceNewFromSyspath(syspath);
-                    if (device != null) {
-                        try {
-                            // devnode is what we use as name, like /dev/sda
-                            String devnode = device.getDevnode();
-                            // Ignore loopback and ram disks; do nothing
-                            if (devnode != null && !devnode.startsWith(DevPath.LOOP)
-                                    && !devnode.startsWith(DevPath.RAM)) {
-                                if (DISK.equals(device.getDevtype())) {
-                                    // Null model and serial in virtual environments
-                                    String devModel = device.getPropertyValue(ID_MODEL);
-                                    String devSerial = device.getPropertyValue(ID_SERIAL_SHORT);
-                                    long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                            * SECTORSIZE;
-                                    if (devnode.startsWith(DevPath.DM)) {
-                                        devModel = LOGICAL_VOLUME_GROUP;
-                                        devSerial = device.getPropertyValue(DM_UUID);
-                                        store = new LinuxHWDiskStore(devnode, devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
-                                        String vgName = device.getPropertyValue(DM_VG_NAME);
-                                        String lvName = device.getPropertyValue(DM_LV_NAME);
-                                        store.partitionList.add(new HWPartition(
-                                                getPartitionNameForDmDevice(vgName, lvName), device.getSysname(),
-                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                        : device.getPropertyValue(ID_FS_TYPE),
-                                                device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                        : device.getPropertyValue(ID_FS_UUID),
-                                                device.getPropertyValue(ID_FS_LABEL) == null ? ""
-                                                        : device.getPropertyValue(ID_FS_LABEL),
-                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                        * SECTORSIZE,
-                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                                getMountPointOfDmDevice(vgName, lvName)));
-                                    } else {
-                                        store = new LinuxHWDiskStore(devnode,
-                                                devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
-                                    }
-                                    if (storeToUpdate == null) {
-                                        // If getting all stores, add to the list with stats
-                                        computeDiskStats(store, device.getSysattrValue(STAT));
-                                        result.add(store);
-                                    } else if (store.getName().equals(storeToUpdate.getName())
-                                            && store.getModel().equals(storeToUpdate.getModel())
-                                            && store.getSerial().equals(storeToUpdate.getSerial())
-                                            && store.getSize() == storeToUpdate.getSize()) {
-                                        // If we are only updating a single disk, the name, model, serial, and size are
-                                        // sufficient to test if this is a match. Add the (old) object, release handle
-                                        // and return.
-                                        computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));
-                                        result.add(storeToUpdate);
-                                        break;
-                                    }
-                                } else if (storeToUpdate == null && store != null // only add if getting new list
-                                        && PARTITION.equals(device.getDevtype())) {
-                                    // udev_device_get_parent_*() does not take a reference on the returned device,
-                                    // it is automatically unref'd with the parent
-                                    UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);
-                                    if (parent != null && store.getName().equals(parent.getDevnode())) {
-                                        // `store` should still point to the parent HWDiskStore this partition is
-                                        // attached to. If not, it's an error, so skip.
-                                        String name = device.getDevnode();
-                                        store.partitionList.add(new HWPartition(name, device.getSysname(),
-                                                device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                        : device.getPropertyValue(ID_FS_TYPE),
-                                                device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                        : device.getPropertyValue(ID_FS_UUID),
-                                                device.getPropertyValue(ID_FS_LABEL) == null ? ""
-                                                        : device.getPropertyValue(ID_FS_LABEL),
-                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                        * SECTORSIZE,
-                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                                mountsMap.getOrDefault(name,
-                                                        getDependentNamesFromHoldersDirectory(device.getSysname()))));
-                                    }
-                                }
-                            }
-                        } finally {
-                            device.unref();
-                        }
-                    }
-                }
-            } finally {
-                enumerate.unref();
-            }
-        } finally {
-            udev.unref();
-        }
-        // Iterate the list and make the partitions unmodifiable
-        for (HWDiskStore hwds : result) {
-            ((LinuxHWDiskStore) hwds).partitionList = Collections.unmodifiableList(hwds.getPartitions().stream()
-                    .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
-        }
-        return result;
+    protected void setPartitionList(List<HWPartition> partitionList) {
+        this.partitionList = partitionList;
     }
 
-    @Override
-    public boolean updateAttributes() {
-        // If this returns non-empty (the same store, but updated) then we were
-        // successful in the update
-        return !getDisks(this).isEmpty();
+    protected List<HWPartition> getMutablePartitionList() {
+        return this.partitionList;
     }
 
-    private static Map<String, String> readMountsMap() {
+    protected static void computeDiskStats(LinuxHWDiskStore store, String devstat) {
+        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
+        store.setDiskStats(devstatArray[UdevStat.READS.ordinal()],
+                devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE, devstatArray[UdevStat.WRITES.ordinal()],
+                devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE,
+                devstatArray[UdevStat.QUEUE_LENGTH.ordinal()], devstatArray[UdevStat.ACTIVE_MS.ordinal()],
+                System.currentTimeMillis());
+    }
+
+    protected static Map<String, String> readMountsMap() {
         Map<String, String> mountsMap = new HashMap<>();
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
@@ -283,28 +164,15 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         return mountsMap;
     }
 
-    private static void computeDiskStats(LinuxHWDiskStore store, String devstat) {
-        long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
-        store.timeStamp = System.currentTimeMillis();
-
-        // Reads and writes are converted in bytes
-        store.reads = devstatArray[UdevStat.READS.ordinal()];
-        store.readBytes = devstatArray[UdevStat.READ_BYTES.ordinal()] * SECTORSIZE;
-        store.writes = devstatArray[UdevStat.WRITES.ordinal()];
-        store.writeBytes = devstatArray[UdevStat.WRITE_BYTES.ordinal()] * SECTORSIZE;
-        store.currentQueueLength = devstatArray[UdevStat.QUEUE_LENGTH.ordinal()];
-        store.transferTime = devstatArray[UdevStat.ACTIVE_MS.ordinal()];
+    protected static String getPartitionNameForDmDevice(String vgName, String lvName) {
+        return DevPath.DEV + vgName + '/' + lvName;
     }
 
-    private static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DevPath.DEV).append(vgName).append('/').append(lvName).toString();
+    protected static String getMountPointOfDmDevice(String vgName, String lvName) {
+        return DevPath.MAPPER + vgName + '-' + lvName;
     }
 
-    private static String getMountPointOfDmDevice(String vgName, String lvName) {
-        return new StringBuilder().append(DevPath.MAPPER).append(vgName).append('-').append(lvName).toString();
-    }
-
-    private static String getDependentNamesFromHoldersDirectory(String sysPath) {
+    protected static String getDependentNamesFromHoldersDirectory(String sysPath) {
         File holdersDir = new File(sysPath + "/holders");
         File[] holders = holdersDir.listFiles();
         if (holders != null) {
@@ -313,8 +181,16 @@ public final class LinuxHWDiskStore extends AbstractHWDiskStore {
         return "";
     }
 
+    protected static void finalizePartitions(List<HWDiskStore> result) {
+        for (HWDiskStore hwds : result) {
+            LinuxHWDiskStore store = (LinuxHWDiskStore) hwds;
+            store.setPartitionList(Collections.unmodifiableList(store.getPartitions().stream()
+                    .sorted(java.util.Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
+        }
+    }
+
     // Order the field is in udev stats
-    enum UdevStat {
+    protected enum UdevStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order. Use 0-ordered index here
         READS(0), READ_BYTES(2), WRITES(4), WRITE_BYTES(6), QUEUE_LENGTH(8), ACTIVE_MS(9);

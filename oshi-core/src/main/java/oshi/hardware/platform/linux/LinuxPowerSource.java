@@ -4,7 +4,6 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
 import static oshi.util.Constants.UNKNOWN;
 
 import java.io.File;
@@ -15,12 +14,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.jna.platform.linux.Udev;
-import com.sun.jna.platform.linux.Udev.UdevContext;
-import com.sun.jna.platform.linux.Udev.UdevDevice;
-import com.sun.jna.platform.linux.Udev.UdevEnumerate;
-import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
@@ -33,9 +26,9 @@ import oshi.util.platform.linux.SysPath;
  * A Power Source
  */
 @ThreadSafe
-public final class LinuxPowerSource extends AbstractPowerSource {
+public class LinuxPowerSource extends AbstractPowerSource {
 
-    enum Prop {
+    protected enum Prop {
         POWER_SUPPLY_NAME, POWER_SUPPLY_STATUS, POWER_SUPPLY_CAPACITY, POWER_SUPPLY_PRESENT, POWER_SUPPLY_ONLINE,
         POWER_SUPPLY_ENERGY_NOW, POWER_SUPPLY_CHARGE_NOW, POWER_SUPPLY_ENERGY_FULL, POWER_SUPPLY_CHARGE_FULL,
         POWER_SUPPLY_ENERGY_FULL_DESIGN, POWER_SUPPLY_CHARGE_FULL_DESIGN, POWER_SUPPLY_VOLTAGE_NOW,
@@ -77,75 +70,34 @@ public final class LinuxPowerSource extends AbstractPowerSource {
      */
     public static List<PowerSource> getPowerSources() {
         List<PowerSource> psList = new ArrayList<>();
-        if (HAS_UDEV) {
-            UdevContext udev = Udev.INSTANCE.udev_new();
-            try {
-                UdevEnumerate enumerate = udev.enumerateNew();
-                try {
-                    enumerate.addMatchSubsystem("power_supply");
-                    enumerate.scanDevices();
-                    for (UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
-                        String syspath = entry.getName();
-                        String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);
-                        if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
-                            UdevDevice device = udev.deviceNewFromSyspath(syspath);
-                            if (device != null) {
-                                try {
-                                    if (ParseUtil.parseIntOrDefault(
-                                            device.getPropertyValue(Prop.POWER_SUPPLY_PRESENT.name()), 1) > 0
-                                            && ParseUtil.parseIntOrDefault(
-                                                    device.getPropertyValue(Prop.POWER_SUPPLY_ONLINE.name()), 1) > 0) {
-                                        Map<Prop, String> props = new EnumMap<>(Prop.class);
-                                        for (Prop p : Prop.values()) {
-                                            String val = device.getPropertyValue(p.name());
-                                            if (val != null) {
-                                                props.put(p, val);
-                                            }
-                                        }
-                                        psList.add(buildPowerSource(name, props));
-                                    }
-                                } finally {
-                                    device.unref();
-                                }
-                            }
+        File psDir = new File(SysPath.POWER_SUPPLY);
+        File[] psArr = psDir.listFiles();
+        if (psArr == null) {
+            return Collections.emptyList();
+        }
+        for (File ps : psArr) {
+            String name = ps.getName();
+            if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
+                List<String> psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + "/" + name + "/uevent", false);
+                Map<Prop, String> props = new EnumMap<>(Prop.class);
+                for (String line : psInfo) {
+                    String[] split = line.split("=", 2);
+                    if (split.length > 1 && !split[1].isEmpty()) {
+                        Prop p = PropByName.MAP.get(split[0]);
+                        if (p != null) {
+                            props.put(p, split[1]);
                         }
                     }
-                } finally {
-                    enumerate.unref();
                 }
-            } finally {
-                udev.unref();
-            }
-        } else {
-            File psDir = new File(SysPath.POWER_SUPPLY);
-            File[] psArr = psDir.listFiles();
-            if (psArr == null) {
-                return Collections.emptyList();
-            }
-            for (File ps : psArr) {
-                String name = ps.getName();
-                if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
-                    List<String> psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + "/" + name + "/uevent", false);
-                    Map<Prop, String> props = new EnumMap<>(Prop.class);
-                    for (String line : psInfo) {
-                        String[] split = line.split("=", 2);
-                        if (split.length > 1 && !split[1].isEmpty()) {
-                            Prop p = PropByName.MAP.get(split[0]);
-                            if (p != null) {
-                                props.put(p, split[1]);
-                            }
-                        }
-                    }
-                    if (ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_PRESENT), 1) > 0) {
-                        psList.add(buildPowerSource(name, props));
-                    }
+                if (ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_PRESENT), 1) > 0) {
+                    psList.add(buildPowerSource(name, props));
                 }
             }
         }
         return psList;
     }
 
-    static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
+    protected static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
         String psName = props.getOrDefault(Prop.POWER_SUPPLY_NAME, name);
         String status = props.get(Prop.POWER_SUPPLY_STATUS);
         boolean psCharging = "Charging".equals(status);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -51,10 +51,10 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, USB devices (not controllers) are listed in a single flat list.
+     * false, all devices (including controllers) are listed in a single flat list with no nested connectedDevices.
      *
      * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
-     *             false, returns a flat list of devices excluding controllers.
+     *             false, returns a flat list of all devices (including controllers) with no nested connectedDevices.
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
@@ -63,8 +63,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
+        // Top level is controllers; add them and all their connected devices as a flat list
         for (UsbDevice device : devices) {
             deviceList.add(new LinuxUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
                     device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),

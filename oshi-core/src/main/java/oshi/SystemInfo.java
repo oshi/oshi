@@ -9,7 +9,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
@@ -17,7 +17,7 @@ import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.linux.LinuxOperatingSystem;
+import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
@@ -76,7 +76,7 @@ public class SystemInfo {
         switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
             case ANDROID:
-                return new LinuxOperatingSystem();
+                return new LinuxOperatingSystemJNA();
             case MACOS:
                 return new MacOperatingSystemJNA();
             case WINDOWS:
@@ -107,7 +107,7 @@ public class SystemInfo {
         switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
             case ANDROID:
-                return new LinuxHardwareAbstractionLayer();
+                return new LinuxHardwareAbstractionLayerJNA();
             case MACOS:
                 return new MacHardwareAbstractionLayerJNA();
             case WINDOWS:

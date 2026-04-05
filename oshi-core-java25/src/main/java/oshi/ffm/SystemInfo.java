@@ -10,11 +10,11 @@ import java.util.function.Supplier;
 
 import oshi.PlatformEnum;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
-import oshi.software.os.linux.LinuxOperatingSystem;
+import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
 
@@ -44,7 +44,7 @@ public class SystemInfo {
             case MACOS:
                 return new MacOperatingSystemFFM();
             case LINUX:
-                return new LinuxOperatingSystem();
+                return new LinuxOperatingSystemFFM();
             case WINDOWS:
                 return new WindowsOperatingSystemFFM();
             default:
@@ -57,7 +57,7 @@ public class SystemInfo {
             case MACOS:
                 return new MacHardwareAbstractionLayerFFM();
             case LINUX:
-                return new LinuxHardwareAbstractionLayer();
+                return new LinuxHardwareAbstractionLayerFFM();
             case WINDOWS:
                 return new WindowsHardwareAbstractionLayer();
             default:
