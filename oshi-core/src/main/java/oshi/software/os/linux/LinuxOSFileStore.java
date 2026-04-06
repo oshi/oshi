@@ -14,6 +14,7 @@ import oshi.software.os.OSFileStore;
 @ThreadSafe
 public class LinuxOSFileStore extends AbstractOSFileStore {
 
+    private final LinuxFileSystem fs;
     private String logicalVolume;
     private String description;
     private String fsType;
@@ -26,8 +27,9 @@ public class LinuxOSFileStore extends AbstractOSFileStore {
 
     public LinuxOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
-            long totalSpace, long freeInodes, long totalInodes) {
+            long totalSpace, long freeInodes, long totalInodes, LinuxFileSystem fs) {
         super(name, volume, label, mount, options, uuid, local);
+        this.fs = fs;
         this.logicalVolume = logicalVolume;
         this.description = description;
         this.fsType = fsType;
@@ -80,7 +82,7 @@ public class LinuxOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : LinuxFileSystem.getFileStoreMatching(getName(), null, isLocal())) {
+        for (OSFileStore fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(), isLocal())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 this.logicalVolume = fileStore.getLogicalVolume();
                 this.description = fileStore.getDescription();

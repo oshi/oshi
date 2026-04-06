@@ -70,7 +70,7 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        OSProcess proc = new LinuxOSProcessFFM(pid, this);
+        OSProcess proc = createOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;
         }

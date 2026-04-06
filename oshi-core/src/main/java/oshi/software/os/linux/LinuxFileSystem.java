@@ -68,7 +68,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
-        return getFileStoreMatching(null, buildUuidMap(), localOnly, this);
+        return getFileStoreMatching(null, buildUuidMap(), localOnly);
     }
 
     protected static Map<String, String> buildUuidMap() {
@@ -106,13 +106,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         return uuidMap;
     }
 
-    // called from LinuxOSFileStore with null instance (falls back to java.io.File for space)
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {
-        return getFileStoreMatching(nameToMatch, uuidMap, localOnly, null);
-    }
-
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly,
-            LinuxFileSystem instance) {
+    List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         Map<String, String> labelMap = queryLabelMap();
@@ -191,7 +185,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             long usableSpace = 0L;
             long freeSpace = 0L;
 
-            long[] vfs = instance != null ? instance.queryStatvfs(path) : null;
+            long[] vfs = queryStatvfs(path);
             if (vfs != null) {
                 totalInodes = vfs[0];
                 freeInodes = vfs[1];
@@ -209,7 +203,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
 
             fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,
                     isLocal, logicalVolume, description, type, freeSpace, usableSpace, totalSpace, freeInodes,
-                    totalInodes));
+                    totalInodes, this));
         }
         return fsList;
     }

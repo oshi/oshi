@@ -495,9 +495,15 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         if (!maxOpenFilesLine.isPresent()) {
             return -1;
         }
-
-        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
-        final String[] split = maxOpenFilesLine.get().split("\\D+");
+        final String line = maxOpenFilesLine.get();
+        if (line.contains("unlimited")) {
+            return -1;
+        }
+        // Split all non-Digits away -> ["", "{soft-limit}", "{hard-limit}"]
+        final String[] split = line.split("\\D+");
+        if (split.length <= index) {
+            return -1;
+        }
         return ParseUtil.parseLongOrDefault(split[index], -1);
     }
 }

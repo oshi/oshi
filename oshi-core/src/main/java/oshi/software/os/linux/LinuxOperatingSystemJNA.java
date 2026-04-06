@@ -94,7 +94,7 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        OSProcess proc = new LinuxOSProcessJNA(pid, this);
+        OSProcess proc = createOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;
         }
@@ -132,7 +132,7 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
                 LOG.error("Failed to get process thread count. Error code: {}", Native.getLastError());
                 return 0;
             }
-            return info.procs;
+            return Short.toUnsignedInt(info.procs);
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
             LOG.error("Failed to get procs from sysinfo. {}", e.getMessage());
         }
