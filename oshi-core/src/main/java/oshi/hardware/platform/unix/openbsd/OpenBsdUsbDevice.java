@@ -1,11 +1,11 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.sort;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +44,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
         for (UsbDevice device : devices) {
-            deviceList.add(new OpenBsdUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
@@ -123,13 +118,6 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
         return controllerDevices;
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     /**
      * Recursively creates OpenBsdUsbDevices by fetching information from maps to populate fields
      *
@@ -142,7 +130,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
      * @param productIdMap the map of productIds
      * @param serialMap    the map of serial numbers
      * @param hubMap       the map of hubs
-     * @return A SolarisUsbDevice corresponding to this device
+     * @return A OpenBsdUsbDevice corresponding to this device
      */
     private static OpenBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
             Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
@@ -155,7 +143,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }
-        Collections.sort(usbDevices);
+        sort(usbDevices);
         return new OpenBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
                 vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
                 usbDevices);

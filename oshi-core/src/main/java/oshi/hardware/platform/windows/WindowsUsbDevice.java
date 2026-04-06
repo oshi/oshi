@@ -1,11 +1,11 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.sort;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +42,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, USB devices (not controllers) are listed in a single flat list.
+     * false, all devices (including controllers) are listed in a single flat list.
      *
      * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
      *             false, returns a flat list of devices excluding controllers.
@@ -54,22 +54,8 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
-        for (UsbDevice device : devices) {
-            // Recursively add all child devices
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
+        addDevicesToList(deviceList, devices);
         return deviceList;
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(new WindowsUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
     }
 
     private static List<UsbDevice> queryUsbDevices() {
@@ -122,7 +108,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
                 childDevices.add(deviceAndChildren);
             }
         }
-        Collections.sort(childDevices);
+        sort(childDevices);
         // Finally construct the object and return
         if (nameMap.containsKey(device)) {
             String name = nameMap.get(device);

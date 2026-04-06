@@ -6,7 +6,7 @@ package oshi.hardware.platform.mac;
 
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,7 +15,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.CoreFoundation.CFAllocatorRef;
 import oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
@@ -24,37 +23,39 @@ import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.UsbDevice;
-import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**
- * Mac Usb Device FFM implementation.
+ * Mac USB device helper using FFM/IOKit. Instantiates {@link MacUsbDevice} objects.
  */
-@Immutable
-public class MacUsbDeviceFFM extends AbstractUsbDevice {
+public final class MacUsbDeviceFFM extends MacUsbDevice {
+
+    private MacUsbDeviceFFM() {
+    }
 
     private static final String IOUSB = "IOUSB";
     private static final String IOSERVICE = "IOService";
     private static final Logger LOG = LoggerFactory.getLogger(MacUsbDeviceFFM.class);
 
-    public MacUsbDeviceFFM(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
-    }
-
+    /**
+     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
+     * (including internal devices).
+     *
+     * @param tree If true, returns a list of controllers with their device tree. If false, returns a flat list of
+     *             devices excluding controllers.
+     * @return a list of {@link oshi.hardware.UsbDevice} objects.
+     */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = getUsbDevices();
+        List<UsbDevice> devices = queryUsbDevices();
         if (tree) {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        for (UsbDevice device : devices) {
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
+        addDevicesToList(deviceList, devices);
         return deviceList;
     }
 
-    private static List<UsbDevice> getUsbDevices() {
+    private static List<UsbDevice> queryUsbDevices() {
         Map<Long, String> nameMap = new HashMap<>();
         Map<Long, String> vendorMap = new HashMap<>();
         Map<Long, String> vendorIdMap = new HashMap<>();
@@ -65,7 +66,7 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
         List<Long> usbControllers = new ArrayList<>();
         IORegistryEntry root = IOKitUtilFFM.getRoot();
         if (root == null) {
-            return Collections.emptyList();
+            return emptyList();
         }
         IOIterator iter = root.getChildIterator(IOUSB);
         if (iter != null) {
@@ -149,15 +150,6 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
         }
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(new MacUsbDeviceFFM(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
             CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
         // Build matching dict: { IOPropertyMatch: { locationID: <locationId> } }
@@ -202,22 +194,5 @@ public class MacUsbDeviceFFM extends AbstractUsbDevice {
         } catch (Throwable e) {
             LOG.debug("Failed to retrieve controller vendor/product IDs for id {}", id, e);
         }
-    }
-
-    private static MacUsbDeviceFFM getDeviceAndChildren(Long registryEntryId, String vid, String pid,
-            Map<Long, String> nameMap, Map<Long, String> vendorMap, Map<Long, String> vendorIdMap,
-            Map<Long, String> productIdMap, Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
-        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
-        String productId = productIdMap.getOrDefault(registryEntryId, pid);
-        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<>());
-        List<UsbDevice> usbDevices = new ArrayList<>();
-        for (Long childId : childIds) {
-            usbDevices.add(getDeviceAndChildren(childId, vendorId, productId, nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        Collections.sort(usbDevices);
-        return new MacUsbDeviceFFM(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
-                vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), "0x" + Long.toHexString(registryEntryId), usbDevices);
     }
 }

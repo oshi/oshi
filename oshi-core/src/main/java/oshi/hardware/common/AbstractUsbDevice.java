@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.common;
@@ -75,6 +75,19 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name
         return getName().compareTo(usb.getName());
+    }
+
+    /**
+     * Recursively adds USB devices from {@code list} to {@code deviceList}, depth-first.
+     *
+     * @param deviceList the target list to add devices to
+     * @param list       the source list of devices (and their children) to add
+     */
+    protected static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
+        for (UsbDevice device : list) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
     }
 
     @Override

@@ -1,11 +1,12 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +48,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        // Top level is controllers; they won't be added to the list, but all
-        // their connected devices will be
         for (UsbDevice device : devices) {
-            deviceList.add(new SolarisUsbDevice(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
@@ -68,7 +64,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         // Enumerate all usb devices and build information maps
         List<String> devices = ExecutingCommand.runNative("prtconf -pv");
         if (devices.isEmpty()) {
-            return Collections.emptyList();
+            return emptyList();
         }
         // For each item enumerated, store information in the maps
         Map<Integer, String> lastParent = new HashMap<>();
@@ -135,13 +131,6 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         return controllerDevices;
     }
 
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
     /**
      * Recursively creates SolarisUsbDevices by fetching information from maps to populate fields
      *
@@ -164,7 +153,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         for (String path : childPaths) {
             usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorIdMap, productIdMap, hubMap));
         }
-        Collections.sort(usbDevices);
+        sort(usbDevices);
         return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
                 "", devPath, usbDevices);
     }

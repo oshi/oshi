@@ -9,7 +9,7 @@ import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,16 +17,16 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.UsbDevice;
-import oshi.hardware.common.AbstractUsbDevice;
 
 /**
- * FFM-based Linux USB device implementation.
+ * Linux USB device helper using FFM/udev. Instantiates {@link LinuxUsbDevice} objects.
  */
-@Immutable
-public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
+public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
+
+    private LinuxUsbDeviceFFM() {
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxUsbDeviceFFM.class);
 
@@ -38,11 +38,6 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
     private static final String ATTR_PRODUCT_ID = "idProduct";
     private static final String ATTR_SERIAL = "serial";
 
-    public LinuxUsbDeviceFFM(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
-        super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
-    }
-
     /**
      * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
      * (including internal devices).
@@ -52,24 +47,21 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = getUsbDevices();
+        List<UsbDevice> devices = queryUsbDevices();
         if (tree) {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
         for (UsbDevice device : devices) {
-            deviceList.add(new LinuxUsbDeviceFFM(device.getName(), device.getVendor(), device.getVendorId(),
-                    device.getProductId(), device.getSerialNumber(), device.getUniqueDeviceId(),
-                    Collections.emptyList()));
             addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
     }
 
-    private static List<UsbDevice> getUsbDevices() {
+    private static List<UsbDevice> queryUsbDevices() {
         if (!HAS_UDEV) {
             LOG.warn("USB Device information requires libudev, which is not present.");
-            return Collections.emptyList();
+            return emptyList();
         }
         List<String> usbControllers = new ArrayList<>();
         Map<String, String> nameMap = new HashMap<>();
@@ -82,7 +74,7 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
-                return Collections.emptyList();
+                return emptyList();
             }
             try {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
@@ -151,7 +143,7 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
             }
         } catch (Throwable e) {
             LOG.warn("Error enumerating USB devices: {}", e.getMessage());
-            return Collections.emptyList();
+            return emptyList();
         }
 
         List<UsbDevice> controllerDevices = new ArrayList<>();
@@ -160,29 +152,5 @@ public class LinuxUsbDeviceFFM extends AbstractUsbDevice {
                     productIdMap, serialMap, hubMap));
         }
         return controllerDevices;
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-    }
-
-    private static LinuxUsbDeviceFFM getDeviceAndChildren(String devPath, String vid, String pid,
-            Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
-            Map<String, String> productIdMap, Map<String, String> serialMap, Map<String, List<String>> hubMap) {
-        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-        String productId = productIdMap.getOrDefault(devPath, pid);
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<>());
-        List<UsbDevice> usbDevices = new ArrayList<>();
-        for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        Collections.sort(usbDevices);
-        return new LinuxUsbDeviceFFM(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
-                vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
-                usbDevices);
     }
 }

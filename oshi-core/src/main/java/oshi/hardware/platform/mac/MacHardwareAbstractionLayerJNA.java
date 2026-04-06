@@ -66,7 +66,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return MacUsbDevice.getUsbDevices(tree);
+        return MacUsbDeviceJNA.getUsbDevices(tree);
     }
 
     @Override

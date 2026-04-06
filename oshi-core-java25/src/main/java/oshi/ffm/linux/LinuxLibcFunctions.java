@@ -19,6 +19,8 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final long SYS_GETTID;
 
     static {
-        String arch = System.getProperty("os.arch", "").toLowerCase();
+        String arch = System.getProperty("os.arch", "").toLowerCase(Locale.ROOT);
         if (arch.contains("aarch64") || arch.contains("arm64") || arch.contains("riscv64")
                 || arch.contains("loongarch64")) {
             SYS_GETTID = 178L;
