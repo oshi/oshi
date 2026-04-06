@@ -43,12 +43,18 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
 
     static {
         String arch = System.getProperty("os.arch", "").toLowerCase();
-        if (arch.contains("aarch64") || arch.contains("arm64")) {
+        if (arch.contains("aarch64") || arch.contains("arm64") || arch.contains("riscv64")
+                || arch.contains("loongarch64")) {
             SYS_GETTID = 178L;
         } else if (arch.contains("amd64") || arch.contains("x86_64")) {
             SYS_GETTID = 186L;
+        } else if (arch.contains("s390")) {
+            SYS_GETTID = 236L;
+        } else if (arch.contains("ppc64")) {
+            SYS_GETTID = 207L;
         } else {
-            // x86-32 and ARM32
+            // x86-32 and ARM32 use 224; log for any other unexpected arch
+            LOG.debug("Unknown architecture '{}' for SYS_GETTID, defaulting to 224", arch);
             SYS_GETTID = 224L;
         }
     }
@@ -174,7 +180,7 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         sysinfo = LINKER.downcallHandle(libc.findOrThrow("sysinfo"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
         statvfs = LINKER.downcallHandle(libc.findOrThrow("statvfs"), FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
         gethostname = LINKER.downcallHandle(libc.findOrThrow("gethostname"),
-                FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+                FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
         getaddrinfo = LINKER.downcallHandle(libc.findOrThrow("getaddrinfo"),
                 FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
         freeaddrinfo = LINKER.downcallHandle(libc.findOrThrow("freeaddrinfo"), FunctionDescriptor.ofVoid(ADDRESS));
@@ -261,8 +267,8 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
      * @param info segment populated by {@link #sysinfo(MemorySegment)}
      * @return number of current processes
      */
-    public static short sysinfoProcs(MemorySegment info) {
-        return (short) SYSINFO_PROCS.get(info, 0L);
+    public static int sysinfoProcs(MemorySegment info) {
+        return Short.toUnsignedInt((short) SYSINFO_PROCS.get(info, 0L));
     }
 
     /**
@@ -343,7 +349,7 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
      * @param len buffer length
      * @return 0 on success, -1 on error
      */
-    public static int gethostname(MemorySegment buf, int len) throws Throwable {
+    public static int gethostname(MemorySegment buf, long len) throws Throwable {
         return (int) gethostname.invokeExact(buf, len);
     }
 

@@ -60,6 +60,9 @@ public class LinuxUsbDeviceJNA extends LinuxUsbDevice {
             return;
         }
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();
+        if (udev == null) {
+            return;
+        }
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
             try {

@@ -29,8 +29,10 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
     protected long queryRlimitSoft() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
-            LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim);
-            return LinuxLibcFunctions.rlimitCur(rlim);
+            if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
+                return LinuxLibcFunctions.rlimitCur(rlim);
+            }
+            return getProcessOpenFileLimit(getProcessID(), 1);
         } catch (Throwable e) {
             LOG.warn("FFM getrlimit failed: {}", e.toString());
             return getProcessOpenFileLimit(getProcessID(), 1);
@@ -41,8 +43,10 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
     protected long queryRlimitHard() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
-            LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim);
-            return LinuxLibcFunctions.rlimitMax(rlim);
+            if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
+                return LinuxLibcFunctions.rlimitMax(rlim);
+            }
+            return getProcessOpenFileLimit(getProcessID(), 2);
         } catch (Throwable e) {
             LOG.warn("FFM getrlimit failed: {}", e.toString());
             return getProcessOpenFileLimit(getProcessID(), 2);

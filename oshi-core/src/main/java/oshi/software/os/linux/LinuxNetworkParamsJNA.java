@@ -45,14 +45,17 @@ class LinuxNetworkParamsJNA extends LinuxNetworkParams {
             }
             try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {
                 int res = LIBC.getaddrinfo(hostname, null, hint, ptr);
-                if (res > 0) {
+                if (res != 0) {
                     if (LOG.isErrorEnabled()) {
                         LOG.error("Failed getaddrinfo(): {}", LIBC.gai_strerror(res));
                     }
                     return "";
                 }
-                try (Addrinfo info = new Addrinfo(ptr.getValue())) {
+                Addrinfo info = new Addrinfo(ptr.getValue());
+                try {
                     return info.ai_canonname == null ? hostname : info.ai_canonname.trim();
+                } finally {
+                    LIBC.freeaddrinfo(ptr.getValue());
                 }
             }
         }

@@ -22,14 +22,18 @@ public class LinuxOSProcessJNA extends LinuxOSProcess {
     @Override
     protected long queryRlimitSoft() {
         final Resource.Rlimit rlimit = new Resource.Rlimit();
-        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
+        if (0 == LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit)) {
+            return rlimit.rlim_cur;
+        }
+        return getProcessOpenFileLimit(getProcessID(), 1);
     }
 
     @Override
     protected long queryRlimitHard() {
         final Resource.Rlimit rlimit = new Resource.Rlimit();
-        LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
+        if (0 == LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit)) {
+            return rlimit.rlim_max;
+        }
+        return getProcessOpenFileLimit(getProcessID(), 2);
     }
 }
