@@ -4,8 +4,9 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import java.util.ArrayList;
 import static java.util.Collections.sort;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -4,9 +4,10 @@
  */
 package oshi.hardware.platform.mac;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;

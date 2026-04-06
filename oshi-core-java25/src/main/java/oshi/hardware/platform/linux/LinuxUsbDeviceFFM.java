@@ -4,12 +4,12 @@
  */
 package oshi.hardware.platform.linux;
 
+import static java.util.Collections.emptyList;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

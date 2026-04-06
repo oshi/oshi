@@ -498,6 +498,9 @@
                             <licenseHeader>
                                 <file>${main.basedir}/config/license-header.txt</file>
                             </licenseHeader>
+                            <importOrder>
+                                <order>\#,java,javax,org,com,oshi</order>
+                            </importOrder>
                             <eclipse>
                                 <file>${main.basedir}/config/OSHIJavaFormatConventions.xml</file>
                             </eclipse>

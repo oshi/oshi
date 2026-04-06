@@ -18,7 +18,6 @@ import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
-
 import java.util.Locale;
 
 import org.slf4j.Logger;

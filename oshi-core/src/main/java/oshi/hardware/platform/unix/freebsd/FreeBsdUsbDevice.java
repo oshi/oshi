@@ -4,9 +4,10 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
-import java.util.ArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;

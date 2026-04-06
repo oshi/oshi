@@ -4,8 +4,9 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.util.ArrayList;
 import static java.util.Collections.sort;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
