@@ -131,7 +131,7 @@ public class OpenBsdUsbDevice extends AbstractUsbDevice {
      * @param productIdMap the map of productIds
      * @param serialMap    the map of serial numbers
      * @param hubMap       the map of hubs
-     * @return A OpenBsdUsbDevice corresponding to this device
+     * `@return` An OpenBsdUsbDevice corresponding to this device
      */
     private static OpenBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
             Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
