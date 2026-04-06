@@ -75,7 +75,7 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
                 }
             }
         } catch (NoClassDefFoundError e) {
-            LOG.error("Did not JNA classes. Investigate incompatible version or missing native dll.");
+            LOG.error("Did not find JNA classes. Investigate incompatible version or missing native dll.");
         }
         HAS_UDEV = hasUdev;
         HAS_GETTID = hasGettid;
