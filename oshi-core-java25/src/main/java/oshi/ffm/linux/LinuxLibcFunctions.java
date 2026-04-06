@@ -161,7 +161,9 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final boolean HAS_GETTID;
 
     static {
-        SymbolLookup libc = libraryLookup("c");
+        // libc is always linked into the JVM process; use the linker's default lookup
+        // rather than libraryLookup("c") which fails on Linux (libc.so vs libc.so.6).
+        SymbolLookup libc = LINKER.defaultLookup();
 
         getpid = LINKER.downcallHandle(libc.findOrThrow("getpid"), FunctionDescriptor.of(JAVA_INT));
         // syscall(SYS_GETTID) — declare with one fixed arg; no extra args needed for gettid

@@ -2,6 +2,7 @@
 
 ##### Bug fixes / Improvements
 * [#3119](https://github.com/oshi/oshi/pull/3119): Fix resource leaks and flaky test in `PrivilegedUtil` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3121](https://github.com/oshi/oshi/pull/3121): Port remaining Linux JNA classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#3120](https://github.com/oshi/oshi/pull/3120): Migrate `LinuxCentralProcessor` udev calls - [@dbwiddis](https://github.com/dbwiddis).
 * [#3117](https://github.com/oshi/oshi/pull/3117): Begin Linux FFM migration: udev-dependent HAL components - [@dbwiddis](https://github.com/dbwiddis).
 
