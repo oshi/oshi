@@ -5,6 +5,7 @@
 * [#3117](https://github.com/oshi/oshi/pull/3117),
   [#3120](https://github.com/oshi/oshi/pull/3120),
   [#3121](https://github.com/oshi/oshi/pull/3121): Port Linux JNA classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3122](https://github.com/oshi/oshi/pull/3122): Refactor USB device classes to reduce duplication - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04)
 

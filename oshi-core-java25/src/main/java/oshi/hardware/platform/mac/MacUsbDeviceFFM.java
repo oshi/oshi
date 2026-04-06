@@ -8,9 +8,11 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import static java.util.Collections.emptyList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,9 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        addDevicesToList(deviceList, devices);
+        for (UsbDevice device : devices) {
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
         return deviceList;
     }
 
@@ -63,7 +67,7 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
         Map<Long, String> serialMap = new HashMap<>();
         Map<Long, List<Long>> hubMap = new HashMap<>();
 
-        List<Long> usbControllers = new ArrayList<>();
+        Set<Long> usbControllers = new LinkedHashSet<>();
         IORegistryEntry root = IOKitUtilFFM.getRoot();
         if (root == null) {
             return emptyList();
@@ -89,6 +93,8 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
                         }
                         controller.release();
                     }
+                    // If controller is null, id remains 0L, acting as an anonymous catch-all
+                    // controller so that devices whose parent cannot be identified are not lost.
                     usbControllers.add(id);
                     addDeviceAndChildrenToMaps(device, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
                             hubMap);

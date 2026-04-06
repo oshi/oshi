@@ -6,9 +6,11 @@ package oshi.hardware.platform.mac;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
@@ -40,7 +42,7 @@ public final class MacUsbDeviceJNA extends MacUsbDevice {
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, all devices (including controllers) are listed in a single flat list.
+     * false, USB devices (not controllers) are listed in a single flat list.
      *
      * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
      *             false, returns a flat list of devices excluding controllers.
@@ -52,7 +54,9 @@ public final class MacUsbDeviceJNA extends MacUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        addDevicesToList(deviceList, devices);
+        for (UsbDevice device : devices) {
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
         return deviceList;
     }
 
@@ -65,7 +69,7 @@ public final class MacUsbDeviceJNA extends MacUsbDevice {
         Map<Long, String> serialMap = new HashMap<>();
         Map<Long, List<Long>> hubMap = new HashMap<>();
 
-        List<Long> usbControllers = new ArrayList<>();
+        Set<Long> usbControllers = new LinkedHashSet<>();
         IORegistryEntry root = IOKitUtil.getRoot();
         // Iterate over children of root in the IOUSB plane. This does not include
         // controllers so we have to check their parents
@@ -97,6 +101,8 @@ public final class MacUsbDeviceJNA extends MacUsbDevice {
                     }
                     controller.release();
                 }
+                // If controller is null, id remains 0L, acting as an anonymous catch-all
+                // controller so that devices whose parent cannot be identified are not lost.
                 usbControllers.add(id);
 
                 // Now recursively add this device and its children to the maps
@@ -167,15 +173,16 @@ public final class MacUsbDeviceJNA extends MacUsbDevice {
 
         // Now get this device's children (if any) and recurse
         IOIterator childIter = device.getChildIterator(IOUSB);
-        IORegistryEntry childDevice = childIter.next();
-        while (childDevice != null) {
-            addDeviceAndChildrenToMaps(childDevice, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
-                    hubMap);
-
-            childDevice.release();
-            childDevice = childIter.next();
+        if (childIter != null) {
+            IORegistryEntry childDevice = childIter.next();
+            while (childDevice != null) {
+                addDeviceAndChildrenToMaps(childDevice, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
+                        hubMap);
+                childDevice.release();
+                childDevice = childIter.next();
+            }
+            childIter.release();
         }
-        childIter.release();
     }
 
     /**

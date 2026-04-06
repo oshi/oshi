@@ -104,10 +104,33 @@ public interface HardwareAbstractionLayer {
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
      * false, USB devices (not controllers) are listed in a single flat list.
+     * <p>
+     * Note: in both cases each {@link UsbDevice} in the returned list may still report connected child devices via
+     * {@link UsbDevice#getConnectedDevices()}. When {@code tree} is false the list is intended for simple iteration
+     * over individual devices; callers should not recurse into {@link UsbDevice#getConnectedDevices()} or rely on
+     * {@link Object#toString()} (which renders the full subtree) to avoid processing devices more than once.
+     * <p>
+     * To print the full device tree rooted at each controller:
      *
-     * @param tree If {@code true}, returns devices connected to the existing device, accessible via
-     *             {@link UsbDevice#getConnectedDevices()}. If {@code false} returns devices as a flat list with no
-     *             connected device information.
+     * <pre>{@code
+     * for (UsbDevice controller : hal.getUsbDevices(true)) {
+     *     System.out.println(controller); // toString() renders the full subtree
+     * }
+     * }</pre>
+     *
+     * To iterate individual devices without tree structure:
+     *
+     * <pre>{@code
+     * for (UsbDevice device : hal.getUsbDevices(false)) {
+     *     // Use individual fields; avoid toString() as it includes the subtree
+     *     System.out.println(device.getName() + " [" + device.getVendorId() + ":" + device.getProductId() + "]");
+     * }
+     * }</pre>
+     *
+     * @param tree If {@code true}, returns the USB Controllers as top-level entries, with connected hubs and devices
+     *             accessible via {@link UsbDevice#getConnectedDevices()}. If {@code false}, returns a flat list of
+     *             non-controller devices; {@link UsbDevice#getConnectedDevices()} may still be non-empty but should not
+     *             be iterated to avoid duplicates.
      * @return A list of UsbDevice objects representing (optionally) the USB Controllers and devices connected to them,
      *         or an empty list if none are present
      */

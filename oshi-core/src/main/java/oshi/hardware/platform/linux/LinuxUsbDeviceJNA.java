@@ -46,10 +46,10 @@ public final class LinuxUsbDeviceJNA extends LinuxUsbDevice {
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, all devices (including controllers) are listed in a single flat list with no nested connectedDevices.
+     * false, USB devices (not controllers) are listed in a single flat list.
      *
      * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
-     *             false, returns a flat list of all devices (including controllers) with no nested connectedDevices.
+     *             false, returns a flat list of devices excluding controllers.
      * @return a list of {@link oshi.hardware.UsbDevice} objects.
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
@@ -82,6 +82,10 @@ public final class LinuxUsbDeviceJNA extends LinuxUsbDevice {
 
         // Enumerate all usb devices and build information maps
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();
+        if (udev == null) {
+            LOG.warn("Failed to create udev context.");
+            return emptyList();
+        }
         try {
             UdevEnumerate enumerate = udev.enumerateNew();
             try {

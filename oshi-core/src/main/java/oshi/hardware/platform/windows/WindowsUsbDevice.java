@@ -42,7 +42,7 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
      * <p>
      * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
      * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, all devices (including controllers) are listed in a single flat list.
+     * false, USB devices (not controllers) are listed in a single flat list.
      *
      * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
      *             false, returns a flat list of devices excluding controllers.
@@ -54,7 +54,9 @@ public class WindowsUsbDevice extends AbstractUsbDevice {
             return devices;
         }
         List<UsbDevice> deviceList = new ArrayList<>();
-        addDevicesToList(deviceList, devices);
+        for (UsbDevice device : devices) {
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
         return deviceList;
     }
 
