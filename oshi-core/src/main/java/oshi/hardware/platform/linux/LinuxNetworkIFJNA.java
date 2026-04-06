@@ -4,7 +4,7 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;

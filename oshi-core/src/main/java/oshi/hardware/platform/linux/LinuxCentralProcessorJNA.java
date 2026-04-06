@@ -4,7 +4,7 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +20,7 @@ import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.linux.LinuxLibc;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
@@ -137,6 +138,22 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        double[] average = new double[nelem];
+        int retval = LinuxLibc.INSTANCE.getloadavg(average, nelem);
+        if (retval < 0) {
+            return super.getSystemLoadAverage(nelem);
+        }
+        for (int i = retval; i < nelem; i++) {
+            average[i] = -1d;
+        }
+        return average;
     }
 
     private static long readMaxFreqFromUdev(UdevContext udev) {

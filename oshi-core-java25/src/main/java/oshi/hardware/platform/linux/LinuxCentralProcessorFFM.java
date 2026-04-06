@@ -8,6 +8,7 @@ import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -32,6 +34,25 @@ import oshi.util.tuples.Quartet;
 public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessorFFM.class);
+
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment loadavg = arena.allocate(ValueLayout.JAVA_DOUBLE, nelem);
+            int retval = LinuxLibcFunctions.getloadavg(loadavg, nelem);
+            double[] average = new double[nelem];
+            for (int i = 0; i < nelem; i++) {
+                average[i] = retval > i ? loadavg.getAtIndex(ValueLayout.JAVA_DOUBLE, i) : -1d;
+            }
+            return average;
+        } catch (Throwable e) {
+            LOG.warn("FFM getloadavg failed: {}", e.toString());
+            return super.getSystemLoadAverage(nelem);
+        }
+    }
 
     @Override
     protected Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev() {
@@ -170,5 +191,4 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
         }
         return queryMaxFreqFromSysfs();
     }
-
 }

@@ -26,13 +26,11 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.ProcessStat;
-import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
@@ -48,7 +46,7 @@ import oshi.util.platform.linux.ProcPath;
  * OSProcess implementation
  */
 @ThreadSafe
-public class LinuxOSProcess extends AbstractOSProcess {
+public abstract class LinuxOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcess.class);
 
@@ -67,6 +65,15 @@ public class LinuxOSProcess extends AbstractOSProcess {
     }
 
     private final LinuxOperatingSystem os;
+
+    /**
+     * Returns the {@link LinuxOperatingSystem} instance associated with this process.
+     *
+     * @return the operating system instance
+     */
+    protected LinuxOperatingSystem getOs() {
+        return this.os;
+    }
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
@@ -278,25 +285,29 @@ public class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return getProcessOpenFileLimit(getProcessID(), 1);
-        }
+        return getProcessID() == this.os.getProcessId() ? queryRlimitSoft()
+                : getProcessOpenFileLimit(getProcessID(), 1);
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return getProcessOpenFileLimit(getProcessID(), 2);
-        }
+        return getProcessID() == this.os.getProcessId() ? queryRlimitHard()
+                : getProcessOpenFileLimit(getProcessID(), 2);
     }
+
+    /**
+     * Queries the soft open file limit for the current process via native {@code getrlimit}.
+     *
+     * @return the soft limit value
+     */
+    protected abstract long queryRlimitSoft();
+
+    /**
+     * Queries the hard open file limit for the current process via native {@code getrlimit}.
+     *
+     * @return the hard limit value
+     */
+    protected abstract long queryRlimitHard();
 
     @Override
     public int getBitness() {
@@ -473,7 +484,7 @@ public class LinuxOSProcess extends AbstractOSProcess {
         }
     }
 
-    private long getProcessOpenFileLimit(long processId, int index) {
+    protected long getProcessOpenFileLimit(long processId, int index) {
         final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
         if (!Files.exists(Paths.get(limitsPath))) {
             return -1; // not supported

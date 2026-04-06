@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.linux;
@@ -27,6 +27,7 @@ public final class ProcPath {
     public static final String AUXV = PROC + "/self/auxv";
     public static final String CPUINFO = PROC + "/cpuinfo";
     public static final String DISKSTATS = PROC + "/diskstats";
+    public static final String LOADAVG = PROC + "/loadavg";
     public static final String MEMINFO = PROC + "/meminfo";
     public static final String MODEL = PROC + "/device-tree/model";
     public static final String MOUNTS = PROC + "/mounts";

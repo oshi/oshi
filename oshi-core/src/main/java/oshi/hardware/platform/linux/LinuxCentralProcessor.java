@@ -5,6 +5,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
+import static oshi.util.platform.linux.ProcPath.LOADAVG;
 import static oshi.util.platform.linux.ProcPath.MODEL;
 
 import java.io.IOException;
@@ -35,7 +36,6 @@ import oshi.driver.linux.proc.CpuInfo;
 import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -503,11 +503,9 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = LinuxLibc.INSTANCE.getloadavg(average, nelem);
-        if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
-            }
+        String[] parts = ParseUtil.whitespaces.split(FileUtil.getStringFromFile(LOADAVG).trim());
+        for (int i = 0; i < nelem; i++) {
+            average[i] = i < parts.length ? ParseUtil.parseDoubleOrDefault(parts[i], -1d) : -1d;
         }
         return average;
     }

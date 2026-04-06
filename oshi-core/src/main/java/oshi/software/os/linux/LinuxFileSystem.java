@@ -19,9 +19,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.linux.LibC;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -38,7 +35,7 @@ import oshi.util.platform.linux.ProcPath;
  * /proc/mount filesystem, excluding temporary and kernel mounts.
  */
 @ThreadSafe
-public class LinuxFileSystem extends AbstractFileSystem {
+public abstract class LinuxFileSystem extends AbstractFileSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
@@ -58,8 +55,23 @@ public class LinuxFileSystem extends AbstractFileSystem {
 
     private static final String UNICODE_SPACE = "\\040";
 
+    /**
+     * Queries filesystem statistics for the given mount path.
+     * <p>
+     * Returns an array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure
+     * (the caller will fall back to {@link java.io.File} methods for space values).
+     *
+     * @param path the mount path to query
+     * @return array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure
+     */
+    protected abstract long[] queryStatvfs(String path);
+
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
+        return getFileStoreMatching(null, buildUuidMap(), localOnly, this);
+    }
+
+    protected static Map<String, String> buildUuidMap() {
         // Map of volume with device path as key
         Map<String, String> volumeDeviceMap = new HashMap<>();
         File devMapper = new File(DevPath.MAPPER);
@@ -91,13 +103,16 @@ public class LinuxFileSystem extends AbstractFileSystem {
                 }
             }
         }
-
-        // List file systems
-        return getFileStoreMatching(null, uuidMap, localOnly);
+        return uuidMap;
     }
 
-    // called from LinuxOSFileStore
+    // called from LinuxOSFileStore with null instance (falls back to java.io.File for space)
     static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {
+        return getFileStoreMatching(nameToMatch, uuidMap, localOnly, null);
+    }
+
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly,
+            LinuxFileSystem instance) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         Map<String, String> labelMap = queryLabelMap();
@@ -176,21 +191,13 @@ public class LinuxFileSystem extends AbstractFileSystem {
             long usableSpace = 0L;
             long freeSpace = 0L;
 
-            try {
-                LibC.Statvfs vfsStat = new LibC.Statvfs();
-                if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {
-                    totalInodes = vfsStat.f_files.longValue();
-                    freeInodes = vfsStat.f_ffree.longValue();
-                    // Per stavfs, these units are in fragments
-                    totalSpace = vfsStat.f_blocks.longValue() * vfsStat.f_frsize.longValue();
-                    usableSpace = vfsStat.f_bavail.longValue() * vfsStat.f_frsize.longValue();
-                    freeSpace = vfsStat.f_bfree.longValue() * vfsStat.f_frsize.longValue();
-                } else {
-                    LOG.debug("Failed to get information to use statvfs. path: {}, Error code: {}", path,
-                            Native.getLastError());
-                }
-            } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
+            long[] vfs = instance != null ? instance.queryStatvfs(path) : null;
+            if (vfs != null) {
+                totalInodes = vfs[0];
+                freeInodes = vfs[1];
+                totalSpace = vfs[2];
+                usableSpace = vfs[3];
+                freeSpace = vfs[4];
             }
             // If native methods failed use JVM methods
             if (totalSpace == 0L) {
