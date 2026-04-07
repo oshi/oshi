@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -14,7 +14,6 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.platform.win32.Guid.GUID;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.SetupApi;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinError;
@@ -27,14 +26,12 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableSpDeviceInterfaceData;
-import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.BATTERY_INFORMATION;
 import oshi.jna.platform.windows.PowrProf.BATTERY_MANUFACTURE_DATE;
 import oshi.jna.platform.windows.PowrProf.BATTERY_QUERY_INFORMATION;
 import oshi.jna.platform.windows.PowrProf.BATTERY_QUERY_INFORMATION_LEVEL;
 import oshi.jna.platform.windows.PowrProf.BATTERY_STATUS;
 import oshi.jna.platform.windows.PowrProf.BATTERY_WAIT_STATUS;
-import oshi.jna.platform.windows.PowrProf.SystemBatteryState;
 import oshi.util.Constants;
 
 /**
@@ -102,30 +99,10 @@ public final class WindowsPowerSource extends AbstractPowerSource {
         String psSerialNumber = Constants.UNKNOWN;
         double psTemperature = 0d;
 
-        // windows PowerSource information comes from two sources: the PowrProf's
-        // CallNTPowerInformation function which returns information for a single
-        // object, and DeviceIoControl with each battery's (if more than one) handle
-        // (which, in theory, return an array of objects but in most cases should return
-        // one).
+        // Note: CallNtPowerInformation(SystemBatteryState) was previously used as a
+        // first pass here but no longer returns accurate data as of Windows 11 23H2.
+        // All battery information is now sourced exclusively via DeviceIoControl.
         //
-        // We start by fetching the PowrProf information, which will be replicated
-        // across all IOCTL entries if there are more than one.
-
-        try (SystemBatteryState batteryState = new SystemBatteryState()) {
-            if (0 == PowrProf.INSTANCE.CallNtPowerInformation(POWER_INFORMATION_LEVEL.SystemBatteryState, null, 0,
-                    batteryState.getPointer(), batteryState.size()) && batteryState.batteryPresent > 0) {
-                if (batteryState.acOnLine == 0 && batteryState.charging == 0 && batteryState.discharging > 0) {
-                    psTimeRemainingEstimated = batteryState.estimatedTime;
-                } else if (batteryState.charging > 0) {
-                    psTimeRemainingEstimated = -2d;
-                }
-                psMaxCapacity = batteryState.maxCapacity;
-                psCurrentCapacity = batteryState.remainingCapacity;
-                psRemainingCapacityPercent = Math.min(1d, (double) psCurrentCapacity / psMaxCapacity);
-                psPowerUsageRate = batteryState.rate;
-            }
-        }
-
         // Enumerate batteries and ask each one for information
         // Ported from:
         // https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices
@@ -211,6 +188,7 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                                                                 }
                                                                 if (0 != (bs.PowerState & BATTERY_CHARGING)) {
                                                                     psCharging = true;
+                                                                    psTimeRemainingEstimated = -2d;
                                                                 }
                                                                 psCurrentCapacity = bs.Capacity;
                                                                 psVoltage = bs.Voltage > 0 ? bs.Voltage / 1000d
@@ -219,6 +197,8 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                                                                 if (psVoltage > 0) {
                                                                     psAmperage = psPowerUsageRate / psVoltage;
                                                                 }
+                                                                psRemainingCapacityPercent = Math.min(1d,
+                                                                        (double) psCurrentCapacity / psMaxCapacity);
                                                             }
                                                         }
 
@@ -276,13 +256,16 @@ public final class WindowsPowerSource extends AbstractPowerSource {
                                                                 psTimeRemainingInstant = tr.getValue();
                                                             }
                                                         }
-                                                        // Fallback
-                                                        if (psTimeRemainingInstant < 0 && psPowerUsageRate != 0) {
-                                                            psTimeRemainingInstant = (psMaxCapacity - psCurrentCapacity)
-                                                                    * 3600d / psPowerUsageRate;
-                                                            if (psTimeRemainingInstant < 0) {
-                                                                psTimeRemainingInstant *= -1;
-                                                            }
+                                                        // Fallback if BatteryEstimatedTime query failed
+                                                        if (psTimeRemainingInstant <= 0 && psPowerUsageRate != 0) {
+                                                            psTimeRemainingInstant = psDischarging
+                                                                    ? psCurrentCapacity * 3600d
+                                                                            / Math.abs(psPowerUsageRate)
+                                                                    : (psMaxCapacity - psCurrentCapacity) * 3600d
+                                                                            / Math.abs(psPowerUsageRate);
+                                                        }
+                                                        if (psDischarging && psTimeRemainingInstant > 0) {
+                                                            psTimeRemainingEstimated = psTimeRemainingInstant;
                                                         }
                                                         // Exit loop
                                                         batteryFound = true;
