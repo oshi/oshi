@@ -47,6 +47,11 @@ public final class MacPowerSourceFFM extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    @Override
+    protected List<PowerSource> queryPowerSources() {
+        return getPowerSources();
+    }
+
     public static List<PowerSource> getPowerSources() {
         String psDeviceName = Constants.UNKNOWN;
         double psTimeRemainingInstant = 0d;

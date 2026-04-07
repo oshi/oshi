@@ -1,16 +1,16 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.windows;
 
-import java.lang.foreign.MemoryLayout;
-import java.lang.foreign.StructLayout;
-
 import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.StructLayout;
 
 public interface WinNTFFM {
 
@@ -26,6 +26,15 @@ public interface WinNTFFM {
     int TOKEN_QUERY = 0x0008;
     int TOKEN_ADJUST_PRIVILEGES = 0x0020;
     int TokenElevation = 20;
+
+    // CreateFile constants
+    int GENERIC_READ = 0x80000000;
+    int GENERIC_WRITE = 0x40000000;
+    int FILE_SHARE_READ = 0x00000001;
+    int FILE_SHARE_WRITE = 0x00000002;
+    int OPEN_EXISTING = 3;
+    int FILE_ATTRIBUTE_NORMAL = 0x00000080;
+    long INVALID_HANDLE_VALUE = -1L;
 
     StructLayout EVENTLOGRECORD = structLayout(JAVA_INT.withName("Length"), JAVA_INT.withName("Reserved"),
             JAVA_INT.withName("RecordNumber"), JAVA_INT.withName("TimeGenerated"), JAVA_INT.withName("TimeWritten"),

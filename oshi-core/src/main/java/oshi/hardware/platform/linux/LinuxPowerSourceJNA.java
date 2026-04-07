@@ -7,7 +7,6 @@ package oshi.hardware.platform.linux;
 import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -29,16 +28,13 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class LinuxPowerSourceJNA extends LinuxPowerSource {
 
-    public LinuxPowerSourceJNA(String psName, String psDeviceName, double psRemainingCapacityPercent,
-            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
-            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
-            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-            String psSerialNumber, double psTemperature) {
-        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-                psManufacturer, psSerialNumber, psTemperature);
+    LinuxPowerSourceJNA(LinuxPowerSource src) {
+        super(src);
+    }
+
+    @Override
+    protected List<PowerSource> queryPowerSources() {
+        return getPowerSources();
     }
 
     /**
@@ -78,7 +74,7 @@ public final class LinuxPowerSourceJNA extends LinuxPowerSource {
                                         props.put(p, val);
                                     }
                                 }
-                                psList.add(buildPowerSource(name, props));
+                                psList.add(new LinuxPowerSourceJNA(buildPowerSource(name, props)));
                             }
                         } finally {
                             device.unref();

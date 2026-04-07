@@ -4,8 +4,11 @@
  */
 package oshi.ffm.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.windows.WinNTFFM.INVALID_HANDLE_VALUE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -16,10 +19,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_CHAR;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Kernel32FFM extends WindowsForeignFunctions {
 
@@ -28,17 +29,12 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final SymbolLookup K32 = lib("Kernel32");
 
     /**
-     * INVALID_HANDLE_VALUE constant (-1) used by Windows API to indicate failure.
-     */
-    private static final long INVALID_HANDLE_VALUE = -1L;
-
-    /**
      * Checks if a handle represents INVALID_HANDLE_VALUE.
      *
      * @param handle the handle to check
      * @return true if the handle is null or equals INVALID_HANDLE_VALUE
      */
-    private static boolean isInvalidHandle(MemorySegment handle) {
+    public static boolean isInvalidHandle(MemorySegment handle) {
         return handle == null || handle.address() == INVALID_HANDLE_VALUE;
     }
 
@@ -50,6 +46,38 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.closeHandle failed", t);
             return OptionalInt.empty();
+        }
+    }
+
+    private static final MethodHandle CreateFile = downcall(K32, "CreateFileW", ADDRESS, ADDRESS, JAVA_INT, JAVA_INT,
+            ADDRESS, JAVA_INT, JAVA_INT, ADDRESS);
+
+    public static Optional<MemorySegment> CreateFile(MemorySegment lpFileName, int dwDesiredAccess, int dwShareMode,
+            int dwCreationDisposition, int dwFlagsAndAttributes) {
+        try {
+            MemorySegment handle = (MemorySegment) CreateFile.invokeExact(lpFileName, dwDesiredAccess, dwShareMode,
+                    MemorySegment.NULL, dwCreationDisposition, dwFlagsAndAttributes, MemorySegment.NULL);
+            if (isInvalidHandle(handle)) {
+                return Optional.empty();
+            }
+            return Optional.of(handle);
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.CreateFile failed", t);
+            return Optional.empty();
+        }
+    }
+
+    private static final MethodHandle DeviceIoControl = downcall(K32, "DeviceIoControl", JAVA_INT, ADDRESS, JAVA_INT,
+            ADDRESS, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+
+    public static boolean DeviceIoControl(MemorySegment hDevice, int dwIoControlCode, MemorySegment lpInBuffer,
+            int nInBufferSize, MemorySegment lpOutBuffer, int nOutBufferSize) {
+        try {
+            return isSuccess((int) DeviceIoControl.invokeExact(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize,
+                    lpOutBuffer, nOutBufferSize, MemorySegment.NULL, MemorySegment.NULL));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.DeviceIoControl failed", t);
+            return false;
         }
     }
 

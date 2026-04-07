@@ -63,6 +63,20 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    protected LinuxPowerSource(LinuxPowerSource src) {
+        this(src.getName(), src.getDeviceName(), src.getRemainingCapacityPercent(), src.getTimeRemainingEstimated(),
+                src.getTimeRemainingInstant(), src.getPowerUsageRate(), src.getVoltage(), src.getAmperage(),
+                src.isPowerOnLine(), src.isCharging(), src.isDischarging(), src.getCapacityUnits(),
+                src.getCurrentCapacity(), src.getMaxCapacity(), src.getDesignCapacity(), src.getCycleCount(),
+                src.getChemistry(), src.getManufactureDate(), src.getManufacturer(), src.getSerialNumber(),
+                src.getTemperature());
+    }
+
+    @Override
+    protected List<PowerSource> queryPowerSources() {
+        return getPowerSources();
+    }
+
     /**
      * Gets Battery Information
      *

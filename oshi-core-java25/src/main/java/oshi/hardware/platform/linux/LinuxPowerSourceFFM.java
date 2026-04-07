@@ -9,7 +9,6 @@ import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 import java.io.File;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -31,16 +30,13 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxPowerSourceFFM.class);
 
-    public LinuxPowerSourceFFM(String psName, String psDeviceName, double psRemainingCapacityPercent,
-            double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
-            double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
-            CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-            String psSerialNumber, double psTemperature) {
-        super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-                psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-                psManufacturer, psSerialNumber, psTemperature);
+    LinuxPowerSourceFFM(LinuxPowerSource src) {
+        super(src);
+    }
+
+    @Override
+    protected List<PowerSource> queryPowerSources() {
+        return getPowerSources();
     }
 
     /**
@@ -89,7 +85,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                                         props.put(p, val);
                                     }
                                 }
-                                psList.add(buildPowerSource(name, props));
+                                psList.add(new LinuxPowerSourceFFM(buildPowerSource(name, props)));
                             }
                         } finally {
                             UdevFunctions.udev_device_unref(device);

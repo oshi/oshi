@@ -4,14 +4,14 @@
  */
 package oshi.ffm.windows.com;
 
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
-
-import static java.lang.foreign.ValueLayout.JAVA_BYTE;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
 /**
  * FFM representation of the Windows GUID structure.
@@ -114,5 +114,15 @@ public final class GuidFFM {
      */
     public static MemorySegment IID_IUnknown(Arena arena) {
         return create(arena, 0x00000000, 0x0000, 0x0000, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
+    }
+
+    /**
+     * GUID_DEVCLASS_BATTERY: {72631E54-78A4-11D0-BCF7-00AA00B7B32A}
+     *
+     * @param arena the arena for memory allocation
+     * @return a memory segment containing the GUID_DEVCLASS_BATTERY GUID
+     */
+    public static MemorySegment GUID_DEVCLASS_BATTERY(Arena arena) {
+        return create(arena, 0x72631e54, 0x78a4, 0x11d0, 0xbc, 0xf7, 0x00, 0xaa, 0x00, 0xb7, 0xb3, 0x2a);
     }
 }

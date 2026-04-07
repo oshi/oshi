@@ -47,6 +47,11 @@ public final class MacPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    @Override
+    protected List<PowerSource> queryPowerSources() {
+        return getPowerSources();
+    }
+
     /**
      * Gets Battery Information.
      *

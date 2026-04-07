@@ -12,7 +12,7 @@ import oshi.PlatformEnum;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
-import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
+import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerFFM;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
@@ -59,7 +59,7 @@ public class SystemInfo {
             case LINUX:
                 return new LinuxHardwareAbstractionLayerFFM();
             case WINDOWS:
-                return new WindowsHardwareAbstractionLayer();
+                return new WindowsHardwareAbstractionLayerFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }

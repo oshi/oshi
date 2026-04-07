@@ -8,15 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
-import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
-import oshi.hardware.platform.linux.LinuxPowerSource;
-import oshi.hardware.platform.mac.MacPowerSource;
-import oshi.hardware.platform.unix.aix.AixPowerSource;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
-import oshi.hardware.platform.unix.solaris.SolarisPowerSource;
-import oshi.hardware.platform.windows.WindowsPowerSource;
 import oshi.util.Constants;
 
 /**
@@ -181,9 +174,17 @@ public abstract class AbstractPowerSource implements PowerSource {
         return this.temperature;
     }
 
+    /**
+     * Returns a fresh list of power sources for this platform, used by {@link #updateAttributes()}. Each concrete
+     * subclass implements this by delegating to its own static {@code getPowerSources()} factory method.
+     *
+     * @return A list of PowerSource objects representing batteries, etc.
+     */
+    protected abstract List<PowerSource> queryPowerSources();
+
     @Override
     public boolean updateAttributes() {
-        List<PowerSource> psArr = getPowerSources();
+        List<PowerSource> psArr = queryPowerSources();
         for (PowerSource ps : psArr) {
             if (ps.getName().equals(this.name)) {
                 this.name = ps.getName();
@@ -212,26 +213,6 @@ public abstract class AbstractPowerSource implements PowerSource {
         }
         // Didn't find this battery
         return false;
-    }
-
-    private static List<PowerSource> getPowerSources() {
-        switch (PlatformEnum.getCurrentPlatform()) {
-            case WINDOWS:
-                return WindowsPowerSource.getPowerSources();
-            case MACOS:
-                return MacPowerSource.getPowerSources();
-            case LINUX:
-                return LinuxPowerSource.getPowerSources();
-            case SOLARIS:
-                return SolarisPowerSource.getPowerSources();
-            case FREEBSD:
-                return FreeBsdPowerSource.getPowerSources();
-            case AIX:
-                return AixPowerSource.getPowerSources();
-            default:
-                throw new UnsupportedOperationException(
-                        "Operating system not supported: " + PlatformEnum.getCurrentPlatform());
-        }
     }
 
     @Override

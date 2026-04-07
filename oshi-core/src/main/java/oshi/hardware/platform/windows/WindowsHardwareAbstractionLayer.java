@@ -26,7 +26,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * WindowsHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -50,7 +50,7 @@ public final class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return WindowsPowerSource.getPowerSources();
+        return WindowsPowerSourceJNA.getPowerSources();
     }
 
     @Override
