@@ -16,18 +16,22 @@ jobs:
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           java-version: 25
           distribution: 'zulu'
           cache: 'maven'
+      - name: Install
+        run: ./mvnw install -DskipTests -q
       - name: Spotless
         run: ./mvnw spotless:check
       - name: Checkstyle
         run: ./mvnw checkstyle:check
       - name: Forbidden APIs
-        run: ./mvnw compile forbiddenapis:check forbiddenapis:testCheck
+        run: ./mvnw forbiddenapis:check forbiddenapis:testCheck
       - name: Javadoc
         run: ./mvnw javadoc:javadoc javadoc:aggregate -DskipTests
 

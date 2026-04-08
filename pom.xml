@@ -42,6 +42,7 @@
     </developers>
 
     <modules>
+        <module>oshi-common</module>
         <module>oshi-core</module>
         <module>oshi-demo</module>
     </modules>
@@ -471,6 +472,9 @@
                                     <include>**/*.yml</include>
                                     <include>**/*.yaml</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                </excludes>
                                 <trimTrailingWhitespace />
                                 <endWithNewline />
                                 <indent>
@@ -482,6 +486,9 @@
                                 <includes>
                                     <include>**/*.xml</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>**/target/**</exclude>
+                                </excludes>
                                 <trimTrailingWhitespace />
                                 <endWithNewline />
                                 <indent>

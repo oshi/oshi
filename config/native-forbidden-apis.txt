@@ -1,0 +1,8 @@
+@defaultMessage oshi-common must not use native access (JNA or FFM); use only JDK types in this module
+
+com.sun.jna.** @ JNA type referenced from oshi-common
+java.lang.foreign.** @ FFM type referenced from oshi-common
+java.lang.System#load(java.lang.String) @ Native library loading referenced from oshi-common
+java.lang.System#loadLibrary(java.lang.String) @ Native library loading referenced from oshi-common
+java.lang.Runtime#load(java.lang.String) @ Native library loading referenced from oshi-common
+java.lang.Runtime#loadLibrary(java.lang.String) @ Native library loading referenced from oshi-common

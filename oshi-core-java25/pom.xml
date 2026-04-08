@@ -16,6 +16,7 @@
 
     <properties>
         <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
+        <oshi.common.basedir>${main.basedir}/oshi-common</oshi.common.basedir>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.testSource>25</maven.compiler.testSource>
@@ -25,6 +26,11 @@
 
     <dependencies>
         <!-- runtime dependencies needed for compilation as oshi-core is used in builder-helper -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -85,8 +91,10 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <sources>
-                                <!-- Copy source files from oshi-core -->
+                                <!-- Copy source files from oshi-core and oshi-common -->
+                                <!-- TODO: Remove oshi-core and oshi-common source paths once FFM transition is complete -->
                                 <source>${oshi.core.basedir}/src/main/java</source>
+                                <source>${oshi.common.basedir}/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -110,7 +118,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>
@@ -122,7 +130,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>
