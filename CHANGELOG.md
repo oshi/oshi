@@ -3,6 +3,9 @@
 ##### New Features
 * [#3127](https://github.com/oshi/oshi/pull/3127): Add oshi-benchmark module with JMH benchmarks comparing JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
+##### Bug fixes / Improvements
+* [#3128](https://github.com/oshi/oshi/pull/3128): Fix Mac FFM TIMEVAL struct layout missing 4-byte trailing padding - [@dbwiddis](https://github.com/dbwiddis).
+
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 
 ##### New Features

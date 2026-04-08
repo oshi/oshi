@@ -227,7 +227,8 @@ public interface MacSystem {
 
     StructLayout TIMEVAL = structLayout(//
             JAVA_LONG.withName("tv_sec"), // seconds
-            JAVA_INT.withName("tv_usec") // microseconds
+            JAVA_INT.withName("tv_usec"), // microseconds
+            paddingLayout(32) // align to 8-byte boundary (matches struct timeval on macOS 64-bit)
     );
 
     StructLayout RLIMIT = structLayout(//
