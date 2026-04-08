@@ -133,4 +133,48 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
             MemorySegment lpData, MemorySegment lpcbData) throws Throwable {
         return (int) RegQueryValueEx.invokeExact(hKey, lpValueName, reserved, lpType, lpData, lpcbData);
     }
+
+    // Token information classes
+    public static final int TokenUser = 1;
+    public static final int TokenPrimaryGroup = 5;
+
+    private static final MethodHandle LookupAccountSidW = downcall(ADV, "LookupAccountSidW", JAVA_INT, ADDRESS, ADDRESS,
+            ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS);
+
+    /**
+     * Retrieves the name of the account for the specified SID.
+     *
+     * @param lpSystemName     The name of the target computer (NULL for local)
+     * @param lpSid            The SID to look up
+     * @param lpName           Buffer to receive the account name
+     * @param cchName          Size of lpName buffer
+     * @param lpReferencedDomainName Buffer to receive the domain name
+     * @param cchReferencedDomainName Size of lpReferencedDomainName buffer
+     * @param peUse            Receives a value indicating the type of the account
+     * @return true if successful
+     */
+    public static boolean LookupAccountSid(MemorySegment lpSystemName, MemorySegment lpSid, MemorySegment lpName,
+            MemorySegment cchName, MemorySegment lpReferencedDomainName, MemorySegment cchReferencedDomainName,
+            MemorySegment peUse) throws Throwable {
+        return isSuccess((int) LookupAccountSidW.invokeExact(lpSystemName, lpSid, lpName, cchName,
+                lpReferencedDomainName, cchReferencedDomainName, peUse));
+    }
+
+    private static final MethodHandle ConvertSidToStringSidW = downcall(ADV, "ConvertSidToStringSidW", JAVA_INT, ADDRESS,
+            ADDRESS);
+
+    /**
+     * Converts a SID to a string format.
+     * <p>
+     * On success, the caller is responsible for freeing the allocated StringSid buffer
+     * using {@link Kernel32FFM#LocalFree(MemorySegment)} to avoid memory leaks.
+     *
+     * @param Sid       The SID to convert (input parameter)
+     * @param StringSid Pointer to receive the newly allocated string SID pointer (output parameter).
+     *                  On success, contains a pointer that must be freed with LocalFree.
+     * @return true if the conversion succeeded, false otherwise
+     */
+    public static boolean ConvertSidToStringSid(MemorySegment Sid, MemorySegment StringSid) throws Throwable {
+        return isSuccess((int) ConvertSidToStringSidW.invokeExact(Sid, StringSid));
+    }
 }

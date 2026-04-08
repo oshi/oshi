@@ -6,6 +6,7 @@ package oshi.ffm.windows;
 
 public interface WinErrorFFM {
 
+    int ERROR_ACCESS_DENIED = 5;
     int ERROR_BUFFER_OVERFLOW = 111;
     int ERROR_INSUFFICIENT_BUFFER = 122;
     int ERROR_NO_MORE_ITEMS = 259;

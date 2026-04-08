@@ -27,6 +27,11 @@ public interface WinNTFFM {
     int TOKEN_ADJUST_PRIVILEGES = 0x0020;
     int TokenElevation = 20;
 
+    // Process access rights
+    int PROCESS_QUERY_INFORMATION = 0x0400;
+    int PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+    int PROCESS_VM_READ = 0x0010;
+
     // CreateFile constants
     int GENERIC_READ = 0x80000000;
     int GENERIC_WRITE = 0x40000000;
