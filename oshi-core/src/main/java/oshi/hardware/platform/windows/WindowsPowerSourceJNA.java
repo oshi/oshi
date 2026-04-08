@@ -5,6 +5,7 @@
 package oshi.hardware.platform.windows;
 
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -151,6 +152,7 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                             bqi.size(), bi.getPointer(), bi.size(), dwOut, null)) {
                                                         // Only non-UPS system batteries count
                                                         bi.read();
+                                                        int maxCapacitySafe = 1;
                                                         if (0 != (bi.Capabilities & BATTERY_SYSTEM_BATTERY)
                                                                 && 0 == (bi.Capabilities & BATTERY_IS_SHORT_TERM)) {
                                                             // Capabilities flags non-mWh units
@@ -162,6 +164,8 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                             psDesignCapacity = bi.DesignedCapacity;
                                                             psMaxCapacity = bi.FullChargedCapacity;
                                                             psCycleCount = bi.CycleCount;
+                                                            maxCapacitySafe = psMaxCapacity > 0 ? psMaxCapacity
+                                                                    : psDesignCapacity > 0 ? psDesignCapacity : 1;
 
                                                             // Query the battery status.
                                                             bws.BatteryTag = bqi.BatteryTag;
@@ -189,7 +193,7 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                                     psAmperage = psPowerUsageRate / psVoltage;
                                                                 }
                                                                 psRemainingCapacityPercent = Math.min(1d,
-                                                                        (double) psCurrentCapacity / psMaxCapacity);
+                                                                        (double) psCurrentCapacity / maxCapacitySafe);
                                                             }
                                                         }
 
@@ -214,9 +218,14 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                                 null)) {
                                                             bmd.read();
                                                             // If failed, returns -1 for each field
-                                                            if (bmd.Year > 1900 && bmd.Month > 0 && bmd.Day > 0) {
-                                                                psManufactureDate = LocalDate.of(bmd.Year, bmd.Month,
-                                                                        bmd.Day);
+                                                            if (bmd.Year > 1900 && bmd.Month >= 1 && bmd.Month <= 12
+                                                                    && bmd.Day >= 1 && bmd.Day <= 31) {
+                                                                try {
+                                                                    psManufactureDate = LocalDate.of(bmd.Year,
+                                                                            bmd.Month, bmd.Day);
+                                                                } catch (DateTimeException ignored) {
+                                                                    // malformed firmware date — leave null
+                                                                }
                                                             }
                                                         }
 
@@ -249,10 +258,11 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                         // Fallback if BatteryEstimatedTime query failed
                                                         if (psTimeRemainingInstant <= 0 && psPowerUsageRate != 0) {
                                                             psTimeRemainingInstant = psDischarging
-                                                                    ? psCurrentCapacity * 3600d
-                                                                            / Math.abs(psPowerUsageRate)
-                                                                    : (psMaxCapacity - psCurrentCapacity) * 3600d
-                                                                            / Math.abs(psPowerUsageRate);
+                                                                    ? Math.max(0d,
+                                                                            psCurrentCapacity * 3600d
+                                                                                    / Math.abs(psPowerUsageRate))
+                                                                    : Math.max(0d, (maxCapacitySafe - psCurrentCapacity)
+                                                                            * 3600d / Math.abs(psPowerUsageRate));
                                                         }
                                                         if (psDischarging && psTimeRemainingInstant > 0) {
                                                             psTimeRemainingEstimated = psTimeRemainingInstant;
@@ -291,9 +301,10 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
             bqi.write();
             if (!Kernel32.INSTANCE.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
                     bqi.size(), nameBuf, (int) nameBuf.size(), dwOut, null)) {
-                return "";
+                return Constants.UNKNOWN;
             }
-            return CHAR_WIDTH > 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
+            String result = CHAR_WIDTH > 1 ? nameBuf.getWideString(0) : nameBuf.getString(0);
+            return result.isEmpty() ? Constants.UNKNOWN : result;
         }
     }
 }

@@ -72,9 +72,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     public static boolean DeviceIoControl(MemorySegment hDevice, int dwIoControlCode, MemorySegment lpInBuffer,
             int nInBufferSize, MemorySegment lpOutBuffer, int nOutBufferSize) {
-        try {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment lpBytesReturned = arena.allocate(JAVA_INT);
             return isSuccess((int) DeviceIoControl.invokeExact(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize,
-                    lpOutBuffer, nOutBufferSize, MemorySegment.NULL, MemorySegment.NULL));
+                    lpOutBuffer, nOutBufferSize, lpBytesReturned, MemorySegment.NULL));
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.DeviceIoControl failed", t);
             return false;

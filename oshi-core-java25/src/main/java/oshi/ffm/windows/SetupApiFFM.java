@@ -6,9 +6,11 @@ package oshi.ffm.windows;
 
 import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.windows.WinErrorFFM.ERROR_NO_MORE_ITEMS;
+import static oshi.util.Util.is64Bit;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -33,10 +35,8 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
      * (ULONG_PTR=8 bytes on 64-bit)
      */
     public static final StructLayout SP_DEVICE_INTERFACE_DATA = structLayout(JAVA_INT.withName("cbSize"),
-            MemoryLayout.paddingLayout(4),
-            MemoryLayout.sequenceLayout(16, JAVA_INT.withName("byte")).withName("InterfaceClassGuid"),
-            JAVA_INT.withName("Flags"), MemoryLayout.paddingLayout(4), JAVA_INT.withName("ReservedLo"),
-            JAVA_INT.withName("ReservedHi"));
+            MemoryLayout.sequenceLayout(16, JAVA_BYTE).withName("InterfaceClassGuid"), JAVA_INT.withName("Flags"),
+            ADDRESS.withName("Reserved"));
 
     public static final int DIGCF_PRESENT = 0x00000002;
     public static final int DIGCF_DEVICEINTERFACE = 0x00000010;
@@ -44,7 +44,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
     private static final MethodHandle SetupDiGetClassDevs = downcall(SETUPAPI, "SetupDiGetClassDevsW", ADDRESS, ADDRESS,
             ADDRESS, ADDRESS, JAVA_INT);
 
-    public static Optional<MemorySegment> SetupDiGetClassDevs(MemorySegment classGuid, int flags, Arena arena) {
+    public static Optional<MemorySegment> SetupDiGetClassDevs(MemorySegment classGuid, int flags) {
         try {
             MemorySegment handle = (MemorySegment) SetupDiGetClassDevs.invokeExact(classGuid, MemorySegment.NULL,
                     MemorySegment.NULL, flags);
@@ -92,11 +92,12 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
      *
      * @param hDevInfo            the device info set handle
      * @param deviceInterfaceData the device interface data
+     * @param arena               the arena to allocate the size buffer from
      * @return required buffer size, or 0 on unexpected error
      */
-    public static int SetupDiGetDeviceInterfaceDetailSize(MemorySegment hDevInfo, MemorySegment deviceInterfaceData) {
+    public static int SetupDiGetDeviceInterfaceDetailSize(MemorySegment hDevInfo, MemorySegment deviceInterfaceData,
+            Arena arena) {
         try {
-            Arena arena = Arena.ofAuto();
             MemorySegment requiredSize = arena.allocate(JAVA_INT);
             SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData, MemorySegment.NULL, 0,
                     requiredSize, MemorySegment.NULL);
@@ -118,23 +119,20 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
      * @param hDevInfo            the device info set handle
      * @param deviceInterfaceData the device interface data
      * @param requiredSize        the buffer size returned by {@link #SetupDiGetDeviceInterfaceDetailSize}
-     * @param is64bit             true if running on a 64-bit JVM
+     * @param arena               the arena to allocate buffers from
      * @return the device path string, or empty if failed
      */
     public static Optional<String> SetupDiGetDeviceInterfaceDetail(MemorySegment hDevInfo,
-            MemorySegment deviceInterfaceData, int requiredSize, boolean is64bit) {
+            MemorySegment deviceInterfaceData, int requiredSize, Arena arena) {
         try {
-            Arena arena = Arena.ofAuto();
             MemorySegment detail = arena.allocate(requiredSize);
-            // cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA) = 8 on 64-bit, 6 on 32-bit (ANSI) or 5 (Unicode)
-            detail.set(JAVA_INT, 0, is64bit ? 8 : 6);
+            detail.set(JAVA_INT, 0, is64Bit() ? 8 : 6);
             MemorySegment reqSize = arena.allocate(JAVA_INT);
             int result = (int) SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData, detail,
                     requiredSize, reqSize, MemorySegment.NULL);
             if (!isSuccess(result)) {
                 return Optional.empty();
             }
-            // DevicePath starts at offset 4 (after cbSize DWORD)
             return Optional.of(readWideString(detail.asSlice(4)));
         } catch (Throwable t) {
             LOG.debug("SetupApiFFM.SetupDiGetDeviceInterfaceDetail failed", t);

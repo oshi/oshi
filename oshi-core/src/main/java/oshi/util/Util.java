@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -20,6 +20,28 @@ public final class Util {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     private Util() {
+    }
+
+    /**
+     * Returns whether the current JVM is running in 64-bit mode.
+     *
+     * @return True if the JVM is 64-bit.
+     */
+    public static boolean is64Bit() {
+        return IS_64BIT;
+    }
+
+    private static final boolean IS_64BIT;
+    static {
+        String model = System.getProperty("sun.cpu.bits");
+        if (model != null) {
+            IS_64BIT = "64".equals(model);
+        } else {
+            String arch = System.getProperty("os.arch", "");
+            IS_64BIT = "x86-64".equals(arch) || "x86_64".equals(arch) || "amd64".equals(arch) || "ia64".equals(arch)
+                    || "aarch64".equals(arch) || "ppc64".equals(arch) || "ppc64le".equals(arch) || "mips64".equals(arch)
+                    || "mips64el".equals(arch) || "loongarch64".equals(arch);
+        }
     }
 
     /**

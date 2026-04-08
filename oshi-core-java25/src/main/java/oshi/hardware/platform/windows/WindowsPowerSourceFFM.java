@@ -4,11 +4,30 @@
  */
 package oshi.hardware.platform.windows;
 
-import static java.lang.foreign.MemoryLayout.sequenceLayout;
-import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static oshi.ffm.windows.PowrProfFFM.BATTERY_INFORMATION;
+import static oshi.ffm.windows.PowrProfFFM.BATTERY_MANUFACTURE_DATE;
+import static oshi.ffm.windows.PowrProfFFM.BATTERY_QUERY_INFORMATION;
+import static oshi.ffm.windows.PowrProfFFM.BATTERY_STATUS;
+import static oshi.ffm.windows.PowrProfFFM.BATTERY_WAIT_STATUS;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BI_CAPABILITIES;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BI_CHEMISTRY;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BI_CYCLE;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BI_DESIGNED;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BI_FULL;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BMD_DAY;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BMD_MONTH;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BMD_YEAR;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BQI_ATRATE;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BQI_LEVEL;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BQI_TAG;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BS_CAPACITY;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BS_POWERSTATE;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BS_RATE;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BS_VOLTAGE;
+import static oshi.ffm.windows.PowrProfFFM.OFF_BWS_TAG;
 import static oshi.ffm.windows.SetupApiFFM.DIGCF_DEVICEINTERFACE;
 import static oshi.ffm.windows.SetupApiFFM.DIGCF_PRESENT;
 import static oshi.ffm.windows.SetupApiFFM.SP_DEVICE_INTERFACE_DATA;
@@ -20,9 +39,7 @@ import static oshi.ffm.windows.WinNTFFM.GENERIC_WRITE;
 import static oshi.ffm.windows.WinNTFFM.OPEN_EXISTING;
 
 import java.lang.foreign.Arena;
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.StructLayout;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -47,53 +64,6 @@ import oshi.util.Constants;
 public final class WindowsPowerSourceFFM extends WindowsPowerSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsPowerSourceFFM.class);
-
-    // BATTERY_QUERY_INFORMATION: BatteryTag (DWORD) + InformationLevel (DWORD) + AtRate (LONG)
-    private static final StructLayout BATTERY_QUERY_INFORMATION_LAYOUT = structLayout(JAVA_INT.withName("BatteryTag"),
-            JAVA_INT.withName("InformationLevel"), JAVA_INT.withName("AtRate"));
-
-    // BATTERY_INFORMATION
-    private static final StructLayout BATTERY_INFORMATION_LAYOUT = structLayout(JAVA_INT.withName("Capabilities"),
-            JAVA_BYTE.withName("Technology"), sequenceLayout(3, JAVA_BYTE).withName("Reserved"),
-            sequenceLayout(4, JAVA_BYTE).withName("Chemistry"), JAVA_INT.withName("DesignedCapacity"),
-            JAVA_INT.withName("FullChargedCapacity"), JAVA_INT.withName("DefaultAlert1"),
-            JAVA_INT.withName("DefaultAlert2"), JAVA_INT.withName("CriticalBias"), JAVA_INT.withName("CycleCount"));
-
-    // BATTERY_WAIT_STATUS
-    private static final StructLayout BATTERY_WAIT_STATUS_LAYOUT = structLayout(JAVA_INT.withName("BatteryTag"),
-            JAVA_INT.withName("Timeout"), JAVA_INT.withName("PowerState"), JAVA_INT.withName("LowCapacity"),
-            JAVA_INT.withName("HighCapacity"));
-
-    // BATTERY_STATUS
-    private static final StructLayout BATTERY_STATUS_LAYOUT = structLayout(JAVA_INT.withName("PowerState"),
-            JAVA_INT.withName("Capacity"), JAVA_INT.withName("Voltage"), JAVA_INT.withName("Rate"));
-
-    // BATTERY_MANUFACTURE_DATE: Day (BYTE) + Month (BYTE) + Year (WORD)
-    private static final StructLayout BATTERY_MANUFACTURE_DATE_LAYOUT = structLayout(JAVA_BYTE.withName("Day"),
-            JAVA_BYTE.withName("Month"), JAVA_SHORT.withName("Year"));
-
-    private static final long OFF_BQI_TAG = offset(BATTERY_QUERY_INFORMATION_LAYOUT, "BatteryTag");
-    private static final long OFF_BQI_LEVEL = offset(BATTERY_QUERY_INFORMATION_LAYOUT, "InformationLevel");
-    private static final long OFF_BQI_ATRATE = offset(BATTERY_QUERY_INFORMATION_LAYOUT, "AtRate");
-    private static final long OFF_BI_CAPABILITIES = offset(BATTERY_INFORMATION_LAYOUT, "Capabilities");
-    private static final long OFF_BI_CHEMISTRY = offset(BATTERY_INFORMATION_LAYOUT, "Chemistry");
-    private static final long OFF_BI_DESIGNED = offset(BATTERY_INFORMATION_LAYOUT, "DesignedCapacity");
-    private static final long OFF_BI_FULL = offset(BATTERY_INFORMATION_LAYOUT, "FullChargedCapacity");
-    private static final long OFF_BI_CYCLE = offset(BATTERY_INFORMATION_LAYOUT, "CycleCount");
-    private static final long OFF_BWS_TAG = offset(BATTERY_WAIT_STATUS_LAYOUT, "BatteryTag");
-    private static final long OFF_BS_POWERSTATE = offset(BATTERY_STATUS_LAYOUT, "PowerState");
-    private static final long OFF_BS_CAPACITY = offset(BATTERY_STATUS_LAYOUT, "Capacity");
-    private static final long OFF_BS_VOLTAGE = offset(BATTERY_STATUS_LAYOUT, "Voltage");
-    private static final long OFF_BS_RATE = offset(BATTERY_STATUS_LAYOUT, "Rate");
-    private static final long OFF_BMD_DAY = offset(BATTERY_MANUFACTURE_DATE_LAYOUT, "Day");
-    private static final long OFF_BMD_MONTH = offset(BATTERY_MANUFACTURE_DATE_LAYOUT, "Month");
-    private static final long OFF_BMD_YEAR = offset(BATTERY_MANUFACTURE_DATE_LAYOUT, "Year");
-
-    private static final boolean IS_64BIT = System.getProperty("os.arch", "").contains("64");
-
-    private static long offset(StructLayout layout, String name) {
-        return layout.byteOffset(MemoryLayout.PathElement.groupElement(name));
-    }
 
     public WindowsPowerSourceFFM(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
@@ -151,11 +121,10 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
         // Enumerate batteries and ask each one for information.
         // Ported from:
         // https://docs.microsoft.com/en-us/windows/win32/power/enumerating-battery-devices
-
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment classGuid = GuidFFM.GUID_DEVCLASS_BATTERY(arena);
             Optional<MemorySegment> hdevOpt = SetupApiFFM.SetupDiGetClassDevs(classGuid,
-                    DIGCF_PRESENT | DIGCF_DEVICEINTERFACE, arena);
+                    DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
             if (hdevOpt.isEmpty()) {
                 LOG.warn("SetupDiGetClassDevs failed for battery class");
             } else {
@@ -174,13 +143,13 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             continue;
                         }
 
-                        int requiredSize = SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize(hdev, did);
+                        int requiredSize = SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize(hdev, did, arena);
                         if (requiredSize == 0) {
                             continue;
                         }
 
                         Optional<String> devicePathOpt = SetupApiFFM.SetupDiGetDeviceInterfaceDetail(hdev, did,
-                                requiredSize, IS_64BIT);
+                                requiredSize, arena);
                         if (devicePathOpt.isEmpty()) {
                             continue;
                         }
@@ -206,11 +175,11 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                                 continue;
                             }
 
-                            MemorySegment bqi = arena.allocate(BATTERY_QUERY_INFORMATION_LAYOUT);
+                            MemorySegment bqi = arena.allocate(BATTERY_QUERY_INFORMATION);
                             bqi.set(JAVA_INT, OFF_BQI_TAG, batteryTag);
                             bqi.set(JAVA_INT, OFF_BQI_LEVEL, BATTERY_INFORMATION_LEVEL);
 
-                            MemorySegment bi = arena.allocate(BATTERY_INFORMATION_LAYOUT);
+                            MemorySegment bi = arena.allocate(BATTERY_INFORMATION);
                             if (!Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi,
                                     (int) bqi.byteSize(), bi, (int) bi.byteSize())) {
                                 continue;
@@ -234,11 +203,13 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             psDesignCapacity = bi.get(JAVA_INT, OFF_BI_DESIGNED);
                             psMaxCapacity = bi.get(JAVA_INT, OFF_BI_FULL);
                             psCycleCount = bi.get(JAVA_INT, OFF_BI_CYCLE);
+                            int maxCapacitySafe = psMaxCapacity > 0 ? psMaxCapacity
+                                    : psDesignCapacity > 0 ? psDesignCapacity : 1;
 
                             // Query battery status
-                            MemorySegment bws = arena.allocate(BATTERY_WAIT_STATUS_LAYOUT);
+                            MemorySegment bws = arena.allocate(BATTERY_WAIT_STATUS);
                             bws.set(JAVA_INT, OFF_BWS_TAG, batteryTag);
-                            MemorySegment bs = arena.allocate(BATTERY_STATUS_LAYOUT);
+                            MemorySegment bs = arena.allocate(BATTERY_STATUS);
                             if (Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_STATUS, bws,
                                     (int) bws.byteSize(), bs, (int) bs.byteSize())) {
                                 int powerState = bs.get(JAVA_INT, OFF_BS_POWERSTATE);
@@ -259,7 +230,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                                 if (psVoltage > 0) {
                                     psAmperage = psPowerUsageRate / psVoltage;
                                 }
-                                psRemainingCapacityPercent = Math.min(1d, (double) psCurrentCapacity / psMaxCapacity);
+                                psRemainingCapacityPercent = Math.min(1d, (double) psCurrentCapacity / maxCapacitySafe);
                             }
 
                             MemorySegment nameBuf = arena.allocate(1024);
@@ -272,14 +243,18 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
 
                             // Manufacture date
                             bqi.set(JAVA_INT, OFF_BQI_LEVEL, BATTERY_MANUFACTURE_DATE_LEVEL);
-                            MemorySegment bmd = arena.allocate(BATTERY_MANUFACTURE_DATE_LAYOUT);
+                            MemorySegment bmd = arena.allocate(BATTERY_MANUFACTURE_DATE);
                             if (Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi,
                                     (int) bqi.byteSize(), bmd, (int) bmd.byteSize())) {
                                 int year = bmd.get(JAVA_SHORT, OFF_BMD_YEAR) & 0xFFFF;
                                 int month = bmd.get(JAVA_BYTE, OFF_BMD_MONTH) & 0xFF;
                                 int day = bmd.get(JAVA_BYTE, OFF_BMD_DAY) & 0xFF;
-                                if (year > 1900 && month > 0 && day > 0) {
-                                    psManufactureDate = LocalDate.of(year, month, day);
+                                if (year > 1900 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                                    try {
+                                        psManufactureDate = LocalDate.of(year, month, day);
+                                    } catch (java.time.DateTimeException ignored) {
+                                        // malformed firmware date — leave null
+                                    }
                                 }
                             }
 
@@ -304,8 +279,9 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             // Fallback if BatteryEstimatedTime query failed
                             if (psTimeRemainingInstant <= 0 && psPowerUsageRate != 0) {
                                 psTimeRemainingInstant = psDischarging
-                                        ? psCurrentCapacity * 3600d / Math.abs(psPowerUsageRate)
-                                        : (psMaxCapacity - psCurrentCapacity) * 3600d / Math.abs(psPowerUsageRate);
+                                        ? Math.max(0d, psCurrentCapacity * 3600d / Math.abs(psPowerUsageRate))
+                                        : Math.max(0d, (maxCapacitySafe - psCurrentCapacity) * 3600d
+                                                / Math.abs(psPowerUsageRate));
                             }
                             if (psDischarging && psTimeRemainingInstant > 0) {
                                 psTimeRemainingEstimated = psTimeRemainingInstant;
@@ -321,7 +297,6 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                 }
             }
         }
-
         return new WindowsPowerSourceFFM(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
@@ -334,8 +309,9 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
         bqi.set(JAVA_INT, OFF_BQI_LEVEL, infoLevel);
         if (!Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi, (int) bqi.byteSize(), nameBuf,
                 (int) nameBuf.byteSize())) {
-            return "";
+            return Constants.UNKNOWN;
         }
-        return WindowsForeignFunctions.readWideString(nameBuf);
+        String result = WindowsForeignFunctions.readWideString(nameBuf);
+        return result.isEmpty() ? Constants.UNKNOWN : result;
     }
 }
