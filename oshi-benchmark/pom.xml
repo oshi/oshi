@@ -97,9 +97,6 @@
                     <jdkToolchain>
                         <version>25</version>
                     </jdkToolchain>
-                    <compilerArgs>
-                        <arg>--enable-preview</arg>
-                    </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.openjdk.jmh</groupId>

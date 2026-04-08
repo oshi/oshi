@@ -19,6 +19,13 @@ fi
 cd "${REPO_ROOT}"
 JAR="${REPO_ROOT}/oshi-benchmark/target/benchmarks.jar"
 
+# Require Java 25+
+JAVA_MAJOR=$(java -version 2>&1 | head -1 | sed 's/.*version "\([0-9]*\).*/\1/')
+if [ "${JAVA_MAJOR}" -lt 25 ] 2>/dev/null; then
+    echo "ERROR (run-benchmarks.sh): Java 25+ is required, found Java ${JAVA_MAJOR}." >&2
+    exit 1
+fi
+
 if [ ! -f "${JAR}" ]; then
     echo "benchmarks.jar not found — building first..."
     ./mvnw install -pl oshi-core,oshi-core-java25 -DskipTests -q
