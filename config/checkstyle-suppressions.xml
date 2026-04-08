@@ -4,6 +4,7 @@
 
 <suppressions>
     <suppress checks=".*" files="[\\/]demo[\\/].*"/>
+    <suppress checks=".*" files="[\\/]benchmark[\\/].*"/>
 
     <!-- Intentional style breaks -->
     <suppress checks="ConstantName" files="ParseUtil\.java" lines="116-136"/>

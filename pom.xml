@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>6.11.2-SNAPSHOT</version>
+    <version>6.12.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -706,8 +706,11 @@
                                         <allowedImport>org.junit.jupiter.api.**</allowedImport>
                                         <allowedImport>static org.hamcrest.**</allowedImport>
                                     </allowedImports>
-                                    <!-- No restrictions on oshi-demo -->
-                                    <exclusion>oshi.demo.**</exclusion>
+                                    <!-- No restrictions on oshi-demo or oshi-benchmark -->
+                                    <exclusions>
+                                        <exclusion>oshi.demo.**</exclusion>
+                                        <exclusion>oshi.benchmark.**</exclusion>
+                                    </exclusions>
                                 </RestrictImports>
                             </rules>
                         </configuration>
@@ -995,6 +998,7 @@
             <!-- Only include java25 and dist modules on Java 25+ -->
             <modules>
                 <module>oshi-core-java25</module>
+                <module>oshi-benchmark</module>
                 <module>oshi-dist</module>
             </modules>
         </profile>

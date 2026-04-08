@@ -50,9 +50,9 @@ Stable Release Version
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-6.11.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.11.2-SNAPSHOT)
-  * JPMS: [oshi-core-java11-6.11.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.11.2-SNAPSHOT/)
-  * FFM: [oshi-core-java25-6.11.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.11.2-SNAPSHOT/)
+  * JDK8: [oshi-core-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/6.12.0-SNAPSHOT)
+  * JPMS: [oshi-core-java11-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/6.12.0-SNAPSHOT/)
+  * FFM: [oshi-core-java25-6.12.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/6.12.0-SNAPSHOT/)
 
 OSHI Java 25+ Module
 ----------------------------
@@ -113,6 +113,12 @@ jbang json@oshi/oshi
 
 #run the gui
 jbang gui@oshi/oshi
+```
+
+The `oshi-benchmark` artifact (requires JDK 25+) provides [JMH benchmarks](https://github.com/oshi/oshi/blob/master/oshi-benchmark/src/main/java/oshi/benchmark/) comparing JNA and FFM implementations side by side. To run:
+
+```sh
+./oshi-benchmark/scripts/run-benchmarks.sh
 ```
 
 Supported Features

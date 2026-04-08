@@ -1,6 +1,7 @@
-# 6.11.2 (in progress)
+# 6.12.0 (in progress)
 
-* Your contribution here!
+##### New Features
+* [#3127](https://github.com/oshi/oshi/pull/3127): Add oshi-benchmark module with JMH benchmarks comparing JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 
