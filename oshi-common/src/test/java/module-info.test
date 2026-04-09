@@ -1,0 +1,9 @@
+--add-opens
+  com.github.oshi.common/oshi.hardware=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.software.os=org.junit.platform.commons
+
+--add-modules
+  org.hamcrest,org.slf4j.simple
+--add-reads
+  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest,java.desktop

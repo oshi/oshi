@@ -4,9 +4,6 @@
 module com.github.oshi {
     // API
     exports oshi;
-    exports oshi.hardware;
-    exports oshi.software.os;
-    exports oshi.util;
     exports oshi.util.gpu;
     exports oshi.util.platform.linux;
     exports oshi.util.platform.mac;
@@ -14,7 +11,6 @@ module com.github.oshi {
     exports oshi.util.platform.unix.openbsd;
     exports oshi.util.platform.unix.solaris;
     exports oshi.util.platform.windows;
-    exports oshi.util.tuples;
 
     // JNA needs reflective access to Structure and ByReference subclasses
     opens oshi.jna to com.sun.jna;
@@ -22,9 +18,9 @@ module com.github.oshi {
     opens oshi.jna.platform.mac to com.sun.jna;
     opens oshi.jna.platform.windows to com.sun.jna;
     opens oshi.jna.platform.unix to com.sun.jna;
-    opens oshi.jna.util to org.junit.platform.commons;
 
     // dependencies
+    requires transitive com.github.oshi.common;
     requires transitive com.sun.jna;
     requires transitive com.sun.jna.platform;
     requires transitive java.desktop;

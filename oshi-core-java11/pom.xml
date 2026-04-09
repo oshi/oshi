@@ -17,11 +17,9 @@
 
     <properties>
         <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
-        <oshi.common.basedir>${main.basedir}/oshi-common</oshi.common.basedir>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.testSource>11</maven.compiler.testSource>
-        <maven.compiler.testTarget>11</maven.compiler.testTarget>
+        <maven.test.skip>true</maven.test.skip>
         <native.access.modules>com.sun.jna</native.access.modules>
     </properties>
 
@@ -41,6 +39,11 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-jpms</artifactId>
@@ -74,24 +77,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest</artifactId>
-            <version>${hamcrest.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -100,11 +85,6 @@
                 <directory>${oshi.core.basedir}/src/main/resources</directory>
             </resource>
         </resources>
-        <testResources>
-            <testResource>
-                <directory>${oshi.core.basedir}/src/test/resources</directory>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -119,19 +99,6 @@
                         <configuration>
                             <sources>
                                 <source>${oshi.core.basedir}/src/main/java</source>
-                                <source>${oshi.common.basedir}/src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-test-sources</id>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <sources>
-                                <source>${oshi.core.basedir}/src/test/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -142,7 +109,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>11</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>
@@ -154,7 +121,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>11</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>

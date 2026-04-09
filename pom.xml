@@ -90,7 +90,8 @@
         <!-- internal, see https://issues.apache.org/jira/browse/MNG-7038 -->
         <main.basedir>${maven.multiModuleProjectDirectory}</main.basedir>
         <!-- Dependency versions -->
-        <!-- Users of the Spring Boot Starter Parent should include this property in their POM -->
+        <!-- Users of the Spring Boot Starter Parent should include this
+        property in their POM -->
         <jna.version>5.18.1</jna.version>
         <slf4j.version>2.0.17</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
@@ -161,7 +162,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <!-- Slightly faster builds, see https://issues.apache.org/jira/browse/MCOMPILER-209 -->
+                        <!-- Slightly faster builds, see
+                        https://issues.apache.org/jira/browse/MCOMPILER-209 -->
                         <useIncrementalCompilation>false</useIncrementalCompilation>
                     </configuration>
                 </plugin>
@@ -230,7 +232,8 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven-site-plugin.version}</version>
                     <configuration>
-                        <!-- don't deploy site with maven-site-plugin (instead use scm publish during release) -->
+                        <!-- don't deploy site with maven-site-plugin (instead
+                        use scm publish during release) -->
                         <skipDeploy>true</skipDeploy>
                         <relativizeSiteLinks>false</relativizeSiteLinks>
                     </configuration>
@@ -258,7 +261,8 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>-Xmx1024m -XX:MaxPermSize=256m ${enable.native.access}</argLine>
+                        <argLine>-Xmx1024m -XX:MaxPermSize=256m
+                            ${enable.native.access}</argLine>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <forkCount>4</forkCount>
                         <reuseForks>true</reuseForks>
@@ -298,6 +302,9 @@
                                 <additionalOption>${enable.native.access}</additionalOption>
                             </additionalOptions>
                         </javaOptions>
+                        <tweaks>
+                            <failIfNoTests>false</failIfNoTests>
+                        </tweaks>
                     </configuration>
                 </plugin>
                 <!-- Packaging types / tools -->
@@ -429,10 +436,14 @@
                         </archive>
                     </configuration>
                     <executions>
-                        <!-- Here we override the super-pom attach-sources execution id which calls sources:jar goal. That
-                            goals forks the lifecycle, causing the generate-sources phase to be called twice for the install goal. Starting with Maven
-                            3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) this is not needed anymore. -->
-                        <!-- except that OSSRH fails with no sources with this excluded <execution> <id>attach-sources</id>
+                        <!-- Here we override the super-pom attach-sources
+                        execution id which calls sources:jar goal. That
+                            goals forks the lifecycle, causing the generate-sources phase to be called
+                        twice for the install goal. Starting with Maven
+                            3.4.0 (https://issues.apache.org/jira/browse/MNG-5940) this is not needed
+                        anymore. -->
+                        <!-- except that OSSRH fails with no sources with this
+                        excluded <execution> <id>attach-sources</id>
                             <phase>DISABLE_FORKED_LIFECYCLE_MSOURCES-13</phase> </execution> -->
                     </executions>
                 </plugin>
@@ -695,10 +706,12 @@
                         <configuration>
                             <rules>
                                 <RestrictImports>
-                                    <reason>Disallow dependencies not on module path</reason>
+                                    <reason>Disallow dependencies not on module
+                                        path</reason>
                                     <includeTestCode>true</includeTestCode>
                                     <bannedImports>
-                                        <!-- Disallow all imports except explicitly allowed -->
+                                        <!-- Disallow all imports except
+                                        explicitly allowed -->
                                         <bannedImport>**</bannedImport>
                                     </bannedImports>
                                     <allowedImports>
@@ -713,7 +726,8 @@
                                         <allowedImport>org.junit.jupiter.api.**</allowedImport>
                                         <allowedImport>static org.hamcrest.**</allowedImport>
                                     </allowedImports>
-                                    <!-- No restrictions on oshi-demo or oshi-benchmark -->
+                                    <!-- No restrictions on oshi-demo or
+                                    oshi-benchmark -->
                                     <exclusions>
                                         <exclusion>oshi.demo.**</exclusion>
                                         <exclusion>oshi.benchmark.**</exclusion>
@@ -977,7 +991,8 @@
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
             </properties>
         </profile>
-        <!-- for oshi-core and oshi-core-java11: enable-native-access switch not available before JDK16 -->
+        <!-- for oshi-core and oshi-core-java11: enable-native-access switch not
+        available before JDK16 -->
         <profile>
             <id>pre-java16</id>
             <activation>
@@ -1147,7 +1162,9 @@
                                 <configuration>
                                     <keyname>${gpg.keyname}</keyname>
                                     <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                    <!-- GPG 2.1 requires pinentry-mode to be set to loopback in order to pick up the gpg.passphrase
+                                    <!-- GPG 2.1 requires pinentry-mode to be
+                                    set to loopback in order to pick up the
+                                    gpg.passphrase
                                         value defined in Maven settings.xml. -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>

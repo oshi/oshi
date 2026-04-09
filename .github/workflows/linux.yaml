@@ -59,6 +59,8 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
           cache: 'maven'
+      - name: Install with Maven
+        run: ./mvnw install -DskipTests -B
       - name: Test with Maven
         run: ./mvnw test -B
       - name: Upload Coverage

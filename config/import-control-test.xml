@@ -32,7 +32,11 @@
     <!-- org.hamcrest -->
     <allow pkg="org.hamcrest" />
 
+    <!--java.desktop -->
+    <allow class="java.awt.Rectangle" />
+
     <!--java.base -->
+    <allow class="java.net.NetworkInterface" />
     <allow pkg="java.io" />
     <allow pkg="java.lang" />
     <allow pkg="java.math" />

@@ -8,6 +8,7 @@ target
 *.iml
 .mvn/wrapper/maven-wrapper.jar
 oshi-core-shaded/dependency-reduced-pom.xml
+oshi-benchmark/dependency-reduced-pom.xml
 .github/keys
 lib/
 release.properties

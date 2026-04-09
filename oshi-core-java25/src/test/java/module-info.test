@@ -6,6 +6,9 @@
   com.github.oshi/oshi.jna.util=org.junit.platform.commons
 
 --add-modules
-  org.hamcrest,org.slf4j.simple
+  com.github.oshi.common,org.hamcrest,org.slf4j.simple
 --add-reads
   com.github.oshi=org.junit.jupiter.api,org.hamcrest
+--add-reads
+  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest
+  

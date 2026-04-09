@@ -110,6 +110,18 @@
                     <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>de.sormuras.junit</groupId>
+                <artifactId>junit-platform-maven-plugin</artifactId>
+                <configuration>
+                    <executor>JAVA</executor>
+                    <javaOptions>
+                        <additionalOptions>
+                            <additionalOption>--show-version</additionalOption>
+                        </additionalOptions>
+                    </javaOptions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <reporting>
