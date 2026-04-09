@@ -31,7 +31,8 @@ public final class FileUtilJNA {
      * @return The next value
      */
     public static NativeLong readNativeLongFromBuffer(ByteBuffer buff) {
-        return new NativeLong(Native.LONG_SIZE == 4 ? FileUtil.readIntFromBuffer(buff) : FileUtil.readLongFromBuffer(buff));
+        return new NativeLong(
+                Native.LONG_SIZE == 4 ? FileUtil.readIntFromBuffer(buff) : FileUtil.readLongFromBuffer(buff));
     }
 
     /**
@@ -41,7 +42,8 @@ public final class FileUtilJNA {
      * @return The next value
      */
     public static size_t readSizeTFromBuffer(ByteBuffer buff) {
-        return new size_t(Native.SIZE_T_SIZE == 4 ? FileUtil.readIntFromBuffer(buff) : FileUtil.readLongFromBuffer(buff));
+        return new size_t(
+                Native.SIZE_T_SIZE == 4 ? FileUtil.readIntFromBuffer(buff) : FileUtil.readLongFromBuffer(buff));
     }
 
     /**

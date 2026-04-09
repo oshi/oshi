@@ -20,8 +20,6 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 
-import oshi.PlatformEnum;
-
 /**
  * Test command line and returning the result of execution.
  */

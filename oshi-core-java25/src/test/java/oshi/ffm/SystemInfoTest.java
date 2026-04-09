@@ -9,6 +9,27 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static oshi.util.SystemInfoHelper.printComputerSystem;
+import static oshi.util.SystemInfoHelper.printCpu;
+import static oshi.util.SystemInfoHelper.printDisks;
+import static oshi.util.SystemInfoHelper.printDisplays;
+import static oshi.util.SystemInfoHelper.printFileSystem;
+import static oshi.util.SystemInfoHelper.printGraphicsCards;
+import static oshi.util.SystemInfoHelper.printInstalledApps;
+import static oshi.util.SystemInfoHelper.printInternetProtocolStats;
+import static oshi.util.SystemInfoHelper.printLVgroups;
+import static oshi.util.SystemInfoHelper.printMemory;
+import static oshi.util.SystemInfoHelper.printNetworkInterfaces;
+import static oshi.util.SystemInfoHelper.printNetworkParameters;
+import static oshi.util.SystemInfoHelper.printOperatingSystem;
+import static oshi.util.SystemInfoHelper.printPowerSources;
+import static oshi.util.SystemInfoHelper.printPrinters;
+import static oshi.util.SystemInfoHelper.printProcesses;
+import static oshi.util.SystemInfoHelper.printProcessor;
+import static oshi.util.SystemInfoHelper.printSensors;
+import static oshi.util.SystemInfoHelper.printServices;
+import static oshi.util.SystemInfoHelper.printSoundCards;
+import static oshi.util.SystemInfoHelper.printUsbDevices;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +48,14 @@ import oshi.software.os.OperatingSystem;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(min = JRE.JAVA_25)
-public class SystemInfoTest extends oshi.SystemInfoTest {
+public class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
-    /**
-     * Test that this platform is implemented.
-     */
-    @Override
     @Test
     @SuppressWarnings("deprecation")
     public void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnumFFM.getCurrentPlatform(), is(not(PlatformEnumFFM.UNSUPPORTED)));
-        // Exercise the main method
         main(null);
     }
 
@@ -53,25 +69,15 @@ public class SystemInfoTest extends oshi.SystemInfoTest {
 
     @Test
     void testGetOperatingSystem() {
-        SystemInfo si = new SystemInfo();
-        OperatingSystem os = si.getOperatingSystem();
-        assertNotNull(os);
+        assertNotNull(new SystemInfo().getOperatingSystem());
     }
 
     @Test
     void testGetHardware() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hw = si.getHardware();
-        assertNotNull(hw);
+        assertNotNull(new SystemInfo().getHardware());
     }
 
-    /**
-     * The main method, demonstrating use of classes.
-     *
-     * @param args the arguments (unused)
-     */
     public static void main(String[] args) {
-
         logger.info("------------------------------------------------------------------------");
         logger.info("Using FFM");
         logger.info("------------------------------------------------------------------------");
@@ -154,5 +160,4 @@ public class SystemInfoTest extends oshi.SystemInfoTest {
         }
         logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }
-
 }

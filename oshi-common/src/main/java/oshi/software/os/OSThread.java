@@ -1,12 +1,12 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os;
 
-import oshi.software.os.OSProcess.State;
-
 import java.util.function.Predicate;
+
+import oshi.software.os.OSProcess.State;
 
 /**
  * Represents a Thread/Task on the operating system.

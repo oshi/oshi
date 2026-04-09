@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.not;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.util.platform.unix.freebsd.ProcstatUtil;
 

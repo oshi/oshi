@@ -45,9 +45,9 @@ public interface OSProcess {
      * same user as the executing process, or elevated permissions, and additionally requires the target process to have
      * the same bitness (e.g., this will fail on a 32-bit process if queried by 64-bit and vice versa). If reading
      * process memory fails, by default, performs a single WMI query for this process, with some latency. If this method
-     * will be frequently called for multiple processes, see the configuration file to enable a batch query mode
-     * to improve performance via caching, or configure the option via
-     * {@code GlobalConfig} before instantiating any {@link OSProcess} object.
+     * will be frequently called for multiple processes, see the configuration file to enable a batch query mode to
+     * improve performance via caching, or configure the option via {@code GlobalConfig} before instantiating any
+     * {@link OSProcess} object.
      *
      * @return the process command line.
      */

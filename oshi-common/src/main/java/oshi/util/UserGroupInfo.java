@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util;
@@ -12,12 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Utility class to temporarily cache the userID and group maps in *nix, for
- * parsing process ownership. Cache expires after one minute.
+ * Utility class to temporarily cache the userID and group maps in *nix, for parsing process ownership. Cache expires
+ * after one minute.
  */
 @ThreadSafe
 public final class UserGroupInfo {
@@ -36,8 +35,7 @@ public final class UserGroupInfo {
     }
 
     /**
-     * Determine whether the current process has elevated permissions such as sudo /
-     * Administrator
+     * Determine whether the current process has elevated permissions such as sudo / Administrator
      *
      * @return True if this process has elevated permissions
      */
@@ -48,10 +46,8 @@ public final class UserGroupInfo {
     /**
      * Gets a user from their ID
      *
-     * @param userId
-     *            a user ID
-     * @return a pair containing that user id as the first element and the user name
-     *         as the second
+     * @param userId a user ID
+     * @return a pair containing that user id as the first element and the user name as the second
      */
     public static String getUser(String userId) {
         // If value is in cached /etc/passwd return, else do getent passwd uid
@@ -61,8 +57,7 @@ public final class UserGroupInfo {
     /**
      * Gets the group name for a given ID
      *
-     * @param groupId
-     *            a {@link java.lang.String} object.
+     * @param groupId a {@link java.lang.String} object.
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {

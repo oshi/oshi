@@ -22,6 +22,7 @@ module com.github.oshi {
     opens oshi.jna.platform.mac to com.sun.jna;
     opens oshi.jna.platform.windows to com.sun.jna;
     opens oshi.jna.platform.unix to com.sun.jna;
+    opens oshi.jna.util to org.junit.platform.commons;
 
     // dependencies
     requires transitive com.sun.jna;

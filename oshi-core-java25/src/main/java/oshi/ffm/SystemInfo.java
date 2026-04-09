@@ -8,7 +8,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import oshi.PlatformEnum;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
@@ -17,6 +16,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
+import oshi.util.PlatformEnum;
 
 /**
  * System information. This is the main FFM entry point to OSHI.

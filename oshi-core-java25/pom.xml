@@ -16,7 +16,6 @@
 
     <properties>
         <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
-        <oshi.common.basedir>${main.basedir}/oshi-common</oshi.common.basedir>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.testSource>25</maven.compiler.testSource>
@@ -25,7 +24,6 @@
     </properties>
 
     <dependencies>
-        <!-- runtime dependencies needed for compilation as oshi-core is used in builder-helper -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>oshi-common</artifactId>
@@ -73,12 +71,17 @@
                 <directory>${oshi.core.basedir}/src/main/resources</directory>
             </resource>
         </resources>
-        <testResources>
-            <testResource>
-                <directory>${oshi.core.basedir}/src/test/resources</directory>
-            </testResource>
-        </testResources>
         <plugins>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[Export-Package: oshi.ffm.*,oshi.jna.*,oshi.driver.*,oshi.hardware.common.*,oshi.hardware.platform.*,oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true;-split-package:=merge-first
+                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
+                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+                    -snapshot: SNAPSHOT]]></bnd>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -91,23 +94,9 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <sources>
-                                <!-- Copy source files from oshi-core and oshi-common -->
-                                <!-- TODO: Remove oshi-core and oshi-common source paths once FFM transition is complete -->
+                                <!-- Copy source files from oshi-core -->
+                                <!-- TODO: Remove once oshi-core-java25 fully replaces oshi-core -->
                                 <source>${oshi.core.basedir}/src/main/java</source>
-                                <source>${oshi.common.basedir}/src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-test-sources</id>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <sources>
-                                <!-- Copy test files from oshi-core -->
-                                <source>${oshi.core.basedir}/src/test/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -118,7 +107,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>
@@ -130,7 +119,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java:${oshi.common.basedir}/src/main/java</sourcepath>
+                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>

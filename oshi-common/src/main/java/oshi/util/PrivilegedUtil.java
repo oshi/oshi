@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**

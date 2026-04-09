@@ -42,7 +42,6 @@ class FileUtilJNATest {
         // Test reads past end of buffer
         assertThat("NativeLong from buffer at limit should be 0",
                 FileUtilJNA.readNativeLongFromBuffer(buff).longValue(), is(0L));
-        assertThat("SizeT from buffer at limit should be 0", FileUtilJNA.readSizeTFromBuffer(buff).longValue(),
-                is(0L));
+        assertThat("SizeT from buffer at limit should be 0", FileUtilJNA.readSizeTFromBuffer(buff).longValue(), is(0L));
     }
 }

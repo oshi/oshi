@@ -1,0 +1,38 @@
+/*
+ * Copyright 2025-2026 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.ffm;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+
+import oshi.hardware.VirtualMemory;
+
+@EnabledForJreRange(min = JRE.JAVA_25)
+public class VirtualMemoryFFMTest {
+
+    @Test
+    void testVirtualMemory() {
+        VirtualMemory vm = new SystemInfo().getHardware().getMemory().getVirtualMemory();
+        assertThat("VM object shouldn't be null", vm, is(notNullValue()));
+        assertThat("VM's swap pages in shouldn't be negative", vm.getSwapPagesIn(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap pages out shouldn't be negative", vm.getSwapPagesOut(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap total shouldn't be negative", vm.getSwapTotal(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap used shouldn't be negative", vm.getSwapUsed(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's swap used should be less than or equal to VM swap total", vm.getSwapUsed(),
+                is(lessThanOrEqualTo(vm.getSwapTotal())));
+        assertThat("VM's max should be greater than or equal to VM swap total", vm.getVirtualMax() >= vm.getSwapTotal(),
+                is(true));
+        assertThat("VM's virtual in use shouldn't be negative", vm.getVirtualInUse(), is(greaterThanOrEqualTo(0L)));
+        assertThat("VM's toString contains 'Used'", vm.toString(), containsString("Used"));
+    }
+}

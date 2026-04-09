@@ -48,6 +48,8 @@
   com.github.oshi/oshi.driver.windows.registry=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.windows.wmi=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.jna.util=org.junit.platform.commons
 
 --add-modules
   org.hamcrest,org.slf4j.simple
