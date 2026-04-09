@@ -16,8 +16,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Platform;
-
+import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -34,7 +33,7 @@ public final class ExecutingCommand {
     }
 
     private static String[] getDefaultEnv() {
-        if (Platform.isWindows()) {
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS) {
             return new String[] { "LANGUAGE=C" };
         } else {
             return new String[] { "LC_ALL=C" };
@@ -117,7 +116,8 @@ public final class ExecutingCommand {
     static void destroyProcess(Process p) {
         // Windows and Solaris don't close descriptors on destroy,
         // so we must handle separately
-        if (Platform.isWindows() || Platform.isSolaris()) {
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS
+                || PlatformEnum.getCurrentPlatform() == PlatformEnum.SOLARIS) {
             try {
                 p.getOutputStream().close();
             } catch (IOException e) {

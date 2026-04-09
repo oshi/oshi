@@ -26,10 +26,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
-import com.sun.jna.platform.unix.LibCAPI.size_t;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -261,26 +257,6 @@ public final class FileUtil {
     }
 
     /**
-     * Reads a NativeLong value from a ByteBuffer
-     *
-     * @param buff The bytebuffer to read from
-     * @return The next value
-     */
-    public static NativeLong readNativeLongFromBuffer(ByteBuffer buff) {
-        return new NativeLong(Native.LONG_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));
-    }
-
-    /**
-     * Reads a size_t value from a ByteBuffer
-     *
-     * @param buff The bytebuffer to read from
-     * @return The next value
-     */
-    public static size_t readSizeTFromBuffer(ByteBuffer buff) {
-        return new size_t(Native.SIZE_T_SIZE == 4 ? readIntFromBuffer(buff) : readLongFromBuffer(buff));
-    }
-
-    /**
      * Reads a byte array value from a ByteBuffer
      *
      * @param buff  The bytebuffer to read from
@@ -290,19 +266,6 @@ public final class FileUtil {
         if (buff.position() <= buff.limit() - array.length) {
             buff.get(array);
         }
-    }
-
-    /**
-     * Reads a Pointer value from a ByteBuffer
-     *
-     * @param buff The bytebuffer to read from
-     * @return The next value
-     */
-    public static Pointer readPointerFromBuffer(ByteBuffer buff) {
-        if (buff.position() <= buff.limit() - Native.POINTER_SIZE) {
-            return Native.POINTER_SIZE == 4 ? new Pointer(buff.getInt()) : new Pointer(buff.getLong());
-        }
-        return Pointer.NULL;
     }
 
     /**

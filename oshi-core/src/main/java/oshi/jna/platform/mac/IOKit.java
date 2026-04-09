@@ -10,7 +10,7 @@ import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.NativeLongByReference;
 
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * The I/O Kit framework implements non-kernel access to I/O Kit objects (drivers and nubs) through the device-interface
@@ -74,7 +74,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -90,7 +90,7 @@ public interface IOKit extends com.sun.jna.platform.mac.IOKit {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 

@@ -6,14 +6,13 @@ package oshi.util;
 
 import static oshi.util.Memoizer.memoize;
 
-import com.sun.jna.Platform;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -76,7 +75,7 @@ public final class UserGroupInfo {
     }
 
     private static String getentPasswd(String userId) {
-        if (Platform.isAIX()) {
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.AIX) {
             return Constants.UNKNOWN;
         }
         Map<String, String> newUsers = parsePasswd(ExecutingCommand.runNative("getent passwd " + userId));
@@ -106,7 +105,7 @@ public final class UserGroupInfo {
     }
 
     private static String getentGroup(String groupId) {
-        if (Platform.isAIX()) {
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.AIX) {
             return Constants.UNKNOWN;
         }
         Map<String, String> newGroups = parseGroup(ExecutingCommand.runNative("getent group " + groupId));

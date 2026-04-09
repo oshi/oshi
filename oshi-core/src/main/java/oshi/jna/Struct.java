@@ -23,7 +23,7 @@ import com.sun.jna.platform.win32.SetupApi.SP_DEVICE_INTERFACE_DATA;
 import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
 import com.sun.jna.platform.win32.WinBase.SYSTEM_INFO;
 
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * Wrapper classes for JNA clases which extend {@link com.sun.jna.Structure} intended for use in try-with-resources
@@ -36,7 +36,7 @@ public interface Struct {
     class CloseableSysinfo extends Sysinfo implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -47,56 +47,56 @@ public interface Struct {
     class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableProcTaskInfo extends ProcTaskInfo implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableProcTaskAllInfo extends ProcTaskAllInfo implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableRUsageInfoV2 extends RUsageInfoV2 implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableTimeval extends Timeval implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableVMStatistics extends VMStatistics implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableVnodePathInfo extends VnodePathInfo implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableXswUsage extends XswUsage implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -107,63 +107,63 @@ public interface Struct {
     class CloseableMibIfRow extends MIB_IFROW implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableMibIfRow2 extends MIB_IF_ROW2 implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableMibTcpStats extends MIB_TCPSTATS implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableMibUdpStats extends MIB_UDPSTATS implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseablePdhRawCounter extends PDH_RAW_COUNTER implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseablePerformanceInformation extends PERFORMANCE_INFORMATION implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableSpDeviceInterfaceData extends SP_DEVICE_INTERFACE_DATA implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableSpDevinfoData extends SP_DEVINFO_DATA implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
     class CloseableSystemInfo extends SYSTEM_INFO implements AutoCloseable {
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 }

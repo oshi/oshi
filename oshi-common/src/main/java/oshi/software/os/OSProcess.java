@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.wmi.Win32ProcessCached;
-import oshi.util.FileUtil;
-import oshi.util.GlobalConfig;
 
 /**
  * Represents a Process on the operating system, which may contain multiple threads.
@@ -49,8 +46,8 @@ public interface OSProcess {
      * the same bitness (e.g., this will fail on a 32-bit process if queried by 64-bit and vice versa). If reading
      * process memory fails, by default, performs a single WMI query for this process, with some latency. If this method
      * will be frequently called for multiple processes, see the configuration file to enable a batch query mode
-     * leveraging {@link Win32ProcessCached#getCommandLine} to improve performance, or setting that parameter via
-     * {@link GlobalConfig#set(String, Object)} before instantiating any {@link OSProcess} object.
+     * to improve performance via caching, or configure the option via
+     * {@code GlobalConfig} before instantiating any {@link OSProcess} object.
      *
      * @return the process command line.
      */
@@ -185,7 +182,7 @@ public interface OSProcess {
      * <p>
      * On Linux, returns the RSS value from {@code /proc/[pid]/stat}, which may be inaccurate because of a
      * kernel-internal scalability optimization. If accurate values are required, read {@code /proc/[pid]/smaps} using
-     * {@link FileUtil#getKeyValueMapFromFile(String, String)}.
+     * {@code FileUtil#getKeyValueMapFromFile(String, String)}.
      *
      * @return The resident set size in bytes.
      */

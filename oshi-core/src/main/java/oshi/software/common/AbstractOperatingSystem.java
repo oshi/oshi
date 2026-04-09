@@ -23,9 +23,14 @@ import java.util.stream.Collectors;
 
 import com.sun.jna.Platform;
 
+import oshi.driver.unix.Who;
+import oshi.driver.unix.Xwininfo;
+import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
+import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
 /**
@@ -175,6 +180,23 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return parentPidMap.entrySet().stream()
                 .filter(e -> e.getValue().equals(parentPid) && !e.getKey().equals(parentPid)).map(Entry::getKey)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean isElevated() {
+        return UserGroupInfo.isElevated();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return Who.queryWho();
+    }
+
+    @Override
+    public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
+        // Default X11 implementation for Unix-like operating systems.
+        // Overridden on Windows and macOS
+        return Xwininfo.queryXWindows(visibleOnly);
     }
 
     @Override

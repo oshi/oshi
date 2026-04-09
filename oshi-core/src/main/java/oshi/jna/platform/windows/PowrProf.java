@@ -9,7 +9,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * Power profile stats. This class should be considered non-API as it may be removed if/when its code is incorporated
@@ -49,7 +49,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -84,7 +84,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -109,7 +109,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -123,7 +123,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -136,7 +136,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 
@@ -148,7 +148,7 @@ public interface PowrProf extends com.sun.jna.platform.win32.PowrProf {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 }

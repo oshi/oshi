@@ -15,11 +15,8 @@ import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.Who;
-import oshi.driver.unix.Xwininfo;
 import oshi.software.os.OSProcess.State;
 import oshi.util.Constants;
-import oshi.util.UserGroupInfo;
 import oshi.util.Util;
 
 /**
@@ -313,7 +310,7 @@ public interface OperatingSystem {
      * @return True if this process has elevated permissions
      */
     default boolean isElevated() {
-        return UserGroupInfo.isElevated();
+        return false;
     }
 
     /**
@@ -347,7 +344,7 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */
     default List<OSSession> getSessions() {
-        return Who.queryWho();
+        return Collections.emptyList();
     }
 
     /**
@@ -366,9 +363,7 @@ public interface OperatingSystem {
      * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.
      */
     default List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
-        // Default X11 implementation for Unix-like operating systems.
-        // Overridden on Windows and macOS
-        return Xwininfo.queryXWindows(visibleOnly);
+        return Collections.emptyList();
     }
 
     /**

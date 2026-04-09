@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.util.FileUtilJNA;
 import oshi.util.FileUtil;
 import oshi.util.platform.linux.ProcPath;
 
@@ -45,9 +46,9 @@ public final class Auxv {
         Map<Integer, Long> auxvMap = new HashMap<>();
         int key;
         do {
-            key = FileUtil.readNativeLongFromBuffer(buff).intValue();
+            key = FileUtilJNA.readNativeLongFromBuffer(buff).intValue();
             if (key > 0) {
-                auxvMap.put(key, FileUtil.readNativeLongFromBuffer(buff).longValue());
+                auxvMap.put(key, FileUtilJNA.readNativeLongFromBuffer(buff).longValue());
             }
         } while (key > 0);
         return auxvMap;

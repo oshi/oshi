@@ -10,7 +10,7 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.Union;
 
 import oshi.jna.platform.unix.CLibrary;
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * System class. This class should be considered non-API as it may be removed if/when its code is incorporated into the
@@ -146,7 +146,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 

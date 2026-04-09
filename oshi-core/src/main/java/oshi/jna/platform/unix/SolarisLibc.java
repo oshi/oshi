@@ -12,6 +12,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 
+import oshi.jna.util.FileUtilJNA;
 import oshi.util.FileUtil;
 
 /**
@@ -134,11 +135,11 @@ public interface SolarisLibc extends CLibrary {
             this.pr_euid = FileUtil.readIntFromBuffer(buff);
             this.pr_gid = FileUtil.readIntFromBuffer(buff);
             this.pr_egid = FileUtil.readIntFromBuffer(buff);
-            this.pr_addr = FileUtil.readPointerFromBuffer(buff);
-            this.pr_size = FileUtil.readSizeTFromBuffer(buff);
-            this.pr_rssize = FileUtil.readSizeTFromBuffer(buff);
-            this.pr_rssizepriv = FileUtil.readSizeTFromBuffer(buff);
-            this.pr_ttydev = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_addr = FileUtilJNA.readPointerFromBuffer(buff);
+            this.pr_size = FileUtilJNA.readSizeTFromBuffer(buff);
+            this.pr_rssize = FileUtilJNA.readSizeTFromBuffer(buff);
+            this.pr_rssizepriv = FileUtilJNA.readSizeTFromBuffer(buff);
+            this.pr_ttydev = FileUtilJNA.readNativeLongFromBuffer(buff);
             this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
             this.pr_pctmem = FileUtil.readShortFromBuffer(buff);
             // Force 8 byte alignment
@@ -152,8 +153,8 @@ public interface SolarisLibc extends CLibrary {
             FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);
             this.pr_wstat = FileUtil.readIntFromBuffer(buff);
             this.pr_argc = FileUtil.readIntFromBuffer(buff);
-            this.pr_argv = FileUtil.readPointerFromBuffer(buff);
-            this.pr_envp = FileUtil.readPointerFromBuffer(buff);
+            this.pr_argv = FileUtilJNA.readPointerFromBuffer(buff);
+            this.pr_envp = FileUtilJNA.readPointerFromBuffer(buff);
             this.pr_dmodel = FileUtil.readByteFromBuffer(buff);
             FileUtil.readByteArrayFromBuffer(buff, this.pr_pad2);
             this.pr_taskid = FileUtil.readIntFromBuffer(buff);
@@ -202,8 +203,8 @@ public interface SolarisLibc extends CLibrary {
         public SolarisLwpsInfo(ByteBuffer buff) {
             this.pr_flag = FileUtil.readIntFromBuffer(buff);
             this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
-            this.pr_addr = FileUtil.readPointerFromBuffer(buff);
-            this.pr_wchan = FileUtil.readPointerFromBuffer(buff);
+            this.pr_addr = FileUtilJNA.readPointerFromBuffer(buff);
+            this.pr_wchan = FileUtilJNA.readPointerFromBuffer(buff);
             this.pr_stype = FileUtil.readByteFromBuffer(buff);
             this.pr_state = FileUtil.readByteFromBuffer(buff);
             this.pr_sname = FileUtil.readByteFromBuffer(buff);
@@ -282,20 +283,20 @@ public interface SolarisLibc extends CLibrary {
             for (int i = 0; i < filltime.length; i++) {
                 this.filltime[i] = new Timestruc(buff);
             }
-            this.pr_minf = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_majf = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_nswap = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_inblk = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_oublk = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_msnd = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_mrcv = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_sigs = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_vctx = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_ictx = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_sysc = FileUtil.readNativeLongFromBuffer(buff);
-            this.pr_ioch = FileUtil.readNativeLongFromBuffer(buff);
+            this.pr_minf = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_majf = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_nswap = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_inblk = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_oublk = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_msnd = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_mrcv = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_sigs = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_vctx = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_ictx = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_sysc = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.pr_ioch = FileUtilJNA.readNativeLongFromBuffer(buff);
             for (int i = 0; i < filler.length; i++) {
-                this.filler[i] = FileUtil.readNativeLongFromBuffer(buff);
+                this.filler[i] = FileUtilJNA.readNativeLongFromBuffer(buff);
             }
         }
     }
@@ -308,8 +309,8 @@ public interface SolarisLibc extends CLibrary {
         public NativeLong tv_nsec; // nanoseconds
 
         public Timestruc(ByteBuffer buff) {
-            this.tv_sec = FileUtil.readNativeLongFromBuffer(buff);
-            this.tv_nsec = FileUtil.readNativeLongFromBuffer(buff);
+            this.tv_sec = FileUtilJNA.readNativeLongFromBuffer(buff);
+            this.tv_nsec = FileUtilJNA.readNativeLongFromBuffer(buff);
         }
     }
 

@@ -11,7 +11,7 @@ import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 
-import oshi.util.Util;
+import oshi.jna.util.FileUtilJNA;
 
 /**
  * The Core Graphics framework is based on the Quartz advanced drawing engine. It provides low-level, lightweight 2D
@@ -64,7 +64,7 @@ public interface CoreGraphics extends Library {
 
         @Override
         public void close() {
-            Util.freeMemory(getPointer());
+            FileUtilJNA.freeMemory(getPointer());
         }
     }
 

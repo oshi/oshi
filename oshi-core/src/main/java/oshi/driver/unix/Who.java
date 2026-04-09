@@ -18,8 +18,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.Platform;
-
+import oshi.PlatformEnum;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
@@ -58,7 +57,7 @@ public final class Who {
         List<String> who = ExecutingCommand.runNative("who");
         for (String s : who) {
             boolean matched = false;
-            if (Platform.isLinux()) {
+            if (PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX) {
                 matched = matchLinux(whoList, s);
             }
             if (!matched) {

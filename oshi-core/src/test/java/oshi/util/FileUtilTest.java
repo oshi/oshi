@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.sun.jna.Native;
-
 /**
  * Tests FileUtil
  */
@@ -193,22 +191,12 @@ class FileUtilTest {
 
     @Test
     void testReadBinaryFile() {
-        ByteBuffer buff = ByteBuffer.allocate(18 + Native.LONG_SIZE + Native.SIZE_T_SIZE);
+        ByteBuffer buff = ByteBuffer.allocate(18);
         buff.order(ByteOrder.nativeOrder());
         buff.putLong(123L);
         buff.putInt(45);
         buff.putShort((short) 67);
         buff.put((byte) 89);
-        if (Native.LONG_SIZE > 4) {
-            buff.putLong(10L);
-        } else {
-            buff.putInt(10);
-        }
-        if (Native.SIZE_T_SIZE > 4) {
-            buff.putLong(11L);
-        } else {
-            buff.putInt(11);
-        }
         byte[] arr = new byte[] { 1, 2, 3 };
         buff.put(arr);
 
@@ -223,14 +211,11 @@ class FileUtilTest {
 
         // Read from file
         buff = FileUtil.readAllBytesAsBuffer(binaryFile.toString());
-        assertThat("Buffer size should match bytes written", buff.limit(),
-                is(18 + Native.LONG_SIZE + Native.SIZE_T_SIZE));
+        assertThat("Buffer size should match bytes written", buff.limit(), is(18));
         assertThat("Long from buffer should match", FileUtil.readLongFromBuffer(buff), is(123L));
         assertThat("Int from buffer should match", FileUtil.readIntFromBuffer(buff), is(45));
         assertThat("Short from buffer should match", FileUtil.readShortFromBuffer(buff), is((short) 67));
         assertThat("Byte from buffer should match", FileUtil.readByteFromBuffer(buff), is((byte) 89));
-        assertThat("NativeLong from buffer should match", FileUtil.readNativeLongFromBuffer(buff).longValue(), is(10L));
-        assertThat("SizeT from buffer should match", FileUtil.readSizeTFromBuffer(buff).longValue(), is(11L));
         byte[] array = new byte[3];
         FileUtil.readByteArrayFromBuffer(buff, array);
         assertArrayEquals(arr, array, "Byte array from buffer should match");
@@ -239,9 +224,6 @@ class FileUtilTest {
         assertThat("Int from buffer at limit should be 0", FileUtil.readIntFromBuffer(buff), is(0));
         assertThat("Short from buffer at limit should be 0", FileUtil.readShortFromBuffer(buff), is((short) 0));
         assertThat("Byte from buffer at limit should be 0", FileUtil.readByteFromBuffer(buff), is((byte) 0));
-        assertThat("NativeLong from buffer at limit should be 0", FileUtil.readNativeLongFromBuffer(buff).longValue(),
-                is(0L));
-        assertThat("SizeT from buffer at limit should be 0", FileUtil.readSizeTFromBuffer(buff).longValue(), is(0L));
         byte[] arr0 = new byte[] { 0, 0, 0 };
         array = new byte[3];
         FileUtil.readByteArrayFromBuffer(buff, array);
