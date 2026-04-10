@@ -7,10 +7,8 @@ package oshi.hardware.platform.linux;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.lang.foreign.Arena;
-import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,11 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.linux.ProcPath;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -38,26 +37,9 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessorFFM.class);
 
-    private static final int AT_HWCAP = 16;
-    private static final long NATIVE_LONG_SIZE = ((ValueLayout) Linker.nativeLinker().canonicalLayouts().get("long"))
-            .byteSize();
-
     @Override
     protected long queryHwcap() {
-        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(ProcPath.AUXV);
-        int key;
-        do {
-            key = (int) readNativeLong(buff);
-            long value = readNativeLong(buff);
-            if (key == AT_HWCAP) {
-                return value;
-            }
-        } while (key > 0);
-        return 0L;
-    }
-
-    private static long readNativeLong(ByteBuffer buff) {
-        return NATIVE_LONG_SIZE == 4 ? FileUtil.readIntFromBuffer(buff) : FileUtil.readLongFromBuffer(buff);
+        return AuxvFFM.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
     }
 
     @Override

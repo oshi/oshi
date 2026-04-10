@@ -3,6 +3,8 @@
 --add-opens
   com.github.oshi/oshi.ffm=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.ffm.util=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.jna.util=org.junit.platform.commons
 
 --add-modules

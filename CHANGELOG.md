@@ -5,7 +5,8 @@
 * [#3130](https://github.com/oshi/oshi/pull/3130),
   [#3132](https://github.com/oshi/oshi/pull/3132),
   [#3133](https://github.com/oshi/oshi/pull/3133),
-  [#3134](https://github.com/oshi/oshi/pull/3134): Create oshi-common module; move JNA-free common code to enable future FFM-only consumers - [@dbwiddis](https://github.com/dbwiddis).
+  [#3134](https://github.com/oshi/oshi/pull/3134),
+  [#3135](https://github.com/oshi/oshi/pull/3135): Create oshi-common module; move JNA-free common code to enable future FFM-only consumers - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#3128](https://github.com/oshi/oshi/pull/3128): Fix Mac FFM TIMEVAL struct layout missing 4-byte trailing padding - [@dbwiddis](https://github.com/dbwiddis).

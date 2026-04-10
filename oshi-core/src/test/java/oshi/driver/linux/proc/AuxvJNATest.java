@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux.proc;
@@ -14,12 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.util.driver.linux.proc.Auxv;
+
 @EnabledOnOs(OS.LINUX)
-class AuxvTest {
+class AuxvJNATest {
     @Test
     void testQueryAuxv() {
-        Map<Integer, Long> auxv = Auxv.queryAuxv();
-        assertNotNull("Aux vector should not be null");
+        Map<Integer, Long> auxv = AuxvJNA.queryAuxv();
+        assertNotNull(auxv, "Aux vector should not be null");
         assertThat("Clock Ticks should be positive", auxv.getOrDefault(Auxv.AT_CLKTCK, 0L), greaterThan(0L));
         assertThat("Page Size should be positive", auxv.getOrDefault(Auxv.AT_PAGESZ, 0L), greaterThan(0L));
     }

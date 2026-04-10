@@ -5,6 +5,7 @@ module com.github.oshi {
     // API
     exports oshi;
     exports oshi.ffm;
+    exports oshi.ffm.util;
     exports oshi.util.gpu;
     exports oshi.util.platform.mac;
     exports oshi.util.platform.windows;

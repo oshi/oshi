@@ -14,6 +14,7 @@ import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
@@ -33,6 +34,15 @@ public abstract class ForeignFunctions {
 
     /** Symbol lookup for libraries already loaded into the current process. */
     protected static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
+
+    /** The size in bytes of the C {@code long} type on this platform. */
+    public static final long NATIVE_LONG_SIZE = ((ValueLayout) LINKER.canonicalLayouts().get("long")).byteSize();
+
+    /** The size in bytes of the C {@code size_t} type on this platform. */
+    public static final long NATIVE_SIZE_T_SIZE = ((ValueLayout) LINKER.canonicalLayouts().get("size_t")).byteSize();
+
+    /** The size in bytes of a native pointer on this platform. */
+    public static final long NATIVE_POINTER_SIZE = ValueLayout.ADDRESS.byteSize();
 
     /** Not intended for instantiation. */
     protected ForeignFunctions() {

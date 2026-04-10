@@ -11,29 +11,17 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.util.FileUtilJNA;
 import oshi.util.FileUtil;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.linux.ProcPath;
 
 /**
- * Utility to read auxiliary vector from {@code /proc/self/auxv}
+ * JNA-based utility to read the auxiliary vector from {@code /proc/self/auxv}.
  */
 @ThreadSafe
-public final class Auxv {
+public final class AuxvJNA {
 
-    private Auxv() {
+    private AuxvJNA() {
     }
-
-    /**
-     * system page size
-     */
-    public static final int AT_PAGESZ = 6;
-    /**
-     * arch dependent hints at CPU capabilities
-     */
-    public static final int AT_HWCAP = 16;
-    /**
-     * frequency at which times() increments
-     */
-    public static final int AT_CLKTCK = 17;
 
     /**
      * Retrieve the auxiliary vector for the current process
@@ -47,11 +35,10 @@ public final class Auxv {
         int key;
         do {
             key = FileUtilJNA.readNativeLongFromBuffer(buff).intValue();
-            if (key > 0) {
+            if (key != Auxv.AT_NULL) {
                 auxvMap.put(key, FileUtilJNA.readNativeLongFromBuffer(buff).longValue());
             }
-        } while (key > 0);
+        } while (key != Auxv.AT_NULL);
         return auxvMap;
-
     }
 }

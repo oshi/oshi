@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Who;
-import oshi.driver.linux.proc.Auxv;
+import oshi.driver.linux.proc.AuxvJNA;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.InternetProtocolStats;
@@ -38,6 +38,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.driver.linux.proc.CpuStat;
 import oshi.util.driver.linux.proc.ProcessStat;
 import oshi.util.driver.linux.proc.UpTime;
@@ -70,14 +71,14 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final long USER_HZ;
     private static final long PAGE_SIZE;
     static {
-        Map<Integer, Long> auxv = Auxv.queryAuxv();
+        Map<Integer, Long> auxv = AuxvJNA.queryAuxv();
         long hz = auxv.getOrDefault(Auxv.AT_CLKTCK, 0L);
         if (hz > 0) {
             USER_HZ = hz;
         } else {
             USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
         }
-        long pagesz = Auxv.queryAuxv().getOrDefault(Auxv.AT_PAGESZ, 0L);
+        long pagesz = auxv.getOrDefault(Auxv.AT_PAGESZ, 0L);
         if (pagesz > 0) {
             PAGE_SIZE = pagesz;
         } else {
