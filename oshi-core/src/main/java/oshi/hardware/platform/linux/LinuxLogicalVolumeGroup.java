@@ -12,7 +12,7 @@ import java.util.Set;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.DevPath;
+import oshi.util.linux.DevPath;
 
 class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 

@@ -4,9 +4,9 @@
  */
 package oshi.hardware.platform.linux;
 
-import static oshi.util.platform.linux.ProcPath.CPUINFO;
-import static oshi.util.platform.linux.ProcPath.LOADAVG;
-import static oshi.util.platform.linux.ProcPath.MODEL;
+import static oshi.util.linux.ProcPath.CPUINFO;
+import static oshi.util.linux.ProcPath.LOADAVG;
+import static oshi.util.linux.ProcPath.MODEL;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,9 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.Lshw;
-import oshi.driver.linux.proc.CpuInfo;
-import oshi.driver.linux.proc.CpuStat;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.software.os.linux.LinuxOperatingSystem;
@@ -41,7 +38,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.platform.linux.SysPath;
+import oshi.util.driver.linux.Lshw;
+import oshi.util.driver.linux.proc.CpuInfo;
+import oshi.util.driver.linux.proc.CpuStat;
+import oshi.util.linux.SysPath;
 import oshi.util.tuples.Quartet;
 
 /**

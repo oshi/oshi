@@ -1,13 +1,13 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.linux.proc;
+package oshi.util.driver.linux.proc;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * Utility to read system uptime from {@code /proc/uptime}

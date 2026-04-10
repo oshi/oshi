@@ -5,7 +5,6 @@ module com.github.oshi {
     // API
     exports oshi;
     exports oshi.util.gpu;
-    exports oshi.util.platform.linux;
     exports oshi.util.platform.mac;
     exports oshi.util.platform.unix.freebsd;
     exports oshi.util.platform.unix.openbsd;

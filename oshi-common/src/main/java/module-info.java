@@ -10,7 +10,10 @@ module com.github.oshi.common {
     exports oshi.software.common;
     exports oshi.software.os;
     exports oshi.util;
+    exports oshi.util.driver.linux;
+    exports oshi.util.driver.linux.proc;
     exports oshi.util.driver.unix;
+    exports oshi.util.linux;
     exports oshi.util.tuples;
 
     requires transitive java.desktop;

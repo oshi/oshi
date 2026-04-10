@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -16,7 +16,7 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 import oshi.util.tuples.Pair;
 
 /**
@@ -77,28 +77,28 @@ public final class LinuxGlobalMemory extends AbstractGlobalMemory {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
-                case "MemTotal:":
-                    memTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    break;
-                case "MemAvailable:":
-                    memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    // We're done!
-                    return new Pair<>(memAvailable, memTotal);
-                case "MemFree:":
-                    memFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    break;
-                case "Active(file):":
-                    activeFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    break;
-                case "Inactive(file):":
-                    inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    break;
-                case "SReclaimable:":
-                    sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
-                    break;
-                default:
-                    // do nothing with other lines
-                    break;
+                    case "MemTotal:":
+                        memTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        break;
+                    case "MemAvailable:":
+                        memAvailable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        // We're done!
+                        return new Pair<>(memAvailable, memTotal);
+                    case "MemFree:":
+                        memFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        break;
+                    case "Active(file):":
+                        activeFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        break;
+                    case "Inactive(file):":
+                        inactiveFile = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        break;
+                    case "SReclaimable:":
+                        sReclaimable = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
                 }
             }
         }

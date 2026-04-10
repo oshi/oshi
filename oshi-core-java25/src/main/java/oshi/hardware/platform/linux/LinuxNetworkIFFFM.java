@@ -19,7 +19,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.NetworkIF;
 import oshi.util.Util;
-import oshi.util.platform.linux.SysPath;
+import oshi.util.linux.SysPath;
 
 /**
  * FFM-based Linux network interface implementation.

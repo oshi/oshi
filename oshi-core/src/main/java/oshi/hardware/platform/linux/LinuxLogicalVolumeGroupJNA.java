@@ -22,7 +22,7 @@ import com.sun.jna.platform.linux.Udev;
 
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.util.Util;
-import oshi.util.platform.linux.DevPath;
+import oshi.util.linux.DevPath;
 
 /**
  * JNA-based Linux logical volume group implementation.

@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.linux;
+package oshi.util.driver.linux;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;

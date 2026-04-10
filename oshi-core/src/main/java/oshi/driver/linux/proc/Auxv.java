@@ -11,7 +11,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.util.FileUtilJNA;
 import oshi.util.FileUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * Utility to read auxiliary vector from {@code /proc/self/auxv}

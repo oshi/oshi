@@ -22,7 +22,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.DevPath;
+import oshi.util.linux.DevPath;
 
 /**
  * FFM-based Linux hard disk implementation.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -20,7 +20,6 @@ import com.sun.jna.platform.unix.solaris.Kstat2;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
 import oshi.driver.unix.solaris.Who;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
@@ -36,6 +35,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.proc.ProcessStat;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 import oshi.util.tuples.Pair;

@@ -16,7 +16,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.FileUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * Sound card data obtained via /proc/asound directory

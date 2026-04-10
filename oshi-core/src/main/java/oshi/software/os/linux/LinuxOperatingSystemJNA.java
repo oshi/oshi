@@ -24,7 +24,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * JNA-based Linux operating system implementation. Extends {@link LinuxOperatingSystem}, providing JNA implementations

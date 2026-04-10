@@ -19,8 +19,8 @@ import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.DevPath;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.DevPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * Linux hard disk implementation.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -9,16 +9,16 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.linux.Devicetree;
-import oshi.driver.linux.Dmidecode;
-import oshi.driver.linux.Lshal;
-import oshi.driver.linux.Lshw;
-import oshi.driver.linux.Sysfs;
-import oshi.driver.linux.proc.CpuInfo;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.driver.linux.Devicetree;
+import oshi.util.driver.linux.Dmidecode;
+import oshi.util.driver.linux.Lshal;
+import oshi.util.driver.linux.Lshw;
+import oshi.util.driver.linux.Sysfs;
+import oshi.util.driver.linux.proc.CpuInfo;
 
 /**
  * Hardware data obtained from sysfs.

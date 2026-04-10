@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
@@ -40,7 +39,8 @@ import oshi.util.ParseUtil;
 import oshi.util.PrivilegedUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.Util;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.driver.linux.proc.ProcessStat;
+import oshi.util.linux.ProcPath;
 
 /**
  * OSProcess implementation

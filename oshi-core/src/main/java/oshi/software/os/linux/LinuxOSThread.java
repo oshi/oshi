@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -8,12 +8,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.driver.linux.proc.ProcessStat;
+import oshi.util.linux.ProcPath;
 
 /**
  * OSThread implementation

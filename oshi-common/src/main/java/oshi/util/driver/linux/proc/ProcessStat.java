@@ -1,8 +1,15 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.linux.proc;
+package oshi.util.driver.linux.proc;
+
+import static oshi.software.os.OSProcess.State.OTHER;
+import static oshi.software.os.OSProcess.State.RUNNING;
+import static oshi.software.os.OSProcess.State.SLEEPING;
+import static oshi.software.os.OSProcess.State.STOPPED;
+import static oshi.software.os.OSProcess.State.WAITING;
+import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 import java.io.File;
 import java.util.Arrays;
@@ -20,15 +27,8 @@ import oshi.software.os.OSProcess;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 import oshi.util.tuples.Triplet;
-
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
 
 /**
  * Utility to read process statistics from {@code /proc/[pid]/stat}

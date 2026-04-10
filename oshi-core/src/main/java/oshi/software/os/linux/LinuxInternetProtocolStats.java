@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.linux;
@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.ProcessStat;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.driver.linux.proc.ProcessStat;
+import oshi.util.linux.ProcPath;
 import oshi.util.tuples.Pair;
 
 /**

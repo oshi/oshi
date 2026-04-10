@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.linux.proc;
+package oshi.util.driver.linux.proc;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -10,10 +10,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-
-import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.HardwareAbstractionLayer;
 
 @EnabledOnOs(OS.LINUX)
 class CpuStatTest {
@@ -28,10 +24,7 @@ class CpuStatTest {
 
     @Test
     void testGetProcessorCpuLoadTicks() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        CentralProcessor processor = hal.getProcessor();
-        int logicalProcessorCount = processor.getLogicalProcessorCount();
+        int logicalProcessorCount = Runtime.getRuntime().availableProcessors();
         long[][] processorCpuLoadTicks = CpuStat.getProcessorCpuLoadTicks(logicalProcessorCount);
         for (long[] cpuTicks : processorCpuLoadTicks) {
             for (long cpuTick : cpuTicks) {

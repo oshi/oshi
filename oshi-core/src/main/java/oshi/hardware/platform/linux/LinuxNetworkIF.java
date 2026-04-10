@@ -12,7 +12,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
 import oshi.util.Util;
-import oshi.util.platform.linux.SysPath;
+import oshi.util.linux.SysPath;
 
 /**
  * LinuxNetworks class.

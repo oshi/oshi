@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.util.Util;
-import oshi.util.platform.linux.DevPath;
+import oshi.util.linux.DevPath;
 
 /**
  * FFM-based Linux logical volume group implementation.

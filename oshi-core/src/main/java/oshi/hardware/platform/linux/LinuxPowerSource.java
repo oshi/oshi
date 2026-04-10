@@ -20,7 +20,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.SysPath;
+import oshi.util.linux.SysPath;
 
 /**
  * A Power Source

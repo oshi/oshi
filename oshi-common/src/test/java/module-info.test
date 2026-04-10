@@ -1,4 +1,6 @@
 --add-opens
+  com.github.oshi.common/oshi=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.hardware=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.hardware.common=org.junit.platform.commons
@@ -6,6 +8,10 @@
   com.github.oshi.common/oshi.software.os=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.software.common=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.util.driver.linux=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.util.driver.linux.proc=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.util.driver.unix=org.junit.platform.commons
 

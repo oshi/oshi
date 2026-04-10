@@ -26,8 +26,8 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.DevPath;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.DevPath;
+import oshi.util.linux.ProcPath;
 
 /**
  * The Linux File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,

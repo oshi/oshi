@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.linux;
@@ -14,7 +14,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.linux.ProcPath;
+import oshi.util.linux.ProcPath;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -80,18 +80,18 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
-                case "SwapTotal:":
-                    swapTotal = parseMeminfo(memorySplit);
-                    break;
-                case "SwapFree:":
-                    swapFree = parseMeminfo(memorySplit);
-                    break;
-                case "CommitLimit:":
-                    commitLimit = parseMeminfo(memorySplit);
-                    break;
-                default:
-                    // do nothing with other lines
-                    break;
+                    case "SwapTotal:":
+                        swapTotal = parseMeminfo(memorySplit);
+                        break;
+                    case "SwapFree:":
+                        swapFree = parseMeminfo(memorySplit);
+                        break;
+                    case "CommitLimit:":
+                        commitLimit = parseMeminfo(memorySplit);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
                 }
             }
         }
@@ -106,15 +106,15 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
-                case "pswpin":
-                    swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                    break;
-                case "pswpout":
-                    swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-                    break;
-                default:
-                    // do nothing with other lines
-                    break;
+                    case "pswpin":
+                        swapPagesIn = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    case "pswpout":
+                        swapPagesOut = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
+                        break;
+                    default:
+                        // do nothing with other lines
+                        break;
                 }
             }
         }
