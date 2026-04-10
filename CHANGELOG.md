@@ -10,6 +10,7 @@
 
 ##### Bug fixes / Improvements
 * [#3128](https://github.com/oshi/oshi/pull/3128): Fix Mac FFM TIMEVAL struct layout missing 4-byte trailing padding - [@dbwiddis](https://github.com/dbwiddis).
+* [#3136](https://github.com/oshi/oshi/pull/3136): Push Linux USER_HZ and PAGE_SIZE into JNA/FFM OS subclasses; wire through HAL, processor, memory, process, and thread classes - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

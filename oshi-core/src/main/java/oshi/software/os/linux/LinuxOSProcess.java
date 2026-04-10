@@ -260,7 +260,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         return ProcessStat.getThreadIds(getProcessID()).stream().parallel()
-                .map(id -> new LinuxOSThread(getProcessID(), id)).filter(VALID_THREAD).collect(Collectors.toList());
+                .map(id -> new LinuxOSThread(getProcessID(), id, getOs())).filter(VALID_THREAD)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -387,8 +388,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
         // Combine units to jiffies and convert to millijiffies before hz division to
         // avoid precision loss without having to cast
-        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()
-                + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();
+        this.startTime = (LinuxOperatingSystem.getBootTime() * getOs().getHz()
+                + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / getOs().getHz();
         // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
         // that has started within last 505ms could produce a future start time/negative
         // up time, so insert a sanity check.
@@ -405,15 +406,15 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         if (statmFields.length > 2) {
             long resident = ParseUtil.parseLongOrDefault(statmFields[1], 0L);
             long shared = ParseUtil.parseLongOrDefault(statmFields[2], 0L);
-            long pageSize = LinuxOperatingSystem.getPageSize();
+            long pageSize = getOs().getPageSize();
             this.residentSetSize = resident * pageSize;
             this.privateResidentMemory = (resident - shared) * pageSize;
         } else {
-            this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * LinuxOperatingSystem.getPageSize();
+            this.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * getOs().getPageSize();
             this.privateResidentMemory = this.residentSetSize;
         }
-        this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
-        this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / getOs().getHz();
+        this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / getOs().getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
         this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);

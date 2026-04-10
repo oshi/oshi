@@ -31,14 +31,10 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     }
 
     @Override
-    public GlobalMemory createMemory() {
-        return new LinuxGlobalMemory();
-    }
+    public abstract GlobalMemory createMemory();
 
     @Override
-    public CentralProcessor createProcessor() {
-        return new LinuxCentralProcessorJNA();
-    }
+    public abstract CentralProcessor createProcessor();
 
     @Override
     public Sensors createSensors() {

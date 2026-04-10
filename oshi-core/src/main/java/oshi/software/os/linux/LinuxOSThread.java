@@ -31,6 +31,7 @@ public class LinuxOSThread extends AbstractOSThread {
     }
 
     private final int threadId;
+    private final LinuxOperatingSystem os;
     private String name;
     private State state = State.INVALID;
     private long minorFaults;
@@ -43,9 +44,10 @@ public class LinuxOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public LinuxOSThread(int processId, int tid) {
+    public LinuxOSThread(int processId, int tid, LinuxOperatingSystem os) {
         super(processId);
         this.threadId = tid;
+        this.os = os;
         updateAttributes();
     }
 
@@ -128,8 +130,8 @@ public class LinuxOSThread extends AbstractOSThread {
         // BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.
         // Combine units to jiffies and convert to millijiffies before hz division to
         // avoid precision loss without having to cast
-        this.startTime = (LinuxOperatingSystem.BOOTTIME * LinuxOperatingSystem.getHz()
-                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()]) * 1000L / LinuxOperatingSystem.getHz();
+        this.startTime = (LinuxOperatingSystem.getBootTime() * os.getHz()
+                + statArray[LinuxOSThread.ThreadPidStat.START_TIME.ordinal()]) * 1000L / os.getHz();
         // BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process
         // that has started within last 505ms could produce a future start time/negative
         // up time, so insert a sanity check.
@@ -143,8 +145,8 @@ public class LinuxOSThread extends AbstractOSThread {
         long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
         this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));
-        this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
-        this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / LinuxOperatingSystem.getHz();
+        this.kernelTime = statArray[ThreadPidStat.KERNEL_TIME.ordinal()] * 1000L / os.getHz();
+        this.userTime = statArray[ThreadPidStat.USER_TIME.ordinal()] * 1000L / os.getHz();
         this.upTime = now - startTime;
         this.priority = (int) statArray[ThreadPidStat.PRIORITY.ordinal()];
         return true;

@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -51,6 +50,12 @@ import oshi.util.tuples.Quartet;
 abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
+
+    private final long hz;
+
+    protected LinuxCentralProcessor(long hz) {
+        this.hz = hz;
+    }
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -387,13 +392,11 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] querySystemCpuLoadTicks() {
-        // convert the Linux Jiffies to Milliseconds.
         long[] ticks = CpuStat.getSystemCpuLoadTicks();
         // In rare cases, /proc/stat reading fails. If so, try again.
         if (LongStream.of(ticks).sum() == 0) {
             ticks = CpuStat.getSystemCpuLoadTicks();
         }
-        long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
             ticks[i] = ticks[i] * 1000L / hz;
         }
@@ -519,8 +522,6 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (LongStream.of(ticks[0]).sum() == 0) {
             ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
         }
-        // convert the Linux Jiffies to Milliseconds.
-        long hz = LinuxOperatingSystem.getHz();
         for (int i = 0; i < ticks.length; i++) {
             for (int j = 0; j < ticks[i].length; j++) {
                 ticks[i][j] = ticks[i][j] * 1000L / hz;

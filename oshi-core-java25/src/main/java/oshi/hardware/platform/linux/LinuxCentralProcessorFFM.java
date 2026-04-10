@@ -23,6 +23,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
+import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.driver.linux.proc.Auxv;
@@ -36,6 +37,10 @@ import oshi.util.tuples.Quartet;
 public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessorFFM.class);
+
+    public LinuxCentralProcessorFFM() {
+        super(LinuxOperatingSystemFFM.hz());
+    }
 
     @Override
     protected long queryHwcap() {

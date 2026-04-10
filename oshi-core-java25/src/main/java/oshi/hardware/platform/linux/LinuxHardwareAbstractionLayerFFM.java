@@ -8,11 +8,13 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.UsbDevice;
+import oshi.software.os.linux.LinuxOperatingSystemFFM;
 
 /**
  * FFM-based hardware abstraction layer for Linux. Extends {@link LinuxHardwareAbstractionLayer}, overriding methods as
@@ -20,6 +22,11 @@ import oshi.hardware.UsbDevice;
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstractionLayer {
+
+    @Override
+    public GlobalMemory createMemory() {
+        return new LinuxGlobalMemory(LinuxOperatingSystemFFM.pageSize());
+    }
 
     @Override
     public CentralProcessor createProcessor() {

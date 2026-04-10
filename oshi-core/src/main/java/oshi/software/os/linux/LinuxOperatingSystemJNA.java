@@ -7,6 +7,7 @@ package oshi.software.os.linux;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,17 @@ import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.Udev;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.AuxvJNA;
 import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
+import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.linux.ProcPath;
 
 /**
@@ -37,16 +41,27 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
 
     /** This static field identifies if the udev library can be loaded. */
     public static final boolean HAS_UDEV;
+    private static final long USER_HZ;
+    private static final long PAGE_SIZE;
     /** This static field identifies if the gettid function is in the c library. */
     public static final boolean HAS_GETTID;
     /** This static field identifies if the syscall for gettid returns sane results. */
     public static final boolean HAS_SYSCALL_GETTID;
 
     static {
+        long userHz = 100L;
+        long pageSz = 4096L;
         boolean hasUdev = false;
         boolean hasGettid = false;
         boolean hasSyscallGettid = false;
         try {
+            Map<Integer, Long> auxv = AuxvJNA.queryAuxv();
+            long hz = auxv.getOrDefault(Auxv.AT_CLKTCK, 0L);
+            userHz = hz > 0 ? hz
+                    : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
+            long pagesz = auxv.getOrDefault(Auxv.AT_PAGESZ, 0L);
+            pageSz = pagesz > 0 ? pagesz
+                    : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
             if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV, true)) {
                 try {
                     @SuppressWarnings("unused")
@@ -80,6 +95,8 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
         HAS_UDEV = hasUdev;
         HAS_GETTID = hasGettid;
         HAS_SYSCALL_GETTID = hasSyscallGettid;
+        USER_HZ = userHz;
+        PAGE_SIZE = pageSz;
     }
 
     @Override
@@ -123,6 +140,34 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
         } catch (IOException e) {
             return 0;
         }
+    }
+
+    /**
+     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice versa.
+     *
+     * @return Jiffies per second.
+     */
+    public static long hz() {
+        return USER_HZ;
+    }
+
+    /**
+     * Gets Page Size, for converting memory stats from pages to bytes.
+     *
+     * @return Page Size in bytes.
+     */
+    public static long pageSize() {
+        return PAGE_SIZE;
+    }
+
+    @Override
+    public long getHz() {
+        return USER_HZ;
+    }
+
+    @Override
+    public long getPageSize() {
+        return PAGE_SIZE;
     }
 
     @Override

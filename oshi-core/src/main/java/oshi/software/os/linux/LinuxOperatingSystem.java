@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.Who;
-import oshi.driver.linux.proc.AuxvJNA;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.InternetProtocolStats;
@@ -38,7 +37,6 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
-import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.driver.linux.proc.CpuStat;
 import oshi.util.driver.linux.proc.ProcessStat;
 import oshi.util.driver.linux.proc.UpTime;
@@ -66,33 +64,11 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     /**
-     * Jiffies per second, used for process time counters.
-     */
-    private static final long USER_HZ;
-    private static final long PAGE_SIZE;
-    static {
-        Map<Integer, Long> auxv = AuxvJNA.queryAuxv();
-        long hz = auxv.getOrDefault(Auxv.AT_CLKTCK, 0L);
-        if (hz > 0) {
-            USER_HZ = hz;
-        } else {
-            USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
-        }
-        long pagesz = auxv.getOrDefault(Auxv.AT_PAGESZ, 0L);
-        if (pagesz > 0) {
-            PAGE_SIZE = pagesz;
-        } else {
-            PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
-        }
-    }
-
-    /**
      * OS Name for manufacturer
      */
     private static final String OS_NAME = ExecutingCommand.getFirstAnswer("uname -o");
 
-    // Package private for access from LinuxOSProcess
-    static final long BOOTTIME;
+    private static final long BOOTTIME;
     static {
         long tempBT = CpuStat.getBootTime();
         // If above fails, current time minus uptime.
@@ -229,7 +205,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSThread getCurrentThread() {
-        return new LinuxOSThread(getProcessId(), getThreadId());
+        return new LinuxOSThread(getProcessId(), getThreadId(), this);
     }
 
     @Override
@@ -544,16 +520,21 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      *
      * @return Jiffies per second.
      */
-    public static long getHz() {
-        return USER_HZ;
-    }
+    public abstract long getHz();
 
     /**
      * Gets Page Size, for converting memory stats from pages to bytes
      *
      * @return Page Size
      */
-    public static long getPageSize() {
-        return PAGE_SIZE;
+    public abstract long getPageSize();
+
+    /**
+     * Gets the system boot time in seconds since the epoch.
+     *
+     * @return Boot time in seconds since the epoch.
+     */
+    public static long getBootTime() {
+        return BOOTTIME;
     }
 }

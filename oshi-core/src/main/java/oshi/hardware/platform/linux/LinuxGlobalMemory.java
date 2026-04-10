@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
-import oshi.software.os.linux.LinuxOperatingSystem;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.linux.ProcPath;
@@ -25,7 +24,16 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
-    private static final long PAGE_SIZE = LinuxOperatingSystem.getPageSize();
+    private final long pageSize;
+
+    /**
+     * Constructor.
+     *
+     * @param pageSize the system page size in bytes
+     */
+    public LinuxGlobalMemory(long pageSize) {
+        this.pageSize = pageSize;
+    }
 
     private final Supplier<Pair<Long, Long>> availTotal = memoize(LinuxGlobalMemory::readMemInfo, defaultExpiration());
 
@@ -43,7 +51,7 @@ public final class LinuxGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public long getPageSize() {
-        return PAGE_SIZE;
+        return pageSize;
     }
 
     @Override
