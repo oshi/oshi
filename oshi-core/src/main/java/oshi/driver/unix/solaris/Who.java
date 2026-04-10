@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris;
@@ -50,7 +50,7 @@ public final class Who {
                     long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
                     // Sanity check. If errors, default to who command line
                     if (!isSessionValid(user, device, loginTime)) {
-                        return oshi.driver.unix.Who.queryWho();
+                        return oshi.util.driver.unix.Who.queryWho();
                     }
                     whoList.add(new OSSession(user, device, loginTime, host));
                 }

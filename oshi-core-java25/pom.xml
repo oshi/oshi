@@ -76,7 +76,7 @@
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
-                    <bnd><![CDATA[Export-Package: oshi.ffm.*,oshi.jna.*,oshi.driver.*,oshi.hardware.common.*,oshi.hardware.platform.*,oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true;-split-package:=merge-first
+                    <bnd><![CDATA[Export-Package: oshi.ffm.*,oshi.jna.*,oshi.driver.*,oshi.hardware.platform.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true;-split-package:=merge-first
                     Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
                     Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                     -snapshot: SNAPSHOT]]></bnd>

@@ -63,7 +63,7 @@ public final class WhoFFM {
                         int tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
                         long loginTime = tvSec * 1000L + tvUsec / 1000L;
                         if (!isSessionValid(user, device, loginTime)) {
-                            return oshi.driver.unix.Who.queryWho();
+                            return oshi.util.driver.unix.Who.queryWho();
                         }
                         whoList.add(new OSSession(user, device, loginTime, host));
                     }
@@ -72,7 +72,7 @@ public final class WhoFFM {
                 endutxent();
             }
         } catch (Throwable e) {
-            return oshi.driver.unix.Who.queryWho();
+            return oshi.util.driver.unix.Who.queryWho();
         }
         return whoList;
     }

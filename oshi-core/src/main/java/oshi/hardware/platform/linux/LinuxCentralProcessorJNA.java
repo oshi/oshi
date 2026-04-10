@@ -20,6 +20,7 @@ import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.proc.Auxv;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -138,6 +139,11 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected long queryHwcap() {
+        return Auxv.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
     }
 
     @Override

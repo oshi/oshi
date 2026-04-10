@@ -12,11 +12,11 @@ import java.util.function.Supplier;
 import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.NetStat;
 import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
 import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetStat;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 

@@ -1,15 +1,15 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
 
+import static com.sun.jna.Pointer.nativeValue;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static com.sun.jna.Pointer.nativeValue;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -18,8 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableLongByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.jna.platform.linux.LinuxLibc.LinuxUtmpx;
 import oshi.jna.platform.linux.Systemd;
@@ -28,10 +31,6 @@ import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-
-import com.sun.jna.Pointer;
-import oshi.jna.ByRef.CloseableLongByReference;
-import oshi.jna.ByRef.CloseablePointerByReference;
 
 /**
  * Utility to query logged in users.
@@ -79,7 +78,7 @@ public final class Who {
                     long loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
                     // Sanity check. If errors, default to who command line
                     if (!isSessionValid(user, device, loginTime)) {
-                        return oshi.driver.unix.Who.queryWho();
+                        return oshi.util.driver.unix.Who.queryWho();
                     }
                     whoList.add(new OSSession(user, device, loginTime, host));
                 }
@@ -94,7 +93,7 @@ public final class Who {
             whoList = querySystemdFiles();
             if (whoList.isEmpty()) {
                 // Final fallback to who command
-                return oshi.driver.unix.Who.queryWho();
+                return oshi.util.driver.unix.Who.queryWho();
             }
         }
         return whoList;

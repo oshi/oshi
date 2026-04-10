@@ -141,7 +141,7 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (cpuStepping.isEmpty()) {
             cpuStepping = armStepping.toString();
         }
-        processorID = getProcessorID(cpuVendor, cpuStepping, cpuModel, cpuFamily, flags);
+        processorID = getProcessorID(cpuVendor, cpuStepping, cpuModel, cpuFamily, flags, queryHwcap());
         if (cpuVendor.startsWith("0x") || cpuModel.isEmpty() || cpuName.isEmpty()) {
             List<String> lscpu = ExecutingCommand.runNative("lscpu");
             for (String line : lscpu) {
@@ -538,9 +538,11 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @param model    The model
      * @param family   The family
      * @param flags    The flags
+     * @param hwcap    Hardware capabilities from the auxiliary vector, or 0 if unavailable
      * @return The Processor ID string
      */
-    private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags) {
+    private static String getProcessorID(String vendor, String stepping, String model, String family, String[] flags,
+            long hwcap) {
         boolean procInfo = false;
         String marker = "Processor Information";
         for (String checkLine : ExecutingCommand.runPrivilegedNative("dmidecode -t 4")) {
@@ -571,7 +573,17 @@ abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (vendor.startsWith("0x")) {
             return createMIDR(vendor, stepping, model, family) + "00000000";
         }
-        return createProcessorID(stepping, model, family, flags);
+        return createProcessorID(stepping, model, family, flags, hwcap);
+    }
+
+    /**
+     * Queries the hardware capabilities from the auxiliary vector. Subclasses provide platform-specific implementations
+     * using JNA or FFM native access.
+     *
+     * @return The hardware capabilities value, or 0 if unavailable
+     */
+    protected long queryHwcap() {
+        return 0L;
     }
 
     /**
