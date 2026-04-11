@@ -1,33 +1,20 @@
 /*
- * Copyright 2025-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.ffm.windows.Advapi32FFM;
-import oshi.ffm.windows.Kernel32FFM;
-import oshi.ffm.windows.PsapiFFM;
-import oshi.ffm.windows.WinNTFFM;
-import oshi.software.os.ApplicationInfo;
-import oshi.software.os.FileSystem;
-import oshi.software.os.InternetProtocolStats;
-import oshi.software.os.NetworkParams;
-import oshi.driver.windows.registry.ProcessPerformanceData;
-import oshi.driver.windows.registry.ProcessWtsData;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceData;
-import oshi.software.os.OSProcess;
-import oshi.util.GlobalConfig;
-import oshi.util.Memoizer;
-import oshi.util.platform.windows.Advapi32UtilFFM;
-import oshi.util.platform.windows.Kernel32UtilFFM;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.windows.Kernel32FFM.GetLastError;
+import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
+import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
+import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
+import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,13 +24,29 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.Kernel32FFM.GetLastError;
-import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
-import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
-import static oshi.util.Memoizer.installedAppsExpiration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
+import oshi.driver.windows.registry.ThreadPerformanceData;
+import oshi.ffm.windows.Advapi32FFM;
+import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.windows.PsapiFFM;
+import oshi.ffm.windows.WinNTFFM;
+import oshi.software.os.ApplicationInfo;
+import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.NetworkParams;
+import oshi.software.os.OSProcess;
+import oshi.util.GlobalConfig;
+import oshi.util.Memoizer;
+import oshi.util.platform.windows.Advapi32UtilFFM;
+import oshi.util.platform.windows.Kernel32UtilFFM;
+
+@ThreadSafe
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
@@ -70,7 +73,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             boolean success = Advapi32FFM.OpenProcessToken(hProcess.get(),
                     WinNTFFM.TOKEN_QUERY | WinNTFFM.TOKEN_ADJUST_PRIVILEGES, hTokenPtr);
             if (!success) {
-                LOG.error("OpenProcessToken failed, error: " + GetLastError());
+                LOG.error("OpenProcessToken failed, error: {}", GetLastError());
                 return false;
             }
             hToken = hTokenPtr.get(ADDRESS, 0);
@@ -78,20 +81,20 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             MemorySegment luid = arena.allocate(WinNTFFM.LUID);
             success = Advapi32FFM.LookupPrivilegeValue("SeDebugPrivilege", luid, arena);
             if (!success) {
-                LOG.error("LookupPrivilegeValue failed, error: " + GetLastError());
+                LOG.error("LookupPrivilegeValue failed, error: {}", GetLastError());
                 return false;
             }
 
             MemorySegment tkp = setupTokenPrivileges(arena, luid);
             success = Advapi32FFM.AdjustTokenPrivileges(hToken, tkp);
             if (!success) {
-                LOG.error("AdjustTokenPrivileges failed, error: " + GetLastError());
+                LOG.error("AdjustTokenPrivileges failed, error: {}", GetLastError());
                 return false;
             }
 
             return true;
         } catch (Throwable t) {
-            LOG.error("enableDebugPrivilege exception: " + t);
+            LOG.error("enableDebugPrivilege exception: {}", t.getMessage());
             return false;
         } finally {
             if (hToken != null && hToken.address() != 0) {
@@ -176,8 +179,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
-    private static final java.util.function.Predicate<OSProcess> VALID_PROCESS = p -> p.getState() != OSProcess.State.INVALID;
-
     private final Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromRegistry = Memoizer
             .memoize(WindowsOperatingSystemFFM::queryProcessMapFromRegistry, Memoizer.defaultExpiration());
     private final Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromPerfCounters = Memoizer
@@ -199,7 +200,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        List<OSProcess> procList = processMapToList(Arrays.asList(pid));
+        List<OSProcess> procList = processMapToList(List.of(pid));
         return procList.isEmpty() ? null : procList.get(0);
     }
 

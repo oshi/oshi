@@ -377,7 +377,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     /**
      * Determines whether the specified process is running under WOW64.
      *
-     * @param hProcess   Handle to the process
+     * @param hProcess     Handle to the process
      * @param Wow64Process Pointer to receive a value indicating WOW64 status
      * @return true if the function succeeds
      */
@@ -396,11 +396,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     /**
      * Reads data from an area of memory in a specified process.
      *
-     * @param hProcess             Handle to the process with memory to be read
-     * @param lpBaseAddress        Pointer to the base address in the specified process from which to read
-     * @param lpBuffer             Buffer to receive the contents
-     * @param nSize                Number of bytes to be read
-     * @param lpNumberOfBytesRead  Pointer to receive the number of bytes transferred
+     * @param hProcess            Handle to the process with memory to be read
+     * @param lpBaseAddress       Pointer to the base address in the specified process from which to read
+     * @param lpBuffer            Buffer to receive the contents
+     * @param nSize               Number of bytes to be read
+     * @param lpNumberOfBytesRead Pointer to receive the number of bytes transferred
      * @return true if successful
      */
     public static boolean ReadProcessMemory(MemorySegment hProcess, MemorySegment lpBaseAddress, MemorySegment lpBuffer,
@@ -420,8 +420,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     /**
      * Retrieves the full name of the executable image for the specified process.
      *
-     * @param hProcess Handle to the process
-     * @param dwFlags  Flags (0 for Win32 path format, PROCESS_NAME_NATIVE for native system path format)
+     * @param hProcess  Handle to the process
+     * @param dwFlags   Flags (0 for Win32 path format, PROCESS_NAME_NATIVE for native system path format)
      * @param lpExeName Buffer to receive the path
      * @param lpdwSize  On input, size of the buffer in characters. On output, size of the path in characters
      * @return true if successful
@@ -429,8 +429,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     public static boolean QueryFullProcessImageName(MemorySegment hProcess, int dwFlags, MemorySegment lpExeName,
             MemorySegment lpdwSize) {
         try {
-            return isSuccess(
-                    (int) QueryFullProcessImageNameW.invokeExact(hProcess, dwFlags, lpExeName, lpdwSize));
+            return isSuccess((int) QueryFullProcessImageNameW.invokeExact(hProcess, dwFlags, lpExeName, lpdwSize));
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.QueryFullProcessImageName failed: {}", t.getMessage());
             return false;

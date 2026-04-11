@@ -1,17 +1,17 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.windows;
+
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.util.Optional;
-
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 public final class Advapi32FFM extends WindowsForeignFunctions {
 
@@ -144,13 +144,13 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
     /**
      * Retrieves the name of the account for the specified SID.
      *
-     * @param lpSystemName     The name of the target computer (NULL for local)
-     * @param lpSid            The SID to look up
-     * @param lpName           Buffer to receive the account name
-     * @param cchName          Size of lpName buffer
-     * @param lpReferencedDomainName Buffer to receive the domain name
+     * @param lpSystemName            The name of the target computer (NULL for local)
+     * @param lpSid                   The SID to look up
+     * @param lpName                  Buffer to receive the account name
+     * @param cchName                 Size of lpName buffer
+     * @param lpReferencedDomainName  Buffer to receive the domain name
      * @param cchReferencedDomainName Size of lpReferencedDomainName buffer
-     * @param peUse            Receives a value indicating the type of the account
+     * @param peUse                   Receives a value indicating the type of the account
      * @return true if successful
      */
     public static boolean LookupAccountSid(MemorySegment lpSystemName, MemorySegment lpSid, MemorySegment lpName,
@@ -160,18 +160,18 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
                 lpReferencedDomainName, cchReferencedDomainName, peUse));
     }
 
-    private static final MethodHandle ConvertSidToStringSidW = downcall(ADV, "ConvertSidToStringSidW", JAVA_INT, ADDRESS,
-            ADDRESS);
+    private static final MethodHandle ConvertSidToStringSidW = downcall(ADV, "ConvertSidToStringSidW", JAVA_INT,
+            ADDRESS, ADDRESS);
 
     /**
      * Converts a SID to a string format.
      * <p>
-     * On success, the caller is responsible for freeing the allocated StringSid buffer
-     * using {@link Kernel32FFM#LocalFree(MemorySegment)} to avoid memory leaks.
+     * On success, the caller is responsible for freeing the allocated StringSid buffer using
+     * {@link Kernel32FFM#LocalFree(MemorySegment)} to avoid memory leaks.
      *
      * @param Sid       The SID to convert (input parameter)
-     * @param StringSid Pointer to receive the newly allocated string SID pointer (output parameter).
-     *                  On success, contains a pointer that must be freed with LocalFree.
+     * @param StringSid Pointer to receive the newly allocated string SID pointer (output parameter). On success,
+     *                  contains a pointer that must be freed with LocalFree.
      * @return true if the conversion succeeded, false otherwise
      */
     public static boolean ConvertSidToStringSid(MemorySegment Sid, MemorySegment StringSid) throws Throwable {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -11,8 +11,6 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.windows.Advapi32FFM.TokenPrimaryGroup;
 import static oshi.ffm.windows.Advapi32FFM.TokenUser;
-import static oshi.ffm.windows.WinNTFFM.PROCESS_QUERY_INFORMATION;
-import static oshi.ffm.windows.WinNTFFM.PROCESS_VM_READ;
 import static oshi.ffm.windows.NtDllFFM.PBI_PEB_BASE_ADDRESS_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.PEB;
 import static oshi.ffm.windows.NtDllFFM.PEB_PROCESS_PARAMETERS_OFFSET;
@@ -26,6 +24,8 @@ import static oshi.ffm.windows.NtDllFFM.UPP_COMMAND_LINE_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_CURRENT_DIRECTORY_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_ENVIRONMENT_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_ENVIRONMENT_SIZE_OFFSET;
+import static oshi.ffm.windows.WinNTFFM.PROCESS_QUERY_INFORMATION;
+import static oshi.ffm.windows.WinNTFFM.PROCESS_VM_READ;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -136,12 +136,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
         if (osVersion != null) {
             String[] parts = osVersion.split("\\.");
             if (parts.length >= 1) {
-                try {
-                    int major = Integer.parseInt(parts[0]);
-                    return major >= 6;
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
+                int major = ParseUtil.parseIntOrDefault(parts[0], 0);
+                return major >= 6;
             }
         }
         return true; // Assume modern Windows
@@ -152,13 +148,9 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
         if (osVersion != null) {
             String[] parts = osVersion.split("\\.");
             if (parts.length >= 2) {
-                try {
-                    int major = Integer.parseInt(parts[0]);
-                    int minor = Integer.parseInt(parts[1]);
-                    return major > 6 || (major == 6 && minor >= 1);
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
+                int major = ParseUtil.parseIntOrDefault(parts[0], 0);
+                int minor = ParseUtil.parseIntOrDefault(parts[1], 0);
+                return major > 6 || (major == 6 && minor >= 1);
             }
         }
         return true; // Assume modern Windows
@@ -498,7 +490,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             MemorySegment hToken = null;
             try (Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY | TOKEN_DUPLICATE
+                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY |
+                                                                                         // TOKEN_DUPLICATE
                     hToken = hTokenPtr.get(ADDRESS, 0);
                     pair = getTokenAccountInfo(hToken, TokenUser, arena);
                 } else {
@@ -532,7 +525,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             MemorySegment hToken = null;
             try (Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY | TOKEN_DUPLICATE
+                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY |
+                                                                                         // TOKEN_DUPLICATE
                     hToken = hTokenPtr.get(ADDRESS, 0);
                     pair = getTokenAccountInfo(hToken, TokenPrimaryGroup, arena);
                 } else {
@@ -662,8 +656,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
 
                     // Now fetch the Process Parameters structure containing our data
                     MemorySegment upp = arena.allocate(RTL_USER_PROCESS_PARAMETERS);
-                    if (!Kernel32FFM.ReadProcessMemory(h, processParamsAddress, upp, RTL_USER_PROCESS_PARAMETERS.byteSize(),
-                            bytesRead)) {
+                    if (!Kernel32FFM.ReadProcessMemory(h, processParamsAddress, upp,
+                            RTL_USER_PROCESS_PARAMETERS.byteSize(), bytesRead)) {
                         return defaultCwdCommandlineEnvironment();
                     }
                     if (bytesRead.get(JAVA_LONG, 0) == 0) {
@@ -671,10 +665,12 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
                     }
 
                     // Get CWD and Command Line strings here
-                    MemorySegment cwdUnicodeString = upp.asSlice(UPP_CURRENT_DIRECTORY_OFFSET, UNICODE_STRING.byteSize());
+                    MemorySegment cwdUnicodeString = upp.asSlice(UPP_CURRENT_DIRECTORY_OFFSET,
+                            UNICODE_STRING.byteSize());
                     String cwd = readUnicodeStringFromProcess(h, cwdUnicodeString, arena);
 
-                    MemorySegment cmdLineUnicodeString = upp.asSlice(UPP_COMMAND_LINE_OFFSET, UNICODE_STRING.byteSize());
+                    MemorySegment cmdLineUnicodeString = upp.asSlice(UPP_COMMAND_LINE_OFFSET,
+                            UNICODE_STRING.byteSize());
                     String cl = readUnicodeStringFromProcess(h, cmdLineUnicodeString, arena);
 
                     // Fetch the Environment Strings

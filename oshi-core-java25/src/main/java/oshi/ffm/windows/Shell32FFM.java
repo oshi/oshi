@@ -1,11 +1,12 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -15,9 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_CHAR;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FFM bindings for Shell32 functions.
