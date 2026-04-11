@@ -11,6 +11,7 @@
   [#3140](https://github.com/oshi/oshi/pull/3140): Create oshi-common module; move JNA-free common code to enable future FFM-only consumers - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
+* [#3126](https://github.com/oshi/oshi/pull/3126): FFM migration of WindowsOSProcess - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#3128](https://github.com/oshi/oshi/pull/3128): Fix Mac FFM TIMEVAL struct layout missing 4-byte trailing padding - [@dbwiddis](https://github.com/dbwiddis).
 * [#3136](https://github.com/oshi/oshi/pull/3136): Push Linux USER_HZ and PAGE_SIZE into JNA/FFM OS subclasses; wire through HAL, processor, memory, process, and thread classes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3139](https://github.com/oshi/oshi/pull/3139): Split LinuxGraphicsCard, LinuxGpuStats, and NvmlUtil across modules - [@dbwiddis](https://github.com/dbwiddis).
