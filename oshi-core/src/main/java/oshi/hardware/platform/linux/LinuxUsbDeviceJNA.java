@@ -21,6 +21,7 @@ import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 
 /**
  * Linux USB device helper using JNA/udev. Instantiates {@link LinuxUsbDevice} objects.

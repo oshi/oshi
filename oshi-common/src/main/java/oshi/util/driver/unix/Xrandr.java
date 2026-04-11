@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix;
+package oshi.util.driver.unix;
 
 import java.util.ArrayList;
 import java.util.Collections;

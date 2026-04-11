@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 
 /**
  * Linux USB device helper using FFM/udev. Instantiates {@link LinuxUsbDevice} objects.

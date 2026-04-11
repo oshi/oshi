@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.NetworkIF;
+import oshi.hardware.common.platform.linux.LinuxNetworkIF;
 import oshi.util.Util;
 import oshi.util.linux.SysPath;
 

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.PowerSource;
+import oshi.hardware.common.platform.linux.LinuxPowerSource;
 import oshi.util.ParseUtil;
 
 /**

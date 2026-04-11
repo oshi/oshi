@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -27,7 +27,7 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * No-arg constructor required so that {@link LinuxUsbDeviceJNA} and {@code LinuxUsbDeviceFFM}, which extend this
+     * No-arg constructor required so that {@code LinuxUsbDeviceJNA} and {@code LinuxUsbDeviceFFM}, which extend this
      * class solely to inherit its static helper methods, can compile without an explicit constructor. Neither subclass
      * is ever instantiated; only this class is, via the full constructor.
      */

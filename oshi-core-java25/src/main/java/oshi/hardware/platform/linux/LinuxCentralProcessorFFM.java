@@ -23,6 +23,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
+import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;

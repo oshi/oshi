@@ -7,6 +7,8 @@ module com.github.oshi.common {
     exports oshi.annotation.concurrent;
     exports oshi.hardware;
     exports oshi.hardware.common;
+    exports oshi.hardware.common.platform.linux;
+    exports oshi.hardware.common.platform.unix;
     exports oshi.software.common;
     exports oshi.software.os;
     exports oshi.util;

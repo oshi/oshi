@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -7,13 +7,18 @@ package oshi.hardware.platform.linux;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.unix.CupsPrinter;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
+import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 
 /**
@@ -46,6 +51,16 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
     @Override
     public List<HWDiskStore> getDiskStores() {
         return LinuxHWDiskStoreFFM.getDisks();
+    }
+
+    @Override
+    public List<GraphicsCard> getGraphicsCards() {
+        return LinuxGraphicsCard.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return CupsPrinter.getPrinters();
     }
 
     @Override

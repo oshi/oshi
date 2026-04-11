@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 
-class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
+public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
     protected static final String BLOCK = "block";
     protected static final String DM_UUID = "DM_UUID";

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.linux.Udev;
 
 import oshi.hardware.LogicalVolumeGroup;
+import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup;
 import oshi.util.Util;
 import oshi.util.linux.DevPath;
 

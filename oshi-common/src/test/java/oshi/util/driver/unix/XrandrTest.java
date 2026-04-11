@@ -1,8 +1,8 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix;
+package oshi.util.driver.unix;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;

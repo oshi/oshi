@@ -19,6 +19,7 @@ import com.sun.jna.platform.linux.Udev.UdevDevice;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
+import oshi.hardware.common.platform.linux.LinuxNetworkIF;
 import oshi.util.Util;
 import oshi.util.linux.SysPath;
 

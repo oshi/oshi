@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import static oshi.util.linux.ProcPath.CPUINFO;
 import static oshi.util.linux.ProcPath.LOADAVG;
@@ -47,7 +47,7 @@ import oshi.util.tuples.Quartet;
  * A CPU as defined in Linux /proc.
  */
 @ThreadSafe
-abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
+public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 

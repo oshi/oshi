@@ -21,6 +21,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.AuxvJNA;
+import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.util.FileUtil;

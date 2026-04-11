@@ -20,6 +20,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
+import oshi.hardware.common.platform.linux.LinuxPowerSource;
 import oshi.util.ParseUtil;
 
 /**

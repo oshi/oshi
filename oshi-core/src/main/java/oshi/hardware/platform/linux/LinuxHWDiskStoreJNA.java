@@ -23,6 +23,7 @@ import com.sun.jna.platform.linux.Udev.UdevListEntry;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.hardware.common.platform.linux.LinuxHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;

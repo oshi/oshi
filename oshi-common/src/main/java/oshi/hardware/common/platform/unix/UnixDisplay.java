@@ -1,16 +1,16 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix;
+package oshi.hardware.common.platform.unix;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.Xrandr;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
+import oshi.util.driver.unix.Xrandr;
 
 /**
  * A Display
