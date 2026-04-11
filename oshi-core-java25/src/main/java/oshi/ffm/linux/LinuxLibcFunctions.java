@@ -5,6 +5,7 @@
 package oshi.ffm.linux;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -151,8 +152,60 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final VarHandle ADDRINFO_CANONNAME = ADDRINFO_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("ai_canonname"));
 
+    // ---- utmpx constants and layout (64-bit Linux) ----
+
+    /** utmpx entry type: session leader of a logged in user. */
+    public static final short LOGIN_PROCESS = 6;
+    /** utmpx entry type: normal process. */
+    public static final short USER_PROCESS = 7;
+
+    static final int UT_LINESIZE = 32;
+    static final int UT_NAMESIZE = 32;
+    static final int UT_HOSTSIZE = 256;
+
+    /**
+     * {@code struct utmpx} layout (64-bit Linux).
+     *
+     * <pre>
+     *   short   ut_type      (2)
+     *   pad                  (2)
+     *   int     ut_pid       (4)
+     *   char    ut_line[32]  (32)
+     *   char    ut_id[4]     (4)
+     *   char    ut_user[32]  (32)
+     *   char    ut_host[256] (256)
+     *   short[2] ut_exit     (4)
+     *   int     ut_session   (4)
+     *   int     tv_sec       (4)
+     *   int     tv_usec      (4)
+     *   int[4]  ut_addr_v6   (16)
+     *   char[20] reserved    (20)
+     *   total = 384
+     * </pre>
+     */
+    public static final StructLayout UTMPX_LAYOUT = MemoryLayout.structLayout(JAVA_SHORT.withName("ut_type"),
+            MemoryLayout.paddingLayout(2), JAVA_INT.withName("ut_pid"),
+            MemoryLayout.sequenceLayout(UT_LINESIZE, JAVA_BYTE).withName("ut_line"),
+            MemoryLayout.sequenceLayout(4, JAVA_BYTE).withName("ut_id"),
+            MemoryLayout.sequenceLayout(UT_NAMESIZE, JAVA_BYTE).withName("ut_user"),
+            MemoryLayout.sequenceLayout(UT_HOSTSIZE, JAVA_BYTE).withName("ut_host"),
+            MemoryLayout.sequenceLayout(2, JAVA_SHORT).withName("ut_exit"), JAVA_INT.withName("ut_session"),
+            JAVA_INT.withName("tv_sec"), JAVA_INT.withName("tv_usec"),
+            MemoryLayout.sequenceLayout(4, JAVA_INT).withName("ut_addr_v6"),
+            MemoryLayout.sequenceLayout(20, JAVA_BYTE).withName("reserved"));
+
+    private static final VarHandle UTMPX_TYPE = UTMPX_LAYOUT
+            .varHandle(MemoryLayout.PathElement.groupElement("ut_type"));
+    private static final VarHandle UTMPX_TV_SEC = UTMPX_LAYOUT
+            .varHandle(MemoryLayout.PathElement.groupElement("tv_sec"));
+    private static final VarHandle UTMPX_TV_USEC = UTMPX_LAYOUT
+            .varHandle(MemoryLayout.PathElement.groupElement("tv_usec"));
+
     // ---- Method handles ----
 
+    private static final MethodHandle setutxent;
+    private static final MethodHandle getutxent;
+    private static final MethodHandle endutxent;
     private static final MethodHandle getpid;
     private static final MethodHandle gettid;
     private static final MethodHandle syscall;
@@ -172,6 +225,9 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         // rather than libraryLookup("c") which fails on Linux (libc.so vs libc.so.6).
         SymbolLookup libc = LINKER.defaultLookup();
 
+        setutxent = LINKER.downcallHandle(libc.findOrThrow("setutxent"), FunctionDescriptor.ofVoid());
+        getutxent = LINKER.downcallHandle(libc.findOrThrow("getutxent"), FunctionDescriptor.of(ADDRESS));
+        endutxent = LINKER.downcallHandle(libc.findOrThrow("endutxent"), FunctionDescriptor.ofVoid());
         getpid = LINKER.downcallHandle(libc.findOrThrow("getpid"), FunctionDescriptor.of(JAVA_INT));
         // syscall(SYS_GETTID) — declare with one fixed arg; no extra args needed for gettid
         syscall = LINKER.downcallHandle(libc.findOrThrow("syscall"), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG),
@@ -209,6 +265,90 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
      */
     public static boolean hasGettid() {
         return HAS_GETTID;
+    }
+
+    /**
+     * Calls {@code setutxent()} to rewind the utmpx database.
+     *
+     * @throws Throwable if the native call fails
+     */
+    public static void setutxent() throws Throwable {
+        setutxent.invokeExact();
+    }
+
+    /**
+     * Calls {@code getutxent()} to read the next entry from the utmpx database.
+     *
+     * @return a pointer to the utmpx structure, or {@code null} if no more entries
+     * @throws Throwable if the native call fails
+     */
+    public static MemorySegment getutxent() throws Throwable {
+        MemorySegment result = (MemorySegment) getutxent.invokeExact();
+        return result.equals(MemorySegment.NULL) ? null : result;
+    }
+
+    /**
+     * Calls {@code endutxent()} to close the utmpx database.
+     *
+     * @throws Throwable if the native call fails
+     */
+    public static void endutxent() throws Throwable {
+        endutxent.invokeExact();
+    }
+
+    /**
+     * Reads {@code ut_type} from a utmpx segment.
+     *
+     * @param ut segment populated by {@link #getutxent()}
+     * @return the entry type
+     */
+    public static short utmpxType(MemorySegment ut) {
+        return (short) UTMPX_TYPE.get(ut, 0L);
+    }
+
+    /**
+     * Reads {@code ut_user} from a utmpx segment.
+     *
+     * @param ut segment populated by {@link #getutxent()}
+     * @return the username string
+     */
+    public static String utmpxUser(MemorySegment ut) {
+        return ut.asSlice(UTMPX_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("ut_user")), UT_NAMESIZE)
+                .getString(0);
+    }
+
+    /**
+     * Reads {@code ut_line} from a utmpx segment.
+     *
+     * @param ut segment populated by {@link #getutxent()}
+     * @return the device name string
+     */
+    public static String utmpxLine(MemorySegment ut) {
+        return ut.asSlice(UTMPX_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("ut_line")), UT_LINESIZE)
+                .getString(0);
+    }
+
+    /**
+     * Reads {@code ut_addr_v6} from a utmpx segment as a 4-element int array.
+     *
+     * @param ut segment populated by {@link #getutxent()}
+     * @return the IPv6/IPv4 address as 4 ints
+     */
+    public static int[] utmpxAddrV6(MemorySegment ut) {
+        long offset = UTMPX_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("ut_addr_v6"));
+        return ut.asSlice(offset, 16).toArray(JAVA_INT);
+    }
+
+    /**
+     * Reads the login time from a utmpx segment as epoch milliseconds.
+     *
+     * @param ut segment populated by {@link #getutxent()}
+     * @return login time in milliseconds since epoch
+     */
+    public static long utmpxLoginTime(MemorySegment ut) {
+        int tvSec = (int) UTMPX_TV_SEC.get(ut, 0L);
+        int tvUsec = (int) UTMPX_TV_USEC.get(ut, 0L);
+        return tvSec * 1000L + tvUsec / 1000L;
     }
 
     /**

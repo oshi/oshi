@@ -36,13 +36,13 @@ import oshi.util.ParseUtil;
  * Utility to query logged in users.
  */
 @ThreadSafe
-public final class Who {
+public final class WhoJNA {
 
     private static final LinuxLibc LIBC = LinuxLibc.INSTANCE;
 
     private static boolean useSystemd = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWSYSTEMD, true);
 
-    private Who() {
+    private WhoJNA() {
     }
 
     /**
@@ -78,7 +78,7 @@ public final class Who {
                     long loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
                     // Sanity check. If errors, default to who command line
                     if (!isSessionValid(user, device, loginTime)) {
-                        return oshi.util.driver.unix.Who.queryWho();
+                        return oshi.util.driver.linux.Who.queryWho();
                     }
                     whoList.add(new OSSession(user, device, loginTime, host));
                 }
@@ -93,7 +93,7 @@ public final class Who {
             whoList = querySystemdFiles();
             if (whoList.isEmpty()) {
                 // Final fallback to who command
-                return oshi.util.driver.unix.Who.queryWho();
+                return oshi.util.driver.linux.Who.queryWho();
             }
         }
         return whoList;

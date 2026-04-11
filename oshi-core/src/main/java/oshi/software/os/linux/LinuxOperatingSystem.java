@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.Who;
+import oshi.driver.linux.WhoJNA;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.InternetProtocolStats;
@@ -129,7 +129,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSSession> getSessions() {
-        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();
+        return USE_WHO_COMMAND ? oshi.util.driver.linux.Who.queryWho() : WhoJNA.queryUtxent();
     }
 
     @Override

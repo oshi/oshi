@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.WhoFFM;
 import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
@@ -22,6 +24,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
+import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.driver.linux.proc.Auxv;
@@ -99,6 +102,11 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
             }
         }
         HAS_SYSCALL_GETTID = hasSyscallGettid;
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return USE_WHO_COMMAND ? oshi.util.driver.linux.Who.queryWho() : WhoFFM.queryUtxent();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.linux;
@@ -21,7 +21,7 @@ import oshi.software.os.OSSession;
 class WhoTest {
     @Test
     void testQueryUtxent() {
-        for (OSSession session : Who.queryUtxent()) {
+        for (OSSession session : WhoJNA.queryUtxent()) {
             assertThat("Session login time should be greater than 0", session.getLoginTime(), is(greaterThan(0L)));
             assertThat("Session login time should be less than current time", session.getLoginTime(),
                     is(lessThan(System.currentTimeMillis())));
