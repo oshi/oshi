@@ -24,281 +24,49 @@ import static oshi.ffm.windows.NtDllFFM.UPP_ENVIRONMENT_SIZE_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.readUnicodeString;
 import static oshi.ffm.windows.WinNTFFM.PROCESS_QUERY_INFORMATION;
 import static oshi.ffm.windows.WinNTFFM.PROCESS_VM_READ;
+import static oshi.ffm.windows.WinNTFFM.TOKEN_QUERY;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
-import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SUSPENDED;
-import static oshi.util.Memoizer.memoize;
 
-import java.io.File;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.registry.ProcessPerformanceData;
-import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.ThreadPerformanceData;
-import oshi.driver.windows.wmi.Win32Process;
-import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.driver.windows.wmi.Win32ProcessCached;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
 import oshi.ffm.windows.Shell32FFM;
+import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.WinErrorFFM;
-import oshi.software.common.AbstractOSProcess;
-import oshi.software.os.OSThread;
 import oshi.util.Constants;
-import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * OSProcess implementation using FFM (Foreign Function and Memory API)
+ * FFM-based Windows OS process implementation.
  */
 @ThreadSafe
-public class WindowsOSProcessFFM extends AbstractOSProcess {
+public class WindowsOSProcessFFM extends WindowsOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOSProcessFFM.class);
 
-    private static final boolean USE_BATCH_COMMANDLINE = GlobalConfig
-            .get(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpersFFM.IsWindowsVistaOrGreater();
+    private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpersFFM.IsWindows7OrGreater();
 
-    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
-            .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
-
-    private static final boolean IS_VISTA_OR_GREATER = isWindowsVistaOrGreater();
-    private static final boolean IS_WINDOWS7_OR_GREATER = isWindows7OrGreater();
-
-    // track the OperatingSystem object that created this
-    private final WindowsOperatingSystemFFM os;
-
-    private Supplier<Pair<String, String>> userInfo = memoize(this::queryUserInfo);
-    private Supplier<Pair<String, String>> groupInfo = memoize(this::queryGroupInfo);
-    private Supplier<String> currentWorkingDirectory = memoize(this::queryCwd);
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<List<String>> args = memoize(this::queryArguments);
-    private Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
-            this::queryCwdCommandlineEnvironment);
-    private Map<Integer, ThreadPerformanceData.PerfCounterBlock> tcb;
-
-    private String name;
-    private String path;
-    private State state = INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
-    private long workingSetSize;
-    private long privateWorkingSetSize;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
-    private long openFiles;
-    private int bitness;
-    private long pageFaults;
-
-    public WindowsOSProcessFFM(int pid, WindowsOperatingSystemFFM os,
+    public WindowsOSProcessFFM(int pid, WindowsOperatingSystem os,
             Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
             Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
-        super(pid);
-        // Save a copy of OS creating this object for later use
-        this.os = os;
-        // Initially set to match OS bitness. If 64 will check later for 32-bit process
-        this.bitness = os.getBitness();
-        // Initialize thread counters
-        this.tcb = threadMap;
-        updateAttributes(processMap.get(pid), processWtsMap.get(pid));
-    }
-
-    private static boolean isWindowsVistaOrGreater() {
-        String osVersion = System.getProperty("os.version");
-        if (osVersion != null) {
-            String[] parts = osVersion.split("\\.");
-            if (parts.length >= 1) {
-                int major = ParseUtil.parseIntOrDefault(parts[0], 0);
-                return major >= 6;
-            }
-        }
-        return true; // Assume modern Windows
-    }
-
-    private static boolean isWindows7OrGreater() {
-        String osVersion = System.getProperty("os.version");
-        if (osVersion != null) {
-            String[] parts = osVersion.split("\\.");
-            if (parts.length >= 2) {
-                int major = ParseUtil.parseIntOrDefault(parts[0], 0);
-                int minor = ParseUtil.parseIntOrDefault(parts[1], 0);
-                return major > 6 || (major == 6 && minor >= 1);
-            }
-        }
-        return true; // Assume modern Windows
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getCommandLine() {
-        return this.commandLine.get();
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return args.get();
-    }
-
-    @Override
-    public Map<String, String> getEnvironmentVariables() {
-        return cwdCmdEnv.get().getC();
-    }
-
-    @Override
-    public String getCurrentWorkingDirectory() {
-        return currentWorkingDirectory.get();
-    }
-
-    @Override
-    public String getUser() {
-        return userInfo.get().getA();
-    }
-
-    @Override
-    public String getUserID() {
-        return userInfo.get().getB();
-    }
-
-    @Override
-    public String getGroup() {
-        return groupInfo.get().getA();
-    }
-
-    @Override
-    public String getGroupID() {
-        return groupInfo.get().getB();
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
-    public long getResidentMemory() {
-        return this.workingSetSize;
-    }
-
-    @Override
-    public long getPrivateResidentMemory() {
-        return this.privateWorkingSetSize;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * On Windows, delegates to {@link #getPrivateResidentMemory()} for backwards compatibility with prior behavior that
-     * returned the Private Working Set.
-     */
-    @Deprecated
-    @Override
-    public long getResidentSetSize() {
-        return getPrivateResidentMemory();
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
-    }
-
-    @Override
-    public long getOpenFiles() {
-        return this.openFiles;
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
-    }
-
-    @Override
-    public int getBitness() {
-        return this.bitness;
+        super(pid, os, processMap, processWtsMap, threadMap);
     }
 
     @Override
@@ -320,82 +88,9 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
     }
 
     @Override
-    public long getMinorFaults() {
-        return this.pageFaults;
-    }
-
-    @Override
-    public List<OSThread> getThreadDetails() {
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = tcb == null
-                ? queryMatchingThreads(Collections.singleton(this.getProcessID()))
-                : tcb;
-        return threads.entrySet().stream().parallel()
-                .filter(entry -> entry.getValue().getOwningProcessID() == this.getProcessID())
-                .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        try {
-            Set<Integer> pids = Collections.singleton(this.getProcessID());
-            // Get data from the registry if possible
-            Map<Integer, ProcessPerformanceData.PerfCounterBlock> pcb = ProcessPerformanceData
-                    .buildProcessMapFromRegistry(null);
-            // otherwise performance counters with WMI backup
-            if (pcb == null) {
-                pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
-            }
-            if (USE_PROCSTATE_SUSPENDED) {
-                this.tcb = queryMatchingThreads(pids);
-            }
-            Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
-            return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()));
-        } catch (Throwable t) {
+    protected boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
+        if (!super.updateAttributes(pcb, wts)) {
             return false;
-        }
-    }
-
-    private boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
-        if (pcb == null) {
-            this.state = INVALID;
-            return false;
-        }
-        this.name = pcb.getName();
-        this.path = wts != null ? wts.getPath() : ""; // Empty string for Win7+
-        this.parentProcessID = pcb.getParentProcessID();
-        this.threadCount = wts != null ? wts.getThreadCount() : 0;
-        this.priority = pcb.getPriority();
-        this.virtualSize = wts != null ? wts.getVirtualSize() : 0L;
-        this.workingSetSize = pcb.getWorkingSetSize();
-        this.privateWorkingSetSize = pcb.getPrivateWorkingSetSize();
-        this.kernelTime = wts != null ? wts.getKernelTime() : 0L;
-        this.userTime = wts != null ? wts.getUserTime() : 0L;
-        this.startTime = pcb.getStartTime();
-        this.upTime = pcb.getUpTime();
-        this.bytesRead = pcb.getBytesRead();
-        this.bytesWritten = pcb.getBytesWritten();
-        this.openFiles = wts != null ? wts.getOpenFiles() : 0L;
-        this.pageFaults = pcb.getPageFaults();
-
-        // There are only 3 possible Process states on Windows: RUNNING, SUSPENDED, or
-        // UNKNOWN. Processes are considered running unless all of their threads are
-        // SUSPENDED.
-        this.state = RUNNING;
-        if (this.tcb != null) {
-            // If user hasn't enabled this in properties, we ignore
-            int pid = this.getProcessID();
-            // If any thread is NOT suspended, set running
-            for (ThreadPerformanceData.PerfCounterBlock tpd : this.tcb.values()) {
-                if (tpd.getOwningProcessID() == pid) {
-                    if (tpd.getThreadWaitReason() == 5) {
-                        this.state = SUSPENDED;
-                    } else {
-                        this.state = RUNNING;
-                        break;
-                    }
-                }
-            }
         }
 
         // Get a handle to the process for various extended info. Only gets
@@ -405,17 +100,17 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             MemorySegment pHandle = pHandleOpt.get();
             try (Arena arena = Arena.ofConfined()) {
                 // Test for 32-bit process on 64-bit windows
-                if (IS_VISTA_OR_GREATER && this.bitness == 64) {
+                if (IS_VISTA_OR_GREATER && getBitness() == 64) {
                     MemorySegment wow64 = arena.allocate(JAVA_INT);
                     if (Kernel32FFM.IsWow64Process(pHandle, wow64) && wow64.get(JAVA_INT, 0) > 0) {
-                        this.bitness = 32;
+                        setBitness(32);
                     }
                 }
                 // EXECUTABLEPATH
                 if (IS_WINDOWS7_OR_GREATER) {
                     Optional<String> pathOpt = Kernel32FFM.QueryFullProcessImageName(pHandle, 0, arena);
                     if (pathOpt.isPresent()) {
-                        this.path = pathOpt.get();
+                        setPath(pathOpt.get());
                     }
                     // Don't set INVALID on path failure - process is still valid
                 }
@@ -424,39 +119,11 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             }
         }
 
-        return !this.state.equals(INVALID);
+        return !getState().equals(State.INVALID);
     }
 
-    private Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
-        // fetch from registry
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromRegistry(pids);
-        // otherwise performance counters with WMI backup
-        if (threads == null) {
-            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
-        }
-        return threads;
-    }
-
-    private String queryCommandLine() {
-        // Try to fetch from process memory
-        if (!cwdCmdEnv.get().getB().isEmpty()) {
-            return cwdCmdEnv.get().getB();
-        }
-        // If using batch mode fetch from WMI Cache
-        if (USE_BATCH_COMMANDLINE) {
-            return Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
-        }
-        // If no cache enabled, query line by line
-        WmiResult<CommandLineProperty> commandLineProcs = Win32Process
-                .queryCommandLines(Collections.singleton(getProcessID()));
-        if (commandLineProcs.getResultCount() > 0) {
-            return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
-        }
-        return "";
-    }
-
-    private List<String> queryArguments() {
+    @Override
+    protected List<String> queryArguments() {
         String cl = getCommandLine();
         if (!cl.isEmpty()) {
             return Shell32FFM.CommandLineToArgv(cl);
@@ -464,23 +131,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
         return Collections.emptyList();
     }
 
-    private String queryCwd() {
-        // Try to fetch from process memory
-        if (!cwdCmdEnv.get().getA().isEmpty()) {
-            return cwdCmdEnv.get().getA();
-        }
-        // For executing process, set CWD
-        if (getProcessID() == this.os.getProcessId()) {
-            String cwd = new File(".").getAbsolutePath();
-            // trim off trailing "."
-            if (!cwd.isEmpty()) {
-                return cwd.substring(0, cwd.length() - 1);
-            }
-        }
-        return "";
-    }
-
-    private Pair<String, String> queryUserInfo() {
+    @Override
+    protected Pair<String, String> queryUserInfo() {
         Pair<String, String> pair = null;
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
@@ -488,8 +140,7 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             MemorySegment hToken = null;
             try (Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY |
-                                                                                         // TOKEN_DUPLICATE
+                if (Advapi32FFM.OpenProcessToken(pHandle, TOKEN_QUERY, hTokenPtr)) {
                     hToken = hTokenPtr.get(ADDRESS, 0);
                     pair = getTokenAccountInfo(hToken, TokenUser, arena);
                 } else {
@@ -509,13 +160,11 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
                 Kernel32FFM.CloseHandle(pHandle);
             }
         }
-        if (pair == null) {
-            return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
-        }
-        return pair;
+        return pair != null ? pair : defaultPair();
     }
 
-    private Pair<String, String> queryGroupInfo() {
+    @Override
+    protected Pair<String, String> queryGroupInfo() {
         Pair<String, String> pair = null;
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
@@ -523,8 +172,7 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             MemorySegment hToken = null;
             try (Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, 0x0008 | 0x0002, hTokenPtr)) { // TOKEN_QUERY |
-                                                                                         // TOKEN_DUPLICATE
+                if (Advapi32FFM.OpenProcessToken(pHandle, TOKEN_QUERY, hTokenPtr)) {
                     hToken = hTokenPtr.get(ADDRESS, 0);
                     pair = getTokenAccountInfo(hToken, TokenPrimaryGroup, arena);
                 } else {
@@ -544,10 +192,7 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
                 Kernel32FFM.CloseHandle(pHandle);
             }
         }
-        if (pair == null) {
-            return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
-        }
-        return pair;
+        return pair != null ? pair : defaultPair();
     }
 
     private Pair<String, String> getTokenAccountInfo(MemorySegment hToken, int tokenInfoClass, Arena arena)
@@ -613,8 +258,8 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
         return new Pair<>(accountName, sidString);
     }
 
-    private Triplet<String, String, Map<String, String>> queryCwdCommandlineEnvironment() {
-        // Get the process handle
+    @Override
+    protected Triplet<String, String, Map<String, String>> queryCwdCommandlineEnvironment() {
         Optional<MemorySegment> hOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false,
                 getProcessID());
         if (hOpt.isPresent()) {
@@ -698,10 +343,6 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
             }
         }
         return defaultCwdCommandlineEnvironment();
-    }
-
-    private static Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
-        return new Triplet<>("", "", Collections.emptyMap());
     }
 
     private static boolean isWow(MemorySegment h, Arena arena) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -33,6 +33,7 @@ import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Tlhelp32;
@@ -45,7 +46,6 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinNT.LUID;
 import com.sun.jna.platform.win32.Winsvc;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.EnumWindows;
@@ -320,7 +320,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         final Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
         final Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
         return mapKeys.stream().parallel()
-                .map(pid -> new WindowsOSProcess(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
+                .map(pid -> new WindowsOSProcessJNA(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 

@@ -5,6 +5,8 @@
 package oshi.ffm.windows;
 
 import static java.lang.foreign.MemoryLayout.structLayout;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -40,6 +42,43 @@ public interface WinNTFFM {
     int OPEN_EXISTING = 3;
     int FILE_ATTRIBUTE_NORMAL = 0x00000080;
     long INVALID_HANDLE_VALUE = -1L;
+
+    // Version comparison constants
+    int VER_EQUAL = 1;
+    int VER_GREATER_EQUAL = 3;
+    int VER_MINORVERSION = 0x0000001;
+    int VER_MAJORVERSION = 0x0000002;
+    int VER_SERVICEPACKMAJOR = 0x0000020;
+    int VER_PRODUCT_TYPE = 0x0000080;
+    byte VER_NT_WORKSTATION = 0x0000001;
+
+    // Windows version constants (encoded as major << 8 | minor)
+    short WIN32_WINNT_WINXP = 0x0501;
+    short WIN32_WINNT_VISTA = 0x0600;
+    short WIN32_WINNT_WIN7 = 0x0601;
+    short WIN32_WINNT_WIN8 = 0x0602;
+    short WIN32_WINNT_WINBLUE = 0x0603;
+    short WIN32_WINNT_WIN10 = 0x0A00;
+
+    // OSVERSIONINFOEX structure: 284 bytes
+    // dwOSVersionInfoSize(4) + dwMajorVersion(4) + dwMinorVersion(4) + dwBuildNumber(4) + dwPlatformId(4)
+    // + szCSDVersion(128 chars = 256 bytes) + wServicePackMajor(2) + wServicePackMinor(2)
+    // + wSuiteMask(2) + wProductType(1) + wReserved(1)
+    StructLayout OSVERSIONINFOEX = structLayout(JAVA_INT.withName("dwOSVersionInfoSize"),
+            JAVA_INT.withName("dwMajorVersion"), JAVA_INT.withName("dwMinorVersion"),
+            JAVA_INT.withName("dwBuildNumber"), JAVA_INT.withName("dwPlatformId"),
+            MemoryLayout.sequenceLayout(128, JAVA_CHAR).withName("szCSDVersion"),
+            JAVA_SHORT.withName("wServicePackMajor"), JAVA_SHORT.withName("wServicePackMinor"),
+            JAVA_SHORT.withName("wSuiteMask"), JAVA_BYTE.withName("wProductType"), JAVA_BYTE.withName("wReserved"));
+
+    long OSVERSIONINFOEX_MAJOR_VERSION_OFFSET = OSVERSIONINFOEX
+            .byteOffset(MemoryLayout.PathElement.groupElement("dwMajorVersion"));
+    long OSVERSIONINFOEX_MINOR_VERSION_OFFSET = OSVERSIONINFOEX
+            .byteOffset(MemoryLayout.PathElement.groupElement("dwMinorVersion"));
+    long OSVERSIONINFOEX_SP_MAJOR_OFFSET = OSVERSIONINFOEX
+            .byteOffset(MemoryLayout.PathElement.groupElement("wServicePackMajor"));
+    long OSVERSIONINFOEX_PRODUCT_TYPE_OFFSET = OSVERSIONINFOEX
+            .byteOffset(MemoryLayout.PathElement.groupElement("wProductType"));
 
     StructLayout EVENTLOGRECORD = structLayout(JAVA_INT.withName("Length"), JAVA_INT.withName("Reserved"),
             JAVA_INT.withName("RecordNumber"), JAVA_INT.withName("TimeGenerated"), JAVA_INT.withName("TimeWritten"),

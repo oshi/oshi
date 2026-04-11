@@ -5,6 +5,7 @@
 package oshi.ffm.windows;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
@@ -481,6 +482,51 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         } catch (Throwable t) {
             LOG.debug("Kernel32FFM.LocalFree failed: {}", t.getMessage());
             return hMem;
+        }
+    }
+
+    private static final MethodHandle VerSetConditionMask = downcall(K32, "VerSetConditionMask", JAVA_LONG, JAVA_LONG,
+            JAVA_INT, JAVA_BYTE);
+
+    /**
+     * Sets the bits of a 64-bit value to indicate the comparison operator to use for a specified operating system
+     * version attribute.
+     *
+     * @param conditionMask A value to be passed as the dwlConditionMask parameter of VerifyVersionInfo
+     * @param typeMask      A mask that indicates the member of the OSVERSIONINFOEX structure whose comparison operator
+     *                      is being set
+     * @param condition     The operator to be used for the comparison
+     * @return The condition mask value
+     */
+    public static long VerSetConditionMask(long conditionMask, int typeMask, byte condition) {
+        try {
+            return (long) VerSetConditionMask.invokeExact(conditionMask, typeMask, condition);
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.VerSetConditionMask failed: {}", t.getMessage());
+            return 0L;
+        }
+    }
+
+    private static final MethodHandle VerifyVersionInfoW = downcall(K32, "VerifyVersionInfoW", JAVA_INT, ADDRESS,
+            JAVA_INT, JAVA_LONG);
+
+    /**
+     * Compares a set of operating system version requirements to the corresponding values for the currently running
+     * version of the system.
+     *
+     * @param lpVersionInformation A pointer to an OSVERSIONINFOEX structure containing the operating system version
+     *                             requirements to compare
+     * @param dwTypeMask           A mask that indicates the members of the OSVERSIONINFOEX structure to be tested
+     * @param dwlConditionMask     The type of comparison to be used for each lpVersionInformation member being compared
+     * @return true if the currently running operating system satisfies the specified requirements
+     */
+    public static boolean VerifyVersionInfoW(MemorySegment lpVersionInformation, int dwTypeMask,
+            long dwlConditionMask) {
+        try {
+            return isSuccess((int) VerifyVersionInfoW.invokeExact(lpVersionInformation, dwTypeMask, dwlConditionMask));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.VerifyVersionInfoW failed: {}", t.getMessage());
+            return false;
         }
     }
 }
