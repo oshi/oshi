@@ -8,7 +8,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.windows.Advapi32FFM.TokenPrimaryGroup;
 import static oshi.ffm.windows.Advapi32FFM.TokenUser;
 import static oshi.ffm.windows.NtDllFFM.PBI_PEB_BASE_ADDRESS_OFFSET;
@@ -18,12 +17,11 @@ import static oshi.ffm.windows.NtDllFFM.PROCESS_BASIC_INFORMATION;
 import static oshi.ffm.windows.NtDllFFM.PROCESS_BASIC_INFORMATION_STRUCT;
 import static oshi.ffm.windows.NtDllFFM.RTL_USER_PROCESS_PARAMETERS;
 import static oshi.ffm.windows.NtDllFFM.UNICODE_STRING;
-import static oshi.ffm.windows.NtDllFFM.UNICODE_STRING_BUFFER_OFFSET;
-import static oshi.ffm.windows.NtDllFFM.UNICODE_STRING_LENGTH_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_COMMAND_LINE_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_CURRENT_DIRECTORY_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_ENVIRONMENT_OFFSET;
 import static oshi.ffm.windows.NtDllFFM.UPP_ENVIRONMENT_SIZE_OFFSET;
+import static oshi.ffm.windows.NtDllFFM.readUnicodeString;
 import static oshi.ffm.windows.WinNTFFM.PROCESS_QUERY_INFORMATION;
 import static oshi.ffm.windows.WinNTFFM.PROCESS_VM_READ;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
@@ -667,11 +665,11 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
                     // Get CWD and Command Line strings here
                     MemorySegment cwdUnicodeString = upp.asSlice(UPP_CURRENT_DIRECTORY_OFFSET,
                             UNICODE_STRING.byteSize());
-                    String cwd = readUnicodeStringFromProcess(h, cwdUnicodeString, arena);
+                    String cwd = readUnicodeString(h, cwdUnicodeString, arena);
 
                     MemorySegment cmdLineUnicodeString = upp.asSlice(UPP_COMMAND_LINE_OFFSET,
                             UNICODE_STRING.byteSize());
-                    String cl = readUnicodeStringFromProcess(h, cmdLineUnicodeString, arena);
+                    String cl = readUnicodeString(h, cmdLineUnicodeString, arena);
 
                     // Fetch the Environment Strings
                     long envSize = upp.get(JAVA_LONG, UPP_ENVIRONMENT_SIZE_OFFSET);
@@ -704,30 +702,6 @@ public class WindowsOSProcessFFM extends AbstractOSProcess {
 
     private static Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
         return new Triplet<>("", "", Collections.emptyMap());
-    }
-
-    private static String readUnicodeStringFromProcess(MemorySegment h, MemorySegment unicodeString, Arena arena) {
-        short length = unicodeString.get(JAVA_SHORT, UNICODE_STRING_LENGTH_OFFSET);
-        if (length <= 0) {
-            return "";
-        }
-
-        MemorySegment bufferPtr = unicodeString.get(ADDRESS, UNICODE_STRING_BUFFER_OFFSET);
-        if (bufferPtr.address() == 0) {
-            return "";
-        }
-
-        // Allocate buffer for the string content plus null terminator
-        MemorySegment buffer = arena.allocate(length + 2L);
-        buffer.fill((byte) 0);
-
-        MemorySegment bytesRead = arena.allocate(JAVA_LONG);
-        if (Kernel32FFM.ReadProcessMemory(h, bufferPtr, buffer, length, bytesRead)) {
-            if (bytesRead.get(JAVA_LONG, 0) > 0) {
-                return readWideString(buffer);
-            }
-        }
-        return "";
     }
 
     private static boolean isWow(MemorySegment h, Arena arena) {
