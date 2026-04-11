@@ -23,7 +23,7 @@ import oshi.driver.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.util.gpu.AdlUtil;
-import oshi.util.gpu.NvmlUtil;
+import oshi.util.gpu.NvmlUtilJNA;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
@@ -195,7 +195,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getTemperature(nvmlDevice);
+            double val = NvmlUtilJNA.getTemperature(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -215,7 +215,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getPowerDraw(nvmlDevice);
+            double val = NvmlUtilJNA.getPowerDraw(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -239,7 +239,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            long val = NvmlUtil.getCoreClockMhz(nvmlDevice);
+            long val = NvmlUtilJNA.getCoreClockMhz(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -260,7 +260,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            long val = NvmlUtil.getMemoryClockMhz(nvmlDevice);
+            long val = NvmlUtilJNA.getMemoryClockMhz(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -281,7 +281,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getFanSpeedPercent(nvmlDevice);
+            double val = NvmlUtilJNA.getFanSpeedPercent(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -331,16 +331,16 @@ final class WindowsGpuStats implements GpuStats {
         if (cachedNvmlDevice != null) {
             return cachedNvmlDevice.isEmpty() ? null : cachedNvmlDevice;
         }
-        if (!NvmlUtil.isAvailable()) {
+        if (!NvmlUtilJNA.isAvailable()) {
             cachedNvmlDevice = "";
             return null;
         }
         String id = null;
         if (!pciBusId.isEmpty()) {
-            id = NvmlUtil.findDevice(pciBusId);
+            id = NvmlUtilJNA.findDevice(pciBusId);
         }
         if (id == null) {
-            id = NvmlUtil.findDeviceByName(cardName);
+            id = NvmlUtilJNA.findDeviceByName(cardName);
         }
         cachedNvmlDevice = id != null ? id : "";
         return id;

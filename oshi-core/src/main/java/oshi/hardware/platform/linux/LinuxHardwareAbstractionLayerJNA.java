@@ -60,7 +60,7 @@ public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstrac
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return LinuxGraphicsCard.getGraphicsCards();
+        return LinuxGraphicsCardJNA.getGraphicsCards();
     }
 
     @Override

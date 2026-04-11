@@ -55,7 +55,7 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return LinuxGraphicsCard.getGraphicsCards();
+        return LinuxGraphicsCardFFM.getGraphicsCards();
     }
 
     @Override

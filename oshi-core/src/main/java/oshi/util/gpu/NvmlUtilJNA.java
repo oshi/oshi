@@ -39,9 +39,9 @@ import oshi.jna.common.Nvml.NvmlUtilization;
  * GraphicsCard instances.
  */
 @ThreadSafe
-public final class NvmlUtil {
+public final class NvmlUtilJNA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NvmlUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NvmlUtilJNA.class);
 
     // -------------------------------------------------------------------------
     // Library loading (holder pattern — loads the .dll/.so once)
@@ -72,7 +72,7 @@ public final class NvmlUtil {
     private static volatile boolean devicesEnumerated = false;
     private static volatile Set<String> deviceBusIds = Collections.emptySet();
 
-    private NvmlUtil() {
+    private NvmlUtilJNA() {
     }
 
     // -------------------------------------------------------------------------

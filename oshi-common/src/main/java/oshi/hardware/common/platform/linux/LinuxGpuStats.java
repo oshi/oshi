@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import java.io.File;
 import java.util.Locale;
@@ -12,7 +12,6 @@ import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.gpu.NvmlUtil;
 
 /**
  * Linux {@link GpuStats} session. Dynamic metrics are sourced in priority order: NVML (NVIDIA GPUs), then sysfs DRM
@@ -22,26 +21,32 @@ import oshi.util.gpu.NvmlUtil;
  * <p>
  * GPU ticks are not available on Linux and always return {@code (0L, 0L)}. Shared memory is not available and always
  * returns -1.
+ *
+ * <p>
+ * Subclasses provide the NVML integration via JNA or FFM by implementing the {@code nvml*} methods.
  */
 @ThreadSafe
-final class LinuxGpuStats implements GpuStats {
+public abstract class LinuxGpuStats implements GpuStats {
 
     private final String drmDevicePath;
     private final String driverName;
     private final String pciBusId;
     private final String cardName;
 
-    // Cached at construction; empty string if not found
     private final String hwmonPath;
-    // Cached Intel gt0 path
     private final String gt0Path;
-
-    // Cached NVML device id; null means not yet resolved, empty string means unavailable
-    private String nvmlDeviceId;
 
     private boolean closed;
 
-    LinuxGpuStats(String drmDevicePath, String driverName, String pciBusId, String cardName) {
+    /**
+     * Constructor.
+     *
+     * @param drmDevicePath sysfs device path
+     * @param driverName    driver name
+     * @param pciBusId      PCI bus ID for NVML correlation
+     * @param cardName      card name for NVML fallback lookup
+     */
+    protected LinuxGpuStats(String drmDevicePath, String driverName, String pciBusId, String cardName) {
         this.drmDevicePath = drmDevicePath;
         this.driverName = driverName;
         this.pciBusId = pciBusId;
@@ -49,6 +54,134 @@ final class LinuxGpuStats implements GpuStats {
         this.hwmonPath = resolveHwmonPath(drmDevicePath);
         this.gt0Path = drmDevicePath.isEmpty() ? "" : drmDevicePath + "/../gt/gt0";
     }
+
+    /**
+     * Returns the PCI bus ID.
+     *
+     * @return PCI bus ID string
+     */
+    protected String getPciBusId() {
+        return pciBusId;
+    }
+
+    /**
+     * Returns the card name.
+     *
+     * @return card name string
+     */
+    protected String getCardName() {
+        return cardName;
+    }
+
+    // -------------------------------------------------------------------------
+    // Abstract NVML methods — implemented by JNA/FFM subclasses
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns whether NVML is available.
+     *
+     * @return true if NVML can be used
+     */
+    protected abstract boolean nvmlIsAvailable();
+
+    /**
+     * Finds the NVML device by PCI bus ID.
+     *
+     * @param busId PCI bus ID
+     * @return device identifier string, or {@code null}
+     */
+    protected abstract String nvmlFindDevice(String busId);
+
+    /**
+     * Finds the NVML device by GPU name.
+     *
+     * @param name GPU name
+     * @return device identifier string, or {@code null}
+     */
+    protected abstract String nvmlFindDeviceByName(String name);
+
+    /**
+     * Returns VRAM used in bytes via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return bytes used or -1
+     */
+    protected abstract long nvmlGetVramUsed(String deviceId);
+
+    /**
+     * Returns GPU temperature via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return temperature in °C or -1
+     */
+    protected abstract double nvmlGetTemperature(String deviceId);
+
+    /**
+     * Returns GPU power draw via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return power in watts or -1
+     */
+    protected abstract double nvmlGetPowerDraw(String deviceId);
+
+    /**
+     * Returns GPU core clock via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return core clock in MHz or -1
+     */
+    protected abstract long nvmlGetCoreClockMhz(String deviceId);
+
+    /**
+     * Returns GPU memory clock via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return memory clock in MHz or -1
+     */
+    protected abstract long nvmlGetMemoryClockMhz(String deviceId);
+
+    /**
+     * Returns GPU fan speed via NVML, or -1.
+     *
+     * @param deviceId NVML device identifier
+     * @return fan speed percentage or -1
+     */
+    protected abstract double nvmlGetFanSpeedPercent(String deviceId);
+
+    // -------------------------------------------------------------------------
+    // NVML device resolution — cached
+    // -------------------------------------------------------------------------
+
+    // Cached NVML device id; null means not yet resolved, empty string means unavailable
+    private String nvmlDeviceId;
+
+    /**
+     * Resolves the NVML device identifier, caching the result.
+     *
+     * @return device identifier, or {@code null} if unavailable
+     */
+    protected String findNvmlDevice() {
+        if (nvmlDeviceId != null) {
+            return nvmlDeviceId.isEmpty() ? null : nvmlDeviceId;
+        }
+        if (!nvmlIsAvailable()) {
+            nvmlDeviceId = "";
+            return null;
+        }
+        String id = null;
+        if (!pciBusId.isEmpty()) {
+            id = nvmlFindDevice(pciBusId);
+        }
+        if (id == null) {
+            id = nvmlFindDeviceByName(cardName);
+        }
+        nvmlDeviceId = id != null ? id : "";
+        return id;
+    }
+
+    // -------------------------------------------------------------------------
+    // GpuStats implementation
+    // -------------------------------------------------------------------------
 
     @Override
     public synchronized void close() {
@@ -78,8 +211,6 @@ final class LinuxGpuStats implements GpuStats {
             return pct >= 0 ? pct : -1d;
         }
         if ("i915".equals(driver) || "xe".equals(driver)) {
-            // Approximates utilization as actual_freq / max_freq; not a true busy-time percentage
-            // but the best available metric without kernel tracepoints.
             long actual = FileUtil.getLongFromFile(gt0Path + "/rps_act_freq_mhz");
             long max = FileUtil.getLongFromFile(gt0Path + "/rps_max_freq_mhz");
             if (actual >= 0 && max > 0) {
@@ -94,7 +225,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            long val = NvmlUtil.getVramUsed(nvmlDevice);
+            long val = nvmlGetVramUsed(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -120,7 +251,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getTemperature(nvmlDevice);
+            double val = nvmlGetTemperature(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -139,7 +270,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getPowerDraw(nvmlDevice);
+            double val = nvmlGetPowerDraw(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -158,7 +289,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            long val = NvmlUtil.getCoreClockMhz(nvmlDevice);
+            long val = nvmlGetCoreClockMhz(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -188,7 +319,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            long val = NvmlUtil.getMemoryClockMhz(nvmlDevice);
+            long val = nvmlGetMemoryClockMhz(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -213,7 +344,7 @@ final class LinuxGpuStats implements GpuStats {
         checkOpen();
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
-            double val = NvmlUtil.getFanSpeedPercent(nvmlDevice);
+            double val = nvmlGetFanSpeedPercent(nvmlDevice);
             if (val >= 0) {
                 return val;
             }
@@ -237,25 +368,6 @@ final class LinuxGpuStats implements GpuStats {
             throw new IllegalStateException(
                     "GpuStats session has been closed. Obtain a new session via GraphicsCard.createStatsSession().");
         }
-    }
-
-    private String findNvmlDevice() {
-        if (nvmlDeviceId != null) {
-            return nvmlDeviceId.isEmpty() ? null : nvmlDeviceId;
-        }
-        if (!NvmlUtil.isAvailable()) {
-            nvmlDeviceId = "";
-            return null;
-        }
-        String id = null;
-        if (!pciBusId.isEmpty()) {
-            id = NvmlUtil.findDevice(pciBusId);
-        }
-        if (id == null) {
-            id = NvmlUtil.findDeviceByName(cardName);
-        }
-        nvmlDeviceId = id != null ? id : "";
-        return id;
     }
 
     private static String resolveHwmonPath(String drmDevicePath) {

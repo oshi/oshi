@@ -2,15 +2,15 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.linux;
+package oshi.hardware.common.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.GpuStats;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -23,7 +23,7 @@ import oshi.util.tuples.Triplet;
  * Graphics card info obtained by lshw, with dynamic metrics from sysfs DRM driver files.
  */
 @ThreadSafe
-final class LinuxGraphicsCard extends AbstractGraphicsCard {
+public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     private static final String DRM_PATH = "/sys/class/drm/";
 
@@ -49,34 +49,115 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param driverName    driver name (e.g. "amdgpu"), or empty string if unknown
      * @param pciBusId      PCI bus ID for NVML correlation, or empty string if unknown
      */
-    LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram, String drmDevicePath,
-            String driverName, String pciBusId) {
+    protected LinuxGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram,
+            String drmDevicePath, String driverName, String pciBusId) {
         super(name, deviceId, vendor, versionInfo, vram);
         this.drmDevicePath = drmDevicePath;
         this.driverName = driverName;
         this.pciBusId = pciBusId;
     }
 
-    @Override
-    public GpuStats createStatsSession() {
-        return new LinuxGpuStats(drmDevicePath, driverName, pciBusId, getName());
+    /**
+     * Returns the sysfs device path.
+     *
+     * @return sysfs device path
+     */
+    protected String getDrmDevicePath() {
+        return drmDevicePath;
     }
 
     /**
-     * public method used by {@code AbstractHardwareAbstractionLayer} to access the graphics cards.
+     * Returns the driver name.
      *
-     * @return List of {@link LinuxGraphicsCard} objects.
+     * @return driver name
      */
-    public static List<GraphicsCard> getGraphicsCards() {
-        List<GraphicsCard> cardList = getGraphicsCardsFromLspci();
+    protected String getDriverName() {
+        return driverName;
+    }
+
+    /**
+     * Returns the PCI bus ID.
+     *
+     * @return PCI bus ID
+     */
+    protected String getPciBusId() {
+        return pciBusId;
+    }
+
+    /**
+     * Parsed graphics card attributes used to construct concrete subclass instances.
+     */
+    public static class Attrs {
+        private final String name;
+        private final String deviceId;
+        private final String vendor;
+        private final String versionInfo;
+        private final long vram;
+        private final String drmDevicePath;
+        private final String driverName;
+        private final String pciBusId;
+
+        Attrs(String name, String deviceId, String vendor, String versionInfo, long vram, String drmDevicePath,
+                String driverName, String pciBusId) {
+            this.name = name;
+            this.deviceId = deviceId;
+            this.vendor = vendor;
+            this.versionInfo = versionInfo;
+            this.vram = vram;
+            this.drmDevicePath = drmDevicePath;
+            this.driverName = driverName;
+            this.pciBusId = pciBusId;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDeviceId() {
+            return deviceId;
+        }
+
+        public String getVendor() {
+            return vendor;
+        }
+
+        public String getVersionInfo() {
+            return versionInfo;
+        }
+
+        public long getVram() {
+            return vram;
+        }
+
+        public String getDrmDevicePath() {
+            return drmDevicePath;
+        }
+
+        public String getDriverName() {
+            return driverName;
+        }
+
+        public String getPciBusId() {
+            return pciBusId;
+        }
+    }
+
+    /**
+     * Queries graphics cards from lspci/lshw and constructs instances using the provided factory.
+     *
+     * @param factory function that creates a concrete {@link GraphicsCard} from parsed attributes
+     * @return list of graphics cards
+     */
+    public static List<GraphicsCard> getGraphicsCards(Function<Attrs, GraphicsCard> factory) {
+        List<GraphicsCard> cardList = getGraphicsCardsFromLspci(factory);
         if (cardList.isEmpty()) {
-            cardList = getGraphicsCardsFromLshw();
+            cardList = getGraphicsCardsFromLshw(factory);
         }
         return cardList;
     }
 
     // Faster, use as primary
-    private static List<GraphicsCard> getGraphicsCardsFromLspci() {
+    private static List<GraphicsCard> getGraphicsCardsFromLspci(Function<Attrs, GraphicsCard> factory) {
         List<GraphicsCard> cardList = new ArrayList<>();
         // Machine readable version
         List<String> lspci = ExecutingCommand.runNative("lspci -vnnm");
@@ -105,10 +186,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                 if (split.length < 2) {
                     // Save previous card
                     Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
-                    cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
+                    cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
                             lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(),
-                            drmInfo.getB(), drmInfo.getC()));
+                            drmInfo.getB(), drmInfo.getC())));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -134,10 +215,10 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         // If we haven't yet written the last card do so now
         if (found) {
             Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
-            cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
+            cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
                     lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
-                    drmInfo.getC()));
+                    drmInfo.getC())));
         }
         return cardList;
     }
@@ -156,7 +237,7 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
     }
 
     // Slower, use as backup
-    private static List<GraphicsCard> getGraphicsCardsFromLshw() {
+    private static List<GraphicsCard> getGraphicsCardsFromLshw(Function<Attrs, GraphicsCard> factory) {
         List<GraphicsCard> cardList = new ArrayList<>();
         List<String> lshw = ExecutingCommand.runPrivilegedNative("lshw -C display");
         String name = Constants.UNKNOWN;
@@ -172,9 +253,9 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
                 // Save previous card
                 if (cardNum++ > 0) {
                     Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
-                    cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
+                    cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
-                            drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+                            drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
                 }
                 name = Constants.UNKNOWN;
                 deviceId = Constants.UNKNOWN;
@@ -203,9 +284,9 @@ final class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         if (cardNum > 0) {
             Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
-            cardList.add(new LinuxGraphicsCard(name, deviceId, vendor,
+            cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
-                    drmInfo.getA(), drmInfo.getB(), drmInfo.getC()));
+                    drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
         }
         return cardList;
     }
