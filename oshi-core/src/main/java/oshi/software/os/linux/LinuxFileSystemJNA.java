@@ -11,6 +11,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.common.os.linux.LinuxFileSystem;
 
 /**
  * JNA-based Linux file system implementation. Implements {@code statvfs} via JNA.

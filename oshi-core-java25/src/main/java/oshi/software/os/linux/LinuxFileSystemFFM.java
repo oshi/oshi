@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.linux.LinuxLibcFunctions;
+import oshi.software.common.os.linux.LinuxFileSystem;
 
 /**
  * FFM-based Linux file system implementation. Implements {@code statvfs} via FFM.

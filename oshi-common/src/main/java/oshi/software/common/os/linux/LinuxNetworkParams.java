@@ -2,7 +2,7 @@
  * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.linux;
+package oshi.software.common.os.linux;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import oshi.util.ParseUtil;
  * {@link #getDomainName()} and {@link #getHostName()} via native calls.
  */
 @ThreadSafe
-abstract class LinuxNetworkParams extends AbstractNetworkParams {
+public abstract class LinuxNetworkParams extends AbstractNetworkParams {
 
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";

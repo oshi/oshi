@@ -20,6 +20,7 @@ import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
+import oshi.software.common.os.linux.LinuxNetworkParams;
 
 /**
  * JNA-based Linux network parameters. Implements {@code getDomainName} via {@code getaddrinfo} and {@code getHostName}

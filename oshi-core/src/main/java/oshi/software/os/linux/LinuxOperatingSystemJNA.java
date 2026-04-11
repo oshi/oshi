@@ -7,6 +7,7 @@ package oshi.software.os.linux;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,13 +18,16 @@ import com.sun.jna.platform.linux.LibC;
 import com.sun.jna.platform.linux.Udev;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.linux.WhoJNA;
 import oshi.driver.linux.proc.AuxvJNA;
 import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
+import oshi.software.common.os.linux.LinuxOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
+import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
@@ -97,6 +101,11 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
         HAS_SYSCALL_GETTID = hasSyscallGettid;
         USER_HZ = userHz;
         PAGE_SIZE = pageSz;
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return USE_WHO_COMMAND ? oshi.util.driver.linux.Who.queryWho() : WhoJNA.queryUtxent();
     }
 
     @Override

@@ -1,22 +1,22 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.linux;
-
-import oshi.software.os.ApplicationInfo;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+package oshi.software.common.os.linux;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import oshi.software.os.ApplicationInfo;
+import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 public final class LinuxInstalledApps {
 

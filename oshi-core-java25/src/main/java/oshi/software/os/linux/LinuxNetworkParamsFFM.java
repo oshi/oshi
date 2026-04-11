@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.linux.LinuxLibcFunctions;
+import oshi.software.common.os.linux.LinuxNetworkParams;
 
 /**
  * FFM-based Linux network parameters. Overrides {@code gethostname} and {@code getaddrinfo} calls to use FFM.

@@ -8,6 +8,8 @@ import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.linux.LinuxLibc;
+import oshi.software.common.os.linux.LinuxOSProcess;
+import oshi.software.common.os.linux.LinuxOperatingSystem;
 
 /**
  * JNA-based Linux OS process. Implements {@code getrlimit} via JNA.

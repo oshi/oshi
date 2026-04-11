@@ -10,6 +10,7 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.linux;
     exports oshi.hardware.common.platform.unix;
     exports oshi.software.common;
+    exports oshi.software.common.os.linux;
     exports oshi.software.os;
     exports oshi.util;
     exports oshi.util.driver.linux;

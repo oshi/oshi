@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.linux.LinuxLibcFunctions;
+import oshi.software.common.os.linux.LinuxOSProcess;
+import oshi.software.common.os.linux.LinuxOperatingSystem;
 
 /**
  * FFM-based Linux OS process. Implements {@code getrlimit} via FFM.
