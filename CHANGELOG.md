@@ -9,6 +9,7 @@
   [#3135](https://github.com/oshi/oshi/pull/3135),
   [#3138](https://github.com/oshi/oshi/pull/3138),
   [#3140](https://github.com/oshi/oshi/pull/3140): Create oshi-common module; move JNA-free common code to enable future FFM-only consumers - [@dbwiddis](https://github.com/dbwiddis).
+* [#3150](https://github.com/oshi/oshi/pull/3150): Add JNA vs FFM native comparison test suite validating API parity across all OSHI components - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug fixes / Improvements
 * [#3126](https://github.com/oshi/oshi/pull/3126): FFM migration of WindowsOSProcess - [@rohan-coder02](https://github.com/rohan-coder02).

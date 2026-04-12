@@ -519,7 +519,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             this.groupID = Integer.toString(gid);
             MemorySegment grgid = getgrgid(gid);
             if (grgid != null) {
-                MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(pwuid, GROUP, arena);
+                MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(grgid, GROUP, arena);
                 MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement("gr_name")));
                 this.group = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
             } else {

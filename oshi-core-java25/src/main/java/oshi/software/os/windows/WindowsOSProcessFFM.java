@@ -233,14 +233,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         String accountName = Constants.UNKNOWN;
         if (Advapi32FFM.LookupAccountSid(MemorySegment.NULL, sidPtr, nameBuffer, nameLen, domainBuffer, domainLen,
                 sidUse)) {
-            String name = readWideString(nameBuffer);
-            String domain = readWideString(domainBuffer);
-            // Build domain-qualified name if domain is available
-            if (!domain.isEmpty() && !domain.equals(Constants.UNKNOWN)) {
-                accountName = domain + "\\" + name;
-            } else {
-                accountName = name;
-            }
+            accountName = readWideString(nameBuffer);
         }
 
         // Get SID string

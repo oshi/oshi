@@ -1,25 +1,8 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.driver.windows.registry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.software.os.ApplicationInfo;
-import oshi.util.ParseUtil;
-import oshi.ffm.windows.Win32Exception;
-import oshi.util.platform.windows.Advapi32UtilFFM;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
@@ -32,6 +15,24 @@ import static oshi.ffm.windows.WinRegFFM.HKEY_LOCAL_MACHINE;
 import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.platform.windows.Advapi32UtilFFM.registryGetValue;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.ffm.windows.Win32Exception;
+import oshi.software.os.ApplicationInfo;
+import oshi.util.ParseUtil;
+import oshi.util.platform.windows.Advapi32UtilFFM;
 
 public final class InstalledAppsDataFFM {
 
@@ -109,7 +110,7 @@ public final class InstalledAppsDataFFM {
         if (registryValueOrNull instanceof Integer i) {
             return Integer.toString(i);
         }
-        return (String) registryValueOrNull;
+        return registryValueOrNull instanceof String s ? s.trim() : null;
     }
 
     private static long registryValueToLong(Object registryValueOrNull) {
