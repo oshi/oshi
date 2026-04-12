@@ -4,8 +4,27 @@
  */
 package oshi.software.os.windows;
 
+import static java.lang.foreign.MemorySegment.NULL;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.windows.Kernel32FFM;
@@ -13,24 +32,6 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.PdhUtilFFM;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.lang.foreign.MemorySegment.NULL;
-import static java.lang.foreign.ValueLayout.JAVA_CHAR;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 @ThreadSafe
 public class WindowsFileSystemFFM extends AbstractFileSystem {
@@ -121,10 +122,9 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 int idx = result.indexOf(volume);
                 WindowsOSFileStoreFFM updated = new WindowsOSFileStoreFFM(volume.getName(), // preserve local name
                         volume.getVolume(), volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(),
-                        volume.getMount(), volume.getOptions(), volume.getUUID(), "",
+                        volume.getMount(), volume.getOptions(), volume.getUUID(), true, "",
                         volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
-                        volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0,
-                        true);
+                        volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0);
                 if (idx >= 0) {
                     result.set(idx, updated);
                 } else {
@@ -217,8 +217,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                         String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
                         fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", name, mount), volume,
-                                name, mount, options.toString(), uuid, "", getDriveType(mountBuf), fsType,
-                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0, true));
+                                name, mount, options.toString(), uuid, true, "", getDriveType(mountBuf), fsType,
+                                systemFreeBytes, userFreeBytes, totalBytes, 0, 0));
                     }
                 } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
                 return fs;
@@ -294,8 +294,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 }
 
                 fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
-                        label, name + "\\", options, "", "", getDriveTypeString(type), drive.getFileSystem(), free,
-                        free, total, 0, 0, type != 4));
+                        label, name + "\\", options, "", type != 4, "", getDriveTypeString(type), drive.getFileSystem(),
+                        free, free, total, 0, 0));
             }
         }
         return fs;

@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.windows.perfmon.ProcessInformation;
@@ -122,7 +122,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                 // using WMI's more verbose name and update label if needed
                 OSFileStore volume = volumeMap.get(wmiVolume.getMount());
                 result.remove(volume);
-                result.add(new WindowsOSFileStore(wmiVolume.getName(), volume.getVolume(),
+                result.add(new WindowsOSFileStoreJNA(wmiVolume.getName(), volume.getVolume(),
                         volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
                         volume.getOptions(), volume.getUUID(), volume.isLocal(), "", volume.getDescription(),
                         volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0,
@@ -193,7 +193,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
                     // Parse uuid from volume name
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
-                    fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", strName, strMount), volume,
+                    fs.add(new WindowsOSFileStoreJNA(String.format(Locale.ROOT, "%s (%s)", strName, strMount), volume,
                             strName, strMount, options.toString(), uuid, true, "", getDriveType(strMount), strFsType,
                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
                 }
@@ -238,7 +238,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
             }
             int driveType = Kernel32.INSTANCE.GetDriveType(name);
             boolean local = driveType == 2 || driveType == 3 || driveType == 6;
-            fs.add(new WindowsOSFileStore(String.format(Locale.ROOT, "%s (%s)", description, name), volume, label,
+            fs.add(new WindowsOSFileStoreJNA(String.format(Locale.ROOT, "%s (%s)", description, name), volume, label,
                     name + "\\", options, "", local, "", getDriveType(name),
                     WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), free, free, total, 0, 0));
         }

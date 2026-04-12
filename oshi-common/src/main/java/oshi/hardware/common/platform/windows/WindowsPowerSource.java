@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.windows;
+package oshi.hardware.common.platform.windows;
 
 import java.time.LocalDate;
 

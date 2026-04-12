@@ -1,11 +1,11 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
 
-import static oshi.driver.windows.perfmon.PerfmonConstants.MEMORY;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
 
 import java.util.Collections;
 import java.util.Map;

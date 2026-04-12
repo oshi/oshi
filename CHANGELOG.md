@@ -16,6 +16,7 @@
 * [#3136](https://github.com/oshi/oshi/pull/3136): Push Linux USER_HZ and PAGE_SIZE into JNA/FFM OS subclasses; wire through HAL, processor, memory, process, and thread classes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3139](https://github.com/oshi/oshi/pull/3139): Split LinuxGraphicsCard, LinuxGpuStats, and NvmlUtil across modules - [@dbwiddis](https://github.com/dbwiddis).
 * [#3141](https://github.com/oshi/oshi/pull/3141): Split WindowsOSProcess into superclass with JNA/FFM subclasses; add VersionHelpersFFM; remove TOKEN_DUPLICATE - [@dbwiddis](https://github.com/dbwiddis).
+* [#3143](https://github.com/oshi/oshi/pull/3143): Move PerfmonConstants, WindowsPowerSource, and WindowsOSFileStore to oshi-common; set up Windows driver, hardware, and software packages - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -11,12 +11,12 @@ import oshi.software.common.os.windows.WindowsOSFileStore;
 import oshi.software.os.OSFileStore;
 
 /**
- * FFM-based Windows OSFileStore implementation.
+ * JNA-based Windows OSFileStore implementation.
  */
 @ThreadSafe
-public class WindowsOSFileStoreFFM extends WindowsOSFileStore {
+public class WindowsOSFileStoreJNA extends WindowsOSFileStore {
 
-    public WindowsOSFileStoreFFM(String name, String volume, String label, String mount, String options, String uuid,
+    public WindowsOSFileStoreJNA(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
@@ -28,11 +28,11 @@ public class WindowsOSFileStoreFFM extends WindowsOSFileStore {
         // Check if we have the volume locally
         List<OSFileStore> volumes;
         if (isLocal()) {
-            volumes = WindowsFileSystemFFM.getLocalVolumes(getVolume());
+            volumes = WindowsFileSystem.getLocalVolumes(getVolume());
         } else {
             // Not locally, search WMI
             String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
-            volumes = WindowsFileSystemFFM.getWmiVolumes(nameToMatch, false);
+            volumes = WindowsFileSystem.getWmiVolumes(nameToMatch, false);
         }
         for (OSFileStore fileStore : volumes) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {

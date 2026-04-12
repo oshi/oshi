@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -7,25 +7,25 @@ package oshi.driver.windows.perfmon;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.is;
-import static oshi.driver.windows.perfmon.PerfmonConstants.MEMORY;
-import static oshi.driver.windows.perfmon.PerfmonConstants.PAGING_FILE;
-import static oshi.driver.windows.perfmon.PerfmonConstants.PHYSICAL_DISK;
-import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESS;
-import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR;
-import static oshi.driver.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
-import static oshi.driver.windows.perfmon.PerfmonConstants.SYSTEM;
-import static oshi.driver.windows.perfmon.PerfmonConstants.THREAD;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM;
-import static oshi.driver.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PAGING_FILE;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PHYSICAL_DISK;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESS;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.SYSTEM;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.THREAD;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL;
 
 import java.util.List;
 import java.util.Map;

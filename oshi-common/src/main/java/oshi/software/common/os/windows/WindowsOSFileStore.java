@@ -2,19 +2,17 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.windows;
-
-import java.util.List;
+package oshi.software.common.os.windows;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSFileStore;
 import oshi.software.os.OSFileStore;
 
 /**
- * OSFileStore implementation
+ * Common base class for Windows OSFileStore implementations, containing shared fields and getters.
  */
 @ThreadSafe
-public class WindowsOSFileStore extends AbstractOSFileStore {
+public abstract class WindowsOSFileStore extends AbstractOSFileStore {
 
     private String logicalVolume;
     private String description;
@@ -26,7 +24,7 @@ public class WindowsOSFileStore extends AbstractOSFileStore {
     private long freeInodes;
     private long totalInodes;
 
-    public WindowsOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
+    protected WindowsOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid, local);
@@ -80,30 +78,19 @@ public class WindowsOSFileStore extends AbstractOSFileStore {
         return this.totalInodes;
     }
 
-    @Override
-    public boolean updateAttributes() {
-        // Check if we have the volume locally
-        List<OSFileStore> volumes;
-        if (isLocal()) {
-            volumes = WindowsFileSystem.getLocalVolumes(getVolume());
-        } else {
-            // Not locally, search WMI
-            String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
-            volumes = WindowsFileSystem.getWmiVolumes(nameToMatch, false);
-        }
-        for (OSFileStore fileStore : volumes) {
-            if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
-                this.logicalVolume = fileStore.getLogicalVolume();
-                this.description = fileStore.getDescription();
-                this.fsType = fileStore.getType();
-                this.freeSpace = fileStore.getFreeSpace();
-                this.usableSpace = fileStore.getUsableSpace();
-                this.totalSpace = fileStore.getTotalSpace();
-                this.freeInodes = fileStore.getFreeInodes();
-                this.totalInodes = fileStore.getTotalInodes();
-                return true;
-            }
-        }
-        return false;
+    /**
+     * Sets fields from a matching file store during attribute updates.
+     *
+     * @param fileStore the file store with updated values
+     */
+    protected void updateFrom(OSFileStore fileStore) {
+        this.logicalVolume = fileStore.getLogicalVolume();
+        this.description = fileStore.getDescription();
+        this.fsType = fileStore.getType();
+        this.freeSpace = fileStore.getFreeSpace();
+        this.usableSpace = fileStore.getUsableSpace();
+        this.totalSpace = fileStore.getTotalSpace();
+        this.freeInodes = fileStore.getFreeInodes();
+        this.totalInodes = fileStore.getTotalInodes();
     }
 }

@@ -24,6 +24,7 @@ import com.sun.jna.win32.W32APITypeMapper;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
+import oshi.hardware.common.platform.windows.WindowsPowerSource;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableSpDeviceInterfaceData;
 import oshi.jna.platform.windows.PowrProf.BATTERY_INFORMATION;

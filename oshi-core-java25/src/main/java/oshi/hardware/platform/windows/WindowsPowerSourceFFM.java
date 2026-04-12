@@ -55,6 +55,7 @@ import oshi.ffm.windows.SetupApiFFM;
 import oshi.ffm.windows.WindowsForeignFunctions;
 import oshi.ffm.windows.com.GuidFFM;
 import oshi.hardware.PowerSource;
+import oshi.hardware.common.platform.windows.WindowsPowerSource;
 import oshi.util.Constants;
 
 /**
