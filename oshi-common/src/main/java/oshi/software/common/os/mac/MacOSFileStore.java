@@ -2,17 +2,17 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.mac;
+package oshi.software.common.os.mac;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSFileStore;
 import oshi.software.os.OSFileStore;
 
 /**
- * OSFileStore implementation
+ * Common OSFileStore fields and getters for macOS implementations.
  */
 @ThreadSafe
-public class MacOSFileStore extends AbstractOSFileStore {
+public abstract class MacOSFileStore extends AbstractOSFileStore {
 
     private String logicalVolume;
     private String description;
@@ -24,7 +24,7 @@ public class MacOSFileStore extends AbstractOSFileStore {
     private long freeInodes;
     private long totalInodes;
 
-    public MacOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
+    protected MacOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid, local);
@@ -78,21 +78,19 @@ public class MacOSFileStore extends AbstractOSFileStore {
         return this.totalInodes;
     }
 
-    @Override
-    public boolean updateAttributes() {
-        for (OSFileStore fileStore : MacFileSystem.getFileStoreMatching(getName(), isLocal())) {
-            if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
-                this.logicalVolume = fileStore.getLogicalVolume();
-                this.description = fileStore.getDescription();
-                this.fsType = fileStore.getType();
-                this.freeSpace = fileStore.getFreeSpace();
-                this.usableSpace = fileStore.getUsableSpace();
-                this.totalSpace = fileStore.getTotalSpace();
-                this.freeInodes = fileStore.getFreeInodes();
-                this.totalInodes = fileStore.getTotalInodes();
-                return true;
-            }
-        }
-        return false;
+    /**
+     * Copies attributes from another file store into this one.
+     *
+     * @param fileStore the source file store
+     */
+    protected void updateFrom(OSFileStore fileStore) {
+        this.logicalVolume = fileStore.getLogicalVolume();
+        this.description = fileStore.getDescription();
+        this.fsType = fileStore.getType();
+        this.freeSpace = fileStore.getFreeSpace();
+        this.usableSpace = fileStore.getUsableSpace();
+        this.totalSpace = fileStore.getTotalSpace();
+        this.freeInodes = fileStore.getFreeInodes();
+        this.totalInodes = fileStore.getTotalInodes();
     }
 }

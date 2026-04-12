@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.mac;
+package oshi.software.common.os.mac;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOperatingSystem;
-import oshi.software.common.os.mac.MacOSThread;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
@@ -43,7 +42,7 @@ import oshi.util.Util;
 @ThreadSafe
 public abstract class MacOperatingSystem extends AbstractOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystemJNA.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
     public static final String MACOS_VERSIONS_PROPERTIES = "oshi.macos.versions.properties";
 

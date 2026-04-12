@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2025 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
@@ -25,12 +25,12 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * MacNetworkParams class.
+ * MacNetworkParamsJNA class.
  */
 @ThreadSafe
-final class MacNetworkParams extends AbstractNetworkParams {
+final class MacNetworkParamsJNA extends AbstractNetworkParams {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParams.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParamsJNA.class);
 
     private static final SystemB SYS = SystemB.INSTANCE;
 

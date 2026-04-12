@@ -38,6 +38,7 @@ import oshi.ffm.mac.DiskArbitration.DADiskRef;
 import oshi.ffm.mac.DiskArbitration.DASessionRef;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.software.common.os.mac.MacFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileSystemUtil;
 import oshi.util.platform.mac.CFUtilFFM;

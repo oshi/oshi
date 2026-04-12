@@ -45,6 +45,7 @@ import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.common.os.mac.MacOSThread;
+import oshi.software.common.os.mac.MacOperatingSystem;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
@@ -55,9 +56,9 @@ import oshi.util.tuples.Pair;
  * OSProcess implementation
  */
 @ThreadSafe
-public class MacOSProcess extends AbstractOSProcess {
+public class MacOSProcessJNA extends AbstractOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacOSProcessJNA.class);
 
     private static final int ARGMAX = SysctlUtil.sysctl("kern.argmax", 0);
     private static final long TICKS_PER_MS;
@@ -138,7 +139,7 @@ public class MacOSProcess extends AbstractOSProcess {
     private long majorFaults;
     private long contextSwitches;
 
-    public MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
+    public MacOSProcessJNA(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
         this.majorVersion = major;
         this.minorVersion = minor;

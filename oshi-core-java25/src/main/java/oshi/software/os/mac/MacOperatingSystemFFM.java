@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.WhoFFM;
 import oshi.driver.mac.WindowInfoFFM;
+import oshi.software.common.os.mac.MacOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;

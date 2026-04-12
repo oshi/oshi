@@ -54,21 +54,21 @@ import oshi.util.tuples.Pair;
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-public class MacInternetProtocolStats extends AbstractInternetProtocolStats {
+public class MacInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
 
     private boolean isElevated;
 
-    public MacInternetProtocolStats(boolean elevated) {
+    public MacInternetProtocolStatsJNA(boolean elevated) {
         this.isElevated = elevated;
     }
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
-    private Supplier<BsdTcpstat> tcpstat = memoize(MacInternetProtocolStats::queryTcpstat, defaultExpiration());
-    private Supplier<BsdUdpstat> udpstat = memoize(MacInternetProtocolStats::queryUdpstat, defaultExpiration());
+    private Supplier<BsdTcpstat> tcpstat = memoize(MacInternetProtocolStatsJNA::queryTcpstat, defaultExpiration());
+    private Supplier<BsdUdpstat> udpstat = memoize(MacInternetProtocolStatsJNA::queryUdpstat, defaultExpiration());
     // With elevated permissions use tcpstat only
     // Backup estimate get ipstat and subtract off udp
-    private Supplier<BsdIpstat> ipstat = memoize(MacInternetProtocolStats::queryIpstat, defaultExpiration());
-    private Supplier<BsdIp6stat> ip6stat = memoize(MacInternetProtocolStats::queryIp6stat, defaultExpiration());
+    private Supplier<BsdIpstat> ipstat = memoize(MacInternetProtocolStatsJNA::queryIpstat, defaultExpiration());
+    private Supplier<BsdIp6stat> ip6stat = memoize(MacInternetProtocolStatsJNA::queryIp6stat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {

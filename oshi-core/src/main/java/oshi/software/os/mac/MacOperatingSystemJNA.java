@@ -1,15 +1,21 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.mac;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.platform.mac.SystemB;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.Who;
 import oshi.driver.mac.WindowInfo;
 import oshi.jna.Struct;
 import oshi.jna.Struct.CloseableTimeval;
+import oshi.software.common.os.mac.MacOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -20,10 +26,6 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.mac.SysctlUtil;
 import oshi.util.tuples.Pair;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary graphical operating systems developed and
@@ -65,12 +67,12 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new MacFileSystem();
+        return new MacFileSystemJNA();
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new MacInternetProtocolStats(isElevated());
+        return new MacInternetProtocolStatsJNA(isElevated());
     }
 
     @Override
@@ -107,7 +109,7 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
-        OSProcess proc = new MacOSProcess(pid, this.major, this.minor, this);
+        OSProcess proc = new MacOSProcessJNA(pid, this.major, this.minor, this);
         return proc.getState().equals(OSProcess.State.INVALID) ? null : proc;
     }
 
@@ -143,7 +145,7 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new MacNetworkParams();
+        return new MacNetworkParamsJNA();
     }
 
     @Override
