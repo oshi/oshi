@@ -20,8 +20,6 @@
     <suppress checks="ParameterName" files="[\\/]jna[\\/].*"/>
     <suppress checks="TypeName" files="[\\/]jna[\\/].*"/>
 
-    <suppress checks="MethodName" files="MacGlobalMemory\.java" lines="137"/>
-
     <!-- FFM convention -->
     <suppress checks="InterfaceIsType" files="[\\/]ffm[\\/].*"/>
     <suppress checks="ConstantName" files="[\\/]ffm[\\/].*"/>

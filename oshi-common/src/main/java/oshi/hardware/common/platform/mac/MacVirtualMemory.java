@@ -1,8 +1,8 @@
 /*
- * Copyright 2019-2025 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -17,7 +17,7 @@ import oshi.util.tuples.Pair;
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
 @ThreadSafe
-abstract class MacVirtualMemory extends AbstractVirtualMemory {
+public abstract class MacVirtualMemory extends AbstractVirtualMemory {
 
     private final MacGlobalMemory global;
 
@@ -30,7 +30,7 @@ abstract class MacVirtualMemory extends AbstractVirtualMemory {
      *
      * @param macGlobalMemory The parent global memory class instantiating this
      */
-    MacVirtualMemory(MacGlobalMemory macGlobalMemory) {
+    protected MacVirtualMemory(MacGlobalMemory macGlobalMemory) {
         this.global = macGlobalMemory;
     }
 

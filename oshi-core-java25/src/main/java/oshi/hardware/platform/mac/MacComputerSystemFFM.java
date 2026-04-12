@@ -4,16 +4,13 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
-import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.common.platform.mac.MacComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
 import oshi.util.platform.mac.IOKitUtilFFM;
@@ -23,30 +20,7 @@ import oshi.util.tuples.Quartet;
  * Hardware data obtained from ioreg.
  */
 @Immutable
-final class MacComputerSystemFFM extends AbstractComputerSystem {
-
-    private final Supplier<Quartet<String, String, String, String>> manufacturerModelSerialUUID = memoize(
-            MacComputerSystemFFM::platformExpert);
-
-    @Override
-    public String getManufacturer() {
-        return manufacturerModelSerialUUID.get().getA();
-    }
-
-    @Override
-    public String getModel() {
-        return manufacturerModelSerialUUID.get().getB();
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return manufacturerModelSerialUUID.get().getC();
-    }
-
-    @Override
-    public String getHardwareUUID() {
-        return manufacturerModelSerialUUID.get().getD();
-    }
+final class MacComputerSystemFFM extends MacComputerSystem {
 
     @Override
     public Firmware createFirmware() {
@@ -58,7 +32,8 @@ final class MacComputerSystemFFM extends AbstractComputerSystem {
         return new MacBaseboardFFM();
     }
 
-    private static Quartet<String, String, String, String> platformExpert() {
+    @Override
+    protected Quartet<String, String, String, String> platformExpert() {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;

@@ -1,18 +1,8 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystemFunctions;
-import oshi.hardware.VirtualMemory;
-import oshi.util.platform.mac.SysctlUtilFFM;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
@@ -20,6 +10,18 @@ import static oshi.ffm.mac.MacSystem.VM_FREE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_INACTIVE_COUNT;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.mac.MacSystemFunctions;
+import oshi.hardware.VirtualMemory;
+import oshi.hardware.common.platform.mac.MacGlobalMemory;
+import oshi.util.platform.mac.SysctlUtilFFM;
 
 @ThreadSafe
 final class MacGlobalMemoryFFM extends MacGlobalMemory {
@@ -50,17 +52,19 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
     }
 
     @Override
-    protected long host_page_size() {
+    protected long queryPageSize() {
+        int result = -1;
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment pageSize = arena.allocate(JAVA_LONG);
-            int result = MacSystemFunctions.host_page_size(mach_host_self(), pageSize);
+            result = MacSystemFunctions.host_page_size(mach_host_self(), pageSize);
             if (result == 0) {
                 return pageSize.get(JAVA_LONG, 0);
             }
         } catch (Throwable t) {
             // IGNORED
         }
-        return -1;
+        LOG.error("Failed to get host page size. Error code: {}", result);
+        return 4096L;
     }
 
     @Override

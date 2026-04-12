@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -27,9 +27,9 @@ public class MacUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * No-arg constructor required so that {@link MacUsbDeviceJNA} and {@code MacUsbDeviceFFM}, which extend this class
-     * solely to inherit its static helper methods, can compile without an explicit constructor. Neither subclass is
-     * ever instantiated; only this class is, via the full constructor.
+     * No-arg constructor required so that subclasses, which extend this class solely to inherit its static helper
+     * methods, can compile without an explicit constructor. No subclass is ever instantiated; only this class is, via
+     * the full constructor.
      */
     protected MacUsbDevice() {
         this("", "", "", "", "", "", emptyList());

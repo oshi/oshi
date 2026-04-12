@@ -22,6 +22,7 @@ import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.mac.MacUsbDevice;
 
 /**
  * Mac USB device helper using JNA/IOKit. Instantiates {@link MacUsbDevice} objects.

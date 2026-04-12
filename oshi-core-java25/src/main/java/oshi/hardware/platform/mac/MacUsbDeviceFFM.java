@@ -26,6 +26,7 @@ import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.mac.MacUsbDevice;
 import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**

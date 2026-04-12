@@ -27,9 +27,9 @@ public class LinuxUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * No-arg constructor required so that {@code LinuxUsbDeviceJNA} and {@code LinuxUsbDeviceFFM}, which extend this
-     * class solely to inherit its static helper methods, can compile without an explicit constructor. Neither subclass
-     * is ever instantiated; only this class is, via the full constructor.
+     * No-arg constructor required so that subclasses, which extend this class solely to inherit its static helper
+     * methods, can compile without an explicit constructor. No subclass is ever instantiated; only this class is, via
+     * the full constructor.
      */
     protected LinuxUsbDevice() {
         this("", "", "", "", "", "", emptyList());

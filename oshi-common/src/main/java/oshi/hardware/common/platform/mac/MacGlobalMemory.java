@@ -1,8 +1,8 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -10,11 +10,6 @@ import static oshi.util.Memoizer.memoize;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PhysicalMemory;
@@ -28,9 +23,7 @@ import oshi.util.ParseUtil;
  * Memory obtained by host_statistics (vm_stat) and sysctl.
  */
 @ThreadSafe
-abstract class MacGlobalMemory extends AbstractGlobalMemory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MacGlobalMemory.class);
+public abstract class MacGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
@@ -125,16 +118,13 @@ abstract class MacGlobalMemory extends AbstractGlobalMemory {
         return sysctl("hw.memsize", 0L);
     }
 
-    private long queryPageSize() {
-        long hostPageSize = host_page_size();
-        if (hostPageSize > 0) {
-            return hostPageSize;
-        }
-        LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
-        return 4098L;
-    }
-
-    protected abstract long host_page_size();
+    /**
+     * Queries the host page size. Implementations should return the page size on success, or {@code 4096L} as a
+     * fallback on failure.
+     *
+     * @return the page size in bytes
+     */
+    protected abstract long queryPageSize();
 
     protected abstract VirtualMemory createVirtualMemory();
 }

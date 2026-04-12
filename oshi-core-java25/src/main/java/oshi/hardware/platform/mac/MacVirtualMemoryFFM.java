@@ -1,25 +1,27 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystem;
-import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtilFFM;
-import oshi.util.tuples.Pair;
-
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_TOTAL;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_USED;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.mac.MacSystem;
+import oshi.hardware.common.platform.mac.MacVirtualMemory;
+import oshi.util.ParseUtil;
+import oshi.util.platform.mac.SysctlUtilFFM;
+import oshi.util.tuples.Pair;
 
 @ThreadSafe
 final class MacVirtualMemoryFFM extends MacVirtualMemory {

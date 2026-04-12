@@ -18,6 +18,8 @@
 * [#3141](https://github.com/oshi/oshi/pull/3141): Split WindowsOSProcess into superclass with JNA/FFM subclasses; add VersionHelpersFFM; remove TOKEN_DUPLICATE - [@dbwiddis](https://github.com/dbwiddis).
 * [#3143](https://github.com/oshi/oshi/pull/3143): Move PerfmonConstants, WindowsPowerSource, and WindowsOSFileStore to oshi-common; set up Windows driver, hardware, and software packages - [@dbwiddis](https://github.com/dbwiddis).
 * [#3144](https://github.com/oshi/oshi/pull/3144): Move ThreadInfo, MacSoundCard, and MacOSThread to oshi-common; set up macOS driver, hardware, and software packages - [@dbwiddis](https://github.com/dbwiddis).
+* [#3145](https://github.com/oshi/oshi/pull/3145): Move macOS OperatingSystem tree to oshi-common; split MacFileSystem and MacOSFileStore; add JNA suffix to remaining OS classes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3146](https://github.com/oshi/oshi/pull/3146): Move macOS Hardware superclasses to oshi-common; split MacBaseboard, MacComputerSystem, and MacGraphicsCard; add JNA suffix to MacSensors - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

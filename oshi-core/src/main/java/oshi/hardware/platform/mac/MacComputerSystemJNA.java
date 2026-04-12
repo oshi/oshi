@@ -1,13 +1,10 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
@@ -16,39 +13,16 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
-import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.common.platform.mac.MacComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
 /**
- * Hardware data obtained from ioreg.
+ * Hardware data obtained from ioreg using JNA.
  */
 @Immutable
-final class MacComputerSystem extends AbstractComputerSystem {
-
-    private final Supplier<Quartet<String, String, String, String>> manufacturerModelSerialUUID = memoize(
-            MacComputerSystem::platformExpert);
-
-    @Override
-    public String getManufacturer() {
-        return manufacturerModelSerialUUID.get().getA();
-    }
-
-    @Override
-    public String getModel() {
-        return manufacturerModelSerialUUID.get().getB();
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return manufacturerModelSerialUUID.get().getC();
-    }
-
-    @Override
-    public String getHardwareUUID() {
-        return manufacturerModelSerialUUID.get().getD();
-    }
+final class MacComputerSystemJNA extends MacComputerSystem {
 
     @Override
     public Firmware createFirmware() {
@@ -57,10 +31,11 @@ final class MacComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new MacBaseboard();
+        return new MacBaseboardJNA();
     }
 
-    private static Quartet<String, String, String, String> platformExpert() {
+    @Override
+    protected Quartet<String, String, String, String> platformExpert() {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;

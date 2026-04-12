@@ -4,14 +4,11 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
-import oshi.hardware.common.AbstractBaseboard;
+import oshi.hardware.common.platform.mac.MacBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
 import oshi.util.platform.mac.IOKitUtilFFM;
@@ -21,32 +18,10 @@ import oshi.util.tuples.Quartet;
  * Baseboard data obtained from ioreg
  */
 @Immutable
-final class MacBaseboardFFM extends AbstractBaseboard {
-
-    private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
-            MacBaseboardFFM::queryPlatform);
+final class MacBaseboardFFM extends MacBaseboard {
 
     @Override
-    public String getManufacturer() {
-        return manufModelVersSerial.get().getA();
-    }
-
-    @Override
-    public String getModel() {
-        return manufModelVersSerial.get().getB();
-    }
-
-    @Override
-    public String getVersion() {
-        return manufModelVersSerial.get().getC();
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return manufModelVersSerial.get().getD();
-    }
-
-    private static Quartet<String, String, String, String> queryPlatform() {
+    protected Quartet<String, String, String, String> queryPlatform() {
         String manufacturer = null;
         String model = null;
         String version = null;

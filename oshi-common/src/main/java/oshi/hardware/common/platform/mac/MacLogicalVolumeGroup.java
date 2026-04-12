@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +16,10 @@ import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
 
-final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
+/**
+ * MacLogicalVolumeGroup class.
+ */
+public final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
     private static final String DISKUTIL_CS_LIST = "diskutil cs list";
     private static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
@@ -64,7 +67,8 @@ final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             }
         }
         return logicalVolumesMap.entrySet().stream()
-                .map(e -> new MacLogicalVolumeGroup(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))
+                .map(e -> new MacLogicalVolumeGroup(e.getKey(), e.getValue(),
+                        physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
                 .collect(Collectors.toList());
     }
 }

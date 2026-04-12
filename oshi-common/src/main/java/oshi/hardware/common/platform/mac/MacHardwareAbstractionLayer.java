@@ -2,17 +2,14 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.LogicalVolumeGroup;
-import oshi.hardware.Printer;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.common.platform.mac.MacSoundCard;
-import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * MacHardwareAbstractionLayer class.
@@ -28,10 +25,5 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     @Override
     public List<SoundCard> getSoundCards() {
         return MacSoundCard.getSoundCards();
-    }
-
-    @Override
-    public List<Printer> getPrinters() {
-        return UnixPrinter.getPrinters();
     }
 }

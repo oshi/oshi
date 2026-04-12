@@ -1,13 +1,16 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
-import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Native;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.common.platform.mac.MacVirtualMemory;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
 import oshi.jna.Struct.CloseableXswUsage;

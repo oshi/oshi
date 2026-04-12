@@ -15,8 +15,11 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.UnixPrinter;
 
 /**
  * MacHardwareAbstractionLayer JNA implementation.
@@ -26,7 +29,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new MacComputerSystem();
+        return new MacComputerSystemJNA();
     }
 
     @Override
@@ -41,7 +44,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public Sensors createSensors() {
-        return new MacSensors();
+        return new MacSensorsJNA();
     }
 
     @Override
@@ -71,6 +74,11 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return MacGraphicsCard.getGraphicsCards();
+        return MacGraphicsCardJNA.getGraphicsCards();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return UnixPrinter.getPrinters();
     }
 }

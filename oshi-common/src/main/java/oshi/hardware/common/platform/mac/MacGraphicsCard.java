@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,45 +10,24 @@ import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.GpuStats;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * Graphics card info obtained by system_profiler SPDisplaysDataType.
  */
 @ThreadSafe
-final class MacGraphicsCard extends AbstractGraphicsCard {
+public abstract class MacGraphicsCard extends AbstractGraphicsCard {
 
-    private static final boolean IS_APPLE_SILICON = "aarch64".equals(System.getProperty("os.arch"));
+    protected static final boolean IS_APPLE_SILICON = "aarch64".equals(System.getProperty("os.arch"));
 
-    /**
-     * Constructor for MacGraphicsCard
-     *
-     * @param name        The name
-     * @param deviceId    The device ID
-     * @param vendor      The vendor
-     * @param versionInfo The version info
-     * @param vram        The VRAM
-     */
-    MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
+    protected MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 
-    @Override
-    public GpuStats createStatsSession() {
-        return new MacGpuStats(IS_APPLE_SILICON, getName());
-    }
-
-    /**
-     * public method used by {@code AbstractHardwareAbstractionLayer} to access the graphics cards.
-     *
-     * @return List of {@link MacGraphicsCard} objects.
-     */
-    public static List<GraphicsCard> getGraphicsCards() {
+    protected static List<GraphicsCard> parseGraphicsCards(GraphicsCardFactory factory, SysctlLong sysctl) {
         List<GraphicsCard> cardList = new ArrayList<>();
         List<String> sp = ExecutingCommand.runNative("system_profiler SPDisplaysDataType");
         String name = Constants.UNKNOWN;
@@ -63,9 +42,9 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
                 String prefix = split[0].toLowerCase(Locale.ROOT);
                 if (prefix.equals("chipset model")) {
                     if (cardNum++ > 0) {
-                        cardList.add(new MacGraphicsCard(name, deviceId, vendor,
+                        cardList.add(factory.create(name, deviceId, vendor,
                                 versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                                resolveVram(vram, name)));
+                                resolveVram(vram, name, sysctl)));
                         deviceId = Constants.UNKNOWN;
                         vendor = Constants.UNKNOWN;
                         vram = 0;
@@ -84,20 +63,30 @@ final class MacGraphicsCard extends AbstractGraphicsCard {
             }
         }
         if (cardNum > 0) {
-            cardList.add(new MacGraphicsCard(name, deviceId, vendor,
+            cardList.add(factory.create(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    resolveVram(vram, name)));
+                    resolveVram(vram, name, sysctl)));
         }
         return cardList;
     }
 
-    private static long resolveVram(long parsedVram, String chipsetName) {
+    private static long resolveVram(long parsedVram, String chipsetName, SysctlLong sysctl) {
         if (parsedVram > 0) {
             return parsedVram;
         }
         if (chipsetName.contains("Apple")) {
-            return SysctlUtil.sysctl("hw.memsize", 0L);
+            return sysctl.get("hw.memsize", 0L);
         }
         return parsedVram;
+    }
+
+    @FunctionalInterface
+    protected interface GraphicsCardFactory {
+        GraphicsCard create(String name, String deviceId, String vendor, String versionInfo, long vram);
+    }
+
+    @FunctionalInterface
+    protected interface SysctlLong {
+        long get(String name, long defaultValue);
     }
 }

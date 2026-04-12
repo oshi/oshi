@@ -4,6 +4,13 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_TEMP;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE_AS;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_NUM;
+import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_SPEED;
+
 import java.util.Locale;
 
 import com.sun.jna.platform.mac.IOKit.IOConnect;
@@ -11,18 +18,12 @@ import com.sun.jna.platform.mac.IOKit.IOConnect;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.mac.SmcUtil;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_TEMP;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE_AS;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_NUM;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_SPEED;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
 
 /**
  * Sensors from SMC
  */
 @ThreadSafe
-final class MacSensors extends AbstractSensors {
+final class MacSensorsJNA extends AbstractSensors {
 
     private volatile int numFans = 0;
 
