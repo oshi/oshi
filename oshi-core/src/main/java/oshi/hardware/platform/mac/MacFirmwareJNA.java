@@ -34,67 +34,79 @@ final class MacFirmwareJNA extends MacFirmware {
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         byte[] data;
         if (platformExpert != null) {
-            IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
-            if (iter != null) {
-                IORegistryEntry entry = iter.next();
-                while (entry != null) {
-                    switch (entry.getName()) {
-                        case "rom":
-                            data = entry.getByteArrayProperty("vendor");
-                            if (data != null) {
-                                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+            try {
+                IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
+                if (iter != null) {
+                    try {
+                        IORegistryEntry entry = iter.next();
+                        while (entry != null) {
+                            try {
+                                String entryName = entry.getName();
+                                if (entryName != null) {
+                                    switch (entryName) {
+                                        case "rom":
+                                            data = entry.getByteArrayProperty("vendor");
+                                            if (data != null) {
+                                                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                                            }
+                                            data = entry.getByteArrayProperty("version");
+                                            if (data != null) {
+                                                version = Native.toString(data, StandardCharsets.UTF_8);
+                                            }
+                                            data = entry.getByteArrayProperty("release-date");
+                                            if (data != null) {
+                                                releaseDate = Native.toString(data, StandardCharsets.UTF_8);
+                                            }
+                                            break;
+                                        case "chosen":
+                                            data = entry.getByteArrayProperty("booter-name");
+                                            if (data != null) {
+                                                name = Native.toString(data, StandardCharsets.UTF_8);
+                                            }
+                                            break;
+                                        case "efi":
+                                            data = entry.getByteArrayProperty("firmware-abi");
+                                            if (data != null) {
+                                                description = Native.toString(data, StandardCharsets.UTF_8);
+                                            }
+                                            break;
+                                        default:
+                                            if (Util.isBlank(name)) {
+                                                name = entry.getStringProperty("IONameMatch");
+                                            }
+                                            break;
+                                    }
+                                }
+                            } finally {
+                                entry.release();
                             }
-                            data = entry.getByteArrayProperty("version");
-                            if (data != null) {
-                                version = Native.toString(data, StandardCharsets.UTF_8);
-                            }
-                            data = entry.getByteArrayProperty("release-date");
-                            if (data != null) {
-                                releaseDate = Native.toString(data, StandardCharsets.UTF_8);
-                            }
-                            break;
-                        case "chosen":
-                            data = entry.getByteArrayProperty("booter-name");
-                            if (data != null) {
-                                name = Native.toString(data, StandardCharsets.UTF_8);
-                            }
-                            break;
-                        case "efi":
-                            data = entry.getByteArrayProperty("firmware-abi");
-                            if (data != null) {
-                                description = Native.toString(data, StandardCharsets.UTF_8);
-                            }
-                            break;
-                        default:
-                            if (Util.isBlank(name)) {
-                                name = entry.getStringProperty("IONameMatch");
-                            }
-                            break;
+                            entry = iter.next();
+                        }
+                    } finally {
+                        iter.release();
                     }
-                    entry.release();
-                    entry = iter.next();
                 }
-                iter.release();
-            }
-            if (Util.isBlank(manufacturer)) {
-                data = platformExpert.getByteArrayProperty("manufacturer");
-                if (data != null) {
-                    manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                if (Util.isBlank(manufacturer)) {
+                    data = platformExpert.getByteArrayProperty("manufacturer");
+                    if (data != null) {
+                        manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                    }
                 }
-            }
-            if (Util.isBlank(version)) {
-                data = platformExpert.getByteArrayProperty("target-type");
-                if (data != null) {
-                    version = Native.toString(data, StandardCharsets.UTF_8);
+                if (Util.isBlank(version)) {
+                    data = platformExpert.getByteArrayProperty("target-type");
+                    if (data != null) {
+                        version = Native.toString(data, StandardCharsets.UTF_8);
+                    }
                 }
-            }
-            if (Util.isBlank(name)) {
-                data = platformExpert.getByteArrayProperty("device_type");
-                if (data != null) {
-                    name = Native.toString(data, StandardCharsets.UTF_8);
+                if (Util.isBlank(name)) {
+                    data = platformExpert.getByteArrayProperty("device_type");
+                    if (data != null) {
+                        name = Native.toString(data, StandardCharsets.UTF_8);
+                    }
                 }
+            } finally {
+                platformExpert.release();
             }
-            platformExpert.release();
         }
         return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(name) ? Constants.UNKNOWN : name,

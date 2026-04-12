@@ -4,6 +4,7 @@
  */
 package oshi.hardware.common.platform.mac;
 
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -24,7 +25,7 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
     private long currentQueueLength = 0L;
     private long transferTime = 0L;
     private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
+    private List<HWPartition> partitionList = Collections.emptyList();
 
     protected MacHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);

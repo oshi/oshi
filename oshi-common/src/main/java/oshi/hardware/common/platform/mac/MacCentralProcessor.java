@@ -101,16 +101,19 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             int family;
             if (isArmCpu) {
                 type = ARM_CPUTYPE;
-                int mSeries = ParseUtil.getFirstIntValue(cpuName);
-                switch (mSeries) {
-                    case 2:
-                        family = M2_CPUFAMILY;
-                        break;
-                    case 3:
-                        family = M3_CPUFAMILY;
-                        break;
-                    default:
-                        family = M1_CPUFAMILY;
+                family = sysctlInt("hw.cpufamily", 0);
+                if (family == 0) {
+                    int mSeries = ParseUtil.getFirstIntValue(cpuName);
+                    switch (mSeries) {
+                        case 2:
+                            family = M2_CPUFAMILY;
+                            break;
+                        case 3:
+                            family = M3_CPUFAMILY;
+                            break;
+                        default:
+                            family = M1_CPUFAMILY;
+                    }
                 }
             } else {
                 type = sysctlInt("hw.cputype", 0);
