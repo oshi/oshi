@@ -4,15 +4,12 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
-import oshi.hardware.common.AbstractFirmware;
+import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
 import oshi.util.platform.mac.IOKitUtilFFM;
@@ -22,37 +19,10 @@ import oshi.util.tuples.Quintet;
  * Firmware data obtained from ioreg.
  */
 @Immutable
-final class MacFirmwareFFM extends AbstractFirmware {
-
-    private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
-            MacFirmwareFFM::queryEfi);
+final class MacFirmwareFFM extends MacFirmware {
 
     @Override
-    public String getManufacturer() {
-        return manufNameDescVersRelease.get().getA();
-    }
-
-    @Override
-    public String getName() {
-        return manufNameDescVersRelease.get().getB();
-    }
-
-    @Override
-    public String getDescription() {
-        return manufNameDescVersRelease.get().getC();
-    }
-
-    @Override
-    public String getVersion() {
-        return manufNameDescVersRelease.get().getD();
-    }
-
-    @Override
-    public String getReleaseDate() {
-        return manufNameDescVersRelease.get().getE();
-    }
-
-    private static Quintet<String, String, String, String, String> queryEfi() {
+    protected Quintet<String, String, String, String, String> queryEfi() {
         String manufacturer = null;
         String name = null;
         String description = null;

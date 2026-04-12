@@ -26,7 +26,7 @@ final class MacComputerSystemJNA extends MacComputerSystem {
 
     @Override
     public Firmware createFirmware() {
-        return new MacFirmware();
+        return new MacFirmwareJNA();
     }
 
     @Override

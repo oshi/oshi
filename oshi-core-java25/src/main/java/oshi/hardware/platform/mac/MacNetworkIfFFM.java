@@ -29,11 +29,11 @@ import oshi.hardware.common.platform.mac.MacNetworkIF;
  * MacNetworks FFM implementation.
  */
 @ThreadSafe
-public final class MacNetworkIFFM extends MacNetworkIF {
+public final class MacNetworkIfFFM extends MacNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIFFM.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIfFFM.class);
 
-    public MacNetworkIFFM(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
+    public MacNetworkIfFFM(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint, queryIfDisplayName(netint));
         updateNetworkStats(data);
     }
@@ -75,7 +75,7 @@ public final class MacNetworkIFFM extends MacNetworkIF {
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new MacNetworkIFFM(ni, data));
+                ifList.add(new MacNetworkIfFFM(ni, data));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }

@@ -65,7 +65,7 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return MacNetworkIFFM.getNetworks(includeLocalInterfaces);
+        return MacNetworkIfFFM.getNetworks(includeLocalInterfaces);
     }
 
     @Override

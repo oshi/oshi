@@ -31,7 +31,7 @@ import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractHWDiskStore;
+import oshi.hardware.common.platform.mac.MacHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.platform.mac.CFUtilFFM;
 import oshi.util.platform.mac.IOKitUtilFFM;
@@ -40,63 +40,14 @@ import oshi.util.platform.mac.IOKitUtilFFM;
  * Mac hard disk FFM implementation.
  */
 @ThreadSafe
-public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
+public final class MacHWDiskStoreFFM extends MacHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStoreFFM.class);
-
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
 
     private MacHWDiskStoreFFM(String name, String model, String serial, long size, DASessionRef session,
             Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
         super(name, model, serial, size);
         updateDiskStats(session, mountPointMap, cfKeyMap);
-    }
-
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
     }
 
     @Override
@@ -154,23 +105,23 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                                 MemorySegment result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                                 if (!result.equals(MemorySegment.NULL)) {
                                     CFDictionaryRef statistics = new CFDictionaryRef(result);
-                                    this.timeStamp = System.currentTimeMillis();
+                                    setTimeStamp(System.currentTimeMillis());
 
                                     result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        this.reads = new CFNumberRef(result).longValue();
+                                        setReads(new CFNumberRef(result).longValue());
                                     }
                                     result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        this.readBytes = new CFNumberRef(result).longValue();
+                                        setReadBytes(new CFNumberRef(result).longValue());
                                     }
                                     result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        this.writes = new CFNumberRef(result).longValue();
+                                        setWrites(new CFNumberRef(result).longValue());
                                     }
                                     result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        this.writeBytes = new CFNumberRef(result).longValue();
+                                        setWriteBytes(new CFNumberRef(result).longValue());
                                     }
 
                                     MemorySegment readTimeResult = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
@@ -179,7 +130,7 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                                             && !writeTimeResult.equals(MemorySegment.NULL)) {
                                         long xferTime = new CFNumberRef(readTimeResult).longValue();
                                         xferTime += new CFNumberRef(writeTimeResult).longValue();
-                                        this.transferTime = xferTime / 1_000_000L;
+                                        setTransferTime(xferTime / 1_000_000L);
                                     }
                                 }
                             } finally {
@@ -273,8 +224,8 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
                             driveProps.release();
                         }
                     }
-                    this.partitionList = Collections.unmodifiableList(partitions.stream()
-                            .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+                    setPartitionList(Collections.unmodifiableList(partitions.stream()
+                            .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
                 } finally {
                     if (parent != null) {
                         parent.release();
@@ -427,26 +378,4 @@ public final class MacHWDiskStoreFFM extends AbstractHWDiskStore {
         return keyMap;
     }
 
-    private enum CFKey {
-        IO_PROPERTY_MATCH("IOPropertyMatch"), //
-
-        STATISTICS("Statistics"), //
-        READ_OPS("Operations (Read)"), READ_BYTES("Bytes (Read)"), READ_TIME("Total Time (Read)"), //
-        WRITE_OPS("Operations (Write)"), WRITE_BYTES("Bytes (Write)"), WRITE_TIME("Total Time (Write)"), //
-
-        BSD_UNIT("BSD Unit"), LEAF("Leaf"), WHOLE("Whole"), //
-
-        DA_MEDIA_NAME("DAMediaName"), DA_VOLUME_NAME("DAVolumeName"), DA_MEDIA_SIZE("DAMediaSize"), //
-        DA_DEVICE_MODEL("DADeviceModel"), MODEL("Model");
-
-        private final String key;
-
-        CFKey(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return this.key;
-        }
-    }
 }

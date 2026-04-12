@@ -28,11 +28,11 @@ import oshi.jna.platform.mac.SystemConfiguration.SCNetworkInterfaceRef;
  * MacNetworks JNA implementation.
  */
 @ThreadSafe
-public final class MacNetworkIFJNA extends MacNetworkIF {
+public final class MacNetworkIfJNA extends MacNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIFJNA.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIfJNA.class);
 
-    public MacNetworkIFJNA(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
+    public MacNetworkIfJNA(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint, queryIfDisplayName(netint));
         updateNetworkStats(data);
     }
@@ -71,7 +71,7 @@ public final class MacNetworkIFJNA extends MacNetworkIF {
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new MacNetworkIFJNA(ni, data));
+                ifList.add(new MacNetworkIfJNA(ni, data));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }

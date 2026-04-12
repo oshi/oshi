@@ -34,7 +34,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public CentralProcessor createProcessor() {
-        return new MacCentralProcessor();
+        return new MacCentralProcessorJNA();
     }
 
     @Override
@@ -54,7 +54,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return MacHWDiskStore.getDisks();
+        return MacHWDiskStoreJNA.getDisks();
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return MacNetworkIFJNA.getNetworks(includeLocalInterfaces);
+        return MacNetworkIfJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override

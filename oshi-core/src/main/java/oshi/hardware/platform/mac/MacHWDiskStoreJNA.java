@@ -36,7 +36,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.disk.Fsstat;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractHWDiskStore;
+import oshi.hardware.common.platform.mac.MacHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.platform.mac.CFUtil;
 
@@ -44,66 +44,17 @@ import oshi.util.platform.mac.CFUtil;
  * Mac hard disk implementation.
  */
 @ThreadSafe
-public final class MacHWDiskStore extends AbstractHWDiskStore {
+public final class MacHWDiskStoreJNA extends MacHWDiskStore {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final DiskArbitration DA = DiskArbitration.INSTANCE;
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStore.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStoreJNA.class);
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
-
-    private MacHWDiskStore(String name, String model, String serial, long size, DASessionRef session,
+    private MacHWDiskStoreJNA(String name, String model, String serial, long size, DASessionRef session,
             Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
         super(name, model, serial, size);
         updateDiskStats(session, mountPointMap, cfKeyMap);
-    }
-
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
     }
 
     @Override
@@ -152,22 +103,22 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                             // statistics we need on it. Fetch them
                             Pointer result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                             CFDictionaryRef statistics = new CFDictionaryRef(result);
-                            this.timeStamp = System.currentTimeMillis();
+                            setTimeStamp(System.currentTimeMillis());
 
                             // Now get the stats we want
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
                             CFNumberRef stat = new CFNumberRef(result);
-                            this.reads = stat.longValue();
+                            setReads(stat.longValue());
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
                             stat.setPointer(result);
-                            this.readBytes = stat.longValue();
+                            setReadBytes(stat.longValue());
 
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
                             stat.setPointer(result);
-                            this.writes = stat.longValue();
+                            setWrites(stat.longValue());
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
                             stat.setPointer(result);
-                            this.writeBytes = stat.longValue();
+                            setWriteBytes(stat.longValue());
 
                             // Total time is in nanoseconds. Add read+write
                             // and convert total to ms
@@ -179,7 +130,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                                 long xferTime = stat.longValue();
                                 stat.setPointer(writeTimeResult);
                                 xferTime += stat.longValue();
-                                this.transferTime = xferTime / 1_000_000L;
+                                setTransferTime(xferTime / 1_000_000L);
                             }
 
                             properties.release();
@@ -261,8 +212,8 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                             }
                             serviceIterator.release();
                         }
-                        this.partitionList = Collections.unmodifiableList(partitions.stream()
-                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+                        setPartitionList(Collections.unmodifiableList(partitions.stream()
+                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
                         if (parent != null) {
                             parent.release();
                         }
@@ -379,7 +330,7 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
                 if (size <= 0) {
                     continue;
                 }
-                HWDiskStore diskStore = new MacHWDiskStore(bsdName, model.trim(), serial.trim(), size, session,
+                HWDiskStore diskStore = new MacHWDiskStoreJNA(bsdName, model.trim(), serial.trim(), size, session,
                         mountPointMap, cfKeyMap);
                 diskList.add(diskStore);
             }
@@ -405,29 +356,4 @@ public final class MacHWDiskStore extends AbstractHWDiskStore {
         return keyMap;
     }
 
-    /*
-     * Strings to convert to CFStringRef for pointer lookups
-     */
-    private enum CFKey {
-        IO_PROPERTY_MATCH("IOPropertyMatch"), //
-
-        STATISTICS("Statistics"), //
-        READ_OPS("Operations (Read)"), READ_BYTES("Bytes (Read)"), READ_TIME("Total Time (Read)"), //
-        WRITE_OPS("Operations (Write)"), WRITE_BYTES("Bytes (Write)"), WRITE_TIME("Total Time (Write)"), //
-
-        BSD_UNIT("BSD Unit"), LEAF("Leaf"), WHOLE("Whole"), //
-
-        DA_MEDIA_NAME("DAMediaName"), DA_VOLUME_NAME("DAVolumeName"), DA_MEDIA_SIZE("DAMediaSize"), //
-        DA_DEVICE_MODEL("DADeviceModel"), MODEL("Model");
-
-        private final String key;
-
-        CFKey(String key) {
-            this.key = key;
-        }
-
-        public String getKey() {
-            return this.key;
-        }
-    }
 }
