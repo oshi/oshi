@@ -7,7 +7,6 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -27,9 +26,10 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
     protected long queryVmStats() {
         try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
                 CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
-            if (0 != SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    size)) {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+            int ret = SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    size);
+            if (0 != ret) {
+                LOG.error("Failed to get host VM info. Error code: {}", ret);
                 return 0L;
             }
             return (vmStats.free_count + vmStats.inactive_count) * getPageSize();
@@ -43,12 +43,14 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
 
     @Override
     protected long queryPageSize() {
+        int ret = -1;
         try (CloseableLongByReference pPageSize = new CloseableLongByReference()) {
-            if (0 == SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize)) {
+            ret = SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize);
+            if (0 == ret) {
                 return pPageSize.getValue();
             }
         }
-        LOG.error("Failed to get host page size. Error code: {}", Native.getLastError());
+        LOG.error("Failed to get host page size. Error code: {}", ret);
         return 4096L;
     }
 

@@ -7,8 +7,6 @@ package oshi.hardware.platform.mac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.mac.MacVirtualMemory;
 import oshi.jna.ByRef.CloseableIntByReference;
@@ -46,12 +44,13 @@ final class MacVirtualMemoryJNA extends MacVirtualMemory {
         long swapPagesOut = 0L;
         try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
                 CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
-            if (0 == SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    size)) {
+            int ret = SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
+                    size);
+            if (0 == ret) {
                 swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
                 swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);
             } else {
-                LOG.error("Failed to get host VM info. Error code: {}", Native.getLastError());
+                LOG.error("Failed to get host VM info. Error code: {}", ret);
             }
         }
         return new Pair<>(swapPagesIn, swapPagesOut);

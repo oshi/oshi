@@ -203,8 +203,9 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         int machPort = SystemB.INSTANCE.mach_host_self();
         try (CloseableHostCpuLoadInfo cpuLoadInfo = new CloseableHostCpuLoadInfo();
                 CloseableIntByReference size = new CloseableIntByReference(cpuLoadInfo.size())) {
-            if (0 != SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, size)) {
-                LOG.error("Failed to get System CPU ticks. Error code: {} ", Native.getLastError());
+            int ret = SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, size);
+            if (0 != ret) {
+                LOG.error("Failed to get System CPU ticks. Error code: {} ", ret);
                 return ticks;
             }
 
@@ -258,9 +259,10 @@ final class MacCentralProcessor extends AbstractCentralProcessor {
         try (CloseableIntByReference procCount = new CloseableIntByReference();
                 CloseablePointerByReference procCpuLoadInfo = new CloseablePointerByReference();
                 CloseableIntByReference procInfoCount = new CloseableIntByReference()) {
-            if (0 != SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
-                    procCpuLoadInfo, procInfoCount)) {
-                LOG.error("Failed to update CPU Load. Error code: {}", Native.getLastError());
+            int ret = SystemB.INSTANCE.host_processor_info(machPort, SystemB.PROCESSOR_CPU_LOAD_INFO, procCount,
+                    procCpuLoadInfo, procInfoCount);
+            if (0 != ret) {
+                LOG.error("Failed to update CPU Load. Error code: {}", ret);
                 return ticks;
             }
             try {
