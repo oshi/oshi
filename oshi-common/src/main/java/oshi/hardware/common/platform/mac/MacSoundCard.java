@@ -2,7 +2,7 @@
  * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.mac;
+package oshi.hardware.common.platform.mac;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import oshi.util.ParseUtil;
  * Sound card data obtained via AppleHDA kext
  */
 @Immutable
-final class MacSoundCard extends AbstractSoundCard {
+public final class MacSoundCard extends AbstractSoundCard {
 
     private static final String APPLE = "Apple Inc.";
 
@@ -28,7 +28,7 @@ final class MacSoundCard extends AbstractSoundCard {
      * @param name          The name
      * @param codec         The codec
      */
-    MacSoundCard(String kernelVersion, String name, String codec) {
+    public MacSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 

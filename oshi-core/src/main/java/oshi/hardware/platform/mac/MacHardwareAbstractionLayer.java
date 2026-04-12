@@ -11,6 +11,7 @@ import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.Printer;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.mac.MacSoundCard;
 import oshi.hardware.platform.unix.UnixPrinter;
 
 /**

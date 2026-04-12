@@ -39,11 +39,12 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.ThreadInfo;
+import oshi.driver.common.mac.ThreadInfo;
 import oshi.jna.Struct.CloseableProcTaskAllInfo;
 import oshi.jna.Struct.CloseableRUsageInfoV2;
 import oshi.jna.Struct.CloseableVnodePathInfo;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.mac.MacOSThread;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;

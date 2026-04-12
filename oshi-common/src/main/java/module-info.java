@@ -5,14 +5,17 @@
 module com.github.oshi.common {
     exports oshi.annotation;
     exports oshi.annotation.concurrent;
+    exports oshi.driver.common.mac;
     exports oshi.driver.common.windows.perfmon;
     exports oshi.hardware;
     exports oshi.hardware.common;
     exports oshi.hardware.common.platform.linux;
+    exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.windows;
     exports oshi.software.common;
     exports oshi.software.common.os.linux;
+    exports oshi.software.common.os.mac;
     exports oshi.software.common.os.windows;
     exports oshi.software.os;
     exports oshi.util;

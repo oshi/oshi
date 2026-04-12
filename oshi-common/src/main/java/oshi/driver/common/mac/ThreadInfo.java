@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.mac;
+package oshi.driver.common.mac;
 
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -77,25 +77,25 @@ public final class ThreadInfo {
             // so: uptime = user+system / cpu/100
             this.upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005));
             switch (state) {
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
+                case 'I':
+                case 'S':
+                    this.state = SLEEPING;
+                    break;
+                case 'U':
+                    this.state = WAITING;
+                    break;
+                case 'R':
+                    this.state = RUNNING;
+                    break;
+                case 'Z':
+                    this.state = ZOMBIE;
+                    break;
+                case 'T':
+                    this.state = STOPPED;
+                    break;
+                default:
+                    this.state = OTHER;
+                    break;
             }
             this.priority = pri;
         }

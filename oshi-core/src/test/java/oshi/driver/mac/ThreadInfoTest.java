@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.SystemInfo;
+import oshi.driver.common.mac.ThreadInfo;
 
 @EnabledOnOs(OS.MAC)
 class ThreadInfoTest {
