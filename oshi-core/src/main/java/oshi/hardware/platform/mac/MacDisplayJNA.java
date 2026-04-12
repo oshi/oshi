@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -26,18 +26,18 @@ import oshi.hardware.common.AbstractDisplay;
  * A Display
  */
 @Immutable
-final class MacDisplay extends AbstractDisplay {
+final class MacDisplayJNA extends AbstractDisplay {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacDisplay.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacDisplayJNA.class);
 
     /**
-     * Constructor for MacDisplay.
+     * Constructor for MacDisplayJNA.
      *
      * @param edid a byte array representing a display EDID
      */
-    MacDisplay(byte[] edid) {
+    MacDisplayJNA(byte[] edid) {
         super(edid);
-        LOG.debug("Initialized MacDisplay");
+        LOG.debug("Initialized MacDisplayJNA");
     }
 
     /**
@@ -84,7 +84,7 @@ final class MacDisplay extends AbstractDisplay {
                                 // EDID is a byte array of 128 bytes (or more)
                                 int length = edid.getLength();
                                 Pointer p = edid.getBytePtr();
-                                displays.add(new MacDisplay(p.getByteArray(0, length)));
+                                displays.add(new MacDisplayJNA(p.getByteArray(0, length)));
                             } finally {
                                 edid.release();
                             }

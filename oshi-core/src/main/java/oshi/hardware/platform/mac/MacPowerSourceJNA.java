@@ -22,7 +22,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
-import oshi.hardware.common.AbstractPowerSource;
+import oshi.hardware.common.platform.mac.MacPowerSource;
 import oshi.util.Constants;
 import oshi.util.platform.mac.CFUtil;
 
@@ -30,12 +30,12 @@ import oshi.util.platform.mac.CFUtil;
  * A Power Source
  */
 @ThreadSafe
-public final class MacPowerSource extends AbstractPowerSource {
+public final class MacPowerSourceJNA extends MacPowerSource {
 
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
     private static final IOKit IO = IOKit.INSTANCE;
 
-    public MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+    public MacPowerSourceJNA(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
@@ -211,7 +211,7 @@ public final class MacPowerSource extends AbstractPowerSource {
                     double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
                             : Math.min(1d, currentCapacity / maxCapacity);
                     // Add to list
-                    psList.add(new MacPowerSource(psName, psDeviceName, psRemainingCapacityPercent,
+                    psList.add(new MacPowerSourceJNA(psName, psDeviceName, psRemainingCapacityPercent,
                             psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage,
                             psPowerOnLine, psCharging, psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity,
                             psDesignCapacity, psCycleCount, psChemistry, psManufactureDate, psManufacturer,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
@@ -20,31 +20,19 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.net.NetStat;
 import oshi.driver.mac.net.NetStat.IFdata;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworkIF;
+import oshi.hardware.common.platform.mac.MacNetworkIF;
 import oshi.jna.platform.mac.SystemConfiguration;
 import oshi.jna.platform.mac.SystemConfiguration.SCNetworkInterfaceRef;
 
 /**
- * MacNetworks class.
+ * MacNetworks JNA implementation.
  */
 @ThreadSafe
-public final class MacNetworkIF extends AbstractNetworkIF {
+public final class MacNetworkIFJNA extends MacNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIF.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIFJNA.class);
 
-    private int ifType;
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
-
-    public MacNetworkIF(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
+    public MacNetworkIFJNA(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint, queryIfDisplayName(netint));
         updateNetworkStats(data);
     }
@@ -79,12 +67,11 @@ public final class MacNetworkIF extends AbstractNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        // One time fetch of stats
         final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new MacNetworkIF(ni, data));
+                ifList.add(new MacNetworkIFJNA(ni, data));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }
@@ -93,92 +80,28 @@ public final class MacNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public int getIfType() {
-        return this.ifType;
-    }
-
-    @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public boolean updateAttributes() {
         int index = queryNetworkInterface().getIndex();
         return updateNetworkStats(NetStat.queryIFdata(index));
     }
 
-    /**
-     * Updates interface network statistics on the given interface. Statistics include packets and bytes sent and
-     * received, and interface speed.
-     *
-     * @param data A map of network interface statistics with the index as the key
-     * @return {@code true} if the update was successful, {@code false} otherwise.
-     */
     private boolean updateNetworkStats(Map<Integer, IFdata> data) {
         int index = queryNetworkInterface().getIndex();
         if (data.containsKey(index)) {
             IFdata ifData = data.get(index);
-            // Update data
-            this.ifType = ifData.getIfType();
-            this.bytesSent = ifData.getOBytes();
-            this.bytesRecv = ifData.getIBytes();
-            this.packetsSent = ifData.getOPackets();
-            this.packetsRecv = ifData.getIPackets();
-            this.outErrors = ifData.getOErrors();
-            this.inErrors = ifData.getIErrors();
-            this.collisions = ifData.getCollisions();
-            this.inDrops = ifData.getIDrops();
-            this.speed = ifData.getSpeed();
-            this.timeStamp = ifData.getTimeStamp();
+            setIfType(ifData.getIfType());
+            setBytesSent(ifData.getOBytes());
+            setBytesRecv(ifData.getIBytes());
+            setPacketsSent(ifData.getOPackets());
+            setPacketsRecv(ifData.getIPackets());
+            setOutErrors(ifData.getOErrors());
+            setInErrors(ifData.getIErrors());
+            setCollisions(ifData.getCollisions());
+            setInDrops(ifData.getIDrops());
+            setSpeed(ifData.getSpeed());
+            setTimeStamp(ifData.getTimeStamp());
             return true;
         }
         return false;
     }
-
 }

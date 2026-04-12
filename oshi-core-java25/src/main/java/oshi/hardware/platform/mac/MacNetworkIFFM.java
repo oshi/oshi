@@ -23,27 +23,15 @@ import oshi.driver.mac.net.NetStat.IFdata;
 import oshi.ffm.mac.CoreFoundation.CFArrayRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.hardware.NetworkIF;
-import oshi.hardware.common.AbstractNetworkIF;
+import oshi.hardware.common.platform.mac.MacNetworkIF;
 
 /**
  * MacNetworks FFM implementation.
  */
 @ThreadSafe
-public final class MacNetworkIFFM extends AbstractNetworkIF {
+public final class MacNetworkIFFM extends MacNetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIFFM.class);
-
-    private int ifType;
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
 
     public MacNetworkIFFM(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint, queryIfDisplayName(netint));
@@ -96,61 +84,6 @@ public final class MacNetworkIFFM extends AbstractNetworkIF {
     }
 
     @Override
-    public int getIfType() {
-        return this.ifType;
-    }
-
-    @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public boolean updateAttributes() {
         int index = queryNetworkInterface().getIndex();
         return updateNetworkStats(NetStat.queryIFdata(index));
@@ -160,17 +93,17 @@ public final class MacNetworkIFFM extends AbstractNetworkIF {
         int index = queryNetworkInterface().getIndex();
         if (data.containsKey(index)) {
             IFdata ifData = data.get(index);
-            this.ifType = ifData.getIfType();
-            this.bytesSent = ifData.getOBytes();
-            this.bytesRecv = ifData.getIBytes();
-            this.packetsSent = ifData.getOPackets();
-            this.packetsRecv = ifData.getIPackets();
-            this.outErrors = ifData.getOErrors();
-            this.inErrors = ifData.getIErrors();
-            this.collisions = ifData.getCollisions();
-            this.inDrops = ifData.getIDrops();
-            this.speed = ifData.getSpeed();
-            this.timeStamp = ifData.getTimeStamp();
+            setIfType(ifData.getIfType());
+            setBytesSent(ifData.getOBytes());
+            setBytesRecv(ifData.getIBytes());
+            setPacketsSent(ifData.getOPackets());
+            setPacketsRecv(ifData.getIPackets());
+            setOutErrors(ifData.getOErrors());
+            setInErrors(ifData.getIErrors());
+            setCollisions(ifData.getCollisions());
+            setInDrops(ifData.getIDrops());
+            setSpeed(ifData.getSpeed());
+            setTimeStamp(ifData.getTimeStamp());
             return true;
         }
         return false;

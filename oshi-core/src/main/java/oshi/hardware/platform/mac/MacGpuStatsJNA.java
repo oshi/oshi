@@ -8,6 +8,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -17,9 +20,6 @@ import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClient;
@@ -42,9 +42,9 @@ import oshi.util.platform.mac.SmcUtil;
  * Clock speeds, fan speed, and shared memory are not available on any macOS path and always return -1.
  */
 @ThreadSafe
-final class MacGpuStats implements GpuStats {
+final class MacGpuStatsJNA implements GpuStats {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStats.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStatsJNA.class);
     private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private static final String PERF_STATS_KEY = "PerformanceStatistics";
@@ -63,7 +63,7 @@ final class MacGpuStats implements GpuStats {
 
     private boolean closed;
 
-    MacGpuStats(boolean isAppleSilicon, String cardName) {
+    MacGpuStatsJNA(boolean isAppleSilicon, String cardName) {
         this.isAppleSilicon = isAppleSilicon;
         this.cardName = cardName;
         this.ioReportClient = isAppleSilicon ? IOReportClient.create() : null;

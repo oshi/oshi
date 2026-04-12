@@ -49,7 +49,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return MacPowerSource.getPowerSources();
+        return MacPowerSourceJNA.getPowerSources();
     }
 
     @Override
@@ -59,12 +59,12 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<Display> getDisplays() {
-        return MacDisplay.getDisplays();
+        return MacDisplayJNA.getDisplays();
     }
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return MacNetworkIF.getNetworks(includeLocalInterfaces);
+        return MacNetworkIFJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override

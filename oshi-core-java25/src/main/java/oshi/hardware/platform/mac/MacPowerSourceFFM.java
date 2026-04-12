@@ -24,7 +24,7 @@ import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOService;
 import oshi.hardware.PowerSource;
-import oshi.hardware.common.AbstractPowerSource;
+import oshi.hardware.common.platform.mac.MacPowerSource;
 import oshi.util.Constants;
 import oshi.util.platform.mac.CFUtilFFM;
 import oshi.util.platform.mac.IOKitUtilFFM;
@@ -33,7 +33,7 @@ import oshi.util.platform.mac.IOKitUtilFFM;
  * A Power Source
  */
 @ThreadSafe
-public final class MacPowerSourceFFM extends AbstractPowerSource {
+public final class MacPowerSourceFFM extends MacPowerSource {
 
     public MacPowerSourceFFM(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,

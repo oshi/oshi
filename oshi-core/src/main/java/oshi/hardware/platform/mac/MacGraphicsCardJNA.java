@@ -24,7 +24,7 @@ final class MacGraphicsCardJNA extends MacGraphicsCard {
 
     @Override
     public GpuStats createStatsSession() {
-        return new MacGpuStats(IS_APPLE_SILICON, getName());
+        return new MacGpuStatsJNA(IS_APPLE_SILICON, getName());
     }
 
     public static List<GraphicsCard> getGraphicsCards() {
