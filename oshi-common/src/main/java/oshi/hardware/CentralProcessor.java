@@ -20,6 +20,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -27,6 +28,33 @@ import oshi.util.Util;
  * This class represents the entire Central Processing Unit (CPU) of a computer system, which may contain one or more
  * physical packages (sockets), one or more physical processors (cores), and one or more logical processors (what the
  * Operating System sees, which may include hyperthreaded cores.)
+ * <p>
+ * <b>Getting CPU usage as a percentage:</b> CPU usage is calculated by comparing tick counters at two points in time.
+ * OSHI provides convenience methods that handle the timing internally, or you can manage the polling yourself for
+ * non-blocking updates:
+ *
+ * <pre>{@code
+ * CentralProcessor cpu = new SystemInfo().getHardware().getProcessor();
+ *
+ * // Option 1: Convenience method (blocks for the specified delay)
+ * double cpuLoad = cpu.getSystemCpuLoad(1000L); // 1-second sample
+ * System.out.printf("CPU Load: %.1f%%%n", cpuLoad * 100);
+ *
+ * // Option 2: Manual polling (non-blocking, suitable for periodic monitoring)
+ * long[] prevTicks = cpu.getSystemCpuLoadTicks();
+ * // ... wait or do other work ...
+ * double load = cpu.getSystemCpuLoadBetweenTicks(prevTicks);
+ * }</pre>
+ *
+ * <b>Platform notes:</b>
+ * <ul>
+ * <li>On Windows 8+, the Task Manager displays "Processor Utility" rather than "Processor Time". OSHI defaults to
+ * Processor Time (matching Unix behavior). To match the Task Manager, set
+ * {@link GlobalConfig#OSHI_OS_WINDOWS_CPU_UTILITY} to {@code true}. Note that Processor Utility can exceed 100% due to
+ * turbo boost; OSHI does not cap the value.</li>
+ * <li>CPU usage precision depends on the polling interval relative to the system clock tick granularity and the number
+ * of logical processors. A polling interval of at least one second is recommended.</li>
+ * </ul>
  */
 @ThreadSafe
 public interface CentralProcessor {
@@ -122,6 +150,19 @@ public interface CentralProcessor {
      * This method is equivalent to calling {@link #getSystemCpuLoadTicks()} and passing those ticks to
      * {@link #getSystemCpuLoadBetweenTicks(long[], long[])} along with a previous set of ticks.
      * <p>
+     * This is the recommended approach for non-blocking periodic monitoring. Store the tick array from one call and
+     * pass it on the next iteration:
+     *
+     * <pre>{@code
+     * long[] prevTicks = new long[TickType.values().length];
+     * while (monitoring) {
+     *     double load = cpu.getSystemCpuLoadBetweenTicks(prevTicks);
+     *     prevTicks = cpu.getSystemCpuLoadTicks();
+     *     System.out.printf("CPU: %.1f%%%n", load * 100);
+     *     Thread.sleep(1000);
+     * }
+     * }</pre>
+     *
      * On some operating systems with variable numbers of logical processors, the size of the array returned from a
      * previous call to {@link #getSystemCpuLoadTicks()} could change and will throw an
      * {@link IllegalArgumentException}. Calling code on these operating systems should handle this exception.
@@ -195,8 +236,16 @@ public interface CentralProcessor {
 
     /**
      * This is a convenience method which collects an initial set of ticks using {@link #getSystemCpuLoadTicks()} and
-     * passes that result to {@link #getSystemCpuLoadBetweenTicks(long[])} after the specified delay.
+     * passes that result to {@link #getSystemCpuLoadBetweenTicks(long[])} after the specified delay. This is the
+     * simplest way to get a CPU usage percentage:
      *
+     * <pre>{@code
+     * double cpuLoad = cpu.getSystemCpuLoad(1000L);
+     * System.out.printf("CPU: %.1f%%%n", cpuLoad * 100);
+     * }</pre>
+     *
+     * Note that this method blocks the calling thread for the specified delay. For non-blocking periodic monitoring,
+     * use {@link #getSystemCpuLoadBetweenTicks(long[])} with your own tick storage instead.
      *
      * @param delay Milliseconds to wait.
      * @return value between 0 and 1 (100%) that represents the cpu usage in the provided time period.
@@ -214,7 +263,18 @@ public interface CentralProcessor {
 
     /**
      * This is a convenience method which collects an initial set of ticks using {@link #getProcessorCpuLoadTicks()} and
-     * passes that result to {@link #getProcessorCpuLoadBetweenTicks(long[][])} after the specified delay.
+     * passes that result to {@link #getProcessorCpuLoadBetweenTicks(long[][])} after the specified delay. This is the
+     * simplest way to get per-processor CPU usage:
+     *
+     * <pre>{@code
+     * double[] perCpuLoad = cpu.getProcessorCpuLoad(1000L);
+     * for (int i = 0; i < perCpuLoad.length; i++) {
+     *     System.out.printf("CPU %d: %.1f%%%n", i, perCpuLoad[i] * 100);
+     * }
+     * }</pre>
+     *
+     * Note that this method blocks the calling thread for the specified delay. For non-blocking periodic monitoring,
+     * use {@link #getProcessorCpuLoadBetweenTicks(long[][])} with your own tick storage instead.
      * <p>
      * On some operating systems with variable numbers of logical processors, the size of the array returned from the
      * two calls could change and will throw an {@link IllegalArgumentException}. Calling code on these operating
