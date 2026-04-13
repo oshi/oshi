@@ -496,7 +496,10 @@ class NativeComparisonTest {
         for (OSProcess j : jnaSorted) {
             OSProcess f = ffmByPid.get(j.getProcessID());
             if (f != null) {
-                assertThat(f.getName()).as("process[%d].name", j.getProcessID()).isEqualTo(j.getName());
+                // Kernel worker threads (kworker) are renamed dynamically based on current work; skip name check
+                if (!j.getName().startsWith("kworker/")) {
+                    assertThat(f.getName()).as("process[%d].name", j.getProcessID()).isEqualTo(j.getName());
+                }
                 assertThat(f.getStartTime()).as("process[%d].startTime", j.getProcessID()).isEqualTo(j.getStartTime());
             }
         }
