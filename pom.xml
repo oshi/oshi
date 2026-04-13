@@ -804,10 +804,6 @@
                         <exclude>**/Abstract*</exclude>
                         <exclude>**/annotation/**</exclude>
                         <exclude>**/jna/**</exclude>
-                        <exclude>**/platform/**</exclude>
-                        <exclude>**/linux/**</exclude>
-                        <exclude>**/mac/**</exclude>
-                        <exclude>**/windows/**</exclude>
                         <exclude>**/unix/**</exclude>
                         <exclude>**/demo/**</exclude>
                     </excludes>

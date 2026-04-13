@@ -15,6 +15,10 @@
 --add-opens
   com.github.oshi.common/oshi.util.driver.linux.proc=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.util=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.util.tuples=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.util.driver.unix=org.junit.platform.commons
 
 --add-modules

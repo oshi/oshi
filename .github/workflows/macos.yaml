@@ -36,7 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Coverage
-        if: contains(matrix.java, '11') && contains(matrix.os, 'macos-13')
+        if: contains(matrix.java, '25') && contains(matrix.os, 'macos-15')
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          flags: macos
