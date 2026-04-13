@@ -7,6 +7,7 @@ package oshi.hardware;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OSFileStore;
 
 /**
  * A storage mechanism where data are recorded by various electronic, magnetic, optical, or mechanical changes to a
@@ -14,9 +15,29 @@ import oshi.annotation.concurrent.ThreadSafe;
  * constrast to a File System, defining the way an Operating system uses the storage, the Disk Store represents the
  * hardware which a FileSystem uses for its File Stores.
  * <p>
+ * Each disk store contains a list of {@link HWPartition} objects. Partitions that are mounted have a
+ * {@link HWPartition#getMountPoint()} value that can be correlated with {@link OSFileStore#getMount()} to link hardware
+ * partitions to their corresponding file stores.
+ * <p>
+ * Example: finding the disk store and partition for a given file path:
+ *
+ * <pre>{@code
+ * String filePath = "/home/user/data.txt";
+ * for (HWDiskStore disk : hal.getDiskStores()) {
+ *     for (HWPartition part : disk.getPartitions()) {
+ *         if (!part.getMountPoint().isEmpty() && filePath.startsWith(part.getMountPoint())) {
+ *             System.out.printf("File is on disk %s, partition %s%n", disk.getName(), part.getName());
+ *         }
+ *     }
+ * }
+ * }</pre>
+ *
  * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
  * {@link #updateAttributes()} method may update attributes, including the time stamp, and should externally synchronize
  * such usage to ensure consistent calculations.
+ *
+ * @see HWPartition
+ * @see OSFileStore
  */
 @ThreadSafe
 public interface HWDiskStore {

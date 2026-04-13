@@ -45,8 +45,9 @@ public interface HardwareAbstractionLayer {
     List<PowerSource> getPowerSources();
 
     /**
-     * Instantiates a list of {@link oshi.hardware.HWDiskStore} objects, representing physical hard disks or other
-     * similar storage devices.
+     * Instantiates a list of {@link HWDiskStore} objects, representing physical hard disks or other similar storage
+     * devices. Each disk store contains {@link HWDiskStore#getPartitions() partitions} whose mount points can be
+     * correlated with {@link oshi.software.os.OSFileStore#getMount()} to link hardware to file systems.
      *
      * @return A list of HWDiskStore objects or an empty list if none are present.
      */

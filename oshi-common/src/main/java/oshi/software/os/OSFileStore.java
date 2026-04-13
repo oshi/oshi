@@ -5,11 +5,20 @@
 package oshi.software.os;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 
 /**
  * A FileStore represents a storage pool, device, partition, volume, concrete file system or other implementation
  * specific means of file storage. This object carries the same interpretation as core Java's
  * {@link java.nio.file.FileStore} class, with additional information.
+ * <p>
+ * File stores are obtained from the {@link FileSystem#getFileStores()} method. The {@link #getMount()} value can be
+ * correlated with {@link HWPartition#getMountPoint()} to link file stores to their underlying hardware partitions and
+ * disk stores.
+ *
+ * @see HWDiskStore
+ * @see HWPartition
  */
 @ThreadSafe
 public interface OSFileStore {
