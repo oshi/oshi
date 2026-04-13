@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -24,10 +24,10 @@ public final class PerfmonDisabled {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerfmonDisabled.class);
 
-    public static final boolean PERF_OS_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFOS_DIABLED, "PerfOS");
-    public static final boolean PERF_PROC_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFPROC_DIABLED,
+    public static final boolean PERF_OS_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFOS_DISABLED, "PerfOS");
+    public static final boolean PERF_PROC_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFPROC_DISABLED,
             "PerfProc");
-    public static final boolean PERF_DISK_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFDISK_DIABLED,
+    public static final boolean PERF_DISK_DISABLED = isDisabled(GlobalConfig.OSHI_OS_WINDOWS_PERFDISK_DISABLED,
             "PerfDisk");
 
     /**

@@ -8,12 +8,13 @@
  * To build a native-free OSHI implementation:
  * <ol>
  * <li>Depend on this module only (Maven: {@code com.github.oshi:oshi-common}).</li>
- * <li>Extend the abstract base classes in {@code oshi.hardware.common} and {@code oshi.software.common}. These provide
- * default implementations for many methods; subclasses override the {@code protected abstract query*()} methods with
- * platform-specific logic using command-line tools ({@code oshi.util.ExecutingCommand}), {@code /proc} file parsing
- * ({@code oshi.util.FileUtil}, {@code oshi.util.ProcUtil}), or other non-native techniques.</li>
- * <li>Wire the implementations together via a concrete {@code AbstractHardwareAbstractionLayer} subclass that returns
- * your implementations from its {@code create*()} factory methods.</li>
+ * <li>Extend the abstract base classes in {@code oshi.hardware.common} and {@code oshi.software.common}. For hardware,
+ * subclass {@code AbstractHardwareAbstractionLayer} and override its {@code protected abstract create*()} factory
+ * methods to return your platform-specific implementations. For software and individual components (e.g.,
+ * {@code AbstractOperatingSystem}, {@code AbstractCentralProcessor}, {@code AbstractSensors}), override the
+ * {@code protected abstract query*()} methods with platform-specific logic using command-line tools
+ * ({@code oshi.util.ExecutingCommand}), {@code /proc} file parsing ({@code oshi.util.FileUtil},
+ * {@code oshi.util.ProcUtil}), or other non-native techniques.</li>
  * </ol>
  */
 module com.github.oshi.common {

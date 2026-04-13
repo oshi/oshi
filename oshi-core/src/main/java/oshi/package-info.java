@@ -30,12 +30,12 @@
  * {@code /proc} and other OS-provided text files, executing system commands, and formatting output. To use it:
  * <ol>
  * <li>Depend on the {@code oshi-common} artifact only (Maven: {@code com.github.oshi:oshi-common}).</li>
- * <li>Extend the abstract base classes in {@code oshi.hardware.common} and {@code oshi.software.common} (e.g.,
- * {@link oshi.hardware.common.AbstractCentralProcessor}, {@link oshi.software.common.AbstractOperatingSystem}). These
- * provide default implementations for many methods; subclasses override the {@code protected abstract query*()} methods
- * with platform-specific logic using command-line tools, {@code /proc} parsing, or other non-native techniques.</li>
- * <li>Wire the implementations together via a concrete {@link oshi.hardware.common.AbstractHardwareAbstractionLayer}
- * subclass that returns your implementations from its {@code create*()} factory methods.</li>
+ * <li>Extend the abstract base classes in {@code oshi.hardware.common} and {@code oshi.software.common}. For hardware,
+ * subclass {@link oshi.hardware.common.AbstractHardwareAbstractionLayer} and override its
+ * {@code protected abstract create*()} factory methods to return your platform-specific implementations. For software
+ * and individual components (e.g., {@link oshi.software.common.AbstractOperatingSystem},
+ * {@link oshi.hardware.common.AbstractCentralProcessor}), override the {@code protected abstract query*()} methods with
+ * platform-specific logic using command-line tools, {@code /proc} parsing, or other non-native techniques.</li>
  * </ol>
  * This approach trades some coverage (not all information is available without native access) for compatibility with
  * restricted JVM environments.

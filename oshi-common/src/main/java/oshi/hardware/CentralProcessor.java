@@ -156,6 +156,7 @@ public interface CentralProcessor {
      * <pre>{@code
      * long[] prevTicks = new long[TickType.values().length];
      * while (monitoring) {
+     *     // First iteration's load is cumulative since boot; subsequent iterations reflect the interval
      *     double load = cpu.getSystemCpuLoadBetweenTicks(prevTicks);
      *     prevTicks = cpu.getSystemCpuLoadTicks();
      *     System.out.printf("CPU: %.1f%%%n", load * 100);
