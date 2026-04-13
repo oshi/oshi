@@ -307,16 +307,11 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     }
 
     private static BsdTcpstat queryTcpstat() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buffer = arena.allocate(128);
-            if (SysctlUtilFFM.sysctl("net.inet.tcp.stats", buffer)) {
-                return new BsdTcpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 12),
-                        buffer.get(JAVA_INT, 16), buffer.get(JAVA_INT, 64), buffer.get(JAVA_INT, 72),
-                        buffer.get(JAVA_INT, 104), buffer.get(JAVA_INT, 112), buffer.get(JAVA_INT, 116),
-                        buffer.get(JAVA_INT, 120), buffer.get(JAVA_INT, 124)
-
-                );
-            }
+        MemorySegment m = SysctlUtilFFM.sysctl("net.inet.tcp.stats");
+        if (m != null && m.byteSize() >= 128) {
+            return new BsdTcpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 12), m.get(JAVA_INT, 16),
+                    m.get(JAVA_INT, 64), m.get(JAVA_INT, 72), m.get(JAVA_INT, 104), m.get(JAVA_INT, 112),
+                    m.get(JAVA_INT, 116), m.get(JAVA_INT, 120), m.get(JAVA_INT, 124));
         }
         return new BsdTcpstat(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
@@ -335,13 +330,10 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     }
 
     private static BsdUdpstat queryUdpstat() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buffer = arena.allocate(84);
-            if (SysctlUtilFFM.sysctl("net.inet.udp.stats", buffer)) {
-                return new BsdUdpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 8),
-                        buffer.get(JAVA_INT, 12), buffer.get(JAVA_INT, 36), buffer.get(JAVA_INT, 48),
-                        buffer.get(JAVA_INT, 64), buffer.get(JAVA_INT, 80));
-            }
+        MemorySegment m = SysctlUtilFFM.sysctl("net.inet.udp.stats");
+        if (m != null && m.byteSize() >= 84) {
+            return new BsdUdpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
+                    m.get(JAVA_INT, 36), m.get(JAVA_INT, 48), m.get(JAVA_INT, 64), m.get(JAVA_INT, 80));
         }
         return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0);
     }
@@ -359,13 +351,10 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     }
 
     private static BsdIpstat queryIpstat() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buffer = arena.allocate(60);
-            if (SysctlUtilFFM.sysctl("net.inet.ip.stats", buffer)) {
-                return new BsdIpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 8),
-                        buffer.get(JAVA_INT, 12), buffer.get(JAVA_INT, 16), buffer.get(JAVA_INT, 20),
-                        buffer.get(JAVA_INT, 56));
-            }
+        MemorySegment m = SysctlUtilFFM.sysctl("net.inet.ip.stats");
+        if (m != null && m.byteSize() >= 60) {
+            return new BsdIpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
+                    m.get(JAVA_INT, 16), m.get(JAVA_INT, 20), m.get(JAVA_INT, 56));
         }
         return new BsdIpstat(0, 0, 0, 0, 0, 0, 0);
     }
@@ -378,11 +367,9 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     }
 
     private static BsdIp6stat queryIp6stat() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buffer = arena.allocate(96);
-            if (SysctlUtilFFM.sysctl("net.inet6.ip6.stats", buffer)) {
-                return new BsdIp6stat(buffer.get(JAVA_LONG, 0), buffer.get(JAVA_LONG, 88));
-            }
+        MemorySegment m = SysctlUtilFFM.sysctl("net.inet6.ip6.stats");
+        if (m != null && m.byteSize() >= 96) {
+            return new BsdIp6stat(m.get(JAVA_LONG, 0), m.get(JAVA_LONG, 88));
         }
         return new BsdIp6stat(0, 0);
     }

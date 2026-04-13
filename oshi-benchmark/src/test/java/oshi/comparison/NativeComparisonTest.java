@@ -32,6 +32,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.VirtualMemory;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -469,8 +470,11 @@ class NativeComparisonTest {
 
     @Test
     void installedApplications() {
-        assertThat(ffmOs.getInstalledApplications()).usingRecursiveComparison()
-                .isEqualTo(jnaOs.getInstalledApplications());
+        List<ApplicationInfo> jna = jnaOs.getInstalledApplications().stream()
+                .sorted(Comparator.comparing(ApplicationInfo::toString)).collect(Collectors.toList());
+        List<ApplicationInfo> ffm = ffmOs.getInstalledApplications().stream()
+                .sorted(Comparator.comparing(ApplicationInfo::toString)).collect(Collectors.toList());
+        assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
     }
 
     // ---- OS: Processes (structural) ----
