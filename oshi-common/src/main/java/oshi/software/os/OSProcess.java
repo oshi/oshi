@@ -11,6 +11,26 @@ import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Represents a Process on the operating system, which may contain multiple threads.
+ * <p>
+ * <b>Getting process CPU usage:</b> Process CPU usage is calculated by comparing a previous snapshot of the same
+ * process. Use {@link OperatingSystem#getProcess(int)} to obtain snapshots at different times:
+ *
+ * <pre>{@code
+ * OperatingSystem os = si.getOperatingSystem(); // si is a SystemInfo instance
+ * OSProcess prev = os.getProcess(pid);
+ * // ... wait at least a few seconds ...
+ * OSProcess curr = os.getProcess(pid);
+ * double cpuLoad = curr.getProcessCpuLoadBetweenTicks(prev);
+ * System.out.printf("Process CPU: %.1f%%%n", cpuLoad * 100);
+ * }</pre>
+ *
+ * <b>Process memory:</b> Use {@link #getPrivateResidentMemory()} to match the "Memory" column shown by graphical system
+ * monitors (Windows Task Manager, macOS Activity Monitor, GNOME System Monitor). Use {@link #getResidentMemory()} for
+ * the full RSS value including shared libraries, matching {@code ps} and {@code top}.
+ * <p>
+ * <b>Platform note:</b> Process CPU usage sums ticks across all processors and may exceed 100% for multi-threaded
+ * processes (consistent with {@code top} on Unix). To match the Windows Task Manager, which scales to the system,
+ * divide by {@link oshi.hardware.CentralProcessor#getLogicalProcessorCount()}.
  */
 @ThreadSafe
 public interface OSProcess {
@@ -313,12 +333,25 @@ public interface OSProcess {
      * Gets CPU usage of this process since a previous snapshot of the same process, provided as a parameter.
      * <p>
      * This calculation sums CPU ticks across all processors and may exceed 100% for multi-threaded processes. This is
-     * consistent with process usage calulations on Linux/Unix machines, but should be divided by the number of logical
+     * consistent with process usage calculations on Linux/Unix machines, but should be divided by the number of logical
      * processors to match the value displayed by the Windows Task Manager.
      * <p>
      * The accuracy of this calculation is dependent on both the number of threads on which the process is executing,
      * and the precision of the Operating System's tick counters. A polling interval of at least a few seconds is
      * recommended.
+     * <p>
+     * Usage example:
+     *
+     * <pre>{@code
+     * Map<Integer, OSProcess> priorSnapshot = new HashMap<>();
+     * while (monitoring) {
+     *     for (OSProcess p : os.getProcesses(null, null, 0)) {
+     *         double cpu = p.getProcessCpuLoadBetweenTicks(priorSnapshot.get(p.getProcessID()));
+     *         priorSnapshot.put(p.getProcessID(), p);
+     *     }
+     *     Thread.sleep(2000);
+     * }
+     * }</pre>
      *
      * @param proc An {@link OSProcess} object containing statistics for this same process collected at a prior point in
      *             time. May be null.
