@@ -1026,6 +1026,13 @@
             </modules>
         </profile>
         <profile>
+            <!-- Activates oshi-benchmark tests and aggregate JaCoCo report.
+                 Use: mvnw test -Paggregate-coverage
+                 The profile is defined here as a placeholder; oshi-benchmark
+                 overrides maven.test.skip to enable its comparison tests. -->
+            <id>aggregate-coverage</id>
+        </profile>
+        <profile>
             <id>checks</id>
             <build>
                 <plugins>

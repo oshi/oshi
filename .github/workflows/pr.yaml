@@ -42,7 +42,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         java: [11, 21, 25]
       fail-fast: false
-    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
+    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
     steps:
       - uses: actions/checkout@v6
       - name: Set up JDK
@@ -52,10 +52,15 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
       - name: Test with Maven
+        if: ${{ !contains(matrix.java, '25') }}
         run: ./mvnw test -B
-      - name: Upload Coverage
+      - name: Test with Maven (Compare JNA/FFM and aggregate coverage)
         if: contains(matrix.java, '25')
+        run: ./mvnw test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always() && contains(matrix.java, '25')
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: ${{ matrix.os }}

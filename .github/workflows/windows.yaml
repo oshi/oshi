@@ -31,12 +31,19 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Test with Maven
+        if: ${{ !contains(matrix.java, '25') }}
         run: ./mvnw clean test -B
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test with Maven (aggregate coverage)
+        if: contains(matrix.java, '25')
+        run: ./mvnw clean test -Paggregate-coverage -B
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Coverage
-        if: contains(matrix.java, '25') && contains(matrix.os, 'windows-2022')
+        if: always() && contains(matrix.java, '25') && contains(matrix.os, 'windows-2022')
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: windows

@@ -25,8 +25,16 @@
     </properties>
 
     <dependencies>
-        <!-- TODO: once oshi-core-java25 is split from oshi-core, add oshi-core as a separate dependency here
-             so both JNA (oshi.SystemInfo) and FFM (oshi.ffm.SystemInfo) paths are available for benchmarking -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>oshi-core-java25</artifactId>
@@ -137,6 +145,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aggregate-report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>de.thetaphi</groupId>
                 <artifactId>forbiddenapis</artifactId>
                 <configuration>
@@ -168,6 +189,12 @@
     <profiles>
         <profile>
             <id>native-comparison</id>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>aggregate-coverage</id>
             <properties>
                 <maven.test.skip>false</maven.test.skip>
             </properties>

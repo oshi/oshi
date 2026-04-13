@@ -60,12 +60,18 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
       - name: Install with Maven
+        if: ${{ !contains(matrix.java, '25') }}
         run: ./mvnw install -DskipTests -B
       - name: Test with Maven
+        if: ${{ !contains(matrix.java, '25') }}
         run: ./mvnw test -B
-      - name: Upload Coverage
+      - name: Test with Maven (aggregate coverage)
         if: contains(matrix.java, '25')
+        run: ./mvnw test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always() && contains(matrix.java, '25')
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: linux
