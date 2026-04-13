@@ -50,6 +50,9 @@ public interface GlobalMemory {
 
     /**
      * Virtual memory, such as a swap file.
+     * <p>
+     * Operating systems differ significantly in how they manage virtual memory. See the {@link VirtualMemory} class
+     * documentation for details on Windows commit-charge, Linux overcommit, and macOS compressed-memory models.
      *
      * @return A VirtualMemory object.
      */

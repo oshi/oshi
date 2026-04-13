@@ -7,8 +7,26 @@ package oshi.hardware;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * The VirtuallMemory class tracks information about the use of a computer's virtual memory (swap file) which
- * temporarily moves rarely accessed information to a disk or other storage device.
+ * The VirtualMemory class tracks information about the use of a computer's virtual memory (swap file) which temporarily
+ * moves rarely accessed information to a disk or other storage device.
+ * <p>
+ * Operating systems differ significantly in how they manage virtual memory:
+ * <ul>
+ * <li><b>Windows</b> uses a <i>commit-charge</i> model: every virtual memory allocation must be backed by physical RAM
+ * plus the pagefile. Allocations that would exceed this commit limit fail immediately, so the values from
+ * {@link #getVirtualMax()} and {@link #getVirtualInUse()} reflect guaranteed (reserved) capacity.</li>
+ * <li><b>Linux</b> uses <i>overcommit</i> by default: the kernel allows processes to allocate more virtual memory than
+ * is physically available, on the assumption that not all allocated memory will be used simultaneously. If memory is
+ * actually exhausted, the Out-Of-Memory (OOM) killer terminates processes to reclaim memory. The
+ * {@code vm.overcommit_memory} sysctl controls this behavior (0 = heuristic overcommit, 1 = always overcommit, 2 =
+ * strict commit accounting similar to Windows). The {@link #getVirtualMax()} value reflects the kernel's
+ * {@code CommitLimit}.</li>
+ * <li><b>macOS</b> uses a compressed-memory approach, compressing inactive pages in RAM before resorting to swap on
+ * disk. Swap usage on macOS tends to be lower than on other platforms because compression reclaims significant memory
+ * without disk I/O.</li>
+ * </ul>
+ * These differences affect how to interpret the values returned by this interface, particularly
+ * {@link #getVirtualMax()} and {@link #getVirtualInUse()}.
  */
 @ThreadSafe
 public interface VirtualMemory {
