@@ -27,9 +27,16 @@ public interface Sensors {
     /**
      * CPU Temperature
      *
-     * @return CPU Temperature in degrees Celsius if available, 0 or {@link Double#NaN} otherwise.
+     * @return CPU Temperature in degrees Celsius if available, 0 or {@link Double#NaN} otherwise. Callers should check
+     *         for both zero and NaN to detect unavailable data.
      *         <p>
-     *         See notes on {@link Sensors}.
+     *         On Windows, requires the optional
+     *         <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency for
+     *         reliable values. Without it, results may be zero or unchanging depending on the motherboard manufacturer.
+     *         <p>
+     *         On Linux, values are read from hwmon sensors or thermal zones. The sensor names and priority can be
+     *         configured via {@code oshi.os.linux.sensors.hwmon.names} and
+     *         {@code oshi.os.linux.sensors.cpuTemperature.types} in the configuration.
      */
     double getCpuTemperature();
 
@@ -38,6 +45,10 @@ public interface Sensors {
      *
      * @return Speed in rpm for all fans. May return empty array if no fans detected or 0 fan speed if unable to measure
      *         fan speed.
+     *         <p>
+     *         On Windows, requires the optional
+     *         <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency for
+     *         reliable values.
      */
     int[] getFanSpeeds();
 
@@ -45,6 +56,10 @@ public interface Sensors {
      * CPU Voltage
      *
      * @return CPU Voltage in Volts if available, 0 otherwise.
+     *         <p>
+     *         On Windows, requires the optional
+     *         <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency for
+     *         reliable values.
      */
     double getCpuVoltage();
 }

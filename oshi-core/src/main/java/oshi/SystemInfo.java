@@ -26,10 +26,34 @@ import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystem;
 
 /**
- * System information. This is the main entry point to OSHI.
+ * System information. This is the main entry point to OSHI, using JNA for native access.
  * <p>
  * This object provides getters which instantiate the appropriate platform-specific implementations of
- * {@link oshi.software.os.OperatingSystem} (software) and {@link oshi.hardware.HardwareAbstractionLayer} (hardware).
+ * {@link OperatingSystem} (software) and {@link HardwareAbstractionLayer} (hardware).
+ * <p>
+ * Quick start:
+ *
+ * <pre>{@code
+ * SystemInfo si = new SystemInfo();
+ * HardwareAbstractionLayer hal = si.getHardware();
+ * OperatingSystem os = si.getOperatingSystem();
+ *
+ * // CPU usage (blocks for 1 second)
+ * double cpuLoad = hal.getProcessor().getSystemCpuLoad(1000L);
+ *
+ * // Memory
+ * GlobalMemory mem = hal.getMemory();
+ * long availableBytes = mem.getAvailable();
+ * }</pre>
+ *
+ * Platform-specific Hardware and Software objects are retrieved via memoized suppliers and cached on the SystemInfo
+ * instance. To conserve memory at the cost of additional processing time, create a new SystemInfo for subsequent calls.
+ * To conserve processing time at the cost of additional memory usage, re-use the same instance.
+ * <p>
+ * This implementation uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports
+ * all OSHI platforms (Windows, macOS, Linux, FreeBSD, OpenBSD, Solaris, AIX). For JDK 25+, the {@code oshi-core-java25}
+ * module provides an alternative entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function &amp; Memory
+ * (FFM) API for potentially better performance on supported platforms (currently Windows, macOS, and Linux).
  */
 public class SystemInfo {
 
