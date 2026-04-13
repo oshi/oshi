@@ -1,6 +1,20 @@
 /**
- * This module provides the common OSHI API interfaces, abstract base classes, annotations, and utilities shared by all
- * OSHI implementations.
+ * Common OSHI API interfaces, abstract base classes, annotations, and utilities shared by all OSHI implementations.
+ * <p>
+ * This module contains <i>no native code</i> and is unaffected by <a href="https://openjdk.org/jeps/472">JEP 472</a>
+ * restrictions on native access. It can be used standalone by applications that cannot or prefer not to enable native
+ * access (e.g., in restricted JVM environments).
+ * <p>
+ * To build a native-free OSHI implementation:
+ * <ol>
+ * <li>Depend on this module only (Maven: {@code com.github.oshi:oshi-common}).</li>
+ * <li>Extend the abstract base classes in {@code oshi.hardware.common} and {@code oshi.software.common}. These provide
+ * default implementations for many methods; subclasses override the {@code protected abstract query*()} methods with
+ * platform-specific logic using command-line tools ({@code oshi.util.ExecutingCommand}), {@code /proc} file parsing
+ * ({@code oshi.util.FileUtil}, {@code oshi.util.ProcUtil}), or other non-native techniques.</li>
+ * <li>Wire the implementations together via a concrete {@code AbstractHardwareAbstractionLayer} subclass that returns
+ * your implementations from its {@code create*()} factory methods.</li>
+ * </ol>
  */
 module com.github.oshi.common {
     exports oshi.annotation;

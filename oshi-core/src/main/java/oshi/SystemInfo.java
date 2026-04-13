@@ -52,8 +52,14 @@ import oshi.software.os.windows.WindowsOperatingSystem;
  * <p>
  * This implementation uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports
  * all OSHI platforms (Windows, macOS, Linux, FreeBSD, OpenBSD, Solaris, AIX). For JDK 25+, the {@code oshi-core-java25}
- * module provides an alternative entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function &amp; Memory
+ * module provides an alternative entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function and Memory
  * (FFM) API for potentially better performance on supported platforms (currently Windows, macOS, and Linux).
+ * <p>
+ * Both this class and the FFM entry point require native access. Starting with <a href="https://openjdk.org/jeps/472">
+ * JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future JDK release will require
+ * {@code --enable-native-access}. Applications that cannot enable native access can depend on the {@code oshi-common}
+ * module alone and implement the OSHI interfaces without native calls. See the {@link oshi oshi package documentation}
+ * for details.
  */
 public class SystemInfo {
 

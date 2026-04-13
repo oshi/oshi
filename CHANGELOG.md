@@ -24,6 +24,8 @@
   [#3147](https://github.com/oshi/oshi/pull/3147),
   [#3149](https://github.com/oshi/oshi/pull/3149): Move macOS HardwareAbstractionLayer tree to oshi-common - [@dbwiddis](https://github.com/dbwiddis).
 * [#3152](https://github.com/oshi/oshi/pull/3152): Fix FFM TCP stats sysctl failure on Apple Silicon; suppress missing AppleHDA.kext log noise on ARM macOS - [@dbwiddis](https://github.com/dbwiddis).
+* [#3153](https://github.com/oshi/oshi/pull/3153): Fix FFM network stats to use two-call sysctl pattern matching JNA approach - [@dbwiddis](https://github.com/dbwiddis).
+* [#3154](https://github.com/oshi/oshi/pull/3154): Improve API documentation: usage examples, platform notes, cross-references, JEP 472 guidance, and virtual memory model differences - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

@@ -19,7 +19,7 @@ import oshi.software.os.windows.WindowsOperatingSystemFFM;
 import oshi.util.PlatformEnum;
 
 /**
- * System information. This is the main FFM entry point to OSHI, using the Foreign Function &amp; Memory (FFM) API for
+ * System information. This is the main FFM entry point to OSHI, using the Foreign Function and Memory (FFM) API for
  * native access.
  * <p>
  * This object provides getters which instantiate the appropriate platform-specific FFM implementations of
@@ -47,6 +47,12 @@ import oshi.util.PlatformEnum;
  * This implementation requires JDK 25+ and currently supports Windows, macOS, and Linux. It uses the FFM API in place
  * of JNA for native access, which may offer better performance. For broader platform support (including FreeBSD,
  * OpenBSD, Solaris, and AIX), use the JNA-based entry point ({@code oshi.SystemInfo}) in the {@code oshi-core} module.
+ * <p>
+ * Both this class and the JNA entry point require native access. Starting with
+ * <a href="https://openjdk.org/jeps/472">JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future
+ * JDK release will require {@code --enable-native-access}. Applications that cannot enable native access can depend on
+ * the {@code oshi-common} module alone and implement the OSHI interfaces without native calls. See the {@code oshi}
+ * package documentation in {@code oshi-core} for details.
  * <p>
  * All other imports ({@code oshi.hardware.*}, {@code oshi.software.os.*}) remain the same regardless of which entry
  * point is used. The API is identical; only the underlying native access mechanism differs.
