@@ -160,14 +160,19 @@ public interface OperatingSystem {
 
     /**
      * Gets currently running processes, optionally filtering, sorting, and limited to the top "N".
+     * <p>
+     * Example: get the top 10 processes by CPU usage:
+     *
+     * <pre>{@code
+     * List<OSProcess> topCpu = os.getProcesses(ProcessFiltering.VALID_PROCESS, ProcessSorting.CPU_DESC, 10);
+     * }</pre>
      *
      * @param filter An optional {@link Predicate} limiting the results to the specified filter. Some common predicates
-     *               are available in {@link ProcessSorting}. May be {@code null} for no filtering.
+     *               are available in {@link ProcessFiltering}. May be {@code null} for no filtering.
      * @param sort   An optional {@link Comparator} specifying the sorting order. Some common comparators are available
      *               in {@link ProcessSorting}. May be {@code null} for no sorting.
      * @param limit  Max number of results to return, or 0 to return all results
-     * @return A list of {@link oshi.software.os.OSProcess} objects, optionally filtered, sorted, and limited to the
-     *         specified number.
+     * @return A list of {@link OSProcess} objects, optionally filtered, sorted, and limited to the specified number.
      *         <p>
      *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.

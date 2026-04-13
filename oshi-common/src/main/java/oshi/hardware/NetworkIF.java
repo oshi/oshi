@@ -296,6 +296,11 @@ public interface NetworkIF {
     /**
      * Updates interface network statistics on this interface. Statistics include packets and bytes sent and received,
      * and interface speed.
+     * <p>
+     * This method is intended for updating a single interface that is being individually monitored. If you are updating
+     * multiple interfaces, it is more efficient to re-query the entire list from
+     * {@link HardwareAbstractionLayer#getNetworkIFs()} and correlate the results, since on many platforms the full list
+     * must be queried to provide any individual result.
      *
      * @return {@code true} if the update was successful, {@code false} otherwise.
      */
