@@ -54,8 +54,8 @@ public final class MacSoundCard extends AbstractSoundCard {
         boolean version = false;
         String versionMarker = "<key>com.apple.driver.AppleHDAController</key>";
 
-        for (final String checkLine : FileUtil
-                .readFile("/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist")) {
+        for (final String checkLine : FileUtil.readFile("/System/Library/Extensions/AppleHDA.kext/Contents/Info.plist",
+                false)) {
             if (checkLine.contains(versionMarker)) {
                 version = true;
                 continue;

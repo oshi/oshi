@@ -166,6 +166,9 @@
                         <!-- Slightly faster builds, see
                         https://issues.apache.org/jira/browse/MCOMPILER-209 -->
                         <useIncrementalCompilation>false</useIncrementalCompilation>
+                        <compilerArgs>
+                            <arg>-Xlint:-options</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>

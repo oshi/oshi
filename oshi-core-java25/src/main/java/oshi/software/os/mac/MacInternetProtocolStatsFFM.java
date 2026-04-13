@@ -309,7 +309,7 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     private static BsdTcpstat queryTcpstat() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment buffer = arena.allocate(128);
-            if (SysctlUtilFFM.sysctl(new int[] { 1, 4, 8 }, buffer) > 0) {
+            if (SysctlUtilFFM.sysctl("net.inet.tcp.stats", buffer)) {
                 return new BsdTcpstat(buffer.get(JAVA_INT, 0), buffer.get(JAVA_INT, 4), buffer.get(JAVA_INT, 12),
                         buffer.get(JAVA_INT, 16), buffer.get(JAVA_INT, 64), buffer.get(JAVA_INT, 72),
                         buffer.get(JAVA_INT, 104), buffer.get(JAVA_INT, 112), buffer.get(JAVA_INT, 116),

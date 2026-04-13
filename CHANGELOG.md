@@ -23,6 +23,7 @@
 * [#3146](https://github.com/oshi/oshi/pull/3146),
   [#3147](https://github.com/oshi/oshi/pull/3147),
   [#3149](https://github.com/oshi/oshi/pull/3149): Move macOS HardwareAbstractionLayer tree to oshi-common - [@dbwiddis](https://github.com/dbwiddis).
+* [#3152](https://github.com/oshi/oshi/pull/3152): Fix FFM TCP stats sysctl failure on Apple Silicon; suppress missing AppleHDA.kext log noise on ARM macOS - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 
