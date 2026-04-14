@@ -4,27 +4,28 @@
  */
 package oshi.util.platform.windows;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.ffm.windows.Win32Exception;
+import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.windows.PdhFFM.PDH_FMT_COUNTERVALUE_ITEM_LAYOUT;
+import static oshi.ffm.windows.PdhFFM.PDH_FMT_LARGE;
+import static oshi.ffm.windows.PdhFFM.PDH_MORE_DATA;
+import static oshi.ffm.windows.PdhFFM.PdhAddEnglishCounter;
+import static oshi.ffm.windows.PdhFFM.PdhCloseQuery;
+import static oshi.ffm.windows.PdhFFM.PdhCollectQueryData;
+import static oshi.ffm.windows.PdhFFM.PdhGetFormattedCounterArray;
+import static oshi.ffm.windows.PdhFFM.PdhOpenQuery;
+import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
+import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
-import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.windows.PdhFFM.PdhCloseQuery;
-import static oshi.ffm.windows.PdhFFM.PdhOpenQuery;
-import static oshi.ffm.windows.PdhFFM.PdhAddEnglishCounter;
-import static oshi.ffm.windows.PdhFFM.PdhCollectQueryData;
-import static oshi.ffm.windows.PdhFFM.PdhGetFormattedCounterArray;
-import static oshi.ffm.windows.PdhFFM.PDH_FMT_LARGE;
-import static oshi.ffm.windows.PdhFFM.PDH_MORE_DATA;
-import static oshi.ffm.windows.PdhFFM.PDH_FMT_COUNTERVALUE_ITEM_LAYOUT;
-import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.ffm.windows.Win32Exception;
 
 public final class PdhUtilFFM {
 
