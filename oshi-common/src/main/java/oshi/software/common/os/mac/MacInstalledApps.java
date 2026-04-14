@@ -118,7 +118,12 @@ public final class MacInstalledApps {
     private static byte[] readFirstBytes(File file) throws IOException {
         byte[] buffer = new byte[8];
         try (FileInputStream fis = new FileInputStream(file)) {
-            fis.read(buffer);
+            int bytesRead = fis.read(buffer);
+            if (bytesRead < buffer.length) {
+                byte[] result = new byte[Math.max(0, bytesRead)];
+                System.arraycopy(buffer, 0, result, 0, result.length);
+                return result;
+            }
             return buffer;
         }
     }

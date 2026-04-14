@@ -55,7 +55,7 @@ public final class GuidFFM {
         guid.set(JAVA_SHORT, 4, data2);
         guid.set(JAVA_SHORT, 6, data3);
         for (int i = 0; i < 8; i++) {
-            guid.set(JAVA_BYTE, 8 + i, data4[i]);
+            guid.set(JAVA_BYTE, 8L + i, data4[i]);
         }
         return guid;
     }

@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public final class NvmlUtilJNA {
     // Stores PCI bus ID strings (stable identifiers) rather than Pointer handles, which are only valid
     // within a single nvmlInit/nvmlShutdown scope.
     private static volatile boolean devicesEnumerated = false;
-    private static volatile Set<String> deviceBusIds = Collections.emptySet();
+    private static final AtomicReference<Set<String>> DEVICE_BUS_IDS = new AtomicReference<>(Collections.emptySet());
 
     private NvmlUtilJNA() {
     }
@@ -116,9 +117,9 @@ public final class NvmlUtilJNA {
         }
         Set<String> ids = enumerateDeviceBusIds();
         if (ids != null) {
-            deviceBusIds = ids;
+            DEVICE_BUS_IDS.set(ids);
             devicesEnumerated = true;
-            LOG.debug("NVML enumerated {} device(s)", deviceBusIds.size());
+            LOG.debug("NVML enumerated {} device(s)", DEVICE_BUS_IDS.get().size());
         }
     }
 
@@ -286,7 +287,7 @@ public final class NvmlUtilJNA {
             // Verify a handle can be acquired (device exists), then return the canonical bus ID
             // from the enumerated set that matches — not the handle itself.
             String needle = pciBusId.toLowerCase(Locale.ROOT);
-            for (String id : deviceBusIds) {
+            for (String id : DEVICE_BUS_IDS.get()) {
                 if (id.contains(needle) || needle.contains(id)) {
                     return id;
                 }

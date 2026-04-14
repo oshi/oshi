@@ -147,13 +147,13 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                 for (int cpu = 0; cpu < cpuLimit; cpu++) {
                     int offset = cpu * MacSystem.CPU_STATE_MAX;
                     ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(
-                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, offset + MacSystem.CPU_STATE_USER));
+                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_USER));
                     ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(
-                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, offset + MacSystem.CPU_STATE_NICE));
+                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_NICE));
                     ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(
-                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, offset + MacSystem.CPU_STATE_SYSTEM));
+                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_SYSTEM));
                     ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(
-                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, offset + MacSystem.CPU_STATE_IDLE));
+                            procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_IDLE));
                 }
             } finally {
                 try {

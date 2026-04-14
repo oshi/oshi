@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public final class NvmlUtilFFM {
     private static final Logger LOG = LoggerFactory.getLogger(NvmlUtilFFM.class);
 
     private static volatile boolean devicesEnumerated = false;
-    private static volatile Set<String> deviceBusIds = Collections.emptySet();
+    private static final AtomicReference<Set<String>> DEVICE_BUS_IDS = new AtomicReference<>(Collections.emptySet());
 
     private NvmlUtilFFM() {
     }
@@ -59,9 +60,9 @@ public final class NvmlUtilFFM {
         }
         Set<String> ids = enumerateDeviceBusIds();
         if (ids != null) {
-            deviceBusIds = ids;
+            DEVICE_BUS_IDS.set(ids);
             devicesEnumerated = true;
-            LOG.debug("NVML (FFM) enumerated {} device(s)", deviceBusIds.size());
+            LOG.debug("NVML (FFM) enumerated {} device(s)", DEVICE_BUS_IDS.get().size());
         }
     }
 
@@ -207,7 +208,7 @@ public final class NvmlUtilFFM {
         try {
             ensureDevicesEnumerated();
             String needle = pciBusId.toLowerCase(Locale.ROOT);
-            for (String id : deviceBusIds) {
+            for (String id : DEVICE_BUS_IDS.get()) {
                 if (id.contains(needle) || needle.contains(id)) {
                     return id;
                 }

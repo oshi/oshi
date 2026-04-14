@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -42,11 +43,12 @@ public final class PrivilegedUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrivilegedUtil.class);
 
-    private static volatile Supplier<Set<String>> commandAllowlist = memoize(PrivilegedUtil::queryCommandAllowlist,
-            defaultExpiration());
-    private static volatile Supplier<Set<String>> fileAllowlist = memoize(PrivilegedUtil::queryFileAllowlist,
-            defaultExpiration());
-    private static volatile Supplier<String> prefix = memoize(PrivilegedUtil::queryPrefix, defaultExpiration());
+    private static final AtomicReference<Supplier<Set<String>>> COMMAND_ALLOWLIST = new AtomicReference<>(
+            memoize(PrivilegedUtil::queryCommandAllowlist, defaultExpiration()));
+    private static final AtomicReference<Supplier<Set<String>>> FILE_ALLOWLIST = new AtomicReference<>(
+            memoize(PrivilegedUtil::queryFileAllowlist, defaultExpiration()));
+    private static final AtomicReference<Supplier<String>> PREFIX = new AtomicReference<>(
+            memoize(PrivilegedUtil::queryPrefix, defaultExpiration()));
 
     private PrivilegedUtil() {
     }
@@ -118,6 +120,7 @@ public final class PrivilegedUtil {
             return false;
         }
         Path path = Paths.get(filePath);
+        // Default FileSystem is a JVM singleton that must not be closed
         FileSystem fs = FileSystems.getDefault();
         for (String allowed : allowlist) {
             PathMatcher matcher = fs.getPathMatcher("glob:" + allowed);
@@ -161,7 +164,7 @@ public final class PrivilegedUtil {
      * @return The current command allowlist
      */
     public static Set<String> getCommandAllowlist() {
-        return commandAllowlist.get();
+        return COMMAND_ALLOWLIST.get().get();
     }
 
     /**
@@ -170,7 +173,7 @@ public final class PrivilegedUtil {
      * @return The current file allowlist
      */
     public static Set<String> getFileAllowlist() {
-        return fileAllowlist.get();
+        return FILE_ALLOWLIST.get().get();
     }
 
     /**
@@ -179,7 +182,7 @@ public final class PrivilegedUtil {
      * @return The prefix string, or empty string if not configured or not supported on this platform
      */
     public static String getPrefix() {
-        return prefix.get();
+        return PREFIX.get().get();
     }
 
     /**
@@ -187,9 +190,9 @@ public final class PrivilegedUtil {
      * immediately after {@link GlobalConfig#clear()}.
      */
     static void clearCaches() {
-        commandAllowlist = memoize(PrivilegedUtil::queryCommandAllowlist, defaultExpiration());
-        fileAllowlist = memoize(PrivilegedUtil::queryFileAllowlist, defaultExpiration());
-        prefix = memoize(PrivilegedUtil::queryPrefix, defaultExpiration());
+        COMMAND_ALLOWLIST.set(memoize(PrivilegedUtil::queryCommandAllowlist, defaultExpiration()));
+        FILE_ALLOWLIST.set(memoize(PrivilegedUtil::queryFileAllowlist, defaultExpiration()));
+        PREFIX.set(memoize(PrivilegedUtil::queryPrefix, defaultExpiration()));
     }
 
     /**

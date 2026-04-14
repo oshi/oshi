@@ -7,6 +7,7 @@ package oshi.util.gpu;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,8 @@ public final class AdlUtil {
 
     // Lazy adapter enumeration state — written once, read-only thereafter
     private static volatile boolean adaptersEnumerated = false;
-    private static volatile Map<Integer, Integer> busToIndex = Collections.emptyMap();
+    private static final AtomicReference<Map<Integer, Integer>> BUS_TO_INDEX = new AtomicReference<>(
+            Collections.emptyMap());
 
     // -------------------------------------------------------------------------
     // Init/uninit helpers (COM pattern)
@@ -139,9 +141,9 @@ public final class AdlUtil {
         }
         Map<Integer, Integer> result = enumerateAdapters(context);
         if (result != null) {
-            busToIndex = result;
+            BUS_TO_INDEX.set(result);
             adaptersEnumerated = true;
-            LOG.debug("ADL enumerated {} adapter(s)", busToIndex.size());
+            LOG.debug("ADL enumerated {} adapter(s)", BUS_TO_INDEX.get().size());
         } else {
             LOG.debug("ADL adapter enumeration failed; will retry on next call");
         }
@@ -212,7 +214,7 @@ public final class AdlUtil {
         }
         try {
             ensureAdaptersEnumerated(ctx);
-            return busToIndex.getOrDefault(pciBusNumber, -1);
+            return BUS_TO_INDEX.get().getOrDefault(pciBusNumber, -1);
         } finally {
             adlUninit(ctx);
         }

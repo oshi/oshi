@@ -211,6 +211,9 @@ public final class SystemInfoHelper {
 
     public static void printProcesses(List<String> lines, OperatingSystem os, GlobalMemory memory) {
         OSProcess myProc = os.getProcess(os.getProcessId());
+        if (myProc == null) {
+            return;
+        }
         lines.add(
                 "My PID: " + myProc.getProcessID() + " with affinity " + Long.toBinaryString(myProc.getAffinityMask()));
         lines.add("My TID: " + os.getThreadId() + " with details " + os.getCurrentThread());
@@ -226,6 +229,9 @@ public final class SystemInfoHelper {
                     p.getName()));
         }
         OSProcess p = os.getProcess(os.getProcessId());
+        if (p == null) {
+            return;
+        }
         lines.add("Current process arguments: ");
         for (String s : p.getArguments()) {
             lines.add("  " + s);

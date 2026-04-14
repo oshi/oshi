@@ -88,8 +88,8 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
     @Override
     public String getHostName() {
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1);
-            if (gethostname(buf, HOST_NAME_MAX + 1) == 0) {
+            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
+            if (gethostname(buf, HOST_NAME_MAX + 1L) == 0) {
                 return buf.getString(0);
             }
         } catch (Throwable e) {

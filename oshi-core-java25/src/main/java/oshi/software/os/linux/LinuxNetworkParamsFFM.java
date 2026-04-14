@@ -28,7 +28,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
     @Override
     public String getHostName() {
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1);
+            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 == LinuxLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return buf.getString(0);
             }
