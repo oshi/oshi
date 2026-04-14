@@ -22,7 +22,7 @@ import oshi.driver.windows.wmi.LhmSensor;
 import oshi.driver.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.util.gpu.AdlUtil;
+import oshi.util.gpu.AdlUtilJNA;
 import oshi.util.gpu.NvmlUtilJNA;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
@@ -202,7 +202,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         int adlIndex = findAdlIndex();
         if (adlIndex >= 0) {
-            double val = AdlUtil.getTemperature(adlIndex);
+            double val = AdlUtilJNA.getTemperature(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -222,7 +222,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         int adlIndex = findAdlIndex();
         if (adlIndex >= 0) {
-            double val = AdlUtil.getPowerDraw(adlIndex);
+            double val = AdlUtilJNA.getPowerDraw(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -246,7 +246,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         int adlIndex = findAdlIndex();
         if (adlIndex >= 0) {
-            long val = AdlUtil.getCoreClockMhz(adlIndex);
+            long val = AdlUtilJNA.getCoreClockMhz(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -267,7 +267,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         int adlIndex = findAdlIndex();
         if (adlIndex >= 0) {
-            long val = AdlUtil.getMemoryClockMhz(adlIndex);
+            long val = AdlUtilJNA.getMemoryClockMhz(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -288,7 +288,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         int adlIndex = findAdlIndex();
         if (adlIndex >= 0) {
-            double val = AdlUtil.getFanSpeedPercent(adlIndex);
+            double val = AdlUtilJNA.getFanSpeedPercent(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -350,11 +350,11 @@ final class WindowsGpuStats implements GpuStats {
         if (cachedAdlIndex != Integer.MIN_VALUE) {
             return cachedAdlIndex;
         }
-        if (!AdlUtil.isAvailable() || pciBusNumber < 0) {
+        if (!AdlUtilJNA.isAvailable() || pciBusNumber < 0) {
             cachedAdlIndex = -1;
             return -1;
         }
-        cachedAdlIndex = AdlUtil.findAdapterIndex(pciBusNumber);
+        cachedAdlIndex = AdlUtilJNA.findAdapterIndex(pciBusNumber);
         return cachedAdlIndex;
     }
 

@@ -29,13 +29,13 @@ import oshi.driver.windows.wmi.LhmSensor;
 import oshi.driver.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.windows.wmi.Win32VideoController;
 import oshi.driver.windows.wmi.Win32VideoController.VideoControllerProperty;
-import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuStats;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
-import oshi.jna.platform.windows.WindowsDxgi;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.gpu.DxgiUtilJNA;
 import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
@@ -137,7 +137,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      */
     public static List<GraphicsCard> getGraphicsCards() {
         // Query DXGI once. Fails gracefully to empty list if unavailable.
-        List<DxgiAdapterInfo> dxgiAdapters = WindowsDxgi.queryAdapters();
+        List<DxgiAdapterInfo> dxgiAdapters = DxgiUtilJNA.queryAdapters();
         boolean dxgiAvailable = !dxgiAdapters.isEmpty();
         // Mutable copy for match-and-consume (prevents same adapter matching two registry entries).
         List<DxgiAdapterInfo> remainingDxgi = new ArrayList<>(dxgiAdapters);
@@ -188,7 +188,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String pciBusId = "";
                 String locationInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
                         LOCATION_INFORMATION);
-                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
+                DxgiAdapterInfo dxgiMatch = DxgiUtilJNA.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
                     dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
@@ -215,7 +215,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 // HardwareInformation.MemorySize (32-bit) is intentionally omitted: Windows caps
                 // it at 0x7FFFF000 (~2 GiB) for GPUs with more VRAM, making it unreliable.
 
-                String lhmParent = lhmParentMap.getOrDefault(WindowsDxgi.normalizeName(Util.isBlank(name) ? "" : name),
+                String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
 
                 GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
@@ -261,7 +261,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return the VRAM size in bytes, or 0 if the value type is unrecognised
      */
     static long registryValueToVram(Object value) {
-        return WindowsDxgi.registryValueToVram(value);
+        return DxgiUtilJNA.registryValueToVram(value);
     }
 
     // fall back if something went wrong
@@ -308,7 +308,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                         WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
                 int pciVendorId = pciIds == null ? 0 : pciIds.getA();
                 int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
-                DxgiAdapterInfo dxgiMatch = WindowsDxgi.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
+                DxgiAdapterInfo dxgiMatch = DxgiUtilJNA.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 long vram;
                 int dxgiIndex = -1;
                 String luidPrefix = "";
@@ -323,7 +323,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 } else {
                     vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
                 }
-                String lhmParent = lhmParentMap.getOrDefault(WindowsDxgi.normalizeName(Util.isBlank(name) ? "" : name),
+                String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
                 GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
@@ -362,7 +362,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String identifier = WmiUtil.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
                 String hwName = WmiUtil.getString(hw, LhmHardwareProperty.NAME, i);
                 if (!identifier.isEmpty() && !hwName.isEmpty()) {
-                    String norm = WindowsDxgi.normalizeName(hwName);
+                    String norm = DxgiUtilJNA.normalizeName(hwName);
                     if (map.containsKey(norm)) {
                         // Two adapters with the same normalized name: mark ambiguous so neither
                         // is used (empty string is the "skip LHM" sentinel for callers).

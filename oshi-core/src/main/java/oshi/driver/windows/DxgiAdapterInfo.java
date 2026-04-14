@@ -10,7 +10,7 @@ import java.util.Locale;
  * Immutable snapshot of a DXGI adapter's identity and dedicated video memory.
  *
  * <p>
- * Populated by {@link oshi.jna.platform.windows.WindowsDxgi#queryAdapters()} and used by
+ * Populated by {@link oshi.jna.platform.windows.Dxgi#queryAdapters()} and used by
  * {@code oshi.hardware.platform.windows.WindowsGraphicsCard} to supply accurate VRAM values.
  * {@code DedicatedVideoMemory} from {@code DXGI_ADAPTER_DESC} is the authoritative Windows API source for dedicated GPU
  * memory; it is not subject to the 2 GiB cap that affects the 32-bit registry value

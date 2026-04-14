@@ -799,13 +799,20 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/driver/**</exclude>
-                        <exclude>**/common/**</exclude>
-                        <exclude>**/Abstract*</exclude>
                         <exclude>**/annotation/**</exclude>
-                        <exclude>**/jna/**</exclude>
-                        <exclude>**/unix/**</exclude>
+                        <exclude>**/benchmark/**</exclude>
                         <exclude>**/demo/**</exclude>
+                        <exclude>**/jna/**</exclude>
+                        <exclude>**/unix/aix/**</exclude>
+                        <exclude>**/unix/freebsd/**</exclude>
+                        <exclude>**/unix/openbsd/**</exclude>
+                        <exclude>**/unix/solaris/**</exclude>
+                        <exclude>**/unix/*Aix*</exclude>
+                        <exclude>**/unix/*Bsd*</exclude>
+                        <exclude>**/unix/*FreeBsd*</exclude>
+                        <exclude>**/unix/*OpenBsd*</exclude>
+                        <exclude>**/unix/*Solaris*</exclude>
+                        <exclude>**/unix/UnixBaseboard*</exclude>
                     </excludes>
                 </configuration>
                 <executions>

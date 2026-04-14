@@ -41,9 +41,9 @@ import oshi.jna.platform.windows.Adl.AdlMallocCallback;
  * Adapter bus-number-to-index mappings are enumerated once on first successful init and cached thereafter.
  */
 @ThreadSafe
-public final class AdlUtil {
+public final class AdlUtilJNA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AdlUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdlUtilJNA.class);
 
     // -------------------------------------------------------------------------
     // Library loading (holder pattern — loads the .dll once)
@@ -86,7 +86,7 @@ public final class AdlUtil {
         }
     }
 
-    private AdlUtil() {
+    private AdlUtilJNA() {
     }
 
     // Lazy adapter enumeration state — written once, read-only thereafter
