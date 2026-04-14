@@ -30,7 +30,7 @@ import oshi.util.linux.SysPath;
  * Sensors from WMI or Open Hardware Monitor
  */
 @ThreadSafe
-final class LinuxSensors extends AbstractSensors {
+class LinuxSensors extends AbstractSensors {
 
     /**
      * Configuration property for prioritizing hwmon temperature sensors by name. Common sensor names include:
@@ -62,15 +62,14 @@ final class LinuxSensors extends AbstractSensors {
     private static final String INPUT_SUFFIX = "_input";
     private static final Pattern TEMP_INPUT_PATTERN = Pattern.compile("^" + TEMP + "\\d+" + INPUT_SUFFIX + "$");
 
-    // Base HWMON path, adds 0, 1, etc. to end for various sensors
+    // Base path constants
     private static final String HWMON = "hwmon";
-    private static final String HWMON_PATH = SysPath.HWMON + HWMON;
-    // Base THERMAL_ZONE path, adds 0, 1, etc. to end for temperature sensors
     private static final String THERMAL_ZONE = "thermal_zone";
-    private static final String THERMAL_ZONE_PATH = SysPath.THERMAL + THERMAL_ZONE;
 
-    // Initial test to see if we are running on a Pi
-    private static final boolean IS_PI = queryCpuTemperatureFromVcGenCmd() > 0;
+    // Instance fields set by constructor
+    private final String hwmonPath;
+    private final String thermalZonePath;
+    private final boolean isPi;
 
     // Map from sensor to path. Built by constructor, so thread safe
     private final Map<String, String> sensorsMap = new HashMap<>();
@@ -81,7 +80,21 @@ final class LinuxSensors extends AbstractSensors {
      * </p>
      */
     LinuxSensors() {
-        if (!IS_PI) {
+        this(SysPath.HWMON + HWMON, SysPath.THERMAL + THERMAL_ZONE, queryCpuTemperatureFromVcGenCmd() > 0);
+    }
+
+    /**
+     * Constructor accepting explicit paths for testability.
+     *
+     * @param hwmonBasePath       base path for hwmon directories (e.g. "/sys/class/hwmon/hwmon")
+     * @param thermalZoneBasePath base path for thermal zone directories (e.g. "/sys/class/thermal/thermal_zone")
+     * @param isPi                whether this is a Raspberry Pi (uses vcgencmd)
+     */
+    LinuxSensors(String hwmonBasePath, String thermalZoneBasePath, boolean isPi) {
+        this.hwmonPath = hwmonBasePath;
+        this.thermalZonePath = thermalZoneBasePath;
+        this.isPi = isPi;
+        if (!isPi) {
             populateSensorsMapFromHwmon();
             // if no temperature sensor is found in hwmon, try thermal_zone
             if (!this.sensorsMap.containsKey(TEMP)) {
@@ -98,8 +111,8 @@ final class LinuxSensors extends AbstractSensors {
         int selectedPriority = Integer.MAX_VALUE;
 
         int i = 0;
-        while (Paths.get(HWMON_PATH + i).toFile().isDirectory()) {
-            String path = HWMON_PATH + i;
+        while (Paths.get(hwmonPath + i).toFile().isDirectory()) {
+            String path = hwmonPath + i;
 
             // Read the name file
             String sensorName = FileUtil.getStringFromFile(path + NAME).trim();
@@ -123,25 +136,24 @@ final class LinuxSensors extends AbstractSensors {
                 }
             }
 
-            // Handle other sensor types (fan, voltage)
-            for (String sensor : new String[] { FAN, VOLTAGE }) {
-                final String sensorPrefix = sensor;
-                // Final to pass to anonymous class
-                getSensorFilesFromPath(path, sensor, f -> {
-                    try {
-                        return f.getName().startsWith(sensorPrefix) && f.getName().endsWith(INPUT_SUFFIX)
-                                && FileUtil.getIntFromFile(f.getCanonicalPath()) > 0;
-                    } catch (IOException e) {
-                        return false;
-                    }
-                });
-            }
-
             i++;
         }
 
         if (selectedTempPath != null) {
             this.sensorsMap.put(TEMP, selectedTempPath + "/temp");
+        }
+
+        // Scan all hwmon directories for fan and voltage sensors
+        for (String sensor : new String[] { FAN, VOLTAGE }) {
+            final String sensorPrefix = sensor;
+            getSensorFilesFromPath(hwmonPath, sensor, f -> {
+                try {
+                    return f.getName().startsWith(sensorPrefix) && f.getName().endsWith(INPUT_SUFFIX)
+                            && FileUtil.getIntFromFile(f.getCanonicalPath()) > 0;
+                } catch (IOException e) {
+                    return false;
+                }
+            });
         }
     }
 
@@ -149,7 +161,7 @@ final class LinuxSensors extends AbstractSensors {
      * Iterate over all thermal_zone* directories and look for sensor files, e.g., /sys/class/thermal/thermal_zone0/temp
      */
     private void populateSensorsMapFromThermalZone() {
-        getSensorFilesFromPath(THERMAL_ZONE_PATH, TEMP, f -> f.getName().equals(TYPE) || f.getName().equals(TEMP),
+        getSensorFilesFromPath(thermalZonePath, TEMP, f -> f.getName().equals(TYPE) || f.getName().equals(TEMP),
                 files -> Stream.of(files).filter(f -> TYPE.equals(f.getName())).findFirst().map(File::getPath)
                         .map(FileUtil::getStringFromFile).map(THERMAL_ZONE_TYPE_PRIORITY::indexOf)
                         .filter((index) -> index >= 0).orElse(THERMAL_ZONE_TYPE_PRIORITY.size()));
@@ -203,7 +215,7 @@ final class LinuxSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {
-        if (IS_PI) {
+        if (isPi) {
             return queryCpuTemperatureFromVcGenCmd();
         }
         String tempStr = this.sensorsMap.get(TEMP);
@@ -259,7 +271,7 @@ final class LinuxSensors extends AbstractSensors {
 
     @Override
     public int[] queryFanSpeeds() {
-        if (!IS_PI) {
+        if (!isPi) {
             String fanStr = this.sensorsMap.get(FAN);
             if (fanStr != null) {
                 List<Integer> speeds = new ArrayList<>();
@@ -287,7 +299,7 @@ final class LinuxSensors extends AbstractSensors {
 
     @Override
     public double queryCpuVoltage() {
-        if (IS_PI) {
+        if (isPi) {
             return queryCpuVoltageFromVcGenCmd();
         }
         String voltageStr = this.sensorsMap.get(VOLTAGE);

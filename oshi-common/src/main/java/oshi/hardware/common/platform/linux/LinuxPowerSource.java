@@ -83,8 +83,18 @@ public class LinuxPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
+        return getPowerSources(SysPath.POWER_SUPPLY);
+    }
+
+    /**
+     * Gets Battery Information from the specified power supply path.
+     *
+     * @param powerSupplyPath The path to the power supply directory.
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
+    static List<PowerSource> getPowerSources(String powerSupplyPath) {
         List<PowerSource> psList = new ArrayList<>();
-        File psDir = new File(SysPath.POWER_SUPPLY);
+        File psDir = new File(powerSupplyPath);
         File[] psArr = psDir.listFiles();
         if (psArr == null) {
             return Collections.emptyList();
@@ -92,7 +102,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
         for (File ps : psArr) {
             String name = ps.getName();
             if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
-                List<String> psInfo = FileUtil.readFile(SysPath.POWER_SUPPLY + "/" + name + "/uevent", false);
+                List<String> psInfo = FileUtil.readFile(powerSupplyPath + "/" + name + "/uevent", false);
                 Map<Prop, String> props = new EnumMap<>(Prop.class);
                 for (String line : psInfo) {
                     String[] split = line.split("=", 2);

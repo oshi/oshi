@@ -305,7 +305,18 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found
      */
     private static Triplet<String, String, String> findDrmInfo(String pciSlot) {
-        File drmDir = new File(DRM_PATH);
+        return findDrmInfo(pciSlot, DRM_PATH);
+    }
+
+    /**
+     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU.
+     *
+     * @param pciSlot the PCI slot address, or {@code null} to use first-match
+     * @param drmPath the base DRM sysfs directory path
+     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found
+     */
+    static Triplet<String, String, String> findDrmInfo(String pciSlot, String drmPath) {
+        File drmDir = new File(drmPath);
         File[] cards = drmDir.listFiles(f -> f.getName().matches("card\\d+"));
         if (cards == null) {
             return new Triplet<>("", "", "");
@@ -337,7 +348,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param key        the key to look up (e.g. {@code "PCI_SLOT_NAME"})
      * @return the value string, or empty string if not found
      */
-    private static String readUeventValue(String ueventPath, String key) {
+    static String readUeventValue(String ueventPath, String key) {
         List<String> lines = FileUtil.readFile(ueventPath);
         String prefix = key + "=";
         for (String line : lines) {
@@ -348,7 +359,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         return "";
     }
 
-    private static String readDriverName(String driverSymlink) {
+    static String readDriverName(String driverSymlink) {
         String target = FileUtil.readSymlinkTarget(new File(driverSymlink));
         if (target == null || target.isEmpty()) {
             return "";

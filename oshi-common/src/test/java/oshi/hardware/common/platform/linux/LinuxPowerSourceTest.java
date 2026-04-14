@@ -6,20 +6,25 @@ package oshi.hardware.common.platform.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
+import oshi.hardware.PowerSource;
 import oshi.hardware.PowerSource.CapacityUnits;
 
-@EnabledOnOs(OS.LINUX)
 class LinuxPowerSourceTest {
 
     // Tolerance for floating-point comparisons
@@ -207,5 +212,101 @@ class LinuxPowerSourceTest {
         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
 
         assertThat(ps.getName(), is("BAT0"));
+    }
+
+    @Test
+    void testCopyConstructor() {
+        LinuxPowerSource original = LinuxPowerSource.buildPowerSource("BAT0", sampleProps());
+        LinuxPowerSource copy = new LinuxPowerSource(original);
+
+        assertThat(copy.getName(), is(original.getName()));
+        assertThat(copy.getDeviceName(), is(original.getDeviceName()));
+        assertThat(copy.getRemainingCapacityPercent(), closeTo(original.getRemainingCapacityPercent(), EPS));
+        assertThat(copy.getPowerUsageRate(), closeTo(original.getPowerUsageRate(), EPS));
+        assertThat(copy.getVoltage(), closeTo(original.getVoltage(), EPS));
+        assertThat(copy.getAmperage(), closeTo(original.getAmperage(), EPS));
+        assertThat(copy.isCharging(), is(original.isCharging()));
+        assertThat(copy.isDischarging(), is(original.isDischarging()));
+        assertThat(copy.getCapacityUnits(), is(original.getCapacityUnits()));
+        assertThat(copy.getCurrentCapacity(), is(original.getCurrentCapacity()));
+        assertThat(copy.getMaxCapacity(), is(original.getMaxCapacity()));
+        assertThat(copy.getDesignCapacity(), is(original.getDesignCapacity()));
+        assertThat(copy.getCycleCount(), is(original.getCycleCount()));
+        assertThat(copy.getChemistry(), is(original.getChemistry()));
+        assertThat(copy.getManufacturer(), is(original.getManufacturer()));
+        assertThat(copy.getSerialNumber(), is(original.getSerialNumber()));
+    }
+
+    @Test
+    void testGetPowerSourcesNonexistentPath(@TempDir Path tempDir) {
+        List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.resolve("power_supply_missing").toString());
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void testGetPowerSourcesEmptyDir(@TempDir Path tempDir) {
+        List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void testGetPowerSourcesFiltersAdapters(@TempDir Path tempDir) throws IOException {
+        for (String name : new String[] { "ADP1", "AC0", "USBC-charger" }) {
+            Files.createDirectories(tempDir.resolve(name));
+        }
+        List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void testGetPowerSourcesUeventParsing(@TempDir Path tempDir) throws IOException {
+        Path bat = tempDir.resolve("BAT0");
+        Files.createDirectories(bat);
+        String uevent = "POWER_SUPPLY_NAME=BAT0\n" + "POWER_SUPPLY_STATUS=Discharging\n" + "POWER_SUPPLY_PRESENT=1\n"
+                + "POWER_SUPPLY_TECHNOLOGY=Li-ion\n" + "POWER_SUPPLY_VOLTAGE_NOW=7400000\n"
+                + "POWER_SUPPLY_ENERGY_NOW=20712000\n" + "POWER_SUPPLY_ENERGY_FULL=40877000\n"
+                + "POWER_SUPPLY_ENERGY_FULL_DESIGN=48248000\n" + "POWER_SUPPLY_POWER_NOW=9361000\n"
+                + "POWER_SUPPLY_CAPACITY=50\n" + "IGNORED_KEY=should_be_skipped\n" + "MALFORMED_LINE\n";
+        Files.write(bat.resolve("uevent"), uevent.getBytes(StandardCharsets.UTF_8));
+
+        List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
+
+        assertThat(result, hasSize(1));
+        PowerSource ps = result.get(0);
+        assertThat(ps.getName(), is("BAT0"));
+        assertThat(ps.isDischarging(), is(true));
+        assertThat(ps.getChemistry(), is("Li-ion"));
+        assertThat(ps.getCurrentCapacity(), is(20712));
+        assertThat(ps.getMaxCapacity(), is(40877));
+    }
+
+    @Test
+    void testGetPowerSourcesSkipsPresentZero(@TempDir Path tempDir) throws IOException {
+        Path bat = tempDir.resolve("BAT0");
+        Files.createDirectories(bat);
+        Files.write(bat.resolve("uevent"),
+                "POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_PRESENT=0\n".getBytes(StandardCharsets.UTF_8));
+
+        List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
+        assertThat(result, hasSize(0));
+    }
+
+    @Test
+    void testGetPowerSourcesCopyRoundTrip(@TempDir Path tempDir) throws IOException {
+        Path bat = tempDir.resolve("BAT0");
+        Files.createDirectories(bat);
+        String uevent = "POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_STATUS=Charging\n"
+                + "POWER_SUPPLY_ENERGY_NOW=20000000\nPOWER_SUPPLY_ENERGY_FULL=40000000\n";
+        Files.write(bat.resolve("uevent"), uevent.getBytes(StandardCharsets.UTF_8));
+
+        List<PowerSource> sources = LinuxPowerSource.getPowerSources(tempDir.toString());
+        assertThat(sources, hasSize(1));
+        LinuxPowerSource ps = (LinuxPowerSource) sources.get(0);
+
+        // queryPowerSources() delegates to getPowerSources(SysPath.POWER_SUPPLY) on real
+        // systems; here we verify the copy constructor round-trip used by that path
+        LinuxPowerSource copy = new LinuxPowerSource(ps);
+        assertThat(copy.getName(), is(ps.getName()));
+        assertThat(copy.isCharging(), is(true));
     }
 }
