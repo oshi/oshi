@@ -7,9 +7,9 @@ package oshi.hardware.common.platform.linux;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -180,14 +180,4 @@ class LinuxSensorsTest {
         return hwmon;
     }
 
-    /**
-     * Writes a string to a file.
-     *
-     * @param path    the file path
-     * @param content the content to write
-     * @throws IOException if writing fails
-     */
-    private static void writeFile(Path path, String content) throws IOException {
-        Files.write(path, content.getBytes(StandardCharsets.UTF_8));
-    }
 }

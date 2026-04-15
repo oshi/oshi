@@ -520,6 +520,13 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1MB"), is(1_048_576L));
         assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1 GB"), is(1_073_741_824L));
         assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1 TB"), is(1_099_511_627_776L));
+        // Single-char suffixes (sysfs cache format)
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("32K"), is(32_768L));
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1M"), is(1_048_576L));
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("2G"), is(2_147_483_648L));
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1T"), is(1_099_511_627_776L));
+        // Bare "B" suffix should not multiply
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("32B"), is(32L));
     }
 
     @Test

@@ -8,9 +8,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -151,11 +151,6 @@ class LinuxGpuStatsTest {
         protected double nvmlGetFanSpeedPercent(String deviceId) {
             return 45.0;
         }
-    }
-
-    private static void writeFile(Path path, String content) throws IOException {
-        Files.createDirectories(path.getParent());
-        Files.write(path, content.getBytes(StandardCharsets.UTF_8));
     }
 
     // -------------------------------------------------------------------------

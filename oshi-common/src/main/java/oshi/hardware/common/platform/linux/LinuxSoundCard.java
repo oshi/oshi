@@ -22,7 +22,7 @@ import oshi.util.linux.ProcPath;
  * Sound card data obtained via /proc/asound directory
  */
 @Immutable
-final class LinuxSoundCard extends AbstractSoundCard {
+class LinuxSoundCard extends AbstractSoundCard {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);
 
@@ -45,10 +45,11 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * Method to find all the card folders contained in the <b>asound</b> folder denoting the cards currently contained
      * in our machine.
      *
+     * @param asoundPath The path to the asound directory
      * @return : A list of files starting with 'card'
      */
-    private static List<File> getCardFolders() {
-        File cardsDirectory = new File(ProcPath.ASOUND);
+    static List<File> getCardFolders(String asoundPath) {
+        File cardsDirectory = new File(asoundPath);
         List<File> cardFolders = new ArrayList<>();
         File[] allContents = cardsDirectory.listFiles();
         if (allContents != null) {
@@ -67,10 +68,11 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * Reads the 'version' file in the asound folder that contains the complete name of the ALSA driver. Reads all the
      * lines of the file and retrieves the first line.
      *
+     * @param asoundPath The path to the asound directory
      * @return The complete name of the ALSA driver currently residing in our machine
      */
-    private static String getSoundCardVersion() {
-        String driverVersion = FileUtil.getStringFromFile(ProcPath.ASOUND + "version");
+    static String getSoundCardVersion(String asoundPath) {
+        String driverVersion = FileUtil.getStringFromFile(new File(asoundPath, "version").getPath());
         return driverVersion.isEmpty() ? "not available" : driverVersion;
     }
 
@@ -84,7 +86,7 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * @param cardDir The sound card directory
      * @return The name of the codec
      */
-    private static String getCardCodec(File cardDir) {
+    static String getCardCodec(File cardDir) {
         String cardCodec = "";
         File[] cardFiles = cardDir.listFiles();
         if (cardFiles != null) {
@@ -120,13 +122,15 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * <li>If the id and the card name matches , then it assigns that name to {@literal cardName}</li>
      * </ol>
      *
-     * @param file The sound card File.
+     * @param file       The sound card File.
+     * @param asoundPath The path to the asound directory
      * @return The name of the sound card.
      */
-    private static String getCardName(File file) {
+    static String getCardName(File file, String asoundPath) {
         String cardName = "Not Found..";
-        Map<String, String> cardNamePairs = FileUtil.getKeyValueMapFromFile(ProcPath.ASOUND + "/" + CARDS_FILE, ":");
-        String cardId = FileUtil.getStringFromFile(file.getPath() + "/" + ID_FILE);
+        Map<String, String> cardNamePairs = FileUtil.getKeyValueMapFromFile(new File(asoundPath, CARDS_FILE).getPath(),
+                ":");
+        String cardId = FileUtil.getStringFromFile(new File(file, ID_FILE).getPath());
         for (Map.Entry<String, String> entry : cardNamePairs.entrySet()) {
             if (entry.getKey().contains(cardId)) {
                 cardName = entry.getValue();
@@ -142,9 +146,14 @@ final class LinuxSoundCard extends AbstractSoundCard {
      * @return List of {@link LinuxSoundCard} objects.
      */
     public static List<SoundCard> getSoundCards() {
+        return getSoundCards(ProcPath.ASOUND);
+    }
+
+    static List<SoundCard> getSoundCards(String asoundPath) {
         List<SoundCard> soundCards = new ArrayList<>();
-        for (File cardFile : getCardFolders()) {
-            soundCards.add(new LinuxSoundCard(getSoundCardVersion(), getCardName(cardFile), getCardCodec(cardFile)));
+        String version = getSoundCardVersion(asoundPath);
+        for (File cardFile : getCardFolders(asoundPath)) {
+            soundCards.add(new LinuxSoundCard(version, getCardName(cardFile, asoundPath), getCardCodec(cardFile)));
         }
         return soundCards;
     }

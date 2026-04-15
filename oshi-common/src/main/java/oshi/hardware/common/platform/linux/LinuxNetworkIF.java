@@ -47,7 +47,11 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
      * @return vendor + model string, or the interface name if not found
      */
     protected static String queryIfModelFromSysfs(String name) {
-        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(SysPath.NET + name + "/uevent", "=");
+        return queryIfModelFromSysfs(name, SysPath.NET);
+    }
+
+    static String queryIfModelFromSysfs(String name, String netPath) {
+        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(netPath + name + "/uevent", "=");
         String devVendor = uevent.get("ID_VENDOR_FROM_DATABASE");
         String devModel = uevent.get("ID_MODEL_FROM_DATABASE");
         if (!Util.isBlank(devModel)) {

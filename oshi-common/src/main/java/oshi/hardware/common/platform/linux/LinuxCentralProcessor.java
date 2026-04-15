@@ -205,12 +205,17 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     protected abstract Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev();
 
     protected static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
+        return readTopologyFromSysfs(SysPath.CPU);
+    }
+
+    static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs(
+            String cpuPath) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
         try {
-            try (Stream<Path> cpuFiles = Files.find(Paths.get(SysPath.CPU), Integer.MAX_VALUE,
+            try (Stream<Path> cpuFiles = Files.find(Paths.get(cpuPath), Integer.MAX_VALUE,
                     (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+"))) {
                 cpuFiles.forEach(cpu -> {
                     String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
@@ -223,7 +228,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         } catch (IOException e) {
             // No udev and no cpu info in sysfs? Bad.
-            LOG.warn("Unable to find CPU information in sysfs at path {}", SysPath.CPU);
+            LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
         }
         return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
@@ -240,7 +245,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             modAliasMap.put(pkgCoreKey, modAlias);
         }
         int nodeId = 0;
-        final String nodePrefix = syspath + "/node";
+        final String nodePrefix = Paths.get(syspath, "node").toString();
         try (Stream<Path> path = Files.list(Paths.get(syspath))) {
             Optional<Path> first = path.filter(p -> p.toString().startsWith(nodePrefix)).findFirst();
             if (first.isPresent()) {
@@ -249,8 +254,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         } catch (IOException e) {
             // ignore
         }
-        final String cachePath = syspath + "/cache";
-        final String indexPrefix = cachePath + "/index";
+        final String cachePath = Paths.get(syspath, "cache").toString();
+        final String indexPrefix = Paths.get(cachePath, "index").toString();
         try (Stream<Path> path = Files.list(Paths.get(cachePath))) {
             path.filter(p -> p.toString().startsWith(indexPrefix)).forEach(c -> {
                 int level = FileUtil.getIntFromFile(c + "/level"); // 1
@@ -275,12 +280,16 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromCpuinfo() {
+        return readTopologyFromCpuinfo(FileUtil.readFile(CPUINFO));
+    }
+
+    static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromCpuinfo(
+            List<String> procCpu) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Set<ProcessorCache> caches = mapCachesFromLscpu();
         Map<Integer, Integer> numaNodeMap = mapNumaNodesFromLscpu();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
 
-        List<String> procCpu = FileUtil.readFile(CPUINFO);
         int currentProcessor = 0;
         int currentCore = 0;
         int currentPackage = 0;
@@ -482,7 +491,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     protected static long queryMaxFreqFromCpuFreqPath(String cpuFreqPath) {
-        String policyPrefix = cpuFreqPath + "/policy";
+        String policyPrefix = Paths.get(cpuFreqPath, "policy").toString();
         try (Stream<Path> path = Files.list(Paths.get(cpuFreqPath))) {
             Optional<Long> maxPolicy = path.filter(p -> p.toString().startsWith(policyPrefix)).map(p -> {
                 long freq = FileUtil.getLongFromFile(p.toString() + "/scaling_max_freq");
@@ -502,11 +511,15 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public double[] getSystemLoadAverage(int nelem) {
+        return getSystemLoadAverage(nelem, FileUtil.getStringFromFile(LOADAVG));
+    }
+
+    static double[] getSystemLoadAverage(int nelem, String loadavgContent) {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        String[] parts = ParseUtil.whitespaces.split(FileUtil.getStringFromFile(LOADAVG).trim());
+        String[] parts = ParseUtil.whitespaces.split(loadavgContent.trim());
         for (int i = 0; i < nelem; i++) {
             average[i] = i < parts.length ? ParseUtil.parseDoubleOrDefault(parts[i], -1d) : -1d;
         }
@@ -596,7 +609,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @param family   the architecture
      * @return A 32-bit hex string for the MIDR
      */
-    private static String createMIDR(String vendor, String stepping, String model, String family) {
+    static String createMIDR(String vendor, String stepping, String model, String family) {
         int midrBytes = 0;
         // Build 32-bit MIDR
         if (stepping.startsWith("r") && stepping.contains("p")) {

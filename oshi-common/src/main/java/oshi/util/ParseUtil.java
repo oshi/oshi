@@ -995,7 +995,7 @@ public final class ParseUtil {
             }
         }
         long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
-        if (mem.length == 2 && mem[1].length() > 1) {
+        if (mem.length == 2 && mem[1].length() > 0) {
             switch (mem[1].charAt(0)) {
                 case 'T':
                     capacity <<= 40;
