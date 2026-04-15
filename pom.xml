@@ -802,6 +802,7 @@
                         <exclude>**/annotation/**</exclude>
                         <exclude>**/benchmark/**</exclude>
                         <exclude>**/demo/**</exclude>
+                        <exclude>**/ffm/**</exclude>
                         <exclude>**/jna/**</exclude>
                         <exclude>**/unix/aix/**</exclude>
                         <exclude>**/unix/freebsd/**</exclude>

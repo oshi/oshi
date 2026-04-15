@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.ffm.mac;
@@ -21,6 +21,7 @@ import static oshi.ffm.mac.CoreFoundationFunctions.CFDictionaryGetValueIfPresent
 import static oshi.ffm.mac.CoreFoundationFunctions.CFDictionarySetValue;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFEqual;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFGetTypeID;
+import static oshi.ffm.mac.CoreFoundationFunctions.CFHash;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFLocaleCopyCurrent;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFNumberGetValue;
 import static oshi.ffm.mac.CoreFoundationFunctions.CFRelease;
@@ -169,7 +170,14 @@ public interface CoreFoundation {
 
         @Override
         public int hashCode() {
-            return Objects.hash(segment());
+            if (isNull()) {
+                return 0;
+            }
+            try {
+                return Long.hashCode(CFHash(segment()));
+            } catch (Throwable e) {
+                return Objects.hash(segment());
+            }
         }
     }
 

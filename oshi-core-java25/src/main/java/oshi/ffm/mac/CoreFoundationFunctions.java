@@ -58,6 +58,22 @@ public final class CoreFoundationFunctions extends MacForeignFunctions {
         return (long) CFGetRetainCount.invokeExact(cf);
     }
 
+    // CFHashCode CFHash(CFTypeRef cf);
+
+    private static final MethodHandle CFHash = LINKER.downcallHandle(CF_LIBRARY.findOrThrow("CFHash"),
+            FunctionDescriptor.of(JAVA_LONG, ADDRESS));
+
+    /**
+     * Returns a hash code for a CF object.
+     *
+     * @param cf The CF object
+     * @return A hash code
+     * @throws Throwable if the native call fails
+     */
+    public static long CFHash(MemorySegment cf) throws Throwable {
+        return (long) CFHash.invokeExact(cf);
+    }
+
     // Boolean CFEqual(CFTypeRef cf1, CFTypeRef cf2);
 
     private static final MethodHandle CFEqual = LINKER.downcallHandle(CF_LIBRARY.findOrThrow("CFEqual"),
