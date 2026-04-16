@@ -60,16 +60,16 @@ public final class PerfCounterQuery {
      * enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
-     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link PdhCounterProperty} and contains the WMI field (Enum value)
+     *                     and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
      * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} on success, or an empty map if both PDH
      *         and WMI queries failed.
      */
-    public static <T extends Enum<T>> Map<T, Long> queryValues(Class<T> propertyEnum, String perfObject,
-            String perfWmiClass) {
+    public static <T extends Enum<T> & PdhCounterProperty> Map<T, Long> queryValues(Class<T> propertyEnum,
+            String perfObject, String perfWmiClass) {
         if (!FAILED_QUERY_CACHE.contains(perfObject)) {
             Map<T, Long> valueMap = queryValuesFromPDH(propertyEnum, perfObject);
             if (!valueMap.isEmpty()) {
@@ -86,14 +86,15 @@ public final class PerfCounterQuery {
      * Query the a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
-     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link PdhCounterProperty} and contains the WMI field (Enum value)
+     *                     and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} on success, or an empty map if the PDH
      *         query failed.
      */
-    public static <T extends Enum<T>> Map<T, Long> queryValuesFromPDH(Class<T> propertyEnum, String perfObject) {
+    public static <T extends Enum<T> & PdhCounterProperty> Map<T, Long> queryValuesFromPDH(Class<T> propertyEnum,
+            String perfObject) {
         T[] props = propertyEnum.getEnumConstants();
         // If pre-Vista, localize the perfObject
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, false);
@@ -102,8 +103,8 @@ public final class PerfCounterQuery {
         try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
             // Set up the query and counter handles
             for (T prop : props) {
-                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized,
-                        ((PdhCounterProperty) prop).getInstance(), ((PdhCounterProperty) prop).getCounter());
+                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized, prop.getInstance(),
+                        prop.getCounter());
                 counterMap.put(prop, counter);
                 if (!pdhQueryHandler.addCounterToQuery(counter)) {
                     return valueMap;
@@ -123,8 +124,8 @@ public final class PerfCounterQuery {
      * Query the a Performance Counter using WMI for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
-     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link PdhCounterProperty} and contains the WMI field (Enum value)
+     *                     and PDH Counter string (instance and counter)
      * @param wmiClass     The WMI PerfData_RawData_* class corresponding to the PDH object
      * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} if successful, an empty map if the WMI
      *         query failed.

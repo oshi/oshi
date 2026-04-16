@@ -28,6 +28,7 @@
 * [#3154](https://github.com/oshi/oshi/pull/3154): Improve API documentation: usage examples, platform notes, cross-references, JEP 472 guidance, and virtual memory model differences - [@dbwiddis](https://github.com/dbwiddis).
 * [#3160](https://github.com/oshi/oshi/pull/3160): Fix LinuxSensors fan and voltage discovery passing wrong path to getSensorFilesFromPath - [@dbwiddis](https://github.com/dbwiddis).
 * [#3161](https://github.com/oshi/oshi/pull/3161): Add Linux hardware unit tests; fix parseDecimalMemorySizeToBinary for single-char suffixes; use platform-independent path separators - [@dbwiddis](https://github.com/dbwiddis).
+* [#3164](https://github.com/oshi/oshi/pull/3164): Refactor Windows perfmon counter enums into oshi-common for sharing between JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

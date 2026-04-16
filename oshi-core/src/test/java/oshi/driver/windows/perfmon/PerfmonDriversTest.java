@@ -170,7 +170,7 @@ class PerfmonDriversTest {
                 ThreadPerformanceProperty.class, WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL));
     }
 
-    private <T extends PdhCounterWildcardProperty> void testWildcardCounters(String s,
+    private <T extends Enum<T> & PdhCounterWildcardProperty> void testWildcardCounters(String s,
             Pair<List<String>, Map<T, List<Long>>> counterData) {
         int instanceCount = counterData.getA().size();
         Map<T, List<Long>> counters = counterData.getB();
@@ -178,8 +178,7 @@ class PerfmonDriversTest {
             assertThat("Failed " + s + " instance count", counter.size(), is(instanceCount));
         }
 
-        @SuppressWarnings("unchecked")
-        int expectedSize = ((Class<T>) counters.keySet().iterator().next().getClass()).getEnumConstants().length - 1;
+        int expectedSize = counters.keySet().iterator().next().getDeclaringClass().getEnumConstants().length - 1;
         assertThat("Failed " + s + " map size", counters, is(aMapWithSize(expectedSize)));
     }
 }

@@ -58,6 +58,9 @@ public final class ProcessorInformationJNA {
      * @return Performance Counters for the total of all processors.
      */
     public static Map<SystemTickCountProperty, Long> querySystemCounters() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return Collections.emptyMap();
+        }
         return PerfCounterQuery.queryValues(SystemTickCountProperty.class, PROCESSOR,
                 WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
     }
