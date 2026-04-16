@@ -4,17 +4,17 @@
  */
 package oshi.ffm.windows;
 
+import static java.lang.foreign.MemoryLayout.structLayout;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
-
-import static java.lang.foreign.MemoryLayout.structLayout;
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 
 public class PdhFFM extends WindowsForeignFunctions {
 
@@ -51,6 +51,14 @@ public class PdhFFM extends WindowsForeignFunctions {
     public static int PdhGetFormattedCounterArray(MemorySegment counter, int format, MemorySegment bufferSize,
             MemorySegment itemCount, MemorySegment buffer) throws Throwable {
         return (int) PdhGetFormattedCounterArray.invokeExact(counter, format, bufferSize, itemCount, buffer);
+    }
+
+    private static final MethodHandle PdhGetFormattedCounterValue = downcall(Pdh, "PdhGetFormattedCounterValue",
+            JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+
+    public static int PdhGetFormattedCounterValue(MemorySegment counter, int format, MemorySegment type,
+            MemorySegment value) throws Throwable {
+        return (int) PdhGetFormattedCounterValue.invokeExact(counter, format, type, value);
     }
 
     private static final MethodHandle PdhCloseQuery = downcall(Pdh, "PdhCloseQuery", JAVA_INT, ADDRESS);
