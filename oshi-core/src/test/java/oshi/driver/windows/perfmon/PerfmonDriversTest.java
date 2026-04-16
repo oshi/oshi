@@ -36,21 +36,21 @@ import org.junit.jupiter.api.condition.OS;
 
 import com.sun.jna.platform.win32.VersionHelpers;
 
-import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
-import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
-import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
-import oshi.driver.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
-import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
-import oshi.driver.windows.perfmon.ProcessorInformation.InterruptsProperty;
-import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
-import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
-import oshi.driver.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
-import oshi.driver.windows.perfmon.SystemInformation.ContextSwitchProperty;
-import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
+import oshi.driver.common.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.common.windows.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
+import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.InterruptsProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
+import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
+import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
 @EnabledOnOs(OS.WINDOWS)

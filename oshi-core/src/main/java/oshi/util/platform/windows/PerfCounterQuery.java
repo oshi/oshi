@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -14,15 +14,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.win32.COM.Wbemcli;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
-import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.PdhCounterProperty;
+import oshi.driver.common.windows.perfmon.PerfmonConstants;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
@@ -42,13 +44,13 @@ public final class PerfCounterQuery {
     private static final ConcurrentHashMap<String, String> LOCALIZE_CACHE = new ConcurrentHashMap<>();
 
     /*
-     * Multiple classes use these constants
+     * Multiple classes use these constants. Delegated to PerfmonConstants for sharing with FFM.
      */
-    public static final String TOTAL_INSTANCE = "_Total";
-    public static final String TOTAL_OR_IDLE_INSTANCES = "_Total|Idle";
-    public static final String TOTAL_INSTANCES = "*_Total";
-    public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
-    public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
+    public static final String TOTAL_INSTANCE = PerfmonConstants.TOTAL_INSTANCE;
+    public static final String TOTAL_OR_IDLE_INSTANCES = PerfmonConstants.TOTAL_OR_IDLE_INSTANCES;
+    public static final String TOTAL_INSTANCES = PerfmonConstants.TOTAL_INSTANCES;
+    public static final String NOT_TOTAL_INSTANCE = PerfmonConstants.NOT_TOTAL_INSTANCE;
+    public static final String NOT_TOTAL_INSTANCES = PerfmonConstants.NOT_TOTAL_INSTANCES;
 
     private PerfCounterQuery() {
     }
@@ -58,9 +60,8 @@ public final class PerfCounterQuery {
      * enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
@@ -85,9 +86,8 @@ public final class PerfCounterQuery {
      * Query the a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} on success, or an empty map if the PDH
@@ -123,9 +123,8 @@ public final class PerfCounterQuery {
      * Query the a Performance Counter using WMI for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param wmiClass     The WMI PerfData_RawData_* class corresponding to the PDH object
      * @return An {@link EnumMap} of the values indexed by {@code propertyEnum} if successful, an empty map if the WMI
      *         query failed.
@@ -191,20 +190,5 @@ public final class PerfCounterQuery {
         }
         LOG.debug("Localized {} to {}", perfObject, localized);
         return localized;
-    }
-
-    /**
-     * Contract for Counter Property Enums
-     */
-    public interface PdhCounterProperty {
-        /**
-         * @return Returns the instance.
-         */
-        String getInstance();
-
-        /**
-         * @return Returns the counter.
-         */
-        String getCounter();
     }
 }

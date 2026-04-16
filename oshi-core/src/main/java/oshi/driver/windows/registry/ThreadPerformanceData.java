@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -14,9 +14,9 @@ import com.sun.jna.platform.win32.WinBase.FILETIME;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.driver.windows.perfmon.PerfmonDisabled;
-import oshi.driver.windows.perfmon.ThreadInformation;
-import oshi.driver.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
+import oshi.driver.windows.perfmon.ThreadInformationJNA;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -112,8 +112,8 @@ public final class ThreadPerformanceData {
         }
         Map<Integer, PerfCounterBlock> threadMap = new HashMap<>();
         Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
-                ? ThreadInformation.queryThreadCounters()
-                : ThreadInformation.queryThreadCounters(procName, threadNum);
+                ? ThreadInformationJNA.queryThreadCounters()
+                : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();

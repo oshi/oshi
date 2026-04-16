@@ -22,9 +22,9 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.windows.DxgiAdapterInfo;
-import oshi.driver.windows.perfmon.GpuInformation;
-import oshi.driver.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
+import oshi.driver.windows.perfmon.GpuInformationJNA;
 import oshi.driver.windows.wmi.LhmSensor;
 import oshi.driver.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.windows.wmi.Win32VideoController;
@@ -495,7 +495,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PDH LUID instance prefix string, or empty string if not determinable
      */
     private static String buildLuidPrefixFromPdh() {
-        Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformation
+        Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> adapterData = GpuInformationJNA
                 .queryGpuAdapterMemoryCounters();
         List<String> instances = adapterData.getA();
         if (instances.isEmpty()) {

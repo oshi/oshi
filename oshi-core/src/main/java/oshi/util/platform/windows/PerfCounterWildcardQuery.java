@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2025 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -17,14 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.PdhUtil;
-import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
-import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.PdhUtil;
+import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
+import com.sun.jna.platform.win32.PdhUtil.PdhException;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.util.GlobalConfig;
 import oshi.util.Util;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
@@ -52,9 +53,8 @@ public final class PerfCounterWildcardQuery {
      * enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
@@ -71,9 +71,8 @@ public final class PerfCounterWildcardQuery {
      * enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param perfWmiClass The WMI PerfData_RawData_* class corresponding to the PDH object
@@ -107,9 +106,8 @@ public final class PerfCounterWildcardQuery {
      * Query the a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @return An pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
@@ -124,9 +122,8 @@ public final class PerfCounterWildcardQuery {
      * Query the a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param perfObject   The PDH object for this counter; all counters on this object will be refreshed at the same
      *                     time
      * @param customFilter a custom instance filter to use. If null, uses the first element of the property enum
@@ -201,9 +198,8 @@ public final class PerfCounterWildcardQuery {
      * Query the a Performance Counter using WMI for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
-     * @param propertyEnum An enum which implements
-     *                     {@link oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty} and contains the WMI
-     *                     field (Enum value) and PDH Counter string (instance and counter)
+     * @param propertyEnum An enum which implements {@link oshi.driver.common.windows.perfmon.PdhCounterProperty} and
+     *                     contains the WMI field (Enum value) and PDH Counter string (instance and counter)
      * @param wmiClass     The WMI PerfData_RawData_* class corresponding to the PDH object
      * @return An pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
      *         {@code propertyEnum} on success, or an empty list and empty map if the WMI query failed.
@@ -246,17 +242,6 @@ public final class PerfCounterWildcardQuery {
             }
         }
         return new Pair<>(instances, valuesMap);
-    }
-
-    /**
-     * Contract for Counter Property Enums
-     */
-    public interface PdhCounterWildcardProperty {
-        /**
-         * @return Returns the counter. The first element of the enum will return the instance filter rather than a
-         *         counter.
-         */
-        String getCounter();
     }
 
 }

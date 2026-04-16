@@ -13,6 +13,15 @@ import oshi.annotation.concurrent.ThreadSafe;
 public final class PerfmonConstants {
 
     /*
+     * Instance filter constants used by enums implementing PdhCounterProperty or PdhCounterWildcardProperty
+     */
+    public static final String TOTAL_INSTANCE = "_Total";
+    public static final String TOTAL_OR_IDLE_INSTANCES = "_Total|Idle";
+    public static final String TOTAL_INSTANCES = "*_Total";
+    public static final String NOT_TOTAL_INSTANCE = "^" + TOTAL_INSTANCE;
+    public static final String NOT_TOTAL_INSTANCES = "^" + TOTAL_INSTANCES;
+
+    /*
      * Perfmon counter names and corresponding WMI tables
      */
     public static final String MEMORY = "Memory";
@@ -45,6 +54,9 @@ public final class PerfmonConstants {
 
     public static final String SYSTEM = "System";
     public static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
+
+    public static final String GPU_ENGINE = "GPU Engine";
+    public static final String GPU_ADAPTER_MEMORY = "GPU Adapter Memory";
 
     /**
      * Everything in this class is static, never instantiate it

@@ -11,66 +11,17 @@ import java.util.Collections;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
+import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
 import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterQuery.PdhCounterProperty;
 
 /**
  * Utility to query System performance counters
  */
 @ThreadSafe
-public final class SystemInformation {
+public final class SystemInformationJNA {
 
-    /**
-     * Context switch property
-     */
-    public enum ContextSwitchProperty implements PdhCounterProperty {
-        CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
-
-        private final String instance;
-        private final String counter;
-
-        ContextSwitchProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    /**
-     * Processor Queue Length property
-     */
-    public enum ProcessorQueueLengthProperty implements PdhCounterProperty {
-        PROCESSORQUEUELENGTH(null, "Processor Queue Length");
-
-        private final String instance;
-        private final String counter;
-
-        ProcessorQueueLengthProperty(String instance, String counter) {
-            this.instance = instance;
-            this.counter = counter;
-        }
-
-        @Override
-        public String getInstance() {
-            return instance;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private SystemInformation() {
+    private SystemInformationJNA() {
     }
 
     /**

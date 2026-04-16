@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
-import oshi.driver.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
+import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
 import oshi.util.tuples.Pair;
 
 /**
@@ -84,7 +84,7 @@ public final class LoadAverage {
                     nonIdleTicks0 = nonIdlePair.getA();
                     nonIdleBase0 = nonIdlePair.getB();
                     // get processes waiting
-                    queueLength = SystemInformation.queryProcessorQueueLength()
+                    queueLength = SystemInformationJNA.queryProcessorQueueLength()
                             .getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);
 
                     synchronized (loadAverages) {
@@ -116,7 +116,7 @@ public final class LoadAverage {
     }
 
     private static Pair<Long, Long> queryNonIdleTicks() {
-        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleValues = ProcessInformation
+        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleValues = ProcessInformationJNA
                 .queryIdleProcessCounters();
         List<String> instances = idleValues.getA();
         Map<IdleProcessorTimeProperty, List<Long>> valueMap = idleValues.getB();

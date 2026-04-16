@@ -18,8 +18,8 @@ import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.ProcessInformation;
-import oshi.driver.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.windows.perfmon.ProcessInformationJNA;
 import oshi.driver.windows.wmi.Win32LogicalDisk;
 import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.jna.ByRef.CloseableIntByReference;
@@ -270,7 +270,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        Map<HandleCountProperty, List<Long>> valueListMap = ProcessInformation.queryHandles().getB();
+        Map<HandleCountProperty, List<Long>> valueListMap = ProcessInformationJNA.queryHandles().getB();
         List<Long> valueList = valueListMap.get(HandleCountProperty.HANDLECOUNT);
         long descriptors = 0L;
         if (valueList != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -29,8 +29,8 @@ import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.jna.ByRef.CloseableIntByReference;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

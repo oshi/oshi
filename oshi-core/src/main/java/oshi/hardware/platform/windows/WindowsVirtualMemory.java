@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -17,10 +17,10 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.MemoryInformation;
-import oshi.driver.windows.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.driver.windows.perfmon.PagingFile;
-import oshi.driver.windows.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.common.windows.perfmon.MemoryInformation.PageSwapProperty;
+import oshi.driver.common.windows.perfmon.PagingFile.PagingPercentProperty;
+import oshi.driver.windows.perfmon.MemoryInformationJNA;
+import oshi.driver.windows.perfmon.PagingFileJNA;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.tuples.Pair;
@@ -84,7 +84,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static long querySwapUsed() {
-        return PagingFile.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
+        return PagingFileJNA.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 
     private static Triplet<Long, Long, Long> querySwapTotalVirtMaxVirtUsed() {
@@ -99,7 +99,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static Pair<Long, Long> queryPageSwaps() {
-        Map<PageSwapProperty, Long> valueMap = MemoryInformation.queryPageSwaps();
+        Map<PageSwapProperty, Long> valueMap = MemoryInformationJNA.queryPageSwaps();
         return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
     }

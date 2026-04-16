@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.Kernel32;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.PhysicalDisk;
-import oshi.driver.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.windows.perfmon.PhysicalDiskJNA;
 import oshi.driver.windows.wmi.Win32DiskDrive;
 import oshi.driver.windows.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition;
@@ -223,7 +223,8 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
     private static DiskStats queryReadWriteStats(String index) {
         // Create object to hold and return results
         DiskStats stats = new DiskStats();
-        Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair = PhysicalDisk.queryDiskCounters();
+        Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair = PhysicalDiskJNA
+                .queryDiskCounters();
         List<String> instances = instanceValuePair.getA();
         Map<PhysicalDiskProperty, List<Long>> valueMap = instanceValuePair.getB();
         stats.timeStamp = System.currentTimeMillis();

@@ -12,44 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
 /**
  * Utility to query PhysicalDisk performance counter
  */
 @ThreadSafe
-public final class PhysicalDisk {
+public final class PhysicalDiskJNA {
 
-    /**
-     * Physical Disk performance counters.
-     */
-    public enum PhysicalDiskProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCE),
-        // Remaining elements define counters
-        DISKREADSPERSEC("Disk Reads/sec"), //
-        DISKREADBYTESPERSEC("Disk Read Bytes/sec"), //
-        DISKWRITESPERSEC("Disk Writes/sec"), //
-        DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
-        CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
-        PERCENTDISKTIME("% Disk Time");
-
-        private final String counter;
-
-        PhysicalDiskProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private PhysicalDisk() {
+    private PhysicalDiskJNA() {
     }
 
     /**

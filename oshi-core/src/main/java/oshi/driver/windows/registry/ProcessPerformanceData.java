@@ -13,8 +13,8 @@ import com.sun.jna.platform.win32.WinBase;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.perfmon.ProcessInformation;
-import oshi.driver.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.driver.windows.perfmon.ProcessInformationJNA;
 import oshi.util.GlobalConfig;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -104,7 +104,7 @@ public final class ProcessPerformanceData {
     public static Map<Integer, PerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids,
             String procName) {
         Map<Integer, PerfCounterBlock> processMap = new HashMap<>();
-        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformation
+        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformationJNA
                 .queryProcessCounters();
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();

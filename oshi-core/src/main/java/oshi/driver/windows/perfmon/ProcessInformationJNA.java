@@ -14,90 +14,19 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.platform.windows.PerfCounterQuery;
+import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
+import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery.PdhCounterWildcardProperty;
 import oshi.util.tuples.Pair;
 
 /**
  * Utility to query Process Information performance counter
  */
 @ThreadSafe
-public final class ProcessInformation {
+public final class ProcessInformationJNA {
 
-    /**
-     * Process performance counters
-     */
-    public enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.NOT_TOTAL_INSTANCES),
-        // Remaining elements define counters
-        PRIORITYBASE("Priority Base"), //
-        ELAPSEDTIME("Elapsed Time"), //
-        IDPROCESS("ID Process"), //
-        CREATINGPROCESSID("Creating Process ID"), //
-        IOREADBYTESPERSEC("IO Read Bytes/sec"), //
-        IOWRITEBYTESPERSEC("IO Write Bytes/sec"), //
-        WORKINGSETPRIVATE("Working Set - Private"), //
-        WORKINGSET("Working Set"), //
-        PAGEFAULTSPERSEC("Page Faults/sec");
-
-        private final String counter;
-
-        ProcessPerformanceProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    /**
-     * Handle performance counters
-     */
-    public enum HandleCountProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.TOTAL_INSTANCE),
-        // Remaining elements define counters
-        HANDLECOUNT("Handle Count");
-
-        private final String counter;
-
-        HandleCountProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    /**
-     * Processor performance counters
-     */
-    public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(PerfCounterQuery.TOTAL_OR_IDLE_INSTANCES),
-        // Remaining elements define counters
-        PERCENTPROCESSORTIME("% Processor Time"), //
-        ELAPSEDTIME("Elapsed Time");
-
-        private final String counter;
-
-        IdleProcessorTimeProperty(String counter) {
-            this.counter = counter;
-        }
-
-        @Override
-        public String getCounter() {
-            return counter;
-        }
-    }
-
-    private ProcessInformation() {
+    private ProcessInformationJNA() {
     }
 
     /**
