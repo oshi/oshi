@@ -24,7 +24,6 @@ import com.sun.jna.platform.win32.Win32Exception;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
-import oshi.driver.common.windows.perfmon.PerfmonConstants;
 import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
@@ -42,15 +41,6 @@ public final class PerfCounterQuery {
 
     // A map to cache localization strings
     private static final ConcurrentHashMap<String, String> LOCALIZE_CACHE = new ConcurrentHashMap<>();
-
-    /*
-     * Multiple classes use these constants. Delegated to PerfmonConstants for sharing with FFM.
-     */
-    public static final String TOTAL_INSTANCE = PerfmonConstants.TOTAL_INSTANCE;
-    public static final String TOTAL_OR_IDLE_INSTANCES = PerfmonConstants.TOTAL_OR_IDLE_INSTANCES;
-    public static final String TOTAL_INSTANCES = PerfmonConstants.TOTAL_INSTANCES;
-    public static final String NOT_TOTAL_INSTANCE = PerfmonConstants.NOT_TOTAL_INSTANCE;
-    public static final String NOT_TOTAL_INSTANCES = PerfmonConstants.NOT_TOTAL_INSTANCES;
 
     private PerfCounterQuery() {
     }

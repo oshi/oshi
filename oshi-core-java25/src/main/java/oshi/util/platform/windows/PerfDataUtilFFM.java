@@ -23,41 +23,61 @@ import java.lang.foreign.MemorySegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PdhUtilFFM {
+/**
+ * Helper class to centralize the boilerplate portions of PDH counter setup using the FFM API.
+ */
+public final class PerfDataUtilFFM {
 
-    private PdhUtilFFM() {
+    private PerfDataUtilFFM() {
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(PdhUtilFFM.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PerfDataUtilFFM.class);
 
-    public static long getOpenFileDescriptors() {
+    /**
+     * Query a single PDH counter value.
+     *
+     * @param object   The PDH object name (e.g., "Process")
+     * @param instance The instance name (e.g., "_Total"), or null for no instance
+     * @param counter  The counter name (e.g., "Handle Count")
+     * @return The counter value, or -1 if the query failed
+     */
+    public static long queryCounter(String object, String instance, String counter) {
+        StringBuilder path = new StringBuilder();
+        path.append('\\').append(object);
+        if (instance != null) {
+            path.append('(').append(instance).append(')');
+        }
+        path.append('\\').append(counter);
+
         try (Arena arena = Arena.ofConfined()) {
-
             MemorySegment queryPtr = arena.allocate(ADDRESS);
             checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
-            MemorySegment query = queryPtr.get(ADDRESS, 0);
+            MemorySegment query = null;
 
             try {
+                query = queryPtr.get(ADDRESS, 0);
                 MemorySegment counterPtr = arena.allocate(ADDRESS);
-                checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, "\\Process(_Total)\\Handle Count"),
-                        MemorySegment.NULL, counterPtr));
-                MemorySegment counter = counterPtr.get(ADDRESS, 0);
+                checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, path.toString()), MemorySegment.NULL,
+                        counterPtr));
+                MemorySegment counterHandle = counterPtr.get(ADDRESS, 0);
 
                 checkSuccess(PdhCollectQueryData(query));
 
                 MemorySegment value = arena.allocate(PDH_FMT_COUNTERVALUE_LAYOUT);
-                checkSuccess(PdhGetFormattedCounterValue(counter, PDH_FMT_LARGE, MemorySegment.NULL, value));
+                checkSuccess(PdhGetFormattedCounterValue(counterHandle, PDH_FMT_LARGE, MemorySegment.NULL, value));
 
                 long valueOffset = PDH_FMT_COUNTERVALUE_LAYOUT.byteOffset(groupElement("Value"),
                         groupElement("largeValue"));
                 return value.get(JAVA_LONG, valueOffset);
 
             } finally {
-                PdhCloseQuery(query);
+                if (query != null) {
+                    PdhCloseQuery(query);
+                }
             }
 
         } catch (Throwable t) {
-            LOG.debug("PDH getOpenFileDescriptors failed: {}", t.getMessage(), t);
+            LOG.debug("PDH queryCounter failed for {}: {}", path, t.getMessage(), t);
             return -1;
         }
     }

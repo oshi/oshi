@@ -8,6 +8,8 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESS;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.TOTAL_INSTANCE;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
@@ -26,12 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.PdhUtilFFM;
+import oshi.util.platform.windows.PerfDataUtilFFM;
 
 @ThreadSafe
 public class WindowsFileSystemFFM extends AbstractFileSystem {
@@ -303,7 +306,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return PdhUtilFFM.getOpenFileDescriptors();
+        return PerfDataUtilFFM.queryCounter(PROCESS, TOTAL_INSTANCE, HandleCountProperty.HANDLECOUNT.getCounter());
     }
 
     @Override
