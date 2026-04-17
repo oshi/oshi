@@ -5,8 +5,8 @@
 package oshi.driver.windows.perfmon;
 
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESS;
-import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 
 import java.util.Collections;
@@ -17,6 +17,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.tuples.Pair;
 
@@ -45,14 +46,14 @@ public final class ProcessInformationJNA {
     /**
      * Returns handle counters
      *
-     * @return Process handle counters for each process.
+     * @return Handle count for the _Total instance.
      */
-    public static Pair<List<String>, Map<HandleCountProperty, List<Long>>> queryHandles() {
+    public static Map<HandleCountProperty, Long> queryHandles() {
         if (PerfmonDisabled.PERF_PROC_DISABLED) {
-            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+            return Collections.emptyMap();
         }
-        return PerfCounterWildcardQuery.queryInstancesAndValues(HandleCountProperty.class, PROCESS,
-                WIN32_PERFPROC_PROCESS);
+        return PerfCounterQuery.queryValues(HandleCountProperty.class, PROCESS,
+                WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL);
     }
 
     /**

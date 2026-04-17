@@ -48,16 +48,20 @@ public final class ProcessInformation {
     /**
      * Handle performance counters
      */
-    public enum HandleCountProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
-        NAME(TOTAL_INSTANCE),
-        // Remaining elements define counters
-        HANDLECOUNT("Handle Count");
+    public enum HandleCountProperty implements PdhCounterProperty {
+        HANDLECOUNT(TOTAL_INSTANCE, "Handle Count");
 
+        private final String instance;
         private final String counter;
 
-        HandleCountProperty(String counter) {
+        HandleCountProperty(String instance, String counter) {
+            this.instance = instance;
             this.counter = counter;
+        }
+
+        @Override
+        public String getInstance() {
+            return instance;
         }
 
         @Override

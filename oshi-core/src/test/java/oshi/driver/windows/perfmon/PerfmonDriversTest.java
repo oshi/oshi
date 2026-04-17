@@ -15,8 +15,8 @@ import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.SYSTEM;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.THREAD;
-import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
@@ -94,10 +94,11 @@ class PerfmonDriversTest {
 
     @Test
     void testQueryHandles() {
-        testWildcardCounters("PDH Handles",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(HandleCountProperty.class, PROCESS));
-        testWildcardCounters("WMI Handles", PerfCounterWildcardQuery
-                .queryInstancesAndValuesFromWMI(HandleCountProperty.class, WIN32_PERFPROC_PROCESS));
+        assertThat("Failed PDH queryHandles", PerfCounterQuery.queryValuesFromPDH(HandleCountProperty.class, PROCESS),
+                is(aMapWithSize(HandleCountProperty.values().length)));
+        assertThat("Failed WMI queryHandles",
+                PerfCounterQuery.queryValuesFromWMI(HandleCountProperty.class, WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL),
+                is(aMapWithSize(HandleCountProperty.values().length)));
     }
 
     @Test
