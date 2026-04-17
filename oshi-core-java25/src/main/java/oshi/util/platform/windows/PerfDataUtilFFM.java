@@ -29,6 +29,10 @@ import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 
 /**
  * Helper class to centralize the boilerplate portions of PDH counter setup using the FFM API.
+ * <p>
+ * This utility collects counter data with a single call to {@code PdhCollectQueryData}, which yields valid results for
+ * raw counters. OSHI queries raw counter values and computes rates in Java rather than using PDH formatted rate
+ * counters, which would require two samples separated by an interval.
  */
 public final class PerfDataUtilFFM {
 
@@ -46,7 +50,8 @@ public final class PerfDataUtilFFM {
      * @param <T>          An enum implementing {@link PdhCounterProperty}
      * @param propertyEnum The enum class whose constants define the counters to query
      * @param perfObject   The PDH object name (e.g., "Process")
-     * @return An {@link EnumMap} of values indexed by enum constant, or an empty map on failure
+     * @return An {@link EnumMap} of values indexed by enum constant. May contain a subset of constants if individual
+     *         counters fail to add or read. Returns an empty map if the query itself fails to open or collect.
      */
     public static <T extends Enum<T> & PdhCounterProperty> Map<T, Long> queryCounters(Class<T> propertyEnum,
             String perfObject) {
@@ -61,19 +66,30 @@ public final class PerfDataUtilFFM {
             try {
                 query = queryPtr.get(ADDRESS, 0);
 
-                // Add all counters to the single query
+                // Add all counters to the single query, skipping any that fail
                 EnumMap<T, MemorySegment> counterHandles = new EnumMap<>(propertyEnum);
                 for (T prop : props) {
                     String path = counterPath(perfObject, prop.getInstance(), prop.getCounter());
-                    counterHandles.put(prop, addEnglishCounter(arena, query, path));
+                    try {
+                        counterHandles.put(prop, addEnglishCounter(arena, query, path));
+                    } catch (Throwable t) {
+                        LOG.debug("Failed to add counter {}: {}", path, t.getMessage());
+                    }
+                }
+                if (counterHandles.isEmpty()) {
+                    return valueMap;
                 }
 
                 // Collect once
                 checkSuccess(PdhCollectQueryData(query));
 
-                // Read all values
-                for (T prop : props) {
-                    valueMap.put(prop, readCounterValue(arena, counterHandles.get(prop)));
+                // Read all values, skipping any that fail
+                for (var entry : counterHandles.entrySet()) {
+                    try {
+                        valueMap.put(entry.getKey(), readCounterValue(arena, entry.getValue()));
+                    } catch (Throwable t) {
+                        LOG.debug("Failed to read counter for {}: {}", entry.getKey(), t.getMessage());
+                    }
                 }
 
             } finally {

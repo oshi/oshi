@@ -91,19 +91,20 @@ public final class PerfCounterQuery {
         EnumMap<T, PerfCounter> counterMap = new EnumMap<>(propertyEnum);
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
-            // Set up the query and counter handles
+            // Set up the query and counter handles, skipping any that fail
             for (T prop : props) {
                 PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized, prop.getInstance(),
                         prop.getCounter());
-                counterMap.put(prop, counter);
-                if (!pdhQueryHandler.addCounterToQuery(counter)) {
-                    return valueMap;
+                if (pdhQueryHandler.addCounterToQuery(counter)) {
+                    counterMap.put(prop, counter);
+                } else {
+                    LOG.debug("Failed to add counter for {}", prop);
                 }
             }
             // And then query. Zero timestamp means update failed
-            if (0 < pdhQueryHandler.updateQuery()) {
-                for (T prop : props) {
-                    valueMap.put(prop, pdhQueryHandler.queryCounter(counterMap.get(prop)));
+            if (!counterMap.isEmpty() && 0 < pdhQueryHandler.updateQuery()) {
+                for (Map.Entry<T, PerfCounter> entry : counterMap.entrySet()) {
+                    valueMap.put(entry.getKey(), pdhQueryHandler.queryCounter(entry.getValue()));
                 }
             }
         }
