@@ -41,41 +41,6 @@ public final class PerfDataUtilFFM {
             groupElement("largeValue"));
 
     /**
-     * Query a single PDH counter value.
-     *
-     * @param object   The PDH object name (e.g., "Process")
-     * @param instance The instance name (e.g., "_Total"), or null for no instance
-     * @param counter  The counter name (e.g., "Handle Count")
-     * @return The counter value, or -1 if the query failed
-     */
-    public static long queryCounter(String object, String instance, String counter) {
-        String path = counterPath(object, instance, counter);
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment queryPtr = arena.allocate(ADDRESS);
-            checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
-            MemorySegment query = null;
-
-            try {
-                query = queryPtr.get(ADDRESS, 0);
-                MemorySegment counterHandle = addEnglishCounter(arena, query, path);
-
-                checkSuccess(PdhCollectQueryData(query));
-
-                return readCounterValue(arena, counterHandle);
-
-            } finally {
-                if (query != null) {
-                    PdhCloseQuery(query);
-                }
-            }
-
-        } catch (Throwable t) {
-            LOG.debug("PDH queryCounter failed for {}: {}", path, t.getMessage(), t);
-            return -1;
-        }
-    }
-
-    /**
      * Query multiple PDH counter values in a single query, one per enum constant.
      *
      * @param <T>          An enum implementing {@link PdhCounterProperty}
