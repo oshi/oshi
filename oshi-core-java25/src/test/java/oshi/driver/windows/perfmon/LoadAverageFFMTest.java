@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -15,11 +15,11 @@ import org.junit.jupiter.api.condition.OS;
 import oshi.util.Util;
 
 @EnabledOnOs(OS.WINDOWS)
-class LoadAverageTest {
+class LoadAverageFFMTest {
 
     @Test
     void testQueryLoadAverage() {
-        LoadAverageJNA loadAvg = LoadAverageJNA.getInstance();
+        LoadAverageFFM loadAvg = LoadAverageFFM.getInstance();
         double[] loadAverage = loadAvg.queryLoadAverage(3);
         assertThat("1m load average should be negative", loadAverage[0], lessThan(0d));
         assertThat("5m load average should be negative", loadAverage[1], lessThan(0d));

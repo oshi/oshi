@@ -9,6 +9,7 @@ public interface WinErrorFFM {
     int ERROR_ACCESS_DENIED = 5;
     int ERROR_BUFFER_OVERFLOW = 111;
     int ERROR_INSUFFICIENT_BUFFER = 122;
+    int ERROR_MORE_DATA = 234;
     int ERROR_NO_MORE_ITEMS = 259;
     int ERROR_SUCCESS = 0;
 }

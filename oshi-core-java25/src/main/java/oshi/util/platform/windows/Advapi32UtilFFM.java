@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -15,10 +15,12 @@ import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
 import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
 import static oshi.ffm.windows.Advapi32FFM.RegQueryValueEx;
 import static oshi.ffm.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
+import static oshi.ffm.windows.WinErrorFFM.ERROR_MORE_DATA;
 import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.windows.WinNTFFM.KEY_READ;
 import static oshi.ffm.windows.WinNTFFM.REG_DWORD;
 import static oshi.ffm.windows.WinNTFFM.REG_EXPAND_SZ;
+import static oshi.ffm.windows.WinNTFFM.REG_MULTI_SZ;
 import static oshi.ffm.windows.WinNTFFM.REG_SZ;
 import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
@@ -192,6 +194,80 @@ public final class Advapi32UtilFFM {
                     yield null;
                 }
             };
+        }
+    }
+
+    /**
+     * Reads a REG_MULTI_SZ value from an open registry key.
+     *
+     * @param rootKey   The root key handle (e.g., HKEY_LOCAL_MACHINE)
+     * @param keyPath   The registry key path
+     * @param valueName The value name to read
+     * @return An array of strings from the multi-sz value, or an empty array on failure
+     */
+    public static String[] registryGetStringArray(MemorySegment rootKey, String keyPath, String valueName) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment phkResult = arena.allocate(ADDRESS);
+            int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
+            if (rc != ERROR_SUCCESS) {
+                throw new Win32Exception(rc);
+            }
+            MemorySegment hKey = phkResult.get(ADDRESS, 0);
+            try {
+                MemorySegment lpType = arena.allocate(JAVA_INT);
+                MemorySegment lpcbData = arena.allocate(JAVA_INT);
+
+                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+                if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER && rc != ERROR_MORE_DATA) {
+                    throw new Win32Exception(rc);
+                }
+                if (lpType.get(JAVA_INT, 0) != REG_MULTI_SZ) {
+                    throw new IllegalStateException(
+                            "Unexpected registry type " + lpType.get(JAVA_INT, 0) + ", expected REG_MULTI_SZ");
+                }
+
+                int size = lpcbData.get(JAVA_INT, 0);
+                MemorySegment data;
+                rc = ERROR_MORE_DATA;
+                for (int attempt = 0; attempt < 3 && rc != ERROR_SUCCESS; attempt++) {
+                    // Allocate extra for double-null terminator
+                    data = arena.allocate(size + 4);
+                    data.fill((byte) 0);
+                    lpcbData.set(JAVA_INT, 0, size + 4);
+
+                    rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+                    if (rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER) {
+                        size = lpcbData.get(JAVA_INT, 0);
+                        continue;
+                    }
+                    if (rc != ERROR_SUCCESS) {
+                        throw new Win32Exception(rc);
+                    }
+
+                    // Parse multi-sz: null-delimited wide strings, double-null terminated
+                    int bytesWritten = lpcbData.get(JAVA_INT, 0);
+                    List<String> result = new ArrayList<>();
+                    long offset = 0;
+                    while (offset < bytesWritten) {
+                        String s = readWideString(data.asSlice(offset, bytesWritten - offset));
+                        if (s.isEmpty()) {
+                            break;
+                        }
+                        result.add(s);
+                        offset += ((long) s.length() + 1) * 2; // chars + null, 2 bytes each
+                    }
+                    return result.toArray(new String[0]);
+                }
+                throw new Win32Exception(rc);
+            } finally {
+                int closeRc = RegCloseKey(hKey);
+                if (closeRc != ERROR_SUCCESS) {
+                    LOG.debug("Failed to close registry key {}\\{}: error {}", keyPath, valueName, closeRc);
+                }
+            }
+        } catch (Throwable t) {
+            LOG.warn("Failed to read registry string array {}\\{}: {}", keyPath, valueName, t.getMessage());
+            return new String[0];
         }
     }
 

@@ -24,6 +24,7 @@ public interface WinNTFFM {
     int REG_SZ = 1;
     int REG_EXPAND_SZ = 2;
     int REG_DWORD = 4;
+    int REG_MULTI_SZ = 7;
     int SE_PRIVILEGE_ENABLED = 0x00000002;
     int TOKEN_QUERY = 0x0008;
     int TOKEN_ADJUST_PRIVILEGES = 0x0020;

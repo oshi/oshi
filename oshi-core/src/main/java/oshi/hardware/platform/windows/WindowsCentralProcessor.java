@@ -35,7 +35,7 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityT
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.windows.LogicalProcessorInformation;
-import oshi.driver.windows.perfmon.LoadAverage;
+import oshi.driver.windows.perfmon.LoadAverageJNA;
 import oshi.driver.windows.perfmon.ProcessorInformationJNA;
 import oshi.driver.windows.perfmon.SystemInformationJNA;
 import oshi.driver.windows.wmi.Win32Processor;
@@ -72,7 +72,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
     private static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
     static {
         if (USE_LOAD_AVERAGE) {
-            LoadAverage.startDaemon();
+            LoadAverageJNA.getInstance().startDaemon();
         }
     }
 
@@ -318,7 +318,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        return LoadAverage.queryLoadAverage(nelem);
+        return LoadAverageJNA.getInstance().queryLoadAverage(nelem);
     }
 
     @Override

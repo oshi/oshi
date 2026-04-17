@@ -10,6 +10,8 @@
   com.github.oshi/oshi.ffm.mac=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.ffm.windows.com=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.windows.perfmon=org.junit.platform.commons
 
 --enable-native-access
   com.github.oshi

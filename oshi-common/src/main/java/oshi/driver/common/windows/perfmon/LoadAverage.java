@@ -2,49 +2,56 @@
  * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.windows.perfmon;
+package oshi.driver.common.windows.perfmon;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
-import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
 import oshi.util.tuples.Pair;
 
 /**
  * Utility to calculate a load average equivalent metric on Windows. Starts a daemon thread to collect the necessary
- * counters and averages in 5-second intervals.
+ * counters and averages in 5-second intervals. Subclasses provide the platform-specific perfmon queries.
  */
 @ThreadSafe
-public final class LoadAverage {
+public abstract class LoadAverage {
 
     // Daemon thread for Load Average
-    private static Thread loadAvgThread = null;
+    private Thread loadAvgThread = null;
 
-    private static double[] loadAverages = new double[] { -1d, -1d, -1d };
+    private final double[] loadAverages = new double[] { -1d, -1d, -1d };
     private static final double[] EXP_WEIGHT = new double[] {
             // 1-, 5-, and 15-minute exponential smoothing weight
             Math.exp(-5d / 60d), Math.exp(-5d / 300d), Math.exp(-5d / 900d) };
 
-    private LoadAverage() {
-    }
+    /**
+     * Query the non-idle ticks from performance counters.
+     *
+     * @return A pair of (nonIdleTicks, nonIdleBase) values
+     */
+    protected abstract Pair<Long, Long> queryNonIdleTicks();
 
-    public static double[] queryLoadAverage(int nelem) {
+    /**
+     * Query the processor queue length from performance counters.
+     *
+     * @return The processor queue length
+     */
+    protected abstract long queryQueueLength();
+
+    public double[] queryLoadAverage(int nelem) {
         synchronized (loadAverages) {
             return Arrays.copyOf(loadAverages, nelem);
         }
     }
 
-    public static synchronized void stopDaemon() {
+    public synchronized void stopDaemon() {
         if (loadAvgThread != null) {
             loadAvgThread.interrupt();
             loadAvgThread = null;
         }
     }
 
-    public static synchronized void startDaemon() {
+    public synchronized void startDaemon() {
         if (loadAvgThread != null) {
             return;
         }
@@ -52,7 +59,7 @@ public final class LoadAverage {
             @Override
             public void run() {
                 // Initialize tick counters
-                Pair<Long, Long> nonIdlePair = LoadAverage.queryNonIdleTicks();
+                Pair<Long, Long> nonIdlePair = queryNonIdleTicks();
                 long nonIdleTicks0 = nonIdlePair.getA();
                 long nonIdleBase0 = nonIdlePair.getB();
                 long nonIdleTicks;
@@ -73,7 +80,7 @@ public final class LoadAverage {
                 }
                 while (!Thread.currentThread().isInterrupted()) {
                     // get non-idle ticks, proxy for average processes running
-                    nonIdlePair = LoadAverage.queryNonIdleTicks();
+                    nonIdlePair = queryNonIdleTicks();
                     nonIdleTicks = nonIdlePair.getA() - nonIdleTicks0;
                     nonIdleBase = nonIdlePair.getB() - nonIdleBase0;
                     if (nonIdleBase > 0 && nonIdleTicks > 0) {
@@ -84,8 +91,7 @@ public final class LoadAverage {
                     nonIdleTicks0 = nonIdlePair.getA();
                     nonIdleBase0 = nonIdlePair.getB();
                     // get processes waiting
-                    queueLength = SystemInformationJNA.queryProcessorQueueLength()
-                            .getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);
+                    queueLength = queryQueueLength();
 
                     synchronized (loadAverages) {
                         // Init to running procs the first time
@@ -113,25 +119,5 @@ public final class LoadAverage {
         };
         loadAvgThread.setDaemon(true);
         loadAvgThread.start();
-    }
-
-    private static Pair<Long, Long> queryNonIdleTicks() {
-        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleValues = ProcessInformationJNA
-                .queryIdleProcessCounters();
-        List<String> instances = idleValues.getA();
-        Map<IdleProcessorTimeProperty, List<Long>> valueMap = idleValues.getB();
-        List<Long> proctimeTicks = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME);
-        List<Long> proctimeBase = valueMap.get(IdleProcessorTimeProperty.ELAPSEDTIME);
-        long nonIdleTicks = 0L;
-        long nonIdleBase = 0L;
-        for (int i = 0; i < instances.size(); i++) {
-            if ("_Total".equals(instances.get(i))) {
-                nonIdleTicks += proctimeTicks.get(i);
-                nonIdleBase += proctimeBase.get(i);
-            } else if ("Idle".equals(instances.get(i))) {
-                nonIdleTicks -= proctimeTicks.get(i);
-            }
-        }
-        return new Pair<>(nonIdleTicks, nonIdleBase);
     }
 }

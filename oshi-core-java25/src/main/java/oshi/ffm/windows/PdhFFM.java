@@ -6,7 +6,6 @@ package oshi.ffm.windows;
 
 import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
@@ -20,7 +19,6 @@ public class PdhFFM extends WindowsForeignFunctions {
 
     private static final SymbolLookup Pdh = lib("Pdh");
 
-    public static final int PDH_FMT_LARGE = 0x00000400;
     public static final int PDH_MORE_DATA = 0x800007D2;
 
     private static final MethodHandle PdhOpenQuery = downcall(Pdh, "PdhOpenQueryW", JAVA_INT, ADDRESS, ADDRESS,
@@ -45,20 +43,41 @@ public class PdhFFM extends WindowsForeignFunctions {
         return (int) PdhCollectQueryData.invokeExact(query);
     }
 
-    private static final MethodHandle PdhGetFormattedCounterArray = downcall(Pdh, "PdhGetFormattedCounterArrayW",
-            JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS);
+    private static final MethodHandle PdhGetRawCounterValue = downcall(Pdh, "PdhGetRawCounterValue", JAVA_INT, ADDRESS,
+            ADDRESS, ADDRESS);
 
-    public static int PdhGetFormattedCounterArray(MemorySegment counter, int format, MemorySegment bufferSize,
-            MemorySegment itemCount, MemorySegment buffer) throws Throwable {
-        return (int) PdhGetFormattedCounterArray.invokeExact(counter, format, bufferSize, itemCount, buffer);
+    public static int PdhGetRawCounterValue(MemorySegment counter, MemorySegment type, MemorySegment value)
+            throws Throwable {
+        return (int) PdhGetRawCounterValue.invokeExact(counter, type, value);
     }
 
-    private static final MethodHandle PdhGetFormattedCounterValue = downcall(Pdh, "PdhGetFormattedCounterValue",
-            JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+    // PDH_RAW_COUNTER: CStatus(4) + pad(4) + TimeStamp(8) + FirstValue(8) + SecondValue(8) + MultiCount(4) + pad(4)
+    // MSVC aligns LONGLONG to 8 bytes, so 4 bytes padding after FILETIME (offset 12 → 16)
+    public static final int PDH_CSTATUS_VALID_DATA = 0;
+    public static final int PDH_CSTATUS_NEW_DATA = 1;
 
-    public static int PdhGetFormattedCounterValue(MemorySegment counter, int format, MemorySegment type,
-            MemorySegment value) throws Throwable {
-        return (int) PdhGetFormattedCounterValue.invokeExact(counter, format, type, value);
+    public static final StructLayout PDH_RAW_COUNTER_LAYOUT = structLayout(JAVA_INT.withName("CStatus"),
+            MemoryLayout.paddingLayout(4), JAVA_LONG.withName("TimeStamp"), JAVA_LONG.withName("FirstValue"),
+            JAVA_LONG.withName("SecondValue"), JAVA_INT.withName("MultiCount"), MemoryLayout.paddingLayout(4));
+
+    private static final MethodHandle PdhLookupPerfNameByIndexW = downcall(Pdh, "PdhLookupPerfNameByIndexW", JAVA_INT,
+            ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+
+    public static int PdhLookupPerfNameByIndexW(MemorySegment szMachineName, int dwNameIndex,
+            MemorySegment szNameBuffer, MemorySegment pcchNameBufferSize) throws Throwable {
+        return (int) PdhLookupPerfNameByIndexW.invokeExact(szMachineName, dwNameIndex, szNameBuffer,
+                pcchNameBufferSize);
+    }
+
+    private static final MethodHandle PdhEnumObjectItemsW = downcall(Pdh, "PdhEnumObjectItemsW", JAVA_INT, ADDRESS,
+            ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT);
+
+    public static int PdhEnumObjectItemsW(MemorySegment szDataSource, MemorySegment szMachineName,
+            MemorySegment szObjectName, MemorySegment mszCounterList, MemorySegment pcchCounterListLength,
+            MemorySegment mszInstanceList, MemorySegment pcchInstanceListLength, int dwDetailLevel, int dwFlags)
+            throws Throwable {
+        return (int) PdhEnumObjectItemsW.invokeExact(szDataSource, szMachineName, szObjectName, mszCounterList,
+                pcchCounterListLength, mszInstanceList, pcchInstanceListLength, dwDetailLevel, dwFlags);
     }
 
     private static final MethodHandle PdhCloseQuery = downcall(Pdh, "PdhCloseQuery", JAVA_INT, ADDRESS);
@@ -66,16 +85,5 @@ public class PdhFFM extends WindowsForeignFunctions {
     public static int PdhCloseQuery(MemorySegment query) throws Throwable {
         return (int) PdhCloseQuery.invokeExact(query);
     }
-
-    public static final MemoryLayout PDH_FMT_COUNTERVALUE_UNION = MemoryLayout.unionLayout(
-            JAVA_INT.withName("longValue"), JAVA_DOUBLE.withName("doubleValue"), JAVA_LONG.withName("largeValue"),
-            ADDRESS.withName("AnsiStringValue"), ADDRESS.withName("WideStringValue"));
-
-    public static final StructLayout PDH_FMT_COUNTERVALUE_LAYOUT = MemoryLayout.structLayout(
-            JAVA_INT.withName("CStatus"), MemoryLayout.paddingLayout(4), // align union to 8 bytes
-            PDH_FMT_COUNTERVALUE_UNION.withName("Value"));
-
-    public static final StructLayout PDH_FMT_COUNTERVALUE_ITEM_LAYOUT = structLayout(ADDRESS.withName("szName"),
-            PDH_FMT_COUNTERVALUE_LAYOUT.withName("FmtValue"));
 
 }

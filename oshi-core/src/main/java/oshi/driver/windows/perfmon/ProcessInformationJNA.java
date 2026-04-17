@@ -57,9 +57,9 @@ public final class ProcessInformationJNA {
     }
 
     /**
-     * Returns cooked idle process performance counters.
+     * Returns raw idle process performance counters.
      *
-     * @return Cooked performance counters for idle process.
+     * @return Raw performance counters for idle process.
      */
     public static Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> queryIdleProcessCounters() {
         if (PerfmonDisabled.PERF_OS_DISABLED) {
