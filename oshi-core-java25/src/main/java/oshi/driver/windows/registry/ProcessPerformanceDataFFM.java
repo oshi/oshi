@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -9,13 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
-import oshi.driver.windows.perfmon.ProcessInformationJNA;
+import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -23,12 +22,12 @@ import oshi.util.tuples.Triplet;
  * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
-public final class ProcessPerformanceData {
+public final class ProcessPerformanceDataFFM {
 
     private static final String PROCESS = "Process";
     private static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
 
-    private ProcessPerformanceData() {
+    private ProcessPerformanceDataFFM() {
     }
 
     /**
@@ -42,7 +41,8 @@ public final class ProcessPerformanceData {
         // Grab the data from the registry.
         Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
         if (PERFDATA) {
-            processData = HkeyPerformanceDataUtil.readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);
+            processData = HkeyPerformanceDataUtilFFM.readPerfDataFromRegistry(PROCESS,
+                    ProcessPerformanceProperty.class);
         }
         if (processData == null) {
             return null;
@@ -62,7 +62,7 @@ public final class ProcessPerformanceData {
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
                 if (ctime > now) {
-                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime >> 32), (int) (ctime & 0xffffffffL)).getTime();
+                    ctime = ParseUtil.filetimeToUtcMs(ctime, false);
                 }
                 long upTime = now - ctime;
                 if (upTime < 1L) {
@@ -104,7 +104,7 @@ public final class ProcessPerformanceData {
     public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids,
             String procName) {
         Map<Integer, ProcessPerfCounterBlock> processMap = new HashMap<>();
-        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformationJNA
+        Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues = ProcessInformationFFM
                 .queryProcessCounters();
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
@@ -127,7 +127,7 @@ public final class ProcessPerformanceData {
                 // if creation time value is less than current millis, it's in 1970 epoch,
                 // otherwise it's 1601 epoch and we must convert
                 if (ctime > now) {
-                    ctime = WinBase.FILETIME.filetimeToDate((int) (ctime >> 32), (int) (ctime & 0xffffffffL)).getTime();
+                    ctime = ParseUtil.filetimeToUtcMs(ctime, false);
                 }
                 long upTime = now - ctime;
                 if (upTime < 1L) {

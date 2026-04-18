@@ -38,9 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
@@ -63,9 +63,8 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpersFFM.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpersFFM.IsWindows7OrGreater();
 
-    public WindowsOSProcessFFM(int pid, WindowsOperatingSystem os,
-            Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
-            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
+    public WindowsOSProcessFFM(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
 
@@ -88,7 +87,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     }
 
     @Override
-    protected boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
+    protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
         }

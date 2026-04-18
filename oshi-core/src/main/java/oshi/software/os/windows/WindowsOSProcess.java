@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.registry.ProcessPerformanceData;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
@@ -56,7 +58,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private Supplier<List<String>> args = memoize(this::queryArguments);
     private Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
-    private Map<Integer, ThreadPerformanceData.PerfCounterBlock> tcb;
+    private Map<Integer, ThreadPerfCounterBlock> tcb;
 
     private String name;
     private String path = "";
@@ -77,9 +79,8 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private int bitness;
     private long pageFaults;
 
-    protected WindowsOSProcess(int pid, WindowsOperatingSystem os,
-            Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
-            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
+    protected WindowsOSProcess(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid);
         this.os = os;
         this.bitness = os.getBitness();
@@ -259,7 +260,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = tcb == null
+        Map<Integer, ThreadPerfCounterBlock> threads = tcb == null
                 ? queryMatchingThreads(Collections.singleton(this.getProcessID()))
                 : tcb;
         return threads.entrySet().stream().parallel()
@@ -272,8 +273,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(this.getProcessID());
         // Get data from the registry if possible
-        Map<Integer, ProcessPerformanceData.PerfCounterBlock> pcb = ProcessPerformanceData
-                .buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerfCounterBlock> pcb = ProcessPerformanceData.buildProcessMapFromRegistry(null);
         // otherwise performance counters with WMI backup
         if (pcb == null) {
             pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
@@ -293,7 +293,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param wts WTS info for this process, or null if unavailable
      * @return true if the process is valid after the update
      */
-    protected boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
+    protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
         if (pcb == null) {
             this.state = INVALID;
             return false;
@@ -320,7 +320,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         this.state = RUNNING;
         if (this.tcb != null) {
             int pid = this.getProcessID();
-            for (ThreadPerformanceData.PerfCounterBlock tpd : this.tcb.values()) {
+            for (ThreadPerfCounterBlock tpd : this.tcb.values()) {
                 if (tpd.getOwningProcessID() == pid) {
                     if (tpd.getThreadWaitReason() == 5) {
                         this.state = SUSPENDED;
@@ -362,9 +362,8 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         this.state = state;
     }
 
-    protected Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromRegistry(pids);
+    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData.buildThreadMapFromRegistry(pids);
         if (threads == null) {
             threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
         }

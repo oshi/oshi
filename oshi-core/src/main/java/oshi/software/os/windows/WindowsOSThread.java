@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.registry.ThreadPerformanceData;
-import oshi.driver.windows.registry.ThreadPerformanceData.PerfCounterBlock;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
@@ -40,7 +40,7 @@ public class WindowsOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public WindowsOSThread(int pid, int tid, String procName, PerfCounterBlock pcb) {
+    public WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
         super(pid);
         this.threadId = tid;
         updateAttributes(procName, pcb);
@@ -100,12 +100,12 @@ public class WindowsOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(getOwningProcessId());
         String procName = this.name.split("/")[0];
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threads = ThreadPerformanceData
-                .buildThreadMapFromPerfCounters(pids, procName, getThreadId());
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids,
+                procName, getThreadId());
         return updateAttributes(procName, threads.get(getThreadId()));
     }
 
-    private boolean updateAttributes(String procName, PerfCounterBlock pcb) {
+    private boolean updateAttributes(String procName, ThreadPerfCounterBlock pcb) {
         if (pcb == null) {
             this.state = INVALID;
             return false;
@@ -118,26 +118,26 @@ public class WindowsOSThread extends AbstractOSThread {
             state = SUSPENDED;
         } else {
             switch (pcb.getThreadState()) {
-            case 0:
-                state = NEW;
-                break;
-            case 2:
-            case 3:
-                state = RUNNING;
-                break;
-            case 4:
-                state = STOPPED;
-                break;
-            case 5:
-                state = SLEEPING;
-                break;
-            case 1:
-            case 6:
-                state = WAITING;
-                break;
-            case 7:
-            default:
-                state = OTHER;
+                case 0:
+                    state = NEW;
+                    break;
+                case 2:
+                case 3:
+                    state = RUNNING;
+                    break;
+                case 4:
+                    state = STOPPED;
+                    break;
+                case 5:
+                    state = SLEEPING;
+                    break;
+                case 1:
+                case 6:
+                    state = WAITING;
+                    break;
+                case 7:
+                default:
+                    state = OTHER;
             }
         }
         startMemoryAddress = pcb.getStartAddress();

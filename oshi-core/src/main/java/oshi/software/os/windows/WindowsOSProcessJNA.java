@@ -27,9 +27,9 @@ import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceData;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseableULONGptrByReference;
@@ -50,9 +50,8 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
-    public WindowsOSProcessJNA(int pid, WindowsOperatingSystem os,
-            Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap, Map<Integer, WtsInfo> processWtsMap,
-            Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap) {
+    public WindowsOSProcessJNA(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
 
@@ -73,7 +72,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     }
 
     @Override
-    protected boolean updateAttributes(ProcessPerformanceData.PerfCounterBlock pcb, WtsInfo wts) {
+    protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
         }

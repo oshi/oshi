@@ -22,6 +22,7 @@ module com.github.oshi.common {
     exports oshi.annotation.concurrent;
     exports oshi.driver.common.mac;
     exports oshi.driver.common.windows.perfmon;
+    exports oshi.driver.common.windows.registry;
     exports oshi.hardware;
     exports oshi.hardware.common;
     exports oshi.hardware.common.platform.linux;

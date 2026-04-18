@@ -28,10 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
@@ -179,13 +181,13 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
-    private final Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromRegistry = Memoizer
+    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = Memoizer
             .memoize(WindowsOperatingSystemFFM::queryProcessMapFromRegistry, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromPerfCounters = Memoizer
+    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = Memoizer
             .memoize(WindowsOperatingSystemFFM::queryProcessMapFromPerfCounters, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromRegistry = Memoizer
+    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = Memoizer
             .memoize(WindowsOperatingSystemFFM::queryThreadMapFromRegistry, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromPerfCounters = Memoizer
+    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = Memoizer
             .memoize(WindowsOperatingSystemFFM::queryThreadMapFromPerfCounters, Memoizer.defaultExpiration());
 
     @Override
@@ -206,20 +208,20 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private List<OSProcess> processMapToList(Collection<Integer> pids) {
         // Get data from the registry if possible
-        Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap = processMapFromRegistry.get();
+        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
         if (processMap == null || processMap.isEmpty()) {
             processMap = (pids == null) ? processMapFromPerfCounters.get()
-                    : ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
+                    : ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
         }
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap = null;
+        Map<Integer, ThreadPerfCounterBlock> threadMap = null;
         if (USE_PROCSTATE_SUSPENDED) {
             // Get data from the registry if possible
             threadMap = threadMapFromRegistry.get();
             // otherwise performance counters with WMI backup
             if (threadMap == null || threadMap.isEmpty()) {
                 threadMap = (pids == null) ? threadMapFromPerfCounters.get()
-                        : ThreadPerformanceData.buildThreadMapFromPerfCounters(pids);
+                        : ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids);
             }
         }
 
@@ -237,26 +239,26 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             mapKeys.retainAll(processMap.keySet());
         }
 
-        final Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
-        final Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
+        final Map<Integer, ProcessPerfCounterBlock> finalProcessMap = processMap;
+        final Map<Integer, ThreadPerfCounterBlock> finalThreadMap = threadMap;
         return mapKeys.stream().parallel()
                 .map(pid -> new WindowsOSProcessFFM(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
-    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
-        return ProcessPerformanceData.buildProcessMapFromRegistry(null);
+    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromRegistry() {
+        return ProcessPerformanceDataFFM.buildProcessMapFromRegistry(null);
     }
 
-    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromPerfCounters() {
-        return ProcessPerformanceData.buildProcessMapFromPerfCounters(null);
+    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
+        return ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(null);
     }
 
-    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromRegistry() {
-        return ThreadPerformanceData.buildThreadMapFromRegistry(null);
+    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromRegistry() {
+        return ThreadPerformanceDataFFM.buildThreadMapFromRegistry(null);
     }
 
-    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromPerfCounters() {
-        return ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
+    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
+        return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(null);
     }
 }

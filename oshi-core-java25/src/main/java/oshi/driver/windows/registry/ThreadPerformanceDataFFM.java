@@ -1,22 +1,19 @@
 /*
- * Copyright 2020-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase.FILETIME;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.perfmon.PerfmonDisabled;
-import oshi.driver.windows.perfmon.ThreadInformationJNA;
+import oshi.driver.windows.perfmon.ThreadInformationFFM;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -25,11 +22,11 @@ import oshi.util.tuples.Triplet;
  * Utility to read thread data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
-public final class ThreadPerformanceData {
+public final class ThreadPerformanceDataFFM {
 
     private static final String THREAD = "Thread";
 
-    private ThreadPerformanceData() {
+    private ThreadPerformanceDataFFM() {
     }
 
     /**
@@ -41,7 +38,7 @@ public final class ThreadPerformanceData {
      */
     public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
         // Grab the data from the registry.
-        Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtil
+        Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilFFM
                 .readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class);
         if (threadData == null) {
             return null;
@@ -107,13 +104,10 @@ public final class ThreadPerformanceData {
      */
     public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
             String procName, int threadNum) {
-        if (PerfmonDisabled.PERF_PROC_DISABLED) {
-            return Collections.emptyMap();
-        }
         Map<Integer, ThreadPerfCounterBlock> threadMap = new HashMap<>();
         Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
-                ? ThreadInformationJNA.queryThreadCounters()
-                : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
+                ? ThreadInformationFFM.queryThreadCounters()
+                : ThreadInformationFFM.queryThreadCounters(procName, threadNum);
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
@@ -135,9 +129,7 @@ public final class ThreadPerformanceData {
                 int tid = tidList.get(inst).intValue();
                 String name = Integer.toString(nameIndex++);
                 long startTime = startTimeList.get(inst);
-                int lowerStartTimeLimit = (int) (startTime >> 32);
-                int higherStartTimeLimit = (int) (startTime & 0xffffffffL);
-                startTime = FILETIME.filetimeToDate(lowerStartTimeLimit, higherStartTimeLimit).getTime();
+                startTime = ParseUtil.filetimeToUtcMs(startTime, false);
                 if (startTime > now) {
                     startTime = now - 1;
                 }
@@ -149,8 +141,7 @@ public final class ThreadPerformanceData {
                 long startAddr = startAddrList.get(inst).longValue();
                 long contextSwitches = contextSwitchesList.get(inst).longValue();
 
-                // if creation time value is less than current millis, it's in 1970 epoch,
-                // otherwise it's 1601 epoch and we must convert
+                // ParseUtil already converted to UTC ms; clamp future timestamps
                 threadMap.put(tid, new ThreadPerfCounterBlock(name, tid, pid, startTime, user, kernel, priority,
                         threadState, threadWaitReason, startAddr, contextSwitches));
             }

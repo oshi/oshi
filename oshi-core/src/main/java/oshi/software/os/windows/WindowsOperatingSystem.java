@@ -48,6 +48,8 @@ import com.sun.jna.platform.win32.WinNT.LUID;
 import com.sun.jna.platform.win32.Winsvc;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.EnumWindows;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
@@ -120,17 +122,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     /*
      * Cache full process stats queries. Second query will only populate if first one returns null.
      */
-    private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromRegistry = memoize(
+    private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = memoize(
             WindowsOperatingSystem::queryProcessMapFromRegistry, defaultExpiration());
-    private Supplier<Map<Integer, ProcessPerformanceData.PerfCounterBlock>> processMapFromPerfCounters = memoize(
+    private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = memoize(
             WindowsOperatingSystem::queryProcessMapFromPerfCounters, defaultExpiration());
     /*
      * Cache full thread stats queries. Second query will only populate if first one returns null. Only used if
      * USE_PROCSTATE_SUSPENDED is set true.
      */
-    private Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromRegistry = memoize(
+    private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = memoize(
             WindowsOperatingSystem::queryThreadMapFromRegistry, defaultExpiration());
-    private Supplier<Map<Integer, ThreadPerformanceData.PerfCounterBlock>> threadMapFromPerfCounters = memoize(
+    private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = memoize(
             WindowsOperatingSystem::queryThreadMapFromPerfCounters, defaultExpiration());
 
     @Override
@@ -295,13 +297,13 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     private List<OSProcess> processMapToList(Collection<Integer> pids) {
         // Get data from the registry if possible
-        Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap = processMapFromRegistry.get();
+        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
         if (processMap == null || processMap.isEmpty()) {
             processMap = (pids == null) ? processMapFromPerfCounters.get()
                     : ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
         }
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap = null;
+        Map<Integer, ThreadPerfCounterBlock> threadMap = null;
         if (USE_PROCSTATE_SUSPENDED) {
             // Get data from the registry if possible
             threadMap = threadMapFromRegistry.get();
@@ -317,26 +319,26 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
         mapKeys.retainAll(processMap.keySet());
 
-        final Map<Integer, ProcessPerformanceData.PerfCounterBlock> finalProcessMap = processMap;
-        final Map<Integer, ThreadPerformanceData.PerfCounterBlock> finalThreadMap = threadMap;
+        final Map<Integer, ProcessPerfCounterBlock> finalProcessMap = processMap;
+        final Map<Integer, ThreadPerfCounterBlock> finalThreadMap = threadMap;
         return mapKeys.stream().parallel()
                 .map(pid -> new WindowsOSProcessJNA(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
-    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromRegistry() {
+    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromRegistry() {
         return ProcessPerformanceData.buildProcessMapFromRegistry(null);
     }
 
-    private static Map<Integer, ProcessPerformanceData.PerfCounterBlock> queryProcessMapFromPerfCounters() {
+    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
         return ProcessPerformanceData.buildProcessMapFromPerfCounters(null);
     }
 
-    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromRegistry() {
+    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromRegistry() {
         return ThreadPerformanceData.buildThreadMapFromRegistry(null);
     }
 
-    private static Map<Integer, ThreadPerformanceData.PerfCounterBlock> queryThreadMapFromPerfCounters() {
+    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
         return ThreadPerformanceData.buildThreadMapFromPerfCounters(null);
     }
 

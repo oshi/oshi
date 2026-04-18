@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -18,21 +18,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+
 @EnabledOnOs(OS.WINDOWS)
 class RegistryDriversTest {
 
     @Test
     void testProcessPerformanceData() {
-        Map<Integer, ProcessPerformanceData.PerfCounterBlock> processMap = ProcessPerformanceData
-                .buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerfCounterBlock> processMap = ProcessPerformanceData.buildProcessMapFromRegistry(null);
         assertNotNull(processMap);
         assertThat("Process map should not be empty", processMap, is(not(anEmptyMap())));
     }
 
     @Test
     void testThreadPerformanceData() {
-        Map<Integer, ThreadPerformanceData.PerfCounterBlock> threadMap = ThreadPerformanceData
-                .buildThreadMapFromRegistry(null);
+        Map<Integer, ThreadPerfCounterBlock> threadMap = ThreadPerformanceData.buildThreadMapFromRegistry(null);
         assertNotNull(threadMap);
         assertThat("Thread map should not be empty", threadMap, is(not(anEmptyMap())));
     }
