@@ -1,25 +1,26 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.wmi;
 
 import java.util.Objects;
 
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
- * Utility to query WMI class {@code Win32_LogicalDisk} using FFM.
+ * Utility to query WMI class {@code Win32_LogicalDisk} using JNA.
  */
 @ThreadSafe
-public final class Win32LogicalDiskFFM extends Win32LogicalDisk {
+public final class Win32LogicalDiskJNA extends Win32LogicalDisk {
 
-    private Win32LogicalDiskFFM() {
+    private Win32LogicalDiskJNA() {
     }
 
     /**
@@ -32,7 +33,8 @@ public final class Win32LogicalDiskFFM extends Win32LogicalDisk {
     public static WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
         WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(
                 buildWmiClassNameWithWhere(nameToMatch, localOnly), LogicalDiskProperty.class);
-        return Objects.requireNonNull(WmiQueryHandlerFFM.createInstance(),
-                "WmiQueryHandlerFFM.createInstance() returned null").queryWMI(logicalDiskQuery);
+        return Objects
+                .requireNonNull(WmiQueryHandler.createInstance(), "WmiQueryHandler.createInstance() returned null")
+                .queryWMI(logicalDiskQuery);
     }
 }

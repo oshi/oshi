@@ -18,6 +18,8 @@
         <jmh.version>1.37</jmh.version>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.testSource>25</maven.compiler.testSource>
+        <maven.compiler.testTarget>25</maven.compiler.testTarget>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
         <shade.phase>none</shade.phase>

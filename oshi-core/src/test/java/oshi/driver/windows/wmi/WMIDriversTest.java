@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.wmi;
@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.VersionHelpers;
 
-import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -96,14 +96,14 @@ class WMIDriversTest {
 
         assertThat("Failed Win32Fan.querySpeed", Win32Fan.querySpeed().getResultCount(), is(greaterThanOrEqualTo(0)));
 
-        WmiResult<LogicalDiskProperty> ld = Win32LogicalDisk.queryLogicalDisk(null, false);
+        WmiResult<LogicalDiskProperty> ld = Win32LogicalDiskJNA.queryLogicalDisk(null, false);
         assertThat("Failed Win32LogicalDisk.queryLogicalDisk", ld.getResultCount(), is(greaterThan(0)));
         assertThat(
-                "Failed Win32LogicalDisk.queryLogicalDisk", Win32LogicalDisk
+                "Failed Win32LogicalDisk.queryLogicalDisk", Win32LogicalDiskJNA
                         .queryLogicalDisk(WmiUtil.getString(ld, LogicalDiskProperty.NAME, 0), false).getResultCount(),
                 is(greaterThan(0)));
         assertThat("Failed Win32LogicalDisk.queryLogicalDisk",
-                Win32LogicalDisk.queryLogicalDisk(null, true).getResultCount(), is(greaterThan(0)));
+                Win32LogicalDiskJNA.queryLogicalDisk(null, true).getResultCount(), is(greaterThan(0)));
 
         assertThat("Failed Win32OperatingSystem.queryOsVersion", Win32OperatingSystem.queryOsVersion().getResultCount(),
                 is(greaterThan(0)));

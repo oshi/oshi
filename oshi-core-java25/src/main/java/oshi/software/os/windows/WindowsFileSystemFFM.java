@@ -27,12 +27,14 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiUtilFFM;
 
 @ThreadSafe
 public class WindowsFileSystemFFM extends AbstractFileSystem {
@@ -266,17 +268,17 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
      */
     static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fs = new ArrayList<>();
-        List<Win32LogicalDiskFFM.LogicalDiskInfo> drives = Win32LogicalDiskFFM.queryLogicalDisk(nameToMatch, localOnly);
+        var drives = Win32LogicalDiskFFM.queryLogicalDisk(nameToMatch, localOnly);
 
         try (Arena arena = Arena.ofConfined()) {
-            for (Win32LogicalDiskFFM.LogicalDiskInfo drive : drives) {
-                long free = drive.getFreeSpace();
-                long total = drive.getSize();
-                String description = drive.getDescription();
-                String name = drive.getName();
-                String label = drive.getVolumeName();
-                String options = drive.getAccess() == 1 ? "ro" : "rw";
-                int type = drive.getDriveType();
+            for (int i = 0; i < drives.getResultCount(); i++) {
+                long free = WmiUtilFFM.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
+                long total = WmiUtilFFM.getUint64(drives, LogicalDiskProperty.SIZE, i);
+                String description = WmiUtilFFM.getString(drives, LogicalDiskProperty.DESCRIPTION, i);
+                String name = WmiUtilFFM.getString(drives, LogicalDiskProperty.NAME, i);
+                String label = WmiUtilFFM.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
+                String options = WmiUtilFFM.getUint16(drives, LogicalDiskProperty.ACCESS, i) == 1 ? "ro" : "rw";
+                int type = WmiUtilFFM.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
                 String volume;
 
                 if (type != 4) {
@@ -287,7 +289,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     volume = (volResult.isPresent() && volResult.getAsInt() != 0) ? readWideString(volumeBuf) : "";
                 } else {
                     // Network drive
-                    volume = drive.getProviderName();
+                    volume = WmiUtilFFM.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
                     String[] split = volume.split("\\\\");
                     if (split.length > 1 && !split[split.length - 1].isEmpty()) {
                         description = split[split.length - 1];
@@ -295,8 +297,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 }
 
                 fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
-                        label, name + "\\", options, "", type != 4, "", getDriveTypeString(type), drive.getFileSystem(),
-                        free, free, total, 0, 0));
+                        label, name + "\\", options, "", type != 4, "", getDriveTypeString(type),
+                        WmiUtilFFM.getString(drives, LogicalDiskProperty.FILESYSTEM, i), free, free, total, 0, 0));
             }
         }
         return fs;

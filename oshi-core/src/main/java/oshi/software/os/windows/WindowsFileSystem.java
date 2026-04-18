@@ -19,9 +19,9 @@ import com.sun.jna.platform.win32.WinNT;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.windows.perfmon.ProcessInformationJNA;
-import oshi.driver.windows.wmi.Win32LogicalDisk;
-import oshi.driver.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.windows.wmi.Win32LogicalDiskJNA;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -215,7 +215,7 @@ public class WindowsFileSystem extends AbstractFileSystem {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();
-        WmiResult<LogicalDiskProperty> drives = Win32LogicalDisk.queryLogicalDisk(nameToMatch, localOnly);
+        WmiResult<LogicalDiskProperty> drives = Win32LogicalDiskJNA.queryLogicalDisk(nameToMatch, localOnly);
         for (int i = 0; i < drives.getResultCount(); i++) {
             free = WmiUtil.getUint64(drives, LogicalDiskProperty.FREESPACE, i);
             total = WmiUtil.getUint64(drives, LogicalDiskProperty.SIZE, i);

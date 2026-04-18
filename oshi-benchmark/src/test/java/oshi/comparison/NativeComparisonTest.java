@@ -5,6 +5,7 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Comparator;
 import java.util.List;
@@ -528,27 +529,4 @@ class NativeComparisonTest {
 
     // ---- Helpers ----
 
-    /**
-     * Asserts that two values are within a given ratio of each other. If both are zero, they match. If one is zero and
-     * the other is not, the assertion fails. Otherwise, the ratio of the smaller to the larger must be >= (1 - ratio).
-     */
-    private static void assertWithinRatio(double actual, double expected, double ratio, String description) {
-        if (expected == 0 && actual == 0) {
-            return;
-        }
-        if (expected == 0 || actual == 0) {
-            // One is zero and the other isn't — only fail if the nonzero value is significant
-            double nonZero = Math.max(Math.abs(expected), Math.abs(actual));
-            assertThat(nonZero).as("%s: one value is 0, other is %f", description, nonZero).isLessThan(1.0);
-            return;
-        }
-        double min = Math.min(Math.abs(actual), Math.abs(expected));
-        double max = Math.max(Math.abs(actual), Math.abs(expected));
-        assertThat(min / max).as("%s: expected=%f, actual=%f", description, expected, actual)
-                .isGreaterThanOrEqualTo(1.0 - ratio);
-    }
-
-    private static void assertWithinRatio(long actual, long expected, double ratio, String description) {
-        assertWithinRatio((double) actual, (double) expected, ratio, description);
-    }
 }
