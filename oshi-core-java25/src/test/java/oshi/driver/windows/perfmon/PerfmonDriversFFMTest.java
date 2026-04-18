@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.perfmon;
@@ -35,8 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.platform.win32.VersionHelpers;
-
 import oshi.driver.common.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.common.windows.perfmon.PagingFile.PagingPercentProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
@@ -51,17 +49,18 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCoun
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
-import oshi.util.platform.windows.PerfCounterQuery;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
+import oshi.ffm.windows.VersionHelpersFFM;
+import oshi.util.platform.windows.PerfCounterQueryFFM;
+import oshi.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
 
 @EnabledOnOs(OS.WINDOWS)
-class PerfmonDriversTest {
+class PerfmonDriversFFMTest {
 
     @Test
     void testQueryPageSwaps() {
-        Map<PageSwapProperty, Long> pdh = PerfCounterQuery.queryValuesFromPDH(PageSwapProperty.class, MEMORY);
-        Map<PageSwapProperty, Long> wmi = PerfCounterQuery.queryValuesFromWMI(PageSwapProperty.class,
+        Map<PageSwapProperty, Long> pdh = PerfCounterQueryFFM.queryValuesFromPDH(PageSwapProperty.class, MEMORY);
+        Map<PageSwapProperty, Long> wmi = PerfCounterQueryFFM.queryValuesFromWMI(PageSwapProperty.class,
                 WIN32_PERF_RAW_DATA_PERF_OS_MEMORY);
         assertThat("Failed PDH queryPageSwaps", pdh, is(aMapWithSize(PageSwapProperty.values().length)));
         assertThat("Failed WMI queryPageSwaps", wmi, is(aMapWithSize(PageSwapProperty.values().length)));
@@ -70,9 +69,9 @@ class PerfmonDriversTest {
 
     @Test
     void testQuerySwapUsed() {
-        Map<PagingPercentProperty, Long> pdh = PerfCounterQuery.queryValuesFromPDH(PagingPercentProperty.class,
+        Map<PagingPercentProperty, Long> pdh = PerfCounterQueryFFM.queryValuesFromPDH(PagingPercentProperty.class,
                 PAGING_FILE);
-        Map<PagingPercentProperty, Long> wmi = PerfCounterQuery.queryValuesFromWMI(PagingPercentProperty.class,
+        Map<PagingPercentProperty, Long> wmi = PerfCounterQueryFFM.queryValuesFromWMI(PagingPercentProperty.class,
                 WIN32_PERF_RAW_DATA_PERF_OS_PAGING_FILE);
         assertThat("Failed PDH querySwapUsed", pdh, is(aMapWithSize(PagingPercentProperty.values().length)));
         assertThat("Failed WMI querySwapUsed", wmi, is(aMapWithSize(PagingPercentProperty.values().length)));
@@ -82,23 +81,23 @@ class PerfmonDriversTest {
     @Test
     void testQueryDiskCounters() {
         testWildcardCounters("DiskCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(PhysicalDiskProperty.class, PHYSICAL_DISK),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(PhysicalDiskProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(PhysicalDiskProperty.class, PHYSICAL_DISK),
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(PhysicalDiskProperty.class,
                         WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL));
     }
 
     @Test
     void testQueryProcessCounters() {
         testWildcardCounters("ProcessCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessPerformanceProperty.class, PROCESS),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessPerformanceProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(ProcessPerformanceProperty.class, PROCESS),
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ProcessPerformanceProperty.class,
                         WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL));
     }
 
     @Test
     void testQueryHandles() {
-        Map<HandleCountProperty, Long> pdh = PerfCounterQuery.queryValuesFromPDH(HandleCountProperty.class, PROCESS);
-        Map<HandleCountProperty, Long> wmi = PerfCounterQuery.queryValuesFromWMI(HandleCountProperty.class,
+        Map<HandleCountProperty, Long> pdh = PerfCounterQueryFFM.queryValuesFromPDH(HandleCountProperty.class, PROCESS);
+        Map<HandleCountProperty, Long> wmi = PerfCounterQueryFFM.queryValuesFromWMI(HandleCountProperty.class,
                 WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL);
         assertThat("Failed PDH queryHandles", pdh, is(aMapWithSize(HandleCountProperty.values().length)));
         assertThat("Failed WMI queryHandles", wmi, is(aMapWithSize(HandleCountProperty.values().length)));
@@ -108,29 +107,30 @@ class PerfmonDriversTest {
     @Test
     void testQueryIdleProcessCounters() {
         testWildcardCounters("IdleProcessCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(IdleProcessorTimeProperty.class, PROCESS),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(IdleProcessorTimeProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(IdleProcessorTimeProperty.class, PROCESS),
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(IdleProcessorTimeProperty.class,
                         WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0));
     }
 
     @Test
     void testQueryProcessorCounters() {
         testWildcardCounters("ProcessorCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class, PROCESSOR),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class, PROCESSOR),
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
                         WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL));
-        if (VersionHelpers.IsWindows7OrGreater()) {
+        if (VersionHelpersFFM.IsWindows7OrGreater()) {
             testWildcardCounters("ProcessorCounters(Info)",
-                    PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class,
+                    PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(ProcessorTickCountProperty.class,
                             PROCESSOR_INFORMATION),
-                    PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
+                    PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ProcessorTickCountProperty.class,
                             WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
 
-            if (VersionHelpers.IsWindows8OrGreater()) {
+            if (VersionHelpersFFM.IsWindows8OrGreater()) {
                 testWildcardCounters("ProcessorUtilityCounters",
-                        PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorUtilityTickCountProperty.class,
-                                PROCESSOR_INFORMATION),
-                        PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorUtilityTickCountProperty.class,
+                        PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(
+                                ProcessorUtilityTickCountProperty.class, PROCESSOR_INFORMATION),
+                        PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(
+                                ProcessorUtilityTickCountProperty.class,
                                 WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
             }
         }
@@ -138,8 +138,8 @@ class PerfmonDriversTest {
 
     @Test
     void testQueryInterruptCounters() {
-        Map<InterruptsProperty, Long> pdh = PerfCounterQuery.queryValuesFromPDH(InterruptsProperty.class, PROCESSOR);
-        Map<InterruptsProperty, Long> wmi = PerfCounterQuery.queryValuesFromWMI(InterruptsProperty.class,
+        Map<InterruptsProperty, Long> pdh = PerfCounterQueryFFM.queryValuesFromPDH(InterruptsProperty.class, PROCESSOR);
+        Map<InterruptsProperty, Long> wmi = PerfCounterQueryFFM.queryValuesFromWMI(InterruptsProperty.class,
                 WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL);
         assertThat("Failed PDH queryInterruptCounters", pdh, is(aMapWithSize(InterruptsProperty.values().length)));
         assertThat("Failed WMI queryInterruptCounters", wmi, is(aMapWithSize(InterruptsProperty.values().length)));
@@ -149,16 +149,17 @@ class PerfmonDriversTest {
     @Test
     void testQueryFrequencyCounters() {
         testWildcardCounters("FrequencyCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ProcessorFrequencyProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(ProcessorFrequencyProperty.class,
                         PROCESSOR_INFORMATION),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorFrequencyProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ProcessorFrequencyProperty.class,
                         WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL));
     }
 
     @Test
     void testQueryContextSwitchCounters() {
-        Map<ContextSwitchProperty, Long> pdh = PerfCounterQuery.queryValuesFromPDH(ContextSwitchProperty.class, SYSTEM);
-        Map<ContextSwitchProperty, Long> wmi = PerfCounterQuery.queryValuesFromWMI(ContextSwitchProperty.class,
+        Map<ContextSwitchProperty, Long> pdh = PerfCounterQueryFFM.queryValuesFromPDH(ContextSwitchProperty.class,
+                SYSTEM);
+        Map<ContextSwitchProperty, Long> wmi = PerfCounterQueryFFM.queryValuesFromWMI(ContextSwitchProperty.class,
                 WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM);
         assertThat("Failed PDH queryContextSwitchCounters", pdh,
                 is(aMapWithSize(ContextSwitchProperty.values().length)));
@@ -170,8 +171,8 @@ class PerfmonDriversTest {
     @Test
     void testQueryThreadCounters() {
         testWildcardCounters("ThreadCounters",
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(ThreadPerformanceProperty.class, THREAD),
-                PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ThreadPerformanceProperty.class,
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromPDH(ThreadPerformanceProperty.class, THREAD),
+                PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ThreadPerformanceProperty.class,
                         WIN32_PERF_RAW_DATA_PERF_PROC_THREAD_WHERE_NOT_NAME_LIKE_TOTAL));
     }
 

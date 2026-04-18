@@ -31,6 +31,7 @@
 * [#3164](https://github.com/oshi/oshi/pull/3164): Refactor Windows perfmon counter enums into oshi-common for sharing between JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 * [#3167](https://github.com/oshi/oshi/pull/3167): Add PerfCounterQueryFFM for multi-counter PDH queries with WMI fallback; improve per-counter error resilience in both JNA and FFM paths - [@dbwiddis](https://github.com/dbwiddis).
 * [#3168](https://github.com/oshi/oshi/pull/3168): Add PerfCounterWildcardQueryFFM with PdhEnumObjectItems FFM binding; refactor LoadAverage into abstract base with JNA/FFM subclasses - [@dbwiddis](https://github.com/dbwiddis).
+* [#3170](https://github.com/oshi/oshi/pull/3170): Complete FFM perfmon driver migration with all wildcard and non-wildcard counters; add PDH vs WMI and JNA vs FFM comparison tests - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

@@ -90,10 +90,17 @@ public final class PerfDataUtilFFM {
 
                 // Add all counters to the single query, skipping any that fail
                 EnumMap<T, MemorySegment> counterHandles = new EnumMap<>(propertyEnum);
+                EnumMap<T, Boolean> baseFlags = new EnumMap<>(propertyEnum);
                 for (T prop : props) {
-                    String path = counterPath(perfObject, prop.getInstance(), prop.getCounter());
+                    String counterName = prop.getCounter();
+                    boolean isBase = counterName.endsWith(BASE_SUFFIX);
+                    if (isBase) {
+                        counterName = counterName.substring(0, counterName.length() - BASE_SUFFIX.length());
+                    }
+                    String path = counterPath(perfObject, prop.getInstance(), counterName);
                     try {
                         counterHandles.put(prop, addEnglishCounter(arena, query, path));
+                        baseFlags.put(prop, isBase);
                     } catch (Throwable t) {
                         LOG.debug("Failed to add counter {}: {}", path, t.getMessage());
                     }
@@ -108,7 +115,8 @@ public final class PerfDataUtilFFM {
                 // Read all values, skipping any that fail
                 for (var entry : counterHandles.entrySet()) {
                     try {
-                        valueMap.put(entry.getKey(), readRawCounterValue(arena, entry.getValue()));
+                        valueMap.put(entry.getKey(),
+                                readRawCounterValue(arena, entry.getValue(), baseFlags.get(entry.getKey())));
                     } catch (Throwable t) {
                         LOG.debug("Failed to read counter for {}: {}", entry.getKey(), t.getMessage());
                     }
@@ -145,8 +153,12 @@ public final class PerfDataUtilFFM {
 
     private static final long RAW_CSTATUS_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("CStatus"));
     private static final long RAW_FIRST_VALUE_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("FirstValue"));
+    private static final long RAW_SECOND_VALUE_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("SecondValue"));
 
-    private static long readRawCounterValue(Arena arena, MemorySegment counterHandle) throws Throwable {
+    private static final String BASE_SUFFIX = "_Base";
+
+    private static long readRawCounterValue(Arena arena, MemorySegment counterHandle, boolean secondValue)
+            throws Throwable {
         MemorySegment value = arena.allocate(PDH_RAW_COUNTER_LAYOUT);
         checkSuccess(PdhGetRawCounterValue(counterHandle, MemorySegment.NULL, value));
         int cStatus = value.get(JAVA_INT, RAW_CSTATUS_OFFSET);
@@ -154,7 +166,7 @@ public final class PerfDataUtilFFM {
             throw new IllegalStateException(
                     String.format(Locale.ROOT, "PDH raw counter CStatus invalid: 0x%08X", cStatus));
         }
-        return value.get(JAVA_LONG, RAW_FIRST_VALUE_OFFSET);
+        return value.get(JAVA_LONG, secondValue ? RAW_SECOND_VALUE_OFFSET : RAW_FIRST_VALUE_OFFSET);
     }
 
     /**
@@ -260,13 +272,31 @@ public final class PerfDataUtilFFM {
      */
     public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryWildcardCounters(
             Class<T> propertyEnum, String perfObject) {
+        return queryWildcardCounters(propertyEnum, perfObject, null);
+    }
+
+    /**
+     * Query wildcard PDH counter values for all instances matching the given filter or the default from the first enum
+     * constant.
+     *
+     * @param <T>          An enum implementing {@link PdhCounterWildcardProperty}
+     * @param propertyEnum The enum class whose constants define the counters to query. The first constant defines the
+     *                     default instance filter; remaining constants define counter names.
+     * @param perfObject   The PDH object name (e.g., "Process")
+     * @param customFilter A custom instance filter to use. If null, uses the first element of the property enum.
+     * @return A pair of (instances, valueMap) where valueMap is indexed by enum constant (excluding the first). Returns
+     *         empty list and empty map on failure.
+     */
+    public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryWildcardCounters(
+            Class<T> propertyEnum, String perfObject, String customFilter) {
 
         T[] props = propertyEnum.getEnumConstants();
         if (props.length < 2) {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
                     + " must have at least two elements, an instance filter and a counter.");
         }
-        String instanceFilter = props[0].getCounter().toLowerCase(Locale.ROOT);
+        String instanceFilter = Util.isBlank(customFilter) ? props[0].getCounter().toLowerCase(Locale.ROOT)
+                : customFilter.toLowerCase(Locale.ROOT);
 
         List<String> instances = enumInstances(perfObject, instanceFilter);
         EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);
@@ -284,16 +314,23 @@ public final class PerfDataUtilFFM {
 
                 // Add counters for each instance × property (skip first which is the filter)
                 // counterHandles[propIndex - 1][instanceIndex]
+                // Detect _Base suffix: strip it from the counter path and read SecondValue instead
+                boolean[] isBase = new boolean[props.length - 1];
                 @SuppressWarnings("unchecked")
                 List<MemorySegment>[] counterHandles = new List[props.length - 1];
                 for (int p = 1; p < props.length; p++) {
+                    String counterName = props[p].getCounter();
+                    if (counterName.endsWith(BASE_SUFFIX)) {
+                        counterName = counterName.substring(0, counterName.length() - BASE_SUFFIX.length());
+                        isBase[p - 1] = true;
+                    }
                     counterHandles[p - 1] = new ArrayList<>(instances.size());
                     for (String instance : instances) {
-                        String path = counterPath(perfObject, instance, props[p].getCounter());
+                        String path = counterPath(perfObject, instance, counterName);
                         try {
                             counterHandles[p - 1].add(addEnglishCounter(arena, query, path));
                         } catch (Throwable t) {
-                            LOG.debug("Failed to add counter {}: {}", path, t.getMessage());
+                            LOG.warn("Failed to add wildcard counter {}: {}", path, t.getMessage());
                             return new Pair<>(Collections.emptyList(), new EnumMap<>(propertyEnum));
                         }
                     }
@@ -302,12 +339,12 @@ public final class PerfDataUtilFFM {
                 // Collect once
                 checkSuccess(PdhCollectQueryData(query));
 
-                // Read values
+                // Read values; use SecondValue for _Base counters
                 for (int p = 1; p < props.length; p++) {
                     List<Long> values = new ArrayList<>(instances.size());
                     for (MemorySegment handle : counterHandles[p - 1]) {
                         try {
-                            values.add(readRawCounterValue(arena, handle));
+                            values.add(readRawCounterValue(arena, handle, isBase[p - 1]));
                         } catch (Throwable t) {
                             LOG.debug("Failed to read counter for {}: {}", props[p], t.getMessage());
                             values.add(0L);
