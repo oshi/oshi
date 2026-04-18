@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
-import oshi.ffm.windows.WinRegFFM;
-import oshi.util.ParseUtil;
+import oshi.driver.common.windows.perfmon.PerfCounter;
+import oshi.driver.windows.registry.HkeyPerformanceDataUtilFFM;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
@@ -61,10 +61,6 @@ public final class PerfDataUtilFFM {
 
     // Cache for English-to-localized object name mapping
     private static final Map<String, String> LOCALIZE_CACHE = new ConcurrentHashMap<>();
-
-    // English counter index registry key
-    private static final String ENGLISH_COUNTER_KEY = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009";
-    private static final String ENGLISH_COUNTER_VALUE = "Counter";
 
     /**
      * Query multiple PDH counter values in a single query, one per enum constant.
@@ -93,9 +89,9 @@ public final class PerfDataUtilFFM {
                 EnumMap<T, Boolean> baseFlags = new EnumMap<>(propertyEnum);
                 for (T prop : props) {
                     String counterName = prop.getCounter();
-                    boolean isBase = counterName.endsWith(BASE_SUFFIX);
+                    boolean isBase = PerfCounter.isBase(counterName);
                     if (isBase) {
-                        counterName = counterName.substring(0, counterName.length() - BASE_SUFFIX.length());
+                        counterName = PerfCounter.stripBaseSuffix(counterName);
                     }
                     String path = counterPath(perfObject, prop.getInstance(), counterName);
                     try {
@@ -154,8 +150,6 @@ public final class PerfDataUtilFFM {
     private static final long RAW_CSTATUS_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("CStatus"));
     private static final long RAW_FIRST_VALUE_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("FirstValue"));
     private static final long RAW_SECOND_VALUE_OFFSET = PDH_RAW_COUNTER_LAYOUT.byteOffset(groupElement("SecondValue"));
-
-    private static final String BASE_SUFFIX = "_Base";
 
     private static long readRawCounterValue(Arena arena, MemorySegment counterHandle, boolean secondValue)
             throws Throwable {
@@ -320,8 +314,8 @@ public final class PerfDataUtilFFM {
                 List<MemorySegment>[] counterHandles = new List[props.length - 1];
                 for (int p = 1; p < props.length; p++) {
                     String counterName = props[p].getCounter();
-                    if (counterName.endsWith(BASE_SUFFIX)) {
-                        counterName = counterName.substring(0, counterName.length() - BASE_SUFFIX.length());
+                    if (PerfCounter.isBase(counterName)) {
+                        counterName = PerfCounter.stripBaseSuffix(counterName);
                         isBase[p - 1] = true;
                     }
                     counterHandles[p - 1] = new ArrayList<>(instances.size());
@@ -390,18 +384,7 @@ public final class PerfDataUtilFFM {
     }
 
     private static int lookupPerfIndexByEnglishName(String name) {
-        String[] counters = Advapi32UtilFFM.registryGetStringArray(
-                MemorySegment.ofAddress(WinRegFFM.HKEY_LOCAL_MACHINE), ENGLISH_COUNTER_KEY, ENGLISH_COUNTER_VALUE);
-        // Array contains alternating index/name pairs: {"1", "1847", "2", "System", "4", "Memory", ...}
-        for (int i = 1; i < counters.length; i += 2) {
-            if (counters[i].equals(name)) {
-                int idx = ParseUtil.parseIntOrDefault(counters[i - 1], 0);
-                if (idx > 0) {
-                    return idx;
-                }
-            }
-        }
-        return 0;
+        return HkeyPerformanceDataUtilFFM.getCounterIndex(name);
     }
 
     private static String lookupPerfNameByIndex(int index) {

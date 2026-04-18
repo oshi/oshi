@@ -2,47 +2,44 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.windows.registry;
+package oshi.driver.common.windows.registry;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jna.platform.win32.WinBase.FILETIME;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
-import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.perfmon.PerfmonDisabled;
-import oshi.driver.windows.perfmon.ThreadInformationJNA;
-import oshi.util.Util;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to read thread data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
+ * Common logic for building thread performance data maps from registry or performance counter results. Callers (JNA/FFM
+ * variants) supply the platform-specific pre-fetched registry or performance-counter data.
  */
 @ThreadSafe
 public final class ThreadPerformanceData {
 
-    private static final String THREAD = "Thread";
+    /**
+     * The performance object name for thread counters.
+     */
+    public static final String THREAD = "Thread";
 
     private ThreadPerformanceData() {
     }
 
     /**
-     * Query the registry for thread performance counters
+     * Builds a thread map from registry performance data that has already been read.
      *
-     * @param pids An optional collection of thread IDs to filter the list to. May be null for no filtering.
+     * @param pids       An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param threadData The raw registry data triplet (instance maps, perfTime100nSec, now in ms)
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
-     *         counter information if successful, or null otherwise.
+     *         counter information, or null if threadData is null.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
-        // Grab the data from the registry.
-        Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtil
-                .readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class);
+    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids,
+            Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData) {
         if (threadData == null) {
             return null;
         }
@@ -50,9 +47,7 @@ public final class ThreadPerformanceData {
         long perfTime100nSec = threadData.getB(); // 1601
         long now = threadData.getC(); // 1970 epoch
 
-        // Create a map and fill it
         Map<Integer, ThreadPerfCounterBlock> threadMap = new HashMap<>();
-        // Iterate instances.
         for (Map<ThreadPerformanceProperty, Object> threadInstanceMap : threadInstanceMaps) {
             Integer pid = (Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS);
             if ((pids == null || pids.contains(pid)) && pid > 0) {
@@ -86,34 +81,19 @@ public final class ThreadPerformanceData {
     }
 
     /**
-     * Query PerfMon for thread performance counters
+     * Builds a thread map from performance counter query results.
      *
-     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param pids           An optional collection of process IDs to filter the list to. May be null for no filtering.
+     * @param instanceValues The query results as a pair of (instances, valueMap)
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
-     *         counter information.
-     */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
-        return buildThreadMapFromPerfCounters(pids, null, -1);
-    }
-
-    /**
-     * Query PerfMon for thread performance counters
-     *
-     * @param pids      An optional collection of process IDs to filter the list to. May be null for no filtering.
-     * @param procName  Limit the matches to processes matching the given name.
-     * @param threadNum Limit the matches to threads matching the given thread. Use -1 to match all threads.
-     * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
-     *         counter information.
+     *         counter information, or null if instanceValues is null.
      */
     public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
-            String procName, int threadNum) {
-        if (PerfmonDisabled.PERF_PROC_DISABLED) {
-            return Collections.emptyMap();
+            Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues) {
+        if (instanceValues == null) {
+            return null;
         }
         Map<Integer, ThreadPerfCounterBlock> threadMap = new HashMap<>();
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
-                ? ThreadInformationJNA.queryThreadCounters()
-                : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
@@ -135,9 +115,7 @@ public final class ThreadPerformanceData {
                 int tid = tidList.get(inst).intValue();
                 String name = Integer.toString(nameIndex++);
                 long startTime = startTimeList.get(inst);
-                int lowerStartTimeLimit = (int) (startTime >> 32);
-                int higherStartTimeLimit = (int) (startTime & 0xffffffffL);
-                startTime = FILETIME.filetimeToDate(lowerStartTimeLimit, higherStartTimeLimit).getTime();
+                startTime = ParseUtil.filetimeToUtcMs(startTime, false);
                 if (startTime > now) {
                     startTime = now - 1;
                 }
@@ -149,8 +127,6 @@ public final class ThreadPerformanceData {
                 long startAddr = startAddrList.get(inst).longValue();
                 long contextSwitches = contextSwitchesList.get(inst).longValue();
 
-                // if creation time value is less than current millis, it's in 1970 epoch,
-                // otherwise it's 1601 epoch and we must convert
                 threadMap.put(tid, new ThreadPerfCounterBlock(name, tid, pid, startTime, user, kernel, priority,
                         threadState, threadWaitReason, startAddr, contextSwitches));
             }

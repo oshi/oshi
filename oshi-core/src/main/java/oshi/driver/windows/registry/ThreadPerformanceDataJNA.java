@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -13,20 +13,19 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerformanceData;
-import oshi.driver.windows.perfmon.PerfmonDisabledFFM;
-import oshi.driver.windows.perfmon.ThreadInformationFFM;
+import oshi.driver.windows.perfmon.PerfmonDisabled;
+import oshi.driver.windows.perfmon.ThreadInformationJNA;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to read thread data from HKEY_PERFORMANCE_DATA via HkeyPerformanceDataUtilFFM with backup from Performance
- * Counters via ThreadInformationFFM
+ * Utility to read thread data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
-public final class ThreadPerformanceDataFFM {
+public final class ThreadPerformanceDataJNA {
 
-    private ThreadPerformanceDataFFM() {
+    private ThreadPerformanceDataJNA() {
     }
 
     /**
@@ -37,7 +36,7 @@ public final class ThreadPerformanceDataFFM {
      *         counter information if successful, or null otherwise.
      */
     public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
-        Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilFFM
+        Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilJNA
                 .readPerfDataFromRegistry(ThreadPerformanceData.THREAD, ThreadPerformanceProperty.class);
         return ThreadPerformanceData.buildThreadMapFromRegistry(pids, threadData);
     }
@@ -64,12 +63,12 @@ public final class ThreadPerformanceDataFFM {
      */
     public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
             String procName, int threadNum) {
-        if (PerfmonDisabledFFM.PERF_PROC_DISABLED) {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }
         Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
-                ? ThreadInformationFFM.queryThreadCounters()
-                : ThreadInformationFFM.queryThreadCounters(procName, threadNum);
+                ? ThreadInformationJNA.queryThreadCounters()
+                : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
         return ThreadPerformanceData.buildThreadMapFromPerfCounters(pids, instanceValues);
     }
 }

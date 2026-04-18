@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 The OSHI Project Contributors
+ * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -18,7 +18,6 @@ import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableLONGLONGByReference;
 import oshi.jna.Struct.CloseablePdhRawCounter;
@@ -41,86 +40,7 @@ public final class PerfDataUtil {
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
-    /**
-     * Encapsulates the three string components of a performance counter
-     */
-    @Immutable
-    public static class PerfCounter {
-        private final String object;
-        private final String instance;
-        private final String counter;
-        private final boolean baseCounter;
-
-        public PerfCounter(String objectName, String instanceName, String counterName) {
-            this.object = objectName;
-            this.instance = instanceName;
-            int baseIdx = counterName.indexOf("_Base");
-            if (baseIdx > 0) {
-                this.counter = counterName.substring(0, baseIdx);
-                this.baseCounter = true;
-            } else {
-                this.counter = counterName;
-                this.baseCounter = false;
-            }
-        }
-
-        /**
-         * @return Returns the object.
-         */
-        public String getObject() {
-            return object;
-        }
-
-        /**
-         * @return Returns the instance.
-         */
-        public String getInstance() {
-            return instance;
-        }
-
-        /**
-         * @return Returns the counter.
-         */
-        public String getCounter() {
-            return counter;
-        }
-
-        /**
-         * @return Returns whether the counter is a base counter
-         */
-        public boolean isBaseCounter() {
-            return baseCounter;
-        }
-
-        /**
-         * Returns the path for this counter
-         *
-         * @return A string representing the counter path
-         */
-        public String getCounterPath() {
-            StringBuilder sb = new StringBuilder();
-            sb.append('\\').append(object);
-            if (instance != null) {
-                sb.append('(').append(instance).append(')');
-            }
-            sb.append('\\').append(counter);
-            return sb.toString();
-        }
-    }
-
     private PerfDataUtil() {
-    }
-
-    /**
-     * Create a Performance Counter
-     *
-     * @param object   The object/path for the counter
-     * @param instance The instance of the counter, or null if no instance
-     * @param counter  The counter name
-     * @return A PerfCounter object encapsulating the object, instance, and counter
-     */
-    public static PerfCounter createCounter(String object, String instance, String counter) {
-        return new PerfCounter(object, instance, counter);
     }
 
     /**

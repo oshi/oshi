@@ -19,7 +19,7 @@ import java.util.Set;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
@@ -100,9 +100,9 @@ public class WindowsOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(getOwningProcessId());
         String procName = this.name.split("/")[0];
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids,
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids,
                 procName, getThreadId());
-        return updateAttributes(procName, threads.get(getThreadId()));
+        return updateAttributes(procName, threads == null ? null : threads.get(getThreadId()));
     }
 
     private boolean updateAttributes(String procName, ThreadPerfCounterBlock pcb) {

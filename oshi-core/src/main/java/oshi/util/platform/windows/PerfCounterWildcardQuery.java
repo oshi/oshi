@@ -26,9 +26,9 @@ import com.sun.jna.platform.win32.PdhUtil.PdhException;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
+import oshi.driver.common.windows.perfmon.PerfCounter;
 import oshi.util.GlobalConfig;
 import oshi.util.Util;
-import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 import oshi.util.tuples.Pair;
 
 /**
@@ -169,7 +169,7 @@ public final class PerfCounterWildcardQuery {
                 T prop = props[i];
                 List<PerfCounter> counterList = new ArrayList<>(instances.size());
                 for (String instance : instances) {
-                    PerfCounter counter = PerfDataUtil.createCounter(perfObject, instance,
+                    PerfCounter counter = new PerfCounter(perfObject, instance,
                             ((PdhCounterWildcardProperty) prop).getCounter());
                     if (!pdhQueryHandler.addCounterToQuery(counter)) {
                         return new Pair<>(Collections.emptyList(), Collections.emptyMap());

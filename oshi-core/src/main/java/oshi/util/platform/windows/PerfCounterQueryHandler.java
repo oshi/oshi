@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.NotThreadSafe;
+import oshi.driver.common.windows.perfmon.PerfCounter;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.util.FormatUtil;
-import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
 
 /**
  * Utility to handle Performance Counter Queries

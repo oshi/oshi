@@ -24,7 +24,7 @@ import com.sun.jna.platform.win32.Win32Exception;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
-import oshi.util.platform.windows.PerfDataUtil.PerfCounter;
+import oshi.driver.common.windows.perfmon.PerfCounter;
 
 /**
  * Enables queries of Performance Counters using wild cards to filter instances
@@ -93,8 +93,7 @@ public final class PerfCounterQuery {
         try (PerfCounterQueryHandler pdhQueryHandler = new PerfCounterQueryHandler()) {
             // Set up the query and counter handles, skipping any that fail
             for (T prop : props) {
-                PerfCounter counter = PerfDataUtil.createCounter(perfObjectLocalized, prop.getInstance(),
-                        prop.getCounter());
+                PerfCounter counter = new PerfCounter(perfObjectLocalized, prop.getInstance(), prop.getCounter());
                 if (pdhQueryHandler.addCounterToQuery(counter)) {
                     counterMap.put(prop, counter);
                 } else {

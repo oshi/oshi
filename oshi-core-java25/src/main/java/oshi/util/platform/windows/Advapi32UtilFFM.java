@@ -198,6 +198,67 @@ public final class Advapi32UtilFFM {
     }
 
     /**
+     * Reads a registry value from the given root key and path.
+     *
+     * @param rootKey   The root key handle (e.g., HKEY_LOCAL_MACHINE)
+     * @param keyPath   The registry key path
+     * @param valueName The value name to read
+     * @return The value object (Integer for REG_DWORD, String for REG_SZ/REG_EXPAND_SZ), or null on failure
+     */
+    public static Object registryGetValue(MemorySegment rootKey, String keyPath, String valueName) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment phkResult = arena.allocate(ADDRESS);
+            int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
+            if (rc != ERROR_SUCCESS) {
+                return null;
+            }
+            MemorySegment hKey = phkResult.get(ADDRESS, 0);
+            try {
+                return registryGetValue(hKey, valueName);
+            } finally {
+                int closeRc = RegCloseKey(hKey);
+                if (closeRc != ERROR_SUCCESS) {
+                    LOG.debug("Failed to close registry key {}: error {}", keyPath, closeRc);
+                }
+            }
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /**
+     * Checks whether a registry value exists under the given root key and path.
+     *
+     * @param rootKey   The root key handle (e.g., HKEY_LOCAL_MACHINE)
+     * @param keyPath   The registry key path
+     * @param valueName The value name to check
+     * @return true if the value exists, false otherwise
+     */
+    public static boolean registryValueExists(MemorySegment rootKey, String keyPath, String valueName) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment phkResult = arena.allocate(ADDRESS);
+            int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
+            if (rc != ERROR_SUCCESS) {
+                return false;
+            }
+            MemorySegment hKey = phkResult.get(ADDRESS, 0);
+            try {
+                MemorySegment lpType = arena.allocate(JAVA_INT);
+                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL,
+                        arena.allocate(JAVA_INT));
+                return rc == ERROR_SUCCESS || rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER;
+            } finally {
+                int closeRc = RegCloseKey(hKey);
+                if (closeRc != ERROR_SUCCESS) {
+                    LOG.debug("Failed to close registry key {}: error {}", keyPath, closeRc);
+                }
+            }
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
      * Reads a REG_MULTI_SZ value from an open registry key.
      *
      * @param rootKey   The root key handle (e.g., HKEY_LOCAL_MACHINE)

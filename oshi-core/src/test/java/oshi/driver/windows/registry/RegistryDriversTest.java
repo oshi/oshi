@@ -26,14 +26,14 @@ class RegistryDriversTest {
 
     @Test
     void testProcessPerformanceData() {
-        Map<Integer, ProcessPerfCounterBlock> processMap = ProcessPerformanceData.buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerfCounterBlock> processMap = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(null);
         assertNotNull(processMap);
         assertThat("Process map should not be empty", processMap, is(not(anEmptyMap())));
     }
 
     @Test
     void testThreadPerformanceData() {
-        Map<Integer, ThreadPerfCounterBlock> threadMap = ThreadPerformanceData.buildThreadMapFromRegistry(null);
+        Map<Integer, ThreadPerfCounterBlock> threadMap = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(null);
         assertNotNull(threadMap);
         assertThat("Thread map should not be empty", threadMap, is(not(anEmptyMap())));
     }

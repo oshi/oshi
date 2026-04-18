@@ -31,7 +31,6 @@ import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
+import oshi.driver.common.windows.registry.HkeyPerformanceDataUtil;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.Advapi32UtilFFM;
@@ -52,7 +52,7 @@ import oshi.util.tuples.Triplet;
  * Utility to read HKEY_PERFORMANCE_DATA information using the FFM API.
  */
 @ThreadSafe
-public final class HkeyPerformanceDataUtilFFM {
+public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HkeyPerformanceDataUtilFFM.class);
 
@@ -60,13 +60,21 @@ public final class HkeyPerformanceDataUtilFFM {
      * Do a one-time lookup of the HKEY_PERFORMANCE_TEXT counter indices and store in a map for efficient lookups
      * on-demand.
      */
-    private static final String HKEY_PERFORMANCE_TEXT = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\009";
-    private static final String COUNTER = "Counter";
     private static final Map<String, Integer> COUNTER_INDEX_MAP = mapCounterIndicesFromRegistry();
 
     private static int maxPerfBufferSize = 16384;
 
     private HkeyPerformanceDataUtilFFM() {
+    }
+
+    /**
+     * Looks up the performance counter index for the given English counter name.
+     *
+     * @param name The English counter name
+     * @return The counter index, or 0 if not found
+     */
+    public static int getCounterIndex(String name) {
+        return COUNTER_INDEX_MAP.getOrDefault(name, 0);
     }
 
     /**
@@ -86,7 +94,7 @@ public final class HkeyPerformanceDataUtilFFM {
             String objectName, Class<T> counterEnum) {
         // Load indices
         // e.g., call with "Process" and ProcessPerformanceProperty.class
-        Pair<Integer, EnumMap<T, Integer>> indices = getCounterIndices(objectName, counterEnum);
+        Pair<Integer, EnumMap<T, Integer>> indices = getCounterIndices(objectName, counterEnum, COUNTER_INDEX_MAP);
         if (indices == null) {
             return null;
         }
@@ -208,41 +216,6 @@ public final class HkeyPerformanceDataUtilFFM {
     }
 
     /**
-     * Looks up the counter index values for the given counter object and the enum of counter names.
-     *
-     * @param <T>         An enum containing the counters, whose class is passed as {@code counterEnum}
-     * @param objectName  The counter object to look up the index for
-     * @param counterEnum The {@link Enum} containing counters to look up the indices for. The first Enum value will be
-     *                    ignored.
-     * @return A {@link Pair} containing the index of the counter object as the first element, and an {@link EnumMap}
-     *         mapping counter enum values to their index as the second element, if the lookup is successful; null
-     *         otherwise.
-     */
-    private static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<Integer, EnumMap<T, Integer>> getCounterIndices(
-            String objectName, Class<T> counterEnum) {
-        if (!COUNTER_INDEX_MAP.containsKey(objectName)) {
-            LOG.debug("Couldn't find counter index of {}.", objectName);
-            return null;
-        }
-        int counterIndex = COUNTER_INDEX_MAP.get(objectName);
-        T[] enumConstants = counterEnum.getEnumConstants();
-        EnumMap<T, Integer> indexMap = new EnumMap<>(counterEnum);
-        // Start iterating at 1 because first Enum value defines the name/instance and
-        // is not a counter name
-        for (int i = 1; i < enumConstants.length; i++) {
-            T key = enumConstants[i];
-            String counterName = key.getCounter();
-            if (!COUNTER_INDEX_MAP.containsKey(counterName)) {
-                LOG.debug("Couldn't find counter index of {}.", counterName);
-                return null;
-            }
-            indexMap.put(key, COUNTER_INDEX_MAP.get(counterName));
-        }
-        // We have all the pieces! Return them.
-        return new Pair<>(counterIndex, indexMap);
-    }
-
-    /**
      * Read the performance data for a counter object from the registry.
      *
      * @param objectName The counter object for which to fetch data. It is the user's responsibility to ensure this key
@@ -300,23 +273,15 @@ public final class HkeyPerformanceDataUtilFFM {
      * read successfully; an empty map otherwise.
      */
     private static Map<String, Integer> mapCounterIndicesFromRegistry() {
-        HashMap<String, Integer> indexMap = new HashMap<>();
         try {
             String[] counterText = Advapi32UtilFFM.registryGetStringArray(
                     MemorySegment.ofAddress(WinRegFFM.HKEY_LOCAL_MACHINE), HKEY_PERFORMANCE_TEXT, COUNTER);
-            if (counterText != null && counterText.length > 1) {
-                for (int i = 1; i < counterText.length; i += 2) {
-                    int idx = ParseUtil.parseIntOrDefault(counterText[i - 1], 0);
-                    if (idx > 0) {
-                        indexMap.putIfAbsent(counterText[i], idx);
-                    }
-                }
-            }
+            return buildCounterIndexMap(counterText);
         } catch (Exception e) {
             LOG.error(
                     "Unable to locate English counter names in registry Perflib 009. Counters may need to be rebuilt: ",
                     e);
         }
-        return Collections.unmodifiableMap(indexMap);
+        return buildCounterIndexMap(null);
     }
 }

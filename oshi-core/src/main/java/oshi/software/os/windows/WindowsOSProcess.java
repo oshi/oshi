@@ -22,10 +22,10 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ProcessPerformanceData;
+import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.driver.windows.wmi.Win32Process;
 import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.wmi.Win32ProcessCached;
@@ -273,16 +273,17 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(this.getProcessID());
         // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> pcb = ProcessPerformanceData.buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerfCounterBlock> pcb = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
         // otherwise performance counters with WMI backup
         if (pcb == null) {
-            pcb = ProcessPerformanceData.buildProcessMapFromPerfCounters(pids);
+            pcb = ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
         }
         if (USE_PROCSTATE_SUSPENDED) {
             this.tcb = queryMatchingThreads(pids);
         }
         Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
-        return updateAttributes(pcb.get(this.getProcessID()), wts.get(this.getProcessID()));
+        return updateAttributes(pcb == null ? null : pcb.get(this.getProcessID()),
+                wts == null ? null : wts.get(this.getProcessID()));
     }
 
     /**
@@ -363,9 +364,9 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData.buildThreadMapFromRegistry(pids);
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
         if (threads == null) {
-            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
+            threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
         }
         return threads;
     }

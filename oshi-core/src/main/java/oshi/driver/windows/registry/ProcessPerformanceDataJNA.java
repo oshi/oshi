@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -13,8 +13,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ProcessPerformanceData;
-import oshi.driver.windows.perfmon.PerfmonDisabledFFM;
-import oshi.driver.windows.perfmon.ProcessInformationFFM;
+import oshi.driver.windows.perfmon.PerfmonDisabled;
+import oshi.driver.windows.perfmon.ProcessInformationJNA;
 import oshi.util.GlobalConfig;
 import oshi.util.tuples.Triplet;
 
@@ -22,11 +22,11 @@ import oshi.util.tuples.Triplet;
  * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
  */
 @ThreadSafe
-public final class ProcessPerformanceDataFFM {
+public final class ProcessPerformanceDataJNA {
 
     private static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
 
-    private ProcessPerformanceDataFFM() {
+    private ProcessPerformanceDataJNA() {
     }
 
     /**
@@ -39,7 +39,7 @@ public final class ProcessPerformanceDataFFM {
     public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
         Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
         if (PERFDATA) {
-            processData = HkeyPerformanceDataUtilFFM.readPerfDataFromRegistry(ProcessPerformanceData.PROCESS,
+            processData = HkeyPerformanceDataUtilJNA.readPerfDataFromRegistry(ProcessPerformanceData.PROCESS,
                     ProcessPerformanceProperty.class);
         }
         return ProcessPerformanceData.buildProcessMapFromRegistry(pids, processData);
@@ -53,10 +53,10 @@ public final class ProcessPerformanceDataFFM {
      *         counter information.
      */
     public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
-        if (PerfmonDisabledFFM.PERF_PROC_DISABLED) {
+        if (PerfmonDisabled.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }
         return ProcessPerformanceData.buildProcessMapFromPerfCounters(pids,
-                ProcessInformationFFM.queryProcessCounters());
+                ProcessInformationJNA.queryProcessCounters());
     }
 }
