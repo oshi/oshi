@@ -105,19 +105,37 @@ public class WmiQueryHandlerFFM {
      * @return a WmiResult object containing the query results, wrapping an EnumMap
      */
     public <T extends Enum<T>> WbemcliUtilFFM.WmiResult<T> queryWMI(WbemcliUtilFFM.WmiQuery<T> query) {
+        return queryWMI(query, true);
+    }
+
+    /**
+     * Query WMI for values.
+     *
+     * @param <T>     WMI queries use an Enum to identify the fields to query, and use the enum values as keys to
+     *                retrieve the results.
+     * @param query   A WmiQuery object encapsulating the namespace, class, and properties
+     * @param initCom Whether to initialize COM. If {@code true}, initializes COM before the query and uninitializes
+     *                after. If {@code false}, assumes the caller has already called {@link #initCOM()} and will call
+     *                {@link #unInitCOM()} when done. This can improve WMI query performance.
+     * @return a WmiResult object containing the query results, wrapping an EnumMap
+     */
+    public <T extends Enum<T>> WbemcliUtilFFM.WmiResult<T> queryWMI(WbemcliUtilFFM.WmiQuery<T> query, boolean initCom) {
         WbemcliUtilFFM.WmiResult<T> result = new WbemcliUtilFFM.WmiResult<>(query.getPropertyEnum());
         if (failedWmiClassNames.contains(query.getWmiClassName())) {
             return result;
         }
         boolean comInit = false;
         try (Arena arena = Arena.ofConfined()) {
-            comInit = initCOM();
-            if (!comInit) {
-                return result;
+            if (initCom) {
+                comInit = initCOM();
+                if (!comInit) {
+                    return result;
+                }
             }
 
             Optional<MemorySegment> pLocatorOpt = IWbemLocatorFFM.create(arena);
             if (pLocatorOpt.isEmpty()) {
+                LOG.debug("Failed to create IWbemLocator. COM may not be initialized.");
                 return result;
             }
             MemorySegment pLocator = pLocatorOpt.get();

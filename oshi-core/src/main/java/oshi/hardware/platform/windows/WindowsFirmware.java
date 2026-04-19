@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.windows.wmi.Win32Bios;
-import oshi.driver.windows.wmi.Win32Bios.BiosProperty;
+import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
+import oshi.driver.windows.wmi.Win32BiosJNA;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -59,7 +59,7 @@ final class WindowsFirmware extends AbstractFirmware {
         String description = null;
         String version = null;
         String releaseDate = null;
-        WmiResult<BiosProperty> win32BIOS = Win32Bios.queryBiosInfo();
+        WmiResult<BiosProperty> win32BIOS = Win32BiosJNA.queryBiosInfo();
         if (win32BIOS.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
             name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);

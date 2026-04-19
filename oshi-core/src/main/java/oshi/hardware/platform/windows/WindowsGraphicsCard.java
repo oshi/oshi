@@ -23,12 +23,12 @@ import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
+import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
+import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
 import oshi.driver.windows.DxgiAdapterInfo;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
-import oshi.driver.windows.wmi.LhmSensor;
-import oshi.driver.windows.wmi.LhmSensor.LhmHardwareProperty;
-import oshi.driver.windows.wmi.Win32VideoController;
-import oshi.driver.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.driver.windows.wmi.LhmSensorJNA;
+import oshi.driver.windows.wmi.Win32VideoControllerJNA;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
@@ -275,7 +275,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
             List<DxgiAdapterInfo> remainingDxgi = new ArrayList<>(dxgiAdapters);
             TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
 
-            WmiResult<VideoControllerProperty> cards = Win32VideoController.queryVideoController();
+            WmiResult<VideoControllerProperty> cards = Win32VideoControllerJNA.queryVideoController();
             for (int index = 0; index < cards.getResultCount(); index++) {
                 // ConfigManagerErrorCode 0 = working properly; non-zero = disabled/error (ghost device).
                 // When DXGI is unavailable, keep all entries for maximum compatibility.
@@ -357,7 +357,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
     private static Map<String, String> buildLhmParentMap() {
         Map<String, String> map = new HashMap<>();
         try {
-            WmiResult<LhmHardwareProperty> hw = LhmSensor.queryGpuHardware();
+            WmiResult<LhmHardwareProperty> hw = LhmSensorJNA.queryGpuHardware();
             for (int i = 0; i < hw.getResultCount(); i++) {
                 String identifier = WmiUtil.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
                 String hwName = WmiUtil.getString(hw, LhmHardwareProperty.NAME, i);

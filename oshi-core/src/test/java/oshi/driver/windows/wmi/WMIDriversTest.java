@@ -24,7 +24,7 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
-import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 
@@ -34,7 +34,8 @@ class WMIDriversTest {
     @Test
     void testQueryWMIMSAcpi() {
         assertThat("Failed MSAcpiThermalZoneTemperature.queryCurrentTemperature",
-                MSAcpiThermalZoneTemperature.queryCurrentTemperature().getResultCount(), is(greaterThanOrEqualTo(0)));
+                MSAcpiThermalZoneTemperatureJNA.queryCurrentTemperature().getResultCount(),
+                is(greaterThanOrEqualTo(0)));
     }
 
     @Test
@@ -43,13 +44,13 @@ class WMIDriversTest {
         assertThat(handler, is(notNullValue()));
         boolean comInit = handler.initCOM();
 
-        assertThat("Failed MSFTStorage.queryPhysicalDisks", MSFTStorage.queryPhysicalDisks(handler).getResultCount(),
+        assertThat("Failed MSFTStorage.queryPhysicalDisks", MSFTStorageJNA.queryPhysicalDisks(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
         assertThat("Failed MSFTStorage.queryStoragePoolPhysicalDisks",
-                MSFTStorage.queryStoragePoolPhysicalDisks(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
-        assertThat("Failed MSFTStorage.queryStoragePools", MSFTStorage.queryStoragePools(handler).getResultCount(),
+                MSFTStorageJNA.queryStoragePoolPhysicalDisks(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
+        assertThat("Failed MSFTStorage.queryStoragePools", MSFTStorageJNA.queryStoragePools(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
-        assertThat("Failed MSFTStorage.queryVirtualDisks", MSFTStorage.queryVirtualDisks(handler).getResultCount(),
+        assertThat("Failed MSFTStorage.queryVirtualDisks", MSFTStorageJNA.queryVirtualDisks(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         if (comInit) {
@@ -66,35 +67,36 @@ class WMIDriversTest {
         assertThat(handler, is(notNullValue()));
         boolean comInit = handler.initCOM();
 
-        assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDrive.queryDiskDrive(handler).getResultCount(),
+        assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDriveJNA.queryDiskDrive(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32DiskDriveToDiskPartition.queryDriveToPartition",
-                Win32DiskDriveToDiskPartition.queryDriveToPartition(handler).getResultCount(),
+                Win32DiskDriveToDiskPartitionJNA.queryDriveToPartition(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32DiskPartition.queryPartition",
-                Win32DiskPartition.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
+                Win32DiskPartitionJNA.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32LogicalDiskToPartition.queryDiskToPartition",
-                Win32LogicalDiskToPartition.queryDiskToPartition(handler).getResultCount(),
+                Win32LogicalDiskToPartitionJNA.queryDiskToPartition(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         if (comInit) {
             handler.unInitCOM();
         }
 
-        assertThat("Failed Win32BaseBoard.queryBaseboardInfo", Win32BaseBoard.queryBaseboardInfo().getResultCount(),
+        assertThat("Failed Win32BaseBoard.queryBaseboardInfo", Win32BaseBoardJNA.queryBaseboardInfo().getResultCount(),
                 is(greaterThan(0)));
 
-        assertThat("Failed Win32Bios.queryBiosInfo", Win32Bios.queryBiosInfo().getResultCount(), is(greaterThan(0)));
-        assertThat("Failed Win32Bios.querySerialNumber", Win32Bios.querySerialNumber().getResultCount(),
+        assertThat("Failed Win32Bios.queryBiosInfo", Win32BiosJNA.queryBiosInfo().getResultCount(), is(greaterThan(0)));
+        assertThat("Failed Win32Bios.querySerialNumber", Win32BiosJNA.querySerialNumber().getResultCount(),
                 is(greaterThan(0)));
 
         assertThat("Failed Win32ComputerSystemProduct.queryIdentifyingNumberUUID",
-                Win32ComputerSystemProduct.queryIdentifyingNumberUUID().getResultCount(), is(greaterThan(0)));
+                Win32ComputerSystemProductJNA.queryIdentifyingNumberUUID().getResultCount(), is(greaterThan(0)));
 
-        assertThat("Failed Win32Fan.querySpeed", Win32Fan.querySpeed().getResultCount(), is(greaterThanOrEqualTo(0)));
+        assertThat("Failed Win32Fan.querySpeed", Win32FanJNA.querySpeed().getResultCount(),
+                is(greaterThanOrEqualTo(0)));
 
         WmiResult<LogicalDiskProperty> ld = Win32LogicalDiskJNA.queryLogicalDisk(null, false);
         assertThat("Failed Win32LogicalDisk.queryLogicalDisk", ld.getResultCount(), is(greaterThan(0)));
@@ -105,36 +107,36 @@ class WMIDriversTest {
         assertThat("Failed Win32LogicalDisk.queryLogicalDisk",
                 Win32LogicalDiskJNA.queryLogicalDisk(null, true).getResultCount(), is(greaterThan(0)));
 
-        assertThat("Failed Win32OperatingSystem.queryOsVersion", Win32OperatingSystem.queryOsVersion().getResultCount(),
-                is(greaterThan(0)));
+        assertThat("Failed Win32OperatingSystem.queryOsVersion",
+                Win32OperatingSystemJNA.queryOsVersion().getResultCount(), is(greaterThan(0)));
 
         if (VersionHelpers.IsWindows10OrGreater()) {
-            assertThat("Failed Win32PhysicalMemory.queryphysicalMemory",
-                    Win32PhysicalMemory.queryphysicalMemory().getResultCount(), is(greaterThan(0)));
+            assertThat("Failed Win32PhysicalMemory.queryPhysicalMemory",
+                    Win32PhysicalMemoryJNA.queryPhysicalMemory().getResultCount(), is(greaterThan(0)));
         } else {
-            assertThat("Failed Win32PhysicalMemory.queryphysicalMemoryWin8",
-                    Win32PhysicalMemory.queryphysicalMemoryWin8().getResultCount(), is(greaterThan(0)));
+            assertThat("Failed Win32PhysicalMemory.queryPhysicalMemoryWin8",
+                    Win32PhysicalMemoryJNA.queryPhysicalMemoryWin8().getResultCount(), is(greaterThan(0)));
         }
 
-        WmiResult<CommandLineProperty> cl = Win32Process.queryCommandLines(null);
+        WmiResult<CommandLineProperty> cl = Win32ProcessJNA.queryCommandLines(null);
         assertThat("Failed Win32Process.queryCommandLines", cl.getResultCount(), is(greaterThan(0)));
         Set<Integer> clset = IntStream.range(0, cl.getResultCount())
                 .map(i -> WmiUtil.getUint32(cl, CommandLineProperty.PROCESSID, i)).boxed().collect(Collectors.toSet());
-        assertThat("Failed Win32Process.queryProcesses", Win32Process.queryProcesses(clset).getResultCount(),
+        assertThat("Failed Win32Process.queryProcesses", Win32ProcessJNA.queryProcesses(clset).getResultCount(),
                 is(both(greaterThan(0)).and(lessThanOrEqualTo(clset.size()))));
 
-        Win32ProcessCached cache = Win32ProcessCached.getInstance();
+        Win32ProcessCachedJNA cache = Win32ProcessCachedJNA.getInstance();
         assertThat("Failed Win32ProcessCached.getCommandLine",
                 cache.getCommandLine(WmiUtil.getUint32(cl, CommandLineProperty.PROCESSID, 0), 0L), is(notNullValue()));
 
-        assertThat("Failed Win32Processor.queryBitness", Win32Processor.queryBitness().getResultCount(),
+        assertThat("Failed Win32Processor.queryBitness", Win32ProcessorJNA.queryBitness().getResultCount(),
                 is(greaterThan(0)));
-        assertThat("Failed Win32Processor.queryProcessorId", Win32Processor.queryProcessorId().getResultCount(),
+        assertThat("Failed Win32Processor.queryProcessorId", Win32ProcessorJNA.queryProcessorId().getResultCount(),
                 is(greaterThan(0)));
-        assertThat("Failed Win32Processor.queryVoltage", Win32Processor.queryVoltage().getResultCount(),
+        assertThat("Failed Win32Processor.queryVoltage", Win32ProcessorJNA.queryVoltage().getResultCount(),
                 is(greaterThan(0)));
 
         assertThat("Failed Win32VideoController.queryVideoController",
-                Win32VideoController.queryVideoController().getResultCount(), is(greaterThanOrEqualTo(0)));
+                Win32VideoControllerJNA.queryVideoController().getResultCount(), is(greaterThanOrEqualTo(0)));
     }
 }

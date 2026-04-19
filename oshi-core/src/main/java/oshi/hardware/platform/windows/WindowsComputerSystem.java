@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.windows.wmi.Win32Bios;
-import oshi.driver.windows.wmi.Win32Bios.BiosSerialProperty;
-import oshi.driver.windows.wmi.Win32ComputerSystem;
-import oshi.driver.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
-import oshi.driver.windows.wmi.Win32ComputerSystemProduct;
-import oshi.driver.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
+import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
+import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+import oshi.driver.windows.wmi.Win32BiosJNA;
+import oshi.driver.windows.wmi.Win32ComputerSystemJNA;
+import oshi.driver.windows.wmi.Win32ComputerSystemProductJNA;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
@@ -69,7 +69,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystem.queryComputerSystem();
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystemJNA.queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
@@ -81,7 +81,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static Pair<String, String> querySystemSerialNumberUUID() {
         String serialNumber = null;
         String uuid = null;
-        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProduct
+        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProductJNA
                 .queryIdentifyingNumberUUID();
         if (win32ComputerSystemProduct.getResultCount() > 0) {
             serialNumber = WmiUtil.getString(win32ComputerSystemProduct,
@@ -101,7 +101,7 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromBios() {
-        WmiResult<BiosSerialProperty> serialNum = Win32Bios.querySerialNumber();
+        WmiResult<BiosSerialProperty> serialNum = Win32BiosJNA.querySerialNumber();
         if (serialNum.getResultCount() > 0) {
             return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
         }

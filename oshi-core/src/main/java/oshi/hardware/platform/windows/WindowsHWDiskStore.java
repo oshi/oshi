@@ -25,15 +25,15 @@ import com.sun.jna.platform.win32.Kernel32;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.driver.windows.perfmon.PhysicalDiskJNA;
-import oshi.driver.windows.wmi.Win32DiskDrive;
-import oshi.driver.windows.wmi.Win32DiskDrive.DiskDriveProperty;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
-import oshi.driver.windows.wmi.Win32DiskPartition;
-import oshi.driver.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartition;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.windows.wmi.Win32DiskDriveJNA;
+import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionJNA;
+import oshi.driver.windows.wmi.Win32DiskPartitionJNA;
+import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionJNA;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
@@ -165,7 +165,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
             DiskStats stats = queryReadWriteStats(null);
             PartitionMaps maps = queryPartitionMaps(h);
 
-            WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
+            WmiResult<DiskDriveProperty> vals = Win32DiskDriveJNA.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
                 WindowsHWDiskStore ds = new WindowsHWDiskStore(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
@@ -264,7 +264,8 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
         Matcher mDep;
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition.queryDriveToPartition(h);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartitionJNA
+                .queryDriveToPartition(h);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
@@ -275,7 +276,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
         }
 
         // Map partitions to logical disks
-        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartition.queryDiskToPartition(h);
+        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartitionJNA.queryDiskToPartition(h);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
             mAnt = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i));
             mDep = DEVICE_ID.matcher(WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i));
@@ -293,7 +294,7 @@ public final class WindowsHWDiskStore extends AbstractHWDiskStore {
         }
 
         // Next, get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartition.queryPartition(h);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartitionJNA.queryPartition(h);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             List<Pair<String, Long>> logicalDrives = maps.partitionToLogicalDriveMap.get(deviceID);

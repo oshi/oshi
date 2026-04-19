@@ -50,6 +50,8 @@ import com.sun.jna.platform.win32.Winsvc;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.windows.EnumWindows;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
@@ -58,10 +60,8 @@ import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.SessionWtsData;
 import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
-import oshi.driver.windows.wmi.Win32OperatingSystem;
-import oshi.driver.windows.wmi.Win32OperatingSystem.OSVersionProperty;
-import oshi.driver.windows.wmi.Win32Processor;
-import oshi.driver.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
+import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
@@ -150,7 +150,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         String sp = null;
         int suiteMask = 0;
         String buildNumber = "";
-        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystem.queryOsVersion();
+        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystemJNA.queryOsVersion();
         if (versionInfo.getResultCount() > 0) {
             sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
             if (!sp.isEmpty() && !Constants.UNKNOWN.equals(sp)) {
@@ -218,7 +218,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     @Override
     protected int queryBitness(int jvmBitness) {
         if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null && IS_VISTA_OR_GREATER) {
-            WmiResult<BitnessProperty> bitnessMap = Win32Processor.queryBitness();
+            WmiResult<BitnessProperty> bitnessMap = Win32ProcessorJNA.queryBitness();
             if (bitnessMap.getResultCount() > 0) {
                 return WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
             }

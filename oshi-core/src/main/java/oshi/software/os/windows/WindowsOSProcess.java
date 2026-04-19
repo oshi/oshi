@@ -22,13 +22,13 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
-import oshi.driver.windows.wmi.Win32Process;
-import oshi.driver.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.driver.windows.wmi.Win32ProcessCached;
+import oshi.driver.windows.wmi.Win32ProcessCachedJNA;
+import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
@@ -376,9 +376,9 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
             return cwdCmdEnv.get().getB();
         }
         if (USE_BATCH_COMMANDLINE) {
-            return Win32ProcessCached.getInstance().getCommandLine(getProcessID(), getStartTime());
+            return Win32ProcessCachedJNA.getInstance().getCommandLine(getProcessID(), getStartTime());
         }
-        WmiResult<CommandLineProperty> commandLineProcs = Win32Process
+        WmiResult<CommandLineProperty> commandLineProcs = Win32ProcessJNA
                 .queryCommandLines(Collections.singleton(getProcessID()));
         if (commandLineProcs.getResultCount() > 0) {
             return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);

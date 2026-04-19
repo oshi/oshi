@@ -17,9 +17,9 @@ import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
+import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
-import oshi.driver.windows.wmi.LhmSensor;
-import oshi.driver.windows.wmi.LhmSensor.LhmSensorProperty;
+import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.util.gpu.AdlUtilJNA;
@@ -135,7 +135,7 @@ final class WindowsGpuStats implements GpuStats {
         checkOpen();
         if (!lhmParent.isEmpty()) {
             try {
-                WmiResult<LhmSensorProperty> sensors = LhmSensor.querySensors(lhmParent, "Load");
+                WmiResult<LhmSensorProperty> sensors = LhmSensorJNA.querySensors(lhmParent, "Load");
                 for (int i = 0; i < sensors.getResultCount(); i++) {
                     if ("GPU Core".equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
                         return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
@@ -167,7 +167,7 @@ final class WindowsGpuStats implements GpuStats {
         }
         if (!lhmParent.isEmpty()) {
             try {
-                WmiResult<LhmSensorProperty> sensors = LhmSensor.querySensors(lhmParent, "SmallData");
+                WmiResult<LhmSensorProperty> sensors = LhmSensorJNA.querySensors(lhmParent, "SmallData");
                 for (int i = 0; i < sensors.getResultCount(); i++) {
                     if ("GPU Memory Used".equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
                         float mb = WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
@@ -363,7 +363,7 @@ final class WindowsGpuStats implements GpuStats {
             return -1d;
         }
         try {
-            WmiResult<LhmSensorProperty> sensors = LhmSensor.querySensors(lhmParent, sensorType);
+            WmiResult<LhmSensorProperty> sensors = LhmSensorJNA.querySensors(lhmParent, sensorType);
             for (int i = 0; i < sensors.getResultCount(); i++) {
                 if (sensorName.equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
                     return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);

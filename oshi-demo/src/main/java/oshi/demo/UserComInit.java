@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -9,7 +9,7 @@ import java.util.Objects;
 import com.sun.jna.platform.win32.COM.COMException;
 
 import oshi.annotation.SuppressForbidden;
-import oshi.driver.windows.wmi.Win32OperatingSystem;
+import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
 import oshi.util.platform.windows.WmiQueryHandler;
 
 /**
@@ -30,14 +30,14 @@ public class UserComInit {
 
     private static void wakeUpCom() {
         // The first COM query can take extra long so just do one separately
-        Win32OperatingSystem.queryOsVersion();
+        Win32OperatingSystemJNA.queryOsVersion();
     }
 
     @SuppressForbidden(reason = "Using System.out in a demo class")
     private static void loopWmiQueries() {
         long t = System.nanoTime();
         for (int i = 0; i < REPETITIONS; i++) {
-            Win32OperatingSystem.queryOsVersion();
+            Win32OperatingSystemJNA.queryOsVersion();
         }
         t = System.nanoTime() - t;
         System.out.println("Average ms per rep: " + t / (1_000_000d * REPETITIONS));

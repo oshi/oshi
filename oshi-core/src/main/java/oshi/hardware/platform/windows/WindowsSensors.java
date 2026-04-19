@@ -18,16 +18,16 @@ import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature;
-import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
-import oshi.driver.windows.wmi.OhmHardware;
-import oshi.driver.windows.wmi.OhmHardware.IdentifierProperty;
-import oshi.driver.windows.wmi.OhmSensor;
-import oshi.driver.windows.wmi.OhmSensor.ValueProperty;
-import oshi.driver.windows.wmi.Win32Fan;
-import oshi.driver.windows.wmi.Win32Fan.SpeedProperty;
-import oshi.driver.windows.wmi.Win32Processor;
-import oshi.driver.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
+import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureJNA;
+import oshi.driver.windows.wmi.OhmHardwareJNA;
+import oshi.driver.windows.wmi.OhmSensorJNA;
+import oshi.driver.windows.wmi.Win32FanJNA;
+import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
@@ -77,7 +77,7 @@ final class WindowsSensors extends AbstractSensors {
         WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Temperature", (h, ohmHardware) -> {
             String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (!cpuIdentifier.isEmpty()) {
-                return OhmSensor.querySensorValue(h, cpuIdentifier, "Temperature");
+                return OhmSensorJNA.querySensorValue(h, cpuIdentifier, "Temperature");
             }
             return null;
         });
@@ -99,7 +99,7 @@ final class WindowsSensors extends AbstractSensors {
     private static double getTempFromWMI() {
         double tempC = 0d;
         long tempK = 0L;
-        WmiResult<TemperatureProperty> result = MSAcpiThermalZoneTemperature.queryCurrentTemperature();
+        WmiResult<TemperatureProperty> result = MSAcpiThermalZoneTemperatureJNA.queryCurrentTemperature();
         if (result.getResultCount() > 0) {
             LOG.debug("Found Temperature data in WMI");
             tempK = WmiUtil.getUint32asLong(result, TemperatureProperty.CURRENTTEMPERATURE, 0);
@@ -143,7 +143,7 @@ final class WindowsSensors extends AbstractSensors {
         WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Fan", (h, ohmHardware) -> {
             String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (!cpuIdentifier.isEmpty()) {
-                return OhmSensor.querySensorValue(h, cpuIdentifier, "Fan");
+                return OhmSensorJNA.querySensorValue(h, cpuIdentifier, "Fan");
             }
             return null;
         });
@@ -191,7 +191,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromWMI() {
-        WmiResult<SpeedProperty> fan = Win32Fan.querySpeed();
+        WmiResult<SpeedProperty> fan = Win32FanJNA.querySpeed();
         if (fan.getResultCount() > 1) {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
@@ -242,7 +242,7 @@ final class WindowsSensors extends AbstractSensors {
                 cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
             // Now fetch sensor
-            return OhmSensor.querySensorValue(h, cpuIdentifier, "Voltage");
+            return OhmSensorJNA.querySensorValue(h, cpuIdentifier, "Voltage");
         });
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
@@ -256,7 +256,7 @@ final class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromWMI() {
-        WmiResult<VoltProperty> voltage = Win32Processor.queryVoltage();
+        WmiResult<VoltProperty> voltage = Win32ProcessorJNA.queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
             int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
@@ -290,7 +290,7 @@ final class WindowsSensors extends AbstractSensors {
         WmiResult<ValueProperty> ohmSensors = null;
         try {
             comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, typeToQuery, typeName);
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardwareJNA.queryHwIdentifier(h, typeToQuery, typeName);
             if (ohmHardware.getResultCount() > 0) {
                 LOG.debug("Found {} data in Open Hardware Monitor", sensorType);
                 ohmSensors = querySensorFunction.apply(h, ohmHardware);

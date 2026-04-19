@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -11,8 +11,8 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.windows.wmi.Win32BaseBoard;
-import oshi.driver.windows.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.windows.wmi.Win32BaseBoardJNA;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -53,7 +53,7 @@ final class WindowsBaseboard extends AbstractBaseboard {
         String model = null;
         String version = null;
         String serialNumber = null;
-        WmiResult<BaseBoardProperty> win32BaseBoard = Win32BaseBoard.queryBaseboardInfo();
+        WmiResult<BaseBoardProperty> win32BaseBoard = Win32BaseBoardJNA.queryBaseboardInfo();
         if (win32BaseBoard.getResultCount() > 0) {
             manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);

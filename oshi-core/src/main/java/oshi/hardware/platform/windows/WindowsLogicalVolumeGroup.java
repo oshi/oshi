@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -19,15 +19,15 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
+import com.sun.jna.platform.win32.VersionHelpers;
 
-import oshi.driver.windows.wmi.MSFTStorage;
-import oshi.driver.windows.wmi.MSFTStorage.PhysicalDiskProperty;
-import oshi.driver.windows.wmi.MSFTStorage.StoragePoolProperty;
-import oshi.driver.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
-import oshi.driver.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.windows.wmi.MSFTStorageJNA;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ParseUtil;
@@ -59,7 +59,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         try {
             comInit = h.initCOM();
             // Query Storage Pools first, so we can skip other queries if we have no pools
-            WmiResult<StoragePoolProperty> sp = MSFTStorage.queryStoragePools(h);
+            WmiResult<StoragePoolProperty> sp = MSFTStorageJNA.queryStoragePools(h);
             int count = sp.getResultCount();
             if (count == 0) {
                 return Collections.emptyList();
@@ -68,7 +68,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
             // Get all the Virtual Disks
             Map<String, String> vdMap = new HashMap<>();
-            WmiResult<VirtualDiskProperty> vds = MSFTStorage.queryVirtualDisks(h);
+            WmiResult<VirtualDiskProperty> vds = MSFTStorageJNA.queryVirtualDisks(h);
             count = vds.getResultCount();
             for (int i = 0; i < count; i++) {
                 String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);
@@ -82,7 +82,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
             // Get all the Physical Disks
             Map<String, Pair<String, String>> pdMap = new HashMap<>();
-            WmiResult<PhysicalDiskProperty> pds = MSFTStorage.queryPhysicalDisks(h);
+            WmiResult<PhysicalDiskProperty> pds = MSFTStorageJNA.queryPhysicalDisks(h);
             count = pds.getResultCount();
             for (int i = 0; i < count; i++) {
                 String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);
@@ -97,7 +97,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
             // Get the Storage Pool to Physical Disk mappping
             Map<String, String> sppdMap = new HashMap<>();
-            WmiResult<StoragePoolToPhysicalDiskProperty> sppd = MSFTStorage.queryStoragePoolPhysicalDisks(h);
+            WmiResult<StoragePoolToPhysicalDiskProperty> sppd = MSFTStorageJNA.queryStoragePoolPhysicalDisks(h);
             count = sppd.getResultCount();
             for (int i = 0; i < count; i++) {
                 // Ref string contains object id, will do partial match later

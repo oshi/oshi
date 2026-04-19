@@ -34,12 +34,12 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCoun
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.driver.windows.LogicalProcessorInformation;
 import oshi.driver.windows.perfmon.LoadAverageJNA;
 import oshi.driver.windows.perfmon.ProcessorInformationJNA;
 import oshi.driver.windows.perfmon.SystemInformationJNA;
-import oshi.driver.windows.wmi.Win32Processor;
-import oshi.driver.windows.wmi.Win32Processor.ProcessorIdProperty;
+import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.Struct.CloseableSystemInfo;
 import oshi.jna.platform.windows.Kernel32;
@@ -138,7 +138,7 @@ final class WindowsCentralProcessor extends AbstractCentralProcessor {
                 cpu64bit = true;
             }
         }
-        WmiResult<ProcessorIdProperty> processorId = Win32Processor.queryProcessorId();
+        WmiResult<ProcessorIdProperty> processorId = Win32ProcessorJNA.queryProcessorId();
         if (processorId.getResultCount() > 0) {
             processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);
         } else {

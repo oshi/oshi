@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -12,16 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.windows.wmi.Win32Process;
-import oshi.driver.windows.wmi.Win32Process.ProcessXPProperty;
+import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
+import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.util.platform.windows.WmiUtil;
@@ -88,7 +88,7 @@ public final class ProcessWtsData {
 
     private static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
-        WmiResult<ProcessXPProperty> processWmiResult = Win32Process.queryProcesses(pids);
+        WmiResult<ProcessXPProperty> processWmiResult = Win32ProcessJNA.queryProcesses(pids);
         for (int i = 0; i < processWmiResult.getResultCount(); i++) {
             wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(
                     WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),

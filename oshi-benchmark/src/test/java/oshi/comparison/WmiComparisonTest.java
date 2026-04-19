@@ -16,11 +16,61 @@ import org.junit.jupiter.api.condition.DisabledIf;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
+import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
+import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
+import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
+import oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureFFM;
+import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureJNA;
+import oshi.driver.windows.wmi.Win32BaseBoardFFM;
+import oshi.driver.windows.wmi.Win32BaseBoardJNA;
+import oshi.driver.windows.wmi.Win32BiosFFM;
+import oshi.driver.windows.wmi.Win32BiosJNA;
+import oshi.driver.windows.wmi.Win32ComputerSystemFFM;
+import oshi.driver.windows.wmi.Win32ComputerSystemJNA;
+import oshi.driver.windows.wmi.Win32ComputerSystemProductFFM;
+import oshi.driver.windows.wmi.Win32ComputerSystemProductJNA;
+import oshi.driver.windows.wmi.Win32DiskDriveFFM;
+import oshi.driver.windows.wmi.Win32DiskDriveJNA;
+import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
+import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionJNA;
+import oshi.driver.windows.wmi.Win32DiskPartitionFFM;
+import oshi.driver.windows.wmi.Win32DiskPartitionJNA;
+import oshi.driver.windows.wmi.Win32FanFFM;
+import oshi.driver.windows.wmi.Win32FanJNA;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskJNA;
+import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
+import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionJNA;
+import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
+import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
+import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
+import oshi.driver.windows.wmi.Win32PhysicalMemoryJNA;
+import oshi.driver.windows.wmi.Win32PrinterFFM;
+import oshi.driver.windows.wmi.Win32PrinterJNA;
+import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.driver.windows.wmi.Win32ProcessorJNA;
+import oshi.driver.windows.wmi.Win32VideoControllerFFM;
+import oshi.driver.windows.wmi.Win32VideoControllerJNA;
 import oshi.util.PlatformEnum;
 import oshi.util.platform.windows.WbemcliUtilFFM;
+import oshi.util.platform.windows.WmiQueryHandler;
+import oshi.util.platform.windows.WmiQueryHandlerFFM;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.platform.windows.WmiUtilFFM;
 
@@ -30,6 +80,10 @@ import oshi.util.platform.windows.WmiUtilFFM;
 @DisabledIf("isNotWindows")
 class WmiComparisonTest {
 
+    // --- LogicalDisk: exhaustive field-by-field comparison ---
+    // This test intentionally validates every WMI value type (string, uint16, uint32, uint64)
+    // so the remaining driver tests can focus on result count and a few representative fields.
+
     @Test
     void testLogicalDiskUnfiltered() {
         WmiResult<LogicalDiskProperty> jna = Win32LogicalDiskJNA.queryLogicalDisk(null, false);
@@ -37,9 +91,8 @@ class WmiComparisonTest {
 
         assertThat(ffm.getResultCount()).as("LogicalDisk result count").isEqualTo(jna.getResultCount());
 
-        // Build maps keyed by NAME since WMI row order is nondeterministic
-        var jnaByName = buildJnaMap(jna);
-        var ffmByName = buildFfmMap(ffm);
+        var jnaByName = buildJnaStringMap(jna, LogicalDiskProperty.NAME);
+        var ffmByName = buildFfmStringMap(ffm, LogicalDiskProperty.NAME);
 
         assertThat(ffmByName.keySet()).as("LogicalDisk names").containsExactlyInAnyOrderElementsOf(jnaByName.keySet());
 
@@ -71,8 +124,8 @@ class WmiComparisonTest {
 
         assertThat(ffm.getResultCount()).as("LogicalDisk local-only result count").isEqualTo(jna.getResultCount());
 
-        var jnaByName = buildJnaMap(jna);
-        var ffmByName = buildFfmMap(ffm);
+        var jnaByName = buildJnaStringMap(jna, LogicalDiskProperty.NAME);
+        var ffmByName = buildFfmStringMap(ffm, LogicalDiskProperty.NAME);
 
         assertThat(ffmByName.keySet()).as("LogicalDisk local names")
                 .containsExactlyInAnyOrderElementsOf(jnaByName.keySet());
@@ -100,18 +153,277 @@ class WmiComparisonTest {
                 .isEqualTo(firstName);
     }
 
-    private static Map<String, Integer> buildJnaMap(WmiResult<LogicalDiskProperty> result) {
+    // --- Single-row drivers: compare all string properties ---
+
+    @Test
+    void testBaseBoard() {
+        WmiResult<BaseBoardProperty> jna = Win32BaseBoardJNA.queryBaseboardInfo();
+        WbemcliUtilFFM.WmiResult<BaseBoardProperty> ffm = Win32BaseBoardFFM.queryBaseboardInfo();
+        assertThat(ffm.getResultCount()).as("BaseBoard count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No baseboard found");
+        for (BaseBoardProperty p : BaseBoardProperty.values()) {
+            assertThat(WmiUtilFFM.getString(ffm, p, 0)).as("BaseBoard " + p).isEqualTo(WmiUtil.getString(jna, p, 0));
+        }
+    }
+
+    @Test
+    void testBiosInfo() {
+        WmiResult<BiosProperty> jna = Win32BiosJNA.queryBiosInfo();
+        WbemcliUtilFFM.WmiResult<BiosProperty> ffm = Win32BiosFFM.queryBiosInfo();
+        assertThat(ffm.getResultCount()).as("Bios count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No BIOS found");
+        for (BiosProperty p : BiosProperty.values()) {
+            if (p == BiosProperty.RELEASEDATE) {
+                assertThat(WmiUtilFFM.getDateString(ffm, p, 0)).as("Bios " + p)
+                        .isEqualTo(WmiUtil.getDateString(jna, p, 0));
+            } else {
+                assertThat(WmiUtilFFM.getString(ffm, p, 0)).as("Bios " + p).isEqualTo(WmiUtil.getString(jna, p, 0));
+            }
+        }
+    }
+
+    @Test
+    void testBiosSerialNumber() {
+        WmiResult<BiosSerialProperty> jna = Win32BiosJNA.querySerialNumber();
+        WbemcliUtilFFM.WmiResult<BiosSerialProperty> ffm = Win32BiosFFM.querySerialNumber();
+        assertThat(ffm.getResultCount()).as("BiosSerial count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No BIOS serial found");
+        assertThat(WmiUtilFFM.getString(ffm, BiosSerialProperty.SERIALNUMBER, 0)).as("BiosSerial SERIALNUMBER")
+                .isEqualTo(WmiUtil.getString(jna, BiosSerialProperty.SERIALNUMBER, 0));
+    }
+
+    @Test
+    void testComputerSystem() {
+        WmiResult<ComputerSystemProperty> jna = Win32ComputerSystemJNA.queryComputerSystem();
+        WbemcliUtilFFM.WmiResult<ComputerSystemProperty> ffm = Win32ComputerSystemFFM.queryComputerSystem();
+        assertThat(ffm.getResultCount()).as("ComputerSystem count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No computer system found");
+        for (ComputerSystemProperty p : ComputerSystemProperty.values()) {
+            assertThat(WmiUtilFFM.getString(ffm, p, 0)).as("ComputerSystem " + p)
+                    .isEqualTo(WmiUtil.getString(jna, p, 0));
+        }
+    }
+
+    @Test
+    void testComputerSystemProduct() {
+        WmiResult<ComputerSystemProductProperty> jna = Win32ComputerSystemProductJNA.queryIdentifyingNumberUUID();
+        WbemcliUtilFFM.WmiResult<ComputerSystemProductProperty> ffm = Win32ComputerSystemProductFFM
+                .queryIdentifyingNumberUUID();
+        assertThat(ffm.getResultCount()).as("ComputerSystemProduct count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No computer system product found");
+        for (ComputerSystemProductProperty p : ComputerSystemProductProperty.values()) {
+            assertThat(WmiUtilFFM.getString(ffm, p, 0)).as("ComputerSystemProduct " + p)
+                    .isEqualTo(WmiUtil.getString(jna, p, 0));
+        }
+    }
+
+    @Test
+    void testOperatingSystem() {
+        WmiResult<OSVersionProperty> jna = Win32OperatingSystemJNA.queryOsVersion();
+        WbemcliUtilFFM.WmiResult<OSVersionProperty> ffm = Win32OperatingSystemFFM.queryOsVersion();
+        assertThat(ffm.getResultCount()).as("OS count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No OS found");
+        for (OSVersionProperty p : OSVersionProperty.values()) {
+            switch (p) {
+                case PRODUCTTYPE, SUITEMASK -> assertThat(WmiUtilFFM.getUint32(ffm, p, 0)).as("OS " + p)
+                        .isEqualTo(WmiUtil.getUint32(jna, p, 0));
+                default -> assertThat(WmiUtilFFM.getString(ffm, p, 0)).as("OS " + p)
+                        .isEqualTo(WmiUtil.getString(jna, p, 0));
+            }
+        }
+    }
+
+    @Test
+    void testProcessor() {
+        WmiResult<ProcessorIdProperty> jna = Win32ProcessorJNA.queryProcessorId();
+        WbemcliUtilFFM.WmiResult<ProcessorIdProperty> ffm = Win32ProcessorFFM.queryProcessorId();
+        assertThat(ffm.getResultCount()).as("ProcessorId count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No processor found");
+        for (int i = 0; i < jna.getResultCount(); i++) {
+            assertThat(WmiUtilFFM.getString(ffm, ProcessorIdProperty.PROCESSORID, i)).as("PROCESSORID [" + i + "]")
+                    .isEqualTo(WmiUtil.getString(jna, ProcessorIdProperty.PROCESSORID, i));
+        }
+
+        WmiResult<BitnessProperty> jnaBit = Win32ProcessorJNA.queryBitness();
+        WbemcliUtilFFM.WmiResult<BitnessProperty> ffmBit = Win32ProcessorFFM.queryBitness();
+        assertThat(ffmBit.getResultCount()).as("Bitness count").isEqualTo(jnaBit.getResultCount());
+        Assumptions.assumeTrue(jnaBit.getResultCount() > 0, "No bitness found");
+        for (int i = 0; i < jnaBit.getResultCount(); i++) {
+            assertThat(WmiUtilFFM.getUint16(ffmBit, BitnessProperty.ADDRESSWIDTH, i)).as("ADDRESSWIDTH [" + i + "]")
+                    .isEqualTo(WmiUtil.getUint16(jnaBit, BitnessProperty.ADDRESSWIDTH, i));
+        }
+
+        WmiResult<VoltProperty> jnaVolt = Win32ProcessorJNA.queryVoltage();
+        WbemcliUtilFFM.WmiResult<VoltProperty> ffmVolt = Win32ProcessorFFM.queryVoltage();
+        assertThat(ffmVolt.getResultCount()).as("Voltage count").isEqualTo(jnaVolt.getResultCount());
+        Assumptions.assumeTrue(jnaVolt.getResultCount() > 0, "No voltage found");
+        for (int i = 0; i < jnaVolt.getResultCount(); i++) {
+            assertThat(WmiUtilFFM.getUint16(ffmVolt, VoltProperty.CURRENTVOLTAGE, i)).as("CURRENTVOLTAGE [" + i + "]")
+                    .isEqualTo(WmiUtil.getUint16(jnaVolt, VoltProperty.CURRENTVOLTAGE, i));
+        }
+    }
+
+    // --- Multi-row drivers with key fields ---
+
+    @Test
+    void testPhysicalMemory() {
+        WmiResult<PhysicalMemoryProperty> jna = Win32PhysicalMemoryJNA.queryPhysicalMemory();
+        WbemcliUtilFFM.WmiResult<PhysicalMemoryProperty> ffm = Win32PhysicalMemoryFFM.queryPhysicalMemory();
+        assertThat(ffm.getResultCount()).as("PhysicalMemory count").isEqualTo(jna.getResultCount());
+        Assumptions.assumeTrue(jna.getResultCount() > 0, "No physical memory found");
+
+        var jnaByKey = buildJnaStringMap(jna, PhysicalMemoryProperty.SERIALNUMBER);
+        var ffmByKey = buildFfmStringMap(ffm, PhysicalMemoryProperty.SERIALNUMBER);
+        assertThat(ffmByKey.keySet()).as("PhysicalMemory keys").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
+
+        for (String key : jnaByKey.keySet()) {
+            int ji = jnaByKey.get(key);
+            int fi = ffmByKey.get(key);
+            assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.BANKLABEL, fi)).as("BANKLABEL [" + key + "]")
+                    .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.BANKLABEL, ji));
+            assertThat(WmiUtilFFM.getUint64(ffm, PhysicalMemoryProperty.CAPACITY, fi)).as("CAPACITY [" + key + "]")
+                    .isEqualTo(WmiUtil.getUint64(jna, PhysicalMemoryProperty.CAPACITY, ji));
+            assertThat(WmiUtilFFM.getString(ffm, PhysicalMemoryProperty.MANUFACTURER, fi))
+                    .as("MANUFACTURER [" + key + "]")
+                    .isEqualTo(WmiUtil.getString(jna, PhysicalMemoryProperty.MANUFACTURER, ji));
+        }
+    }
+
+    @Test
+    void testVideoController() {
+        WmiResult<VideoControllerProperty> jna = Win32VideoControllerJNA.queryVideoController();
+        WbemcliUtilFFM.WmiResult<VideoControllerProperty> ffm = Win32VideoControllerFFM.queryVideoController();
+        assertThat(ffm.getResultCount()).as("VideoController count").isEqualTo(jna.getResultCount());
+        if (jna.getResultCount() == 0) {
+            return;
+        }
+
+        var jnaByKey = buildJnaStringMap(jna, VideoControllerProperty.PNPDEVICEID);
+        var ffmByKey = buildFfmStringMap(ffm, VideoControllerProperty.PNPDEVICEID);
+        assertThat(ffmByKey.keySet()).as("VideoController keys").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
+
+        for (String key : jnaByKey.keySet()) {
+            int ji = jnaByKey.get(key);
+            int fi = ffmByKey.get(key);
+            assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.NAME, fi)).as("VC NAME [" + key + "]")
+                    .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.NAME, ji));
+            assertThat(WmiUtilFFM.getString(ffm, VideoControllerProperty.DRIVERVERSION, fi))
+                    .as("VC DRIVERVERSION [" + key + "]")
+                    .isEqualTo(WmiUtil.getString(jna, VideoControllerProperty.DRIVERVERSION, ji));
+        }
+    }
+
+    @Test
+    void testPrinter() {
+        WmiResult<PrinterProperty> jna = Win32PrinterJNA.queryPrinters();
+        WbemcliUtilFFM.WmiResult<PrinterProperty> ffm = Win32PrinterFFM.queryPrinters();
+        assertThat(ffm.getResultCount()).as("Printer count").isEqualTo(jna.getResultCount());
+        if (jna.getResultCount() == 0) {
+            return;
+        }
+
+        var jnaByKey = buildJnaStringMap(jna, PrinterProperty.NAME);
+        var ffmByKey = buildFfmStringMap(ffm, PrinterProperty.NAME);
+        assertThat(ffmByKey.keySet()).as("Printer names").containsExactlyInAnyOrderElementsOf(jnaByKey.keySet());
+
+        for (String name : jnaByKey.keySet()) {
+            int ji = jnaByKey.get(name);
+            int fi = ffmByKey.get(name);
+            assertThat(WmiUtilFFM.getString(ffm, PrinterProperty.DRIVERNAME, fi))
+                    .as("Printer DRIVERNAME [" + name + "]")
+                    .isEqualTo(WmiUtil.getString(jna, PrinterProperty.DRIVERNAME, ji));
+            // Boolean type validation
+            assertThat(ffm.getValue(PrinterProperty.DEFAULT, fi)).as("Printer DEFAULT [" + name + "]")
+                    .isEqualTo(jna.getValue(PrinterProperty.DEFAULT, ji));
+            assertThat(ffm.getValue(PrinterProperty.LOCAL, fi)).as("Printer LOCAL [" + name + "]")
+                    .isEqualTo(jna.getValue(PrinterProperty.LOCAL, ji));
+        }
+    }
+
+    // --- Count-only comparisons for volatile/optional data ---
+
+    @Test
+    void testFanSpeed() {
+        WmiResult<SpeedProperty> jna = Win32FanJNA.querySpeed();
+        WbemcliUtilFFM.WmiResult<SpeedProperty> ffm = Win32FanFFM.querySpeed();
+        assertThat(ffm.getResultCount()).as("Fan count").isEqualTo(jna.getResultCount());
+    }
+
+    @Test
+    void testMSAcpiTemperature() {
+        WmiResult<TemperatureProperty> jna = MSAcpiThermalZoneTemperatureJNA.queryCurrentTemperature();
+        WbemcliUtilFFM.WmiResult<TemperatureProperty> ffm = MSAcpiThermalZoneTemperatureFFM.queryCurrentTemperature();
+        // Both should succeed or both fail (may require admin privileges)
+        assertThat(ffm.getResultCount() > 0).as("MSAcpi temperature parity").isEqualTo(jna.getResultCount() > 0);
+    }
+
+    // --- initCom=false drivers: manage COM ourselves ---
+
+    @Test
+    void testDiskDrivers() {
+        WmiQueryHandler jnaHandler = WmiQueryHandler.createInstance();
+        Assumptions.assumeTrue(jnaHandler != null, "JNA WmiQueryHandler unavailable");
+        WmiQueryHandlerFFM ffmHandler = WmiQueryHandlerFFM.createInstance();
+        Assumptions.assumeTrue(ffmHandler != null, "FFM WmiQueryHandlerFFM unavailable");
+
+        boolean jnaComInit = jnaHandler.initCOM();
+        boolean ffmComInit = ffmHandler.initCOM();
+        try {
+            // DiskDrive
+            WmiResult<DiskDriveProperty> jnaDd = Win32DiskDriveJNA.queryDiskDrive(jnaHandler);
+            WbemcliUtilFFM.WmiResult<DiskDriveProperty> ffmDd = Win32DiskDriveFFM.queryDiskDrive(ffmHandler);
+            assertThat(ffmDd.getResultCount()).as("DiskDrive count").isEqualTo(jnaDd.getResultCount());
+
+            // DiskDriveToDiskPartition
+            WmiResult<DriveToPartitionProperty> jnaDtp = Win32DiskDriveToDiskPartitionJNA
+                    .queryDriveToPartition(jnaHandler);
+            WbemcliUtilFFM.WmiResult<DriveToPartitionProperty> ffmDtp = Win32DiskDriveToDiskPartitionFFM
+                    .queryDriveToPartition(ffmHandler);
+            assertThat(ffmDtp.getResultCount()).as("DriveToPartition count").isEqualTo(jnaDtp.getResultCount());
+
+            // DiskPartition
+            WmiResult<DiskPartitionProperty> jnaDp = Win32DiskPartitionJNA.queryPartition(jnaHandler);
+            WbemcliUtilFFM.WmiResult<DiskPartitionProperty> ffmDp = Win32DiskPartitionFFM.queryPartition(ffmHandler);
+            assertThat(ffmDp.getResultCount()).as("DiskPartition count").isEqualTo(jnaDp.getResultCount());
+
+            // LogicalDiskToPartition
+            WmiResult<DiskToPartitionProperty> jnaLtp = Win32LogicalDiskToPartitionJNA.queryDiskToPartition(jnaHandler);
+            WbemcliUtilFFM.WmiResult<DiskToPartitionProperty> ffmLtp = Win32LogicalDiskToPartitionFFM
+                    .queryDiskToPartition(ffmHandler);
+            assertThat(ffmLtp.getResultCount()).as("LogicalDiskToPartition count").isEqualTo(jnaLtp.getResultCount());
+        } finally {
+            if (ffmComInit) {
+                ffmHandler.unInitCOM();
+            }
+            if (jnaComInit) {
+                jnaHandler.unInitCOM();
+            }
+        }
+    }
+
+    // --- Generic map builders ---
+
+    private static <T extends Enum<T>> Map<String, Integer> buildJnaStringMap(WmiResult<T> result, T keyProp) {
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < result.getResultCount(); i++) {
-            map.put(WmiUtil.getString(result, LogicalDiskProperty.NAME, i), i);
+            String key = WmiUtil.getString(result, keyProp, i);
+            Integer prev = map.put(key, i);
+            if (prev != null) {
+                throw new IllegalStateException("Duplicate WMI key '" + key + "' at indices " + prev + " and " + i);
+            }
         }
         return map;
     }
 
-    private static Map<String, Integer> buildFfmMap(WbemcliUtilFFM.WmiResult<LogicalDiskProperty> result) {
+    private static <T extends Enum<T>> Map<String, Integer> buildFfmStringMap(WbemcliUtilFFM.WmiResult<T> result,
+            T keyProp) {
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < result.getResultCount(); i++) {
-            map.put(WmiUtilFFM.getString(result, LogicalDiskProperty.NAME, i), i);
+            String key = WmiUtilFFM.getString(result, keyProp, i);
+            Integer prev = map.put(key, i);
+            if (prev != null) {
+                throw new IllegalStateException("Duplicate WMI key '" + key + "' at indices " + prev + " and " + i);
+            }
         }
         return map;
     }
