@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.driver.windows.DxgiAdapterInfo;
+import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
 
 class DxgiUtilTest {
 

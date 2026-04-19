@@ -85,7 +85,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return WindowsGraphicsCard.getGraphicsCards();
+        return WindowsGraphicsCardJNA.getGraphicsCards();
     }
 
     @Override

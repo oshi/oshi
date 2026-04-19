@@ -20,6 +20,7 @@ import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
+import oshi.util.gpu.AdlUtilFFM;
 import oshi.util.gpu.NvmlUtilFFM;
 import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
 import oshi.util.platform.windows.WmiUtilFFM;
@@ -37,17 +38,20 @@ final class WindowsGpuStatsFFM implements GpuStats {
 
     private final String luidPrefix;
     private final String lhmParent;
+    private final int pciBusNumber;
     private final String pciBusId;
     private final String cardName;
 
     private boolean closed;
 
     private String cachedNvmlDevice;
+    private int cachedAdlIndex = Integer.MIN_VALUE;
     private GpuTicks prevUtilTicks;
 
     WindowsGpuStatsFFM(String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId, String cardName) {
         this.luidPrefix = luidPrefix;
         this.lhmParent = lhmParent;
+        this.pciBusNumber = pciBusNumber;
         this.pciBusId = pciBusId;
         this.cardName = cardName;
     }
@@ -172,7 +176,13 @@ final class WindowsGpuStatsFFM implements GpuStats {
                 return val;
             }
         }
-        // ADL not yet available in FFM
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtilFFM.getTemperature(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
         return lhmFloatSensor("Temperature", "GPU Core");
     }
 
@@ -182,6 +192,13 @@ final class WindowsGpuStatsFFM implements GpuStats {
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             double val = NvmlUtilFFM.getPowerDraw(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtilFFM.getPowerDraw(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -203,6 +220,13 @@ final class WindowsGpuStatsFFM implements GpuStats {
                 return val;
             }
         }
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            long val = AdlUtilFFM.getCoreClockMhz(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
         double lhm = lhmFloatSensor("Clock", "GPU Core");
         return lhm >= 0 ? (long) lhm : -1L;
     }
@@ -217,6 +241,13 @@ final class WindowsGpuStatsFFM implements GpuStats {
                 return val;
             }
         }
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            long val = AdlUtilFFM.getMemoryClockMhz(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
         double lhm = lhmFloatSensor("Clock", "GPU Memory");
         return lhm >= 0 ? (long) lhm : -1L;
     }
@@ -227,6 +258,13 @@ final class WindowsGpuStatsFFM implements GpuStats {
         String nvmlDevice = findNvmlDevice();
         if (nvmlDevice != null) {
             double val = NvmlUtilFFM.getFanSpeedPercent(nvmlDevice);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = AdlUtilFFM.getFanSpeedPercent(adlIndex);
             if (val >= 0) {
                 return val;
             }
@@ -282,6 +320,18 @@ final class WindowsGpuStatsFFM implements GpuStats {
         }
         cachedNvmlDevice = id != null ? id : "";
         return id;
+    }
+
+    private int findAdlIndex() {
+        if (cachedAdlIndex != Integer.MIN_VALUE) {
+            return cachedAdlIndex;
+        }
+        if (!AdlUtilFFM.isAvailable() || pciBusNumber < 0) {
+            cachedAdlIndex = -1;
+            return -1;
+        }
+        cachedAdlIndex = AdlUtilFFM.findAdapterIndex(pciBusNumber);
+        return cachedAdlIndex;
     }
 
     private double lhmFloatSensor(String sensorType, String sensorName) {

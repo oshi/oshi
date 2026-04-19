@@ -7,7 +7,6 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,10 +21,11 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
+import oshi.driver.common.windows.gpu.DxgiUtil;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
-import oshi.driver.windows.DxgiAdapterInfo;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
 import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.driver.windows.wmi.Win32VideoControllerJNA;
@@ -68,9 +68,9 @@ import oshi.util.tuples.Triplet;
  * counters (Windows 10 1709+) and optionally from LibreHardwareMonitor WMI sensors when LHM is running.
  */
 @ThreadSafe
-final class WindowsGraphicsCard extends AbstractGraphicsCard {
+final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsGraphicsCard.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsGraphicsCardJNA.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
@@ -112,7 +112,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @param pciBusNumber PCI bus number for ADL correlation, or -1 if unknown
      * @param pciBusId     PCI bus ID string for NVML correlation, or empty string if unknown
      */
-    WindowsGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram, String luidPrefix,
+    WindowsGraphicsCardJNA(String name, String deviceId, String vendor, String versionInfo, long vram, String luidPrefix,
             String lhmParent, int pciBusNumber, String pciBusId) {
         super(name, deviceId, vendor, versionInfo, vram);
         this.luidPrefix = luidPrefix;
@@ -133,7 +133,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * When DXGI is available, ghost adapters are excluded and the list is ordered with the primary desktop adapter
      * first. On systems without DXGI, all registry entries are returned in registry key order.
      *
-     * @return List of {@link WindowsGraphicsCard} objects.
+     * @return List of {@link WindowsGraphicsCardJNA} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
         // Query DXGI once. Fails gracefully to empty list if unavailable.
@@ -218,7 +218,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
 
-                GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name,
+                GraphicsCard card = new WindowsGraphicsCardJNA(Util.isBlank(name) ? Constants.UNKNOWN : name,
                         Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
                         Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram, luidPrefix, lhmParent,
@@ -261,7 +261,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return the VRAM size in bytes, or 0 if the value type is unrecognised
      */
     static long registryValueToVram(Object value) {
-        return DxgiUtilJNA.registryValueToVram(value);
+        return DxgiUtil.registryValueToVram(value);
     }
 
     // fall back if something went wrong
@@ -325,7 +325,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
                 }
                 String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
-                GraphicsCard card = new WindowsGraphicsCard(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
+                GraphicsCard card = new WindowsGraphicsCardJNA(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
                         Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
                         pciBusNumber, pciBusId);
                 // Remove dxgiMatch from remainingDxgi only after the card is successfully
@@ -386,19 +386,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PCI bus number, or -1 if not parseable
      */
     static int parsePciBusNumber(String locationInfo) {
-        if (locationInfo == null || locationInfo.isEmpty()) {
-            return -1;
-        }
-        // Format: "PCI bus N, device N, function N" (case-insensitive)
-        String lower = locationInfo.toLowerCase(Locale.ROOT);
-        int busIdx = lower.indexOf("pci bus ");
-        if (busIdx < 0) {
-            return -1;
-        }
-        int start = busIdx + 8;
-        int end = lower.indexOf(',', start);
-        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
-        return ParseUtil.parseIntOrDefault(numStr, -1);
+        return DxgiUtil.parsePciBusNumber(locationInfo);
     }
 
     /**
@@ -408,18 +396,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PCI device number, or -1 if not parseable
      */
     static int parsePciDevice(String locationInfo) {
-        if (locationInfo == null || locationInfo.isEmpty()) {
-            return -1;
-        }
-        String lower = locationInfo.toLowerCase(Locale.ROOT);
-        int devIdx = lower.indexOf("device ");
-        if (devIdx < 0) {
-            return -1;
-        }
-        int start = devIdx + 7;
-        int end = lower.indexOf(',', start);
-        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
-        return ParseUtil.parseIntOrDefault(numStr, -1);
+        return DxgiUtil.parsePciDevice(locationInfo);
     }
 
     /**
@@ -429,18 +406,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PCI function number, or -1 if not parseable
      */
     static int parsePciFunction(String locationInfo) {
-        if (locationInfo == null || locationInfo.isEmpty()) {
-            return -1;
-        }
-        String lower = locationInfo.toLowerCase(Locale.ROOT);
-        int fnIdx = lower.indexOf("function ");
-        if (fnIdx < 0) {
-            return -1;
-        }
-        int start = fnIdx + 9;
-        int end = lower.indexOf(',', start);
-        String numStr = end > start ? locationInfo.substring(start, end).trim() : locationInfo.substring(start).trim();
-        return ParseUtil.parseIntOrDefault(numStr, -1);
+        return DxgiUtil.parsePciFunction(locationInfo);
     }
 
     /**
@@ -451,13 +417,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PCI bus ID string, or empty string if not parseable
      */
     static String buildPciBusId(String locationInfo) {
-        int bus = parsePciBusNumber(locationInfo);
-        int device = parsePciDevice(locationInfo);
-        int function = parsePciFunction(locationInfo);
-        if (bus < 0 || device < 0 || function < 0) {
-            return "";
-        }
-        return String.format(Locale.ROOT, "0000:%02x:%02x.%x", bus, device, function);
+        return DxgiUtil.buildPciBusId(locationInfo);
     }
 
     /**
@@ -474,13 +434,12 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
      * @return PDH LUID instance prefix string, or empty string if the LUID is zero
      */
     private static String buildLuidPrefix(DxgiAdapterInfo adapter) {
-        int low = adapter.getLuidLowPart();
-        int high = adapter.getLuidHighPart();
-        if (low == 0 && high == 0) {
-            // Zero LUID is invalid; fall back to PDH enumeration for single-GPU case.
-            return buildLuidPrefixFromPdh();
+        String prefix = DxgiUtil.buildLuidPrefix(adapter);
+        if (!prefix.isEmpty()) {
+            return prefix;
         }
-        return String.format(Locale.ROOT, "luid_0x%08x_0x%08x_phys_0", high, low);
+        // Zero LUID is invalid; fall back to PDH enumeration for single-GPU case.
+        return buildLuidPrefixFromPdh();
     }
 
     /**

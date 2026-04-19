@@ -22,7 +22,7 @@ import com.sun.jna.platform.win32.WinNT.HRESULT;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.StdCallLibrary;
 
-import oshi.driver.windows.DxgiAdapterInfo;
+import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
 
 /**
  * Minimal JNA binding to {@code dxgi.dll} for enumerating display adapters and reading

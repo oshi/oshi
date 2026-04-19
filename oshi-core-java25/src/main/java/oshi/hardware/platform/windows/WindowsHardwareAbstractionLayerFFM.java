@@ -9,6 +9,7 @@ import java.util.List;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -41,6 +42,11 @@ public final class WindowsHardwareAbstractionLayerFFM extends WindowsHardwareAbs
     @Override
     public List<PowerSource> getPowerSources() {
         return WindowsPowerSourceFFM.getPowerSources();
+    }
+
+    @Override
+    public List<GraphicsCard> getGraphicsCards() {
+        return WindowsGraphicsCardFFM.getGraphicsCards();
     }
 
     @Override
