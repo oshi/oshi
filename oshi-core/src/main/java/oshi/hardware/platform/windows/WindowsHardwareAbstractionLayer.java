@@ -35,7 +35,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public GlobalMemory createMemory() {
-        return new WindowsGlobalMemory();
+        return new WindowsGlobalMemoryJNA();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public Sensors createSensors() {
-        return new WindowsSensors();
+        return new WindowsSensorsJNA();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
-        return WindowsLogicalVolumeGroup.getLogicalVolumeGroups();
+        return WindowsLogicalVolumeGroupJNA.getLogicalVolumeGroups();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return WindowsNetworkIF.getNetworks(includeLocalInterfaces);
+        return WindowsNetworkIfJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return WindowsSoundCard.getSoundCards();
+        return WindowsSoundCardJNA.getSoundCards();
     }
 
     @Override

@@ -25,7 +25,7 @@ import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty
 import oshi.driver.windows.wmi.Win32PhysicalMemoryJNA;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
-import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.hardware.common.platform.windows.WindowsGlobalMemory;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
@@ -34,13 +34,13 @@ import oshi.util.tuples.Triplet;
  * Memory obtained by Performance Info.
  */
 @ThreadSafe
-final class WindowsGlobalMemory extends AbstractGlobalMemory {
+final class WindowsGlobalMemoryJNA extends WindowsGlobalMemory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemoryJNA.class);
 
     private static final boolean IS_WINDOWS10_OR_GREATER = VersionHelpers.IsWindows10OrGreater();
 
-    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(WindowsGlobalMemory::readPerfInfo,
+    private final Supplier<Triplet<Long, Long, Long>> availTotalSize = memoize(WindowsGlobalMemoryJNA::readPerfInfo,
             defaultExpiration());
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
@@ -102,149 +102,6 @@ final class WindowsGlobalMemory extends AbstractGlobalMemory {
             }
         }
         return physicalMemoryList;
-    }
-
-    /**
-     * Convert memory type number to a human readable string
-     *
-     * @param type The memory type
-     * @return A string describing the type
-     */
-    private static String memoryType(int type) {
-        // https://schemas.dmtf.org/wbem/cim-html/2.55.0/CIM_PhysicalMemory.html
-        switch (type) {
-            case 0:
-                return "Unknown";
-            case 1:
-                return "Other";
-            case 2:
-                return "DRAM";
-            case 3:
-                return "Synchronous DRAM";
-            case 4:
-                return "Cache DRAM";
-            case 5:
-                return "EDO";
-            case 6:
-                return "EDRAM";
-            case 7:
-                return "VRAM";
-            case 8:
-                return "SRAM";
-            case 9:
-                return "RAM";
-            case 10:
-                return "ROM";
-            case 11:
-                return "Flash";
-            case 12:
-                return "EEPROM";
-            case 13:
-                return "FEPROM";
-            case 14:
-                return "EPROM";
-            case 15:
-                return "CDRAM";
-            case 16:
-                return "3DRAM";
-            case 17:
-                return "SDRAM";
-            case 18:
-                return "SGRAM";
-            case 19:
-                return "RDRAM";
-            case 20:
-                return "DDR";
-            case 21:
-                return "DDR2";
-            case 22:
-                return "BRAM";
-            case 23:
-                return "DDR FB-DIMM";
-            default:
-                // values 24 and higher match SMBIOS types
-                return smBiosMemoryType(type);
-        }
-    }
-
-    /**
-     * Convert SMBIOS type number to a human readable string
-     *
-     * @param type The SMBIOS type
-     * @return A string describing the type
-     */
-    private static String smBiosMemoryType(int type) {
-        // https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.7.0.pdf
-        // table 77
-        switch (type) {
-            case 0x01:
-                return "Other";
-            case 0x03:
-                return "DRAM";
-            case 0x04:
-                return "EDRAM";
-            case 0x05:
-                return "VRAM";
-            case 0x06:
-                return "SRAM";
-            case 0x07:
-                return "RAM";
-            case 0x08:
-                return "ROM";
-            case 0x09:
-                return "FLASH";
-            case 0x0A:
-                return "EEPROM";
-            case 0x0B:
-                return "FEPROM";
-            case 0x0C:
-                return "EPROM";
-            case 0x0D:
-                return "CDRAM";
-            case 0x0E:
-                return "3DRAM";
-            case 0x0F:
-                return "SDRAM";
-            case 0x10:
-                return "SGRAM";
-            case 0x11:
-                return "RDRAM";
-            case 0x12:
-                return "DDR";
-            case 0x13:
-                return "DDR2";
-            case 0x14:
-                return "DDR2 FB-DIMM";
-            case 0x18:
-                return "DDR3";
-            case 0x19:
-                return "FBD2";
-            case 0x1A:
-                return "DDR4";
-            case 0x1B:
-                return "LPDDR";
-            case 0x1C:
-                return "LPDDR2";
-            case 0x1D:
-                return "LPDDR3";
-            case 0x1E:
-                return "LPDDR4";
-            case 0x1F:
-                return "Logical non-volatile device";
-            case 0x20:
-                return "HBM";
-            case 0x21:
-                return "HBM2";
-            case 0x22:
-                return "DDR5";
-            case 0x23:
-                return "LPDDR5";
-            case 0x24:
-                return "HBM3";
-            case 0x02:
-            default:
-                return "Unknown";
-        }
     }
 
     private static Triplet<Long, Long, Long> readPerfInfo() {

@@ -35,9 +35,9 @@ import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
-final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
+final class WindowsLogicalVolumeGroupJNA extends AbstractLogicalVolumeGroup {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsLogicalVolumeGroup.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsLogicalVolumeGroupJNA.class);
 
     private static final Pattern SP_OBJECT_ID = Pattern.compile(".*ObjectId=.*SP:(\\{.*\\}).*");
     private static final Pattern PD_OBJECT_ID = Pattern.compile(".*ObjectId=.*PD:(\\{.*\\}).*");
@@ -45,7 +45,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
     private static final boolean IS_WINDOWS8_OR_GREATER = VersionHelpers.IsWindows8OrGreater();
 
-    WindowsLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
+    WindowsLogicalVolumeGroupJNA(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }
 
@@ -146,7 +146,7 @@ final class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                     }
                 }
                 // Add to list
-                lvgList.add(new WindowsLogicalVolumeGroup(name, logicalVolumeMap, physicalVolumeSet));
+                lvgList.add(new WindowsLogicalVolumeGroupJNA(name, logicalVolumeMap, physicalVolumeSet));
             }
 
             return lvgList;

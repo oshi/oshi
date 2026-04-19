@@ -4,16 +4,16 @@
  */
 package oshi.ffm.windows;
 
+import static java.lang.foreign.MemoryLayout.sequenceLayout;
+import static java.lang.foreign.MemoryLayout.structLayout;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
-
-import static java.lang.foreign.MemoryLayout.structLayout;
-import static java.lang.foreign.MemoryLayout.sequenceLayout;
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 public class IPHlpAPIFFM extends WindowsForeignFunctions {
 
@@ -100,5 +100,40 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
 
     public static int GetUdpStatisticsEx(MemorySegment stats, int family) throws Throwable {
         return (int) GetUdpStatisticsEx.invokeExact(stats, family);
+    }
+
+    // GetIfEntry2 for network interface statistics
+    private static final MethodHandle GetIfEntry2 = downcall(IPHlpAPI, "GetIfEntry2", JAVA_INT, ADDRESS);
+
+    // MIB_IF_ROW2 is 1352 bytes on 64-bit Windows. We define key field offsets.
+    // Layout: InterfaceLuid(8) InterfaceIndex(4) InterfaceGuid(16) Alias(514) Description(514)
+    // PhysicalAddressLength(4) PhysicalAddress(32) PermanentPhysicalAddress(32) Mtu(4) Type(4)
+    // TunnelType(4) MediaType(4) PhysicalMediumType(4) AccessType(4) DirectionType(4)
+    // InterfaceAndOperStatusFlags(1+3pad) OperStatus(4) AdminStatus(4) MediaConnectState(4)
+    // NetworkGuid(16) ConnectionType(4+4pad) TransmitLinkSpeed(8) ReceiveLinkSpeed(8)
+    // InOctets(8) InUcastPkts(8) InNUcastPkts(8) InDiscards(8) InErrors(8) InUnknownProtos(8)
+    // InUcastOctets(8) InMulticastOctets(8) InBroadcastOctets(8) OutOctets(8) OutUcastPkts(8)
+    // OutNUcastPkts(8) OutDiscards(8) OutErrors(8) OutUcastOctets(8) OutMulticastOctets(8)
+    // OutBroadcastOctets(8) OutQLen(8) = 1352
+    public static final int MIB_IF_ROW2_SIZE = 1352;
+    // Offsets for fields we need (64-bit Windows):
+    public static final long OFFSET_INTERFACE_INDEX = 8;
+    public static final long OFFSET_ALIAS = 28; // WCHAR[IF_MAX_STRING_SIZE + 1] = WCHAR[257]
+    public static final long OFFSET_TYPE = 1128; // IFTYPE Type
+    public static final long OFFSET_PHYSICAL_MEDIUM_TYPE = 1140; // NDIS_PHYSICAL_MEDIUM
+    public static final long OFFSET_FLAGS = 1152; // InterfaceAndOperStatusFlags (byte)
+    public static final long OFFSET_OPER_STATUS = 1156; // IF_OPER_STATUS
+    public static final long OFFSET_RECEIVE_LINK_SPEED = 1200; // ULONG64
+    public static final long OFFSET_IN_OCTETS = 1208; // ULONG64
+    public static final long OFFSET_IN_UCAST_PKTS = 1216; // ULONG64
+    public static final long OFFSET_IN_DISCARDS = 1232; // ULONG64
+    public static final long OFFSET_IN_ERRORS = 1240; // ULONG64
+    public static final long OFFSET_OUT_OCTETS = 1280; // ULONG64
+    public static final long OFFSET_OUT_UCAST_PKTS = 1288; // ULONG64
+    public static final long OFFSET_OUT_DISCARDS = 1304; // ULONG64
+    public static final long OFFSET_OUT_ERRORS = 1312; // ULONG64
+
+    public static int GetIfEntry2(MemorySegment pIfRow) throws Throwable {
+        return (int) GetIfEntry2.invokeExact(pIfRow);
     }
 }

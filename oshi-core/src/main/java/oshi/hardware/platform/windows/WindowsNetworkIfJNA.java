@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -26,9 +26,9 @@ import oshi.util.ParseUtil;
  * WindowsNetworks class.
  */
 @ThreadSafe
-public final class WindowsNetworkIF extends AbstractNetworkIF {
+public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkIF.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkIfJNA.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final byte CONNECTOR_PRESENT_BIT = 0b00000100;
@@ -49,7 +49,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
     private String ifAlias;
     private IfOperStatus ifOperStatus;
 
-    public WindowsNetworkIF(NetworkInterface netint) throws InstantiationException {
+    public WindowsNetworkIfJNA(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
     }
@@ -64,7 +64,7 @@ public final class WindowsNetworkIF extends AbstractNetworkIF {
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new WindowsNetworkIF(ni));
+                ifList.add(new WindowsNetworkIfJNA(ni));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
             }

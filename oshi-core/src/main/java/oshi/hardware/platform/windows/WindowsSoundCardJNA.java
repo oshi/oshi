@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 The OSHI Project Contributors
+ * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -20,7 +20,7 @@ import oshi.hardware.common.AbstractSoundCard;
  * Sound Card data obtained from registry
  */
 @Immutable
-final class WindowsSoundCard extends AbstractSoundCard {
+final class WindowsSoundCardJNA extends AbstractSoundCard {
 
     private static final String REGISTRY_SOUNDCARDS = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}\\";
 
@@ -31,7 +31,7 @@ final class WindowsSoundCard extends AbstractSoundCard {
      * @param name          The name
      * @param codec         The codec
      */
-    WindowsSoundCard(String kernelVersion, String name, String codec) {
+    WindowsSoundCardJNA(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
@@ -51,7 +51,7 @@ final class WindowsSoundCard extends AbstractSoundCard {
             String fullKey = REGISTRY_SOUNDCARDS + key;
             try {
                 if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, "Driver")) {
-                    soundCards.add(new WindowsSoundCard(
+                    soundCards.add(new WindowsSoundCardJNA(
                             Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, "Driver") + " "
                                     + Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
                                             "DriverVersion"),

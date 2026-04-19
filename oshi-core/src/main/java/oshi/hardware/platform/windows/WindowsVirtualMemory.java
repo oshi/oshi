@@ -34,7 +34,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
 
-    private final WindowsGlobalMemory global;
+    private final WindowsGlobalMemoryJNA global;
 
     private final Supplier<Long> used = memoize(WindowsVirtualMemory::querySwapUsed, defaultExpiration());
 
@@ -49,7 +49,7 @@ final class WindowsVirtualMemory extends AbstractVirtualMemory {
      *
      * @param windowsGlobalMemory The parent global memory class instantiating this
      */
-    WindowsVirtualMemory(WindowsGlobalMemory windowsGlobalMemory) {
+    WindowsVirtualMemory(WindowsGlobalMemoryJNA windowsGlobalMemory) {
         this.global = windowsGlobalMemory;
     }
 

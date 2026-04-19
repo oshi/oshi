@@ -123,7 +123,7 @@ final class WindowsGraphicsCard extends AbstractGraphicsCard {
 
     @Override
     public GpuStats createStatsSession() {
-        return new WindowsGpuStats(luidPrefix, lhmParent, pciBusNumber, pciBusId, getName());
+        return new WindowsGpuStatsJNA(luidPrefix, lhmParent, pciBusNumber, pciBusId, getName());
     }
 
     /**
