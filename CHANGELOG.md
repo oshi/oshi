@@ -35,6 +35,8 @@
 * [#3171](https://github.com/oshi/oshi/pull/3171): Add FFM registry drivers for HKEY_PERFORMANCE_DATA process and thread data; extract PerfCounterBlock POJOs to oshi-common - [@dbwiddis](https://github.com/dbwiddis).
 * [#3172](https://github.com/oshi/oshi/pull/3172): Extract common Windows perfmon/registry driver code to oshi-common; reduce duplication between JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 * [#3173](https://github.com/oshi/oshi/pull/3173): Migrate Win32LogicalDisk WMI driver to common/JNA/FFM pattern; add WbemcliUtilFFM, WmiUtilFFM, and WmiComparisonTest - [@dbwiddis](https://github.com/dbwiddis).
+* [#3174](https://github.com/oshi/oshi/pull/3174): Migrate all remaining WMI drivers to common/JNA/FFM three-tier pattern - [@dbwiddis](https://github.com/dbwiddis).
+* [#3175](https://github.com/oshi/oshi/pull/3175): Migrate simple WMI-only Windows hardware classes (Baseboard, Firmware, ComputerSystem, Printer) to FFM - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

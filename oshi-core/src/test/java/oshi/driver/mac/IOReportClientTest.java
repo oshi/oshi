@@ -68,8 +68,8 @@ class IOReportClientTest {
             GpuTicks ticks = client.sampleGpuTicks();
             Assumptions.assumeTrue(ticks.getActiveTicks() + ticks.getIdleTicks() > 0,
                     "Skipping: IOReport GPU ticks unavailable (no GPU or sandboxed CI environment)");
-            assertThat("active + idle should be positive", ticks.getActiveTicks() + ticks.getIdleTicks(),
-                    is(greaterThan(0L)));
+            long total = ticks.getActiveTicks() + ticks.getIdleTicks();
+            assertThat("active + idle should be positive", total, is(greaterThan(0L)));
         } finally {
             client.close();
         }

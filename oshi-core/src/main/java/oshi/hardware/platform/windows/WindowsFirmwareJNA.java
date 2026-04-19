@@ -23,10 +23,10 @@ import oshi.util.tuples.Quintet;
  * Firmware data obtained from WMI
  */
 @Immutable
-final class WindowsFirmware extends AbstractFirmware {
+final class WindowsFirmwareJNA extends AbstractFirmware {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
-            WindowsFirmware::queryManufNameDescVersRelease);
+            WindowsFirmwareJNA::queryManufNameDescVersRelease);
 
     @Override
     public String getManufacturer() {

@@ -30,7 +30,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new WindowsComputerSystem();
+        return new WindowsComputerSystemJNA();
     }
 
     @Override
@@ -90,6 +90,6 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<Printer> getPrinters() {
-        return WindowsPrinter.getPrinters();
+        return WindowsPrinterJNA.getPrinters();
     }
 }

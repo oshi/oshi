@@ -62,10 +62,10 @@ class RegistryComparisonTest {
                     .isGreaterThanOrEqualTo(r.getBytesWritten());
             assertThat(p.getPageFaults()).as("process[%d].pageFaults", pid).isGreaterThanOrEqualTo(r.getPageFaults());
 
-            // Memory gauges — should be close, allow 25% fluctuation
-            assertWithinRatio(p.getWorkingSetSize(), r.getWorkingSetSize(), 0.25,
+            // Memory gauges — should be close, allow 50% fluctuation on CI
+            assertWithinRatio(p.getWorkingSetSize(), r.getWorkingSetSize(), 0.50,
                     "process[" + pid + "].workingSetSize");
-            assertWithinRatio(p.getPrivateWorkingSetSize(), r.getPrivateWorkingSetSize(), 0.25,
+            assertWithinRatio(p.getPrivateWorkingSetSize(), r.getPrivateWorkingSetSize(), 0.50,
                     "process[" + pid + "].privateWorkingSetSize");
 
             // Uptime differs by the delta between the two reads

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -8,33 +8,32 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
 import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
 import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
-import oshi.driver.windows.wmi.Win32BiosJNA;
-import oshi.driver.windows.wmi.Win32ComputerSystemJNA;
-import oshi.driver.windows.wmi.Win32ComputerSystemProductJNA;
+import oshi.driver.windows.wmi.Win32BiosFFM;
+import oshi.driver.windows.wmi.Win32ComputerSystemFFM;
+import oshi.driver.windows.wmi.Win32ComputerSystemProductFFM;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**
- * Hardware data obtained from WMI.
+ * Hardware data obtained from WMI using FFM.
  */
 @Immutable
-final class WindowsComputerSystem extends AbstractComputerSystem {
+final class WindowsComputerSystemFFM extends AbstractComputerSystem {
 
     private final Supplier<Pair<String, String>> manufacturerModel = memoize(
-            WindowsComputerSystem::queryManufacturerModel);
+            WindowsComputerSystemFFM::queryManufacturerModel);
     private final Supplier<Pair<String, String>> serialNumberUUID = memoize(
-            WindowsComputerSystem::querySystemSerialNumberUUID);
+            WindowsComputerSystemFFM::querySystemSerialNumberUUID);
 
     @Override
     public String getManufacturer() {
@@ -58,21 +57,21 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Firmware createFirmware() {
-        return new WindowsFirmware();
+        return new WindowsFirmwareFFM();
     }
 
     @Override
     public Baseboard createBaseboard() {
-        return new WindowsBaseboard();
+        return new WindowsBaseboardFFM();
     }
 
     private static Pair<String, String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystemJNA.queryComputerSystem();
+        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystemFFM.queryComputerSystem();
         if (win32ComputerSystem.getResultCount() > 0) {
-            manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
-            model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
+            manufacturer = WmiUtilFFM.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
+            model = WmiUtilFFM.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
         return new Pair<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(model) ? Constants.UNKNOWN : model);
@@ -81,12 +80,12 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     private static Pair<String, String> querySystemSerialNumberUUID() {
         String serialNumber = null;
         String uuid = null;
-        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProductJNA
+        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProductFFM
                 .queryIdentifyingNumberUUID();
         if (win32ComputerSystemProduct.getResultCount() > 0) {
-            serialNumber = WmiUtil.getString(win32ComputerSystemProduct,
+            serialNumber = WmiUtilFFM.getString(win32ComputerSystemProduct,
                     ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
-            uuid = WmiUtil.getString(win32ComputerSystemProduct, ComputerSystemProductProperty.UUID, 0);
+            uuid = WmiUtilFFM.getString(win32ComputerSystemProduct, ComputerSystemProductProperty.UUID, 0);
         }
         if (Util.isBlank(serialNumber)) {
             serialNumber = querySerialFromBios();
@@ -101,9 +100,9 @@ final class WindowsComputerSystem extends AbstractComputerSystem {
     }
 
     private static String querySerialFromBios() {
-        WmiResult<BiosSerialProperty> serialNum = Win32BiosJNA.querySerialNumber();
+        WmiResult<BiosSerialProperty> serialNum = Win32BiosFFM.querySerialNumber();
         if (serialNum.getResultCount() > 0) {
-            return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
+            return WmiUtilFFM.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
         }
         return null;
     }
