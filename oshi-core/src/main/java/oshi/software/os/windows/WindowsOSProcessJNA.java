@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.Account;
+import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.Shell32Util;
@@ -29,13 +31,22 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
+import oshi.driver.common.windows.registry.WtsInfo;
+import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
+import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
+import oshi.driver.windows.wmi.Win32ProcessCachedJNA;
+import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseableULONGptrByReference;
 import oshi.jna.platform.windows.NtDll;
 import oshi.jna.platform.windows.NtDll.UNICODE_STRING;
+import oshi.software.common.os.windows.WindowsOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -72,6 +83,27 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     }
 
     @Override
+    public boolean updateAttributes() {
+        Set<Integer> pids = Collections.singleton(this.getProcessID());
+        // Get data from the registry if possible
+        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
+        // otherwise performance counters with WMI backup
+        if (pcbMap == null || pcbMap.isEmpty()) {
+            pcbMap = ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
+        }
+        ProcessPerfCounterBlock pcb = pcbMap == null ? null : pcbMap.get(this.getProcessID());
+        if (USE_PROCSTATE_SUSPENDED) {
+            // Populate name from pcb before querying threads, since the fallback path uses getName()
+            if (pcb != null) {
+                setName(pcb.getName());
+            }
+            setTcb(queryMatchingThreads(pids));
+        }
+        Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
+        return updateAttributes(pcb, wts == null ? null : wts.get(this.getProcessID()));
+    }
+
+    @Override
     protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
@@ -101,6 +133,37 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
         }
 
         return !getState().equals(State.INVALID);
+    }
+
+    @Override
+    protected OSThread createOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+        return new WindowsOSThreadJNA(pid, tid, procName, pcb);
+    }
+
+    @Override
+    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
+        if (threads == null || threads.isEmpty()) {
+            threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
+        }
+        return threads;
+    }
+
+    @Override
+    protected String queryCommandLine() {
+        String cwdCmd = getCwdCmdEnv().getB();
+        if (!cwdCmd.isEmpty()) {
+            return cwdCmd;
+        }
+        if (USE_BATCH_COMMANDLINE) {
+            return Win32ProcessCachedJNA.getInstance().getCommandLine(getProcessID(), getStartTime());
+        }
+        WmiResult<CommandLineProperty> commandLineProcs = Win32ProcessJNA
+                .queryCommandLines(Collections.singleton(getProcessID()));
+        if (commandLineProcs.getResultCount() > 0) {
+            return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
+        }
+        return "";
     }
 
     @Override

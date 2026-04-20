@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
 import oshi.driver.windows.registry.ProcessWtsData;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
@@ -43,6 +43,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.platform.windows.Advapi32UtilFFM;
@@ -176,6 +177,17 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     @Override
     public int getThreadId() {
         return Kernel32FFM.GetCurrentThreadId().orElse(-1);
+    }
+
+    @Override
+    public OSThread getCurrentThread() {
+        final int tid = getThreadId();
+        OSProcess proc = getCurrentProcess();
+        if (proc == null) {
+            return new WindowsOSThreadFFM(0, tid, null, null);
+        }
+        return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
+                .orElseGet(() -> new WindowsOSThreadFFM(proc.getProcessID(), tid, null, null));
     }
 
     private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig

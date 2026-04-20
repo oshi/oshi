@@ -1,17 +1,17 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
 
+import java.util.List;
+
 import oshi.driver.windows.registry.InstalledAppsData;
 import oshi.software.os.ApplicationInfo;
 
-import java.util.List;
+public final class WindowsInstalledAppsJNA {
 
-public final class WindowsInstalledApps {
-
-    private WindowsInstalledApps() {
+    private WindowsInstalledAppsJNA() {
     }
 
     public static List<ApplicationInfo> queryInstalledApps() {

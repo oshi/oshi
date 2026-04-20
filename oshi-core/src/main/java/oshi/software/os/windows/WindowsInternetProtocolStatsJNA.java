@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -49,7 +49,7 @@ import oshi.util.ParseUtil;
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats {
+public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
 
     private static final IPHlpAPI IPHLP = IPHlpAPI.INSTANCE;
 
@@ -218,31 +218,31 @@ public class WindowsInternetProtocolStats extends AbstractInternetProtocolStats 
 
     private static TcpState stateLookup(int state) {
         switch (state) {
-        case 1:
-        case 12:
-            return CLOSED;
-        case 2:
-            return LISTEN;
-        case 3:
-            return SYN_SENT;
-        case 4:
-            return SYN_RECV;
-        case 5:
-            return ESTABLISHED;
-        case 6:
-            return FIN_WAIT_1;
-        case 7:
-            return FIN_WAIT_2;
-        case 8:
-            return CLOSE_WAIT;
-        case 9:
-            return CLOSING;
-        case 10:
-            return LAST_ACK;
-        case 11:
-            return TIME_WAIT;
-        default:
-            return UNKNOWN;
+            case 1:
+            case 12:
+                return CLOSED;
+            case 2:
+                return LISTEN;
+            case 3:
+                return SYN_SENT;
+            case 4:
+                return SYN_RECV;
+            case 5:
+                return ESTABLISHED;
+            case 6:
+                return FIN_WAIT_1;
+            case 7:
+                return FIN_WAIT_2;
+            case 8:
+                return CLOSE_WAIT;
+            case 9:
+                return CLOSING;
+            case 10:
+                return LAST_ACK;
+            case 11:
+                return TIME_WAIT;
+            default:
+                return UNKNOWN;
         }
     }
 }

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +41,24 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
+import oshi.driver.common.windows.registry.WtsInfo;
+import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
+import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
+import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
+import oshi.driver.windows.wmi.Win32ProcessFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
 import oshi.ffm.windows.Shell32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.WinErrorFFM;
+import oshi.software.common.os.windows.WindowsOSProcess;
+import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
+import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -87,13 +97,32 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     }
 
     @Override
+    public boolean updateAttributes() {
+        Set<Integer> pids = Collections.singleton(this.getProcessID());
+        // Get data from the registry if possible
+        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceDataFFM.buildProcessMapFromRegistry(pids);
+        // otherwise performance counters with WMI backup
+        if (pcbMap == null || pcbMap.isEmpty()) {
+            pcbMap = ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
+        }
+        ProcessPerfCounterBlock pcb = pcbMap == null ? null : pcbMap.get(this.getProcessID());
+        if (USE_PROCSTATE_SUSPENDED) {
+            // Populate name from pcb before querying threads, since the fallback path uses getName()
+            if (pcb != null) {
+                setName(pcb.getName());
+            }
+            setTcb(queryMatchingThreads(pids));
+        }
+        Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
+        return updateAttributes(pcb, wts == null ? null : wts.get(this.getProcessID()));
+    }
+
+    @Override
     protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
         }
 
-        // Get a handle to the process for various extended info. Only gets
-        // current user unless running as administrator
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
             MemorySegment pHandle = pHandleOpt.get();
@@ -111,7 +140,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     if (pathOpt.isPresent()) {
                         setPath(pathOpt.get());
                     }
-                    // Don't set INVALID on path failure - process is still valid
                 }
             } finally {
                 Kernel32FFM.CloseHandle(pHandle);
@@ -119,6 +147,36 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         }
 
         return !getState().equals(State.INVALID);
+    }
+
+    @Override
+    protected OSThread createOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+        return new WindowsOSThreadFFM(pid, tid, procName, pcb);
+    }
+
+    @Override
+    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
+        if (threads == null || threads.isEmpty()) {
+            threads = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
+        }
+        return threads;
+    }
+
+    @Override
+    protected String queryCommandLine() {
+        String cwdCmdEnvB = getCwdCmdEnv().getB();
+        if (!cwdCmdEnvB.isEmpty()) {
+            return cwdCmdEnvB;
+        }
+        if (USE_BATCH_COMMANDLINE) {
+            return Win32ProcessCachedFFM.getInstance().getCommandLine(getProcessID(), getStartTime());
+        }
+        var commandLineProcs = Win32ProcessFFM.queryCommandLines(Collections.singleton(getProcessID()));
+        if (commandLineProcs.getResultCount() > 0) {
+            return WmiUtilFFM.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
+        }
+        return "";
     }
 
     @Override
@@ -144,7 +202,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     pair = getTokenAccountInfo(hToken, TokenUser, arena);
                 } else {
                     int error = Kernel32FFM.GetLastError().orElse(0);
-                    // Access denied errors are common. Fail silently.
                     if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
                         LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
                     }
@@ -176,7 +233,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     pair = getTokenAccountInfo(hToken, TokenPrimaryGroup, arena);
                 } else {
                     int error = Kernel32FFM.GetLastError().orElse(0);
-                    // Access denied errors are common. Fail silently.
                     if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
                         LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
                     }
@@ -196,7 +252,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
     private Pair<String, String> getTokenAccountInfo(MemorySegment hToken, int tokenInfoClass, Arena arena)
             throws Throwable {
-        // First call to get required size
         MemorySegment returnLength = arena.allocate(JAVA_INT);
         Advapi32FFM.GetTokenInformation(hToken, tokenInfoClass, MemorySegment.NULL, 0, returnLength);
 
@@ -210,14 +265,11 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             return null;
         }
 
-        // TOKEN_USER and TOKEN_PRIMARY_GROUP both start with a SID_AND_ATTRIBUTES structure
-        // which contains a pointer to the SID at offset 0
         MemorySegment sidPtr = tokenInfo.get(ADDRESS, 0);
         if (sidPtr.address() == 0) {
             return null;
         }
 
-        // Get account name
         int maxNameLen = 256;
         MemorySegment nameBuffer = arena.allocate(JAVA_CHAR, maxNameLen);
         MemorySegment nameLen = arena.allocate(JAVA_INT);
@@ -235,14 +287,12 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             accountName = readWideString(nameBuffer);
         }
 
-        // Get SID string
         String sidString = Constants.UNKNOWN;
         MemorySegment sidStringPtr = arena.allocate(ADDRESS);
         if (Advapi32FFM.ConvertSidToStringSid(sidPtr, sidStringPtr)) {
             MemorySegment strPtr = sidStringPtr.get(ADDRESS, 0);
             if (strPtr.address() != 0) {
                 sidString = readWideString(strPtr.reinterpret(512));
-                // Free the buffer allocated by ConvertSidToStringSid
                 Kernel32FFM.LocalFree(strPtr);
             }
         }
@@ -257,9 +307,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         if (hOpt.isPresent()) {
             MemorySegment h = hOpt.get();
             try (Arena arena = Arena.ofConfined()) {
-                // Can't check 32-bit procs from a 64-bit one
                 if (WindowsOperatingSystem.isX86() == isWow(h, arena)) {
-                    // Start by getting the address of the PEB
                     MemorySegment pbi = arena.allocate(PROCESS_BASIC_INFORMATION_STRUCT);
                     MemorySegment nRead = arena.allocate(JAVA_INT);
 
@@ -274,7 +322,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                         return defaultCwdCommandlineEnvironment();
                     }
 
-                    // Now fetch the PEB
                     MemorySegment peb = arena.allocate(PEB);
                     MemorySegment bytesRead = arena.allocate(JAVA_LONG);
                     if (!Kernel32FFM.ReadProcessMemory(h, pebAddress, peb, PEB.byteSize(), bytesRead)) {
@@ -289,7 +336,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                         return defaultCwdCommandlineEnvironment();
                     }
 
-                    // Now fetch the Process Parameters structure containing our data
                     MemorySegment upp = arena.allocate(RTL_USER_PROCESS_PARAMETERS);
                     if (!Kernel32FFM.ReadProcessMemory(h, processParamsAddress, upp,
                             RTL_USER_PROCESS_PARAMETERS.byteSize(), bytesRead)) {
@@ -299,7 +345,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                         return defaultCwdCommandlineEnvironment();
                     }
 
-                    // Get CWD and Command Line strings here
                     MemorySegment cwdUnicodeString = upp.asSlice(UPP_CURRENT_DIRECTORY_OFFSET,
                             UNICODE_STRING.byteSize());
                     String cwd = readUnicodeString(h, cwdUnicodeString, arena);
@@ -308,7 +353,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                             UNICODE_STRING.byteSize());
                     String cl = readUnicodeString(h, cmdLineUnicodeString, arena);
 
-                    // Fetch the Environment Strings
                     long envSize = upp.get(JAVA_LONG, UPP_ENVIRONMENT_SIZE_OFFSET);
                     if (envSize > 0 && envSize < Integer.MAX_VALUE) {
                         MemorySegment envAddress = upp.get(ADDRESS, UPP_ENVIRONMENT_OFFSET);
@@ -321,7 +365,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                                         env[i] = envBuffer.get(JAVA_CHAR, (long) i * 2);
                                     }
                                     Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
-                                    // First entry in Environment is "=::=::\"
                                     envMap.remove("");
                                     return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
                                 }

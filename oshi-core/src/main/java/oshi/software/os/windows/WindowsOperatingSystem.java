@@ -50,6 +50,7 @@ import com.sun.jna.platform.win32.Winsvc;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.windows.EnumWindows;
@@ -57,7 +58,6 @@ import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
 import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
 import oshi.driver.windows.registry.ProcessWtsData;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
 import oshi.driver.windows.registry.SessionWtsData;
 import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
@@ -117,7 +117,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
     private static final boolean WOW = isCurrentWow();
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(WindowsInstalledApps::queryInstalledApps, installedAppsExpiration());
+            .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
     /*
      * Cache full process stats queries. Second query will only populate if first one returns null.
@@ -233,12 +233,12 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new WindowsFileSystem();
+        return new WindowsFileSystemJNA();
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new WindowsInternetProtocolStats();
+        return new WindowsInternetProtocolStatsJNA();
     }
 
     @Override
@@ -368,7 +368,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
         OSProcess proc = getCurrentProcess();
         final int tid = getThreadId();
         return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
-                .orElse(new WindowsOSThread(proc.getProcessID(), tid, null, null));
+                .orElse(new WindowsOSThreadJNA(proc.getProcessID(), tid, null, null));
     }
 
     @Override
@@ -443,7 +443,7 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new WindowsNetworkParams();
+        return new WindowsNetworkParamsJNA();
     }
 
     /**

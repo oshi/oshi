@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.windows;
+package oshi.software.common.os.windows;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -17,23 +17,15 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
-import oshi.driver.windows.registry.ProcessWtsData;
-import oshi.driver.windows.registry.ProcessWtsData.WtsInfo;
-import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
-import oshi.driver.windows.wmi.Win32ProcessCachedJNA;
-import oshi.driver.windows.wmi.Win32ProcessJNA;
+import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.software.os.OperatingSystem;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -43,13 +35,23 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public abstract class WindowsOSProcess extends AbstractOSProcess {
 
+    // See https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
+    protected static final long MAX_WINDOWS_HANDLES;
+    static {
+        if (System.getenv("ProgramFiles(x86)") == null) {
+            MAX_WINDOWS_HANDLES = 16_777_216L - 32_768L;
+        } else {
+            MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
+        }
+    }
+
     protected static final boolean USE_BATCH_COMMANDLINE = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
 
     protected static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
-    private final WindowsOperatingSystem os;
+    private final OperatingSystem os;
 
     private Supplier<Pair<String, String>> userInfo = memoize(this::queryUserInfo);
     private Supplier<Pair<String, String>> groupInfo = memoize(this::queryGroupInfo);
@@ -79,7 +81,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private int bitness;
     private long pageFaults;
 
-    protected WindowsOSProcess(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+    protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid);
         this.os = os;
@@ -89,11 +91,11 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Returns the {@link WindowsOperatingSystem} instance associated with this process.
+     * Returns the {@link OperatingSystem} instance associated with this process.
      *
      * @return the operating system instance
      */
-    protected WindowsOperatingSystem getOs() {
+    protected OperatingSystem getOs() {
         return this.os;
     }
 
@@ -240,12 +242,12 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
+        return MAX_WINDOWS_HANDLES;
     }
 
     @Override
     public long getHardOpenFileLimit() {
-        return WindowsFileSystem.MAX_WINDOWS_HANDLES;
+        return MAX_WINDOWS_HANDLES;
     }
 
     @Override
@@ -263,28 +265,25 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         Map<Integer, ThreadPerfCounterBlock> threads = tcb == null
                 ? queryMatchingThreads(Collections.singleton(this.getProcessID()))
                 : tcb;
+        if (threads == null) {
+            threads = Collections.emptyMap();
+        }
         return threads.entrySet().stream().parallel()
                 .filter(entry -> entry.getValue().getOwningProcessID() == this.getProcessID())
-                .map(entry -> new WindowsOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
+                .map(entry -> createOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean updateAttributes() {
-        Set<Integer> pids = Collections.singleton(this.getProcessID());
-        // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> pcb = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
-        // otherwise performance counters with WMI backup
-        if (pcb == null) {
-            pcb = ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
-        }
-        if (USE_PROCSTATE_SUSPENDED) {
-            this.tcb = queryMatchingThreads(pids);
-        }
-        Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
-        return updateAttributes(pcb == null ? null : pcb.get(this.getProcessID()),
-                wts == null ? null : wts.get(this.getProcessID()));
-    }
+    /**
+     * Creates a platform-specific OS thread instance.
+     *
+     * @param pid      the owning process ID
+     * @param tid      the thread ID
+     * @param procName the process name
+     * @param pcb      the thread performance counter block
+     * @return a new OSThread instance
+     */
+    protected abstract OSThread createOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb);
 
     /**
      * Updates process attributes from performance counter and WTS data, then performs native-specific updates.
@@ -337,6 +336,15 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     /**
+     * Sets the process name. Used by subclasses to ensure the name is current before querying threads.
+     *
+     * @param name the process name to set
+     */
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * Sets the process bitness. Used by subclasses to update after WOW64 check.
      *
      * @param bitness the bitness to set
@@ -363,28 +371,29 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         this.state = state;
     }
 
-    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
-        if (threads == null) {
-            threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
-        }
-        return threads;
+    /**
+     * Sets the thread counter block map. Used by subclasses during attribute updates.
+     *
+     * @param tcb the thread performance counter block map
+     */
+    protected void setTcb(Map<Integer, ThreadPerfCounterBlock> tcb) {
+        this.tcb = tcb;
     }
 
-    private String queryCommandLine() {
-        if (!cwdCmdEnv.get().getB().isEmpty()) {
-            return cwdCmdEnv.get().getB();
-        }
-        if (USE_BATCH_COMMANDLINE) {
-            return Win32ProcessCachedJNA.getInstance().getCommandLine(getProcessID(), getStartTime());
-        }
-        WmiResult<CommandLineProperty> commandLineProcs = Win32ProcessJNA
-                .queryCommandLines(Collections.singleton(getProcessID()));
-        if (commandLineProcs.getResultCount() > 0) {
-            return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
-        }
-        return "";
-    }
+    /**
+     * Queries thread performance data matching the given process IDs.
+     *
+     * @param pids the set of process IDs to match
+     * @return a map of thread ID to thread performance counter block
+     */
+    protected abstract Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
+
+    /**
+     * Queries the command line for this process.
+     *
+     * @return the command line string
+     */
+    protected abstract String queryCommandLine();
 
     /**
      * Queries the argument list for this process.

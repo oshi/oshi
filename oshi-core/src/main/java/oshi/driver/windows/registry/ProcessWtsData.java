@@ -18,8 +18,8 @@ import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
 import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.jna.ByRef.CloseableIntByReference;
@@ -103,77 +103,4 @@ public final class ProcessWtsData {
         return wtsMap;
     }
 
-    /**
-     * Class to encapsulate data from WTS Process Info
-     */
-    @Immutable
-    public static class WtsInfo {
-        private final String name;
-        private final String path;
-        private final int threadCount;
-        private final long virtualSize;
-        private final long kernelTime;
-        private final long userTime;
-        private final long openFiles;
-
-        public WtsInfo(String name, String path, int threadCount, long virtualSize, long kernelTime, long userTime,
-                long openFiles) {
-            this.name = name;
-            this.path = path;
-            this.threadCount = threadCount;
-            this.virtualSize = virtualSize;
-            this.kernelTime = kernelTime;
-            this.userTime = userTime;
-            this.openFiles = openFiles;
-        }
-
-        /**
-         * @return the name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * @return the path
-         */
-        public String getPath() {
-            return path;
-        }
-
-        /**
-         * @return the threadCount
-         */
-        public int getThreadCount() {
-            return threadCount;
-        }
-
-        /**
-         * @return the virtualSize
-         */
-        public long getVirtualSize() {
-            return virtualSize;
-        }
-
-        /**
-         * @return the kernelTime
-         */
-        public long getKernelTime() {
-            return kernelTime;
-        }
-
-        /**
-         * @return the userTime
-         */
-        public long getUserTime() {
-            return userTime;
-        }
-
-        /**
-         * @return the openFiles
-         */
-        public long getOpenFiles() {
-            return openFiles;
-        }
-    }
 }

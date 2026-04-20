@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
@@ -28,12 +28,12 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * WindowsNetworkParams class.
+ * WindowsNetworkParamsJNA class.
  */
 @ThreadSafe
-final class WindowsNetworkParams extends AbstractNetworkParams {
+final class WindowsNetworkParamsJNA extends AbstractNetworkParams {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParamsJNA.class);
 
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 

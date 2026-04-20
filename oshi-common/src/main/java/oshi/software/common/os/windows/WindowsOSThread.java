@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.windows;
+package oshi.software.common.os.windows;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
@@ -13,21 +13,16 @@ import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.SUSPENDED;
 import static oshi.software.os.OSProcess.State.WAITING;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess.State;
 
 /**
- * OSThread implementation
+ * Common base class for Windows OS thread implementations.
  */
 @ThreadSafe
-public class WindowsOSThread extends AbstractOSThread {
+public abstract class WindowsOSThread extends AbstractOSThread {
 
     private final int threadId;
     private String name;
@@ -40,7 +35,7 @@ public class WindowsOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+    protected WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
         super(pid);
         this.threadId = tid;
         updateAttributes(procName, pcb);
@@ -96,21 +91,28 @@ public class WindowsOSThread extends AbstractOSThread {
         return this.priority;
     }
 
-    @Override
-    public boolean updateAttributes() {
-        Set<Integer> pids = Collections.singleton(getOwningProcessId());
-        String procName = this.name.split("/")[0];
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids,
-                procName, getThreadId());
-        return updateAttributes(procName, threads == null ? null : threads.get(getThreadId()));
+    /**
+     * Returns the process name prefix used for thread name construction.
+     *
+     * @return the process name (portion before "/" in the thread name)
+     */
+    protected String getProcName() {
+        return this.name == null ? "" : this.name.split("/")[0];
     }
 
-    private boolean updateAttributes(String procName, ThreadPerfCounterBlock pcb) {
+    /**
+     * Updates thread attributes from a performance counter block.
+     *
+     * @param procName the owning process name
+     * @param pcb      the thread performance counter block, or null if unavailable
+     * @return true if the thread is valid after the update
+     */
+    protected boolean updateAttributes(String procName, ThreadPerfCounterBlock pcb) {
         if (pcb == null) {
             this.state = INVALID;
             return false;
-        } else if (pcb.getName().contains("/") || procName.isEmpty()) {
-            name = pcb.getName();
+        } else if (pcb.getName().contains("/") || procName == null || procName.isEmpty()) {
+            this.name = pcb.getName();
         } else {
             this.name = procName + "/" + pcb.getName();
         }

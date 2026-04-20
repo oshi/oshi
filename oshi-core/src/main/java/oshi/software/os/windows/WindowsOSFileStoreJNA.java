@@ -28,11 +28,11 @@ public class WindowsOSFileStoreJNA extends WindowsOSFileStore {
         // Check if we have the volume locally
         List<OSFileStore> volumes;
         if (isLocal()) {
-            volumes = WindowsFileSystem.getLocalVolumes(getVolume());
+            volumes = WindowsFileSystemJNA.getLocalVolumes(getVolume());
         } else {
             // Not locally, search WMI
             String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
-            volumes = WindowsFileSystem.getWmiVolumes(nameToMatch, false);
+            volumes = WindowsFileSystemJNA.getWmiVolumes(nameToMatch, false);
         }
         for (OSFileStore fileStore : volumes) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {

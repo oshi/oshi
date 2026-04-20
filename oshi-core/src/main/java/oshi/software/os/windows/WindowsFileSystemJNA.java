@@ -34,7 +34,7 @@ import oshi.util.platform.windows.WmiUtil;
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
 @ThreadSafe
-public class WindowsFileSystem extends AbstractFileSystem {
+public class WindowsFileSystemJNA extends AbstractFileSystem {
 
     private static final int BUFSIZE = 255;
 
@@ -91,12 +91,11 @@ public class WindowsFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * <p>
-     * Constructor for WindowsFileSystem.
-     * </p>
+     * Constructor for WindowsFileSystemJNA. Sets the Windows error mode via
+     * {@code Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS)} to suppress system prompts for floppy/CD-ROM
+     * drives that have no media.
      */
-    public WindowsFileSystem() {
-        // Set error mode to fail rather than prompt for FLoppy/CD-Rom
+    public WindowsFileSystemJNA() {
         Kernel32.INSTANCE.SetErrorMode(SEM_FAILCRITICALERRORS);
     }
 
