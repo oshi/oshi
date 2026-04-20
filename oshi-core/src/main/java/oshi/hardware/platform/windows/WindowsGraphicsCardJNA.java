@@ -112,8 +112,8 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
      * @param pciBusNumber PCI bus number for ADL correlation, or -1 if unknown
      * @param pciBusId     PCI bus ID string for NVML correlation, or empty string if unknown
      */
-    WindowsGraphicsCardJNA(String name, String deviceId, String vendor, String versionInfo, long vram, String luidPrefix,
-            String lhmParent, int pciBusNumber, String pciBusId) {
+    WindowsGraphicsCardJNA(String name, String deviceId, String vendor, String versionInfo, long vram,
+            String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId) {
         super(name, deviceId, vendor, versionInfo, vram);
         this.luidPrefix = luidPrefix;
         this.lhmParent = lhmParent;

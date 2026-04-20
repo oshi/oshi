@@ -65,7 +65,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<Display> getDisplays() {
-        return WindowsDisplay.getDisplays();
+        return WindowsDisplayJNA.getDisplays();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return WindowsUsbDevice.getUsbDevices(tree);
+        return WindowsUsbDeviceJNA.getUsbDevices(tree);
     }
 
     @Override

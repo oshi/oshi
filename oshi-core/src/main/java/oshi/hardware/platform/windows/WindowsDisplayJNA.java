@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.windows;
@@ -30,9 +30,9 @@ import oshi.jna.Struct.CloseableSpDevinfoData;
  * A Display
  */
 @Immutable
-final class WindowsDisplay extends AbstractDisplay {
+final class WindowsDisplayJNA extends AbstractDisplay {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplay.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplayJNA.class);
 
     private static final SetupApi SU = SetupApi.INSTANCE;
     private static final Advapi32 ADV = Advapi32.INSTANCE;
@@ -44,7 +44,7 @@ final class WindowsDisplay extends AbstractDisplay {
      *
      * @param edid a byte array representing a display EDID
      */
-    WindowsDisplay(byte[] edid) {
+    WindowsDisplayJNA(byte[] edid) {
         super(edid);
         LOG.debug("Initialized WindowsDisplay");
     }
@@ -75,7 +75,7 @@ final class WindowsDisplay extends AbstractDisplay {
                         if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
                             edid = new byte[lpcbData.getValue()];
                             if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
-                                Display display = new WindowsDisplay(edid);
+                                Display display = new WindowsDisplayJNA(edid);
                                 displays.add(display);
                             }
                         }

@@ -151,4 +151,62 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             return OptionalInt.empty();
         }
     }
+
+    /**
+     * SP_DEVINFO_DATA: cbSize(4) + ClassGuid(16) + DevInst(4) + Reserved(8 on x64) = 32 bytes.
+     */
+    public static final int SP_DEVINFO_DATA_SIZE = 32;
+    public static final long SP_DEVINFO_DATA_DEVINST_OFFSET = 20;
+
+    public static final int DICS_FLAG_GLOBAL = 0x00000001;
+    public static final int DIREG_DEV = 0x00000001;
+
+    private static final MethodHandle SetupDiEnumDeviceInfo = downcall(SETUPAPI, "SetupDiEnumDeviceInfo", JAVA_INT,
+            ADDRESS, JAVA_INT, ADDRESS);
+
+    /**
+     * Enumerates device info elements in a device info set.
+     *
+     * @param hDevInfo    the device info set handle
+     * @param memberIndex zero-based index
+     * @param devInfoData receives the device info data (must be pre-allocated with cbSize set)
+     * @return true if successful, false if no more items or error
+     */
+    public static boolean SetupDiEnumDeviceInfo(MemorySegment hDevInfo, int memberIndex, MemorySegment devInfoData) {
+        try {
+            return isSuccess((int) SetupDiEnumDeviceInfo.invokeExact(hDevInfo, memberIndex, devInfoData));
+        } catch (Throwable t) {
+            LOG.debug("SetupApiFFM.SetupDiEnumDeviceInfo failed", t);
+            return false;
+        }
+    }
+
+    private static final MethodHandle SetupDiOpenDevRegKey = downcall(SETUPAPI, "SetupDiOpenDevRegKey", ADDRESS,
+            ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT);
+
+    /**
+     * Opens a registry key for device-specific configuration information.
+     *
+     * @param hDevInfo    the device info set handle
+     * @param devInfoData the device info data
+     * @param scope       DICS_FLAG_GLOBAL or DICS_FLAG_CONFIGSPECIFIC
+     * @param hwProfile   hardware profile (0 for current)
+     * @param keyType     DIREG_DEV or DIREG_DRV
+     * @param samDesired  registry access mask (e.g. KEY_QUERY_VALUE)
+     * @return registry key handle, or null if failed
+     */
+    public static MemorySegment SetupDiOpenDevRegKey(MemorySegment hDevInfo, MemorySegment devInfoData, int scope,
+            int hwProfile, int keyType, int samDesired) {
+        try {
+            MemorySegment key = (MemorySegment) SetupDiOpenDevRegKey.invokeExact(hDevInfo, devInfoData, scope,
+                    hwProfile, keyType, samDesired);
+            if (Kernel32FFM.isInvalidHandle(key)) {
+                return null;
+            }
+            return key;
+        } catch (Throwable t) {
+            LOG.debug("SetupApiFFM.SetupDiOpenDevRegKey failed", t);
+            return null;
+        }
+    }
 }
