@@ -15,7 +15,7 @@ import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
-import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayer;
+import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
@@ -142,7 +142,7 @@ public class SystemInfo {
             case MACOS:
                 return new MacHardwareAbstractionLayerJNA();
             case WINDOWS:
-                return new WindowsHardwareAbstractionLayer();
+                return new WindowsHardwareAbstractionLayerJNA();
             case SOLARIS:
                 return new SolarisHardwareAbstractionLayer();
             case FREEBSD:

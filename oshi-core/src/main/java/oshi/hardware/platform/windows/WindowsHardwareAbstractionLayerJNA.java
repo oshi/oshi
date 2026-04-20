@@ -26,7 +26,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
  * WindowsHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -40,7 +40,7 @@ public class WindowsHardwareAbstractionLayer extends AbstractHardwareAbstraction
 
     @Override
     public CentralProcessor createProcessor() {
-        return new WindowsCentralProcessor();
+        return new WindowsCentralProcessorJNA();
     }
 
     @Override

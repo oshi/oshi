@@ -529,4 +529,120 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             return false;
         }
     }
+
+    private static final MethodHandle GetNativeSystemInfo = downcall(K32, "GetNativeSystemInfo", null, ADDRESS);
+
+    /**
+     * Retrieves information about the current system to an application running under WOW64.
+     *
+     * @param lpSystemInfo A pointer to a SYSTEM_INFO structure that receives the information.
+     * @return true if the call succeeded
+     */
+    public static boolean GetNativeSystemInfo(MemorySegment lpSystemInfo) {
+        try {
+            GetNativeSystemInfo.invokeExact(lpSystemInfo);
+            return true;
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetNativeSystemInfo failed: {}", t.getMessage());
+            return false;
+        }
+    }
+
+    private static final MethodHandle GetSystemTimes = downcall(K32, "GetSystemTimes", JAVA_INT, ADDRESS, ADDRESS,
+            ADDRESS);
+
+    /**
+     * Retrieves system timing information.
+     *
+     * @param lpIdleTime   idle time
+     * @param lpKernelTime kernel time
+     * @param lpUserTime   user time
+     * @return true if the call succeeded
+     */
+    public static boolean GetSystemTimes(MemorySegment lpIdleTime, MemorySegment lpKernelTime,
+            MemorySegment lpUserTime) {
+        try {
+            return isSuccess((int) GetSystemTimes.invokeExact(lpIdleTime, lpKernelTime, lpUserTime));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetSystemTimes failed: {}", t.getMessage());
+            return false;
+        }
+    }
+
+    private static final MethodHandle IsProcessorFeaturePresent = downcall(K32, "IsProcessorFeaturePresent", JAVA_INT,
+            JAVA_INT);
+
+    /**
+     * Determines whether the specified processor feature is supported by the current computer.
+     *
+     * @param processorFeature The processor feature to be tested.
+     * @return true if the feature is supported
+     */
+    public static boolean IsProcessorFeaturePresent(int processorFeature) {
+        try {
+            return isSuccess((int) IsProcessorFeaturePresent.invokeExact(processorFeature));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.IsProcessorFeaturePresent failed: {}", t.getMessage());
+            return false;
+        }
+    }
+
+    private static final MethodHandle GetLogicalProcessorInformationEx = downcall(K32,
+            "GetLogicalProcessorInformationEx", JAVA_INT, JAVA_INT, ADDRESS, ADDRESS);
+
+    /**
+     * Retrieves information about the relationships of logical processors and related hardware.
+     *
+     * @param relationshipType The type of relationship to retrieve.
+     * @param buffer           A pointer to a buffer that receives the information.
+     * @param returnedLength   On input, specifies the length of the buffer. On output, receives the actual length.
+     * @return true if the call succeeded
+     */
+    public static boolean GetLogicalProcessorInformationEx(int relationshipType, MemorySegment buffer,
+            MemorySegment returnedLength) {
+        try {
+            return isSuccess(
+                    (int) GetLogicalProcessorInformationEx.invokeExact(relationshipType, buffer, returnedLength));
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.GetLogicalProcessorInformationEx failed: {}", t.getMessage());
+            return false;
+        }
+    }
+
+    private static final MethodHandle CallNtPowerInformation;
+
+    static {
+        MethodHandle mh = null;
+        try {
+            SymbolLookup powrProf = lib("PowrProf");
+            mh = downcall(powrProf, "CallNtPowerInformation", JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, JAVA_INT);
+        } catch (Throwable t) {
+            // PowrProf may not be available
+        }
+        CallNtPowerInformation = mh;
+    }
+
+    /**
+     * Sets or retrieves power information.
+     *
+     * @param informationLevel  The power information level requested.
+     * @param lpInputBuffer     Optional input buffer.
+     * @param nInputBufferSize  Size of input buffer.
+     * @param lpOutputBuffer    Optional output buffer.
+     * @param nOutputBufferSize Size of output buffer.
+     * @return 0 (STATUS_SUCCESS) on success, non-zero on failure
+     */
+    public static int CallNtPowerInformation(int informationLevel, MemorySegment lpInputBuffer, int nInputBufferSize,
+            MemorySegment lpOutputBuffer, int nOutputBufferSize) {
+        if (CallNtPowerInformation == null) {
+            return -1;
+        }
+        try {
+            return (int) CallNtPowerInformation.invokeExact(informationLevel, lpInputBuffer, nInputBufferSize,
+                    lpOutputBuffer, nOutputBufferSize);
+        } catch (Throwable t) {
+            LOG.debug("Kernel32FFM.CallNtPowerInformation failed: {}", t.getMessage());
+            return -1;
+        }
+    }
 }
