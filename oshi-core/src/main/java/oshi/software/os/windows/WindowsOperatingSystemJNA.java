@@ -67,7 +67,7 @@ import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePROCESSENTRY32ByReference;
 import oshi.jna.Struct.CloseablePerformanceInformation;
 import oshi.jna.Struct.CloseableSystemInfo;
-import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.windows.WindowsOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -89,19 +89,16 @@ import oshi.util.tuples.Pair;
  * families, all of which are developed and marketed by Microsoft.
  */
 @ThreadSafe
-public class WindowsOperatingSystem extends AbstractOperatingSystem {
+public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystem.class);
-
-    private static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
-            .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemJNA.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     /*
      * Windows event log name
      */
-    private static Supplier<String> systemLog = memoize(WindowsOperatingSystem::querySystemLog,
+    private static Supplier<String> systemLog = memoize(WindowsOperatingSystemJNA::querySystemLog,
             TimeUnit.HOURS.toNanos(1));
 
     private static final long BOOTTIME = querySystemBootTime();
@@ -123,22 +120,17 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
      * Cache full process stats queries. Second query will only populate if first one returns null.
      */
     private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = memoize(
-            WindowsOperatingSystem::queryProcessMapFromRegistry, defaultExpiration());
+            WindowsOperatingSystemJNA::queryProcessMapFromRegistry, defaultExpiration());
     private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = memoize(
-            WindowsOperatingSystem::queryProcessMapFromPerfCounters, defaultExpiration());
+            WindowsOperatingSystemJNA::queryProcessMapFromPerfCounters, defaultExpiration());
     /*
      * Cache full thread stats queries. Second query will only populate if first one returns null. Only used if
      * USE_PROCSTATE_SUSPENDED is set true.
      */
     private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = memoize(
-            WindowsOperatingSystem::queryThreadMapFromRegistry, defaultExpiration());
+            WindowsOperatingSystemJNA::queryThreadMapFromRegistry, defaultExpiration());
     private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = memoize(
-            WindowsOperatingSystem::queryThreadMapFromPerfCounters, defaultExpiration());
-
-    @Override
-    public String queryManufacturer() {
-        return "Microsoft";
-    }
+            WindowsOperatingSystemJNA::queryThreadMapFromPerfCounters, defaultExpiration());
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
@@ -174,45 +166,6 @@ public class WindowsOperatingSystem extends AbstractOperatingSystem {
             version = "Server 2025";
         }
         return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
-    }
-
-    /**
-     * Gets suites available on the system and return as a codename
-     *
-     * @param suiteMask The suite mask bitmask
-     *
-     * @return Suites
-     */
-    private static String parseCodeName(int suiteMask) {
-        List<String> suites = new ArrayList<>();
-        if ((suiteMask & 0x00000002) != 0) {
-            suites.add("Enterprise");
-        }
-        if ((suiteMask & 0x00000004) != 0) {
-            suites.add("BackOffice");
-        }
-        if ((suiteMask & 0x00000008) != 0) {
-            suites.add("Communications Server");
-        }
-        if ((suiteMask & 0x00000080) != 0) {
-            suites.add("Datacenter");
-        }
-        if ((suiteMask & 0x00000200) != 0) {
-            suites.add("Home");
-        }
-        if ((suiteMask & 0x00000400) != 0) {
-            suites.add("Web Server");
-        }
-        if ((suiteMask & 0x00002000) != 0) {
-            suites.add("Storage Server");
-        }
-        if ((suiteMask & 0x00004000) != 0) {
-            suites.add("Compute Cluster");
-        }
-        if ((suiteMask & 0x00008000) != 0) {
-            suites.add("Home Server");
-        }
-        return String.join(",", suites);
     }
 
     @Override

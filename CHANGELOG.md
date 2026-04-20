@@ -39,6 +39,7 @@
 * [#3175](https://github.com/oshi/oshi/pull/3175): Migrate simple WMI-only Windows hardware classes (Baseboard, Firmware, ComputerSystem, Printer) to FFM - [@dbwiddis](https://github.com/dbwiddis).
 * [#3176](https://github.com/oshi/oshi/pull/3176): Migrate all remaining Windows hardware classes to FFM three-tier pattern (Sensors, GpuStats, GlobalMemory, VirtualMemory, LogicalVolumeGroup, SoundCard, NetworkIF, GraphicsCard, Display, UsbDevice, HWDiskStore, CentralProcessor) - [@dbwiddis](https://github.com/dbwiddis).
 * [#3177](https://github.com/oshi/oshi/pull/3177): Migrate Windows software OS classes (OSProcess, OSThread, FileSystem, InstalledApps, InternetProtocolStats, NetworkParams) to FFM three-tier pattern - [@dbwiddis](https://github.com/dbwiddis).
+* [#3178](https://github.com/oshi/oshi/pull/3178): Remove oshi-core source tree from oshi-core-java25; port Windows sessions, services, and remaining OS classes to FFM - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 

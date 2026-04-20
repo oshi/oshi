@@ -4,6 +4,8 @@
  */
 package oshi;
 
+import oshi.util.PlatformEnum;
+
 /**
  * An enumeration of supported operating systems for the FFM module.
  *

@@ -23,7 +23,7 @@ import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
-import oshi.software.os.windows.WindowsOperatingSystem;
+import oshi.software.os.windows.WindowsOperatingSystemJNA;
 
 /**
  * System information. This is the main entry point to OSHI, using JNA for native access.
@@ -111,7 +111,7 @@ public class SystemInfo {
             case MACOS:
                 return new MacOperatingSystemJNA();
             case WINDOWS:
-                return new WindowsOperatingSystem();
+                return new WindowsOperatingSystemJNA();
             case SOLARIS:
                 return new SolarisOperatingSystem();
             case FREEBSD:

@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.net.NetStat;
-import oshi.driver.mac.net.NetStat.IFdata;
+import oshi.driver.mac.net.NetStatFFM;
+import oshi.driver.mac.net.NetStatFFM.IFdata;
 import oshi.ffm.mac.CoreFoundation.CFArrayRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.hardware.NetworkIF;
@@ -71,7 +71,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
     }
 
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
+        final Map<Integer, IFdata> data = NetStatFFM.queryIFdata(-1);
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
@@ -86,7 +86,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
     @Override
     public boolean updateAttributes() {
         int index = queryNetworkInterface().getIndex();
-        return updateNetworkStats(NetStat.queryIFdata(index));
+        return updateNetworkStats(NetStatFFM.queryIFdata(index));
     }
 
     private boolean updateNetworkStats(Map<Integer, IFdata> data) {

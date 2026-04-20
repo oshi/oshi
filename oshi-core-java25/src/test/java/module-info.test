@@ -5,21 +5,22 @@
 --add-opens
   com.github.oshi/oshi.ffm.util=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.jna.util=org.junit.platform.commons
---add-opens
   com.github.oshi/oshi.ffm.mac=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.ffm.windows.com=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.windows.perfmon=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.driver.mac.net=org.junit.platform.commons
 
 --enable-native-access
   com.github.oshi
 
 --add-modules
-  com.github.oshi.common,org.hamcrest,org.slf4j.simple
+  org.hamcrest,org.slf4j.simple
 --add-reads
   com.github.oshi=org.junit.jupiter.api,org.hamcrest
---add-reads
-  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest
-  

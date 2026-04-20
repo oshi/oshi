@@ -61,7 +61,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
-    public WindowsOSProcessJNA(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+    public WindowsOSProcessJNA(int pid, WindowsOperatingSystemJNA os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
@@ -246,7 +246,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
         if (h != null) {
             try {
                 // Can't check 32-bit procs from a 64-bit one
-                if (WindowsOperatingSystem.isX86() == WindowsOperatingSystem.isWow(h)) {
+                if (WindowsOperatingSystemJNA.isX86() == WindowsOperatingSystemJNA.isWow(h)) {
                     try (CloseableIntByReference nRead = new CloseableIntByReference()) {
                         // Start by getting the address of the PEB
                         NtDll.PROCESS_BASIC_INFORMATION pbi = new NtDll.PROCESS_BASIC_INFORMATION();

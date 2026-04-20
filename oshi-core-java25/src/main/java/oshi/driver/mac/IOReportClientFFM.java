@@ -18,7 +18,7 @@ import oshi.ffm.mac.IOReportFunctions;
 import oshi.hardware.GpuTicks;
 
 /**
- * FFM equivalent of {@link IOReportClient}: manages a single IOReport subscription for GPU Stats and Energy Model
+ * FFM equivalent of {@code IOReportClient}: manages a single IOReport subscription for GPU Stats and Energy Model
  * channels, providing per-instance sampling of GPU active ticks, utilization, and power draw.
  *
  * <p>

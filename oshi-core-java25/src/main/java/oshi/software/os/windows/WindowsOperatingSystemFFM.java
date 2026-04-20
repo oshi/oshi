@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.windows.Kernel32FFM.GetLastError;
 import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
+import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.setupTokenPrivileges;
 import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 import static oshi.util.Memoizer.installedAppsExpiration;
@@ -15,7 +16,10 @@ import static oshi.util.Memoizer.installedAppsExpiration;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,23 +35,38 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.WtsInfo;
+import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
+import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.driver.windows.registry.HkeyUserDataFFM;
+import oshi.driver.windows.registry.NetSessionDataFFM;
 import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
-import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ProcessWtsDataFFM;
+import oshi.driver.windows.registry.SessionWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
+import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
+import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.WinNTFFM;
+import oshi.software.common.os.windows.WindowsOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSService;
+import oshi.software.os.OSService.State;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
+import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.platform.windows.Advapi32UtilFFM;
 import oshi.util.platform.windows.Kernel32UtilFFM;
+import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.util.platform.windows.WmiUtilFFM;
+import oshi.util.tuples.Pair;
 
 @ThreadSafe
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
@@ -103,6 +122,93 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             if (hToken != null && hToken.address() != 0) {
                 Kernel32FFM.CloseHandle(hToken);
             }
+        }
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        List<OSSession> whoList = HkeyUserDataFFM.queryUserSessions();
+        whoList.addAll(SessionWtsDataFFM.queryUserSessions());
+        whoList.addAll(NetSessionDataFFM.queryUserSessions());
+        return whoList;
+    }
+
+    @Override
+    public List<OSService> getServices() {
+        return queryServicesFFM();
+    }
+
+    private static final int SC_MANAGER_ENUMERATE_SERVICE = 0x0004;
+    private static final int SERVICE_WIN32 = 0x30;
+    private static final int SERVICE_STATE_ALL = 3;
+    // ENUM_SERVICE_STATUS_PROCESSW on 64-bit: 8+8+36=52, padded to 56
+    private static final long ENUM_SERVICE_STATUS_PROCESS_SIZE = 56;
+    private static final long DISPLAY_NAME_OFFSET = 8;
+    private static final long CURRENT_STATE_OFFSET = 20;
+    private static final long PROCESS_ID_OFFSET = 44;
+
+    private static List<OSService> queryServicesFFM() {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment hSCManager = Advapi32FFM.OpenSCManager(MemorySegment.NULL, MemorySegment.NULL,
+                    SC_MANAGER_ENUMERATE_SERVICE);
+            if (hSCManager == null || hSCManager.address() == 0) {
+                LOG.error("Failed to open Service Control Manager");
+                return Collections.emptyList();
+            }
+            try {
+                // First call to get required buffer size
+                MemorySegment pcbBytesNeeded = arena.allocate(JAVA_INT);
+                MemorySegment lpServicesReturned = arena.allocate(JAVA_INT);
+                MemorySegment lpResumeHandle = arena.allocate(JAVA_INT);
+                lpResumeHandle.set(JAVA_INT, 0, 0);
+
+                Advapi32FFM.EnumServicesStatusEx(hSCManager, 0, SERVICE_WIN32, SERVICE_STATE_ALL, MemorySegment.NULL, 0,
+                        pcbBytesNeeded, lpServicesReturned, lpResumeHandle, MemorySegment.NULL);
+
+                int bytesNeeded = pcbBytesNeeded.get(JAVA_INT, 0);
+                if (bytesNeeded == 0) {
+                    return Collections.emptyList();
+                }
+
+                MemorySegment lpServices = arena.allocate(bytesNeeded);
+                lpResumeHandle.set(JAVA_INT, 0, 0);
+                if (!Advapi32FFM.EnumServicesStatusEx(hSCManager, 0, SERVICE_WIN32, SERVICE_STATE_ALL, lpServices,
+                        bytesNeeded, pcbBytesNeeded, lpServicesReturned, lpResumeHandle, MemorySegment.NULL)) {
+                    LOG.error("EnumServicesStatusEx failed, error: {}", Kernel32FFM.GetLastError());
+                    return Collections.emptyList();
+                }
+
+                int count = lpServicesReturned.get(JAVA_INT, 0);
+                List<OSService> svcArray = new ArrayList<>(count);
+
+                for (int i = 0; i < count; i++) {
+                    long base = (long) i * ENUM_SERVICE_STATUS_PROCESS_SIZE;
+                    MemorySegment pDisplayName = lpServices.get(ADDRESS, base + DISPLAY_NAME_OFFSET).reinterpret(512);
+                    String displayName = readWideString(pDisplayName);
+                    int currentState = lpServices.get(JAVA_INT, base + CURRENT_STATE_OFFSET);
+                    int processId = lpServices.get(JAVA_INT, base + PROCESS_ID_OFFSET);
+
+                    State state;
+                    switch (currentState) {
+                        case 1:
+                            state = State.STOPPED;
+                            break;
+                        case 4:
+                            state = State.RUNNING;
+                            break;
+                        default:
+                            state = State.OTHER;
+                            break;
+                    }
+                    svcArray.add(new OSService(displayName, processId, state));
+                }
+                return svcArray;
+            } finally {
+                Advapi32FFM.CloseServiceHandle(hSCManager);
+            }
+        } catch (Throwable t) {
+            LOG.error("Error enumerating services: {}", t.getMessage());
+            return Collections.emptyList();
         }
     }
 
@@ -237,7 +343,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             }
         }
 
-        Map<Integer, WtsInfo> processWtsMap = ProcessWtsData.queryProcessWtsMap(pids);
+        Map<Integer, WtsInfo> processWtsMap = ProcessWtsDataFFM.queryProcessWtsMap(pids);
 
         // Determine which PIDs to process: requested pids filtered by available data, or all available
         Set<Integer> mapKeys;
@@ -272,5 +378,89 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
         return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(null);
+    }
+
+    @Override
+    protected Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
+        String version = System.getProperty("os.name");
+        if (version.startsWith("Windows ")) {
+            version = version.substring(8);
+        }
+        String sp = null;
+        int suiteMask = 0;
+        String buildNumber = "";
+        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystemFFM.queryOsVersion();
+        if (versionInfo.getResultCount() > 0) {
+            sp = WmiUtilFFM.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
+            if (!sp.isEmpty() && !"unknown".equals(sp)) {
+                version = version + " " + sp.replace("Service Pack ", "SP");
+            }
+            suiteMask = WmiUtilFFM.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
+            buildNumber = WmiUtilFFM.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
+        }
+        String codeName = parseCodeName(suiteMask);
+        if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
+            version = "11";
+        }
+        if ("Server 2016".equals(version) && buildNumber.compareTo("17762") > 0) {
+            version = "Server 2019";
+        }
+        if ("Server 2019".equals(version) && buildNumber.compareTo("20347") > 0) {
+            version = "Server 2022";
+        }
+        if ("Server 2022".equals(version) && buildNumber.compareTo("26039") > 0) {
+            version = "Server 2025";
+        }
+        return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
+    }
+
+    @Override
+    protected int queryBitness(int jvmBitness) {
+        if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null) {
+            WmiResult<BitnessProperty> bitnessMap = Win32ProcessorFFM.queryBitness();
+            if (bitnessMap.getResultCount() > 0) {
+                return WmiUtilFFM.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
+            }
+        }
+        return jvmBitness;
+    }
+
+    @Override
+    protected List<OSProcess> queryChildProcesses(int parentPid) {
+        Map<Integer, Integer> parentPidMap = getParentPidMap();
+        Set<Integer> descendantPids = getChildrenOrDescendants(parentPidMap, parentPid, false);
+        return processMapToList(descendantPids);
+    }
+
+    @Override
+    protected List<OSProcess> queryDescendantProcesses(int parentPid) {
+        Map<Integer, Integer> parentPidMap = getParentPidMap();
+        Set<Integer> descendantPids = getChildrenOrDescendants(parentPidMap, parentPid, true);
+        return processMapToList(descendantPids);
+    }
+
+    private Map<Integer, Integer> getParentPidMap() {
+        Map<Integer, Integer> parentPidMap = new HashMap<>();
+        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
+        if (processMap == null || processMap.isEmpty()) {
+            processMap = processMapFromPerfCounters.get();
+        }
+        if (processMap != null) {
+            for (Map.Entry<Integer, ProcessPerfCounterBlock> entry : processMap.entrySet()) {
+                parentPidMap.put(entry.getKey(), entry.getValue().getParentProcessID());
+            }
+        }
+        return parentPidMap;
+    }
+
+    private static final boolean X86 = isCurrentX86();
+
+    static boolean isX86() {
+        return X86;
+    }
+
+    private static boolean isCurrentX86() {
+        String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+        return "x86".equalsIgnoreCase(arch);
     }
 }

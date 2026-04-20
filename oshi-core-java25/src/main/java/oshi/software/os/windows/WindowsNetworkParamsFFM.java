@@ -1,17 +1,16 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.windows;
 
-import com.sun.jna.platform.win32.Win32Exception;
+import java.util.List;
+
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.IPHlpAPIUtilFFM;
 import oshi.util.platform.windows.Kernel32UtilFFM;
-
-import java.util.List;
 
 public final class WindowsNetworkParamsFFM extends AbstractNetworkParams {
 
@@ -27,11 +26,8 @@ public final class WindowsNetworkParamsFFM extends AbstractNetworkParams {
 
     @Override
     public String getHostName() {
-        try {
-            return Kernel32UtilFFM.getComputerName();
-        } catch (Win32Exception e) {
-            return super.getHostName();
-        }
+        String name = Kernel32UtilFFM.getComputerName();
+        return name.isEmpty() ? super.getHostName() : name;
     }
 
     @Override

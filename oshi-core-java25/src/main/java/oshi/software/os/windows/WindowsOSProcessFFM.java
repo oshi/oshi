@@ -44,7 +44,7 @@ import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
-import oshi.driver.windows.registry.ProcessWtsData;
+import oshi.driver.windows.registry.ProcessWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
@@ -73,7 +73,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpersFFM.IsWindowsVistaOrGreater();
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpersFFM.IsWindows7OrGreater();
 
-    public WindowsOSProcessFFM(int pid, WindowsOperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
+    public WindowsOSProcessFFM(int pid, WindowsOperatingSystemFFM os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
@@ -113,7 +113,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             }
             setTcb(queryMatchingThreads(pids));
         }
-        Map<Integer, WtsInfo> wts = ProcessWtsData.queryProcessWtsMap(pids);
+        Map<Integer, WtsInfo> wts = ProcessWtsDataFFM.queryProcessWtsMap(pids);
         return updateAttributes(pcb, wts == null ? null : wts.get(this.getProcessID()));
     }
 
@@ -307,7 +307,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         if (hOpt.isPresent()) {
             MemorySegment h = hOpt.get();
             try (Arena arena = Arena.ofConfined()) {
-                if (WindowsOperatingSystem.isX86() == isWow(h, arena)) {
+                if (WindowsOperatingSystemFFM.isX86() == isWow(h, arena)) {
                     MemorySegment pbi = arena.allocate(PROCESS_BASIC_INFORMATION_STRUCT);
                     MemorySegment nRead = arena.allocate(JAVA_INT);
 

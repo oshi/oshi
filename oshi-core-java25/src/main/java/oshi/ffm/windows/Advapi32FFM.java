@@ -160,6 +160,23 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
                 lpReferencedDomainName, cchReferencedDomainName, peUse));
     }
 
+    private static final MethodHandle ConvertStringSidToSidW = downcall(ADV, "ConvertStringSidToSidW", JAVA_INT,
+            ADDRESS, ADDRESS);
+
+    /**
+     * Converts a string-format SID to a valid, functional SID.
+     * <p>
+     * On success, the caller is responsible for freeing the allocated SID buffer using
+     * {@link Kernel32FFM#LocalFree(MemorySegment)} on {@code Sid.get(ADDRESS, 0)} to avoid memory leaks.
+     *
+     * @param StringSid the string-format SID to convert
+     * @param Sid       pointer to receive the allocated SID
+     * @return true if successful
+     */
+    public static boolean ConvertStringSidToSid(MemorySegment StringSid, MemorySegment Sid) throws Throwable {
+        return isSuccess((int) ConvertStringSidToSidW.invokeExact(StringSid, Sid));
+    }
+
     private static final MethodHandle ConvertSidToStringSidW = downcall(ADV, "ConvertSidToStringSidW", JAVA_INT,
             ADDRESS, ADDRESS);
 
@@ -176,5 +193,32 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
      */
     public static boolean ConvertSidToStringSid(MemorySegment Sid, MemorySegment StringSid) throws Throwable {
         return isSuccess((int) ConvertSidToStringSidW.invokeExact(Sid, StringSid));
+    }
+
+    // Service Control Manager
+
+    private static final MethodHandle OpenSCManagerW = downcall(ADV, "OpenSCManagerW", ADDRESS, ADDRESS, ADDRESS,
+            JAVA_INT);
+
+    public static MemorySegment OpenSCManager(MemorySegment lpMachineName, MemorySegment lpDatabaseName,
+            int dwDesiredAccess) throws Throwable {
+        return (MemorySegment) OpenSCManagerW.invokeExact(lpMachineName, lpDatabaseName, dwDesiredAccess);
+    }
+
+    private static final MethodHandle EnumServicesStatusExW = downcall(ADV, "EnumServicesStatusExW", JAVA_INT, ADDRESS,
+            JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS);
+
+    public static boolean EnumServicesStatusEx(MemorySegment hSCManager, int infoLevel, int dwServiceType,
+            int dwServiceState, MemorySegment lpServices, int cbBufSize, MemorySegment pcbBytesNeeded,
+            MemorySegment lpServicesReturned, MemorySegment lpResumeHandle, MemorySegment pszGroupName)
+            throws Throwable {
+        return isSuccess((int) EnumServicesStatusExW.invokeExact(hSCManager, infoLevel, dwServiceType, dwServiceState,
+                lpServices, cbBufSize, pcbBytesNeeded, lpServicesReturned, lpResumeHandle, pszGroupName));
+    }
+
+    private static final MethodHandle CloseServiceHandle = downcall(ADV, "CloseServiceHandle", JAVA_INT, ADDRESS);
+
+    public static boolean CloseServiceHandle(MemorySegment hSCObject) throws Throwable {
+        return isSuccess((int) CloseServiceHandle.invokeExact(hSCObject));
     }
 }

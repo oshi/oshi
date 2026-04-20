@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.disk.Fsstat;
+import oshi.driver.mac.disk.FsstatFFM;
 import oshi.ffm.mac.CoreFoundation.CFAllocatorRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -61,7 +61,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
             }
             Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
             try {
-                return updateDiskStats(session, Fsstat.queryPartitionToMountMap(), cfKeyMap);
+                return updateDiskStats(session, FsstatFFM.queryPartitionToMountMap(), cfKeyMap);
             } finally {
                 session.release();
                 for (CFStringRef value : cfKeyMap.values()) {
@@ -241,7 +241,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
     }
 
     public static List<HWDiskStore> getDisks() {
-        Map<String, String> mountPointMap = Fsstat.queryPartitionToMountMap();
+        Map<String, String> mountPointMap = FsstatFFM.queryPartitionToMountMap();
         Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
         List<HWDiskStore> diskList = new ArrayList<>();
 

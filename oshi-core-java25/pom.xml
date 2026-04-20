@@ -15,12 +15,12 @@
     <description>oshi-core implementation using FFM</description>
 
     <properties>
-        <oshi.core.basedir>${main.basedir}/oshi-core</oshi.core.basedir>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.testSource>25</maven.compiler.testSource>
         <maven.compiler.testTarget>25</maven.compiler.testTarget>
-        <native.access.modules>com.sun.jna,com.github.oshi</native.access.modules>
+
+        <native.access.modules>com.github.oshi</native.access.modules>
     </properties>
 
     <dependencies>
@@ -33,16 +33,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-jpms</artifactId>
-            <version>${jna.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform-jpms</artifactId>
-            <version>${jna.version}</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
@@ -66,51 +56,22 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${oshi.core.basedir}/src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
-                    <!-- TODO: Remove !oshi.driver.common.* and !oshi.software.common.* exclusions once the
-                         shared oshi-core source tree (build-helper add-source) is removed. The exclusions
-                         prevent split-package errors with oshi-common under JPMS during the transition. -->
-                    <bnd><![CDATA[Export-Package: oshi.ffm.*,oshi.jna.*,!oshi.driver.common.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true;-split-package:=merge-first
+                    <bnd><![CDATA[Export-Package: oshi.ffm.*,!oshi.driver.common.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
                     Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
                     Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                     -snapshot: SNAPSHOT]]></bnd>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-sources</id>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sources>
-                                <!-- Copy source files from oshi-core -->
-                                <!-- TODO: Remove once oshi-core-java25 fully replaces oshi-core -->
-                                <source>${oshi.core.basedir}/src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
             <plugin>
@@ -134,7 +95,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
-                    <sourcepath>${project.basedir}/src/main/java:${oshi.core.basedir}/src/main/java</sourcepath>
                 </configuration>
             </plugin>
         </plugins>

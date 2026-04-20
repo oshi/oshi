@@ -26,7 +26,7 @@ public class SystemInfoFFM extends oshi.ffm.SystemInfo {
      * Gets the {@link PlatformEnumFFM} value representing this system.
      *
      * @return Returns the current platform
-     * @deprecated Use {@link PlatformEnum#getCurrentPlatform()} instead.
+     * @deprecated Use {@code PlatformEnum#getCurrentPlatform()} instead.
      */
     @Deprecated
     public static PlatformEnumFFM getCurrentPlatform() {
