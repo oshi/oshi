@@ -44,7 +44,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     private long currentQueueLength = 0L;
     private long transferTime = 0L;
     private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
+    private List<HWPartition> partitionList = Collections.emptyList();
 
     protected WindowsHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -122,7 +122,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         if (!partitions.isEmpty()) {
             index = Integer.toString(partitions.get(0).getMajor());
         } else if (getName().startsWith(PHYSICALDRIVE_PREFIX)) {
-            index = getName().substring(PHYSICALDRIVE_PREFIX.length(), getName().length());
+            index = getName().substring(PHYSICALDRIVE_PREFIX.length());
         } else {
             LOG.warn("Couldn't match index for {}", getName());
             return false;
@@ -140,7 +140,8 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * Queries performance counter data for disk read/write stats.
      *
      * @param index The disk index to query, or null for all disks
-     * @return A DiskStats object with populated maps
+     * @return A non-null {@link DiskStats} object; its maps (e.g. {@link DiskStats#getReadMap()}) are never null but
+     *         may be empty if no counters matched the given index
      */
     protected abstract DiskStats queryReadWriteStats(String index);
 
@@ -166,6 +167,9 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
         if (instances.isEmpty() || readList == null || readByteList == null || writeList == null
                 || writeByteList == null || queueLengthList == null || diskTimeList == null) {
+            LOG.debug("Empty disk stats for index {}: instances={}, counters null: r={} rb={} w={} wb={} ql={} dt={}",
+                    index, instances.isEmpty(), readList == null, readByteList == null, writeList == null,
+                    writeByteList == null, queueLengthList == null, diskTimeList == null);
             return stats;
         }
         for (int i = 0; i < instances.size(); i++) {
@@ -245,10 +249,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * @return The first space-delimited value
      */
     protected static String getIndexFromName(String s) {
-        if (s.isEmpty()) {
-            return s;
-        }
-        return s.split("\\s")[0];
+        return s.split("\\s", 2)[0];
     }
 
     /**

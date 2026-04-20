@@ -80,7 +80,9 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                         lpcbData.set(JAVA_INT, 0, 1);
 
                         int rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, dummyBuf, lpcbData);
-                        if (rc == ERROR_MORE_DATA) {
+                        if (rc != ERROR_MORE_DATA) {
+                            LOG.debug("Sizing call for EDID data for monitor {}: rc={}", i, rc);
+                        } else {
                             int size = lpcbData.get(JAVA_INT, 0);
                             MemorySegment edidBuf = arena.allocate(size);
                             lpcbData.set(JAVA_INT, 0, size);
@@ -88,6 +90,8 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                             if (rc == ERROR_SUCCESS) {
                                 byte[] edid = edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
                                 displays.add(new WindowsDisplayFFM(edid));
+                            } else {
+                                LOG.debug("Failed to read EDID data for monitor {}: rc={}", i, rc);
                             }
                         }
                     } catch (Throwable t) {

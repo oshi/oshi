@@ -8,7 +8,9 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -110,23 +112,20 @@ final class WindowsGlobalMemoryFFM extends WindowsGlobalMemory {
             int size = (int) PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT.byteSize();
             if (!PsapiFFM.GetPerformanceInfo(perfInfo, size)) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32FFM.GetLastError().orElse(-1));
-                return new Triplet<>(0L, 0L, 4098L);
+                return new Triplet<>(0L, 0L, 4096L);
             }
-            long pageSize = perfInfo.get(java.lang.foreign.ValueLayout.JAVA_LONG,
-                    PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
-                            .byteOffset(java.lang.foreign.MemoryLayout.PathElement.groupElement("PageSize")));
-            long physAvail = perfInfo.get(java.lang.foreign.ValueLayout.JAVA_LONG,
-                    PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
-                            .byteOffset(java.lang.foreign.MemoryLayout.PathElement.groupElement("PhysicalAvailable")));
-            long physTotal = perfInfo.get(java.lang.foreign.ValueLayout.JAVA_LONG,
-                    PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
-                            .byteOffset(java.lang.foreign.MemoryLayout.PathElement.groupElement("PhysicalTotal")));
+            long pageSize = perfInfo.get(ValueLayout.JAVA_LONG, PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
+                    .byteOffset(MemoryLayout.PathElement.groupElement("PageSize")));
+            long physAvail = perfInfo.get(ValueLayout.JAVA_LONG, PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
+                    .byteOffset(MemoryLayout.PathElement.groupElement("PhysicalAvailable")));
+            long physTotal = perfInfo.get(ValueLayout.JAVA_LONG, PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT
+                    .byteOffset(MemoryLayout.PathElement.groupElement("PhysicalTotal")));
             long memAvailable = pageSize * physAvail;
             long memTotal = pageSize * physTotal;
             return new Triplet<>(memAvailable, memTotal, pageSize);
         } catch (Throwable t) {
             LOG.error("Failed to get Performance Info: {}", t.getMessage());
-            return new Triplet<>(0L, 0L, 4098L);
+            return new Triplet<>(0L, 0L, 4096L);
         }
     }
 }

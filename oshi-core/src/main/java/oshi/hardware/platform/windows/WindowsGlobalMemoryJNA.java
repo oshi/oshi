@@ -66,7 +66,7 @@ final class WindowsGlobalMemoryJNA extends WindowsGlobalMemory {
     }
 
     private VirtualMemory createVirtualMemory() {
-        return new WindowsVirtualMemory(this);
+        return new WindowsVirtualMemoryJNA(this);
     }
 
     @Override
@@ -108,7 +108,7 @@ final class WindowsGlobalMemoryJNA extends WindowsGlobalMemory {
         try (CloseablePerformanceInformation performanceInfo = new CloseablePerformanceInformation()) {
             if (!Psapi.INSTANCE.GetPerformanceInfo(performanceInfo, performanceInfo.size())) {
                 LOG.error("Failed to get Performance Info. Error code: {}", Kernel32.INSTANCE.GetLastError());
-                return new Triplet<>(0L, 0L, 4098L);
+                return new Triplet<>(0L, 0L, 4096L);
             }
             long pageSize = performanceInfo.PageSize.longValue();
             long memAvailable = pageSize * performanceInfo.PhysicalAvailable.longValue();

@@ -36,12 +36,12 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
 
     // Previous sample for utility base multiplier calculation
-    private Map<ProcessorUtilityTickCountProperty, List<Long>> initialUtilityCounters;
+    private volatile Map<ProcessorUtilityTickCountProperty, List<Long>> initialUtilityCounters;
     // Lazily initialized
     private Long utilityBaseMultiplier;
 
     /**
-     * Subclasses must implement this to check Windows 8 or greater.
+     * Checks whether the OS version is Windows 8 or greater using system property 'os.version'.
      *
      * @return true if Windows 8 or greater
      */
@@ -90,18 +90,14 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @param logProcs the list of logical processors
      */
     protected void buildNumaNodeProcMap(List<LogicalProcessor> logProcs) {
-        int curNode = -1;
-        int procNum = 0;
+        Map<Integer, Integer> nextProcIndexByNode = new HashMap<>();
         int lp = 0;
         this.numaNodeProcToLogicalProcMap = new HashMap<>();
         for (LogicalProcessor logProc : logProcs) {
             int node = logProc.getNumaNode();
-            if (node != curNode) {
-                curNode = node;
-                procNum = 0;
-            }
-            numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", logProc.getNumaNode(), procNum++),
-                    lp++);
+            int procNum = nextProcIndexByNode.getOrDefault(node, 0);
+            numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", node, procNum), lp++);
+            nextProcIndexByNode.put(node, procNum + 1);
         }
     }
 
@@ -201,28 +197,47 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
                         || initProcessorUtilityBase == null))) {
             return ticks;
         }
-        for (String instance : instances) {
-            int cpu = instance.contains(",") ? getNumaNodeProcToLogicalProcMap().getOrDefault(instance, 0)
-                    : ParseUtil.parseIntOrDefault(instance, 0);
-            if (cpu >= ncpu) {
+        int size = instances.size();
+        if (systemList.size() < size || userList.size() < size || irqList.size() < size || softIrqList.size() < size
+                || idleList.size() < size) {
+            return ticks;
+        }
+        if (USE_CPU_UTILITY && (baseList.size() < size || systemUtility.size() < size || processorUtility.size() < size
+                || processorUtilityBase.size() < size || initSystemList.size() < size || initUserList.size() < size
+                || initBase.size() < size || initSystemUtility.size() < size || initProcessorUtility.size() < size
+                || initProcessorUtilityBase.size() < size)) {
+            return ticks;
+        }
+        for (int i = 0; i < instances.size(); i++) {
+            String instance = instances.get(i);
+            int cpu;
+            if (instance.contains(",")) {
+                if (!getNumaNodeProcToLogicalProcMap().containsKey(instance)) {
+                    continue;
+                }
+                cpu = getNumaNodeProcToLogicalProcMap().get(instance);
+            } else {
+                cpu = ParseUtil.parseIntOrDefault(instance, -1);
+            }
+            if (cpu < 0 || cpu >= ncpu) {
                 continue;
             }
-            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(cpu);
-            ticks[cpu][TickType.USER.getIndex()] = userList.get(cpu);
-            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(cpu);
-            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(cpu);
-            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(cpu);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = systemList.get(i);
+            ticks[cpu][TickType.USER.getIndex()] = userList.get(i);
+            ticks[cpu][TickType.IRQ.getIndex()] = irqList.get(i);
+            ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(i);
+            ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(i);
 
             if (USE_CPU_UTILITY) {
-                long deltaT = baseList.get(cpu) - initBase.get(cpu);
+                long deltaT = baseList.get(i) - initBase.get(i);
                 if (deltaT > 0) {
-                    long deltaBase = processorUtilityBase.get(cpu) - initProcessorUtilityBase.get(cpu);
+                    long deltaBase = processorUtilityBase.get(i) - initProcessorUtilityBase.get(i);
                     long multiplier = lazilyCalculateMultiplier(deltaBase, deltaT);
                     if (multiplier > 0) {
-                        long deltaProc = processorUtility.get(cpu) - initProcessorUtility.get(cpu);
-                        long deltaSys = systemUtility.get(cpu) - initSystemUtility.get(cpu);
-                        long newUser = initUserList.get(cpu) + multiplier * (deltaProc - deltaSys) / 100;
-                        long newSystem = initSystemList.get(cpu) + multiplier * deltaSys / 100;
+                        long deltaProc = processorUtility.get(i) - initProcessorUtility.get(i);
+                        long deltaSys = systemUtility.get(i) - initSystemUtility.get(i);
+                        long newUser = initUserList.get(i) + multiplier * (deltaProc - deltaSys) / 100;
+                        long newSystem = initSystemList.get(i) + multiplier * deltaSys / 100;
                         long delta = newUser - ticks[cpu][TickType.USER.getIndex()];
                         ticks[cpu][TickType.USER.getIndex()] = newUser;
                         delta += newSystem - ticks[cpu][TickType.SYSTEM.getIndex()];

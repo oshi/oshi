@@ -37,9 +37,20 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
 
     public static List<SoundCard> getSoundCards() {
         List<SoundCard> soundCards = new ArrayList<>();
+        String[] keys;
         try {
-            String[] keys = Advapi32UtilFFM.registryGetKeys(HKLM, REGISTRY_SOUNDCARDS, 0);
-            for (String key : keys) {
+            keys = Advapi32UtilFFM.registryGetKeys(HKLM, REGISTRY_SOUNDCARDS, 0);
+        } catch (Win32Exception e) {
+            if (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
+                throw e;
+            }
+            return soundCards;
+        } catch (Throwable t) { // NOSONAR squid:S1181
+            LOG.debug("Failed to enumerate sound card registry keys: {}", t.getMessage());
+            return soundCards;
+        }
+        for (String key : keys) {
+            try {
                 String fullKey = REGISTRY_SOUNDCARDS + key;
                 if (Advapi32UtilFFM.registryValueExists(HKLM, fullKey, "Driver")) {
                     String driver = getRegString(fullKey, "Driver");
@@ -49,13 +60,13 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
                     soundCards.add(new WindowsSoundCardFFM(driver + " " + driverVersion,
                             providerName + " " + driverDesc, driverDesc));
                 }
+            } catch (Win32Exception e) {
+                if (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
+                    throw e;
+                }
+            } catch (Throwable t) { // NOSONAR squid:S1181
+                LOG.debug("Failed to read sound card registry key {}: {}", key, t.getMessage());
             }
-        } catch (Win32Exception e) {
-            if (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
-                throw e;
-            }
-        } catch (Throwable t) { // NOSONAR squid:S1181
-            LOG.debug("Failed to enumerate sound cards from registry: {}", t.getMessage());
         }
         return soundCards;
     }

@@ -21,7 +21,7 @@ public final class PsapiFFM extends WindowsForeignFunctions {
     private static final MethodHandle GetPerformanceInfo = downcall(PSAPI, "GetPerformanceInfo", JAVA_INT, ADDRESS,
             JAVA_INT);
 
-    // PERFORMANCE_INFORMATION struct (64-bit): DWORD cb + 9 SIZE_T + 3 DWORD
+    // PERFORMANCE_INFORMATION struct (64-bit): DWORD cb + 10 SIZE_T + 3 DWORD
     public static final StructLayout PERFORMANCE_INFORMATION_LAYOUT = MemoryLayout.structLayout(JAVA_INT.withName("cb"),
             MemoryLayout.paddingLayout(4), JAVA_LONG.withName("CommitTotal"), JAVA_LONG.withName("CommitLimit"),
             JAVA_LONG.withName("CommitPeak"), JAVA_LONG.withName("PhysicalTotal"),

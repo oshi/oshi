@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,15 +178,9 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 .getLogicalProcessorInformationEx();
         buildNumaNodeProcMap(lpi.getA());
 
-        List<String> featureFlags = Arrays.stream(PROCESSOR_FEATURES).filter(Kernel32FFM::IsProcessorFeaturePresent)
-                .mapToObj(f -> {
-                    for (int i = 0; i < PROCESSOR_FEATURES.length; i++) {
-                        if (PROCESSOR_FEATURES[i] == f) {
-                            return PROCESSOR_FEATURE_NAMES[i];
-                        }
-                    }
-                    return "UNKNOWN_" + f;
-                }).collect(Collectors.toList());
+        List<String> featureFlags = IntStream.range(0, PROCESSOR_FEATURES.length)
+                .filter(i -> Kernel32FFM.IsProcessorFeaturePresent(PROCESSOR_FEATURES[i]))
+                .mapToObj(i -> PROCESSOR_FEATURE_NAMES[i]).collect(Collectors.toList());
         return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
@@ -236,18 +231,28 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
             List<String> instances = instanceValuePair.getA();
             Map<ProcessorFrequencyProperty, List<Long>> valueMap = instanceValuePair.getB();
             List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
-            if (!instances.isEmpty()) {
+            if (!instances.isEmpty() && percentMaxList != null) {
                 long maxFreq = this.getMaxFreq();
-                long[] freqs = new long[getLogicalProcessorCount()];
-                for (String instance : instances) {
-                    int cpu = instance.contains(",") ? getNumaNodeProcToLogicalProcMap().getOrDefault(instance, 0)
-                            : ParseUtil.parseIntOrDefault(instance, 0);
-                    if (cpu >= getLogicalProcessorCount()) {
-                        continue;
+                if (maxFreq > 0) {
+                    long[] freqs = new long[getLogicalProcessorCount()];
+                    for (int i = 0; i < instances.size(); i++) {
+                        String instance = instances.get(i);
+                        int cpu;
+                        if (instance.contains(",")) {
+                            if (!getNumaNodeProcToLogicalProcMap().containsKey(instance)) {
+                                continue;
+                            }
+                            cpu = getNumaNodeProcToLogicalProcMap().get(instance);
+                        } else {
+                            cpu = ParseUtil.parseIntOrDefault(instance, -1);
+                        }
+                        if (cpu < 0 || cpu >= getLogicalProcessorCount() || i >= percentMaxList.size()) {
+                            continue;
+                        }
+                        freqs[cpu] = percentMaxList.get(i) * maxFreq / 100L;
                     }
-                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;
+                    return freqs;
                 }
-                return freqs;
             }
         }
         return queryNTPower(2);

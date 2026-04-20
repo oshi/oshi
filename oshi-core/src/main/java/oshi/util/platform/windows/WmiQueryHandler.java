@@ -12,13 +12,13 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.Ole32;
-import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.COM.COMUtils;
 import com.sun.jna.platform.win32.COM.Wbemcli;
 import com.sun.jna.platform.win32.COM.WbemcliUtil;
+import com.sun.jna.platform.win32.Ole32;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.platform.win32.WinNT;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.GlobalConfig;
@@ -158,15 +158,21 @@ public class WmiQueryHandler {
     }
 
     /**
-     * COM Exception handler. Logs a warning message.
+     * COM Exception handler. Logs at debug level for known-optional classes, otherwise warns.
      *
      * @param query a {@link com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery} object.
      * @param ex    a {@link com.sun.jna.platform.win32.COM.COMException} object.
      */
     protected void handleComException(WbemcliUtil.WmiQuery<?> query, COMException ex) {
-        LOG.warn(
-                "COM exception querying {}, which might not be on your system. Will not attempt to query it again. Error was {}: {}",
-                query.getWmiClassName(), ex.getHresult() == null ? null : ex.getHresult().intValue(), ex.getMessage());
+        String msg = "COM exception querying {}, which might not be on your system."
+                + " Will not attempt to query it again. Error was {}: {}";
+        Object[] args = { query.getWmiClassName(), ex.getHresult() == null ? null : ex.getHresult().intValue(),
+                ex.getMessage() };
+        if ("MSAcpi_ThermalZoneTemperature".equals(query.getWmiClassName())) {
+            LOG.debug(msg, args);
+        } else {
+            LOG.warn(msg, args);
+        }
     }
 
     /**

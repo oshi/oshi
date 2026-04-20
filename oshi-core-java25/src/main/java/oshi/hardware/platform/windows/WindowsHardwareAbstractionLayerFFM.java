@@ -23,8 +23,8 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 
 /**
- * FFM-based hardware abstraction layer for Windows. Extends {@link WindowsHardwareAbstractionLayer}, overriding methods
- * as FFM implementations become available.
+ * FFM-based hardware abstraction layer for Windows. Extends {@link AbstractHardwareAbstractionLayer} with pure-FFM
+ * implementations for all Windows hardware components.
  */
 @ThreadSafe
 public final class WindowsHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {

@@ -99,9 +99,9 @@ final class WindowsGpuStatsFFM implements GpuStats {
         }
         long totalActive = 0L;
         long totalBase = 0L;
-        for (String key : activeByType.keySet()) {
-            totalActive += activeByType.get(key);
-            totalBase += baseByType.getOrDefault(key, 0L);
+        for (Map.Entry<String, Long> entry : activeByType.entrySet()) {
+            totalActive += entry.getValue();
+            totalBase += baseByType.getOrDefault(entry.getKey(), 0L);
         }
         long idle = totalBase >= totalActive ? totalBase - totalActive : 0L;
         return new GpuTicks(totalActive, idle);
@@ -126,6 +126,11 @@ final class WindowsGpuStatsFFM implements GpuStats {
         if (prevUtilTicks != null) {
             long dActive = curr.getActiveTicks() - prevUtilTicks.getActiveTicks();
             long dIdle = curr.getIdleTicks() - prevUtilTicks.getIdleTicks();
+            if (dActive < 0 || dIdle < 0) {
+                // Counter reset or empty snapshot; discard and wait for next sample
+                prevUtilTicks = curr;
+                return -1d;
+            }
             long dTotal = dActive + dIdle;
             prevUtilTicks = curr;
             return dTotal > 0 ? dActive * 100.0 / dTotal : -1d;

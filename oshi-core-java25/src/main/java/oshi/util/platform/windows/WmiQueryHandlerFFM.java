@@ -332,16 +332,20 @@ public class WmiQueryHandlerFFM {
     }
 
     /**
-     * COM Exception handler. Logs a warning message.
+     * COM Exception handler. Logs at debug level for known-optional classes, otherwise warns.
      *
      * @param query a WmiQuery object
      * @param ex    a FfmComException object
      */
     protected void handleComException(WbemcliUtilFFM.WmiQuery<?> query, FfmComException ex) {
-        LOG.warn(
-                "COM exception querying {}, which might not be on your system."
-                        + " Will not attempt to query it again. Error was {}: {}",
-                query.getWmiClassName(), ex.getHresult(), ex.getMessage());
+        String msg = "COM exception querying {}, which might not be on your system."
+                + " Will not attempt to query it again. Error was {}: {}";
+        Object[] args = { query.getWmiClassName(), ex.getHresult(), ex.getMessage() };
+        if ("MSAcpi_ThermalZoneTemperature".equals(query.getWmiClassName())) {
+            LOG.debug(msg, args);
+        } else {
+            LOG.warn(msg, args);
+        }
     }
 
     /**

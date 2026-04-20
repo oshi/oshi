@@ -4,6 +4,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +55,8 @@ final class MacDisplayFFM extends AbstractDisplay {
                             : sdService.getChildEntry(childEntryName);
                     if (propertySource != null) {
                         try {
-                            java.lang.foreign.MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
-                            if (edidRaw != null && !edidRaw.equals(java.lang.foreign.MemorySegment.NULL)) {
+                            MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
+                            if (edidRaw != null && !edidRaw.equals(MemorySegment.NULL)) {
                                 CFDataRef edid = new CFDataRef(edidRaw);
                                 try {
                                     byte[] bytes = edid.getBytes();

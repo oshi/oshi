@@ -109,7 +109,8 @@ public final class Cfgmgr32FFM extends WindowsForeignFunctions {
      */
     public static String getDeviceId(int dnDevInst, Arena arena) {
         try {
-            MemorySegment buf = arena.allocate(520); // MAX_DEVICE_ID_LEN = 260 chars * 2
+            MemorySegment buf = arena.allocate(520); // MAX_DEVICE_ID_LEN = 200 chars * 2 = 400 bytes; 520 provides
+                                                     // margin
             if (CM_Get_Device_ID(dnDevInst, buf, 260, 0) == CR_SUCCESS) {
                 return readWideString(buf);
             }

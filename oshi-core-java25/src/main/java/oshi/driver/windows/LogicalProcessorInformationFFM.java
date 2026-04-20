@@ -174,16 +174,22 @@ public final class LogicalProcessorInformationFFM {
 
     private static void parseNumaNode(MemorySegment buffer, int baseOffset, List<long[]> numaNodes) {
         // NUMA_NODE_RELATIONSHIP at offset 8:
-        // NodeNumber (DWORD at 0), Reserved[18] (at 4), padding (2 bytes at 22)
-        // GroupCount (WORD at 24), then union: GroupMask (GROUP_AFFINITY at 26) or GroupMasks[]
-        // Actually for Win7+: NodeNumber(4), Reserved[18](18), padding(2), GroupCount(2), GroupMasks(16 each)
-        // Simpler layout: NodeNumber(4), Reserved[20](20), GroupMask(16)
+        // NodeNumber (DWORD at 0), Reserved[18] (at 4), GroupCount (WORD at 22),
+        // GroupMasks[] (GROUP_AFFINITY[GroupCount] at 24, each 16 bytes: KAFFINITY mask + WORD group + WORD[3]
+        // reserved)
         int dataOffset = baseOffset + 8;
         int nodeNumber = buffer.get(ValueLayout.JAVA_INT, dataOffset);
-        // GROUP_AFFINITY at dataOffset + 24: Mask(8), Group(2), Reserved(6)
-        long mask = buffer.get(ValueLayout.JAVA_LONG, dataOffset + 24);
-        int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 24 + 8));
-        numaNodes.add(new long[] { nodeNumber, group, mask });
+        int groupCount = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 22));
+        if (groupCount == 0) {
+            // Pre-20H2: single GROUP_AFFINITY at offset 24
+            groupCount = 1;
+        }
+        for (int i = 0; i < groupCount; i++) {
+            int affinityOffset = dataOffset + 24 + i * 16;
+            long mask = buffer.get(ValueLayout.JAVA_LONG, affinityOffset);
+            int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, affinityOffset + 8));
+            numaNodes.add(new long[] { nodeNumber, group, mask });
+        }
     }
 
     private static void parseCache(MemorySegment buffer, int baseOffset, Set<ProcessorCache> caches) {
@@ -196,7 +202,9 @@ public final class LogicalProcessorInformationFFM {
         int lineSize = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 2));
         int cacheSize = buffer.get(ValueLayout.JAVA_INT, dataOffset + 4);
         int type = buffer.get(ValueLayout.JAVA_INT, dataOffset + 8);
-        caches.add(new ProcessorCache(level, associativity, lineSize, cacheSize, Type.values()[type]));
+        Type[] types = Type.values();
+        Type cacheType = (type >= 0 && type < types.length) ? types[type] : Type.UNIFIED;
+        caches.add(new ProcessorCache(level, associativity, lineSize, cacheSize, cacheType));
     }
 
     private static void parsePackage(MemorySegment buffer, int baseOffset, List<List<long[]>> packages) {

@@ -30,26 +30,26 @@ import oshi.util.tuples.Triplet;
  * Memory obtained from WMI
  */
 @ThreadSafe
-final class WindowsVirtualMemory extends AbstractVirtualMemory {
+final class WindowsVirtualMemoryJNA extends AbstractVirtualMemory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemoryJNA.class);
 
     private final WindowsGlobalMemoryJNA global;
 
-    private final Supplier<Long> used = memoize(WindowsVirtualMemory::querySwapUsed, defaultExpiration());
+    private final Supplier<Long> used = memoize(WindowsVirtualMemoryJNA::querySwapUsed, defaultExpiration());
 
     private final Supplier<Triplet<Long, Long, Long>> totalVmaxVused = memoize(
-            WindowsVirtualMemory::querySwapTotalVirtMaxVirtUsed, defaultExpiration());
+            WindowsVirtualMemoryJNA::querySwapTotalVirtMaxVirtUsed, defaultExpiration());
 
-    private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemory::queryPageSwaps,
+    private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemoryJNA::queryPageSwaps,
             defaultExpiration());
 
     /**
-     * Constructor for WindowsVirtualMemory.
+     * Constructor for WindowsVirtualMemoryJNA.
      *
      * @param windowsGlobalMemory The parent global memory class instantiating this
      */
-    WindowsVirtualMemory(WindowsGlobalMemoryJNA windowsGlobalMemory) {
+    WindowsVirtualMemoryJNA(WindowsGlobalMemoryJNA windowsGlobalMemory) {
         this.global = windowsGlobalMemory;
     }
 

@@ -16,6 +16,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.windows.Cfgmgr32FFM;
 import oshi.ffm.windows.SetupApiFFM;
@@ -26,6 +29,8 @@ import oshi.util.tuples.Quintet;
  */
 @ThreadSafe
 public final class DeviceTreeFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DeviceTreeFFM.class);
 
     private static final int MAX_PATH = 260;
 
@@ -41,6 +46,9 @@ public final class DeviceTreeFFM {
      */
     public static Quintet<Set<Integer>, Map<Integer, Integer>, Map<Integer, String>, Map<Integer, String>, Map<Integer, String>> queryDeviceTree(
             byte[] guidBytes) {
+        if (guidBytes == null || guidBytes.length != 16) {
+            throw new IllegalArgumentException("guidBytes must be exactly 16 bytes");
+        }
         Map<Integer, Integer> parentMap = new HashMap<>();
         Map<Integer, String> nameMap = new HashMap<>();
         Map<Integer, String> deviceIdMap = new HashMap<>();
@@ -108,7 +116,7 @@ public final class DeviceTreeFFM {
                                     }
                                 }
                             } catch (Throwable t) {
-                                // CM_Get_Child/Sibling can throw; skip this node's children
+                                LOG.debug("CM_Get_Child/Sibling threw for node {}", node, t);
                             }
                         }
                     }
