@@ -37,6 +37,7 @@
 * [#3173](https://github.com/oshi/oshi/pull/3173): Migrate Win32LogicalDisk WMI driver to common/JNA/FFM pattern; add WbemcliUtilFFM, WmiUtilFFM, and WmiComparisonTest - [@dbwiddis](https://github.com/dbwiddis).
 * [#3174](https://github.com/oshi/oshi/pull/3174): Migrate all remaining WMI drivers to common/JNA/FFM three-tier pattern - [@dbwiddis](https://github.com/dbwiddis).
 * [#3175](https://github.com/oshi/oshi/pull/3175): Migrate simple WMI-only Windows hardware classes (Baseboard, Firmware, ComputerSystem, Printer) to FFM - [@dbwiddis](https://github.com/dbwiddis).
+* [#3176](https://github.com/oshi/oshi/pull/3176): Migrate all remaining Windows hardware classes to FFM three-tier pattern (Sensors, GpuStats, GlobalMemory, VirtualMemory, LogicalVolumeGroup, SoundCard, NetworkIF, GraphicsCard, Display, UsbDevice, HWDiskStore, CentralProcessor) - [@dbwiddis](https://github.com/dbwiddis).
 
 # 6.11.0 (2026-04-04), 6.11.1 (2026-04-07)
 
