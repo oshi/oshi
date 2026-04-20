@@ -11,6 +11,7 @@ import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
@@ -69,6 +70,11 @@ public final class WindowsHardwareAbstractionLayerFFM extends WindowsHardwareAbs
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
         return WindowsUsbDeviceFFM.getUsbDevices(tree);
+    }
+
+    @Override
+    public List<HWDiskStore> getDiskStores() {
+        return WindowsHWDiskStoreFFM.getDisks();
     }
 
     @Override
