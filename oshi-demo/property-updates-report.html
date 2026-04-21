@@ -57,7 +57,6 @@
               <ul class="dropdown-menu">
                   <li><a href="checkstyle.html">Checkstyle</a></li>
                   <li><a href="apidocs/index.html">Javadoc</a></li>
-                  <li><a href="testapidocs/index.html">Test Javadoc</a></li>
                   <li><a href="xref/index.html">Source Xref</a></li>
                   <li><a href="surefire.html">Surefire</a></li>
                   <li><a href="dependency-updates-report.html">Dependency Updates Report</a></li>
@@ -99,7 +98,7 @@
           <ul class="breadcrumb">
         <li id="publishDate">Last Published: 2026-04-21<span class="divider">|</span>
 </li>
-          <li id="projectVersion">Version: 6.12.0</li>
+          <li id="projectVersion">Version: 7.0.0-SNAPSHOT</li>
           </ul>
         </div>
       </header>
@@ -115,7 +114,6 @@
      <ul class="nav nav-list">
       <li><a href="checkstyle.html">Checkstyle</a></li>
       <li><a href="apidocs/index.html">Javadoc</a></li>
-      <li><a href="testapidocs/index.html">Test Javadoc</a></li>
       <li><a href="xref/index.html">Source Xref</a></li>
       <li><a href="surefire.html">Surefire</a></li>
       <li><a href="dependency-updates-report.html">Dependency Updates Report</a></li>
@@ -145,7 +143,7 @@
 <tr class="b">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties using the latest version available</td>
-<td>30</td></tr>
+<td>31</td></tr>
 <tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
 <td># of properties where the next version available is smaller than an incremental version update</td>
@@ -157,7 +155,7 @@
 <tr class="a">
 <td><img src="images/icon_warning_sml.gif" /></td>
 <td># of properties where the next version available is a minor version update</td>
-<td>2</td></tr>
+<td>1</td></tr>
 <tr class="b">
 <td><img src="images/icon_warning_sml.gif" /></td>
 <td># of properties where the next version available is a major version update</td>
@@ -461,12 +459,12 @@
 <td><b>2.1.0-alpha1</b></td>
 <td></td></tr>
 <tr class="b">
-<td><img src="images/icon_warning_sml.gif" /></td>
+<td><img src="images/icon_success_sml.gif" /></td>
 <td>${sonar-maven-plugin.version}</td>
-<td>5.5.0.6356</td>
+<td>5.6.0.6792</td>
 <td></td>
 <td></td>
-<td><b>5.6.0.6792</b></td>
+<td></td>
 <td></td></tr>
 <tr class="a">
 <td><img src="images/icon_success_sml.gif" /></td>
@@ -1588,7 +1586,7 @@
 <table class="table table-striped">
 <tr class="a">
 <th>Status</th>
-<td style="text-align: left;"><img src="images/icon_warning_sml.gif" />&#160;There is at least one newer minor version available. Minor updates are sometimes passive.</td></tr>
+<td style="text-align: left;"><img src="images/icon_success_sml.gif" />&#160;No newer versions available.</td></tr>
 <tr class="b">
 <th>Property</th>
 <td style="text-align: left;">${sonar-maven-plugin.version}</td></tr>
@@ -1597,23 +1595,20 @@
 <td style="text-align: left;">org.sonarsource.scanner.maven:sonar-maven-plugin</td></tr>
 <tr class="b">
 <th>Current Version</th>
-<td style="text-align: left;">5.5.0.6356</td></tr>
+<td style="text-align: left;">5.6.0.6792</td></tr>
 <tr class="a">
-<th>Newer versions</th>
-<td style="text-align: left;"><b>5.6.0.6792</b>&#160;<i>Latest Minor</i></td></tr>
-<tr class="b">
 <th>Allowed version range</th>
-<td style="text-align: left;">5.5.0.6356</td></tr>
-<tr class="a">
+<td style="text-align: left;">5.6.0.6792</td></tr>
+<tr class="b">
 <th>Infer associations from project</th>
 <td style="text-align: left;">Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <th>Only use release versions</th>
 <td style="text-align: left;">No</td></tr>
-<tr class="a">
+<tr class="b">
 <th>Include projects from reactor</th>
 <td style="text-align: left;">Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <th>Always use reactor projects (even if older or -SNAPSHOT)</th>
 <td style="text-align: left;">Yes</td></tr></table></section><section><a id="a.24.7Bsortpom-plugin.version.7D"></a>
 <h2>${sortpom-plugin.version}</h2>

@@ -30,7 +30,7 @@
         <a class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
         <ul class="dropdown-menu">
             <li><a>Overview</a></li>
-            <li><a href="oshi-core-java11/apidocs/">Javadocs</a></li>
+            <li><a href="oshi-core/apidocs/">Javadocs</a></li>
             <li><a href="FAQ.html">Frequently Asked Questions</a></li>
             <li><a href="Performance.html">Performance Considerations</a></li>
             <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
@@ -70,6 +70,7 @@
 <a href="project-reports.html">Project Reports</a>
               <ul class="dropdown-menu">
                   <li><a href="checkstyle-aggregate.html">Checkstyle</a></li>
+                  <li><a href="apidocs/index.html">Javadoc</a></li>
                   <li><a href="xref/index.html">Source Xref</a></li>
                   <li><a href="xref-test/index.html">Test Source Xref</a></li>
                   <li><a href="surefire.html">Surefire</a></li>
@@ -91,6 +92,7 @@
             <li><a href="oshi-core/index.html">oshi-core</a></li>
             <li><a href="oshi-demo/index.html">oshi-demo</a></li>
             <li><a href="oshi-core-java11/index.html">oshi-core-java11</a></li>
+            <li><a href="oshi-core-ffm/index.html">oshi-core-ffm</a></li>
             <li><a href="oshi-core-java25/index.html">oshi-core-java25</a></li>
             <li><a href="oshi-benchmark/index.html">oshi-benchmark</a></li>
             <li><a href="oshi-dist/index.html">oshi-dist</a></li>
@@ -112,7 +114,7 @@
           <ul class="breadcrumb">
         <li id="publishDate">Last Published: 2026-04-21<span class="divider">|</span>
 </li>
-          <li id="projectVersion">Version: 6.12.0</li>
+          <li id="projectVersion">Version: 7.0.0-SNAPSHOT</li>
           </ul>
         </div>
       </header>
@@ -122,7 +124,7 @@
   <ul class="nav nav-list">
    <li class="nav-header">User guide</li>
     <li class="active"><a>Overview</a></li>
-    <li><a href="oshi-core-java11/apidocs/">Javadocs</a></li>
+    <li><a href="oshi-core/apidocs/">Javadocs</a></li>
     <li><a href="FAQ.html">Frequently Asked Questions</a></li>
     <li><a href="Performance.html">Performance Considerations</a></li>
     <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
@@ -154,6 +156,7 @@
     <li><a href="oshi-core/index.html">oshi-core</a></li>
     <li><a href="oshi-demo/index.html">oshi-demo</a></li>
     <li><a href="oshi-core-java11/index.html">oshi-core-java11</a></li>
+    <li><a href="oshi-core-ffm/index.html">oshi-core-ffm</a></li>
     <li><a href="oshi-core-java25/index.html">oshi-core-java25</a></li>
     <li><a href="oshi-benchmark/index.html">oshi-benchmark</a></li>
     <li><a href="oshi-dist/index.html">oshi-dist</a></li>
@@ -180,8 +183,8 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <p>OSHI provides two native access implementations:</p>
 <ul>
 
-<li><strong>JNA</strong> (<code>oshi-core</code>): Uses <a href="https://github.com/java-native-access/jna" class="externalLink">Java Native Access</a>. Supports JDK 8+.</li>
-<li><strong>FFM</strong> (<code>oshi-core-java25</code>): Uses the JDK <a href="https://openjdk.org/jeps/454" class="externalLink">Foreign Function &amp; Memory API</a>. Requires JDK 25+.</li>
+<li><strong>JNA</strong> (<code>oshi-core</code>): Uses <a href="https://github.com/java-native-access/jna" class="externalLink">Java Native Access</a>. Supports JDK 8+. JPMS module: <code>com.github.oshi</code>.</li>
+<li><strong>FFM</strong> (<code>oshi-core-ffm</code>): Uses the JDK <a href="https://openjdk.org/jeps/454" class="externalLink">Foreign Function &amp; Memory API</a>. Requires JDK 25+.</li>
 </ul><section><section><a id="Supported_Platforms"></a>
 <h2>Supported Platforms</h2>
 <ul>
@@ -194,7 +197,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <h2>Documentation</h2>
 <ul>
 
-<li><a href="https://oshi.github.io/oshi/oshi-core-java11/apidocs/" class="externalLink">API</a> (javadocs)</li>
+<li><a href="https://oshi.github.io/oshi/oshi-core/apidocs/" class="externalLink">API</a> (javadocs)</li>
 <li><a href="src/site/markdown/FAQ.html">FAQ</a></li>
 <li><a href="CHANGELOG.html">Change Log</a></li>
 <li><a href="src/site/markdown/Performance.html">Performance Considerations</a></li>
@@ -206,7 +209,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <p>Stable Release Version</p>
 <ul>
 
-<li>JDK8: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0" class="externalLink">oshi-core-6.12.0</a></li>
+<li>JNA/JDK8: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0" class="externalLink">oshi-core-6.12.0</a></li>
 <li>JPMS: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0" class="externalLink">oshi-core-java11-6.12.0</a></li>
 <li>FFM: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0" class="externalLink">oshi-core-java25-6.12.0</a></li>
 <li>JDK6: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0" class="externalLink">oshi-core-3.14.0</a></li>
@@ -214,12 +217,11 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <p>Current Development (SNAPSHOT) downloads</p>
 <ul>
 
-<li>JDK8: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT" class="externalLink">oshi-core-7.0.0-SNAPSHOT</a></li>
-<li>JPMS: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/7.0.0-SNAPSHOT/" class="externalLink">oshi-core-java11-7.0.0-SNAPSHOT</a></li>
-<li>FFM: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/7.0.0-SNAPSHOT/" class="externalLink">oshi-core-java25-7.0.0-SNAPSHOT</a></li>
-</ul></section><section><a id="OSHI_Java_25.2B_Module"></a>
-<h2>OSHI Java 25+ Module</h2>
-<p>The <strong><code>oshi-core-java25</code></strong> module provides a complete implementation using the JDK Foreign Function &amp; Memory (FFM) API, with no dependency on JNA.</p>
+<li>JNA/JDK8: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT" class="externalLink">oshi-core-7.0.0-SNAPSHOT</a></li>
+<li>FFM: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/" class="externalLink">oshi-core-ffm-7.0.0-SNAPSHOT</a></li>
+</ul></section><section><a id="OSHI_FFM_Module"></a>
+<h2>OSHI FFM Module</h2>
+<p>The <strong><code>oshi-core-ffm</code></strong> module provides a complete implementation using the JDK Foreign Function &amp; Memory (FFM) API, with no dependency on JNA.</p>
 <ul>
 
 <li><strong>Compatibility:</strong>

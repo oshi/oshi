@@ -30,7 +30,7 @@
         <a class="dropdown-toggle" data-toggle="dropdown">User guide <b class="caret"></b></a>
         <ul class="dropdown-menu">
             <li><a href="index.html">Overview</a></li>
-            <li><a href="oshi-core-java11/apidocs/">Javadocs</a></li>
+            <li><a href="oshi-core/apidocs/">Javadocs</a></li>
             <li><a href="FAQ.html">Frequently Asked Questions</a></li>
             <li><a href="Performance.html">Performance Considerations</a></li>
             <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
@@ -70,6 +70,7 @@
 <a href="project-reports.html">Project Reports</a>
               <ul class="dropdown-menu">
                   <li><a href="checkstyle-aggregate.html">Checkstyle</a></li>
+                  <li><a href="apidocs/index.html">Javadoc</a></li>
                   <li><a href="xref/index.html">Source Xref</a></li>
                   <li><a href="xref-test/index.html">Test Source Xref</a></li>
                   <li><a href="surefire.html">Surefire</a></li>
@@ -91,6 +92,7 @@
             <li><a href="oshi-core/index.html">oshi-core</a></li>
             <li><a href="oshi-demo/index.html">oshi-demo</a></li>
             <li><a href="oshi-core-java11/index.html">oshi-core-java11</a></li>
+            <li><a href="oshi-core-ffm/index.html">oshi-core-ffm</a></li>
             <li><a href="oshi-core-java25/index.html">oshi-core-java25</a></li>
             <li><a href="oshi-benchmark/index.html">oshi-benchmark</a></li>
             <li><a href="oshi-dist/index.html">oshi-dist</a></li>
@@ -112,7 +114,7 @@
           <ul class="breadcrumb">
         <li id="publishDate">Last Published: 2026-04-21<span class="divider">|</span>
 </li>
-          <li id="projectVersion">Version: 6.12.0</li>
+          <li id="projectVersion">Version: 7.0.0-SNAPSHOT</li>
           </ul>
         </div>
       </header>
@@ -122,7 +124,7 @@
   <ul class="nav nav-list">
    <li class="nav-header">User guide</li>
     <li><a href="index.html">Overview</a></li>
-    <li><a href="oshi-core-java11/apidocs/">Javadocs</a></li>
+    <li><a href="oshi-core/apidocs/">Javadocs</a></li>
     <li><a href="FAQ.html">Frequently Asked Questions</a></li>
     <li><a href="Performance.html">Performance Considerations</a></li>
     <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
@@ -154,6 +156,7 @@
     <li><a href="oshi-core/index.html">oshi-core</a></li>
     <li><a href="oshi-demo/index.html">oshi-demo</a></li>
     <li><a href="oshi-core-java11/index.html">oshi-core-java11</a></li>
+    <li><a href="oshi-core-ffm/index.html">oshi-core-ffm</a></li>
     <li><a href="oshi-core-java25/index.html">oshi-core-java25</a></li>
     <li><a href="oshi-benchmark/index.html">oshi-benchmark</a></li>
     <li><a href="oshi-dist/index.html">oshi-dist</a></li>
@@ -174,23 +177,23 @@
 <pre>&lt;dependency&gt;
   &lt;groupId&gt;com.github.oshi&lt;/groupId&gt;
   &lt;artifactId&gt;oshi-parent&lt;/artifactId&gt;
-  &lt;version&gt;6.12.0&lt;/version&gt;
+  &lt;version&gt;7.0.0-SNAPSHOT&lt;/version&gt;
   &lt;type&gt;pom&lt;/type&gt;
 &lt;/dependency&gt;</pre></section><section><a id="Apache_Ivy"></a>
 <h2>Apache Ivy</h2>
-<pre>&lt;dependency org=&quot;com.github.oshi&quot; name=&quot;oshi-parent&quot; rev=&quot;6.12.0&quot;&gt;
+<pre>&lt;dependency org=&quot;com.github.oshi&quot; name=&quot;oshi-parent&quot; rev=&quot;7.0.0-SNAPSHOT&quot;&gt;
   &lt;artifact name=&quot;oshi-parent&quot; type=&quot;pom&quot; /&gt;
 &lt;/dependency&gt;</pre></section><section><a id="Groovy_Grape"></a>
 <h2>Groovy Grape</h2>
 <pre>@Grapes(
-@Grab(group='com.github.oshi', module='oshi-parent', version='6.12.0')
+@Grab(group='com.github.oshi', module='oshi-parent', version='7.0.0-SNAPSHOT')
 )</pre></section><section><a id="Gradle.2FGrails"></a>
 <h2>Gradle/Grails</h2>
-<pre>implementation 'com.github.oshi:oshi-parent:6.12.0'</pre></section><section><a id="Scala_SBT"></a>
+<pre>implementation 'com.github.oshi:oshi-parent:7.0.0-SNAPSHOT'</pre></section><section><a id="Scala_SBT"></a>
 <h2>Scala SBT</h2>
-<pre>libraryDependencies += &quot;com.github.oshi&quot; % &quot;oshi-parent&quot; % &quot;6.12.0&quot;</pre></section><section><a id="Leiningen"></a>
+<pre>libraryDependencies += &quot;com.github.oshi&quot; % &quot;oshi-parent&quot; % &quot;7.0.0-SNAPSHOT&quot;</pre></section><section><a id="Leiningen"></a>
 <h2>Leiningen</h2>
-<pre>[com.github.oshi/oshi-parent &quot;6.12.0&quot;]</pre></section></section>        </main>
+<pre>[com.github.oshi/oshi-parent &quot;7.0.0-SNAPSHOT&quot;]</pre></section></section>        </main>
       </div>
     </div>
     <hr/>
