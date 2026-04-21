@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>oshi-core-java25</artifactId>
+            <artifactId>oshi-core-ffm</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

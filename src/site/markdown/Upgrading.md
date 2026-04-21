@@ -1,3 +1,25 @@
+# Guide to upgrading from OSHI 6.x to 7.x
+
+## Maven Artifact Rename
+
+The FFM module artifact has been renamed from `oshi-core-java25` to `oshi-core-ffm`. Update your dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.oshi</groupId>
+    <artifactId>oshi-core-ffm</artifactId>
+    <version>7.0.0</version>
+</dependency>
+```
+
+## JPMS Module Name Change
+
+The JPMS module name for the FFM module has changed from `com.github.oshi` to `com.github.oshi.ffm`. Update your `module-info.java`:
+
+```java
+requires com.github.oshi.ffm;
+```
+
 # Guide to upgrading from OSHI 5.x to 6.x
 
 OSHI 6.0.0 is functionally equivalent to 5.8.7, with minor API updates as noted below.

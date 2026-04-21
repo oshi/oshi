@@ -1,0 +1,26 @@
+--add-opens
+  com.github.oshi.ffm/oshi=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.ffm=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.ffm.util=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.ffm.mac=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.ffm.windows.com=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.driver.windows.perfmon=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.driver.mac=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.driver.mac.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.driver.mac.net=org.junit.platform.commons
+
+--enable-native-access
+  com.github.oshi.ffm
+
+--add-modules
+  org.hamcrest,org.slf4j.simple
+--add-reads
+  com.github.oshi.ffm=org.junit.jupiter.api,org.hamcrest

@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>oshi-core-java25</artifactId>
+            <artifactId>oshi-core-ffm</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -131,7 +131,7 @@
                             <version>${jmh.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                    <!-- Force classpath mode: oshi-core-java25 has a module-info which
+                    <!-- Force classpath mode: oshi-core-ffm has a module-info which
                          triggers JPMS module path inference, breaking the JMH annotation
                          processor. Putting everything on the classpath avoids this. -->
                     <useModulePath>false</useModulePath>

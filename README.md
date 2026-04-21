@@ -12,7 +12,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 OSHI provides two native access implementations:
 - **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+.
-- **FFM** (`oshi-core-java25`): Uses the JDK [Foreign Function & Memory API](https://openjdk.org/jeps/454). Requires JDK 25+.
+- **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function & Memory API](https://openjdk.org/jeps/454). Requires JDK 25+.
 
 Supported Platforms
 ---------------------------
@@ -42,11 +42,11 @@ Stable Release Version
 Current Development (SNAPSHOT) downloads
   * JDK8: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
   * JPMS: [oshi-core-java11-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/7.0.0-SNAPSHOT/)
-  * FFM: [oshi-core-java25-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java25/7.0.0-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
 
-OSHI Java 25+ Module
+OSHI FFM Module
 ----------------------------
-The **`oshi-core-java25`** module provides a complete implementation using the JDK Foreign Function & Memory (FFM) API, with no dependency on JNA.
+The **`oshi-core-ffm`** module provides a complete implementation using the JDK Foreign Function & Memory (FFM) API, with no dependency on JNA.
 
 - **Compatibility:**
   - Requires **JDK 25+**.

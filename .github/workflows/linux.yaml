@@ -13,7 +13,7 @@ on:
 
 jobs:
   # Static analysis: formatting, style, API restrictions, and javadoc link validity.
-  # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-java25 requires JDK 25).
+  # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
   lint:
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)

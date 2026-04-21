@@ -9,116 +9,16 @@
     </parent>
 
     <artifactId>oshi-core-java25</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>oshi-core-java25</name>
-    <description>An FFM-based (native) operating system information library for Java that aims to provide a
-        cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
-
-    <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <maven.compiler.testSource>25</maven.compiler.testSource>
-        <maven.compiler.testTarget>25</maven.compiler.testTarget>
-
-        <native.access.modules>com.github.oshi</native.access.modules>
-    </properties>
+    <description>Deprecated: use oshi-core-ffm instead. This artifact redirects to oshi-core-ffm.</description>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>oshi-common</artifactId>
+            <artifactId>oshi-core-ffm</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest</artifactId>
-            <version>${hamcrest.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>de.thetaphi</groupId>
-                <artifactId>forbiddenapis</artifactId>
-                <configuration>
-                    <failOnUnsupportedJava>false</failOnUnsupportedJava>
-                    <bundledSignatures>
-                        <bundledSignature>jdk-unsafe</bundledSignature>
-                        <bundledSignature>jdk-deprecated</bundledSignature>
-                        <bundledSignature>jdk-non-portable</bundledSignature>
-                        <bundledSignature>jdk-reflection</bundledSignature>
-                        <bundledSignature>jdk-system-out</bundledSignature>
-                    </bundledSignatures>
-                    <signaturesFiles>
-                        <signaturesFile>${main.basedir}/config/forbidden-apis.txt</signaturesFile>
-                        <signaturesFile>${main.basedir}/config/jna-forbidden-apis.txt</signaturesFile>
-                    </signaturesFiles>
-                    <suppressAnnotations>
-                        <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
-                    </suppressAnnotations>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>biz.aQute.bnd</groupId>
-                <artifactId>bnd-maven-plugin</artifactId>
-                <configuration>
-                    <bnd><![CDATA[Export-Package: oshi.ffm.*,!oshi.driver.common.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
-                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
-                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
-                    -snapshot: SNAPSHOT]]></bnd>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>de.sormuras.junit</groupId>
-                <artifactId>junit-platform-maven-plugin</artifactId>
-                <configuration>
-                    <executor>JAVA</executor>
-                    <javaOptions>
-                        <additionalOptions>
-                            <additionalOption>--show-version</additionalOption>
-                        </additionalOptions>
-                    </javaOptions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
