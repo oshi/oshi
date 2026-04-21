@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>CentralProcessorTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../testapidocs/oshi/hardware/CentralProcessorTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.containsString;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.not;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.notNullValue;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.LogicalProcessor;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.PhysicalProcessor;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache.Type;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorIdentifier;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.TickType;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">class</strong> <a name="CentralProcessorTest" href="../../oshi/hardware/CentralProcessorTest.html#CentralProcessorTest">CentralProcessorTest</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Test
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">void</strong> testLogicalProcessorThreeArg() {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          LogicalProcessor lp = <strong class="jxr_keyword">new</strong> LogicalProcessor(2, 1, 0);
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(lp.getProcessorNumber(), is(2));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          assertThat(lp.getPhysicalProcessorNumber(), is(1));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(lp.getPhysicalPackageNumber(), is(0));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(lp.getNumaNode(), is(0));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(lp.getProcessorGroup(), is(0));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(lp.toString(), containsString(<span class="jxr_string">"2"</span>));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      @Test
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">void</strong> testLogicalProcessorFourArg() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          LogicalProcessor lp = <strong class="jxr_keyword">new</strong> LogicalProcessor(3, 1, 0, 1);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(lp.getNumaNode(), is(1));
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(lp.getProcessorGroup(), is(0));
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Test
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">void</strong> testLogicalProcessorFiveArg() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          LogicalProcessor lp = <strong class="jxr_keyword">new</strong> LogicalProcessor(4, 2, 1, 0, 1);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(lp.getProcessorGroup(), is(1));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">void</strong> testPhysicalProcessorTwoArg() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          PhysicalProcessor pp = <strong class="jxr_keyword">new</strong> PhysicalProcessor(0, 1);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(pp.getPhysicalPackageNumber(), is(0));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(pp.getPhysicalProcessorNumber(), is(1));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(pp.getEfficiency(), is(0));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(pp.getIdString(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(pp.toString(), containsString(<span class="jxr_string">"0/1"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      @Test
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">void</strong> testPhysicalProcessorFourArg() {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          PhysicalProcessor pp = <strong class="jxr_keyword">new</strong> PhysicalProcessor(1, 2, 3, <span class="jxr_string">"ARM Cortex-A78"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(pp.getEfficiency(), is(3));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(pp.getIdString(), is(<span class="jxr_string">"ARM Cortex-A78"</span>));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Test
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheGetters() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          ProcessorCache cache = <strong class="jxr_keyword">new</strong> ProcessorCache(2, 8, 64, 262144, Type.UNIFIED);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(cache.getLevel(), is((byte) 2));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(cache.getAssociativity(), is((byte) 8));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(cache.getLineSize(), is((<strong class="jxr_keyword">short</strong>) 64));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(cache.getCacheSize(), is(262144));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertThat(cache.getType(), is(Type.UNIFIED));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertThat(cache.toString(), containsString(<span class="jxr_string">"L2"</span>));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Test
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheEqualsAndHashCode() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          ProcessorCache a = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, Type.DATA);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          ProcessorCache b = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, Type.DATA);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          ProcessorCache c = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, Type.INSTRUCTION);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(a, is(b));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(a.hashCode(), is(b.hashCode()));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(a, is(not(c)));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(a, is(not((Object) <strong class="jxr_keyword">null</strong>)));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(a, is(a));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      @Test
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheTypeToString() {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertThat(Type.UNIFIED.toString(), is(<span class="jxr_string">"Unified"</span>));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(Type.INSTRUCTION.toString(), is(<span class="jxr_string">"Instruction"</span>));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(Type.DATA.toString(), is(<span class="jxr_string">"Data"</span>));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(Type.TRACE.toString(), is(<span class="jxr_string">"Trace"</span>));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Test
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">void</strong> testProcessorIdentifier() {
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"GenuineIntel"</span>, <span class="jxr_string">"Intel(R) Core(TM) i7 @ 3.60GHz"</span>, <span class="jxr_string">"6"</span>, <span class="jxr_string">"158"</span>,
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <span class="jxr_string">"10"</span>, <span class="jxr_string">"BFEBFBFF000906EA"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"GenuineIntel"</span>));
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertThat(id.getName(), containsString(<span class="jxr_string">"Intel"</span>));
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(id.getFamily(), is(<span class="jxr_string">"6"</span>));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(id.getModel(), is(<span class="jxr_string">"158"</span>));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(id.getStepping(), is(<span class="jxr_string">"10"</span>));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(id.getProcessorID(), is(<span class="jxr_string">"BFEBFBFF000906EA"</span>));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(id.isCpu64bit(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(id.getVendorFreq(), is(3_600_000_000L));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(id.getIdentifier(), containsString(<span class="jxr_string">"Intel64"</span>));
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertThat(id.getMicroarchitecture(), is(notNullValue()));
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(id.toString(), containsString(<span class="jxr_string">"Intel64"</span>));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Test
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">void</strong> testProcessorIdentifierWithExplicitFreq() {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"AuthenticAMD"</span>, <span class="jxr_string">"AMD Ryzen 9"</span>, <span class="jxr_string">"25"</span>, <span class="jxr_string">"80"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <span class="jxr_string">"AABBCCDD11223344"</span>, <strong class="jxr_keyword">true</strong>, 4_000_000_000L);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(id.getVendorFreq(), is(4_000_000_000L));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     @Test
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">void</strong> testTickTypeIndex() {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertThat(TickType.USER.getIndex(), is(0));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertThat(TickType.NICE.getIndex(), is(1));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertThat(TickType.SYSTEM.getIndex(), is(2));
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(TickType.IDLE.getIndex(), is(3));
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(TickType.IOWAIT.getIndex(), is(4));
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertThat(TickType.IRQ.getIndex(), is(5));
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertThat(TickType.SOFTIRQ.getIndex(), is(6));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertThat(TickType.STEAL.getIndex(), is(7));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

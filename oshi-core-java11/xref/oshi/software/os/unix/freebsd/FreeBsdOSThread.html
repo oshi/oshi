@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * OSThread implementation</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdOSThread" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSThread.html#FreeBsdOSThread">FreeBsdOSThread</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSThread" href="../../../../../oshi/software/common/AbstractOSThread.html#AbstractOSThread">AbstractOSThread</a> {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdOSThread" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdOSThread.html#FreeBsdOSThread">FreeBsdOSThread</a> <strong class="jxr_keyword">extends</strong> AbstractOSThread {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> threadId;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> String name = <span class="jxr_string">""</span>;
@@ -122,7 +122,7 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a> 
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>     @Override
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         List&lt;String&gt; threadList = <a name="ExecutingCommand" href="../../../../../oshi/util/ExecutingCommand.html#ExecutingCommand">ExecutingCommand</a>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         List&lt;String&gt; threadList = ExecutingCommand
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                 .runNative(<span class="jxr_string">"ps -awwxo "</span> + FreeBsdOSProcess.PS_THREAD_COLUMNS + <span class="jxr_string">" -H -p "</span> + getOwningProcessId());
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         <em class="jxr_comment">// there is no switch for thread in ps command, hence filtering.</em>
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         String lwpStr = Integer.toString(<strong class="jxr_keyword">this</strong>.threadId);

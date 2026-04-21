@@ -30,7 +30,7 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * Hardware data obtained from lsattr</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  @Immutable
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixComputerSystem" href="../../../../../oshi/hardware/platform/unix/aix/AixComputerSystem.html#AixComputerSystem">AixComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractComputerSystem" href="../../../../../oshi/hardware/common/AbstractComputerSystem.html#AbstractComputerSystem">AbstractComputerSystem</a> {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixComputerSystem" href="../../../../../oshi/hardware/platform/unix/aix/AixComputerSystem.html#AixComputerSystem">AixComputerSystem</a> <strong class="jxr_keyword">extends</strong> AbstractComputerSystem {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;LsattrStrings&gt; lsattrStrings = memoize(AixComputerSystem::readLsattr);
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;List&lt;String&gt;&gt; lscfg;
@@ -60,13 +60,13 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      @Override
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <a name="Firmware" href="../../../../../oshi/hardware/Firmware.html#Firmware">Firmware</a> createFirmware() {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> Firmware createFirmware() {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="AixFirmware" href="../../../../../oshi/hardware/platform/unix/aix/AixFirmware.html#AixFirmware">AixFirmware</a>(lsattrStrings.get().biosVendor, lsattrStrings.get().biosPlatformVersion,
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>                  lsattrStrings.get().biosVersion);
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Override
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <a name="Baseboard" href="../../../../../oshi/hardware/Baseboard.html#Baseboard">Baseboard</a> createBaseboard() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> Baseboard createBaseboard() {
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="AixBaseboard" href="../../../../../oshi/hardware/platform/unix/aix/AixBaseboard.html#AixBaseboard">AixBaseboard</a>(lscfg);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  

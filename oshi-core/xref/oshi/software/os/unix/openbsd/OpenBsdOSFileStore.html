@@ -20,7 +20,7 @@
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * OSFileStore implementation</em>
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSFileStore" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSFileStore.html#OpenBsdOSFileStore">OpenBsdOSFileStore</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSFileStore" href="../../../../../oshi/software/common/AbstractOSFileStore.html#AbstractOSFileStore">AbstractOSFileStore</a> {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSFileStore" href="../../../../../oshi/software/os/unix/openbsd/OpenBsdOSFileStore.html#OpenBsdOSFileStore">OpenBsdOSFileStore</a> <strong class="jxr_keyword">extends</strong> AbstractOSFileStore {
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">private</strong> String logicalVolume;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> String description;
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Override
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : OpenBsdFileSystem.getFileStoreMatching(getName(), isLocal())) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">for</strong> (OSFileStore fileStore : OpenBsdFileSystem.getFileStoreMatching(getName(), isLocal())) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">if</strong> (getName().equals(fileStore.getName()) &amp;&amp; getVolume().equals(fileStore.getVolume())
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                      &amp;&amp; getMount().equals(fileStore.getMount())) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <strong class="jxr_keyword">this</strong>.logicalVolume = fileStore.getLogicalVolume();

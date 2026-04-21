@@ -28,7 +28,7 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * Memory obtained by sysctl vm.stats</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdGlobalMemory" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdGlobalMemory.html#FreeBsdGlobalMemory">FreeBsdGlobalMemory</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractGlobalMemory" href="../../../../../oshi/hardware/common/AbstractGlobalMemory.html#AbstractGlobalMemory">AbstractGlobalMemory</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdGlobalMemory" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdGlobalMemory.html#FreeBsdGlobalMemory">FreeBsdGlobalMemory</a> <strong class="jxr_keyword">extends</strong> AbstractGlobalMemory {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Long&gt; available = memoize(<strong class="jxr_keyword">this</strong>::queryVmStats, defaultExpiration());
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Override
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <a name="VirtualMemory" href="../../../../../oshi/hardware/VirtualMemory.html#VirtualMemory">VirtualMemory</a> getVirtualMemory() {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> VirtualMemory getVirtualMemory() {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">return</strong> vm.get();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
@@ -74,7 +74,7 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysconf PAGESIZE"</span>), 4096L);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <a name="VirtualMemory" href="../../../../../oshi/hardware/VirtualMemory.html#VirtualMemory">VirtualMemory</a> createVirtualMemory() {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> VirtualMemory createVirtualMemory() {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="FreeBsdVirtualMemory" href="../../../../../oshi/hardware/platform/unix/freebsd/FreeBsdVirtualMemory.html#FreeBsdVirtualMemory">FreeBsdVirtualMemory</a>(<strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  }

@@ -12,16 +12,16 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm.windows;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.StructLayout;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.structLayout;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.sequenceLayout;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_BYTE;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.sequenceLayout;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemoryLayout.structLayout;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_BYTE;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.StructLayout;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="IPHlpAPIFFM" href="../../../oshi/ffm/windows/IPHlpAPIFFM.html#IPHlpAPIFFM">IPHlpAPIFFM</a> <strong class="jxr_keyword">extends</strong> <a name="WindowsForeignFunctions" href="../../../oshi/ffm/windows/WindowsForeignFunctions.html#WindowsForeignFunctions">WindowsForeignFunctions</a> {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
@@ -109,7 +109,42 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> GetUdpStatisticsEx(MemorySegment stats, <strong class="jxr_keyword">int</strong> family) <strong class="jxr_keyword">throws</strong> Throwable {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) GetUdpStatisticsEx.invokeExact(stats, family);
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <em class="jxr_comment">// GetIfEntry2 for network interface statistics</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle GetIfEntry2 = downcall(IPHlpAPI, <span class="jxr_string">"GetIfEntry2"</span>, JAVA_INT, ADDRESS);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <em class="jxr_comment">// MIB_IF_ROW2 is 1352 bytes on 64-bit Windows. We define key field offsets.</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <em class="jxr_comment">// Layout: InterfaceLuid(8) InterfaceIndex(4) InterfaceGuid(16) Alias(514) Description(514)</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_comment">// PhysicalAddressLength(4) PhysicalAddress(32) PermanentPhysicalAddress(32) Mtu(4) Type(4)</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <em class="jxr_comment">// TunnelType(4) MediaType(4) PhysicalMediumType(4) AccessType(4) DirectionType(4)</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <em class="jxr_comment">// InterfaceAndOperStatusFlags(1+3pad) OperStatus(4) AdminStatus(4) MediaConnectState(4)</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_comment">// NetworkGuid(16) ConnectionType(4+4pad) TransmitLinkSpeed(8) ReceiveLinkSpeed(8)</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <em class="jxr_comment">// InOctets(8) InUcastPkts(8) InNUcastPkts(8) InDiscards(8) InErrors(8) InUnknownProtos(8)</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <em class="jxr_comment">// InUcastOctets(8) InMulticastOctets(8) InBroadcastOctets(8) OutOctets(8) OutUcastPkts(8)</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <em class="jxr_comment">// OutNUcastPkts(8) OutDiscards(8) OutErrors(8) OutUcastOctets(8) OutMulticastOctets(8)</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <em class="jxr_comment">// OutBroadcastOctets(8) OutQLen(8) = 1352</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> MIB_IF_ROW2_SIZE = 1352;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <em class="jxr_comment">// Offsets for fields we need (64-bit Windows):</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_INTERFACE_INDEX = 8;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_ALIAS = 28; <em class="jxr_comment">// WCHAR[IF_MAX_STRING_SIZE + 1] = WCHAR[257]</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_TYPE = 1128; <em class="jxr_comment">// IFTYPE Type</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_PHYSICAL_MEDIUM_TYPE = 1140; <em class="jxr_comment">// NDIS_PHYSICAL_MEDIUM</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_FLAGS = 1152; <em class="jxr_comment">// InterfaceAndOperStatusFlags (byte)</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_OPER_STATUS = 1156; <em class="jxr_comment">// IF_OPER_STATUS</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_RECEIVE_LINK_SPEED = 1200; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_IN_OCTETS = 1208; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_IN_UCAST_PKTS = 1216; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_IN_DISCARDS = 1232; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_IN_ERRORS = 1240; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_OUT_OCTETS = 1280; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_OUT_UCAST_PKTS = 1288; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_OUT_DISCARDS = 1304; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> OFFSET_OUT_ERRORS = 1312; <em class="jxr_comment">// ULONG64</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> GetIfEntry2(MemorySegment pIfRow) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) GetIfEntry2.invokeExact(pIfRow);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

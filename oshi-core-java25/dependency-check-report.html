@@ -91,9 +91,13 @@
                     }
                 });
                 $('#modal-add-header').click(function () {
-                    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">\n   ';
-                    xml += $("#modal-text").text().replace(/\n/g,'\n   ');
-                    xml += '\n</suppressions>';
+                    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd
+                                  https://dependency-check.github.io/DependencyCheck/dependency-suppression.1.4.xsd">
+    ${$("#modal-text").text().replace(/\n/g,'\n    ')}
+</suppressions>`;
                     $('#modal-add-header').toggleClass('active');
                     $('#modal-text').text(xml).focus().select();
                 });
@@ -139,26 +143,26 @@
             }
             function setCopyText(name, matchType, matchValue, suppressType, suppressVal) {
                 var xml =  '<suppress>\n';
-                xml += '   <notes><!'+'[CDATA[\n   file name: ' + name + '\n   ]]'+'></notes>\n';
+                xml += '    <notes><![CDATA[\n    file name: ' + name + '\n    ]]></notes>\n';
                 if (matchType=='packageUrl') {
                     var v = matchValue.match(/^[^@]+/);
                     if (v && v[0]) {
-                        xml += '   <'+matchType+' regex="true">^' + escapeRegExp(v[0]) + '@.*$</'+matchType+'>\n';
+                        xml += '    <'+matchType+' regex="true">^' + escapeRegExp(v[0]) + '@.*$</'+matchType+'>\n';
                     } else {
-                        xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                        xml += '    <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
                     }
                 } else {
-                    xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                    xml += '    <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
                 }
                 if (suppressType=='cpe') {
                     v = suppressVal.match(/^cpe:\/a:[^:]+:[^:]+/);
                     if (v && v[0]) {
-                        xml += '   <'+suppressType+'>' + v[0] + '</'+suppressType+'>\n';
+                        xml += '    <'+suppressType+'>' + v[0] + '</'+suppressType+'>\n';
                     } else {
-                        xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                        xml += '    <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
                     }
                 } else {
-                    xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                    xml += '    <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
                 }
                 xml += '</suppress>';
                 $('#modal-text').text(xml);
@@ -265,7 +269,8 @@
             }
             #modal-text {
                 border: 0;
-                overflow: hidden
+                overflow: auto;
+                white-space: pre;
             }
             #modal-text:focus {
                 outline: none;
@@ -652,8 +657,8 @@
         <div id="modal-background"></div>
         <div id="modal-content">
             <div>Press CTR-C to copy XML&nbsp;<a href="https://dependency-check.github.io/DependencyCheck/general/suppression.html" class="infolink" target="_blank" title="Help with suppressing false positives">[help]</a></div>
-                <button id="modal-suppress-change-to-packageUrl" class="modal-button suppresstype" title="Supress by Maven Group Artifact Version">Suppress By GAV</button>
-                <button id="modal-suppress-change-to-sha1" class="modal-button suppresstype" title="Supress by SHA1 hash">Suppress By SHA1</button><br/>
+                <button id="modal-suppress-change-to-packageUrl" class="modal-button suppresstype" title="Supress by Maven Group Artifact Version">Suppress by Package URL</button>
+                <button id="modal-suppress-change-to-sha1" class="modal-button suppresstype" title="Supress by SHA1 hash">Suppress by SHA1</button><br/>
                 <input type="hidden" id="suppress-name"/>
                 <input type="hidden" id="suppress-type"/><input type="hidden" id="suppress-val"/>
                 <input type="hidden" id="suppress-sha1"/><input type="hidden" id="suppress-packageUrl"/>
@@ -673,21 +678,21 @@ arising out of or in connection with the use of this tool, the analysis performe
 Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issues" target="_blank">github issues</a></h3>
 
             <h2 class="">Project:&nbsp;oshi-core-java25</h2>
-            <h4>com.github.oshi:oshi-core-java25:6.11.0</h4>
+            <h4>com.github.oshi:oshi-core-java25:6.12.0</h4>
             <div class="">
 
                 Scan Information (<a href="#" title="Click to toggle display" id="scanInformationToggle">show all</a>):<br/>
                     <ul class="indent">
-                        <li><i>dependency-check version</i>: 12.2.0</li>
-                        <li><i>Report Generated On</i>: Sat, 4 Apr 2026 16:25:00 GMT</li>
-                        <li><i>Dependencies Scanned</i>:&nbsp;6 (6 unique)</li>
+                        <li><i>dependency-check version</i>: 12.2.1</li>
+                        <li><i>Report Generated On</i>: Tue, 21 Apr 2026 05:05:20 GMT</li>
+                        <li><i>Dependencies Scanned</i>:&nbsp;1 (1 unique)</li>
                         <li><i>Vulnerable Dependencies</i>:&nbsp;<span id="vulnerableCount">0</span></li>
                         <li><i>Vulnerabilities Found</i>:&nbsp;0</li>
                         <li><i>Vulnerabilities Suppressed</i>:&nbsp;0
                         </li>
                         <li class="scaninfo">...</li>
-                        <li class="scaninfo hidden"><i>NVD API Last Checked</i>: 2026-04-04T16:23:36Z</li>
-                        <li class="scaninfo hidden"><i>NVD API Last Modified</i>: 2026-04-04T14:16:21Z</li>
+                        <li class="scaninfo hidden"><i>NVD API Last Checked</i>: 2026-04-21T05:03:45Z</li>
+                        <li class="scaninfo hidden"><i>NVD API Last Modified</i>: 2026-04-21T04:16:13Z</li>
                     </ul><br/>
 <h2>Summary</h2>
                 <p><span id="tablecaption-plain">Summary of Vulnerable Dependencies </span><a href="#" title="Click to toggle display" id="vulnerabilityDisplayToggle">(click to show all)</a></p>
@@ -702,64 +707,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                         <th class="sortable" data-sort="int"    title="The count of evidence collected to identify the CPE">Evidence&nbsp;Count</th>
                     </tr></thead>
                     <tr class="notvulnerable">
-                        <td data-sort-value="JNA-JPMS-5.18.1.JAR"><a href="#l1_79c71e499983f1beaae1ab62afe08b023f189711">jna-jpms-5.18.1.jar</a></td>
-                        <td data-sort-value="">
-                        </td>
-                        <td data-sort-value="pkg:maven/net.java.dev.jna/jna-jpms@5.18.1">
-                                pkg:maven/net.java.dev.jna/jna-jpms@5.18.1
-</td>
-                        <td data-sort-value="-10">&nbsp;</td>
-                        <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>48</td>
-                    </tr>
-                    <tr class="notvulnerable">
-                        <td data-sort-value="JNA-JPMS-5.18.1.JAR: JNIDISPATCH.DLL"><a href="#l2_6b05e299ff2b3eb3b7b7aeac44263f715693607c">jna-jpms-5.18.1.jar: jnidispatch.dll</a></td>
-                        <td data-sort-value="">
-                        </td>
-                        <td data-sort-value="">
-</td>
-                        <td data-sort-value="-10">&nbsp;</td>
-                        <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>2</td>
-                    </tr>
-                    <tr class="notvulnerable">
-                        <td data-sort-value="JNA-JPMS-5.18.1.JAR: JNIDISPATCH.DLL"><a href="#l3_27ff882ac271db547aee520b38e3ba9aa91e136c">jna-jpms-5.18.1.jar: jnidispatch.dll</a></td>
-                        <td data-sort-value="">
-                        </td>
-                        <td data-sort-value="">
-</td>
-                        <td data-sort-value="-10">&nbsp;</td>
-                        <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>2</td>
-                    </tr>
-                    <tr class="notvulnerable">
-                        <td data-sort-value="JNA-JPMS-5.18.1.JAR: JNIDISPATCH.DLL"><a href="#l4_2f5e1cd82cde192905c7510ce99037b67d980640">jna-jpms-5.18.1.jar: jnidispatch.dll</a></td>
-                        <td data-sort-value="">
-                        </td>
-                        <td data-sort-value="">
-</td>
-                        <td data-sort-value="-10">&nbsp;</td>
-                        <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>2</td>
-                    </tr>
-                    <tr class="notvulnerable">
-                        <td data-sort-value="JNA-PLATFORM-JPMS-5.18.1.JAR"><a href="#l5_5aa32680cbb7ebc3ebdd43dd4e6b79ad00a7045f">jna-platform-jpms-5.18.1.jar</a></td>
-                        <td data-sort-value="">
-                        </td>
-                        <td data-sort-value="pkg:maven/net.java.dev.jna/jna-platform-jpms@5.18.1">
-                                pkg:maven/net.java.dev.jna/jna-platform-jpms@5.18.1
-</td>
-                        <td data-sort-value="-10">&nbsp;</td>
-                        <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>42</td>
-                    </tr>
-                    <tr class="notvulnerable">
-                        <td data-sort-value="SLF4J-API-2.0.17.JAR"><a href="#l6_d9e58ac9c7779ba3bf8142aff6c830617a7fe60f">slf4j-api-2.0.17.jar</a></td>
+                        <td data-sort-value="SLF4J-API-2.0.17.JAR"><a href="#l1_d9e58ac9c7779ba3bf8142aff6c830617a7fe60f">slf4j-api-2.0.17.jar</a></td>
                         <td data-sort-value="">
                         </td>
                         <td data-sort-value="pkg:maven/org.slf4j/slf4j-api@2.0.17">
@@ -772,219 +720,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                     </tr>
                 </table>
                 <h2 id="header-dependencies">Dependencies (vulnerable)</h2>
-                     <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l1_79c71e499983f1beaae1ab62afe08b023f189711"></a>jna-jpms-5.18.1.jar</h3>
-                    <div class="subsectioncontent notvulnerable">
-                            <p><b>Description:</b><pre>Java Native Access</pre></p>
-                        <p>
-                            <b>License:</b><pre class="indent">LGPL-2.1-or-later: https://www.gnu.org/licenses/old-licenses/lgpl-2.1
-Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
-                            <b>File&nbsp;Path:</b>&nbsp;/home/runner/.m2/repository/net/java/dev/jna/jna-jpms/5.18.1/jna-jpms-5.18.1.jar<br/>
-                            <b>MD5:</b>&nbsp;85134b440e29dcd2328ca05f90c89c6e<br/>
-                            <b>SHA1:</b>&nbsp;79c71e499983f1beaae1ab62afe08b023f189711<br/>
-                            <b>SHA256:</b>44ac6602808232f3de950a7d0ee9b8c6b99e73733b69461e643576607be74db6
-                                <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java25@6.11.0
-                        </p>
-                        <h4 id="header1" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content1" class="subsectioncontent standardsubsection hidden">
-                            <table class="lined fullwidth" border="0">
-                                <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
-                                    <tr><td>Vendor</td><td>file</td><td>name</td><td>jna-jpms</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>jna</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>native</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>sun</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar (hint)</td><td>package name</td><td>oracle</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-activationpolicy</td><td>lazy</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-category</td><td>jni</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-nativecode</td><td> com/sun/jna/win32-x86/jnidispatch.dll; processor=x86;osname=win32, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=x86-64;osname=win32, com/sun/jna/win32-aarch64/jnidispatch.dll; processor=aarch64;osname=win32, com/sun/jna/win32-x86/jnidispatch.dll; processor=x86;osname=win, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=x86-64;osname=win, com/sun/jna/win32-aarch64/jnidispatch.dll; processor=aarch64;osname=win, com/sun/jna/w32ce-arm/jnidispatch.dll; processor=arm;osname=wince,  com/sun/jna/sunos-x86/libjnidispatch.so; processor=x86;osname=sunos, com/sun/jna/sunos-x86-64/libjnidispatch.so; processor=x86-64;osname=sunos, com/sun/jna/sunos-sparc/libjnidispatch.so; processor=sparc;osname=sunos, com/sun/jna/sunos-sparcv9/libjnidispatch.so; processor=sparcv9;osname=sunos,  com/sun/jna/aix-ppc/libjnidispatch.a; processor=ppc;osname=aix, com/sun/jna/aix-ppc64/libjnidispatch.a; processor=ppc64;osname=aix,  com/sun/jna/linux-ppc/libjnidispatch.so; processor=ppc;osname=linux, com/sun/jna/linux-ppc64/libjnidispatch.so; processor=ppc64;osname=linux, com/sun/jna/linux-ppc64le/libjnidispatch.so; processor=ppc64le;osname=linux, com/sun/jna/linux-x86/libjnidispatch.so; processor=x86;osname=linux, com/sun/jna/linux-x86-64/libjnidispatch.so; processor=x86-64;osname=linux, com/sun/jna/linux-arm/libjnidispatch.so; processor=arm;osname=linux, com/sun/jna/linux-arm/libjnidispatch.so; processor=arm_le;osname=linux, com/sun/jna/linux-armel/libjnidispatch.so; processor=armel;osname=linux, com/sun/jna/linux-aarch64/libjnidispatch.so; processor=aarch64;osname=linux, com/sun/jna/linux-ia64/libjnidispatch.so; processor=ia64;osname=linux, com/sun/jna/linux-sparcv9/libjnidispatch.so; processor=sparcv9;osname=linux, com/sun/jna/linux-mips64el/libjnidispatch.so; processor=mips64el;osname=linux, com/sun/jna/linux-s390x/libjnidispatch.so; processor=S390x;osname=linux, com/sun/jna/linux-loongarch64/libjnidispatch.so; processor=loongarch64;osname=linux, com/sun/jna/linux-riscv64/libjnidispatch.so; processor=riscv64;osname=linux,  com/sun/jna/dragonflybsd-x86-64/libjnidispatch.so; processor=x86-64;osname=dragonflybsd,  com/sun/jna/freebsd-x86/libjnidispatch.so; processor=x86;osname=freebsd, com/sun/jna/freebsd-x86-64/libjnidispatch.so; processor=x86-64;osname=freebsd, com/sun/jna/freebsd-aarch64/libjnidispatch.so; processor=aarch64;osname=freebsd, com/sun/jna/freebsd-ppc64le/libjnidispatch.so; processor=ppc64le;osname=freebsd, com/sun/jna/freebsd-ppc64/libjnidispatch.so; processor=ppc64;osname=freebsd,  com/sun/jna/openbsd-x86/libjnidispatch.so; processor=x86;osname=openbsd, com/sun/jna/openbsd-x86-64/libjnidispatch.so; processor=x86-64;osname=openbsd,  com/sun/jna/darwin-ppc/libjnidispatch.jnilib; osname=macosx;processor=ppc, com/sun/jna/darwin-ppc64/libjnidispatch.jnilib; osname=macosx;processor=ppc64, com/sun/jna/darwin-x86/libjnidispatch.jnilib; osname=macosx;processor=x86, com/sun/jna/darwin-x86-64/libjnidispatch.jnilib; osname=macosx;processor=x86-64, com/sun/jna/darwin-aarch64/libjnidispatch.jnilib; osname=macosx;processor=aarch64 </td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-requiredexecutionenvironment</td><td>JavaSE-1.6</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-symbolicname</td><td>com.sun.jna</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>Implementation-Vendor</td><td>JNA Development Team</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>multi-release</td><td>true</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>specification-vendor</td><td>JNA Development Team</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>artifactid</td><td>jna-jpms</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>artifactid</td><td>jna-jpms</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer email</td><td>mblaesing@doppel-helix.eu</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer id</td><td>twall</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer name</td><td>Matthias Bl&auml;sing</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer name</td><td>Timothy Wall</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>groupid</td><td>net.java.dev.jna</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>name</td><td>Java Native Access</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>url</td><td>java-native-access/jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>file</td><td>name</td><td>jna-jpms</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>library</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>native</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>sun</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>win32</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-activationpolicy</td><td>lazy</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-category</td><td>jni</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>Bundle-Name</td><td>jna</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-nativecode</td><td> com/sun/jna/win32-x86/jnidispatch.dll; processor=x86;osname=win32, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=x86-64;osname=win32, com/sun/jna/win32-aarch64/jnidispatch.dll; processor=aarch64;osname=win32, com/sun/jna/win32-x86/jnidispatch.dll; processor=x86;osname=win, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=x86-64;osname=win, com/sun/jna/win32-aarch64/jnidispatch.dll; processor=aarch64;osname=win, com/sun/jna/w32ce-arm/jnidispatch.dll; processor=arm;osname=wince,  com/sun/jna/sunos-x86/libjnidispatch.so; processor=x86;osname=sunos, com/sun/jna/sunos-x86-64/libjnidispatch.so; processor=x86-64;osname=sunos, com/sun/jna/sunos-sparc/libjnidispatch.so; processor=sparc;osname=sunos, com/sun/jna/sunos-sparcv9/libjnidispatch.so; processor=sparcv9;osname=sunos,  com/sun/jna/aix-ppc/libjnidispatch.a; processor=ppc;osname=aix, com/sun/jna/aix-ppc64/libjnidispatch.a; processor=ppc64;osname=aix,  com/sun/jna/linux-ppc/libjnidispatch.so; processor=ppc;osname=linux, com/sun/jna/linux-ppc64/libjnidispatch.so; processor=ppc64;osname=linux, com/sun/jna/linux-ppc64le/libjnidispatch.so; processor=ppc64le;osname=linux, com/sun/jna/linux-x86/libjnidispatch.so; processor=x86;osname=linux, com/sun/jna/linux-x86-64/libjnidispatch.so; processor=x86-64;osname=linux, com/sun/jna/linux-arm/libjnidispatch.so; processor=arm;osname=linux, com/sun/jna/linux-arm/libjnidispatch.so; processor=arm_le;osname=linux, com/sun/jna/linux-armel/libjnidispatch.so; processor=armel;osname=linux, com/sun/jna/linux-aarch64/libjnidispatch.so; processor=aarch64;osname=linux, com/sun/jna/linux-ia64/libjnidispatch.so; processor=ia64;osname=linux, com/sun/jna/linux-sparcv9/libjnidispatch.so; processor=sparcv9;osname=linux, com/sun/jna/linux-mips64el/libjnidispatch.so; processor=mips64el;osname=linux, com/sun/jna/linux-s390x/libjnidispatch.so; processor=S390x;osname=linux, com/sun/jna/linux-loongarch64/libjnidispatch.so; processor=loongarch64;osname=linux, com/sun/jna/linux-riscv64/libjnidispatch.so; processor=riscv64;osname=linux,  com/sun/jna/dragonflybsd-x86-64/libjnidispatch.so; processor=x86-64;osname=dragonflybsd,  com/sun/jna/freebsd-x86/libjnidispatch.so; processor=x86;osname=freebsd, com/sun/jna/freebsd-x86-64/libjnidispatch.so; processor=x86-64;osname=freebsd, com/sun/jna/freebsd-aarch64/libjnidispatch.so; processor=aarch64;osname=freebsd, com/sun/jna/freebsd-ppc64le/libjnidispatch.so; processor=ppc64le;osname=freebsd, com/sun/jna/freebsd-ppc64/libjnidispatch.so; processor=ppc64;osname=freebsd,  com/sun/jna/openbsd-x86/libjnidispatch.so; processor=x86;osname=openbsd, com/sun/jna/openbsd-x86-64/libjnidispatch.so; processor=x86-64;osname=openbsd,  com/sun/jna/darwin-ppc/libjnidispatch.jnilib; osname=macosx;processor=ppc, com/sun/jna/darwin-ppc64/libjnidispatch.jnilib; osname=macosx;processor=ppc64, com/sun/jna/darwin-x86/libjnidispatch.jnilib; osname=macosx;processor=x86, com/sun/jna/darwin-x86-64/libjnidispatch.jnilib; osname=macosx;processor=x86-64, com/sun/jna/darwin-aarch64/libjnidispatch.jnilib; osname=macosx;processor=aarch64 </td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-requiredexecutionenvironment</td><td>JavaSE-1.6</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-symbolicname</td><td>com.sun.jna</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>Implementation-Title</td><td>com.sun.jna</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>multi-release</td><td>true</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>specification-title</td><td>Java Native Access (JNA)</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>artifactid</td><td>jna-jpms</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer email</td><td>mblaesing@doppel-helix.eu</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer id</td><td>twall</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer name</td><td>Matthias Bl&auml;sing</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer name</td><td>Timothy Wall</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>groupid</td><td>net.java.dev.jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>name</td><td>Java Native Access</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>url</td><td>java-native-access/jna</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>file</td><td>version</td><td>5.18.1</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>Manifest</td><td>Bundle-Version</td><td>5.18.1</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>pom</td><td>version</td><td>5.18.1</td><td>Highest</td></tr>
-                            </table>
-                        </div>
-                        <h4 id="header2" class="subsectionheader white">Identifiers</h4>
-                        <div id="content2" class="subsectioncontent standardsubsection">
-                            <ul>
-                                    <li>pkg:maven/net.java.dev.jna/jna-jpms@5.18.1
-                                    &nbsp;&nbsp;(<i>Confidence</i>:High)
-                                </li>
-                            </ul>
-                        </div>
-                </div>
-                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l2_6b05e299ff2b3eb3b7b7aeac44263f715693607c"></a>jna-jpms-5.18.1.jar: jnidispatch.dll</h3>
-                    <div class="subsectioncontent notvulnerable">
-                        <p>
-                            <b>File&nbsp;Path:</b>&nbsp;/home/runner/.m2/repository/net/java/dev/jna/jna-jpms/5.18.1/jna-jpms-5.18.1.jar/com/sun/jna/win32-aarch64/jnidispatch.dll<br/>
-                            <b>MD5:</b>&nbsp;302945a811fd8e21bcdd5226c73b6f74<br/>
-                            <b>SHA1:</b>&nbsp;6b05e299ff2b3eb3b7b7aeac44263f715693607c<br/>
-                            <b>SHA256:</b>b8f98be314234cf12b5b46c29652f70c0f6abb93ae19b63d3fe2692062aa699d
-                                <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                        </p>
-                        <h4 id="header3" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content3" class="subsectioncontent standardsubsection hidden">
-                            <table class="lined fullwidth" border="0">
-                                <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
-                                    <tr><td>Vendor</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                            </table>
-                        </div>
-                        <h4 id="header4" class="subsectionheader white">Identifiers</h4>
-                        <div id="content4" class="subsectioncontent standardsubsection">
-                            <ul><li><b>None</b></li></ul>
-                        </div>
-                </div>
-                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l3_27ff882ac271db547aee520b38e3ba9aa91e136c"></a>jna-jpms-5.18.1.jar: jnidispatch.dll</h3>
-                    <div class="subsectioncontent notvulnerable">
-                        <p>
-                            <b>File&nbsp;Path:</b>&nbsp;/home/runner/.m2/repository/net/java/dev/jna/jna-jpms/5.18.1/jna-jpms-5.18.1.jar/com/sun/jna/win32-x86-64/jnidispatch.dll<br/>
-                            <b>MD5:</b>&nbsp;2d2475f1f026dd54e9f3e787ae4f81da<br/>
-                            <b>SHA1:</b>&nbsp;27ff882ac271db547aee520b38e3ba9aa91e136c<br/>
-                            <b>SHA256:</b>5a7ff949f6d93d86491eb5b26b1cfc60051168a60622650224b89995ac420023
-                                <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                        </p>
-                        <h4 id="header5" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content5" class="subsectioncontent standardsubsection hidden">
-                            <table class="lined fullwidth" border="0">
-                                <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
-                                    <tr><td>Vendor</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                            </table>
-                        </div>
-                        <h4 id="header6" class="subsectionheader white">Identifiers</h4>
-                        <div id="content6" class="subsectioncontent standardsubsection">
-                            <ul><li><b>None</b></li></ul>
-                        </div>
-                </div>
-                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l4_2f5e1cd82cde192905c7510ce99037b67d980640"></a>jna-jpms-5.18.1.jar: jnidispatch.dll</h3>
-                    <div class="subsectioncontent notvulnerable">
-                        <p>
-                            <b>File&nbsp;Path:</b>&nbsp;/home/runner/.m2/repository/net/java/dev/jna/jna-jpms/5.18.1/jna-jpms-5.18.1.jar/com/sun/jna/win32-x86/jnidispatch.dll<br/>
-                            <b>MD5:</b>&nbsp;0caa1ef75a807f9dde05084fa2219a5c<br/>
-                            <b>SHA1:</b>&nbsp;2f5e1cd82cde192905c7510ce99037b67d980640<br/>
-                            <b>SHA256:</b>752d597cee7e95cb517327146bf42f124c0d6c0bc48b3ecc3b1b3b0531a52f44
-                                <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                        </p>
-                        <h4 id="header7" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content7" class="subsectioncontent standardsubsection hidden">
-                            <table class="lined fullwidth" border="0">
-                                <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
-                                    <tr><td>Vendor</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>file</td><td>name</td><td>jnidispatch</td><td>High</td></tr>
-                            </table>
-                        </div>
-                        <h4 id="header8" class="subsectionheader white">Identifiers</h4>
-                        <div id="content8" class="subsectioncontent standardsubsection">
-                            <ul><li><b>None</b></li></ul>
-                        </div>
-                </div>
-                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l5_5aa32680cbb7ebc3ebdd43dd4e6b79ad00a7045f"></a>jna-platform-jpms-5.18.1.jar</h3>
-                    <div class="subsectioncontent notvulnerable">
-                            <p><b>Description:</b><pre>Java Native Access Platform</pre></p>
-                        <p>
-                            <b>License:</b><pre class="indent">LGPL-2.1-or-later: https://www.gnu.org/licenses/old-licenses/lgpl-2.1
-Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
-                            <b>File&nbsp;Path:</b>&nbsp;/home/runner/.m2/repository/net/java/dev/jna/jna-platform-jpms/5.18.1/jna-platform-jpms-5.18.1.jar<br/>
-                            <b>MD5:</b>&nbsp;6e298eb419c7c18d3ed2498e860e8a72<br/>
-                            <b>SHA1:</b>&nbsp;5aa32680cbb7ebc3ebdd43dd4e6b79ad00a7045f<br/>
-                            <b>SHA256:</b>b8237665b43fe039aaded81ce3afab73e93ac6a133faa60d6796bc865d1f3d57
-                                <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-platform-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java25@6.11.0
-                        </p>
-                        <h4 id="header9" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content9" class="subsectioncontent standardsubsection hidden">
-                            <table class="lined fullwidth" border="0">
-                                <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
-                                    <tr><td>Vendor</td><td>file</td><td>name</td><td>jna-platform-jpms</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>jna</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>platform</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar</td><td>package name</td><td>sun</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>jar (hint)</td><td>package name</td><td>oracle</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-category</td><td>jni</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-requiredexecutionenvironment</td><td>J2SE-1.4</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>bundle-symbolicname</td><td>com.sun.jna.platform</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>Implementation-Vendor</td><td>JNA Development Team</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>multi-release</td><td>true</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>Manifest</td><td>specification-vendor</td><td>JNA Development Team</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>artifactid</td><td>jna-platform-jpms</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>artifactid</td><td>jna-platform-jpms</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer email</td><td>mblaesing@doppel-helix.eu</td><td>Low</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer id</td><td>twall</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer name</td><td>Matthias Bl&auml;sing</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>developer name</td><td>Timothy Wall</td><td>Medium</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>groupid</td><td>net.java.dev.jna</td><td>Highest</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>name</td><td>Java Native Access Platform</td><td>High</td></tr>
-                                    <tr><td>Vendor</td><td>pom</td><td>url</td><td>java-native-access/jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>file</td><td>name</td><td>jna-platform-jpms</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>platform</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>jar</td><td>package name</td><td>sun</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-category</td><td>jni</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>Bundle-Name</td><td>jna-platform</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-requiredexecutionenvironment</td><td>J2SE-1.4</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>bundle-symbolicname</td><td>com.sun.jna.platform</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>Implementation-Title</td><td>com.sun.jna</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>multi-release</td><td>true</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>Manifest</td><td>specification-title</td><td>Java Native Access (JNA)</td><td>Medium</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>artifactid</td><td>jna-platform-jpms</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer email</td><td>mblaesing@doppel-helix.eu</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer id</td><td>twall</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer name</td><td>Matthias Bl&auml;sing</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>developer name</td><td>Timothy Wall</td><td>Low</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>groupid</td><td>net.java.dev.jna</td><td>Highest</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>name</td><td>Java Native Access Platform</td><td>High</td></tr>
-                                    <tr><td>Product</td><td>pom</td><td>url</td><td>java-native-access/jna</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>file</td><td>version</td><td>5.18.1</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>Manifest</td><td>Bundle-Version</td><td>5.18.1</td><td>High</td></tr>
-                                    <tr><td>Version</td><td>pom</td><td>version</td><td>5.18.1</td><td>Highest</td></tr>
-                            </table>
-                        </div>
-                        <h4 id="header10" class="subsectionheader white">Identifiers</h4>
-                        <div id="content10" class="subsectioncontent standardsubsection">
-                            <ul>
-                                    <li>pkg:maven/net.java.dev.jna/jna-platform-jpms@5.18.1
-                                    &nbsp;&nbsp;(<i>Confidence</i>:High)
-                                </li>
-                            </ul>
-                        </div>
-                </div>
-                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l6_d9e58ac9c7779ba3bf8142aff6c830617a7fe60f"></a>slf4j-api-2.0.17.jar</h3>
+                     <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l1_d9e58ac9c7779ba3bf8142aff6c830617a7fe60f"></a>slf4j-api-2.0.17.jar</h3>
                     <div class="subsectioncontent notvulnerable">
                             <p><b>Description:</b><pre>The slf4j API</pre></p>
                         <p>
@@ -994,10 +730,10 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;d9e58ac9c7779ba3bf8142aff6c830617a7fe60f<br/>
                             <b>SHA256:</b>7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832
                                 <br/><b>Referenced In Project/Scope:</b> oshi-core-java25:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-api-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java25@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-api-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java25@6.12.0
                         </p>
-                        <h4 id="header11" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
-                        <div id="content11" class="subsectioncontent standardsubsection hidden">
+                        <h4 id="header1" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
+                        <div id="content1" class="subsectioncontent standardsubsection hidden">
                             <table class="lined fullwidth" border="0">
                                 <tr><th class="left" style="width:10%;">Type</th><th class="left" style="width:10%;">Source</th><th class="left" style="width:20%;">Name</th><th class="left" style="width:50%;">Value</th><th class="left" style="width:10%;">Confidence</th></tr>
                                     <tr><td>Vendor</td><td>file</td><td>name</td><td>slf4j-api</td><td>High</td></tr>
@@ -1031,8 +767,8 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                                     <tr><td>Version</td><td>pom</td><td>version</td><td>2.0.17</td><td>Highest</td></tr>
                             </table>
                         </div>
-                        <h4 id="header12" class="subsectionheader white">Identifiers</h4>
-                        <div id="content12" class="subsectioncontent standardsubsection">
+                        <h4 id="header2" class="subsectionheader white">Identifiers</h4>
+                        <div id="content2" class="subsectioncontent standardsubsection">
                             <ul>
                                     <li>pkg:maven/org.slf4j/slf4j-api@2.0.17
                                     &nbsp;&nbsp;(<i>Confidence</i>:High)

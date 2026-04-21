@@ -142,7 +142,7 @@
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             Pair&lt;Integer, Integer&gt; majMin = majMinMap.get(name);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">int</strong> major = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getA();
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">int</strong> minor = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getB();
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             partitions.add(<strong class="jxr_keyword">new</strong> HWPartition(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">return</strong> partitions;
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>     }

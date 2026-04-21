@@ -82,9 +82,9 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">if</strong> (partName != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                          <em class="jxr_comment">// FreeBSD Major # is 0.</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                          <em class="jxr_comment">// Minor # is filesize of /dev entry.</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          <strong class="jxr_keyword">int</strong> minor = <a name="ParseUtil" href="../../../../../oshi/util/ParseUtil.html#ParseUtil">ParseUtil</a>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          <strong class="jxr_keyword">int</strong> minor = ParseUtil
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                                  .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          partList.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(identification, partName, type, uuid, label, size, 0, minor,
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          partList.add(<strong class="jxr_keyword">new</strong> HWPartition(identification, partName, type, uuid, label, size, 0, minor,
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                                  mountPoint));
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                          partName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                          identification = Constants.UNKNOWN;
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>             <em class="jxr_comment">// Process last partition</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">if</strong> (partName != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <strong class="jxr_keyword">int</strong> minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 partList.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 partList.add(<strong class="jxr_keyword">new</strong> HWPartition(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             }
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             <em class="jxr_comment">// Process last diskstore</em>
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">if</strong> (!partList.isEmpty()) {

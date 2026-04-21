@@ -126,30 +126,30 @@
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     * @return GpuTicks snapshot; never null</em>
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a> sampleGpuTicks() {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> GpuTicks sampleGpuTicks() {
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">if</strong> (closed) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a>(0L, 0L);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> GpuTicks(0L, 0L);
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         }
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         CFDictionaryRef sample = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             sample = ioReport.IOReportCreateSamples(subscription, subscribedChannels, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>             <strong class="jxr_keyword">if</strong> (sample == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a>(0L, 0L);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> GpuTicks(0L, 0L);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                 ChannelStates cs = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <strong class="jxr_keyword">if</strong> (cs.getStates().isEmpty()) {
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a>(0L, 0L);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> GpuTicks(0L, 0L);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                 }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <strong class="jxr_keyword">long</strong> idle = cs.getStates().getOrDefault(STATE_OFF, 0L);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <strong class="jxr_keyword">long</strong> total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a>(total - idle, idle);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> GpuTicks(total - idle, idle);
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                 sample.release();
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>                 sample = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             }
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="GpuTicks" href="../../../oshi/hardware/GpuTicks.html#GpuTicks">GpuTicks</a>(0L, 0L);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> GpuTicks(0L, 0L);
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">if</strong> (sample != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                 sample.release();

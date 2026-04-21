@@ -28,7 +28,7 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * Internet Protocol Stats implementation</em>
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AixInternetProtocolStats" href="../../../../../oshi/software/os/unix/aix/AixInternetProtocolStats.html#AixInternetProtocolStats">AixInternetProtocolStats</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractInternetProtocolStats" href="../../../../../oshi/software/common/AbstractInternetProtocolStats.html#AbstractInternetProtocolStats">AbstractInternetProtocolStats</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AixInternetProtocolStats" href="../../../../../oshi/software/os/unix/aix/AixInternetProtocolStats.html#AixInternetProtocolStats">AixInternetProtocolStats</a> <strong class="jxr_keyword">extends</strong> AbstractInternetProtocolStats {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;perfstat_protocol_t[]&gt; ipstats = memoize(PerfstatProtocol::queryProtocols, defaultExpiration());
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  

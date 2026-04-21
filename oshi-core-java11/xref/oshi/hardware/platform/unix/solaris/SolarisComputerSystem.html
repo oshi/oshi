@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * Hardware data obtained from smbios.</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  @Immutable
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisComputerSystem" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisComputerSystem.html#SolarisComputerSystem">SolarisComputerSystem</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractComputerSystem" href="../../../../../oshi/hardware/common/AbstractComputerSystem.html#AbstractComputerSystem">AbstractComputerSystem</a> {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisComputerSystem" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisComputerSystem.html#SolarisComputerSystem">SolarisComputerSystem</a> <strong class="jxr_keyword">extends</strong> AbstractComputerSystem {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> enum SmbType {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>          <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">         * BIOS</em>
@@ -75,13 +75,13 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      @Override
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> <a name="Firmware" href="../../../../../oshi/hardware/Firmware.html#Firmware">Firmware</a> createFirmware() {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> Firmware createFirmware() {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="SolarisFirmware" href="../../../../../oshi/hardware/platform/unix/solaris/SolarisFirmware.html#SolarisFirmware">SolarisFirmware</a>(smbiosStrings.get().biosVendor, smbiosStrings.get().biosVersion,
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                  smbiosStrings.get().biosDate);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Override
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a name="Baseboard" href="../../../../../oshi/hardware/Baseboard.html#Baseboard">Baseboard</a> createBaseboard() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> Baseboard createBaseboard() {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="UnixBaseboard" href="../../../../../oshi/hardware/platform/unix/UnixBaseboard.html#UnixBaseboard">UnixBaseboard</a>(smbiosStrings.get().boardManufacturer, smbiosStrings.get().boardModel,
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                  smbiosStrings.get().boardSerialNumber, smbiosStrings.get().boardVersion);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }

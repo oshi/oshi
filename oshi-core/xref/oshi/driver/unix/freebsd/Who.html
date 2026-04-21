@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/driver/unix/freebsd/Who.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.unix.freebsd;
@@ -58,9 +58,9 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                      <strong class="jxr_keyword">long</strong> loginTime = ut.ut_tv.tv_sec * 1000L + ut.ut_tv.tv_usec / 1000L;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                      <em class="jxr_comment">// Sanity check. If errors, default to who command line</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                      <strong class="jxr_keyword">if</strong> (!isSessionValid(user, device, loginTime)) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                          <strong class="jxr_keyword">return</strong> oshi.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                          <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>                      }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                      whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                      whoList.add(<strong class="jxr_keyword">new</strong> OSSession(user, device, loginTime, host));
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>                  }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          } <strong class="jxr_keyword">finally</strong> {

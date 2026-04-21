@@ -32,7 +32,7 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * OSThread implementation</em>
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisOSThread" href="../../../../../oshi/software/os/unix/solaris/SolarisOSThread.html#SolarisOSThread">SolarisOSThread</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSThread" href="../../../../../oshi/software/common/AbstractOSThread.html#AbstractOSThread">AbstractOSThread</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SolarisOSThread" href="../../../../../oshi/software/os/unix/solaris/SolarisOSThread.html#SolarisOSThread">SolarisOSThread</a> <strong class="jxr_keyword">extends</strong> AbstractOSThread {
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;SolarisLwpsInfo&gt; lwpsinfo = memoize(<strong class="jxr_keyword">this</strong>::queryLwpsInfo, defaultExpiration());
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;SolarisPrUsage&gt; prusage = memoize(<strong class="jxr_keyword">this</strong>::queryPrUsage, defaultExpiration());

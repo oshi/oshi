@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                          <strong class="jxr_keyword">int</strong> tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                          <strong class="jxr_keyword">long</strong> loginTime = tvSec * 1000L + tvUsec / 1000L;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                          <strong class="jxr_keyword">if</strong> (!isSessionValid(user, device, loginTime)) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                              <strong class="jxr_keyword">return</strong> oshi.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                          }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                          whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      }
@@ -80,7 +80,7 @@
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                  endutxent();
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>              }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">return</strong> oshi.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> whoList;
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      }

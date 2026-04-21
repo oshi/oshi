@@ -109,7 +109,7 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>                                         <strong class="jxr_keyword">int</strong>[] ipArray = convertBytesToInts(addr.Address);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>                                         host = ParseUtil.parseUtAddrV6toIP(ipArray);
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                                     }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                     sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(userName, device, logonTime, host));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                     sessions.add(<strong class="jxr_keyword">new</strong> OSSession(userName, device, logonTime, host));
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>                                 }
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                             }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                         }

@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../apidocs/oshi/demo/UserComInit.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.demo;
@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.COMException;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.SuppressForbidden;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32OperatingSystem;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32OperatingSystemJNA;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryHandler;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">/**</em>
@@ -38,14 +38,14 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> wakeUpCom() {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          <em class="jxr_comment">// The first COM query can take extra long so just do one separately</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          Win32OperatingSystem.queryOsVersion();
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          Win32OperatingSystemJNA.queryOsVersion();
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      @SuppressForbidden(reason = <span class="jxr_string">"Using System.out in a demo class"</span>)
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> loopWmiQueries() {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">long</strong> t = System.nanoTime();
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; REPETITIONS; i++) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              Win32OperatingSystem.queryOsVersion();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>              Win32OperatingSystemJNA.queryOsVersion();
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          }
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          t = System.nanoTime() - t;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          System.out.println(<span class="jxr_string">"Average ms per rep: "</span> + t / (1_000_000d * REPETITIONS));

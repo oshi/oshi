@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../testapidocs/oshi/driver/windows/perfmon/LoadAverageTest.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2022-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.windows.perfmon;
@@ -27,19 +27,23 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      @Test
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">void</strong> testQueryLoadAverage() {
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>          <strong class="jxr_keyword">double</strong>[] loadAverage = LoadAverage.queryLoadAverage(3);
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          assertThat(<span class="jxr_string">"1m load average should be negative"</span>, loadAverage[0], lessThan(0d));
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(<span class="jxr_string">"5m load average should be negative"</span>, loadAverage[1], lessThan(0d));
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(<span class="jxr_string">"15m load average should be negative"</span>, loadAverage[2], lessThan(0d));
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          LoadAverage.startDaemon();
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          Util.sleep(11000L);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>          loadAverage = LoadAverage.queryLoadAverage(3);
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(<span class="jxr_string">"1m load average should be positive"</span>, loadAverage[0], greaterThan(0d));
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(<span class="jxr_string">"5m load average should be positive"</span>, loadAverage[1], greaterThan(0d));
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(<span class="jxr_string">"15m load average should be positive"</span>, loadAverage[2], greaterThan(0d));
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          LoadAverage.stopDaemon();
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>          LoadAverageJNA loadAvg = LoadAverageJNA.getInstance();
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <strong class="jxr_keyword">double</strong>[] loadAverage = loadAvg.queryLoadAverage(3);
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(<span class="jxr_string">"1m load average should be negative"</span>, loadAverage[0], lessThan(0d));
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(<span class="jxr_string">"5m load average should be negative"</span>, loadAverage[1], lessThan(0d));
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(<span class="jxr_string">"15m load average should be negative"</span>, loadAverage[2], lessThan(0d));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          loadAvg.startDaemon();
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              Util.sleep(11000L);
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              loadAverage = loadAvg.queryLoadAverage(3);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              assertThat(<span class="jxr_string">"1m load average should be positive"</span>, loadAverage[0], greaterThan(0d));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              assertThat(<span class="jxr_string">"5m load average should be positive"</span>, loadAverage[1], greaterThan(0d));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              assertThat(<span class="jxr_string">"15m load average should be positive"</span>, loadAverage[2], greaterThan(0d));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              loadAvg.stopDaemon();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

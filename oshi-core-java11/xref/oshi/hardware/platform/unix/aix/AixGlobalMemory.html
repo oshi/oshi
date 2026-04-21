@@ -33,7 +33,7 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * Memory obtained by perfstat_memory_total_t</em>
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixGlobalMemory" href="../../../../../oshi/hardware/platform/unix/aix/AixGlobalMemory.html#AixGlobalMemory">AixGlobalMemory</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractGlobalMemory" href="../../../../../oshi/hardware/common/AbstractGlobalMemory.html#AbstractGlobalMemory">AbstractGlobalMemory</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixGlobalMemory" href="../../../../../oshi/hardware/platform/unix/aix/AixGlobalMemory.html#AixGlobalMemory">AixGlobalMemory</a> <strong class="jxr_keyword">extends</strong> AbstractGlobalMemory {
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;perfstat_memory_total_t&gt; perfstatMem = memoize(AixGlobalMemory::queryPerfstat,
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>              defaultExpiration());
@@ -65,7 +65,7 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Override
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> <a name="VirtualMemory" href="../../../../../oshi/hardware/VirtualMemory.html#VirtualMemory">VirtualMemory</a> getVirtualMemory() {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">public</strong> VirtualMemory getVirtualMemory() {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">return</strong> vm.get();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"Hardware Location Code"</span>)) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <em class="jxr_comment">// Save previous bank</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                      <strong class="jxr_keyword">if</strong> (capacity &gt; 0) {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          pmList.add(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>(bankLabel + locator, capacity, 0L, <span class="jxr_string">"IBM"</span>, Constants.UNKNOWN,
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          pmList.add(<strong class="jxr_keyword">new</strong> PhysicalMemory(bankLabel + locator, capacity, 0L, <span class="jxr_string">"IBM"</span>, Constants.UNKNOWN,
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                                  Constants.UNKNOWN, Constants.UNKNOWN));
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                      }
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                      bankLabel = Constants.UNKNOWN;
@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"Physical Location:"</span>)) {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>                     <em class="jxr_comment">// Save previous bank</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>                     <strong class="jxr_keyword">if</strong> (capacity &gt; 0) {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                         pmList.add(<strong class="jxr_keyword">new</strong> <a name="PhysicalMemory" href="../../../../../oshi/hardware/PhysicalMemory.html#PhysicalMemory">PhysicalMemory</a>(locator, capacity, 0L, <span class="jxr_string">"IBM"</span>, Constants.UNKNOWN, partNumber,
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                         pmList.add(<strong class="jxr_keyword">new</strong> PhysicalMemory(locator, capacity, 0L, <span class="jxr_string">"IBM"</span>, Constants.UNKNOWN, partNumber,
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                                 Constants.UNKNOWN));
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                     }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>                     partNumber = Constants.UNKNOWN;
@@ -134,7 +134,7 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> PerfstatMemory.queryMemoryTotal();
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> 
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">private</strong> <a name="VirtualMemory" href="../../../../../oshi/hardware/VirtualMemory.html#VirtualMemory">VirtualMemory</a> createVirtualMemory() {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">private</strong> VirtualMemory createVirtualMemory() {
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="AixVirtualMemory" href="../../../../../oshi/hardware/platform/unix/aix/AixVirtualMemory.html#AixVirtualMemory">AixVirtualMemory</a>(perfstatMem);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> }

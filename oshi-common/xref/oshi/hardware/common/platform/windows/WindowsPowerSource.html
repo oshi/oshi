@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>WindowsPowerSource xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/oshi/hardware/common/platform/windows/WindowsPowerSource.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2016-2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.windows;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.time.LocalDate;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractPowerSource;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsPowerSource" href="../../../../../oshi/hardware/common/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractPowerSource" href="../../../../../oshi/hardware/common/AbstractPowerSource.html#AbstractPowerSource">AbstractPowerSource</a> {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_comment">// IOCTL codes</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IOCTL_BATTERY_QUERY_TAG = 0x294040;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IOCTL_BATTERY_QUERY_INFORMATION = 0x294044;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IOCTL_BATTERY_QUERY_STATUS = 0x29404c;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <em class="jxr_comment">// Capability flags (BATTERY_INFORMATION.Capabilities / BATTERY_STATUS.PowerState)</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_SYSTEM_BATTERY = 0x80000000;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_IS_SHORT_TERM = 0x20000000;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_CAPACITY_RELATIVE = 0x40000000;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_POWER_ON_LINE = 0x00000001;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_DISCHARGING = 0x00000002;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_CHARGING = 0x00000004;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <em class="jxr_comment">// BATTERY_QUERY_INFORMATION_LEVEL ordinals</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_INFORMATION_LEVEL = 0;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_TEMPERATURE_LEVEL = 2;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_ESTIMATED_TIME_LEVEL = 3;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_DEVICE_NAME_LEVEL = 4;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_MANUFACTURE_DATE_LEVEL = 5;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_MANUFACTURE_NAME_LEVEL = 6;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_SERIAL_NUMBER_LEVEL = 8;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">protected</strong> <a name="WindowsPowerSource" href="../../../../../oshi/hardware/common/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

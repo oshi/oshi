@@ -91,9 +91,13 @@
                     }
                 });
                 $('#modal-add-header').click(function () {
-                    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">\n   ';
-                    xml += $("#modal-text").text().replace(/\n/g,'\n   ');
-                    xml += '\n</suppressions>';
+                    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd
+                                  https://dependency-check.github.io/DependencyCheck/dependency-suppression.1.4.xsd">
+    ${$("#modal-text").text().replace(/\n/g,'\n    ')}
+</suppressions>`;
                     $('#modal-add-header').toggleClass('active');
                     $('#modal-text').text(xml).focus().select();
                 });
@@ -139,26 +143,26 @@
             }
             function setCopyText(name, matchType, matchValue, suppressType, suppressVal) {
                 var xml =  '<suppress>\n';
-                xml += '   <notes><!'+'[CDATA[\n   file name: ' + name + '\n   ]]'+'></notes>\n';
+                xml += '    <notes><![CDATA[\n    file name: ' + name + '\n    ]]></notes>\n';
                 if (matchType=='packageUrl') {
                     var v = matchValue.match(/^[^@]+/);
                     if (v && v[0]) {
-                        xml += '   <'+matchType+' regex="true">^' + escapeRegExp(v[0]) + '@.*$</'+matchType+'>\n';
+                        xml += '    <'+matchType+' regex="true">^' + escapeRegExp(v[0]) + '@.*$</'+matchType+'>\n';
                     } else {
-                        xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                        xml += '    <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
                     }
                 } else {
-                    xml += '   <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
+                    xml += '    <'+matchType+'>' + matchValue + '</'+matchType+'>\n';
                 }
                 if (suppressType=='cpe') {
                     v = suppressVal.match(/^cpe:\/a:[^:]+:[^:]+/);
                     if (v && v[0]) {
-                        xml += '   <'+suppressType+'>' + v[0] + '</'+suppressType+'>\n';
+                        xml += '    <'+suppressType+'>' + v[0] + '</'+suppressType+'>\n';
                     } else {
-                        xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                        xml += '    <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
                     }
                 } else {
-                    xml += '   <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
+                    xml += '    <'+suppressType+'>' + suppressVal + '</'+suppressType+'>\n';
                 }
                 xml += '</suppress>';
                 $('#modal-text').text(xml);
@@ -265,7 +269,8 @@
             }
             #modal-text {
                 border: 0;
-                overflow: hidden
+                overflow: auto;
+                white-space: pre;
             }
             #modal-text:focus {
                 outline: none;
@@ -652,8 +657,8 @@
         <div id="modal-background"></div>
         <div id="modal-content">
             <div>Press CTR-C to copy XML&nbsp;<a href="https://dependency-check.github.io/DependencyCheck/general/suppression.html" class="infolink" target="_blank" title="Help with suppressing false positives">[help]</a></div>
-                <button id="modal-suppress-change-to-packageUrl" class="modal-button suppresstype" title="Supress by Maven Group Artifact Version">Suppress By GAV</button>
-                <button id="modal-suppress-change-to-sha1" class="modal-button suppresstype" title="Supress by SHA1 hash">Suppress By SHA1</button><br/>
+                <button id="modal-suppress-change-to-packageUrl" class="modal-button suppresstype" title="Supress by Maven Group Artifact Version">Suppress by Package URL</button>
+                <button id="modal-suppress-change-to-sha1" class="modal-button suppresstype" title="Supress by SHA1 hash">Suppress by SHA1</button><br/>
                 <input type="hidden" id="suppress-name"/>
                 <input type="hidden" id="suppress-type"/><input type="hidden" id="suppress-val"/>
                 <input type="hidden" id="suppress-sha1"/><input type="hidden" id="suppress-packageUrl"/>
@@ -673,21 +678,21 @@ arising out of or in connection with the use of this tool, the analysis performe
 Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issues" target="_blank">github issues</a></h3>
 
             <h2 class="">Project:&nbsp;oshi-dist</h2>
-            <h4>com.github.oshi:oshi-dist:6.11.0</h4>
+            <h4>com.github.oshi:oshi-dist:6.12.0</h4>
             <div class="">
 
                 Scan Information (<a href="#" title="Click to toggle display" id="scanInformationToggle">show all</a>):<br/>
                     <ul class="indent">
-                        <li><i>dependency-check version</i>: 12.2.0</li>
-                        <li><i>Report Generated On</i>: Sat, 4 Apr 2026 16:25:03 GMT</li>
+                        <li><i>dependency-check version</i>: 12.2.1</li>
+                        <li><i>Report Generated On</i>: Tue, 21 Apr 2026 05:05:31 GMT</li>
                         <li><i>Dependencies Scanned</i>:&nbsp;16 (13 unique)</li>
                         <li><i>Vulnerable Dependencies</i>:&nbsp;<span id="vulnerableCount">0</span></li>
                         <li><i>Vulnerabilities Found</i>:&nbsp;0</li>
                         <li><i>Vulnerabilities Suppressed</i>:&nbsp;0
                         </li>
                         <li class="scaninfo">...</li>
-                        <li class="scaninfo hidden"><i>NVD API Last Checked</i>: 2026-04-04T16:23:36Z</li>
-                        <li class="scaninfo hidden"><i>NVD API Last Modified</i>: 2026-04-04T14:16:21Z</li>
+                        <li class="scaninfo hidden"><i>NVD API Last Checked</i>: 2026-04-21T05:03:45Z</li>
+                        <li class="scaninfo hidden"><i>NVD API Last Modified</i>: 2026-04-21T04:16:13Z</li>
                     </ul><br/>
 <h2>Summary</h2>
                 <p><span id="tablecaption-plain">Summary of Vulnerable Dependencies </span><a href="#" title="Click to toggle display" id="vulnerabilityDisplayToggle">(click to show all)</a></p>
@@ -880,7 +885,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                             <b>SHA1:</b>&nbsp;b1bc1868bf02dc0bd6c7836257a036a331005309<br/>
                             <b>SHA256:</b>53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jackson-annotations-2.21.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jackson-annotations-2.21.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.12.0
                         </p>
                         <h4 id="header1" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content1" class="subsectioncontent standardsubsection hidden">
@@ -951,7 +956,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                             <b>SHA1:</b>&nbsp;7d11eac823392f28d8ee7bda77eaadfccbab83e5<br/>
                             <b>SHA256:</b>12e8655b100267b44d0f14d01b1f5082a5105e616174dc4307be1a761e92407b
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jackson-core-2.21.2.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jackson-core-2.21.2.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.12.0
                         </p>
                         <h4 id="header3" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content3" class="subsectioncontent standardsubsection hidden">
@@ -1033,7 +1038,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                             <b>SHA1:</b>&nbsp;71ab8ff75b4fd74afdee0004173fdd15de1d6a28<br/>
                             <b>SHA256:</b>8c982f01f148d805f0aaac2339011244757e0df7c6ff8951f2fa3f433b8ed849
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jackson-databind-2.21.2.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jackson-databind-2.21.2.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.12.0
                         </p>
                         <h4 id="header5" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content5" class="subsectioncontent standardsubsection hidden">
@@ -1118,7 +1123,7 @@ Getting Help: <a href="https://github.com/dependency-check/DependencyCheck/issue
                             <b>SHA1:</b>&nbsp;561b4c7cec7a562aca8248111460eda0b4ed24af<br/>
                             <b>SHA256:</b>be7ae6310ca005ac98eceb74fa514af88cad098c808845786f762ca08a5b4bb3
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jfreechart-1.5.6.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jfreechart-1.5.6.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.12.0
                         </p>
                         <h4 id="header7" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content7" class="subsectioncontent standardsubsection hidden">
@@ -1187,7 +1192,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;b27ba04287cc4abe769642fe8318d39fc89bf937<br/>
                             <b>SHA256:</b>260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jna-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core@6.12.0
                         </p>
                         <h4 id="header9" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content9" class="subsectioncontent standardsubsection hidden">
@@ -1267,7 +1272,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;79c71e499983f1beaae1ab62afe08b023f189711<br/>
                             <b>SHA256:</b>44ac6602808232f3de950a7d0ee9b8c6b99e73733b69461e643576607be74db6
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java11@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jna-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java11@6.12.0
                         </p>
                         <h4 id="header11" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content11" class="subsectioncontent standardsubsection hidden">
@@ -1448,7 +1453,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;dd817f391efc492041c9ae91127527c13750a789<br/>
                             <b>SHA256:</b>ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-platform-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jna-platform-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core@6.12.0
                         </p>
                         <h4 id="header22" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content22" class="subsectioncontent standardsubsection hidden">
@@ -1518,7 +1523,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;5aa32680cbb7ebc3ebdd43dd4e6b79ad00a7045f<br/>
                             <b>SHA256:</b>b8237665b43fe039aaded81ce3afab73e93ac6a133faa60d6796bc865d1f3d57
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">jna-platform-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java11@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">jna-platform-jpms-5.18.1.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core-java11@6.12.0
                         </p>
                         <h4 id="header24" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content24" class="subsectioncontent standardsubsection hidden">
@@ -1587,7 +1592,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;d9e58ac9c7779ba3bf8142aff6c830617a7fe60f<br/>
                             <b>SHA256:</b>7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-api-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-core@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-api-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-common@6.12.0
                         </p>
                         <h4 id="header26" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content26" class="subsectioncontent standardsubsection hidden">
@@ -1643,7 +1648,7 @@ Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0.txt</pre>
                             <b>SHA1:</b>&nbsp;9872a3fd794ffe7b18d17747926a64d61526ca96<br/>
                             <b>SHA256:</b>ddfea59ac074c6d3e24ac2c38622d2d963895e17f70b38ed4bdae4d780be6964
                                 <br/><b>Referenced In Project/Scope:</b> oshi-dist:compile
-                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-simple-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.11.0
+                                <br/><span class="tooltip"><span class="tooltiptext">slf4j-simple-2.0.17.jar is in the transitive dependency tree of the listed items.</span><b>Included by:</b></span> pkg:maven/com.github.oshi/oshi-demo@6.12.0
                         </p>
                         <h4 id="header28" class="subsectionheader expandable expandablesubsection white">Evidence</h4>
                         <div id="content28" class="subsectioncontent standardsubsection hidden">
