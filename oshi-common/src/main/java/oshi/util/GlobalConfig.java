@@ -173,21 +173,6 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_PERFPROC_DISABLED = "oshi.os.windows.perfproc.disabled";
 
     /**
-     * @deprecated Use {@link #OSHI_OS_WINDOWS_PERFDISK_DISABLED} instead.
-     */
-    @Deprecated
-    public static final String OSHI_OS_WINDOWS_PERFDISK_DIABLED = OSHI_OS_WINDOWS_PERFDISK_DISABLED;
-    /**
-     * @deprecated Use {@link #OSHI_OS_WINDOWS_PERFOS_DISABLED} instead.
-     */
-    @Deprecated
-    public static final String OSHI_OS_WINDOWS_PERFOS_DIABLED = OSHI_OS_WINDOWS_PERFOS_DISABLED;
-    /**
-     * @deprecated Use {@link #OSHI_OS_WINDOWS_PERFPROC_DISABLED} instead.
-     */
-    @Deprecated
-    public static final String OSHI_OS_WINDOWS_PERFPROC_DIABLED = OSHI_OS_WINDOWS_PERFPROC_DISABLED;
-    /**
      * Whether to assume any performance counter failure means all counters will fail and revert to WMI backup. Default
      * is {@code false}.
      */

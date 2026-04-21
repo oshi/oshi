@@ -3,7 +3,6 @@
  */
 module com.github.oshi.ffm {
     // API
-    exports oshi;
     exports oshi.ffm;
     exports oshi.ffm.util;
     exports oshi.util.gpu;

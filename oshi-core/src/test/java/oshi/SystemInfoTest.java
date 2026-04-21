@@ -58,10 +58,11 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;
 import oshi.util.FormatUtil;
+import oshi.util.PlatformEnum;
 import oshi.util.Util;
 
 /**
- * A demonstration of access to many of OSHI's capabilities
+ * A demonstration of access to many of OSHI's capabilities.
  */
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(max = JRE.JAVA_25)

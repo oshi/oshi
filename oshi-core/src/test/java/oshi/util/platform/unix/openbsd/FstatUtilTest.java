@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static oshi.PlatformEnum.OPENBSD;
+import static oshi.util.PlatformEnum.OPENBSD;
 
 import org.junit.jupiter.api.Test;
 

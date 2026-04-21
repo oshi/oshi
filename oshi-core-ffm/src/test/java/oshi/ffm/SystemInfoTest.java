@@ -42,9 +42,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.PlatformEnumFFM;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.util.PlatformEnum;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(min = JRE.JAVA_25)
@@ -53,18 +53,15 @@ public class SystemInfoTest {
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
     @Test
-    @SuppressWarnings("deprecation")
     public void testPlatformEnum() {
-        assertThat("Unsupported OS", PlatformEnumFFM.getCurrentPlatform(), is(not(PlatformEnumFFM.UNSUPPORTED)));
+        assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
         main(null);
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     public void testGetCurrentPlatform() {
-        assertNotNull(PlatformEnumFFM.getCurrentPlatform(), "Platform should not be null");
-        assertNotEquals(PlatformEnumFFM.UNSUPPORTED, PlatformEnumFFM.getCurrentPlatform(),
-                "Platform should be recognized");
+        assertNotNull(PlatformEnum.getCurrentPlatform(), "Platform should not be null");
+        assertNotEquals(PlatformEnum.UNKNOWN, PlatformEnum.getCurrentPlatform(), "Platform should be recognized");
     }
 
     @Test

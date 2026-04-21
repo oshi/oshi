@@ -37,12 +37,12 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.annotation.SuppressForbidden;
 import oshi.demo.jmx.api.JMXOshiAgent;
 import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
 import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
+import oshi.util.PlatformEnum;
 
 public class JMXOshiAgentServer implements JMXOshiAgent {
     private String host;

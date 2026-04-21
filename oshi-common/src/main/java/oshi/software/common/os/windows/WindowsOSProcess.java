@@ -193,18 +193,6 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         return this.privateWorkingSetSize;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * On Windows, delegates to {@link #getPrivateResidentMemory()} for backwards compatibility with prior behavior that
-     * returned the Private Working Set.
-     */
-    @Deprecated
-    @Override
-    public long getResidentSetSize() {
-        return getPrivateResidentMemory();
-    }
-
     @Override
     public long getKernelTime() {
         return this.kernelTime;

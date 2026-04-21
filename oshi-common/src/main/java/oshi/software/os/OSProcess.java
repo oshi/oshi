@@ -223,22 +223,6 @@ public interface OSProcess {
     }
 
     /**
-     * Gets the Resident Set Size (RSS). Used to show how much memory is allocated to that process and is in RAM. It
-     * does not include memory that is swapped out. It does include memory from shared libraries as long as the pages
-     * from those libraries are actually in memory. It does include all stack and heap memory.
-     *
-     * @return the Resident Set Size
-     * @deprecated Use {@link #getResidentMemory()} for the true RSS value, or {@link #getPrivateResidentMemory()} for
-     *             the private working set / footprint value displayed by graphical system monitors. On Windows, this
-     *             method delegates to {@link #getPrivateResidentMemory()} for backwards compatibility; on all other
-     *             platforms it delegates to {@link #getResidentMemory()}.
-     */
-    @Deprecated
-    default long getResidentSetSize() {
-        return getResidentMemory();
-    }
-
-    /**
      * Gets kernel/system (privileged) time used by the process.
      *
      * @return the number of milliseconds the process has executed in kernel/system mode.

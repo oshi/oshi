@@ -371,12 +371,6 @@ class OSProcessTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    void testDefaultGetResidentSetSizeDelegatesToResident() {
-        assertThat(MINIMAL.getResidentSetSize(), is(4096L));
-    }
-
-    @Test
     void testDefaultGetMinorFaults() {
         assertThat(MINIMAL.getMinorFaults(), is(0L));
     }

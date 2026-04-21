@@ -27,11 +27,11 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.data.general.DefaultPieDataset;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FormatUtil;
+import oshi.util.PlatformEnum;
 
 /**
  * Displays used and free space on all filesystems.

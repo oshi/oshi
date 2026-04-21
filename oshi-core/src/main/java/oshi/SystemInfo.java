@@ -24,6 +24,7 @@ import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
+import oshi.util.PlatformEnum;
 
 /**
  * System information. This is the main entry point to OSHI, using JNA for native access.
@@ -81,17 +82,6 @@ public class SystemInfo {
      */
     public SystemInfo() {
         // Intentionally empty, here to enable the constructor javadoc.
-    }
-
-    /**
-     * Gets the {@link PlatformEnum} value representing this system.
-     *
-     * @return Returns the current platform
-     * @deprecated Use {@link PlatformEnum#getCurrentPlatform()} instead.
-     */
-    @Deprecated
-    public static PlatformEnum getCurrentPlatform() {
-        return PlatformEnum.getCurrentPlatform();
     }
 
     /**

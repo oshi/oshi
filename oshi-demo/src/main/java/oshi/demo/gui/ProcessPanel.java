@@ -25,11 +25,11 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
+import oshi.util.PlatformEnum;
 
 /**
  * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as
