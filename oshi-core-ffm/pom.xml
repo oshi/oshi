@@ -94,6 +94,10 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
+                    <includeDependencySources>true</includeDependencySources>
+                    <dependencySourceIncludes>
+                        <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>
+                    </dependencySourceIncludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -117,6 +121,10 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <source>25</source>
+                    <includeDependencySources>true</includeDependencySources>
+                    <dependencySourceIncludes>
+                        <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>
+                    </dependencySourceIncludes>
                 </configuration>
             </plugin>
         </plugins>

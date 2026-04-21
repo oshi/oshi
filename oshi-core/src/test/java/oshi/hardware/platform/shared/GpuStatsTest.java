@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware;
+package oshi.hardware.platform.shared;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
+import oshi.hardware.GpuStats;
+import oshi.hardware.GpuTicks;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.NoOpGpuStats;
 
 /**

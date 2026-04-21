@@ -1,17 +1,13 @@
 --add-opens
   com.github.oshi/oshi=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.hardware=org.junit.platform.commons
---add-opens
-  com.github.oshi/oshi.hardware.common=org.junit.platform.commons
+  com.github.oshi/oshi.hardware.platform.shared=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.hardware.platform.windows=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.hardware.platform.linux=org.junit.platform.commons
+  com.github.oshi/oshi.software.os.shared=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.software.os=org.junit.platform.commons
---add-opens
-  com.github.oshi/oshi.util=org.junit.platform.commons
+  com.github.oshi/oshi.util.gpu=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.linux=org.junit.platform.commons
 --add-opens
@@ -34,6 +30,10 @@
   com.github.oshi/oshi.driver.unix.freebsd.disk=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.unix.openbsd.disk=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.util.platform.unix.freebsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.util.platform.unix.openbsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.unix.solaris=org.junit.platform.commons
 --add-opens

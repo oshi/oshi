@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os;
+package oshi.software.os.shared;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -12,6 +12,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSFileStore;
 import oshi.util.PlatformEnum;
 
 /**

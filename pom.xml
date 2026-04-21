@@ -336,7 +336,7 @@
                     <artifactId>bnd-maven-plugin</artifactId>
                     <version>${bnd-maven-plugin.version}</version>
                     <configuration>
-                        <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true;-split-package:=merge-first
+                        <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
                         Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
                         Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                         -snapshot: SNAPSHOT]]></bnd>
@@ -365,7 +365,7 @@
                             </manifestEntries>
                         </archive>
                         <source>8</source>
-                        <sourcepath>src/main/java</sourcepath>
+                        <skippedModules>oshi-core-ffm,oshi-benchmark</skippedModules>
                         <detectLinks>false</detectLinks>
                         <links>
                             <link>https://java-native-access.github.io/jna/${jna.version}/javadoc/</link>
@@ -984,7 +984,7 @@
             <activation>
                 <jdk>[11,)</jdk>
             </activation>
-            <!-- Only include java11 modules on Java 11+ -->
+            <!-- Include java11 relocation pom on Java 11+ -->
             <modules>
                 <module>oshi-core-java11</module>
             </modules>
@@ -994,7 +994,7 @@
                 <maven.compiler.testRelease>${maven.compiler.testTarget}</maven.compiler.testRelease>
             </properties>
         </profile>
-        <!-- for oshi-core and oshi-core-java11: enable-native-access switch not
+        <!-- for oshi-core: enable-native-access switch not
         available before JDK16 -->
         <profile>
             <id>pre-java16</id>

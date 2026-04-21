@@ -20,12 +20,12 @@
             <!-- Due to critical nature of OSHI jna usage, set to dependency management to help influence usage -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
+                <artifactId>jna-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna-platform</artifactId>
+                <artifactId>jna-platform-jpms</artifactId>
                 <version>${jna.version}</version>
             </dependency>
         </dependencies>
@@ -38,11 +38,11 @@
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
+            <artifactId>jna-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
+            <artifactId>jna-platform-jpms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -93,13 +93,55 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <!-- Compile all sources at JDK 8 bytecode level for Maven Central release.
+                         module-info.java is excluded here because release 8 predates JPMS. -->
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <excludes>
+                                <exclude>module-info.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- Compile module-info.java separately at release 9 (minimum release
+                         supporting JPMS). The resulting module-info.class is packaged into
+                         the same jar alongside the JDK 8 class files. JDK 8 ignores
+                         module-info.class; JDK 9+ uses it to resolve com.github.oshi
+                         as a named module on the module path. -->
+                    <execution>
+                        <id>compile-module-info</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>9</release>
+                            <includes>
+                                <include>module-info.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.github.oshi</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
+                    <includeDependencySources>true</includeDependencySources>
+                    <dependencySourceIncludes>
+                        <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>
+                    </dependencySourceIncludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[Export-Package: oshi.jna.*,!oshi.driver.common.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
+                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
+                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+                    -snapshot: SNAPSHOT]]></bnd>
                 </configuration>
             </plugin>
         </plugins>

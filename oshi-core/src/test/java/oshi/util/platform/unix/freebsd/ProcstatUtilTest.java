@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util;
+package oshi.util.platform.unix.freebsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.not;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
-import oshi.util.platform.unix.freebsd.ProcstatUtil;
+import oshi.util.PlatformEnum;
 
 /**
  * Test general utility methods

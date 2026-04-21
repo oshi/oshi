@@ -11,7 +11,7 @@ cross-platform implementation to retrieve system information, such as OS version
 memory and CPU usage, disks and partitions, devices, sensors, etc.
 
 OSHI provides two native access implementations:
-- **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+.
+- **JNA** (`oshi-core`): Uses [Java Native Access](https://github.com/java-native-access/jna). Supports JDK 8+. JPMS module: `com.github.oshi`.
 - **FFM** (`oshi-core-ffm`): Uses the JDK [Foreign Function &amp; Memory API](https://openjdk.org/jeps/454). Requires JDK 25+.
 
 Supported Platforms
@@ -23,7 +23,7 @@ Supported Platforms
 
 Documentation
 -------------
-* [API](https://oshi.github.io/oshi/oshi-core-java11/apidocs/) (javadocs)
+* [API](https://oshi.github.io/oshi/oshi-core/apidocs/) (javadocs)
 * [FAQ](src/site/markdown/FAQ.md)
 * [Change Log](CHANGELOG.md)
 * [Performance Considerations](src/site/markdown/Performance.md)
@@ -34,14 +34,13 @@ Documentation
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Version
-  * JDK8: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
+  * JNA/JDK8: [oshi-core-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0)
   * JPMS: [oshi-core-java11-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0)
   * FFM: [oshi-core-java25-6.12.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0)
   * JDK6: [oshi-core-3.14.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0)
 
 Current Development (SNAPSHOT) downloads
-  * JDK8: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
-  * JPMS: [oshi-core-java11-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-java11/7.0.0-SNAPSHOT/)
+  * JNA/JDK8: [oshi-core-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT)
   * FFM: [oshi-core-ffm-7.0.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/)
 
 OSHI FFM Module

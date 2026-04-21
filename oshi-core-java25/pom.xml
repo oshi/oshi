@@ -14,6 +14,15 @@
     <name>oshi-core-java25</name>
     <description>Deprecated: use oshi-core-ffm instead. This artifact redirects to oshi-core-ffm.</description>
 
+    <distributionManagement>
+        <relocation>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-core-ffm</artifactId>
+            <version>${project.version}</version>
+            <message>oshi-core-java25 has been renamed to oshi-core-ffm.</message>
+        </relocation>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

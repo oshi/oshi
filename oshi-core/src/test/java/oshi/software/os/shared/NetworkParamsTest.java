@@ -1,8 +1,8 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os;
+package oshi.software.os.shared;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
+import oshi.software.os.NetworkParams;
 
 /**
  * Test network parameters

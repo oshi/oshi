@@ -40,7 +40,6 @@
             <includes>
                 <include>com.github.oshi:oshi-common</include>
                 <include>com.github.oshi:oshi-core</include>
-                <include>com.github.oshi:oshi-core-java11</include>
                 <include>com.github.oshi:oshi-core-ffm</include>
                 <include>com.github.oshi:oshi-demo</include>
             </includes>

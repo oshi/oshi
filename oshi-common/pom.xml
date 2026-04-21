@@ -44,6 +44,16 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
+                    Import-Package: ${osgi.slf4j.import.packages}, *
+                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+                    -snapshot: SNAPSHOT]]></bnd>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>de.thetaphi</groupId>
                 <artifactId>forbiddenapis</artifactId>
                 <configuration>

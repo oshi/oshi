@@ -12,7 +12,42 @@ The FFM module artifact has been renamed from `oshi-core-java25` to `oshi-core-f
 </dependency>
 ```
 
-## JPMS Module Name Change
+A redirection pom is published at the old `oshi-core-java25` coordinates, so existing builds will continue to work but should be updated.
+
+## Merge of oshi-core-java11 into oshi-core
+
+The separate `oshi-core-java11` artifact has been eliminated. The `oshi-core` artifact now includes a `module-info.class` directly (compiled at Java 9, with all other classes at Java 8). Users of `oshi-core-java11` should switch to `oshi-core`:
+
+```xml
+<dependency>
+    <groupId>com.github.oshi</groupId>
+    <artifactId>oshi-core</artifactId>
+    <version>7.0.0</version>
+</dependency>
+```
+
+A redirection pom is published at the old `oshi-core-java11` coordinates for backwards compatibility.
+
+### Module path behavior change
+
+In OSHI 6.x, `oshi-core` declared an `Automatic-Module-Name` of `com.github.oshi` in its manifest but had no module descriptor. In 7.x, `oshi-core` contains a full `module-info.class`. This means:
+
+- On the module path, `oshi-core` is now a proper named module with explicit exports and `opens` directives for JNA reflective access.
+- If you previously relied on classpath behavior (e.g., accessing non-exported internal packages), you may need to add `--add-opens` flags or switch to the classpath.
+
+To force classpath behavior (e.g., in Maven Surefire):
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+        <useModulePath>false</useModulePath>
+    </configuration>
+</plugin>
+```
+
+## JPMS Module Name Change (FFM)
 
 The JPMS module name for the FFM module has changed from `com.github.oshi` to `com.github.oshi.ffm`. Update your `module-info.java`:
 

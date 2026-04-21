@@ -13,6 +13,7 @@ module com.github.oshi {
 
     // JNA needs reflective access to Structure and ByReference subclasses
     opens oshi.jna to com.sun.jna;
+    opens oshi.jna.common to com.sun.jna;
     opens oshi.jna.platform.linux to com.sun.jna;
     opens oshi.jna.platform.mac to com.sun.jna;
     opens oshi.jna.platform.windows to com.sun.jna;

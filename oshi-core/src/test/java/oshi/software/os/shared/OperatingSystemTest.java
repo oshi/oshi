@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os;
+package oshi.software.os.shared;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anything;
@@ -39,7 +39,13 @@ import org.junit.jupiter.api.condition.JRE;
 import com.sun.jna.Platform;
 
 import oshi.SystemInfo;
+import oshi.software.os.OSDesktopWindow;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
+import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
+import oshi.software.os.OSThread;
+import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;

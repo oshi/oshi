@@ -1,8 +1,8 @@
 /*
- * Copyright 2016-2025 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware;
+package oshi.hardware.platform.shared;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
@@ -21,6 +21,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import oshi.SystemInfo;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.PhysicalMemory;
 
 /**
  * Test GlobalMemory
