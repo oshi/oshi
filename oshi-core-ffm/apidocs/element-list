@@ -1,5 +1,4 @@
 module:com.github.oshi.common
-oshi
 oshi.annotation
 oshi.annotation.concurrent
 oshi.driver.common.mac
@@ -25,7 +24,6 @@ oshi.util.driver.unix
 oshi.util.linux
 oshi.util.tuples
 module:com.github.oshi.ffm
-oshi
 oshi.ffm
 oshi.ffm.util
 oshi.util.gpu

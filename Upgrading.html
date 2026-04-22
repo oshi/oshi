@@ -158,27 +158,41 @@
         </header>
         <main id="bodyColumn" class="span10">
 <section><a id="Guide_to_upgrading_from_OSHI_6.x_to_7.x"></a>
-<h1>Guide to upgrading from OSHI 6.x to 7.x</h1><section><a id="Maven_Artifact_Rename"></a>
-<h2>Maven Artifact Rename</h2>
-<p>The FFM module artifact has been renamed from <code>oshi-core-java25</code> to <code>oshi-core-ffm</code>. Update your dependency:</p>
+<h1>Guide to upgrading from OSHI 6.x to 7.x</h1><section><a id="Deprecated_method_and_class_removal"></a>
+<h2>Deprecated method and class removal</h2><section><a id="Process_memory.3A_getResidentSetSize.28.29_replaced_by_two_methods"></a>
+<h3>Process memory: <code>getResidentSetSize()</code> replaced by two methods</h3>
+<p>The deprecated <code>OSProcess.getResidentSetSize()</code> method has been removed. It has been replaced by two distinct methods:</p>
+<ul>
 
-<pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-    &lt;groupId&gt;com.github.oshi&lt;/groupId&gt;
-    &lt;artifactId&gt;oshi-core-ffm&lt;/artifactId&gt;
-    &lt;version&gt;7.0.0&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-<p>A redirection pom is published at the old <code>oshi-core-java25</code> coordinates, so existing builds will continue to work but should be updated.</p></section><section><a id="Merge_of_oshi-core-java11_into_oshi-core"></a>
+<li><code>getResidentMemory()</code> &#x2014; the true RSS value including shared libraries, matching <code>ps</code> and <code>top</code>.</li>
+<li><code>getPrivateResidentMemory()</code> &#x2014; the private working set / footprint value displayed by graphical system monitors (Windows Task Manager, macOS Activity Monitor, GNOME System Monitor).</li>
+</ul>
+<p>On Windows, the old <code>getResidentSetSize()</code> returned the Private Working Set. To preserve that behavior, use <code>getPrivateResidentMemory()</code>. On all other platforms, use <code>getResidentMemory()</code> for the equivalent value.</p></section><section><a id="PlatformEnum_moved_to_oshi.util_package"></a>
+<h3><code>PlatformEnum</code> moved to <code>oshi.util</code> package</h3>
+<p>The <code>oshi.PlatformEnum</code> class in <code>oshi-core</code> and the <code>oshi.PlatformEnumFFM</code> class in <code>oshi-core-ffm</code> have been removed. Use <code>oshi.util.PlatformEnum</code> (in the <code>oshi-common</code> module) instead. This class is available to all modules without requiring JNA or FFM.</p>
+<p>The deprecated <code>SystemInfo.getCurrentPlatform()</code> (JNA) and <code>SystemInfoFFM.getCurrentPlatform()</code> (FFM) methods have also been removed. Use <code>oshi.util.PlatformEnum.getCurrentPlatform()</code> directly.</p></section><section><a id="SystemInfoFFM_removed"></a>
+<h3><code>SystemInfoFFM</code> removed</h3>
+<p>The deprecated <code>oshi.SystemInfoFFM</code> class has been removed. Use <code>oshi.ffm.SystemInfo</code> as the FFM entry point.</p></section><section><a id="Misspelled_GlobalConfig_constants_removed"></a>
+<h3>Misspelled <code>GlobalConfig</code> constants removed</h3>
+<p>The following misspelled constants in <code>GlobalConfig</code> have been removed:</p>
+<table class="table table-striped">
+<thead>
+<tr class="a">
+<th>Removed</th>
+<th>Replacement</th></tr></thead><tbody>
+<tr class="b">
+<td><code>OSHI_OS_WINDOWS_PERFDISK_DIABLED</code></td>
+<td><code>OSHI_OS_WINDOWS_PERFDISK_DISABLED</code></td></tr>
+<tr class="a">
+<td><code>OSHI_OS_WINDOWS_PERFOS_DIABLED</code></td>
+<td><code>OSHI_OS_WINDOWS_PERFOS_DISABLED</code></td></tr>
+<tr class="b">
+<td><code>OSHI_OS_WINDOWS_PERFPROC_DIABLED</code></td>
+<td><code>OSHI_OS_WINDOWS_PERFPROC_DISABLED</code></td></tr></tbody>
+</table>
+</section></section><section><a id="Merge_of_oshi-core-java11_into_oshi-core"></a>
 <h2>Merge of oshi-core-java11 into oshi-core</h2>
-<p>The separate <code>oshi-core-java11</code> artifact has been eliminated. The <code>oshi-core</code> artifact now includes a <code>module-info.class</code> directly (compiled at Java 9, with all other classes at Java 8). Users of <code>oshi-core-java11</code> should switch to <code>oshi-core</code>:</p>
-
-<pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
-    &lt;groupId&gt;com.github.oshi&lt;/groupId&gt;
-    &lt;artifactId&gt;oshi-core&lt;/artifactId&gt;
-    &lt;version&gt;7.0.0&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-<p>A redirection pom is published at the old <code>oshi-core-java11</code> coordinates for backwards compatibility.</p><section><a id="Module_path_behavior_change"></a>
+<p>The separate <code>oshi-core-java11</code> artifact has been merged into <code>oshi-core</code>, which now includes a <code>module-info.class</code> directly (compiled at Java 9, with all other classes at Java 8). Users of <code>oshi-core-java11</code> should switch to <code>oshi-core</code>.</p><section><a id="Module_path_behavior_change"></a>
 <h3>Module path behavior change</h3>
 <p>In OSHI 6.x, <code>oshi-core</code> declared an <code>Automatic-Module-Name</code> of <code>com.github.oshi</code> in its manifest but had no module descriptor. In 7.x, <code>oshi-core</code> contains a full <code>module-info.class</code>. This means:</p>
 <ul>
@@ -195,8 +209,9 @@
         &lt;useModulePath&gt;false&lt;/useModulePath&gt;
     &lt;/configuration&gt;
 &lt;/plugin&gt;
-</code></pre></section></section><section><a id="JPMS_Module_Name_Change_.28FFM.29"></a>
-<h2>JPMS Module Name Change (FFM)</h2>
+</code></pre></section></section><section><a id="FFM_Module_Artifact_and_JPMS_Rename"></a>
+<h2>FFM Module Artifact and JPMS Rename</h2>
+<p>The FFM module artifact has been renamed from <code>oshi-core-java25</code> to <code>oshi-core-ffm</code>.</p>
 <p>The JPMS module name for the FFM module has changed from <code>com.github.oshi</code> to <code>com.github.oshi.ffm</code>. Update your <code>module-info.java</code>:</p>
 
 <pre class="prettyprint"><code class="language-java">requires com.github.oshi.ffm;
