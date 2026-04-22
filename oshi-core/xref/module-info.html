@@ -7,33 +7,49 @@
 <body>
 <div id="overview"><a href="../apidocs/module-info.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * This module provides access to the OSHI API and utility functions.</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   module com.github.oshi {
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>       <em class="jxr_comment">// API</em>
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>       exports oshi;
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>       exports oshi.util.gpu;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>       exports oshi.util.platform.mac;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>       exports oshi.util.platform.unix.freebsd;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>      exports oshi.util.platform.unix.openbsd;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>      exports oshi.util.platform.unix.solaris;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>      exports oshi.util.platform.windows;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <em class="jxr_comment">// JNA needs reflective access to Structure and ByReference subclasses</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>      opens oshi.jna to com.sun.jna;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>      opens oshi.jna.common to com.sun.jna;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      opens oshi.jna.platform.linux to com.sun.jna;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>      opens oshi.jna.platform.mac to com.sun.jna;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      opens oshi.jna.platform.windows to com.sun.jna;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      opens oshi.jna.platform.unix to com.sun.jna;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_comment">// dependencies</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      requires transitive com.github.oshi.common;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      requires transitive com.sun.jna;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      requires transitive com.sun.jna.platform;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      requires transitive java.desktop;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      requires org.slf4j;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  }
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * JNA-based native implementation of the OSHI API for JDK 8+.</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * This module uses &lt;a href="<a href="https://github.com/java-native-access/jna" target="alexandria_uri">https://github.com/java-native-access/jna</a>"&gt;JNA&lt;/a&gt; for native access and supports all OSHI</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * platforms (Windows, macOS, Linux, Android, FreeBSD, OpenBSD, Solaris, AIX).</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * Usage:</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * &lt;pre&gt;{@code</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * SystemInfo si = new SystemInfo();</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * HardwareAbstractionLayer hal = si.getHardware();</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * OperatingSystem os = si.getOperatingSystem();</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * }&lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * Re-using the same {@link oshi.SystemInfo} instance optimizes caching and CPU performance; creating a new instance</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * minimizes memory usage.</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * @see oshi.SystemInfo</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  module com.github.oshi {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_comment">// API</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      exports oshi;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      exports oshi.util.gpu;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      exports oshi.util.platform.mac;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      exports oshi.util.platform.unix.freebsd;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      exports oshi.util.platform.unix.openbsd;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      exports oshi.util.platform.unix.solaris;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      exports oshi.util.platform.windows;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_comment">// JNA needs reflective access to Structure and ByReference subclasses</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      opens oshi.jna to com.sun.jna;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      opens oshi.jna.common to com.sun.jna;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      opens oshi.jna.platform.linux to com.sun.jna;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      opens oshi.jna.platform.mac to com.sun.jna;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      opens oshi.jna.platform.windows to com.sun.jna;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      opens oshi.jna.platform.unix to com.sun.jna;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_comment">// dependencies</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      requires transitive com.github.oshi.common;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      requires transitive com.sun.jna;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      requires transitive com.sun.jna.platform;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      requires transitive java.desktop;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      requires org.slf4j;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
