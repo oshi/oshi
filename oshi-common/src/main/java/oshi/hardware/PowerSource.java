@@ -6,16 +6,19 @@ package oshi.hardware;
 
 import java.time.LocalDate;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * The Power Source is one or more batteries with some capacity, and some state of charge/discharge
  */
+@PublicApi
 @ThreadSafe
 public interface PowerSource {
     /**
      * Units of Battery Capacity
      */
+    @PublicApi
     enum CapacityUnits {
         /**
          * MilliWattHours (mWh).

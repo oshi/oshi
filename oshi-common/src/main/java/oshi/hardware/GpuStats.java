@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -76,6 +77,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <p>
  * All methods are safe for concurrent use from multiple threads.
  */
+@PublicApi
 @ThreadSafe
 public interface GpuStats extends AutoCloseable {
 

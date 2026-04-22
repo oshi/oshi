@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
@@ -11,6 +12,7 @@ import oshi.util.FormatUtil;
  * The PhysicalMemory class represents a physical memory device located on a computer system and available to the
  * operating system.
  */
+@PublicApi
 @Immutable
 public class PhysicalMemory {
 

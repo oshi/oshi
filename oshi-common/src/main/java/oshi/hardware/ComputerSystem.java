@@ -4,12 +4,14 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * The ComputerSystem represents the physical hardware, of a computer system/product and includes BIOS/firmware and a
  * motherboard, logic board, etc.
  */
+@PublicApi
 @Immutable
 public interface ComputerSystem {
     /**

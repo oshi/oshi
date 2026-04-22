@@ -6,16 +6,19 @@ package oshi.software.os;
 
 import java.util.function.Predicate;
 
+import oshi.annotation.PublicApi;
 import oshi.software.os.OSProcess.State;
 
 /**
  * Represents a Thread/Task on the operating system.
  */
+@PublicApi
 public interface OSThread {
 
     /**
      * Constants which may be used to filter Thread lists
      */
+    @PublicApi
     final class ThreadFiltering {
         private ThreadFiltering() {
         }

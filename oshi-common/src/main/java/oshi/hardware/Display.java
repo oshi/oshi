@@ -4,11 +4,13 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * Display refers to the information regarding a video source and monitor identified by the EDID standard.
  */
+@PublicApi
 @Immutable
 public interface Display {
     /**

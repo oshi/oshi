@@ -4,11 +4,13 @@
  */
 package oshi.software.os;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * NetworkParams presents network parameters of running OS, such as DNS, host name etc.
  */
+@PublicApi
 @ThreadSafe
 public interface NetworkParams {
 

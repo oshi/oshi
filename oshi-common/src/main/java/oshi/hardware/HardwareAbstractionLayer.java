@@ -7,11 +7,13 @@ package oshi.hardware;
 import java.util.Collections;
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as processors, memory, battery, and disks.
  */
+@PublicApi
 @ThreadSafe
 public interface HardwareAbstractionLayer {
 

@@ -7,6 +7,7 @@ package oshi.hardware;
 import java.net.NetworkInterface;
 import java.util.Arrays;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -16,6 +17,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * {@link #updateAttributes()} method may update attributes, including the time stamp, and should externally synchronize
  * such usage to ensure consistent calculations.
  */
+@PublicApi
 @ThreadSafe
 public interface NetworkIF {
 
@@ -311,6 +313,7 @@ public interface NetworkIF {
      * <p>
      * As described in RFC 2863.
      */
+    @PublicApi
     enum IfOperStatus {
         /**
          * Up and operational. Ready to pass packets.

@@ -8,6 +8,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
@@ -63,6 +64,7 @@ import oshi.util.PlatformEnum;
  * module alone and implement the OSHI interfaces without native calls. See the {@link oshi oshi package documentation}
  * for details.
  */
+@PublicApi
 public class SystemInfo {
 
     private static final String NOT_SUPPORTED = "Operating system not supported: ";

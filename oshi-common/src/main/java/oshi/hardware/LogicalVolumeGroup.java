@@ -7,6 +7,7 @@ package oshi.hardware;
 import java.util.Map;
 import java.util.Set;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -14,6 +15,7 @@ import oshi.annotation.concurrent.Immutable;
  * devices such as disks or partitions (physical volumes) into a storage pool, and subsequently allocating that space to
  * virtual partitions (logical volumes) as block devices accessible to the file system.
  */
+@PublicApi
 @Immutable
 public interface LogicalVolumeGroup {
     /**

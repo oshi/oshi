@@ -4,6 +4,7 @@
  */
 package oshi.software.os;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -13,6 +14,7 @@ import oshi.annotation.concurrent.Immutable;
  * This class is provided for information purposes only. Interpretation of the meaning of services is
  * platform-dependent.
  */
+@PublicApi
 @Immutable
 public class OSService {
 
@@ -23,6 +25,7 @@ public class OSService {
     /**
      * Service Execution States
      */
+    @PublicApi
     public enum State {
         RUNNING, STOPPED, OTHER
     }

@@ -9,12 +9,14 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Includes key statistics of TCP and UDP protocols
  */
+@PublicApi
 @ThreadSafe
 public interface InternetProtocolStats {
 
@@ -61,6 +63,7 @@ public interface InternetProtocolStats {
     /**
      * Encapsulates statistics associated with a TCP connection.
      */
+    @PublicApi
     @Immutable
     final class TcpStats {
         private final long connectionsEstablished;
@@ -203,6 +206,7 @@ public interface InternetProtocolStats {
     /**
      * Encapsulates statistics associated with a UDP connection.
      */
+    @PublicApi
     @Immutable
     final class UdpStats {
         private final long datagramsSent;
@@ -267,6 +271,7 @@ public interface InternetProtocolStats {
     /**
      * The TCP connection state as described in RFC 793.
      */
+    @PublicApi
     enum TcpState {
         UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING, LAST_ACK,
         TIME_WAIT, NONE;
@@ -275,6 +280,7 @@ public interface InternetProtocolStats {
     /**
      * Encapsulates information associated with an IP connection.
      */
+    @PublicApi
     @Immutable
     final class IPConnection {
         private final String type;

@@ -9,11 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import oshi.annotation.PublicApi;
+
 /**
  * Represents common information about an installed application across different operating systems. This class provides
  * standardized access to essential application details while allowing flexibility for OS-specific fields via an
  * additional information map.
  */
+@PublicApi
 public class ApplicationInfo {
 
     /** The name of the application. */

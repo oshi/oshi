@@ -4,6 +4,7 @@
  */
 package oshi.software.os;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -20,6 +21,7 @@ import oshi.hardware.HWPartition;
  * @see HWDiskStore
  * @see HWPartition
  */
+@PublicApi
 @ThreadSafe
 public interface OSFileStore {
 

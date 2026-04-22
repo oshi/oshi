@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
@@ -56,6 +57,7 @@ import oshi.util.Util;
  * of logical processors. A polling interval of at least one second is recommended.</li>
  * </ul>
  */
+@PublicApi
 @ThreadSafe
 public interface CentralProcessor {
 
@@ -402,6 +404,7 @@ public interface CentralProcessor {
      * Index of CPU tick counters in the {@link #getSystemCpuLoadTicks()} and {@link #getProcessorCpuLoadTicks()}
      * arrays.
      */
+    @PublicApi
     enum TickType {
         /**
          * CPU utilization that occurred while executing at the user level (application).
@@ -455,6 +458,7 @@ public interface CentralProcessor {
      * A class representing a Logical Processor and its replationship to physical processors, physical packages, and
      * logical groupings such as NUMA Nodes and Processor groups, useful for identifying processor topology.
      */
+    @PublicApi
     @Immutable
     class LogicalProcessor {
         private final int processorNumber;
@@ -561,6 +565,7 @@ public interface CentralProcessor {
      * A class representing a Physical Processor (a core) providing per-core statistics that may vary, particularly in
      * hybrid/modular processors.
      */
+    @PublicApi
     @Immutable
     class PhysicalProcessor {
         private final int physicalPackageNumber;
@@ -655,12 +660,14 @@ public interface CentralProcessor {
     /**
      * A class representing CPU Cache Memory.
      */
+    @PublicApi
     @Immutable
     class ProcessorCache {
 
         /**
          * The type of cache.
          */
+        @PublicApi
         public enum Type {
             UNIFIED, INSTRUCTION, DATA, TRACE;
 
@@ -763,6 +770,7 @@ public interface CentralProcessor {
      * A class encapsulating ghe CPU's identifier strings ,including name, vendor, stepping, model, and family
      * information (also called the signature of a CPU)
      */
+    @PublicApi
     @Immutable
     final class ProcessorIdentifier {
         private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";

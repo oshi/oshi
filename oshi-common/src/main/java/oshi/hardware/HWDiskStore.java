@@ -6,6 +6,7 @@ package oshi.hardware;
 
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSFileStore;
 
@@ -39,6 +40,7 @@ import oshi.software.os.OSFileStore;
  * @see HWPartition
  * @see OSFileStore
  */
+@PublicApi
 @ThreadSafe
 public interface HWDiskStore {
 

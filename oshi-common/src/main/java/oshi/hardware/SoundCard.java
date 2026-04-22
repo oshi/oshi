@@ -4,11 +4,13 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * SoundCard interface.
  */
+@PublicApi
 @Immutable
 public interface SoundCard {
 

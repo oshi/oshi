@@ -8,6 +8,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
@@ -57,6 +58,7 @@ import oshi.util.PlatformEnum;
  * All other imports ({@code oshi.hardware.*}, {@code oshi.software.os.*}) remain the same regardless of which entry
  * point is used. The API is identical; only the underlying native access mechanism differs.
  */
+@PublicApi
 public class SystemInfo {
 
     private static final String NOT_SUPPORTED = "Unsupported platform: " + PlatformEnum.getCurrentPlatform().getName();

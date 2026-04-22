@@ -8,6 +8,10 @@ See [Upgrading](src/site/markdown/Upgrading.md) for breaking changes and migrati
 * [#3181](https://github.com/oshi/oshi/pull/3181): Merge `oshi-core-java11` into `oshi-core`; `oshi-core` now includes a module descriptor (`com.github.oshi`). A redirection pom is provided for the old `oshi-core-java11` artifact ID - [@dbwiddis](https://github.com/dbwiddis).
 * [#3182](https://github.com/oshi/oshi/pull/3182): Remove deprecated `OSProcess.getResidentSetSize()` (use `getResidentMemory()` or `getPrivateResidentMemory()`), `oshi.PlatformEnum` and `oshi.PlatformEnumFFM` (use `oshi.util.PlatformEnum`), `SystemInfo.getCurrentPlatform()` and `SystemInfoFFM` (use `oshi.util.PlatformEnum.getCurrentPlatform()` and `oshi.ffm.SystemInfo`), and misspelled `GlobalConfig` constants - [@dbwiddis](https://github.com/dbwiddis).
 
+##### New Features
+
+* [#3183](https://github.com/oshi/oshi/pull/3183): Add `@PublicApi` annotation to all SemVer-guaranteed API types in `oshi.hardware`, `oshi.software.os`, both `SystemInfo` entry points, and `PlatformEnum` - [@dbwiddis](https://github.com/dbwiddis).
+
 # 6.12.0 (2026-04-20)
 
 ##### New Features

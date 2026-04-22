@@ -7,6 +7,7 @@ package oshi.software.os;
 import java.util.List;
 import java.util.Map;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -32,6 +33,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * processes (consistent with {@code top} on Unix). To match the Windows Task Manager, which scales to the system,
  * divide by {@link oshi.hardware.CentralProcessor#getLogicalProcessorCount()}.
  */
+@PublicApi
 @ThreadSafe
 public interface OSProcess {
 
@@ -432,6 +434,7 @@ public interface OSProcess {
     /**
      * Process and Thread Execution States
      */
+    @PublicApi
     enum State {
         /**
          * Intermediate state in process creation

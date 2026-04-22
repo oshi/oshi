@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess.State;
@@ -25,6 +26,7 @@ import oshi.util.Util;
  * <p>
  * Considered thread safe, but see remarks for the {@link #getSessions()} method.
  */
+@PublicApi
 @ThreadSafe
 public interface OperatingSystem {
 
@@ -33,6 +35,7 @@ public interface OperatingSystem {
      * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
      * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
+    @PublicApi
     final class ProcessFiltering {
         private ProcessFiltering() {
         }
@@ -64,6 +67,7 @@ public interface OperatingSystem {
      * {@link #getChildProcesses(int, Predicate, Comparator, int)}, and
      * {@link #getDescendantProcesses(int, Predicate, Comparator, int)}.
      */
+    @PublicApi
     final class ProcessSorting {
         private ProcessSorting() {
         }
@@ -385,6 +389,7 @@ public interface OperatingSystem {
     /**
      * A class representing the Operating System version details.
      */
+    @PublicApi
     @Immutable
     class OSVersionInfo {
         private final String version;

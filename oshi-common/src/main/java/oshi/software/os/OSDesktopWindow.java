@@ -6,11 +6,13 @@ package oshi.software.os;
 
 import java.awt.Rectangle;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * This class encapsulates information about a window on the operating system's GUI desktop
  */
+@PublicApi
 @Immutable
 public class OSDesktopWindow {
     private final long windowId;

@@ -4,11 +4,13 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * Printer interface representing a printer device.
  */
+@PublicApi
 @Immutable
 public interface Printer {
 
@@ -71,6 +73,7 @@ public interface Printer {
     /**
      * Printer status enumeration.
      */
+    @PublicApi
     enum PrinterStatus {
         IDLE, PRINTING, ERROR, OFFLINE, UNKNOWN
     }

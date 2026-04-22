@@ -6,12 +6,14 @@ package oshi.hardware;
 
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * A USB device is a device connected via a USB port, possibly internally/permanently. Hubs may contain ports to which
  * other devices connect in a recursive fashion.
  */
+@PublicApi
 @Immutable
 public interface UsbDevice extends Comparable<UsbDevice> {
     /**

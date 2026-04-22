@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -28,6 +29,7 @@ import oshi.annotation.concurrent.Immutable;
  * For repeated polling, hold the session open across iterations to preserve internal delta state. See {@link GpuStats}
  * for a full polling example and details on which metrics require priming.
  */
+@PublicApi
 @Immutable
 public interface GraphicsCard {
 

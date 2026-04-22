@@ -6,6 +6,7 @@ package oshi.hardware;
 
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -25,6 +26,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  *
  * For swap/virtual memory information, see {@link #getVirtualMemory()}.
  */
+@PublicApi
 @ThreadSafe
 public interface GlobalMemory {
     /**

@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -22,6 +23,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * if it is running. Otherwise, OSHI retrieves via the Microsoft API, which may require elevated permissions and still
  * may provide no results or unchanging results depending on the motherboard manufacturer.
  */
+@PublicApi
 @ThreadSafe
 public interface Sensors {
     /**

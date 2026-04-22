@@ -6,12 +6,14 @@ package oshi.software.os;
 
 import java.util.List;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * The File System is a logical arrangement, usually in a hierarchial tree, where files are placed for storage and
  * retrieval. It may consist of one or more file stores.
  */
+@PublicApi
 @ThreadSafe
 public interface FileSystem {
 

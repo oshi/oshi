@@ -6,6 +6,7 @@ package oshi.hardware;
 
 import static oshi.util.Util.isBlank;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.util.FormatUtil;
 
@@ -14,6 +15,7 @@ import oshi.util.FormatUtil;
  * separately. A partition appears in the operating system as a distinct "logical" disk that uses part of the actual
  * disk.
  */
+@PublicApi
 @Immutable
 public class HWPartition {
 

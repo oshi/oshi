@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -28,6 +29,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * These differences affect how to interpret the values returned by this interface, particularly
  * {@link #getVirtualMax()} and {@link #getVirtualInUse()}.
  */
+@PublicApi
 @ThreadSafe
 public interface VirtualMemory {
 

@@ -6,10 +6,13 @@ package oshi.util;
 
 import java.util.Locale;
 
+import oshi.annotation.PublicApi;
+
 /**
  * An enumeration of supported operating systems. The order of declaration matches the osType constants in the JNA
  * Platform class.
  */
+@PublicApi
 public enum PlatformEnum {
 
     /**

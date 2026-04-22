@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -25,6 +26,7 @@ import oshi.annotation.concurrent.Immutable;
  * natural starting value of a real counter, callers cannot distinguish "not available" from "counter just started" —
  * but the {@code dTotal > 0} guard in the utilization formula handles both cases correctly.
  */
+@PublicApi
 @Immutable
 public final class GpuTicks {
 

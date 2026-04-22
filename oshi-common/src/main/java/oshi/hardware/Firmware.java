@@ -4,11 +4,13 @@
  */
 package oshi.hardware;
 
+import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
  * The Firmware represents the low level BIOS or equivalent.
  */
+@PublicApi
 @Immutable
 public interface Firmware {
 
