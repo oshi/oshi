@@ -47,3 +47,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: windows
+      - name: JMH Benchmarks (JNA vs FFM)
+        if: contains(matrix.java, '25')
+        run: |
+          ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
+          java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
