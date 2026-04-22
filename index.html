@@ -176,7 +176,7 @@
 <p><a href="https://opensource.org/licenses/MIT" class="externalLink"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
 <a href="https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name" class="externalLink"><img src="https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central" alt="Maven Central" /></a>
 <a href="https://www.firsttimersonly.com/" class="externalLink"><img src="https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square" alt="first-timers-only" /></a>
-<a href="https://www.openhub.net/p/oshi?ref=github" class="externalLink"><img src="https://www.openhub.net/p/oshi/widgets/project_thin_badge.gif" alt="Openhub Stats" /></a></p>
+<img src="https://img.shields.io/github/contributors/oshi/oshi" alt="GitHub contributors" /></p>
 <p>OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.
 It does not require the installation of any additional native libraries and aims to provide a
 cross-platform implementation to retrieve system information, such as OS version, processes,
@@ -185,7 +185,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <ul>
 
 <li><strong>JNA</strong> (<code>oshi-core</code>): Uses <a href="https://github.com/java-native-access/jna" class="externalLink">Java Native Access</a>. Supports JDK 8+. JPMS module: <code>com.github.oshi</code>.</li>
-<li><strong>FFM</strong> (<code>oshi-core-ffm</code>): Uses the JDK <a href="https://openjdk.org/jeps/454" class="externalLink">Foreign Function &amp; Memory API</a>. Requires JDK 25+.</li>
+<li><strong>FFM</strong> (<code>oshi-core-ffm</code>): Uses the JDK <a href="https://openjdk.org/jeps/454" class="externalLink">Foreign Function &amp; Memory API</a>. Requires JDK 25+. JPMS module: <code>com.github.oshi.ffm</code>.</li>
 </ul><section><section><a id="Supported_Platforms"></a>
 <h2>Supported Platforms</h2>
 <ul>
@@ -198,28 +198,32 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <h2>Documentation</h2>
 <ul>
 
-<li><a href="https://oshi.github.io/oshi/oshi-core/apidocs/" class="externalLink">API</a> (javadocs) &#x2014; <a href="https://oshi.github.io/oshi/oshi-core/apidocs/" class="externalLink">JNA</a> | <a href="https://oshi.github.io/oshi/oshi-core-ffm/apidocs/" class="externalLink">FFM</a></li>
+<li>Javadocs &#x2014; <a href="https://oshi.github.io/oshi/oshi-core/apidocs/" class="externalLink">JNA</a> | <a href="https://oshi.github.io/oshi/oshi-core-ffm/apidocs/" class="externalLink">FFM</a></li>
 <li><a href="src/site/markdown/FAQ.html">FAQ</a></li>
-<li><a href="CHANGELOG.html">Change Log</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/CHANGELOG.md" class="externalLink">Change Log</a></li>
 <li><a href="src/site/markdown/Performance.html">Performance Considerations</a></li>
 <li><a href="src/site/markdown/Upgrading.html">Major Version Breaking Changes</a></li>
 <li><a href="src/site/markdown/SampleOutput.html">Sample Output</a></li>
 <li><a href="src/site/resources/Projects.html">Applications and Projects using OSHI</a></li>
 </ul></section><section><a id="Downloads_and_Dependency_Management"></a>
 <h2>Downloads and Dependency Management</h2>
-<p>Stable Release Version</p>
+<p>Stable Release Versions</p>
 <ul>
 
-<li>JNA/JDK8: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0" class="externalLink">oshi-core-6.12.0</a></li>
+<li>JNA: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/6.12.0" class="externalLink">oshi-core-6.12.0</a></li>
 <li>JPMS: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java11/6.12.0" class="externalLink">oshi-core-java11-6.12.0</a></li>
 <li>FFM: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core-java25/6.12.0" class="externalLink">oshi-core-java25-6.12.0</a></li>
-<li>JDK6: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0" class="externalLink">oshi-core-3.14.0</a></li>
 </ul>
-<p>Current Development (SNAPSHOT) downloads</p>
+<p>Current Development (SNAPSHOT) Versions</p>
 <ul>
 
-<li>JNA/JDK8: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT" class="externalLink">oshi-core-7.0.0-SNAPSHOT</a></li>
+<li>JNA: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.0.0-SNAPSHOT" class="externalLink">oshi-core-7.0.0-SNAPSHOT</a></li>
 <li>FFM: <a href="https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.0.0-SNAPSHOT/" class="externalLink">oshi-core-ffm-7.0.0-SNAPSHOT</a></li>
+</ul>
+<p>Legacy Version</p>
+<ul>
+
+<li>JDK6: <a href="https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.14.0" class="externalLink">oshi-core-3.14.0</a></li>
 </ul></section><section><a id="OSHI_FFM_Module"></a>
 <h2>OSHI FFM Module</h2>
 <p>The <strong><code>oshi-core-ffm</code></strong> module provides a complete implementation using the JDK Foreign Function &amp; Memory (FFM) API, with no dependency on JNA.</p>
