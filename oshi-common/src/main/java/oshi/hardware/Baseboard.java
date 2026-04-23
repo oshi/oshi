@@ -9,6 +9,13 @@ import oshi.annotation.concurrent.Immutable;
 
 /**
  * The Baseboard represents the system board, also called motherboard, logic board, etc.
+ * <p>
+ * Obtained from {@link ComputerSystem#getBaseboard()}.
+ * <p>
+ * <b>Platform notes:</b> On Linux, reading the serial number requires root access because
+ * {@code /sys/class/dmi/id/board_serial} is root-owned and read-only (mode 0400) by default.
+ *
+ * @see ComputerSystem
  */
 @PublicApi
 @Immutable

@@ -24,6 +24,9 @@ import oshi.util.Util;
  * An operating system (OS) is the software on a computer that manages the way different programs use its hardware, and
  * regulates the ways that a user controls the computer.
  * <p>
+ * <b>Docker/container note:</b> OSHI reports the <em>host</em> operating system information, not the container's. In
+ * containerized environments, values such as the OS version and process list reflect the host system.
+ * <p>
  * Considered thread safe, but see remarks for the {@link #getSessions()} method.
  */
 @PublicApi

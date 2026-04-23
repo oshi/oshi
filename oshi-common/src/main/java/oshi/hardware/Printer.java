@@ -8,7 +8,11 @@ import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * Printer interface representing a printer device.
+ * Represents a printer device available to the operating system, including its name, driver, status, and connection
+ * type (local or network).
+ * <p>
+ * <b>Platform notes:</b> On Windows, printer information is retrieved via WMI. On Linux, CUPS is used. On macOS,
+ * printer information is retrieved from the CUPS/IPP subsystem.
  */
 @PublicApi
 @Immutable

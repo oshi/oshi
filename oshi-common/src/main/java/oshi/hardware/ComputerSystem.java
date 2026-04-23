@@ -10,6 +10,18 @@ import oshi.annotation.concurrent.Immutable;
 /**
  * The ComputerSystem represents the physical hardware, of a computer system/product and includes BIOS/firmware and a
  * motherboard, logic board, etc.
+ * <p>
+ * <b>Docker/container note:</b> OSHI reports the <em>host</em> operating system and hardware information, not the
+ * container's. Serial numbers and UUIDs may return "unknown" inside containers.
+ * <p>
+ * <b>Unique machine identifier:</b> The {@link #getHardwareUUID()} value can be combined with other fields (such as
+ * processor ID and serial number) to construct a machine fingerprint. Note that the UUID value
+ * {@code 03000200-0400-0500-0006-000700080009} is a known placeholder that is not unique. See the {@code ComputerID}
+ * class in the {@code oshi-demo} module for an example approach.
+ * <p>
+ * <b>VM detection:</b> Virtual machine environments can often be identified by examining the
+ * {@link #getManufacturer()}, {@link #getModel()}, and {@link Firmware} values. See the {@code DetectVM} class in the
+ * {@code oshi-demo} module for an example.
  */
 @PublicApi
 @Immutable

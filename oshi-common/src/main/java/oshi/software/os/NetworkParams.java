@@ -8,7 +8,13 @@ import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * NetworkParams presents network parameters of running OS, such as DNS, host name etc.
+ * Provides network parameters of the running operating system, including the hostname, domain name, DNS server
+ * addresses, and default gateways for IPv4 and IPv6.
+ * <p>
+ * The hostname ({@link #getHostName()}) is the local machine name. The domain name ({@link #getDomainName()}) is the
+ * DNS domain suffix. DNS servers ({@link #getDnsServers()}) are the configured name resolution servers. The default
+ * gateways ({@link #getIpv4DefaultGateway()}, {@link #getIpv6DefaultGateway()}) are the routing destinations for
+ * {@code 0.0.0.0/0} and {@code ::/0} respectively, and return an empty string if not defined.
  */
 @PublicApi
 @ThreadSafe

@@ -8,7 +8,8 @@ import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * SoundCard interface.
+ * Represents a sound card (audio adapter) installed in the system, providing the card name, driver version, and codec
+ * information.
  */
 @PublicApi
 @Immutable

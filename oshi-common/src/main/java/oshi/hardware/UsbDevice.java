@@ -12,6 +12,23 @@ import oshi.annotation.concurrent.Immutable;
 /**
  * A USB device is a device connected via a USB port, possibly internally/permanently. Hubs may contain ports to which
  * other devices connect in a recursive fashion.
+ * <p>
+ * USB devices form a tree structure rooted at one or more host controllers. Each device may be a hub with child devices
+ * accessible via {@link #getConnectedDevices()}. To traverse the full USB tree:
+ *
+ * <pre>{@code
+ * for (UsbDevice device : hal.getUsbDevices(true)) {
+ *     printDevice(device, 0);
+ * }
+ *
+ * void printDevice(UsbDevice device, int indent) {
+ *     String prefix = " ".repeat(indent);
+ *     System.out.printf("%s%s (vendor=%s)%n", prefix, device.getName(), device.getVendor());
+ *     for (UsbDevice child : device.getConnectedDevices()) {
+ *         printDevice(child, indent + 2);
+ *     }
+ * }
+ * }</pre>
  */
 @PublicApi
 @Immutable

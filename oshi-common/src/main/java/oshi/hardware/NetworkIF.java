@@ -13,6 +13,14 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * A network interface in the machine, including statistics.
  * <p>
+ * <b>Filtering interfaces:</b> {@link HardwareAbstractionLayer#getNetworkIFs(boolean)} with {@code false} excludes
+ * loopback and no-hardware-address interfaces. To further filter to physical interfaces, check
+ * {@link #queryNetworkInterface()} properties or use {@link #isKnownVmMacAddr()} to exclude virtual adapters.
+ * <p>
+ * <b>Polling guidance:</b> The {@link #updateAttributes()} method makes system calls and should not be called more
+ * frequently than approximately once per second. For monitoring multiple interfaces, it is more efficient to re-query
+ * the full list from {@link HardwareAbstractionLayer#getNetworkIFs()} than to update each interface individually.
+ * <p>
  * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
  * {@link #updateAttributes()} method may update attributes, including the time stamp, and should externally synchronize
  * such usage to ensure consistent calculations.

@@ -14,7 +14,44 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * Includes key statistics of TCP and UDP protocols
+ * Provides key statistics for TCP and UDP network protocols, including aggregate counters and per-connection details.
+ * <p>
+ * Use {@link #getTCPv4Stats()} and {@link #getTCPv6Stats()} for aggregate TCP counters (connections established,
+ * active, passive, failures, resets, and segment counts). Use {@link #getUDPv4Stats()} and {@link #getUDPv6Stats()} for
+ * aggregate UDP counters (datagrams sent, received, and errors).
+ * <p>
+ * Use {@link #getConnections()} to list individual active TCP and UDP connections, each represented as an
+ * {@link IPConnection} with local/remote addresses, ports, state, and owning process ID.
+ * <p>
+ * Example: listing active TCP connections:
+ *
+ * <pre>{@code
+ * InternetProtocolStats ipStats = os.getInternetProtocolStats();
+ * for (IPConnection conn : ipStats.getConnections()) {
+ *     if (conn.getType().startsWith("tcp")) {
+ *         String local = addrToString(conn.getLocalAddress());
+ *         String foreign = addrToString(conn.getForeignAddress());
+ *         System.out.printf("%s:%d -> %s:%d (%s)%n", local, conn.getLocalPort(), foreign, conn.getForeignPort(),
+ *                 conn.getState());
+ *     }
+ * }
+ *
+ * // Helper to safely convert address bytes to a string
+ * static String addrToString(byte[] addr) {
+ *     try {
+ *         return addr.length > 0 ? InetAddress.getByAddress(addr).getHostAddress() : "*";
+ *     } catch (UnknownHostException e) {
+ *         return "?";
+ *     }
+ * }
+ * }</pre>
+ *
+ * <b>Platform notes:</b> On macOS, connection information requires elevated permissions. Without elevated permissions,
+ * TCP segment data is estimated.
+ *
+ * @see TcpStats
+ * @see UdpStats
+ * @see IPConnection
  */
 @PublicApi
 @ThreadSafe
@@ -23,7 +60,7 @@ public interface InternetProtocolStats {
     /**
      * Get the TCP stats for IPv4 connections.
      * <p>
-     * On macOS connection information requires elevated permissions. Without elevatd permissions, segment data is
+     * On macOS connection information requires elevated permissions. Without elevated permissions, segment data is
      * estimated.
      *
      * @return a {@link TcpStats} object encapsulating the stats.

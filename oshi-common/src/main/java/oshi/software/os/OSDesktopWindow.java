@@ -10,7 +10,14 @@ import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 
 /**
- * This class encapsulates information about a window on the operating system's GUI desktop
+ * This class encapsulates information about a window on the operating system's GUI desktop.
+ * <p>
+ * Desktop windows are obtained from {@link OperatingSystem#getDesktopWindows(boolean)}.
+ * <p>
+ * <b>Platform notes:</b> This feature requires a GUI session. On Unix-like systems, only X11 windows are reported,
+ * which may be limited to the current display. On headless or non-GUI environments, the list will be empty.
+ *
+ * @see OperatingSystem#getDesktopWindows(boolean)
  */
 @PublicApi
 @Immutable

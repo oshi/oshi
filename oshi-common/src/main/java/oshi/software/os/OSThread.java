@@ -11,6 +11,11 @@ import oshi.software.os.OSProcess.State;
 
 /**
  * Represents a Thread/Task on the operating system.
+ * <p>
+ * Threads are obtained from {@link oshi.software.os.OSProcess#getThreadDetails()}. Each thread belongs to a parent
+ * process identified by {@link #getOwningProcessId()}.
+ *
+ * @see oshi.software.os.OSProcess#getThreadDetails()
  */
 @PublicApi
 public interface OSThread {

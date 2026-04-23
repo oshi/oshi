@@ -9,6 +9,13 @@ import oshi.annotation.concurrent.Immutable;
 
 /**
  * The Firmware represents the low level BIOS or equivalent.
+ * <p>
+ * Obtained from {@link ComputerSystem#getFirmware()}.
+ * <p>
+ * <b>Platform notes:</b> On Raspberry Pi, {@code vcgencmd} is used as a fallback to retrieve firmware version
+ * information when standard SMBIOS data is not available.
+ *
+ * @see ComputerSystem
  */
 @PublicApi
 @Immutable

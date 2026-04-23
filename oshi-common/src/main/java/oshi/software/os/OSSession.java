@@ -15,6 +15,11 @@ import oshi.annotation.concurrent.Immutable;
 
 /**
  * This class encapsulates information about users who are currently logged in to an operating system.
+ * <p>
+ * Sessions are obtained from {@link OperatingSystem#getSessions()}. See that method's documentation for important
+ * thread-safety notes on macOS, Linux, and Unix systems.
+ *
+ * @see OperatingSystem#getSessions()
  */
 @PublicApi
 @Immutable

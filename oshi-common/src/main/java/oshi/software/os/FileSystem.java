@@ -12,6 +12,12 @@ import oshi.annotation.concurrent.ThreadSafe;
 /**
  * The File System is a logical arrangement, usually in a hierarchial tree, where files are placed for storage and
  * retrieval. It may consist of one or more file stores.
+ * <p>
+ * To correlate file stores with their underlying hardware, match {@link OSFileStore#getMount()} with
+ * {@link oshi.hardware.HWPartition#getMountPoint()}.
+ *
+ * @see OSFileStore
+ * @see oshi.hardware.HWDiskStore
  */
 @PublicApi
 @ThreadSafe

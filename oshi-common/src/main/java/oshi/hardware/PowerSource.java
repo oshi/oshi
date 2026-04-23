@@ -10,7 +10,34 @@ import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
- * The Power Source is one or more batteries with some capacity, and some state of charge/discharge
+ * A Power Source represents a battery or UPS device with some capacity and charge/discharge state.
+ * <p>
+ * To monitor battery charge over time, call {@link #updateAttributes()} periodically to refresh the statistics on this
+ * object:
+ *
+ * <pre>{@code
+ * List<PowerSource> powerSources = hal.getPowerSources();
+ * if (powerSources.isEmpty()) {
+ *     System.out.println("No battery found");
+ *     return;
+ * }
+ * PowerSource battery = powerSources.get(0);
+ * System.out.printf("Charge: %.0f%%%n", battery.getRemainingCapacityPercent() * 100);
+ * Thread.sleep(5000);
+ * battery.updateAttributes();
+ * System.out.printf("Charge: %.0f%%%n", battery.getRemainingCapacityPercent() * 100);
+ * }</pre>
+ *
+ * <b>Capacity units:</b> The {@link CapacityUnits} enum indicates whether capacity values from
+ * {@link #getCurrentCapacity()}, {@link #getMaxCapacity()}, and {@link #getDesignCapacity()} are reported in
+ * milliWatt-hours (mWh), milliAmp-hours (mAh), or relative units. Use {@link #getCapacityUnits()} to determine which
+ * unit applies.
+ * <p>
+ * <b>Sentinel values:</b> Several methods return sentinel values when information is unavailable. For example,
+ * {@link #getVoltage()} and {@link #getCycleCount()} return {@code -1} when unknown, and
+ * {@link #getTimeRemainingEstimated()} returns {@code -1.0} (calculating) or {@code -2.0} (unlimited).
+ * <p>
+ * <b>Platform notes:</b> On Android and some embedded systems, the power source list may be empty.
  */
 @PublicApi
 @ThreadSafe
