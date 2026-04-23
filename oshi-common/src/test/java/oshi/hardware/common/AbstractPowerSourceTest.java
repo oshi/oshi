@@ -79,7 +79,7 @@ class AbstractPowerSourceTest {
                 PowerSource.CapacityUnits.MAH, 5000, 10000, 10000, 10, "NiMH", null, "Mfg", "SN", -1.0);
         String s = ps.toString();
         // Voltage <= 0 should show "unknown"
-        assertThat(s, containsString("Unknown"));
+        assertThat(s, containsString("Voltage: unknown"));
         // Null manufacture date
         assertThat(s, containsString("Manufacture Date: unknown"));
         // timeRemainingEstimated = 7200 -> "2:00"

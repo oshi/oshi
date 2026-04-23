@@ -109,5 +109,6 @@ class ExecutingCommandTest {
                 : new String[] { "echo", "Hello" };
         List<String> result = ExecutingCommand.runNative(cmd);
         assertThat("array command", result, hasSize(1));
+        assertThat("array command output", result.get(0), is("Hello"));
     }
 }

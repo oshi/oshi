@@ -316,10 +316,7 @@ class AbstractCentralProcessorTest {
                 "pge", "mca", "cmov", "pat", "pse-36", "psn", "clfsh", "ds", "acpi", "mmx", "fxsr", "sse", "sse2", "ss",
                 "htt", "tm", "ia64", "pbe" };
         String id = AbstractCentralProcessor.createProcessorID("0", "0", "0", allFlags);
-        assertThat(id.length(), is(16));
-        long parsed = Long.parseUnsignedLong(id, 16);
-        // At least some high bits should be set
-        assertThat(parsed >>> 32 != 0, is(true));
+        assertThat(id, is("FFEFFBFF00000000"));
     }
 
     @Test

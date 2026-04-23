@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests FileUtil
@@ -239,14 +240,14 @@ class FileUtilTest {
     }
 
     @Test
-    void testReadFileNoReportError() {
-        // Non-existent file with reportError=false should return empty without logging error
-        assertThat(FileUtil.readFile("/nonexistent/path/file", false), is(empty()));
+    void testReadFileNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.txt").toString();
+        assertThat(FileUtil.readFile(missing, false), is(empty()));
     }
 
     @Test
-    void testReadLinesFromFile() throws IOException {
-        Path file = Files.createTempFile("oshitest.lines", null);
+    void testReadLinesFromFile(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("lines.txt");
         Files.write(file, "line1\nline2\nline3\nline4\nline5\n".getBytes(StandardCharsets.UTF_8));
 
         List<String> lines = FileUtil.readLines(file.toString(), 3);
@@ -260,18 +261,20 @@ class FileUtilTest {
 
         Files.deleteIfExists(file);
 
-        // Non-existent file
+        // Non-existent file after deletion
         assertThat(FileUtil.readLines(file.toString(), 1), is(empty()));
     }
 
     @Test
-    void testReadLinesNoReportError() {
-        assertThat(FileUtil.readLines("/nonexistent/path/file", 1, false), is(empty()));
+    void testReadLinesNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.txt").toString();
+        assertThat(FileUtil.readLines(missing, 1, false), is(empty()));
     }
 
     @Test
-    void testReadAllBytesNoReportError() {
-        byte[] result = FileUtil.readAllBytes("/nonexistent/path/file", false);
+    void testReadAllBytesNoReportError(@TempDir Path tempDir) {
+        String missing = tempDir.resolve("missing.bin").toString();
+        byte[] result = FileUtil.readAllBytes(missing, false);
         assertThat(result.length, is(0));
     }
 
@@ -284,9 +287,8 @@ class FileUtilTest {
     }
 
     @Test
-    void testReadSymlinkTargetNonSymlink() throws IOException {
-        Path file = Files.createTempFile("oshitest.nosymlink", null);
+    void testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) throws IOException {
+        Path file = Files.createFile(tempDir.resolve("regular.txt"));
         assertThat(FileUtil.readSymlinkTarget(file.toFile()), is((String) null));
-        Files.deleteIfExists(file);
     }
 }

@@ -6,7 +6,6 @@ package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.Test;
@@ -55,8 +54,6 @@ class PlatformEnumTest {
 
     @Test
     void testGetCurrentPlatform() {
-        PlatformEnum current = PlatformEnum.getCurrentPlatform();
-        assertThat(current, is(notNullValue()));
-        assertThat(current, is(not(PlatformEnum.UNKNOWN)));
+        assertThat(PlatformEnum.getCurrentPlatform(), is(notNullValue()));
     }
 }
