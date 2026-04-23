@@ -90,4 +90,24 @@ class ExecutingCommandTest {
         String answer = ExecutingCommand.getFirstPrivilegedAnswer(ECHO);
         assertThat("first privileged answer", answer, is("Test"));
     }
+
+    @Test
+    void testGetAnswerAtOutOfRange() {
+        assertThat("negative index", ExecutingCommand.getAnswerAt(ECHO, -1), is(emptyString()));
+        assertThat("index past end", ExecutingCommand.getAnswerAt(ECHO, 999), is(emptyString()));
+    }
+
+    @Test
+    void testGetAnswerAtValidIndex() {
+        assertThat("index 0", ExecutingCommand.getAnswerAt(ECHO, 0), is("Test"));
+    }
+
+    @Test
+    void testRunNativeWithArray() {
+        String[] cmd = PlatformEnum.getCurrentPlatform().equals(PlatformEnum.WINDOWS)
+                ? new String[] { "cmd.exe", "/C", "echo", "Hello" }
+                : new String[] { "echo", "Hello" };
+        List<String> result = ExecutingCommand.runNative(cmd);
+        assertThat("array command", result, hasSize(1));
+    }
 }

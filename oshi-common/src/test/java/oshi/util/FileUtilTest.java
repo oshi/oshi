@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -235,5 +236,57 @@ class FileUtilTest {
         } catch (IOException e) {
             fail("IO Exception deleting temporary procIo file.");
         }
+    }
+
+    @Test
+    void testReadFileNoReportError() {
+        // Non-existent file with reportError=false should return empty without logging error
+        assertThat(FileUtil.readFile("/nonexistent/path/file", false), is(empty()));
+    }
+
+    @Test
+    void testReadLinesFromFile() throws IOException {
+        Path file = Files.createTempFile("oshitest.lines", null);
+        Files.write(file, "line1\nline2\nline3\nline4\nline5\n".getBytes(StandardCharsets.UTF_8));
+
+        List<String> lines = FileUtil.readLines(file.toString(), 3);
+        assertThat("should read 3 lines", lines, hasSize(3));
+        assertThat(lines.get(0), is("line1"));
+        assertThat(lines.get(2), is("line3"));
+
+        // Read more lines than exist
+        lines = FileUtil.readLines(file.toString(), 100);
+        assertThat("should read all 5 lines", lines, hasSize(5));
+
+        Files.deleteIfExists(file);
+
+        // Non-existent file
+        assertThat(FileUtil.readLines(file.toString(), 1), is(empty()));
+    }
+
+    @Test
+    void testReadLinesNoReportError() {
+        assertThat(FileUtil.readLines("/nonexistent/path/file", 1, false), is(empty()));
+    }
+
+    @Test
+    void testReadAllBytesNoReportError() {
+        byte[] result = FileUtil.readAllBytes("/nonexistent/path/file", false);
+        assertThat(result.length, is(0));
+    }
+
+    @Test
+    void testGetFileName() {
+        assertThat(FileUtil.getFileName("/usr/bin/dmidecode"), is("dmidecode"));
+        assertThat(FileUtil.getFileName("dmidecode"), is("dmidecode"));
+        assertThat(FileUtil.getFileName(""), is(""));
+        assertThat(FileUtil.getFileName(null), is(""));
+    }
+
+    @Test
+    void testReadSymlinkTargetNonSymlink() throws IOException {
+        Path file = Files.createTempFile("oshitest.nosymlink", null);
+        assertThat(FileUtil.readSymlinkTarget(file.toFile()), is((String) null));
+        Files.deleteIfExists(file);
     }
 }
