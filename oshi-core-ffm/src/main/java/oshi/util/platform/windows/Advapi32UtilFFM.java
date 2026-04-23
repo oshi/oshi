@@ -292,7 +292,7 @@ public final class Advapi32UtilFFM {
                 rc = ERROR_MORE_DATA;
                 for (int attempt = 0; attempt < 3 && rc != ERROR_SUCCESS; attempt++) {
                     // Allocate extra for double-null terminator
-                    data = arena.allocate(size + 4);
+                    data = arena.allocate(size + 4L);
                     data.fill((byte) 0);
                     lpcbData.set(JAVA_INT, 0, size + 4);
 

@@ -56,10 +56,10 @@ public final class SessionWtsDataFFM {
     private static final int WINSTATIONNAME_LENGTH = 32;
     private static final int DOMAIN_LENGTH = 17;
     private static final int USERNAME_LENGTH = 20;
-    private static final long WTSINFO_USERNAME_OFFSET = 32 + WINSTATIONNAME_LENGTH * 2 + DOMAIN_LENGTH * 2;
+    private static final long WTSINFO_USERNAME_OFFSET = 32 + WINSTATIONNAME_LENGTH * 2L + DOMAIN_LENGTH * 2L;
     // After fixed-size char arrays, align to 8 for LARGE_INTEGERs
-    private static final long WTSINFO_AFTER_STRINGS = 32 + WINSTATIONNAME_LENGTH * 2 + DOMAIN_LENGTH * 2
-            + (USERNAME_LENGTH + 1) * 2;
+    private static final long WTSINFO_AFTER_STRINGS = 32 + WINSTATIONNAME_LENGTH * 2L + DOMAIN_LENGTH * 2L
+            + (USERNAME_LENGTH + 1) * 2L;
     private static final long WTSINFO_LOGONTIME_OFFSET;
 
     static {

@@ -32,6 +32,8 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 final class WindowsGpuStatsFFM implements GpuStats {
 
+    private static final String GPU_CORE = "GPU Core";
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGpuStatsFFM.class);
 
     private static final long MB_TO_BYTES = 1_048_576L;
@@ -114,7 +116,7 @@ final class WindowsGpuStatsFFM implements GpuStats {
             try {
                 WmiResult<LhmSensorProperty> sensors = LhmSensorFFM.querySensors(lhmParent, "Load");
                 for (int i = 0; i < sensors.getResultCount(); i++) {
-                    if ("GPU Core".equals(WmiUtilFFM.getString(sensors, LhmSensorProperty.NAME, i))) {
+                    if (GPU_CORE.equals(WmiUtilFFM.getString(sensors, LhmSensorProperty.NAME, i))) {
                         return WmiUtilFFM.getFloat(sensors, LhmSensorProperty.VALUE, i);
                     }
                 }
@@ -188,7 +190,7 @@ final class WindowsGpuStatsFFM implements GpuStats {
                 return val;
             }
         }
-        return lhmFloatSensor("Temperature", "GPU Core");
+        return lhmFloatSensor("Temperature", GPU_CORE);
     }
 
     @Override
@@ -232,7 +234,7 @@ final class WindowsGpuStatsFFM implements GpuStats {
                 return val;
             }
         }
-        double lhm = lhmFloatSensor("Clock", "GPU Core");
+        double lhm = lhmFloatSensor("Clock", GPU_CORE);
         return lhm >= 0 ? (long) lhm : -1L;
     }
 

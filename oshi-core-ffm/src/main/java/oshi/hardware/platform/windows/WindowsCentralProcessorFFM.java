@@ -122,7 +122,7 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 MemorySegment openedKey = hKey.get(ValueLayout.ADDRESS, 0);
                 try {
                     // Get first subkey name
-                    MemorySegment nameBuffer = arena.allocate(256 * 2); // WCHAR[256]
+                    MemorySegment nameBuffer = arena.allocate(256 * 2L); // WCHAR[256]
                     MemorySegment nameLen = arena.allocate(ValueLayout.JAVA_INT);
                     nameLen.set(ValueLayout.JAVA_INT, 0, 256);
                     if (Advapi32FFM.RegEnumKeyEx(openedKey, 0, nameBuffer, nameLen, MemorySegment.NULL,
@@ -277,7 +277,7 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 return freqs;
             }
             for (int i = 0; i < freqs.length; i++) {
-                int offset = i * PPI_SIZE;
+                long offset = i * (long) PPI_SIZE;
                 // ProcessorPowerInformation: number(4), maxMhz(4), currentMhz(4), mhzLimit(4), maxIdleState(4),
                 // currentIdleState(4)
                 if (fieldIndex == 1) {

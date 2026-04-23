@@ -22,43 +22,23 @@ import oshi.util.platform.windows.WmiQueryHandler;
 @ThreadSafe
 public final class Win32ProcessorJNA extends Win32Processor {
 
+    private static final String WMI_HANDLER_NULL = "WmiQueryHandler.createInstance() returned null";
+
     private Win32ProcessorJNA() {
     }
 
-    /**
-     * Returns processor voltage.
-     *
-     * @return Current voltage of the processor. If the eighth bit is set, bits 0-6 contain the voltage multiplied by
-     *         10. If the eighth bit is not set, then the bit setting in VoltageCaps represents the voltage value.
-     */
     public static WmiResult<VoltProperty> queryVoltage() {
         WmiQuery<VoltProperty> voltQuery = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
-        return Objects
-                .requireNonNull(WmiQueryHandler.createInstance(), "WmiQueryHandler.createInstance() returned null")
-                .queryWMI(voltQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance(), WMI_HANDLER_NULL).queryWMI(voltQuery);
     }
 
-    /**
-     * Returns processor ID.
-     *
-     * @return Processor information that describes the processor features.
-     */
     public static WmiResult<ProcessorIdProperty> queryProcessorId() {
         WmiQuery<ProcessorIdProperty> idQuery = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
-        return Objects
-                .requireNonNull(WmiQueryHandler.createInstance(), "WmiQueryHandler.createInstance() returned null")
-                .queryWMI(idQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance(), WMI_HANDLER_NULL).queryWMI(idQuery);
     }
 
-    /**
-     * Returns address width.
-     *
-     * @return On a 32-bit operating system, the value is 32 and on a 64-bit operating system it is 64.
-     */
     public static WmiResult<BitnessProperty> queryBitness() {
         WmiQuery<BitnessProperty> bitnessQuery = new WmiQuery<>(WIN32_PROCESSOR, BitnessProperty.class);
-        return Objects
-                .requireNonNull(WmiQueryHandler.createInstance(), "WmiQueryHandler.createInstance() returned null")
-                .queryWMI(bitnessQuery);
+        return Objects.requireNonNull(WmiQueryHandler.createInstance(), WMI_HANDLER_NULL).queryWMI(bitnessQuery);
     }
 }

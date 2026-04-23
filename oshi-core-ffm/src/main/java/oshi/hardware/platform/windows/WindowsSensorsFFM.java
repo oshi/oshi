@@ -37,6 +37,9 @@ import oshi.util.platform.windows.WmiUtilFFM;
 @ThreadSafe
 final class WindowsSensorsFFM extends AbstractSensors {
 
+    private static final String TEMPERATURE = "Temperature";
+    private static final String VOLTAGE = "Voltage";
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensorsFFM.class);
 
     private static final String COM_EXCEPTION_MSG = "COM exception: {}";
@@ -60,10 +63,10 @@ final class WindowsSensorsFFM extends AbstractSensors {
     }
 
     private static double getTempFromOHM() {
-        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Temperature", (h, ohmHardware) -> {
+        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", TEMPERATURE, (h, ohmHardware) -> {
             String cpuIdentifier = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (!cpuIdentifier.isEmpty()) {
-                return OhmSensorFFM.querySensorValue(h, cpuIdentifier, "Temperature");
+                return OhmSensorFFM.querySensorValue(h, cpuIdentifier, TEMPERATURE);
             }
             return null;
         });
@@ -78,7 +81,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
     }
 
     private static double getTempFromLHM() {
-        return getAverageValueFromLHM("CPU", "Temperature",
+        return getAverageValueFromLHM("CPU", TEMPERATURE,
                 (name, value) -> !name.contains("Max") && !name.contains("Average") && value > 0);
     }
 
@@ -191,7 +194,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
     }
 
     private static double getVoltsFromOHM() {
-        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Sensor", "Voltage", "Voltage", (h, ohmHardware) -> {
+        WmiResult<ValueProperty> ohmSensors = getOhmSensors("Sensor", VOLTAGE, VOLTAGE, (h, ohmHardware) -> {
             String cpuIdentifier = null;
             for (int i = 0; i < ohmHardware.getResultCount(); i++) {
                 String id = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
@@ -203,7 +206,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
             if (cpuIdentifier == null) {
                 cpuIdentifier = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
-            return OhmSensorFFM.querySensorValue(h, cpuIdentifier, "Voltage");
+            return OhmSensorFFM.querySensorValue(h, cpuIdentifier, VOLTAGE);
         });
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             return WmiUtilFFM.getFloat(ohmSensors, ValueProperty.VALUE, 0);
@@ -212,7 +215,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
     }
 
     private static double getVoltsFromLHM() {
-        return getAverageValueFromLHM("SuperIO", "Voltage",
+        return getAverageValueFromLHM("SuperIO", VOLTAGE,
                 (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
     }
 

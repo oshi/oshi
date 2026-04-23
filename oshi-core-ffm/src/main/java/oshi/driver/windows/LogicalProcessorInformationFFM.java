@@ -83,14 +83,10 @@ public final class LogicalProcessorInformationFFM {
             }
 
             // Parse the buffer
-            int offset = 0;
+            long offset = 0;
             while (offset < bufferSize) {
-                // SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX structure:
-                // Relationship (DWORD at offset 0)
-                // Size (DWORD at offset 4)
-                // Union data starts at offset 8
                 int relationship = buffer.get(ValueLayout.JAVA_INT, offset);
-                int size = buffer.get(ValueLayout.JAVA_INT, offset + 4);
+                int size = buffer.get(ValueLayout.JAVA_INT, offset + 4L);
 
                 switch (relationship) {
                     case RELATION_PROCESSOR_CORE:
@@ -158,45 +154,33 @@ public final class LogicalProcessorInformationFFM {
         return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
     }
 
-    private static void parseProcessorCore(MemorySegment buffer, int baseOffset, List<long[]> cores) {
-        // PROCESSOR_RELATIONSHIP at offset 8:
-        // Flags (BYTE at 0), EfficiencyClass (BYTE at 1), Reserved[20] (at 2), GroupCount (WORD at 22)
-        // GroupMask[1] starts at 24: GROUP_AFFINITY is { Mask (KAFFINITY=8 bytes), Group (WORD), Reserved[3] (3 WORD) }
-        int dataOffset = baseOffset + 8;
+    private static void parseProcessorCore(MemorySegment buffer, long baseOffset, List<long[]> cores) {
+        long dataOffset = baseOffset + 8;
         int efficiencyClass = IS_WIN10_OR_GREATER
                 ? Byte.toUnsignedInt(buffer.get(ValueLayout.JAVA_BYTE, dataOffset + 1))
                 : 0;
-        // For core, groupCount is always 1
         long mask = buffer.get(ValueLayout.JAVA_LONG, dataOffset + 24);
-        int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 24 + 8));
+        int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 32));
         cores.add(new long[] { group, mask, efficiencyClass });
     }
 
-    private static void parseNumaNode(MemorySegment buffer, int baseOffset, List<long[]> numaNodes) {
-        // NUMA_NODE_RELATIONSHIP at offset 8:
-        // NodeNumber (DWORD at 0), Reserved[18] (at 4), GroupCount (WORD at 22),
-        // GroupMasks[] (GROUP_AFFINITY[GroupCount] at 24, each 16 bytes: KAFFINITY mask + WORD group + WORD[3]
-        // reserved)
-        int dataOffset = baseOffset + 8;
+    private static void parseNumaNode(MemorySegment buffer, long baseOffset, List<long[]> numaNodes) {
+        long dataOffset = baseOffset + 8;
         int nodeNumber = buffer.get(ValueLayout.JAVA_INT, dataOffset);
         int groupCount = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 22));
         if (groupCount == 0) {
-            // Pre-20H2: single GROUP_AFFINITY at offset 24
             groupCount = 1;
         }
         for (int i = 0; i < groupCount; i++) {
-            int affinityOffset = dataOffset + 24 + i * 16;
+            long affinityOffset = dataOffset + 24 + i * 16L;
             long mask = buffer.get(ValueLayout.JAVA_LONG, affinityOffset);
             int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, affinityOffset + 8));
             numaNodes.add(new long[] { nodeNumber, group, mask });
         }
     }
 
-    private static void parseCache(MemorySegment buffer, int baseOffset, Set<ProcessorCache> caches) {
-        // CACHE_RELATIONSHIP at offset 8:
-        // Level (BYTE at 0), Associativity (BYTE at 1), LineSize (WORD at 2), CacheSize (DWORD at 4),
-        // Type (DWORD at 8), Reserved[18] (at 12), padding (2 at 30), GroupMask (16 at 32)
-        int dataOffset = baseOffset + 8;
+    private static void parseCache(MemorySegment buffer, long baseOffset, Set<ProcessorCache> caches) {
+        long dataOffset = baseOffset + 8;
         int level = Byte.toUnsignedInt(buffer.get(ValueLayout.JAVA_BYTE, dataOffset));
         int associativity = Byte.toUnsignedInt(buffer.get(ValueLayout.JAVA_BYTE, dataOffset + 1));
         int lineSize = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 2));
@@ -207,14 +191,12 @@ public final class LogicalProcessorInformationFFM {
         caches.add(new ProcessorCache(level, associativity, lineSize, cacheSize, cacheType));
     }
 
-    private static void parsePackage(MemorySegment buffer, int baseOffset, List<List<long[]>> packages) {
-        // PROCESSOR_RELATIONSHIP at offset 8 (same as core):
-        // Flags(1), EfficiencyClass(1), Reserved[20](20), GroupCount(2), GroupMask[](16 each)
-        int dataOffset = baseOffset + 8;
+    private static void parsePackage(MemorySegment buffer, long baseOffset, List<List<long[]>> packages) {
+        long dataOffset = baseOffset + 8;
         int groupCount = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 22));
         List<long[]> groupMasks = new ArrayList<>();
         for (int i = 0; i < groupCount; i++) {
-            int gmOffset = dataOffset + 24 + i * 16;
+            long gmOffset = dataOffset + 24 + i * 16L;
             long mask = buffer.get(ValueLayout.JAVA_LONG, gmOffset);
             int group = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, gmOffset + 8));
             groupMasks.add(new long[] { group, mask });

@@ -165,7 +165,7 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
             this.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
             this.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
             // Alias is WCHAR[257] at OFFSET_ALIAS
-            MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2);
+            MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
             this.ifAlias = readWideString(aliasSlice);
             int operStatus = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_OPER_STATUS);
             this.ifOperStatus = IfOperStatus.byValue(operStatus);

@@ -190,5 +190,6 @@ class GpuStatsTest {
         for (Future<Void> f : futures) {
             f.get();
         }
+        assertThat(futures.size(), is(threads));
     }
 }
