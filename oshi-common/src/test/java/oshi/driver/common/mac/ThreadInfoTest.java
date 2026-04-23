@@ -5,7 +5,6 @@
 package oshi.driver.common.mac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
@@ -27,11 +26,14 @@ class ThreadInfoTest {
 
     @Test
     void testThreadStatsGetters() {
+        // upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005))
+        // = (long) ((2000 + 1000) / (25.0 / 100.0 + 0.0005))
+        // = (long) (3000 / 0.2505) = 11976
         ThreadInfo.ThreadStats ts = new ThreadInfo.ThreadStats(5, 25.0, 'R', 1000L, 2000L, 20);
         assertThat(ts.getThreadId(), is(5));
         assertThat(ts.getSystemTime(), is(1000L));
         assertThat(ts.getUserTime(), is(2000L));
-        assertThat(ts.getUpTime(), greaterThan(0L));
+        assertThat(ts.getUpTime(), is(11976L));
         assertThat(ts.getPriority(), is(20));
     }
 }
