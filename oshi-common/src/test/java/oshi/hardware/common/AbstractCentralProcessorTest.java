@@ -250,8 +250,7 @@ class AbstractCentralProcessorTest {
     @Test
     void testToStringHybridCores() {
         String s = createHybridProcessor().toString();
-        assertThat(s, containsString("performance"));
-        assertThat(s, containsString("efficiency"));
+        assertThat(s, containsString("2 performance + 2 efficiency"));
     }
 
     @Test
@@ -304,6 +303,7 @@ class AbstractCentralProcessorTest {
         dmesg.put(1, "ARM Cortex-A73");
 
         List<PhysicalProcessor> result = cpu.createProcListFromDmesg(logProcs, dmesg);
+        assertThat(result, hasSize(2));
         // All same type = not hybrid, all efficiency 0
         for (PhysicalProcessor pp : result) {
             assertThat(pp.getEfficiency(), is(0));
@@ -321,8 +321,12 @@ class AbstractCentralProcessorTest {
 
     @Test
     void testProcessorCpuLoadBetweenTicksWrongLength() {
+        // Outer array length mismatch
         assertThrows(IllegalArgumentException.class,
                 () -> createProcessor().getProcessorCpuLoadBetweenTicks(new long[2][2], new long[1][1]));
+        // Matching outer length but wrong inner subarray length
+        assertThrows(IllegalArgumentException.class,
+                () -> createProcessor().getProcessorCpuLoadBetweenTicks(new long[1][2], new long[1][2]));
     }
 
     @Test

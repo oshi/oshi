@@ -86,6 +86,8 @@ class AbstractPowerSourceTest {
         assertThat(s, containsString("2:00"));
         // timeRemainingInstant between -1.5 and 0 -> "Unknown"
         assertThat(s, containsString("Time Remaining Instant: Unknown"));
+        // Temperature <= 0 should show "unknown"
+        assertThat(s, containsString("Temperature: unknown"));
     }
 
     @Test

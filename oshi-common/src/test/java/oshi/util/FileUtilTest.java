@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -289,6 +290,6 @@ class FileUtilTest {
     @Test
     void testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) throws IOException {
         Path file = Files.createFile(tempDir.resolve("regular.txt"));
-        assertThat(FileUtil.readSymlinkTarget(file.toFile()), is((String) null));
+        assertThat(FileUtil.readSymlinkTarget(file.toFile()), is(nullValue()));
     }
 }
