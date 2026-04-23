@@ -286,4 +286,54 @@ class LinuxCentralProcessorTest {
         assertThat(result.getA(), hasSize(1));
         assertThat(result.getA().get(0).getProcessorNumber(), is(0));
     }
+
+    // -------------------------------------------------------------------------
+    // readTopologyFromSysfs — additional coverage
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testReadTopologyFromSysfsWithNumaNode(@TempDir Path tempDir) throws IOException {
+        Path cpu0 = tempDir.resolve("cpu0");
+        Files.createDirectories(cpu0.resolve("topology"));
+        writeFile(cpu0.resolve("topology/core_id"), "0");
+        writeFile(cpu0.resolve("topology/physical_package_id"), "0");
+        // Add a numa_node file
+        Path numaNode = cpu0.resolve("node0");
+        Files.createDirectories(numaNode);
+
+        Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
+                .readTopologyFromSysfs(tempDir.toString());
+        assertThat(result.getA(), hasSize(1));
+        assertThat(result.getA().get(0).getNumaNode(), is(0));
+    }
+
+    @Test
+    void testReadTopologyFromSysfsWithCacheTypes(@TempDir Path tempDir) throws IOException {
+        Path cpu0 = tempDir.resolve("cpu0");
+        Files.createDirectories(cpu0.resolve("topology"));
+        writeFile(cpu0.resolve("topology/core_id"), "0");
+        writeFile(cpu0.resolve("topology/physical_package_id"), "0");
+
+        // Add Instruction cache
+        Path index0 = cpu0.resolve("cache/index0");
+        Files.createDirectories(index0);
+        writeFile(index0.resolve("level"), "1");
+        writeFile(index0.resolve("type"), "Instruction");
+        writeFile(index0.resolve("ways_of_associativity"), "4");
+        writeFile(index0.resolve("coherency_line_size"), "64");
+        writeFile(index0.resolve("size"), "64K");
+
+        // Add Unified L2 cache
+        Path index1 = cpu0.resolve("cache/index1");
+        Files.createDirectories(index1);
+        writeFile(index1.resolve("level"), "2");
+        writeFile(index1.resolve("type"), "Unified");
+        writeFile(index1.resolve("ways_of_associativity"), "16");
+        writeFile(index1.resolve("coherency_line_size"), "64");
+        writeFile(index1.resolve("size"), "512K");
+
+        Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
+                .readTopologyFromSysfs(tempDir.toString());
+        assertThat(result.getB(), hasSize(2));
+    }
 }
