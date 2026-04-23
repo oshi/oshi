@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
@@ -36,7 +37,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
 
     // Previous sample for utility base multiplier calculation
-    private volatile Map<ProcessorUtilityTickCountProperty, List<Long>> initialUtilityCounters;
+    private final AtomicReference<Map<ProcessorUtilityTickCountProperty, List<Long>>> initialUtilityCounters = new AtomicReference<>();
     // Lazily initialized
     private Long utilityBaseMultiplier;
 
@@ -72,7 +73,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the initial utility counters
      */
     protected Map<ProcessorUtilityTickCountProperty, List<Long>> getInitialUtilityCounters() {
-        return this.initialUtilityCounters;
+        return this.initialUtilityCounters.get();
     }
 
     /**
@@ -81,7 +82,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @param counters the counters to set
      */
     protected void setInitialUtilityCounters(Map<ProcessorUtilityTickCountProperty, List<Long>> counters) {
-        this.initialUtilityCounters = counters;
+        this.initialUtilityCounters.set(counters);
     }
 
     /**
