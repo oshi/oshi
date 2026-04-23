@@ -5,7 +5,6 @@
 package oshi.util.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -24,8 +23,6 @@ class WhoTest {
     void testQueryWho() {
         List<OSSession> sessions = Who.queryWho();
         assertThat(sessions, is(notNullValue()));
-        // May be empty on headless CI, but should not throw
-        assertThat(sessions.size(), is(greaterThanOrEqualTo(0)));
         for (OSSession session : sessions) {
             assertThat(session.getUserName(), is(notNullValue()));
             assertThat(session.getTerminalDevice(), is(notNullValue()));

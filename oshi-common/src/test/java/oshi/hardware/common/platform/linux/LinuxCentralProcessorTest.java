@@ -297,14 +297,14 @@ class LinuxCentralProcessorTest {
         Files.createDirectories(cpu0.resolve("topology"));
         writeFile(cpu0.resolve("topology/core_id"), "0");
         writeFile(cpu0.resolve("topology/physical_package_id"), "0");
-        // Add a numa_node file
-        Path numaNode = cpu0.resolve("node0");
+        // Use non-zero NUMA node to verify parsing (default is 0)
+        Path numaNode = cpu0.resolve("node3");
         Files.createDirectories(numaNode);
 
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
                 .readTopologyFromSysfs(tempDir.toString());
         assertThat(result.getA(), hasSize(1));
-        assertThat(result.getA().get(0).getNumaNode(), is(0));
+        assertThat(result.getA().get(0).getNumaNode(), is(3));
     }
 
     @Test
