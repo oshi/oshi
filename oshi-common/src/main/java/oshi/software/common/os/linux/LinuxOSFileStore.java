@@ -82,19 +82,49 @@ public class LinuxOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
+        // Fast path: query space/inode stats directly on the known mount point
+        long[] vfs = fs.queryStatvfs(getMount());
+        if (vfs != null) {
+            long ts = vfs[2];
+            long us = vfs[3];
+            long frs = vfs[4];
+            // If native methods failed use JVM methods
+            if (ts == 0L) {
+                java.io.File f = new java.io.File(getMount());
+                ts = f.getTotalSpace();
+                us = f.getUsableSpace();
+                frs = f.getFreeSpace();
+            }
+            updateSpaceAndInodes(frs, us, ts, vfs[1], vfs[0]);
+            return true;
+        }
+        // Fall back to full enumeration if the direct call failed
         for (OSFileStore fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(), isLocal())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
-                this.logicalVolume = fileStore.getLogicalVolume();
-                this.description = fileStore.getDescription();
-                this.fsType = fileStore.getType();
-                this.freeSpace = fileStore.getFreeSpace();
-                this.usableSpace = fileStore.getUsableSpace();
-                this.totalSpace = fileStore.getTotalSpace();
-                this.freeInodes = fileStore.getFreeInodes();
-                this.totalInodes = fileStore.getTotalInodes();
+                updateFrom(fileStore);
                 return true;
             }
         }
         return false;
+    }
+
+    private void updateSpaceAndInodes(long freeSpace, long usableSpace, long totalSpace, long freeInodes,
+            long totalInodes) {
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
+    }
+
+    private void updateFrom(OSFileStore fileStore) {
+        this.logicalVolume = fileStore.getLogicalVolume();
+        this.description = fileStore.getDescription();
+        this.fsType = fileStore.getType();
+        this.freeSpace = fileStore.getFreeSpace();
+        this.usableSpace = fileStore.getUsableSpace();
+        this.totalSpace = fileStore.getTotalSpace();
+        this.freeInodes = fileStore.getFreeInodes();
+        this.totalInodes = fileStore.getTotalInodes();
     }
 }

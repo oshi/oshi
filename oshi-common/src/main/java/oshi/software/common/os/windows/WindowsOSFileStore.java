@@ -93,4 +93,17 @@ public abstract class WindowsOSFileStore extends AbstractOSFileStore {
         this.freeInodes = fileStore.getFreeInodes();
         this.totalInodes = fileStore.getTotalInodes();
     }
+
+    /**
+     * Updates only the space fields, bypassing full volume enumeration.
+     *
+     * @param freeSpace   free space in bytes
+     * @param usableSpace usable space in bytes
+     * @param totalSpace  total space in bytes
+     */
+    protected void updateSpace(long freeSpace, long usableSpace, long totalSpace) {
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+    }
 }

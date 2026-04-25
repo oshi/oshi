@@ -172,6 +172,18 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
 
     int proc_pidfdinfo(int pid, int fd, int flavor, Structure buffer, int buffersize);
 
+    /**
+     * The statfs64() routine returns information about a mounted file system. The {@code path} argument is the path
+     * name of any file or directory within the mounted file system. The {@code buf} argument is a pointer to a
+     * {@code statfs} structure.
+     *
+     * @param path the path to any file within the mounted filesystem
+     * @param buf  a {@link com.sun.jna.platform.mac.SystemB.Statfs} structure
+     * @return Upon successful completion, a value of 0 is returned. Otherwise, -1 is returned and the global variable
+     *         {@code errno} is set to indicate the error.
+     */
+    int statfs64(String path, Statfs buf);
+
     // kern_return_t vm_deallocate(vm_map_t target_task, vm_address_t address, vm_size_t size);
     int vm_deallocate(int targetTask, long address, long size);
 }

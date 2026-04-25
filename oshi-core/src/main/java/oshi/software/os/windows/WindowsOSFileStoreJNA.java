@@ -6,6 +6,9 @@ package oshi.software.os.windows;
 
 import java.util.List;
 
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.windows.WindowsOSFileStore;
 import oshi.software.os.OSFileStore;
@@ -25,12 +28,19 @@ public class WindowsOSFileStoreJNA extends WindowsOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        // Check if we have the volume locally
+        // Fast path: call GetDiskFreeSpaceEx directly on the known volume
+        WinNT.LARGE_INTEGER userFreeBytes = new WinNT.LARGE_INTEGER(0L);
+        WinNT.LARGE_INTEGER totalBytes = new WinNT.LARGE_INTEGER(0L);
+        WinNT.LARGE_INTEGER systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
+        if (Kernel32.INSTANCE.GetDiskFreeSpaceEx(getVolume(), userFreeBytes, totalBytes, systemFreeBytes)) {
+            updateSpace(systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue());
+            return true;
+        }
+        // Fall back to full enumeration
         List<OSFileStore> volumes;
         if (isLocal()) {
             volumes = WindowsFileSystemJNA.getLocalVolumes(getVolume());
         } else {
-            // Not locally, search WMI
             String nameToMatch = getMount().length() < 2 ? null : getMount().substring(0, 2);
             volumes = WindowsFileSystemJNA.getWmiVolumes(nameToMatch, false);
         }

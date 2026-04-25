@@ -93,4 +93,22 @@ public abstract class MacOSFileStore extends AbstractOSFileStore {
         this.freeInodes = fileStore.getFreeInodes();
         this.totalInodes = fileStore.getTotalInodes();
     }
+
+    /**
+     * Updates only the space and inode fields, bypassing full enumeration.
+     *
+     * @param freeSpace   free space in bytes
+     * @param usableSpace usable space in bytes
+     * @param totalSpace  total space in bytes
+     * @param freeInodes  free inodes
+     * @param totalInodes total inodes
+     */
+    protected void updateSpaceAndInodes(long freeSpace, long usableSpace, long totalSpace, long freeInodes,
+            long totalInodes) {
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
+    }
 }

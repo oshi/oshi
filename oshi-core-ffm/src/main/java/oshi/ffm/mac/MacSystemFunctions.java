@@ -153,6 +153,15 @@ public final class MacSystemFunctions extends MacForeignFunctions {
         return (int) getfsstat64.invokeExact(buffer, bufsize, flags);
     }
 
+    // int statfs64(const char *path, struct statfs *buf);
+
+    private static final MethodHandle statfs64 = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("statfs64"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
+
+    public static int statfs64(MemorySegment path, MemorySegment buf) throws Throwable {
+        return (int) statfs64.invokeExact(path, buf);
+    }
+
     // void setutxent(void);
 
     private static final MethodHandle setutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("setutxent"),

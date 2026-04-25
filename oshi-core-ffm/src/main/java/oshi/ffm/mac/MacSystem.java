@@ -256,6 +256,10 @@ public interface MacSystem {
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntfromname"), // mounted filesystem
             paddingLayout(8 * 4).withName("f_reserved") // For future use
     );
+    PathElement F_BSIZE = groupElement("f_bsize");
+    PathElement F_BLOCKS = groupElement("f_blocks");
+    PathElement F_BFREE = groupElement("f_bfree");
+    PathElement F_BAVAIL = groupElement("f_bavail");
     PathElement F_FILES = groupElement("f_files");
     PathElement F_FFREE = groupElement("f_ffree");
     PathElement F_FSTYPENAME = groupElement("f_fstypename");
