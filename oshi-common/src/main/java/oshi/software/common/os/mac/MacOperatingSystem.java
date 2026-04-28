@@ -65,17 +65,21 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
         // Big Sur (11.x) may return 10.16
         if (verMajor == 10 && verMinor > 15) {
             String swVers = ExecutingCommand.getFirstAnswer("sw_vers -productVersion");
-            if (!swVers.isEmpty()) {
-                version = swVers;
-            }
+            version = resolveVersion(version, swVers);
             verMajor = ParseUtil.getFirstIntValue(version);
             verMinor = ParseUtil.getNthIntValue(version, 2);
         }
         this.osXVersion = version;
         this.major = verMajor;
         this.minor = verMinor;
-        // Set max processes
         this.maxProc = maxproc;
+    }
+
+    static String resolveVersion(String osVersion, String swVersOutput) {
+        if (!swVersOutput.isEmpty()) {
+            return swVersOutput;
+        }
+        return osVersion;
     }
 
     @Override

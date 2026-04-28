@@ -28,8 +28,12 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
     }
 
     protected static List<GraphicsCard> parseGraphicsCards(GraphicsCardFactory factory, SysctlLong sysctl) {
-        List<GraphicsCard> cardList = new ArrayList<>();
         List<String> sp = ExecutingCommand.runNative("system_profiler SPDisplaysDataType");
+        return parseGraphicsCards(sp, factory, sysctl);
+    }
+
+    static List<GraphicsCard> parseGraphicsCards(List<String> sp, GraphicsCardFactory factory, SysctlLong sysctl) {
+        List<GraphicsCard> cardList = new ArrayList<>();
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
         String vendor = Constants.UNKNOWN;

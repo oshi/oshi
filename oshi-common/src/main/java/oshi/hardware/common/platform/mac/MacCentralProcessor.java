@@ -196,12 +196,16 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     private List<String> getFeatureFlagsFromSysctl() {
-        List<String> x86Features = Stream.of("features", "extfeatures", "leaf7_features").map(f -> {
+        List<String> x86Features = parseX86FeatureFlags();
+        return x86Features.isEmpty() ? ExecutingCommand.runNative("sysctl -a hw.optional") : x86Features;
+    }
+
+    List<String> parseX86FeatureFlags() {
+        return Stream.of("features", "extfeatures", "leaf7_features").map(f -> {
             String key = "machdep.cpu." + f;
             String features = sysctlStringNoWarn(key, "");
             return Util.isBlank(features) ? null : (key + ": " + features);
         }).filter(Objects::nonNull).collect(Collectors.toList());
-        return x86Features.isEmpty() ? ExecutingCommand.runNative("sysctl -a hw.optional") : x86Features;
     }
 
     @Override
