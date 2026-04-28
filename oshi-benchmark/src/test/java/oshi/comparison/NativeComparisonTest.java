@@ -65,6 +65,9 @@ class NativeComparisonTest {
     static void setup() {
         // Disable memoization so each call gets fresh data for accurate comparison
         GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
+        // Enable CPU utility counters (Windows 8+) to exercise that branch;
+        // normal CI tests use the default (false) so both paths get coverage
+        GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, true);
 
         oshi.SystemInfo jnaSi = new oshi.SystemInfo();
         jnaHal = jnaSi.getHardware();
@@ -125,9 +128,10 @@ class NativeComparisonTest {
         long[] jnaTicks = jna.getSystemCpuLoadTicks();
         long[] ffmTicks = ffm.getSystemCpuLoadTicks();
         assertThat(ffmTicks).hasSameSizeAs(jnaTicks);
-        // Ticks are monotonically increasing counters; FFM (called second) should be >= JNA
+        // With USE_CPU_UTILITY enabled, ticks are derived from utility counters
+        // and may not be strictly monotonic between JNA and FFM calls
         for (int i = 0; i < jnaTicks.length; i++) {
-            assertThat(ffmTicks[i]).as("systemCpuLoadTick[%d]", i).isGreaterThanOrEqualTo(jnaTicks[i]);
+            assertWithinRatio(ffmTicks[i], jnaTicks[i], 0.05, "systemCpuLoadTick[" + i + "]");
         }
         long[][] jnaProc = jna.getProcessorCpuLoadTicks();
         long[][] ffmProc = ffm.getProcessorCpuLoadTicks();

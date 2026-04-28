@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.common.platform.linux.LinuxFirmware.VcGenCmdStrings;
+import oshi.util.Constants;
 
 class LinuxFirmwareTest {
 
@@ -71,7 +72,7 @@ class LinuxFirmwareTest {
     void testQueryVcGenCmdInvalidDate() {
         List<String> badDate = Arrays.asList("not a date", "Copyright (c) 2012 Broadcom", "version abc123");
         VcGenCmdStrings result = LinuxFirmware.queryVcGenCmd(badDate);
-        assertThat(result.getReleaseDate(), is("unknown"));
+        assertThat(result.getReleaseDate(), is(Constants.UNKNOWN));
         assertThat(result.getManufacturer(), is("Broadcom"));
         assertThat(result.getVersion(), is("abc123"));
     }

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
 @EnabledOnOs(OS.LINUX)
@@ -114,5 +115,109 @@ class LinuxOperatingSystemTest {
         String stat = "42 (Web Content (pid 42)) S 100 42 42 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 0 0 0 "
                 + "18446744073709551615 0 0 0 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(100));
+    }
+
+    // -------------------------------------------------------------------------
+    // readLsbRelease — parses /etc/lsb-release
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testReadLsbRelease() {
+        List<String> lines = Arrays.asList("DISTRIB_ID=Ubuntu", "DISTRIB_RELEASE=20.04", "DISTRIB_CODENAME=focal",
+                "DISTRIB_DESCRIPTION=\"Ubuntu 20.04.6 LTS\"");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
+        assertThat(result.getA(), is("Ubuntu"));
+        assertThat(result.getB(), is("20.04"));
+        assertThat(result.getC(), is("focal"));
+    }
+
+    @Test
+    void testReadLsbReleaseDescriptionWithRelease() {
+        List<String> lines = Arrays.asList("DISTRIB_DESCRIPTION=\"Fedora release 38 (Thirty Eight)\"");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
+        assertThat(result.getA(), is("Fedora"));
+        assertThat(result.getB(), is("38"));
+        assertThat(result.getC(), is("Thirty Eight"));
+    }
+
+    @Test
+    void testReadLsbReleaseEmpty() {
+        assertThat(LinuxOperatingSystem.readLsbRelease(Collections.emptyList()), is(nullValue()));
+    }
+
+    // -------------------------------------------------------------------------
+    // readDistribRelease — parses distrib-release files
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testReadDistribRelease() {
+        List<String> lines = Arrays.asList("CentOS release 6.10 (Final)");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertThat(result.getA(), is("CentOS"));
+        assertThat(result.getB(), is("6.10"));
+        assertThat(result.getC(), is("Final"));
+    }
+
+    @Test
+    void testReadDistribReleaseVersion() {
+        List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
+        assertThat(result.getB(), is("15"));
+        assertThat(result.getC(), is(Constants.UNKNOWN));
+    }
+
+    @Test
+    void testReadDistribReleaseEmpty() {
+        assertThat(LinuxOperatingSystem.readDistribRelease(Collections.emptyList()), is(nullValue()));
+    }
+
+    // -------------------------------------------------------------------------
+    // parseRelease — pure parsing logic
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testParseRelease() {
+        Triplet<String, String, String> result = LinuxOperatingSystem
+                .parseRelease("Red Hat Enterprise Linux release 8.5 (Ootpa)", " release ");
+        assertThat(result.getA(), is("Red Hat Enterprise Linux"));
+        assertThat(result.getB(), is("8.5"));
+        assertThat(result.getC(), is("Ootpa"));
+    }
+
+    @Test
+    void testParseReleaseNoCodename() {
+        Triplet<String, String, String> result = LinuxOperatingSystem.parseRelease("Debian release 11", " release ");
+        assertThat(result.getA(), is("Debian"));
+        assertThat(result.getB(), is("11"));
+        assertThat(result.getC(), is(Constants.UNKNOWN));
+    }
+
+    @Test
+    void testParseReleaseNoVersion() {
+        Triplet<String, String, String> result = LinuxOperatingSystem.parseRelease("MyLinux", " release ");
+        assertThat(result.getA(), is("MyLinux"));
+        assertThat(result.getB(), is(Constants.UNKNOWN));
+        assertThat(result.getC(), is(Constants.UNKNOWN));
+    }
+
+    // -------------------------------------------------------------------------
+    // filenameToFamily — maps release filename to distro family
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testFilenameToFamilyEmpty() {
+        assertThat(LinuxOperatingSystem.filenameToFamily(""), is("Solaris"));
+    }
+
+    @Test
+    void testFilenameToFamilyIssue() {
+        assertThat(LinuxOperatingSystem.filenameToFamily("issue"), is("Unknown"));
+    }
+
+    @Test
+    void testFilenameToFamilyUnknown() {
+        // Unknown name gets capitalized
+        assertThat(LinuxOperatingSystem.filenameToFamily("mylinux"), is("Mylinux"));
     }
 }
