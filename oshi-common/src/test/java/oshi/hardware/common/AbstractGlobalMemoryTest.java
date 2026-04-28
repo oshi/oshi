@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
+import oshi.util.Constants;
 
 class AbstractGlobalMemoryTest {
 
@@ -126,7 +127,7 @@ class AbstractGlobalMemoryTest {
         // Second DIMM should have defaults, not Samsung/M393...
         assertThat(result.get(1).getBankLabel(), is("Bank1/DIMM_B1"));
         assertThat(result.get(1).getCapacity(), is(4096L * 1024 * 1024));
-        assertThat(result.get(1).getManufacturer(), is("unknown"));
-        assertThat(result.get(1).getPartNumber(), is("unknown"));
+        assertThat(result.get(1).getManufacturer(), is(Constants.UNKNOWN));
+        assertThat(result.get(1).getPartNumber(), is(Constants.UNKNOWN));
     }
 }
