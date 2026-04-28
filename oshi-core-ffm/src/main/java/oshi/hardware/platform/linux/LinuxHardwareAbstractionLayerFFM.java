@@ -7,7 +7,7 @@ package oshi.hardware.platform.linux;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinter;
+import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
@@ -60,7 +60,7 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
 
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinter.getPrinters();
+        return CupsPrinterFFM.getPrinters();
     }
 
     @Override

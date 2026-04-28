@@ -22,7 +22,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.platform.unix.BsdNetworkIF;
-import oshi.hardware.platform.unix.UnixPrinter;
+import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
  * FreeBsdHardwareAbstractionLayer class.
@@ -87,6 +87,6 @@ public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<Printer> getPrinters() {
-        return UnixPrinter.getPrinters();
+        return CupsPrinterJNA.getPrinters();
     }
 }

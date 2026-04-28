@@ -21,7 +21,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
-import oshi.hardware.platform.unix.UnixPrinter;
+import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
  * SolarisHardwareAbstractionLayer class.
@@ -86,6 +86,6 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<Printer> getPrinters() {
-        return UnixPrinter.getPrinters();
+        return CupsPrinterJNA.getPrinters();
     }
 }

@@ -19,7 +19,7 @@ import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.mac.MacHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.UnixPrinter;
+import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
  * MacHardwareAbstractionLayer JNA implementation.
@@ -79,6 +79,6 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
 
     @Override
     public List<Printer> getPrinters() {
-        return UnixPrinter.getPrinters();
+        return CupsPrinterJNA.getPrinters();
     }
 }

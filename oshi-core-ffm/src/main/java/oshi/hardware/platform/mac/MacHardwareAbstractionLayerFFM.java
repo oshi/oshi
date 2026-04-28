@@ -7,7 +7,7 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinter;
+import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -25,7 +25,7 @@ import oshi.hardware.common.platform.mac.MacHardwareAbstractionLayer;
 public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstractionLayer {
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinter.getPrinters();
+        return CupsPrinterFFM.getPrinters();
     }
 
     @Override
