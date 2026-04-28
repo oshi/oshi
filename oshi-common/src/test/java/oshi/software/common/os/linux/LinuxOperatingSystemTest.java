@@ -82,4 +82,37 @@ class LinuxOperatingSystemTest {
         assertThat(result.getB(), is("38"));
         assertThat(result.getC(), is("Thirty Eight"));
     }
+
+    // -------------------------------------------------------------------------
+    // getParentPidFromStat — parses /proc/[pid]/stat
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testGetParentPidFromStat() {
+        // Real /proc/[pid]/stat line: pid (comm) state ppid ...
+        String stat = "1234 (bash) S 567 1234 1234 0 -1 4194304 1234 0 0 0 0 0 0 0 20 0 1 0 12345 67890 0 "
+                + "18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
+        assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(567));
+    }
+
+    @Test
+    void testGetParentPidFromStatInit() {
+        // PID 1 (init/systemd) has PPID 0
+        String stat = "1 (systemd) S 0 1 1 0 -1 4194560 12345 0 0 0 0 0 0 0 20 0 1 0 1 67890 0 "
+                + "18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
+        assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(0));
+    }
+
+    @Test
+    void testGetParentPidFromStatEmpty() {
+        assertThat(LinuxOperatingSystem.getParentPidFromStat(""), is(0));
+    }
+
+    @Test
+    void testGetParentPidFromStatCommWithSpaces() {
+        // Process name can contain spaces and parentheses
+        String stat = "42 (Web Content (pid 42)) S 100 42 42 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 0 0 0 "
+                + "18446744073709551615 0 0 0 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0";
+        assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(100));
+    }
 }

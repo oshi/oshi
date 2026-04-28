@@ -181,12 +181,19 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static int getParentPidFromProcFile(int pid) {
-        String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, "/proc/%d/stat", pid));
-        // A race condition may leave us with an empty string
+        return getParentPidFromStat(FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, pid)));
+    }
+
+    /**
+     * Parse the parent PID from a /proc/[pid]/stat line.
+     *
+     * @param stat contents of /proc/[pid]/stat
+     * @return the parent PID, or 0 if unparseable
+     */
+    static int getParentPidFromStat(String stat) {
         if (stat.isEmpty()) {
             return 0;
         }
-        // Grab PPID
         long[] statArray = ParseUtil.parseStringToLongArray(stat, PPID_INDEX, ProcessStat.PROC_PID_STAT_LENGTH, ' ');
         return (int) statArray[0];
     }
