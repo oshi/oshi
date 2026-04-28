@@ -25,7 +25,16 @@ public final class Xrandr {
 
     public static List<byte[]> getEdidArrays() {
         // Special handling for X commands, don't use LC_ALL
-        List<String> xrandr = ExecutingCommand.runNative(XRANDR_VERBOSE, null);
+        return getEdidArrays(ExecutingCommand.runNative(XRANDR_VERBOSE, null));
+    }
+
+    /**
+     * Parse EDID arrays from xrandr verbose output.
+     *
+     * @param xrandr output of {@code xrandr --verbose}
+     * @return a list of EDID byte arrays (at least 128 bytes each)
+     */
+    static List<byte[]> getEdidArrays(List<String> xrandr) {
         // xrandr reports edid in multiple lines. After seeing a line containing
         // EDID, read subsequent lines of hex until 256 characters are reached
         if (xrandr.isEmpty()) {

@@ -33,10 +33,19 @@ public final class NetStat {
      * @return A pair with number of established IPv4 and IPv6 connections
      */
     public static Pair<Long, Long> queryTcpnetstat() {
+        return queryTcpnetstat(ExecutingCommand.runNative("netstat -n -p tcp"));
+    }
+
+    /**
+     * Parse netstat output to count established TCP connections.
+     *
+     * @param lines output of {@code netstat -n -p tcp}
+     * @return A pair with number of established IPv4 and IPv6 connections
+     */
+    static Pair<Long, Long> queryTcpnetstat(List<String> lines) {
         long tcp4 = 0L;
         long tcp6 = 0L;
-        List<String> activeConns = ExecutingCommand.runNative("netstat -n -p tcp");
-        for (String s : activeConns) {
+        for (String s : lines) {
             if (s.endsWith("ESTABLISHED")) {
                 if (s.startsWith("tcp4")) {
                     tcp4++;
@@ -54,9 +63,18 @@ public final class NetStat {
      * @return A list of TCP and UDP connections
      */
     public static List<IPConnection> queryNetstat() {
+        return queryNetstat(ExecutingCommand.runNative("netstat -n"));
+    }
+
+    /**
+     * Parse netstat output for TCP and UDP connections.
+     *
+     * @param lines output of {@code netstat -n}
+     * @return A list of TCP and UDP connections
+     */
+    static List<IPConnection> queryNetstat(List<String> lines) {
         List<IPConnection> connections = new ArrayList<>();
-        List<String> activeConns = ExecutingCommand.runNative("netstat -n");
-        for (String s : activeConns) {
+        for (String s : lines) {
             String[] split = null;
             if (s.startsWith("tcp") || s.startsWith("udp")) {
                 split = ParseUtil.whitespaces.split(s);
@@ -115,6 +133,16 @@ public final class NetStat {
      * @return The statistics
      */
     public static TcpStats queryTcpStats(String netstatStr) {
+        return queryTcpStats(ExecutingCommand.runNative(netstatStr));
+    }
+
+    /**
+     * Parse TCP statistics from netstat -s output.
+     *
+     * @param netstat output lines from {@code netstat -s} (TCP section)
+     * @return The statistics
+     */
+    static TcpStats queryTcpStats(List<String> netstat) {
         long connectionsEstablished = 0;
         long connectionsActive = 0;
         long connectionsPassive = 0;
@@ -125,7 +153,6 @@ public final class NetStat {
         long segmentsRetransmitted = 0;
         long inErrors = 0;
         long outResets = 0;
-        List<String> netstat = ExecutingCommand.runNative(netstatStr);
         for (String s : netstat) {
             String[] split = s.trim().split(" ", 2);
             if (split.length == 2) {
@@ -196,11 +223,20 @@ public final class NetStat {
      * @return The statistics
      */
     public static UdpStats queryUdpStats(String netstatStr) {
+        return queryUdpStats(ExecutingCommand.runNative(netstatStr));
+    }
+
+    /**
+     * Parse UDP statistics from netstat -s output.
+     *
+     * @param netstat output lines from {@code netstat -s} (UDP section)
+     * @return The statistics
+     */
+    static UdpStats queryUdpStats(List<String> netstat) {
         long datagramsSent = 0;
         long datagramsReceived = 0;
         long datagramsNoPort = 0;
         long datagramsReceivedErrors = 0;
-        List<String> netstat = ExecutingCommand.runNative(netstatStr);
         for (String s : netstat) {
             String[] split = s.trim().split(" ", 2);
             if (split.length == 2) {
