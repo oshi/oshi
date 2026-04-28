@@ -71,7 +71,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private String queryManufacturer() {
         String result = null;
-        if ((result = Sysfs.queryBiosVendor()) == null && (result = vcGenCmd.get().manufacturer) == null) {
+        if ((result = Sysfs.queryBiosVendor()) == null && (result = vcGenCmd.get().getManufacturer()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -79,7 +79,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private String queryDescription() {
         String result = null;
-        if ((result = Sysfs.queryBiosDescription()) == null && (result = vcGenCmd.get().description) == null) {
+        if ((result = Sysfs.queryBiosDescription()) == null && (result = vcGenCmd.get().getDescription()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -88,7 +88,7 @@ final class LinuxFirmware extends AbstractFirmware {
     private String queryVersion() {
         String result = null;
         if ((result = Sysfs.queryBiosVersion(this.biosNameRev.get().getB())) == null
-                && (result = vcGenCmd.get().version) == null) {
+                && (result = vcGenCmd.get().getVersion()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -96,7 +96,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private String queryReleaseDate() {
         String result = null;
-        if ((result = Sysfs.queryBiosReleaseDate()) == null && (result = vcGenCmd.get().releaseDate) == null) {
+        if ((result = Sysfs.queryBiosReleaseDate()) == null && (result = vcGenCmd.get().getReleaseDate()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -104,18 +104,27 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private String queryName() {
         String result = null;
-        if ((result = biosNameRev.get().getA()) == null && (result = vcGenCmd.get().name) == null) {
+        if ((result = biosNameRev.get().getA()) == null && (result = vcGenCmd.get().getName()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
     }
 
     private static VcGenCmdStrings queryVcGenCmd() {
+        return queryVcGenCmd(ExecutingCommand.runNative("vcgencmd version"));
+    }
+
+    /**
+     * Parse vcgencmd version output for Raspberry Pi firmware info.
+     *
+     * @param vcgencmd output of {@code vcgencmd version}
+     * @return parsed firmware strings
+     */
+    static VcGenCmdStrings queryVcGenCmd(List<String> vcgencmd) {
         String vcReleaseDate = null;
         String vcManufacturer = null;
         String vcVersion = null;
 
-        List<String> vcgencmd = ExecutingCommand.runNative("vcgencmd version");
         if (vcgencmd.size() >= 3) {
             // First line is date
             try {
@@ -125,7 +134,9 @@ final class LinuxFirmware extends AbstractFirmware {
             }
             // Second line is copyright
             String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));
-            vcManufacturer = copyright[copyright.length - 1];
+            vcManufacturer = copyright.length > 0 && !copyright[copyright.length - 1].isEmpty()
+                    ? copyright[copyright.length - 1]
+                    : Constants.UNKNOWN;
             // Third line is version
             vcVersion = vcgencmd.get(2).replace("version ", "");
             return new VcGenCmdStrings(vcReleaseDate, vcManufacturer, vcVersion, "RPi", "Bootloader");
@@ -133,20 +144,39 @@ final class LinuxFirmware extends AbstractFirmware {
         return new VcGenCmdStrings(null, null, null, null, null);
     }
 
-    private static final class VcGenCmdStrings {
+    static final class VcGenCmdStrings {
         private final String releaseDate;
         private final String manufacturer;
         private final String version;
         private final String name;
         private final String description;
 
-        private VcGenCmdStrings(String releaseDate, String manufacturer, String version, String name,
-                String description) {
+        VcGenCmdStrings(String releaseDate, String manufacturer, String version, String name, String description) {
             this.releaseDate = releaseDate;
             this.manufacturer = manufacturer;
             this.version = version;
             this.name = name;
             this.description = description;
+        }
+
+        String getReleaseDate() {
+            return releaseDate;
+        }
+
+        String getManufacturer() {
+            return manufacturer;
+        }
+
+        String getVersion() {
+            return version;
+        }
+
+        String getName() {
+            return name;
+        }
+
+        String getDescription() {
+            return description;
         }
     }
 }

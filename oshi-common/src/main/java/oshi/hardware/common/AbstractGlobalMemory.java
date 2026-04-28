@@ -25,8 +25,17 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
     public List<PhysicalMemory> getPhysicalMemory() {
         // dmidecode requires sudo permission but is the only option on Linux
         // and Unix
+        return getPhysicalMemory(ExecutingCommand.runPrivilegedNative("dmidecode --type 17"));
+    }
+
+    /**
+     * Parse physical memory information from dmidecode output.
+     *
+     * @param dmi output of {@code dmidecode --type 17}
+     * @return a list of physical memory modules
+     */
+    static List<PhysicalMemory> getPhysicalMemory(List<String> dmi) {
         List<PhysicalMemory> pmList = new ArrayList<>();
-        List<String> dmi = ExecutingCommand.runPrivilegedNative("dmidecode --type 17");
         int bank = 0;
         String bankLabel = Constants.UNKNOWN;
         String locator = "";
@@ -48,6 +57,10 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                     locator = "";
                     capacity = 0L;
                     speed = 0L;
+                    manufacturer = Constants.UNKNOWN;
+                    memoryType = Constants.UNKNOWN;
+                    partNumber = Constants.UNKNOWN;
+                    serialNumber = Constants.UNKNOWN;
                 }
             } else if (bank > 0) {
                 String[] split = line.trim().split(":");

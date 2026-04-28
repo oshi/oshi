@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -335,5 +336,82 @@ class LinuxCentralProcessorTest {
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
                 .readTopologyFromSysfs(tempDir.toString());
         assertThat(result.getB(), hasSize(2));
+    }
+
+    // -------------------------------------------------------------------------
+    // mapNumaNodesFromLscpu
+    // -------------------------------------------------------------------------
+
+    // Fixture: lscpu -p=cpu,node output
+    private static final List<String> LSCPU_NUMA = Arrays.asList(
+            "# The following is the parsable format, which can be fed to other",
+            "# programs. Each different item in every column has an unique ID", "# starting from zero.", "# CPU,Node",
+            "0,0", "1,0", "2,1", "3,1");
+
+    @Test
+    void testMapNumaNodesFromLscpu() {
+        Map<Integer, Integer> result = LinuxCentralProcessor.mapNumaNodesFromLscpu(LSCPU_NUMA);
+        assertThat(result.size(), is(4));
+        assertThat(result.get(0), is(0));
+        assertThat(result.get(1), is(0));
+        assertThat(result.get(2), is(1));
+        assertThat(result.get(3), is(1));
+    }
+
+    @Test
+    void testMapNumaNodesFromLscpuEmpty() {
+        Map<Integer, Integer> result = LinuxCentralProcessor.mapNumaNodesFromLscpu(Collections.emptyList());
+        assertThat(result.isEmpty(), is(true));
+    }
+
+    @Test
+    void testMapNumaNodesFromLscpuCommentsOnly() {
+        List<String> comments = Arrays.asList("# comment1", "# comment2");
+        Map<Integer, Integer> result = LinuxCentralProcessor.mapNumaNodesFromLscpu(comments);
+        assertThat(result.isEmpty(), is(true));
+    }
+
+    // -------------------------------------------------------------------------
+    // mapCachesFromLscpu
+    // -------------------------------------------------------------------------
+
+    // Fixture: lscpu -B -C --json output
+    private static final List<String> LSCPU_CACHE_JSON = Arrays.asList("{", "   \"caches\": [", "      {",
+            "         \"name\": \"L1d\",", "         \"one-size\": \"32768\",", "         \"all-size\": null,",
+            "         \"ways\": 8,", "         \"type\": \"Data\",", "         \"level\": 1,",
+            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
+            "         \"name\": \"L1i\",", "         \"one-size\": \"32768\",", "         \"all-size\": null,",
+            "         \"ways\": 8,", "         \"type\": \"Instruction\",", "         \"level\": 1,",
+            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
+            "         \"name\": \"L2\",", "         \"one-size\": \"262144\",", "         \"all-size\": null,",
+            "         \"ways\": 4,", "         \"type\": \"Unified\",", "         \"level\": 2,",
+            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
+            "         \"name\": \"L3\",", "         \"one-size\": \"16777216\",", "         \"all-size\": null,",
+            "         \"ways\": null,", "         \"type\": \"Unified\",", "         \"level\": 3,",
+            "         \"sets\": null,", "         \"coherency-size\": 64", "      }", "   ]", "}");
+
+    @Test
+    void testMapCachesFromLscpu() {
+        Set<ProcessorCache> result = LinuxCentralProcessor.mapCachesFromLscpu(LSCPU_CACHE_JSON);
+        assertThat(result, hasSize(4));
+
+        ProcessorCache l1d = new ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.DATA);
+        assertThat(result.contains(l1d), is(true));
+
+        ProcessorCache l1i = new ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.INSTRUCTION);
+        assertThat(result.contains(l1i), is(true));
+
+        ProcessorCache l2 = new ProcessorCache(2, 4, 64, 262144L, ProcessorCache.Type.UNIFIED);
+        assertThat(result.contains(l2), is(true));
+
+        // L3 ways is null, so associativity should be 0
+        ProcessorCache l3 = new ProcessorCache(3, 0, 64, 16777216L, ProcessorCache.Type.UNIFIED);
+        assertThat(result.contains(l3), is(true));
+    }
+
+    @Test
+    void testMapCachesFromLscpuEmpty() {
+        Set<ProcessorCache> result = LinuxCentralProcessor.mapCachesFromLscpu(Collections.emptyList());
+        assertThat(result, is(empty()));
     }
 }

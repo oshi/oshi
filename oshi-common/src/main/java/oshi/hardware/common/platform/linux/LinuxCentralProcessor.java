@@ -322,9 +322,17 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static Map<Integer, Integer> mapNumaNodesFromLscpu() {
+        return mapNumaNodesFromLscpu(ExecutingCommand.runNative("lscpu -p=cpu,node"));
+    }
+
+    /**
+     * Parse NUMA node mapping from lscpu output.
+     *
+     * @param lscpu output of {@code lscpu -p=cpu,node}
+     * @return a map of logical processor number to NUMA node
+     */
+    static Map<Integer, Integer> mapNumaNodesFromLscpu(List<String> lscpu) {
         Map<Integer, Integer> numaNodeMap = new HashMap<>();
-        // Get numa node info from lscpu
-        List<String> lscpu = ExecutingCommand.runNative("lscpu -p=cpu,node");
         // Format:
         // # comment lines starting with #
         // # then comma-delimited cpu,node
@@ -343,14 +351,22 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static Set<ProcessorCache> mapCachesFromLscpu() {
+        return mapCachesFromLscpu(ExecutingCommand.runNative("lscpu -B -C --json"));
+    }
+
+    /**
+     * Parse processor cache information from lscpu JSON output.
+     *
+     * @param lscpu output of {@code lscpu -B -C --json}
+     * @return a set of processor caches
+     */
+    static Set<ProcessorCache> mapCachesFromLscpu(List<String> lscpu) {
         Set<ProcessorCache> caches = new HashSet<>();
         int level = 0;
         Type type = null;
         int associativity = 0;
         int lineSize = 0;
         long size = 0L;
-        // Get numa node info from lscpu
-        List<String> lscpu = ExecutingCommand.runNative("lscpu -B -C --json");
         for (String line : lscpu) {
             String s = line.trim();
             if (s.startsWith("}")) {
