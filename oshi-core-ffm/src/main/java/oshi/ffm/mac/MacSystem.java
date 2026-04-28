@@ -332,8 +332,8 @@ public interface MacSystem {
             sequenceLayout(6, JAVA_INT).withName("soi_snd"), // sockbuf_info
             JAVA_INT.withName("soi_kind"), //
             JAVA_INT.withName("rfu_1"), // reserved
-            // We only consider 2 of the 7 possible union structures, max size is 524 bytes
-            paddingLayout(524).withName("soi_proto") // Union for Pri structure
+            // We only consider 2 of the 7 possible union structures, max size is 528 bytes
+            paddingLayout(528).withName("soi_proto") // Union for Pri structure
     );
     PathElement SOI_FAMILY = groupElement("soi_family");
     PathElement SOI_KIND = groupElement("soi_kind");

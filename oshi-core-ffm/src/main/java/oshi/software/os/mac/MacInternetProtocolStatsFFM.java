@@ -142,23 +142,24 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
-            int numProcs = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / Integer.BYTES;
-            if (numProcs <= 0) {
-                return conns;
-            }
-            MemorySegment pidBuffer = arena.allocate(numProcs * Integer.BYTES);
-            int bytes = proc_listpids(PROC_ALL_PIDS, 0, pidBuffer, (int) pidBuffer.byteSize());
-            numProcs = bytes / Integer.BYTES;
+            // Match JNA approach: fixed-size buffer, single call
+            int bufferSize = 1024 * Integer.BYTES;
+            MemorySegment pidBuffer = arena.allocate(bufferSize);
+            int bytes = proc_listpids(PROC_ALL_PIDS, 0, pidBuffer, bufferSize);
+            int numProcs = Math.min(bytes / Integer.BYTES, bufferSize / Integer.BYTES);
 
             for (int i = 0; i < numProcs; i++) {
                 // Handle off-by-one bug in proc_listpids where the size returned
                 // is: SystemB.INT_SIZE * (pids + 1)
-                int pid = pidBuffer.get(JAVA_INT, i);
+                int pid = pidBuffer.get(JAVA_INT, (long) i * Integer.BYTES);
                 if (pid > 0) {
-                    for (Integer fd : queryFdList(pid)) {
-                        IPConnection ipc = queryIPConnection(pid, fd);
-                        if (ipc != null) {
-                            conns.add(ipc);
+                    try (Arena pidArena = Arena.ofConfined()) {
+                        List<Integer> fds = queryFdList(pid, pidArena);
+                        for (Integer fd : fds) {
+                            IPConnection ipc = queryIPConnection(pid, fd, pidArena);
+                            if (ipc != null) {
+                                conns.add(ipc);
+                            }
                         }
                     }
                 }
@@ -169,15 +170,15 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         return conns;
     }
 
-    private static List<Integer> queryFdList(int pid) {
+    private static List<Integer> queryFdList(int pid, Arena arena) {
         List<Integer> fdList = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        try {
             int bufferSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, MemorySegment.NULL, 0);
             if (bufferSize > 0) {
                 MemorySegment buffer = arena.allocate(bufferSize);
-                bufferSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, buffer, bufferSize);
+                int actualSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, buffer, bufferSize);
                 int structSize = (int) PROC_FD_INFO.byteSize();
-                int numStructs = bufferSize / structSize;
+                int numStructs = actualSize / structSize;
                 for (int i = 0; i < numStructs; i++) {
                     MemorySegment fdInfo = buffer.asSlice(i * structSize, structSize);
                     int fdType = fdInfo.get(JAVA_INT, PROC_FD_INFO.byteOffset(PROC_FDTYPE));
@@ -193,11 +194,11 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         return fdList;
     }
 
-    private static IPConnection queryIPConnection(int pid, int fd) {
-        try (Arena arena = Arena.ofConfined()) {
+    private static IPConnection queryIPConnection(int pid, int fd, Arena arena) {
+        try {
             MemorySegment socketInfo = arena.allocate(SOCKET_FD_INFO);
             int ret = proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, socketInfo, (int) SOCKET_FD_INFO.byteSize());
-            if (ret != SOCKET_FD_INFO.byteSize()) {
+            if (ret < SOCKET_FD_INFO.byteSize()) {
                 return null;
             }
 

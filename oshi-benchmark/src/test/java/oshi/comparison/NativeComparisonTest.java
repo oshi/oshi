@@ -8,8 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
+import oshi.util.GlobalConfig;
 import oshi.util.PlatformEnum;
 
 /**
@@ -60,6 +63,9 @@ class NativeComparisonTest {
 
     @BeforeAll
     static void setup() {
+        // Disable memoization so each call gets fresh data for accurate comparison
+        GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 0);
+
         oshi.SystemInfo jnaSi = new oshi.SystemInfo();
         jnaHal = jnaSi.getHardware();
         jnaOs = jnaSi.getOperatingSystem();
@@ -409,14 +415,84 @@ class NativeComparisonTest {
     void internetProtocolStats() {
         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
-        // TCP/UDP stats are counters; FFM should be >= JNA for cumulative fields
-        // Just verify they're non-negative and structurally present
-        assertThat(ffm.getTCPv4Stats()).isNotNull();
-        assertThat(ffm.getTCPv6Stats()).isNotNull();
-        assertThat(ffm.getUDPv4Stats()).isNotNull();
-        assertThat(ffm.getUDPv6Stats()).isNotNull();
-        // Connections established is a gauge, not a counter — can go up or down
-        assertThat(ffm.getTCPv4Stats().getConnectionsEstablished()).isGreaterThanOrEqualTo(0);
+
+        // TCP stats — cumulative counters, FFM called second should be >=
+        InternetProtocolStats.TcpStats jnaTcp4 = jna.getTCPv4Stats();
+        InternetProtocolStats.TcpStats ffmTcp4 = ffm.getTCPv4Stats();
+        assertThat(ffmTcp4).as("FFM TCPv4 stats").isNotNull();
+        assertThat(ffmTcp4.getConnectionsEstablished()).as("TCPv4 established").isGreaterThanOrEqualTo(0);
+        assertThat(ffmTcp4.getSegmentsSent()).as("TCPv4 segmentsSent")
+                .isGreaterThanOrEqualTo(jnaTcp4.getSegmentsSent());
+        assertThat(ffmTcp4.getSegmentsReceived()).as("TCPv4 segmentsReceived")
+                .isGreaterThanOrEqualTo(jnaTcp4.getSegmentsReceived());
+
+        InternetProtocolStats.TcpStats jnaTcp6 = jna.getTCPv6Stats();
+        InternetProtocolStats.TcpStats ffmTcp6 = ffm.getTCPv6Stats();
+        assertThat(ffmTcp6).as("FFM TCPv6 stats").isNotNull();
+        assertThat(ffmTcp6.getSegmentsSent()).as("TCPv6 segmentsSent")
+                .isGreaterThanOrEqualTo(jnaTcp6.getSegmentsSent());
+        assertThat(ffmTcp6.getSegmentsReceived()).as("TCPv6 segmentsReceived")
+                .isGreaterThanOrEqualTo(jnaTcp6.getSegmentsReceived());
+
+        // UDP stats — cumulative counters
+        InternetProtocolStats.UdpStats jnaUdp4 = jna.getUDPv4Stats();
+        InternetProtocolStats.UdpStats ffmUdp4 = ffm.getUDPv4Stats();
+        assertThat(ffmUdp4).as("FFM UDPv4 stats").isNotNull();
+        assertThat(ffmUdp4.getDatagramsSent()).as("UDPv4 datagramsSent")
+                .isGreaterThanOrEqualTo(jnaUdp4.getDatagramsSent());
+        assertThat(ffmUdp4.getDatagramsReceived()).as("UDPv4 datagramsReceived")
+                .isGreaterThanOrEqualTo(jnaUdp4.getDatagramsReceived());
+
+        InternetProtocolStats.UdpStats jnaUdp6 = jna.getUDPv6Stats();
+        InternetProtocolStats.UdpStats ffmUdp6 = ffm.getUDPv6Stats();
+        assertThat(ffmUdp6).as("FFM UDPv6 stats").isNotNull();
+        assertThat(ffmUdp6.getDatagramsSent()).as("UDPv6 datagramsSent")
+                .isGreaterThanOrEqualTo(jnaUdp6.getDatagramsSent());
+        assertThat(ffmUdp6.getDatagramsReceived()).as("UDPv6 datagramsReceived")
+                .isGreaterThanOrEqualTo(jnaUdp6.getDatagramsReceived());
+    }
+
+    @Test
+    void internetProtocolConnections() {
+        InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
+        InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
+
+        List<InternetProtocolStats.IPConnection> jnaConns = jna.getConnections();
+        List<InternetProtocolStats.IPConnection> ffmConns = ffm.getConnections();
+        assertThat(ffmConns).as("FFM connections").isNotNull();
+        assertThat(jnaConns).as("JNA connections").isNotNull();
+
+        // Both sides should return connections or both should be empty
+        assertThat(ffmConns.isEmpty()).as("FFM and JNA should agree on emptiness").isEqualTo(jnaConns.isEmpty());
+        if (jnaConns.isEmpty()) {
+            return;
+        }
+
+        // Connection counts can fluctuate significantly between the two reads
+        assertWithinRatio(ffmConns.size(), jnaConns.size(), 0.50, "connections.size");
+
+        // Build unique tuple sets for overlap check
+        Set<String> jnaKeys = new HashSet<>();
+        for (InternetProtocolStats.IPConnection c : jnaConns) {
+            jnaKeys.add(c.getType() + ":" + c.getLocalPort() + ":" + c.getForeignPort());
+        }
+        Set<String> ffmKeys = new HashSet<>();
+        for (InternetProtocolStats.IPConnection c : ffmConns) {
+            ffmKeys.add(c.getType() + ":" + c.getLocalPort() + ":" + c.getForeignPort());
+        }
+        // Count unique tuples present in both
+        Set<String> intersection = new HashSet<>(ffmKeys);
+        intersection.retainAll(jnaKeys);
+        assertThat(intersection.size()).as("unique connection tuple overlap")
+                .isGreaterThanOrEqualTo(ffmKeys.size() / 4);
+
+        // Verify structural correctness of FFM connections
+        for (InternetProtocolStats.IPConnection c : ffmConns) {
+            assertThat(c.getType()).as("connection type").isNotEmpty();
+            assertThat(c.getLocalPort()).as("localPort").isBetween(0, 0xffff);
+            assertThat(c.getForeignPort()).as("foreignPort").isBetween(0, 0xffff);
+            assertThat(c.getState()).as("state").isNotNull();
+        }
     }
 
     // ---- OS: Sessions ----
