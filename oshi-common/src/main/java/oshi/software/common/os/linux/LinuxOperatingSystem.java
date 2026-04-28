@@ -268,10 +268,19 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         otherwise
      */
     private static Triplet<String, String, String> readOsRelease() {
+        return readOsRelease(FileUtil.readFile("/etc/os-release"));
+    }
+
+    /**
+     * Parse /etc/os-release content.
+     *
+     * @param osRelease lines from /etc/os-release
+     * @return a triplet with the parsed family, versionID and codeName if NAME= found, null otherwise
+     */
+    static Triplet<String, String, String> readOsRelease(List<String> osRelease) {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
-        List<String> osRelease = FileUtil.readFile("/etc/os-release");
         // Search for NAME=
         for (String line : osRelease) {
             if (line.startsWith("VERSION=")) {
@@ -305,10 +314,21 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      *         Distributor ID: or Description: found, null otherwise
      */
     private static Triplet<String, String, String> execLsbRelease() {
+        return execLsbRelease(ExecutingCommand.runNative("lsb_release -a"));
+    }
+
+    /**
+     * Parse lsb_release -a output.
+     *
+     * @param lines output of {@code lsb_release -a}
+     * @return a triplet with the parsed family, versionID and codeName if Distributor ID: or Description: found, null
+     *         otherwise
+     */
+    static Triplet<String, String, String> execLsbRelease(List<String> lines) {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
-        for (String line : ExecutingCommand.runNative("lsb_release -a")) {
+        for (String line : lines) {
             if (line.startsWith("Description:")) {
                 LOG.debug(LSB_RELEASE_A_LOG, line);
                 line = line.replace("Description:", "").trim();

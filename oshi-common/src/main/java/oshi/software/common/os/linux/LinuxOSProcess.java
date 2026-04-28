@@ -335,11 +335,23 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     public long getAffinityMask() {
         // Would prefer to use native sched_getaffinity call but variable sizing is
         // kernel-dependent and requires C macros, so we use command line instead.
-        String mask = ExecutingCommand.getFirstAnswer("taskset -p " + getProcessID());
+        return parseAffinityMask(ExecutingCommand.getFirstAnswer("taskset -p " + getProcessID()));
+    }
+
+    /**
+     * Parse the affinity mask from taskset output.
+     *
+     * @param tasksetOutput output of {@code taskset -p <pid>}
+     * @return the affinity mask as a long, or 0 if unparseable
+     */
+    static long parseAffinityMask(String tasksetOutput) {
         // Output:
         // pid 3283's current affinity mask: 3
         // pid 9726's current affinity mask: f
-        String[] split = ParseUtil.whitespaces.split(mask);
+        String[] split = ParseUtil.whitespaces.split(tasksetOutput);
+        if (split.length == 0) {
+            return 0;
+        }
         try {
             return new BigInteger(split[split.length - 1], 16).longValue();
         } catch (NumberFormatException e) {
