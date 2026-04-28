@@ -5,16 +5,22 @@
 package oshi.hardware.common.platform.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import oshi.hardware.GraphicsCard;
 import oshi.util.tuples.Triplet;
 
 class LinuxGraphicsCardTest {
@@ -174,5 +180,91 @@ class LinuxGraphicsCardTest {
         Files.createSymbolicLink(deviceDir.resolve("driver"), driverTarget);
         // Write uevent with PCI_SLOT_NAME
         Files.write(deviceDir.resolve("uevent"), ("PCI_SLOT_NAME=" + slotName + "\n").getBytes(StandardCharsets.UTF_8));
+    }
+
+    // -------------------------------------------------------------------------
+    // getGraphicsCardsFromLspci parsing
+    // -------------------------------------------------------------------------
+
+    // Fixture: lspci -vnnm output with one VGA card
+    private static final List<String> LSPCI_VNNM = Arrays.asList("Slot:\t01:00.0",
+            "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
+            "Device:\tGA102 [GeForce RTX 3090] [2204]", "SVendor:\tASUS [1043]",
+            "SDevice:\tGA102 [GeForce RTX 3090] [8687]", "Rev:\ta1", "");
+
+    private static final Function<LinuxGraphicsCard.Attrs, GraphicsCard> STUB_FACTORY = attrs -> new StubGraphicsCard(
+            attrs.getName(), attrs.getDeviceId(), attrs.getVendor(), attrs.getVersionInfo(), attrs.getVram(),
+            attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
+
+    // No-op lookups for pure parsing tests
+    private static final Function<String, Long> NO_VRAM = slot -> 0L;
+    private static final Function<String, Triplet<String, String, String>> NO_DRM = slot -> new Triplet<>("", "", "");
+
+    @Test
+    void testGetGraphicsCardsFromLspciSingleCard() {
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(LSPCI_VNNM, STUB_FACTORY, NO_VRAM,
+                NO_DRM);
+        assertThat(cards.size(), is(1));
+        GraphicsCard card = cards.get(0);
+        assertThat(card.getName(), is("GA102 [GeForce RTX 3090]"));
+        assertThat(card.getDeviceId(), is("0x2204"));
+        assertThat(card.getVendor(), is("NVIDIA Corporation (0x10de)"));
+        assertThat(card.getVersionInfo(), is("Rev:\ta1"));
+    }
+
+    @Test
+    void testGetGraphicsCardsFromLspciEmpty() {
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(Collections.emptyList(), STUB_FACTORY,
+                NO_VRAM, NO_DRM);
+        assertThat(cards, is(empty()));
+    }
+
+    @Test
+    void testGetGraphicsCardsFromLspciTwoCards() {
+        List<String> twoCards = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
+                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1", "",
+                "Slot:\t00:02.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tIntel Corporation [8086]",
+                "Device:\tUHD Graphics 630 [3E92]", "Rev:\t00", "");
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, NO_VRAM, NO_DRM);
+        assertThat(cards.size(), is(2));
+        assertThat(cards.get(0).getName(), is("GA102 [GeForce RTX 3090]"));
+        assertThat(cards.get(1).getName(), is("UHD Graphics 630"));
+        assertThat(cards.get(1).getDeviceId(), is("0x3E92"));
+    }
+
+    @Test
+    void testGetGraphicsCardsFromLspci3DController() {
+        List<String> threeD = Arrays.asList("Slot:\t01:00.0", "Class:\t3D controller [0302]",
+                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tTesla V100 [1db4]", "");
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(threeD, STUB_FACTORY, NO_VRAM, NO_DRM);
+        assertThat(cards.size(), is(1));
+        assertThat(cards.get(0).getName(), is("Tesla V100"));
+    }
+
+    // -------------------------------------------------------------------------
+    // queryLspciMemorySize parsing
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testQueryLspciMemorySize() {
+        List<String> lspciV = Arrays.asList("01:00.0 VGA compatible controller: NVIDIA Corporation",
+                "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]",
+                "\tMemory at e0000000 (64-bit, prefetchable) [size=256M]",
+                "\tMemory at f0000000 (64-bit, prefetchable) [size=32M]", "\tI/O ports at e000 [size=128]");
+        long vram = LinuxGraphicsCard.queryLspciMemorySize(lspciV);
+        // 256M + 32M = 288M
+        assertThat(vram, is(256L * 1024 * 1024 + 32L * 1024 * 1024));
+    }
+
+    @Test
+    void testQueryLspciMemorySizeNoPrefetchable() {
+        List<String> noPrefetch = Arrays.asList("01:00.0 VGA compatible controller: Intel",
+                "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]");
+        assertThat(LinuxGraphicsCard.queryLspciMemorySize(noPrefetch), is(0L));
+    }
+
+    @Test
+    void testQueryLspciMemorySizeEmpty() {
+        assertThat(LinuxGraphicsCard.queryLspciMemorySize(Collections.emptyList()), is(0L));
     }
 }

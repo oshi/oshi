@@ -158,9 +158,23 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     // Faster, use as primary
     private static List<GraphicsCard> getGraphicsCardsFromLspci(Function<Attrs, GraphicsCard> factory) {
+        return getGraphicsCardsFromLspci(ExecutingCommand.runNative("lspci -vnnm"), factory,
+                slot -> queryLspciMemorySize(ExecutingCommand.runNative("lspci -v -s " + slot)),
+                LinuxGraphicsCard::findDrmInfo);
+    }
+
+    /**
+     * Parse graphics card information from lspci machine-readable output.
+     *
+     * @param lspci      output of {@code lspci -vnnm}
+     * @param factory    function that creates a concrete {@link GraphicsCard} from parsed attributes
+     * @param vramLookup function to look up VRAM for a PCI slot address
+     * @param drmLookup  function to look up DRM info for a PCI slot address
+     * @return list of graphics cards
+     */
+    static List<GraphicsCard> getGraphicsCardsFromLspci(List<String> lspci, Function<Attrs, GraphicsCard> factory,
+            Function<String, Long> vramLookup, Function<String, Triplet<String, String, String>> drmLookup) {
         List<GraphicsCard> cardList = new ArrayList<>();
-        // Machine readable version
-        List<String> lspci = ExecutingCommand.runNative("lspci -vnnm");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
         String vendor = Constants.UNKNOWN;
@@ -185,11 +199,11 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (found) {
                 if (split.length < 2) {
                     // Save previous card
-                    Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
+                    Triplet<String, String, String> drmInfo = drmLookup.apply(lookupDevice);
                     cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                            lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(),
-                            drmInfo.getB(), drmInfo.getC())));
+                            lookupDevice != null ? vramLookup.apply(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
+                            drmInfo.getC())));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -214,20 +228,27 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         // If we haven't yet written the last card do so now
         if (found) {
-            Triplet<String, String, String> drmInfo = findDrmInfo(lookupDevice);
+            Triplet<String, String, String> drmInfo = drmLookup.apply(lookupDevice);
             cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    lookupDevice != null ? queryLspciMemorySize(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
+                    lookupDevice != null ? vramLookup.apply(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
                     drmInfo.getC())));
         }
         return cardList;
     }
 
     private static long queryLspciMemorySize(String lookupDevice) {
+        return queryLspciMemorySize(ExecutingCommand.runNative("lspci -v -s " + lookupDevice));
+    }
+
+    /**
+     * Parse prefetchable memory size from lspci verbose output.
+     *
+     * @param lspciMem output of {@code lspci -v -s <device>}
+     * @return total prefetchable memory size in bytes
+     */
+    static long queryLspciMemorySize(List<String> lspciMem) {
         long vram = 0L;
-        // Lookup memory
-        // Human readable version, includes memory
-        List<String> lspciMem = ExecutingCommand.runNative("lspci -v -s " + lookupDevice);
         for (String mem : lspciMem) {
             if (mem.contains(" prefetchable")) {
                 vram += ParseUtil.parseLspciMemorySize(mem);
