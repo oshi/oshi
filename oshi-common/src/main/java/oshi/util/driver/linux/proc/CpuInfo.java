@@ -31,7 +31,16 @@ public final class CpuInfo {
      * @return The manufacturer if known, null otherwise
      */
     public static String queryCpuManufacturer() {
-        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
+        return queryCpuManufacturer(FileUtil.readFile(CPUINFO));
+    }
+
+    /**
+     * Parse the CPU manufacturer from /proc/cpuinfo lines.
+     *
+     * @param cpuInfo lines from /proc/cpuinfo
+     * @return The manufacturer if known, null otherwise
+     */
+    static String queryCpuManufacturer(List<String> cpuInfo) {
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
                 int part = ParseUtil.parseLastInt(line, 0);
@@ -73,12 +82,21 @@ public final class CpuInfo {
      *         unknown.
      */
     public static Quartet<String, String, String, String> queryBoardInfo() {
+        return queryBoardInfo(FileUtil.readFile(CPUINFO));
+    }
+
+    /**
+     * Parse board info from /proc/cpuinfo lines.
+     *
+     * @param cpuInfo lines from /proc/cpuinfo
+     * @return A quartet of strings for manufacturer, model, version, and serial number
+     */
+    static Quartet<String, String, String, String> queryBoardInfo(List<String> cpuInfo) {
         String pcManufacturer = null;
         String pcModel = null;
         String pcVersion = null;
         String pcSerialNumber = null;
 
-        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
@@ -124,7 +142,17 @@ public final class CpuInfo {
     }
 
     public static List<String> queryFeatureFlags() {
-        return FileUtil.readFile(CPUINFO).stream().filter(f -> {
+        return queryFeatureFlags(FileUtil.readFile(CPUINFO));
+    }
+
+    /**
+     * Parse feature flag lines from /proc/cpuinfo.
+     *
+     * @param cpuInfo lines from /proc/cpuinfo
+     * @return deduplicated lines starting with "flags" or "features"
+     */
+    static List<String> queryFeatureFlags(List<String> cpuInfo) {
+        return cpuInfo.stream().filter(f -> {
             String s = f.toLowerCase(Locale.ROOT);
             return s.startsWith("flags") || s.startsWith("features");
         }).distinct().collect(Collectors.toList());

@@ -4,6 +4,8 @@
  */
 package oshi.util.driver.linux;
 
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -23,9 +25,18 @@ public final class Lshal {
      * @return The serial number if available, null otherwise
      */
     public static String querySerialNumber() {
-        // if lshal command available (HAL deprecated in newer linuxes)
+        return querySerialNumber(ExecutingCommand.runNative("lshal"));
+    }
+
+    /**
+     * Parse the serial number from lshal output.
+     *
+     * @param lines output of {@code lshal}
+     * @return The serial number if available, null otherwise
+     */
+    static String querySerialNumber(List<String> lines) {
         String marker = "system.hardware.serial =";
-        for (String checkLine : ExecutingCommand.runNative("lshal")) {
+        for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
                 return ParseUtil.getSingleQuoteStringValue(checkLine);
             }
@@ -39,9 +50,18 @@ public final class Lshal {
      * @return The UUID if available, null otherwise
      */
     public static String queryUUID() {
-        // if lshal command available (HAL deprecated in newer linuxes)
+        return queryUUID(ExecutingCommand.runNative("lshal"));
+    }
+
+    /**
+     * Parse the UUID from lshal output.
+     *
+     * @param lines output of {@code lshal}
+     * @return The UUID if available, null otherwise
+     */
+    static String queryUUID(List<String> lines) {
         String marker = "system.hardware.uuid =";
-        for (String checkLine : ExecutingCommand.runNative("lshal")) {
+        for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
                 return ParseUtil.getSingleQuoteStringValue(checkLine);
             }
