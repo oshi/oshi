@@ -41,6 +41,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
@@ -68,6 +69,10 @@ class NativeComparisonTest {
         // Enable CPU utility counters (Windows 8+) to exercise that branch;
         // normal CI tests use the default (false) so both paths get coverage
         GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, true);
+        // Enable suspended process state detection to exercise thread-based state logic
+        GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, true);
+        // Enable batch command line queries to exercise Win32ProcessCached
+        GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, true);
 
         oshi.SystemInfo jnaSi = new oshi.SystemInfo();
         jnaHal = jnaSi.getHardware();
@@ -374,6 +379,24 @@ class NativeComparisonTest {
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
     }
 
+    @Test
+    void currentProcessUpdateAttributes() {
+        int pid = jnaOs.getProcessId();
+        OSProcess jna = jnaOs.getProcess(pid);
+        OSProcess ffm = ffmOs.getProcess(pid);
+        assertThat(jna).isNotNull();
+        assertThat(ffm).isNotNull();
+        // Call updateAttributes to refresh and verify it succeeds
+        assertThat(jna.updateAttributes()).as("JNA updateAttributes").isTrue();
+        assertThat(ffm.updateAttributes()).as("FFM updateAttributes").isTrue();
+        // After refresh, basic fields should still match
+        assertThat(ffm.getName()).isEqualTo(jna.getName());
+        assertThat(ffm.getState()).isEqualTo(jna.getState());
+        assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
+        // Command line exercises Win32ProcessCached when batch mode is enabled
+        assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+    }
+
     // ---- OS: FileSystem ----
 
     @Test
@@ -503,8 +526,24 @@ class NativeComparisonTest {
 
     @Test
     void sessions() {
+        List<OSSession> jnaSessions = jnaOs.getSessions();
+        List<OSSession> ffmSessions = ffmOs.getSessions();
         // Sessions should be the same set of users
-        assertThat(ffmOs.getSessions()).hasSameSizeAs(jnaOs.getSessions());
+        assertThat(ffmSessions).hasSameSizeAs(jnaSessions);
+        // On Linux, compare session details (user, device, host)
+        if (isLinux() && !jnaSessions.isEmpty()) {
+            Map<String, OSSession> ffmByKey = ffmSessions.stream()
+                    .collect(Collectors.toMap(s -> s.getUserName() + "|" + s.getTerminalDevice(), s -> s, (a, b) -> a));
+            for (OSSession j : jnaSessions) {
+                String key = j.getUserName() + "|" + j.getTerminalDevice();
+                OSSession f = ffmByKey.get(key);
+                assertThat(f).as("session %s", key).isNotNull();
+                assertThat(f.getHost()).as("session[%s].host", key).isEqualTo(j.getHost());
+                // Login times should be within 1 second of each other
+                assertThat(Math.abs(f.getLoginTime() - j.getLoginTime())).as("session[%s].loginTime", key)
+                        .isLessThanOrEqualTo(1000L);
+            }
+        }
     }
 
     // ---- OS: Services ----

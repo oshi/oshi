@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
 
@@ -31,6 +32,39 @@ import oshi.util.tuples.Quartet;
 class LinuxCentralProcessorTest {
 
     private static final double EPS = 1e-6;
+
+    // -------------------------------------------------------------------------
+    // parseCpuidOutput
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testParseCpuidOutputValid() {
+        // Real cpuid -1r output for leaf 0x00000001
+        List<String> lines = Arrays.asList("CPU 0:", //
+                "   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69",
+                "   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf edx=0xbfebfbff");
+        String result = LinuxCentralProcessor.parseCpuidOutput(lines);
+        assertThat(result, is("bfebfbff000906ea"));
+    }
+
+    @Test
+    void testParseCpuidOutputNoMatch() {
+        List<String> lines = Arrays.asList("CPU 0:",
+                "   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69");
+        assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
+    }
+
+    @Test
+    void testParseCpuidOutputMalformed() {
+        // Leaf 0x00000001 present but edx missing — should return null to allow fallback
+        List<String> lines = Arrays.asList("   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf");
+        assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
+    }
+
+    @Test
+    void testParseCpuidOutputEmpty() {
+        assertThat(LinuxCentralProcessor.parseCpuidOutput(Collections.emptyList()), is(nullValue()));
+    }
 
     // -------------------------------------------------------------------------
     // createMIDR

@@ -584,9 +584,26 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         // If we've gotten this far, dmidecode failed. Try cpuid.
-        marker = "eax=";
-        for (String checkLine : ExecutingCommand.runNative("cpuid -1r")) {
-            if (checkLine.contains(marker) && checkLine.trim().startsWith("0x00000001")) {
+        String cpuidResult = parseCpuidOutput(ExecutingCommand.runNative("cpuid -1r"));
+        if (cpuidResult != null) {
+            return cpuidResult;
+        }
+        // If we've gotten this far, dmidecode failed. Encode arguments
+        if (vendor.startsWith("0x")) {
+            return createMIDR(vendor, stepping, model, family) + "00000000";
+        }
+        return createProcessorID(stepping, model, family, flags, hwcap);
+    }
+
+    /**
+     * Parses the output of {@code cpuid -1r} to extract the processor ID.
+     *
+     * @param cpuidLines the output lines from {@code cpuid -1r}
+     * @return the processor ID string (edx + eax), or {@code null} if not found
+     */
+    static String parseCpuidOutput(List<String> cpuidLines) {
+        for (String checkLine : cpuidLines) {
+            if (checkLine.contains("eax=") && checkLine.trim().startsWith("0x00000001")) {
                 String eax = "";
                 String edx = "";
                 for (String register : ParseUtil.whitespaces.split(checkLine)) {
@@ -596,14 +613,12 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                         edx = ParseUtil.removeMatchingString(register, "edx=0x");
                     }
                 }
-                return edx + eax;
+                if (!eax.isEmpty() && !edx.isEmpty()) {
+                    return edx + eax;
+                }
             }
         }
-        // If we've gotten this far, dmidecode failed. Encode arguments
-        if (vendor.startsWith("0x")) {
-            return createMIDR(vendor, stepping, model, family) + "00000000";
-        }
-        return createProcessorID(stepping, model, family, flags, hwcap);
+        return null;
     }
 
     /**
