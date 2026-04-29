@@ -30,9 +30,9 @@ macOS shows the largest FFM advantage because most system information requires n
 | FileStore  | ~35 µs   | ~136 µs   |
 | Memory     | ~77 µs   | ~113 µs   |
 | NetworkIF  | ~613 µs  | ~1238 µs  |
-| Processes  | ~49 ms   | ~11 ms    |
+| Processes  | ~2.9 ms  | ~9.9 ms   |
 
-Windows benefits from FFM for most benchmarks. The Processes benchmark is an exception where JNA is faster; this is due to JNA's use of registry-based `HKEY_PERFORMANCE_DATA` queries which bypass the per-process native calls that the FFM implementation currently uses. This is a known issue ([#3186](https://github.com/oshi/oshi/issues/3186)).
+Windows benefits from FFM across all benchmarks.
 
 ### Linux
 
