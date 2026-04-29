@@ -8,9 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,15 @@ import org.junit.jupiter.api.condition.DisabledIf;
 
 import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
+import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
+import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
@@ -33,12 +43,22 @@ import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitio
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
 import oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
 import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.driver.windows.wmi.LhmSensorFFM;
+import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureFFM;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureJNA;
+import oshi.driver.windows.wmi.MSFTStorageFFM;
+import oshi.driver.windows.wmi.MSFTStorageJNA;
+import oshi.driver.windows.wmi.OhmHardwareFFM;
+import oshi.driver.windows.wmi.OhmHardwareJNA;
+import oshi.driver.windows.wmi.OhmSensorFFM;
+import oshi.driver.windows.wmi.OhmSensorJNA;
 import oshi.driver.windows.wmi.Win32BaseBoardFFM;
 import oshi.driver.windows.wmi.Win32BaseBoardJNA;
 import oshi.driver.windows.wmi.Win32BiosFFM;
@@ -65,6 +85,8 @@ import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryJNA;
 import oshi.driver.windows.wmi.Win32PrinterFFM;
 import oshi.driver.windows.wmi.Win32PrinterJNA;
+import oshi.driver.windows.wmi.Win32ProcessFFM;
+import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.driver.windows.wmi.Win32VideoControllerFFM;
@@ -367,6 +389,72 @@ class WmiComparisonTest {
     // --- Count-only comparisons for volatile/optional data ---
 
     @Test
+    void testWin32ProcessCommandLines() {
+        Set<Integer> currentPid = currentPidFilter();
+        WmiResult<CommandLineProperty> jna = Win32ProcessJNA.queryCommandLines(currentPid);
+        WbemcliUtilFFM.WmiResult<CommandLineProperty> ffm = Win32ProcessFFM.queryCommandLines(currentPid);
+        assertThat(ffm.getResultCount()).as("Win32Process commandLine count").isEqualTo(jna.getResultCount());
+        if (jna.getResultCount() > 0) {
+            assertThat(WmiUtilFFM.getUint32(ffm, CommandLineProperty.PROCESSID, 0)).as("Win32Process PID")
+                    .isEqualTo(WmiUtil.getUint32(jna, CommandLineProperty.PROCESSID, 0));
+            assertThat(WmiUtilFFM.getString(ffm, CommandLineProperty.COMMANDLINE, 0)).as("Win32Process commandLine")
+                    .isEqualTo(WmiUtil.getString(jna, CommandLineProperty.COMMANDLINE, 0));
+        }
+    }
+
+    @Test
+    void testWin32ProcessXP() {
+        Set<Integer> currentPid = currentPidFilter();
+        WmiResult<ProcessXPProperty> jna = Win32ProcessJNA.queryProcesses(currentPid);
+        WbemcliUtilFFM.WmiResult<ProcessXPProperty> ffm = Win32ProcessFFM.queryProcesses(currentPid);
+        assertThat(ffm.getResultCount()).as("Win32Process XP count").isEqualTo(jna.getResultCount());
+    }
+
+    @Test
+    void testLhmSensors() {
+        // LHM may not be installed; just verify both return the same count
+        WmiResult<LhmSensorProperty> jna = LhmSensorJNA.querySensors(null, null);
+        WbemcliUtilFFM.WmiResult<LhmSensorProperty> ffm = LhmSensorFFM.querySensors(null, null);
+        assertThat(ffm.getResultCount()).as("LhmSensor count").isEqualTo(jna.getResultCount());
+    }
+
+    @Test
+    void testLhmGpuHardware() {
+        WmiResult<LhmHardwareProperty> jna = LhmSensorJNA.queryGpuHardware();
+        WbemcliUtilFFM.WmiResult<LhmHardwareProperty> ffm = LhmSensorFFM.queryGpuHardware();
+        assertThat(ffm.getResultCount()).as("LhmGpuHardware count").isEqualTo(jna.getResultCount());
+    }
+
+    @Test
+    void testOhmSensors() {
+        // OHM may not be installed; just verify both return the same count
+        WmiQueryHandler jnaHandler = WmiQueryHandler.createInstance();
+        Assumptions.assumeTrue(jnaHandler != null, "JNA WmiQueryHandler unavailable");
+        WmiQueryHandlerFFM ffmHandler = WmiQueryHandlerFFM.createInstance();
+        Assumptions.assumeTrue(ffmHandler != null, "FFM WmiQueryHandlerFFM unavailable");
+
+        boolean jnaComInit = jnaHandler.initCOM();
+        boolean ffmComInit = ffmHandler.initCOM();
+        try {
+            WmiResult<ValueProperty> jna = OhmSensorJNA.querySensorValue(jnaHandler, null, null);
+            WbemcliUtilFFM.WmiResult<ValueProperty> ffm = OhmSensorFFM.querySensorValue(ffmHandler, null, null);
+            assertThat(ffm.getResultCount()).as("OhmSensor count").isEqualTo(jna.getResultCount());
+
+            WmiResult<IdentifierProperty> jnaHw = OhmHardwareJNA.queryHwIdentifier(jnaHandler, null, null);
+            WbemcliUtilFFM.WmiResult<IdentifierProperty> ffmHw = OhmHardwareFFM.queryHwIdentifier(ffmHandler, null,
+                    null);
+            assertThat(ffmHw.getResultCount()).as("OhmHardware count").isEqualTo(jnaHw.getResultCount());
+        } finally {
+            if (ffmComInit) {
+                ffmHandler.unInitCOM();
+            }
+            if (jnaComInit) {
+                jnaHandler.unInitCOM();
+            }
+        }
+    }
+
+    @Test
     void testFanSpeed() {
         WmiResult<SpeedProperty> jna = Win32FanJNA.querySpeed();
         WbemcliUtilFFM.WmiResult<SpeedProperty> ffm = Win32FanFFM.querySpeed();
@@ -415,6 +503,29 @@ class WmiComparisonTest {
             WbemcliUtilFFM.WmiResult<DiskToPartitionProperty> ffmLtp = Win32LogicalDiskToPartitionFFM
                     .queryDiskToPartition(ffmHandler);
             assertThat(ffmLtp.getResultCount()).as("LogicalDiskToPartition count").isEqualTo(jnaLtp.getResultCount());
+
+            // MSFTStorage: StoragePools
+            WmiResult<StoragePoolProperty> jnaSp = MSFTStorageJNA.queryStoragePools(jnaHandler);
+            WbemcliUtilFFM.WmiResult<StoragePoolProperty> ffmSp = MSFTStorageFFM.queryStoragePools(ffmHandler);
+            assertThat(ffmSp.getResultCount()).as("StoragePool count").isEqualTo(jnaSp.getResultCount());
+
+            // MSFTStorage: PhysicalDisks
+            WmiResult<PhysicalDiskProperty> jnaPd = MSFTStorageJNA.queryPhysicalDisks(jnaHandler);
+            WbemcliUtilFFM.WmiResult<PhysicalDiskProperty> ffmPd = MSFTStorageFFM.queryPhysicalDisks(ffmHandler);
+            assertThat(ffmPd.getResultCount()).as("MSFT PhysicalDisk count").isEqualTo(jnaPd.getResultCount());
+
+            // MSFTStorage: VirtualDisks
+            WmiResult<VirtualDiskProperty> jnaVd = MSFTStorageJNA.queryVirtualDisks(jnaHandler);
+            WbemcliUtilFFM.WmiResult<VirtualDiskProperty> ffmVd = MSFTStorageFFM.queryVirtualDisks(ffmHandler);
+            assertThat(ffmVd.getResultCount()).as("VirtualDisk count").isEqualTo(jnaVd.getResultCount());
+
+            // MSFTStorage: StoragePoolToPhysicalDisk
+            WmiResult<StoragePoolToPhysicalDiskProperty> jnaSpPd = MSFTStorageJNA
+                    .queryStoragePoolPhysicalDisks(jnaHandler);
+            WbemcliUtilFFM.WmiResult<StoragePoolToPhysicalDiskProperty> ffmSpPd = MSFTStorageFFM
+                    .queryStoragePoolPhysicalDisks(ffmHandler);
+            assertThat(ffmSpPd.getResultCount()).as("StoragePoolToPhysicalDisk count")
+                    .isEqualTo(jnaSpPd.getResultCount());
         } finally {
             if (ffmComInit) {
                 ffmHandler.unInitCOM();
@@ -442,6 +553,12 @@ class WmiComparisonTest {
             map.computeIfAbsent(WmiUtilFFM.getString(result, keyProp, i), k -> new ArrayList<>()).add(i);
         }
         return map;
+    }
+
+    private static Set<Integer> currentPidFilter() {
+        long pid = ProcessHandle.current().pid();
+        Assumptions.assumeTrue(pid <= Integer.MAX_VALUE, "PID too large to fit in int");
+        return Collections.singleton((int) pid);
     }
 
     static boolean isNotWindows() {

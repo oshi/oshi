@@ -176,6 +176,17 @@ class PerfmonComparisonTest {
     }
 
     @Test
+    void testThreadCountersFiltered() {
+        // Exercise the filtered overload with a known process name
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> jna = ThreadInformationJNA
+                .queryThreadCounters("java", -1);
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> ffm = ThreadInformationFFM
+                .queryThreadCounters("java", -1);
+        assertThat(ffm.getB().keySet()).as("Filtered thread counter keys").isEqualTo(jna.getB().keySet());
+        assertThat(ffm.getA().isEmpty()).as("Filtered thread instances empty").isEqualTo(jna.getA().isEmpty());
+    }
+
+    @Test
     void testGpuEngineCounters() {
         // GPU counters may not be available on all systems; just verify both return same structure
         Pair<List<String>, Map<GpuEngineProperty, List<Long>>> jna = GpuInformationJNA.queryGpuEngineCounters();
