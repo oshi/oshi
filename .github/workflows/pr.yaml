@@ -71,8 +71,24 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: ${{ matrix.coverage-flag }}
-      - name: JMH Benchmarks (JNA vs FFM)
-        if: contains(matrix.java, '25')
-        run: |
-          ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
-          java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  # JMH performance benchmarks — separate job to avoid slowing down test+coverage
+  benchmarks:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false
+    name: JMH Benchmarks, ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: 25
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build benchmark jar
+        run: ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
+      - name: Run JMH Benchmarks (JNA vs FFM)
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
