@@ -50,7 +50,7 @@ jobs:
 
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
-    runs-on: windows-2022
+    runs-on: windows-2025
     name: JMH Benchmarks
     steps:
       - uses: actions/checkout@v6
