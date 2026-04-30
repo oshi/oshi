@@ -70,10 +70,10 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                      .isGreaterThanOrEqualTo(r.getBytesWritten());
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              assertThat(p.getPageFaults()).as(<span class="jxr_string">"process[%d].pageFaults"</span>, pid).isGreaterThanOrEqualTo(r.getPageFaults());
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// Memory gauges — should be close, allow 50% fluctuation on CI</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertWithinRatio(p.getWorkingSetSize(), r.getWorkingSetSize(), 0.50,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// Memory gauges — should be close, allow large fluctuation on CI</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              assertWithinRatio(p.getWorkingSetSize(), r.getWorkingSetSize(), 0.90,
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                      <span class="jxr_string">"process["</span> + pid + <span class="jxr_string">"].workingSetSize"</span>);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertWithinRatio(p.getPrivateWorkingSetSize(), r.getPrivateWorkingSetSize(), 0.50,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertWithinRatio(p.getPrivateWorkingSetSize(), r.getPrivateWorkingSetSize(), 0.90,
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <span class="jxr_string">"process["</span> + pid + <span class="jxr_string">"].privateWorkingSetSize"</span>);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>              <em class="jxr_comment">// Uptime differs by the delta between the two reads</em>

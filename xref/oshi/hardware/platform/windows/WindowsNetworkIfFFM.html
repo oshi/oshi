@@ -173,7 +173,7 @@
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">this</strong>.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>             <strong class="jxr_keyword">this</strong>.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>             <em class="jxr_comment">// Alias is WCHAR[257] at OFFSET_ALIAS</em>
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">this</strong>.ifAlias = readWideString(aliasSlice);
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">int</strong> operStatus = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_OPER_STATUS);
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">this</strong>.ifOperStatus = IfOperStatus.byValue(operStatus);

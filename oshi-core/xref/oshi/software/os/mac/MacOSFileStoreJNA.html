@@ -12,34 +12,57 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.mac;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> oshi.software.common.os.mac.MacOSFileStore;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * OSFileStore implementation</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacOSFileStoreJNA" href="../../../../oshi/software/os/mac/MacOSFileStoreJNA.html#MacOSFileStoreJNA">MacOSFileStoreJNA</a> <strong class="jxr_keyword">extends</strong> MacOSFileStore {
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">public</strong> <a name="MacOSFileStoreJNA" href="../../../../oshi/software/os/mac/MacOSFileStoreJNA.html#MacOSFileStoreJNA">MacOSFileStoreJNA</a>(String name, String volume, String label, String mount, String options, String uuid,
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>              <strong class="jxr_keyword">boolean</strong> local, String logicalVolume, String description, String fsType, <strong class="jxr_keyword">long</strong> freeSpace, <strong class="jxr_keyword">long</strong> usableSpace,
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>              <strong class="jxr_keyword">long</strong> totalSpace, <strong class="jxr_keyword">long</strong> freeInodes, <strong class="jxr_keyword">long</strong> totalInodes) {
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>          <strong class="jxr_keyword">super</strong>(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>                  usableSpace, totalSpace, freeInodes, totalInodes);
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Override
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">for</strong> (OSFileStore fileStore : MacFileSystemJNA.getFileStoreMatching(getName(), isLocal())) {
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>              <strong class="jxr_keyword">if</strong> (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>                  updateFrom(fileStore);
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>              }
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          }
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.Statfs;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.mac.MacOSFileStore;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSFileStore;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * OSFileStore implementation</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacOSFileStoreJNA" href="../../../../oshi/software/os/mac/MacOSFileStoreJNA.html#MacOSFileStoreJNA">MacOSFileStoreJNA</a> <strong class="jxr_keyword">extends</strong> MacOSFileStore {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MacOSFileStoreJNA.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">public</strong> <a name="MacOSFileStoreJNA" href="../../../../oshi/software/os/mac/MacOSFileStoreJNA.html#MacOSFileStoreJNA">MacOSFileStoreJNA</a>(String name, String volume, String label, String mount, String options, String uuid,
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>              <strong class="jxr_keyword">boolean</strong> local, String logicalVolume, String description, String fsType, <strong class="jxr_keyword">long</strong> freeSpace, <strong class="jxr_keyword">long</strong> usableSpace,
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              <strong class="jxr_keyword">long</strong> totalSpace, <strong class="jxr_keyword">long</strong> freeInodes, <strong class="jxr_keyword">long</strong> totalInodes) {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">super</strong>(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  usableSpace, totalSpace, freeInodes, totalInodes);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      @Override
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <em class="jxr_comment">// Fast path: call statfs64 directly on the known mount point</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              Statfs stat = <strong class="jxr_keyword">new</strong> Statfs();
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">if</strong> (SystemB.INSTANCE.statfs64(getMount(), stat) == 0) {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>                  File f = <strong class="jxr_keyword">new</strong> File(getMount());
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  updateSpaceAndInodes(f.getFreeSpace(), f.getUsableSpace(), f.getTotalSpace(), stat.f_ffree,
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                          stat.f_files);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              LOG.debug(<span class="jxr_string">"statfs64 fast path failed for {}: {}"</span>, getMount(), e.getMessage());
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// Fall back to full enumeration</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">for</strong> (OSFileStore fileStore : MacFileSystemJNA.getFileStoreMatching(getName(), isLocal())) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <strong class="jxr_keyword">if</strong> (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  updateFrom(fileStore);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

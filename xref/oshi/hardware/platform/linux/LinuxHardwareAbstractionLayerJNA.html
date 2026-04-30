@@ -26,7 +26,7 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.platform.unix.UnixPrinter;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.platform.unix.CupsPrinterJNA;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystemJNA;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">/**</em>
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Override
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> List&lt;Printer&gt; getPrinters() {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> UnixPrinter.getPrinters();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> CupsPrinterJNA.getPrinters();
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      @Override

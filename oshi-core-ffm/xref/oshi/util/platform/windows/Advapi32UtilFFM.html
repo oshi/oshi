@@ -300,7 +300,7 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>                 rc = ERROR_MORE_DATA;
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> attempt = 0; attempt &lt; 3 &amp;&amp; rc != ERROR_SUCCESS; attempt++) {
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>                     <em class="jxr_comment">// Allocate extra for double-null terminator</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                     data = arena.allocate(size + 4);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                     data = arena.allocate(size + 4L);
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>                     data.fill((byte) 0);
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>                     lpcbData.set(JAVA_INT, 0, size + 4);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a> 

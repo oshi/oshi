@@ -330,323 +330,354 @@
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>     }
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> 
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, Integer&gt; mapNumaNodesFromLscpu() {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         Map&lt;Integer, Integer&gt; numaNodeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// Get numa node info from lscpu</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         List&lt;String&gt; lscpu = ExecutingCommand.runNative(<span class="jxr_string">"lscpu -p=cpu,node"</span>);
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// Format:</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <em class="jxr_comment">// # comment lines starting with #</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <em class="jxr_comment">// # then comma-delimited cpu,node</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <em class="jxr_comment">// 0,0</em>
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <em class="jxr_comment">// 1,0</em>
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">for</strong> (String line : lscpu) {
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>             <strong class="jxr_keyword">if</strong> (!line.startsWith(<span class="jxr_string">"#"</span>)) {
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 <strong class="jxr_keyword">int</strong> pos = line.indexOf(',');
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 <strong class="jxr_keyword">if</strong> (pos &gt; 0 &amp;&amp; pos &lt; line.length()) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     numaNodeMap.put(ParseUtil.parseIntOrDefault(line.substring(0, pos), 0),
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                             ParseUtil.parseIntOrDefault(line.substring(pos + 1), 0));
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 }
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>             }
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         }
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         <strong class="jxr_keyword">return</strong> numaNodeMap;
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>     }
-<a class="jxr_linenumber" name="L344" href="#L344">344</a> 
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;ProcessorCache&gt; mapCachesFromLscpu() {
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         Set&lt;ProcessorCache&gt; caches = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         <strong class="jxr_keyword">int</strong> level = 0;
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         Type type = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">int</strong> associativity = 0;
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">int</strong> lineSize = 0;
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">long</strong> size = 0L;
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <em class="jxr_comment">// Get numa node info from lscpu</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         List&lt;String&gt; lscpu = ExecutingCommand.runNative(<span class="jxr_string">"lscpu -B -C --json"</span>);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">for</strong> (String line : lscpu) {
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>             String s = line.trim();
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"}"</span>)) {
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>                 <em class="jxr_comment">// done with this entry, save it</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 <strong class="jxr_keyword">if</strong> (level &gt; 0 &amp;&amp; type != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(level, associativity, lineSize, size, type));
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 level = 0;
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 type = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 associativity = 0;
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 lineSize = 0;
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 size = 0L;
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"one-size"</span>)) {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 <em class="jxr_comment">// "one-size": "65536",</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                 String[] split = ParseUtil.notDigits.split(s);
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     size = ParseUtil.parseLongOrDefault(split[1], 0L);
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                 }
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"ways"</span>)) {
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>                 <em class="jxr_comment">// "ways": null,</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 <em class="jxr_comment">// "ways": 4,</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 String[] split = ParseUtil.notDigits.split(s);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                     associativity = ParseUtil.parseIntOrDefault(split[1], 0);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>                 }
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"type"</span>)) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>                 <em class="jxr_comment">// "type": "Unified",</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 String[] split = s.split(<span class="jxr_string">"\&quot;"</span>);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 2) {
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     type = parseCacheType(split[split.length - 2]);
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"level"</span>)) {
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>                 <em class="jxr_comment">// "level": 3,</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 String[] split = ParseUtil.notDigits.split(s);
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>                     level = ParseUtil.parseIntOrDefault(split[1], 0);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 }
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"coherency-size"</span>)) {
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>                 <em class="jxr_comment">// "coherency-size": 64</em>
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 String[] split = ParseUtil.notDigits.split(s);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                     lineSize = ParseUtil.parseIntOrDefault(split[1], 0);
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                 }
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>             }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         }
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         <strong class="jxr_keyword">return</strong> caches;
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>     @Override
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">long</strong>[] ticks = CpuStat.getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <em class="jxr_comment">// In rare cases, /proc/stat reading fails. If so, try again.</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">if</strong> (LongStream.of(ticks).sum() == 0) {
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>             ticks = CpuStat.getSystemCpuLoadTicks();
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>         }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ticks.length; i++) {
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>             ticks[i] = ticks[i] * 1000L / hz;
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         }
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     @Override
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] queryCurrentFreq() {
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">long</strong>[] freqs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()];
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">if</strong> (queryCurrentFreqFromUdev(freqs)) {
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>             <strong class="jxr_keyword">return</strong> freqs;
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         }
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <em class="jxr_comment">// Fall back to /proc/cpuinfo</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         Arrays.fill(freqs, -1);
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         List&lt;String&gt; cpuInfo = FileUtil.readFile(CPUINFO);
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">int</strong> proc = 0;
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">for</strong> (String s : cpuInfo) {
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">if</strong> (s.toLowerCase(Locale.ROOT).contains(<span class="jxr_string">"cpu mhz"</span>)) {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>                 freqs[proc] = Math.round(ParseUtil.parseLastDouble(s, 0d) * 1_000_000d);
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>                 <strong class="jxr_keyword">if</strong> (++proc &gt;= freqs.length) {
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>                 }
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             }
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         }
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">return</strong> freqs;
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     }
-<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a> <em class="jxr_javadoccomment">     * Fills the freqs array from udev cpu-freq source. Returns true if successful (max &gt; 0). Subclasses provide the</em>
-<a class="jxr_linenumber" name="L438" href="#L438">438</a> <em class="jxr_javadoccomment">     * implementation.</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">     * @param freqs array to fill with per-logical-processor frequencies in Hz</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * @return true if frequencies were successfully read</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">boolean</strong> queryCurrentFreqFromUdev(<strong class="jxr_keyword">long</strong>[] freqs);
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> queryCurrentFreqFromSysfs(<strong class="jxr_keyword">long</strong>[] freqs) {
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">long</strong> max = 0L;
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; cpuFiles = Files.find(Paths.get(SysPath.CPU), 1,
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>                 (path, attr) -&gt; path.toFile().getName().matches(<span class="jxr_string">"cpu&#92;&#92;d+"</span>))) {
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>             <strong class="jxr_keyword">for</strong> (Path cpu : (Iterable&lt;Path&gt;) cpuFiles::iterator) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>                 String syspath = cpu.toString();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>                 <strong class="jxr_keyword">int</strong> cpuIdx = ParseUtil.getFirstIntValue(syspath);
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 <strong class="jxr_keyword">if</strong> (cpuIdx &gt;= 0 &amp;&amp; cpuIdx &lt; freqs.length) {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>                     freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + <span class="jxr_string">"/cpufreq/scaling_cur_freq"</span>);
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>                     <strong class="jxr_keyword">if</strong> (freqs[cpuIdx] == 0) {
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>                         freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + <span class="jxr_string">"/cpufreq/cpuinfo_cur_freq"</span>);
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>                     }
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>                     <strong class="jxr_keyword">if</strong> (max &lt; freqs[cpuIdx]) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>                         max = freqs[cpuIdx];
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>                     }
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>                 }
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>             }
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>             <em class="jxr_comment">// ignore</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         }
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <strong class="jxr_keyword">if</strong> (max &gt; 0L) {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 freqs[i] *= 1000L;
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         }
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>     }
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>     @Override
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <strong class="jxr_keyword">long</strong> policyMax = queryMaxFreqFromUdev();
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">long</strong> lshwMax = Lshw.queryCpuCapacity();
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">return</strong> LongStream.concat(LongStream.of(policyMax, lshwMax), Arrays.stream(<strong class="jxr_keyword">this</strong>.getCurrentFreq())).max()
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>                 .orElse(-1L);
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>     }
-<a class="jxr_linenumber" name="L481" href="#L481">481</a> 
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">     * Queries the max CPU frequency from udev. Subclasses provide the implementation.</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">     * @return max frequency in Hz, or -1 if unavailable</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromUdev();
-<a class="jxr_linenumber" name="L488" href="#L488">488</a> 
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromSysfs() {
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <strong class="jxr_keyword">return</strong> queryMaxFreqFromCpuFreqPath(SysPath.CPU.substring(0, SysPath.CPU.length() - 1) + <span class="jxr_string">"/cpufreq"</span>);
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
-<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromCpuFreqPath(String cpuFreqPath) {
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>         String policyPrefix = Paths.get(cpuFreqPath, <span class="jxr_string">"policy"</span>).toString();
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; path = Files.list(Paths.get(cpuFreqPath))) {
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             Optional&lt;Long&gt; maxPolicy = path.filter(p -&gt; p.toString().startsWith(policyPrefix)).map(p -&gt; {
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 <strong class="jxr_keyword">long</strong> freq = FileUtil.getLongFromFile(p.toString() + <span class="jxr_string">"/scaling_max_freq"</span>);
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 <strong class="jxr_keyword">if</strong> (freq == 0) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                     freq = FileUtil.getLongFromFile(p.toString() + <span class="jxr_string">"/cpuinfo_max_freq"</span>);
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                 }
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>                 <strong class="jxr_keyword">return</strong> freq;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>             }).max(Long::compare);
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <strong class="jxr_keyword">if</strong> (maxPolicy.isPresent()) {
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 <strong class="jxr_keyword">return</strong> maxPolicy.get() * 1000L;
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             }
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <em class="jxr_comment">// ignore</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         }
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <strong class="jxr_keyword">return</strong> -1L;
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     }
-<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     @Override
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         <strong class="jxr_keyword">return</strong> getSystemLoadAverage(nelem, FileUtil.getStringFromFile(LOADAVG));
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>     }
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem, String loadavgContent) {
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         }
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         String[] parts = ParseUtil.whitespaces.split(loadavgContent.trim());
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nelem; i++) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             average[i] = i &lt; parts.length ? ParseUtil.parseDoubleOrDefault(parts[i], -1d) : -1d;
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         }
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>     }
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> 
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     @Override
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>         <strong class="jxr_keyword">long</strong>[][] ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         <em class="jxr_comment">// In rare cases, /proc/stat reading fails. If so, try again.</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <em class="jxr_comment">// In theory we should check all of them, but on failure we can expect all 0's</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <em class="jxr_comment">// so we only need to check for processor 0</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <strong class="jxr_keyword">if</strong> (LongStream.of(ticks[0]).sum() == 0) {
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>             ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ticks.length; i++) {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; ticks[i].length; j++) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>                 ticks[i][j] = ticks[i][j] * 1000L / hz;
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         }
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>     }
-<a class="jxr_linenumber" name="L545" href="#L545">545</a> 
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root permissions), the cpuid command (if installed) or</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">     * by encoding the stepping, model, family, and feature flags.</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">     * @param vendor   The vendor</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">     * @param stepping The stepping</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">     * @param model    The model</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">     * @param family   The family</em>
-<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     * @param flags    The flags</em>
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * @param hwcap    Hardware capabilities from the auxiliary vector, or 0 if unavailable</em>
-<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
-<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getProcessorID(String vendor, String stepping, String model, String family, String[] flags,
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>             <strong class="jxr_keyword">long</strong> hwcap) {
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 marker = <span class="jxr_string">"ID:"</span>;
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>             }
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         }
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>         marker = <span class="jxr_string">"eax="</span>;
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>)) {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>                 String eax = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>                 String edx = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>                 <strong class="jxr_keyword">for</strong> (String register : ParseUtil.whitespaces.split(checkLine)) {
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>                         eax = ParseUtil.removeMatchingString(register, <span class="jxr_string">"eax=0x"</span>);
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>                         edx = ParseUtil.removeMatchingString(register, <span class="jxr_string">"edx=0x"</span>);
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>                     }
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>                 }
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>                 <strong class="jxr_keyword">return</strong> edx + eax;
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">return</strong> mapNumaNodesFromLscpu(ExecutingCommand.runNative(<span class="jxr_string">"lscpu -p=cpu,node"</span>));
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     }
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">     * Parse NUMA node mapping from lscpu output.</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a> <em class="jxr_javadoccomment">     * @param lscpu output of {@code lscpu -p=cpu,node}</em>
+<a class="jxr_linenumber" name="L332" href="#L332">332</a> <em class="jxr_javadoccomment">     * @return a map of logical processor number to NUMA node</em>
+<a class="jxr_linenumber" name="L333" href="#L333">333</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <strong class="jxr_keyword">static</strong> Map&lt;Integer, Integer&gt; mapNumaNodesFromLscpu(List&lt;String&gt; lscpu) {
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         Map&lt;Integer, Integer&gt; numaNodeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         <em class="jxr_comment">// Format:</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <em class="jxr_comment">// # comment lines starting with #</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <em class="jxr_comment">// # then comma-delimited cpu,node</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <em class="jxr_comment">// 0,0</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <em class="jxr_comment">// 1,0</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <strong class="jxr_keyword">for</strong> (String line : lscpu) {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>             <strong class="jxr_keyword">if</strong> (!line.startsWith(<span class="jxr_string">"#"</span>)) {
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 <strong class="jxr_keyword">int</strong> pos = line.indexOf(',');
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 <strong class="jxr_keyword">if</strong> (pos &gt; 0 &amp;&amp; pos &lt; line.length()) {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                     numaNodeMap.put(ParseUtil.parseIntOrDefault(line.substring(0, pos), 0),
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                             ParseUtil.parseIntOrDefault(line.substring(pos + 1), 0));
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>             }
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         }
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">return</strong> numaNodeMap;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;ProcessorCache&gt; mapCachesFromLscpu() {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> mapCachesFromLscpu(ExecutingCommand.runNative(<span class="jxr_string">"lscpu -B -C --json"</span>));
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * Parse processor cache information from lscpu JSON output.</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * @param lscpu output of {@code lscpu -B -C --json}</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @return a set of processor caches</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">static</strong> Set&lt;ProcessorCache&gt; mapCachesFromLscpu(List&lt;String&gt; lscpu) {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         Set&lt;ProcessorCache&gt; caches = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">int</strong> level = 0;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         Type type = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">int</strong> associativity = 0;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">int</strong> lineSize = 0;
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">long</strong> size = 0L;
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">for</strong> (String line : lscpu) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             String s = line.trim();
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>             <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"}"</span>)) {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                 <em class="jxr_comment">// done with this entry, save it</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 <strong class="jxr_keyword">if</strong> (level &gt; 0 &amp;&amp; type != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                     caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(level, associativity, lineSize, size, type));
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                 }
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                 level = 0;
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                 type = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                 associativity = 0;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>                 lineSize = 0;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 size = 0L;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"one-size"</span>)) {
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                 <em class="jxr_comment">// "one-size": "65536",</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 String[] split = ParseUtil.notDigits.split(s);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                     size = ParseUtil.parseLongOrDefault(split[1], 0L);
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"ways"</span>)) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <em class="jxr_comment">// "ways": null,</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 <em class="jxr_comment">// "ways": 4,</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 String[] split = ParseUtil.notDigits.split(s);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                     associativity = ParseUtil.parseIntOrDefault(split[1], 0);
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                 }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"type"</span>)) {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                 <em class="jxr_comment">// "type": "Unified",</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                 String[] split = s.split(<span class="jxr_string">"\&quot;"</span>);
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 2) {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                     type = parseCacheType(split[split.length - 2]);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"level"</span>)) {
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 <em class="jxr_comment">// "level": 3,</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 String[] split = ParseUtil.notDigits.split(s);
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                     level = ParseUtil.parseIntOrDefault(split[1], 0);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 }
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(<span class="jxr_string">"coherency-size"</span>)) {
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 <em class="jxr_comment">// "coherency-size": 64</em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 String[] split = ParseUtil.notDigits.split(s);
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                     lineSize = ParseUtil.parseIntOrDefault(split[1], 0);
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                 }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>             }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         }
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <strong class="jxr_keyword">return</strong> caches;
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     }
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> 
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>     @Override
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">long</strong>[] ticks = CpuStat.getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <em class="jxr_comment">// In rare cases, /proc/stat reading fails. If so, try again.</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">if</strong> (LongStream.of(ticks).sum() == 0) {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>             ticks = CpuStat.getSystemCpuLoadTicks();
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ticks.length; i++) {
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             ticks[i] = ticks[i] * 1000L / hz;
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         }
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     }
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> 
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     @Override
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] queryCurrentFreq() {
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">long</strong>[] freqs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()];
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">if</strong> (queryCurrentFreqFromUdev(freqs)) {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">return</strong> freqs;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <em class="jxr_comment">// Fall back to /proc/cpuinfo</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         Arrays.fill(freqs, -1);
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         List&lt;String&gt; cpuInfo = FileUtil.readFile(CPUINFO);
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">int</strong> proc = 0;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <strong class="jxr_keyword">for</strong> (String s : cpuInfo) {
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">if</strong> (s.toLowerCase(Locale.ROOT).contains(<span class="jxr_string">"cpu mhz"</span>)) {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 freqs[proc] = Math.round(ParseUtil.parseLastDouble(s, 0d) * 1_000_000d);
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                 <strong class="jxr_keyword">if</strong> (++proc &gt;= freqs.length) {
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 }
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         }
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">return</strong> freqs;
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">     * Fills the freqs array from udev cpu-freq source. Returns true if successful (max &gt; 0). Subclasses provide the</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     * implementation.</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">     * @param freqs array to fill with per-logical-processor frequencies in Hz</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">     * @return true if frequencies were successfully read</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">boolean</strong> queryCurrentFreqFromUdev(<strong class="jxr_keyword">long</strong>[] freqs);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> queryCurrentFreqFromSysfs(<strong class="jxr_keyword">long</strong>[] freqs) {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">long</strong> max = 0L;
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; cpuFiles = Files.find(Paths.get(SysPath.CPU), 1,
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                 (path, attr) -&gt; path.toFile().getName().matches(<span class="jxr_string">"cpu&#92;&#92;d+"</span>))) {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <strong class="jxr_keyword">for</strong> (Path cpu : (Iterable&lt;Path&gt;) cpuFiles::iterator) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>                 String syspath = cpu.toString();
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 <strong class="jxr_keyword">int</strong> cpuIdx = ParseUtil.getFirstIntValue(syspath);
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                 <strong class="jxr_keyword">if</strong> (cpuIdx &gt;= 0 &amp;&amp; cpuIdx &lt; freqs.length) {
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                     freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + <span class="jxr_string">"/cpufreq/scaling_cur_freq"</span>);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                     <strong class="jxr_keyword">if</strong> (freqs[cpuIdx] == 0) {
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                         freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + <span class="jxr_string">"/cpufreq/cpuinfo_cur_freq"</span>);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                     }
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>                     <strong class="jxr_keyword">if</strong> (max &lt; freqs[cpuIdx]) {
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                         max = freqs[cpuIdx];
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>                     }
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>                 }
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             }
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>             <em class="jxr_comment">// ignore</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         }
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">if</strong> (max &gt; 0L) {
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; freqs.length; i++) {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                 freqs[i] *= 1000L;
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>             }
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         }
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>     @Override
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <strong class="jxr_keyword">long</strong> policyMax = queryMaxFreqFromUdev();
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         <strong class="jxr_keyword">long</strong> lshwMax = Lshw.queryCpuCapacity();
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         <strong class="jxr_keyword">return</strong> LongStream.concat(LongStream.of(policyMax, lshwMax), Arrays.stream(<strong class="jxr_keyword">this</strong>.getCurrentFreq())).max()
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>                 .orElse(-1L);
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     }
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     * Queries the max CPU frequency from udev. Subclasses provide the implementation.</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">     * @return max frequency in Hz, or -1 if unavailable</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromUdev();
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> 
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromSysfs() {
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">return</strong> queryMaxFreqFromCpuFreqPath(SysPath.CPU.substring(0, SysPath.CPU.length() - 1) + <span class="jxr_string">"/cpufreq"</span>);
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>     }
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> 
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> queryMaxFreqFromCpuFreqPath(String cpuFreqPath) {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         String policyPrefix = Paths.get(cpuFreqPath, <span class="jxr_string">"policy"</span>).toString();
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>         <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; path = Files.list(Paths.get(cpuFreqPath))) {
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             Optional&lt;Long&gt; maxPolicy = path.filter(p -&gt; p.toString().startsWith(policyPrefix)).map(p -&gt; {
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>                 <strong class="jxr_keyword">long</strong> freq = FileUtil.getLongFromFile(p.toString() + <span class="jxr_string">"/scaling_max_freq"</span>);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                 <strong class="jxr_keyword">if</strong> (freq == 0) {
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>                     freq = FileUtil.getLongFromFile(p.toString() + <span class="jxr_string">"/cpuinfo_max_freq"</span>);
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>                 }
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>                 <strong class="jxr_keyword">return</strong> freq;
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>             }).max(Long::compare);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">if</strong> (maxPolicy.isPresent()) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                 <strong class="jxr_keyword">return</strong> maxPolicy.get() * 1000L;
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>             <em class="jxr_comment">// ignore</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         }
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <strong class="jxr_keyword">return</strong> -1L;
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     @Override
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">return</strong> getSystemLoadAverage(nelem, FileUtil.getStringFromFile(LOADAVG));
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>     }
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem, String loadavgContent) {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>         }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         String[] parts = ParseUtil.whitespaces.split(loadavgContent.trim());
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nelem; i++) {
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>             average[i] = i &lt; parts.length ? ParseUtil.parseDoubleOrDefault(parts[i], -1d) : -1d;
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>         }
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
+<a class="jxr_linenumber" name="L544" href="#L544">544</a> 
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     @Override
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">long</strong>[][] ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <em class="jxr_comment">// In rare cases, /proc/stat reading fails. If so, try again.</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <em class="jxr_comment">// In theory we should check all of them, but on failure we can expect all 0's</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <em class="jxr_comment">// so we only need to check for processor 0</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">if</strong> (LongStream.of(ticks[0]).sum() == 0) {
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>             ticks = CpuStat.getProcessorCpuLoadTicks(getLogicalProcessorCount());
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         }
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ticks.length; i++) {
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; ticks[i].length; j++) {
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>                 ticks[i][j] = ticks[i][j] * 1000L / hz;
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>             }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         }
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root permissions), the cpuid command (if installed) or</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     * by encoding the stepping, model, family, and feature flags.</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * @param vendor   The vendor</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     * @param stepping The stepping</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * @param model    The model</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     * @param family   The family</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     * @param flags    The flags</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">     * @param hwcap    Hardware capabilities from the auxiliary vector, or 0 if unavailable</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">     * @return The Processor ID string</em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getProcessorID(String vendor, String stepping, String model, String family, String[] flags,
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>             <strong class="jxr_keyword">long</strong> hwcap) {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"dmidecode -t 4"</span>)) {
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>                 marker = <span class="jxr_string">"ID:"</span>;
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker)[1].trim();
 <a class="jxr_linenumber" name="L584" href="#L584">584</a>             }
 <a class="jxr_linenumber" name="L585" href="#L585">585</a>         }
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <strong class="jxr_keyword">if</strong> (vendor.startsWith(<span class="jxr_string">"0x"</span>)) {
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>             <strong class="jxr_keyword">return</strong> createMIDR(vendor, stepping, model, family) + <span class="jxr_string">"00000000"</span>;
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>         }
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags, hwcap);
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     }
-<a class="jxr_linenumber" name="L592" href="#L592">592</a> 
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L594" href="#L594">594</a> <em class="jxr_javadoccomment">     * Queries the hardware capabilities from the auxiliary vector. Subclasses provide platform-specific implementations</em>
-<a class="jxr_linenumber" name="L595" href="#L595">595</a> <em class="jxr_javadoccomment">     * using JNA or FFM native access.</em>
-<a class="jxr_linenumber" name="L596" href="#L596">596</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">     * @return The hardware capabilities value, or 0 if unavailable</em>
-<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryHwcap() {
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>     }
-<a class="jxr_linenumber" name="L602" href="#L602">602</a> 
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L604" href="#L604">604</a> <em class="jxr_javadoccomment">     * Creates the MIDR, the ARM equivalent of CPUID ProcessorID</em>
-<a class="jxr_linenumber" name="L605" href="#L605">605</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_javadoccomment">     * @param vendor   the CPU implementer</em>
-<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">     * @param stepping the "rnpn" variant and revision</em>
-<a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_javadoccomment">     * @param model    the partnum</em>
-<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_javadoccomment">     * @param family   the architecture</em>
-<a class="jxr_linenumber" name="L610" href="#L610">610</a> <em class="jxr_javadoccomment">     * @return A 32-bit hex string for the MIDR</em>
-<a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>     <strong class="jxr_keyword">static</strong> String createMIDR(String vendor, String stepping, String model, String family) {
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>         <strong class="jxr_keyword">int</strong> midrBytes = 0;
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>         <em class="jxr_comment">// Build 32-bit MIDR</em>
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>         <strong class="jxr_keyword">if</strong> (stepping.startsWith(<span class="jxr_string">"r"</span>) &amp;&amp; stepping.contains(<span class="jxr_string">"p"</span>)) {
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>             String[] rev = stepping.substring(1).split(<span class="jxr_string">"p"</span>);
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>             <em class="jxr_comment">// 3:0 – Revision: last n in rnpn</em>
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>             midrBytes |= ParseUtil.parseLastInt(rev[1], 0);
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>             <em class="jxr_comment">// 23:20 - Variant: first n in rnpn</em>
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>             midrBytes |= ParseUtil.parseLastInt(rev[0], 0) &lt;&lt; 20;
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>         }
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>         <em class="jxr_comment">// 15:4 - PartNum = model</em>
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>         midrBytes |= ParseUtil.parseLastInt(model, 0) &lt;&lt; 4;
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>         <em class="jxr_comment">// 19:16 - Architecture = family</em>
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>         midrBytes |= ParseUtil.parseLastInt(family, 0) &lt;&lt; 16;
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>         <em class="jxr_comment">// 31:24 - Implementer = vendor</em>
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>         midrBytes |= ParseUtil.parseLastInt(vendor, 0) &lt;&lt; 24;
-<a class="jxr_linenumber" name="L628" href="#L628">628</a> 
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>         <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%08X"</span>, midrBytes);
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>     }
-<a class="jxr_linenumber" name="L631" href="#L631">631</a> 
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>     @Override
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>         <strong class="jxr_keyword">return</strong> CpuStat.getContextSwitches();
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>     }
-<a class="jxr_linenumber" name="L636" href="#L636">636</a> 
-<a class="jxr_linenumber" name="L637" href="#L637">637</a>     @Override
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L639" href="#L639">639</a>         <strong class="jxr_keyword">return</strong> CpuStat.getInterrupts();
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>     }
-<a class="jxr_linenumber" name="L641" href="#L641">641</a> }
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Try cpuid.</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         String cpuidResult = parseCpuidOutput(ExecutingCommand.runNative(<span class="jxr_string">"cpuid -1r"</span>));
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>         <strong class="jxr_keyword">if</strong> (cpuidResult != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>             <strong class="jxr_keyword">return</strong> cpuidResult;
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Encode arguments</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <strong class="jxr_keyword">if</strong> (vendor.startsWith(<span class="jxr_string">"0x"</span>)) {
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>             <strong class="jxr_keyword">return</strong> createMIDR(vendor, stepping, model, family) + <span class="jxr_string">"00000000"</span>;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         }
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>         <strong class="jxr_keyword">return</strong> createProcessorID(stepping, model, family, flags, hwcap);
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     }
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> 
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">     * Parses the output of {@code cpuid -1r} to extract the processor ID.</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">     * @param cpuidLines the output lines from {@code cpuid -1r}</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">     * @return the processor ID string (edx + eax), or {@code null} if not found</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>     <strong class="jxr_keyword">static</strong> String parseCpuidOutput(List&lt;String&gt; cpuidLines) {
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>         <strong class="jxr_keyword">for</strong> (String checkLine : cpuidLines) {
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"eax="</span>) &amp;&amp; checkLine.trim().startsWith(<span class="jxr_string">"0x00000001"</span>)) {
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>                 String eax = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>                 String edx = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 <strong class="jxr_keyword">for</strong> (String register : ParseUtil.whitespaces.split(checkLine)) {
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>                     <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"eax="</span>)) {
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                         eax = ParseUtil.removeMatchingString(register, <span class="jxr_string">"eax=0x"</span>);
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (register.startsWith(<span class="jxr_string">"edx="</span>)) {
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>                         edx = ParseUtil.removeMatchingString(register, <span class="jxr_string">"edx=0x"</span>);
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                     }
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>                 }
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                 <strong class="jxr_keyword">if</strong> (!eax.isEmpty() &amp;&amp; !edx.isEmpty()) {
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>                     <strong class="jxr_keyword">return</strong> edx + eax;
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>                 }
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>             }
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>         }
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>     }
+<a class="jxr_linenumber" name="L623" href="#L623">623</a> 
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">     * Queries the hardware capabilities from the auxiliary vector. Subclasses provide platform-specific implementations</em>
+<a class="jxr_linenumber" name="L626" href="#L626">626</a> <em class="jxr_javadoccomment">     * using JNA or FFM native access.</em>
+<a class="jxr_linenumber" name="L627" href="#L627">627</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">     * @return The hardware capabilities value, or 0 if unavailable</em>
+<a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryHwcap() {
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>     }
+<a class="jxr_linenumber" name="L633" href="#L633">633</a> 
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L635" href="#L635">635</a> <em class="jxr_javadoccomment">     * Creates the MIDR, the ARM equivalent of CPUID ProcessorID</em>
+<a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">     * @param vendor   the CPU implementer</em>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">     * @param stepping the "rnpn" variant and revision</em>
+<a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">     * @param model    the partnum</em>
+<a class="jxr_linenumber" name="L640" href="#L640">640</a> <em class="jxr_javadoccomment">     * @param family   the architecture</em>
+<a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">     * @return A 32-bit hex string for the MIDR</em>
+<a class="jxr_linenumber" name="L642" href="#L642">642</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>     <strong class="jxr_keyword">static</strong> String createMIDR(String vendor, String stepping, String model, String family) {
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>         <strong class="jxr_keyword">int</strong> midrBytes = 0;
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>         <em class="jxr_comment">// Build 32-bit MIDR</em>
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>         <strong class="jxr_keyword">if</strong> (stepping.startsWith(<span class="jxr_string">"r"</span>) &amp;&amp; stepping.contains(<span class="jxr_string">"p"</span>)) {
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>             String[] rev = stepping.substring(1).split(<span class="jxr_string">"p"</span>);
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>             <em class="jxr_comment">// 3:0 – Revision: last n in rnpn</em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>             midrBytes |= ParseUtil.parseLastInt(rev[1], 0);
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>             <em class="jxr_comment">// 23:20 - Variant: first n in rnpn</em>
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>             midrBytes |= ParseUtil.parseLastInt(rev[0], 0) &lt;&lt; 20;
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>         }
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>         <em class="jxr_comment">// 15:4 - PartNum = model</em>
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>         midrBytes |= ParseUtil.parseLastInt(model, 0) &lt;&lt; 4;
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>         <em class="jxr_comment">// 19:16 - Architecture = family</em>
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>         midrBytes |= ParseUtil.parseLastInt(family, 0) &lt;&lt; 16;
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>         <em class="jxr_comment">// 31:24 - Implementer = vendor</em>
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>         midrBytes |= ParseUtil.parseLastInt(vendor, 0) &lt;&lt; 24;
+<a class="jxr_linenumber" name="L659" href="#L659">659</a> 
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>         <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%08X"</span>, midrBytes);
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>     }
+<a class="jxr_linenumber" name="L662" href="#L662">662</a> 
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>     @Override
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>         <strong class="jxr_keyword">return</strong> CpuStat.getContextSwitches();
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>     }
+<a class="jxr_linenumber" name="L667" href="#L667">667</a> 
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>     @Override
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>         <strong class="jxr_keyword">return</strong> CpuStat.getInterrupts();
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>     }
+<a class="jxr_linenumber" name="L672" href="#L672">672</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

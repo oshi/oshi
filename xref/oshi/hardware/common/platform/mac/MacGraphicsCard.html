@@ -36,68 +36,72 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> List&lt;GraphicsCard&gt; parseGraphicsCards(GraphicsCardFactory factory, SysctlLong sysctl) {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          List&lt;GraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          List&lt;String&gt; sp = ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPDisplaysDataType"</span>);
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          String name = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          String deviceId = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          String vendor = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          List&lt;String&gt; versionInfoList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">long</strong> vram = 0;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">int</strong> cardNum = 0;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">for</strong> (String line : sp) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              String[] split = line.trim().split(<span class="jxr_string">":"</span>, 2);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">if</strong> (split.length == 2) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  String prefix = split[0].toLowerCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"chipset model"</span>)) {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                      <strong class="jxr_keyword">if</strong> (cardNum++ &gt; 0) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                          cardList.add(factory.create(name, deviceId, vendor,
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                                  versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList),
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                                  resolveVram(vram, name, sysctl)));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                          deviceId = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                          vendor = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                          vram = 0;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>                          versionInfoList.clear();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>                      }
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                      name = split[1].trim();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"device id"</span>)) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                      deviceId = split[1].trim();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"vendor"</span>)) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                      vendor = split[1].trim();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.contains(<span class="jxr_string">"version"</span>) || prefix.contains(<span class="jxr_string">"revision"</span>)) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      versionInfoList.add(line.trim());
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.startsWith(<span class="jxr_string">"vram"</span>)) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                      vram = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">if</strong> (cardNum &gt; 0) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              cardList.add(factory.create(name, deviceId, vendor,
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList),
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      resolveVram(vram, name, sysctl)));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> cardList;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> resolveVram(<strong class="jxr_keyword">long</strong> parsedVram, String chipsetName, SysctlLong sysctl) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">if</strong> (parsedVram &gt; 0) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">return</strong> parsedVram;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">if</strong> (chipsetName.contains(<span class="jxr_string">"Apple"</span>)) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">return</strong> sysctl.get(<span class="jxr_string">"hw.memsize"</span>, 0L);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> parsedVram;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      @FunctionalInterface
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">interface</strong> GraphicsCardFactory {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <a name="GraphicsCard" href="../../../../../oshi/hardware/GraphicsCard.html#GraphicsCard">GraphicsCard</a> create(String name, String deviceId, String vendor, String versionInfo, <strong class="jxr_keyword">long</strong> vram);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      @FunctionalInterface
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">interface</strong> SysctlLong {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">long</strong> get(String name, <strong class="jxr_keyword">long</strong> defaultValue);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          List&lt;String&gt; sp = ExecutingCommand.runNative(<span class="jxr_string">"system_profiler SPDisplaysDataType"</span>);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> parseGraphicsCards(sp, factory, sysctl);
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">static</strong> List&lt;GraphicsCard&gt; parseGraphicsCards(List&lt;String&gt; sp, GraphicsCardFactory factory, SysctlLong sysctl) {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          List&lt;GraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          String name = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          String deviceId = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          String vendor = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          List&lt;String&gt; versionInfoList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">long</strong> vram = 0;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">int</strong> cardNum = 0;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">for</strong> (String line : sp) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              String[] split = line.trim().split(<span class="jxr_string">":"</span>, 2);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">if</strong> (split.length == 2) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  String prefix = split[0].toLowerCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"chipset model"</span>)) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                      <strong class="jxr_keyword">if</strong> (cardNum++ &gt; 0) {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                          cardList.add(factory.create(name, deviceId, vendor,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                                  versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList),
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                                  resolveVram(vram, name, sysctl)));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                          deviceId = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                          vendor = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                          vram = 0;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                          versionInfoList.clear();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                      name = split[1].trim();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"device id"</span>)) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      deviceId = split[1].trim();
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"vendor"</span>)) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                      vendor = split[1].trim();
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.contains(<span class="jxr_string">"version"</span>) || prefix.contains(<span class="jxr_string">"revision"</span>)) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      versionInfoList.add(line.trim());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.startsWith(<span class="jxr_string">"vram"</span>)) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      vram = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">if</strong> (cardNum &gt; 0) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              cardList.add(factory.create(name, deviceId, vendor,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList),
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      resolveVram(vram, name, sysctl)));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> cardList;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> resolveVram(<strong class="jxr_keyword">long</strong> parsedVram, String chipsetName, SysctlLong sysctl) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">if</strong> (parsedVram &gt; 0) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">return</strong> parsedVram;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">if</strong> (chipsetName.contains(<span class="jxr_string">"Apple"</span>)) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> sysctl.get(<span class="jxr_string">"hw.memsize"</span>, 0L);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">return</strong> parsedVram;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      @FunctionalInterface
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">interface</strong> GraphicsCardFactory {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <a name="GraphicsCard" href="../../../../../oshi/hardware/GraphicsCard.html#GraphicsCard">GraphicsCard</a> create(String name, String deviceId, String vendor, String versionInfo, <strong class="jxr_keyword">long</strong> vram);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      @FunctionalInterface
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">interface</strong> SysctlLong {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">long</strong> get(String name, <strong class="jxr_keyword">long</strong> defaultValue);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

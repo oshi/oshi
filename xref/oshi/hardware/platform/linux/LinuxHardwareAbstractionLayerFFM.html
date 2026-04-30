@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.unix.CupsPrinter;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.unix.CupsPrinterFFM;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.GlobalMemory;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.GraphicsCard;
@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      @Override
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> List&lt;Printer&gt; getPrinters() {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> CupsPrinter.getPrinters();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> CupsPrinterFFM.getPrinters();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Override

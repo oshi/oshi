@@ -12,49 +12,133 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.windows.registry;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.Collection;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.registry.WtsInfo;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ProcessFFM;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtilFFM;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Utility to read process data from WMI as a substitute for WTS native calls.</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="ProcessWtsDataFFM" href="../../../../oshi/driver/windows/registry/ProcessWtsDataFFM.html#ProcessWtsDataFFM">ProcessWtsDataFFM</a> {
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_NUMBER_OF_THREADS;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PAGEFILE_USAGE;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_ID;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_NAME;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_SIZE;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_USER_TIME;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.WTS_ANY_SESSION;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.WTS_CURRENT_SERVER_HANDLE;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.WTS_PROCESS_INFO_LEVEL_1;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.Wtsapi32FFM.WTS_TYPE_PROCESS_INFO_LEVEL_1;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <a name="ProcessWtsDataFFM" href="../../../../oshi/driver/windows/registry/ProcessWtsDataFFM.html#ProcessWtsDataFFM">ProcessWtsDataFFM</a>() {
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      }
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * Query WMI for process performance counters.</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @return A map with Process ID as the key and a {@link WtsInfo} object populated with data.</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, WtsInfo&gt; queryProcessWtsMap(Collection&lt;Integer&gt; pids) {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          Map&lt;Integer, WtsInfo&gt; wtsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          WmiResult&lt;ProcessXPProperty&gt; processWmiResult = Win32ProcessFFM.queryProcesses(pids);
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; processWmiResult.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>              wtsMap.put(WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), <strong class="jxr_keyword">new</strong> WtsInfo(
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>                      WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.NAME, i),
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>                      WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>                      WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                      <em class="jxr_comment">// WMI Pagefile usage is in KB</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                      1024 * (WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                      WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                      WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                      WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">return</strong> wtsMap;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  }
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.registry.WtsInfo;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ProcessFFM;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Kernel32FFM;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.VersionHelpersFFM;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Wtsapi32FFM;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtilFFM;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * Utility to read process data from WTS native calls with backup from WMI.</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="ProcessWtsDataFFM" href="../../../../oshi/driver/windows/registry/ProcessWtsDataFFM.html#ProcessWtsDataFFM">ProcessWtsDataFFM</a> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(ProcessWtsDataFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> IS_WINDOWS7_OR_GREATER = VersionHelpersFFM.IsWindows7OrGreater();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <a name="ProcessWtsDataFFM" href="../../../../oshi/driver/windows/registry/ProcessWtsDataFFM.html#ProcessWtsDataFFM">ProcessWtsDataFFM</a>() {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * Query process information using native WTS calls (Win7+) or WMI as fallback.</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @return A map with Process ID as the key and a {@link WtsInfo} object populated with data.</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, WtsInfo&gt; queryProcessWtsMap(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">if</strong> (IS_WINDOWS7_OR_GREATER) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">return</strong> queryProcessWtsMapFromWTS(pids);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> queryProcessWtsMapFromWMI(pids);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, WtsInfo&gt; queryProcessWtsMapFromWTS(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Set&lt;Integer&gt; pidSet = pids != <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(pids) : <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          Map&lt;Integer, WtsInfo&gt; wtsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              MemorySegment pLevel = arena.allocate(JAVA_INT);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              pLevel.set(JAVA_INT, 0, WTS_PROCESS_INFO_LEVEL_1);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              MemorySegment ppProcessInfo = arena.allocate(ADDRESS);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              MemorySegment pCount = arena.allocate(JAVA_INT);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">if</strong> (!Wtsapi32FFM.WTSEnumerateProcessesEx(WTS_CURRENT_SERVER_HANDLE, pLevel, WTS_ANY_SESSION, ppProcessInfo,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      pCount)) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  LOG.error(<span class="jxr_string">"Failed to enumerate Processes. Error code: {}"</span>, Kernel32FFM.GetLastError().orElse(-1));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">return</strong> wtsMap;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">int</strong> count = pCount.get(JAVA_INT, 0);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              MemorySegment pProcessInfo = ppProcessInfo.get(ADDRESS, 0).reinterpret(PROCESS_INFO_EX_SIZE * count);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">long</strong> base = i * PROCESS_INFO_EX_SIZE;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <strong class="jxr_keyword">int</strong> pid = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_PROCESS_ID);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                      <strong class="jxr_keyword">if</strong> (pidSet != <strong class="jxr_keyword">null</strong> &amp;&amp; !pidSet.contains(pid)) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      MemorySegment pName = pProcessInfo.get(ADDRESS, base + PROCESS_INFO_EX_PROCESS_NAME);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      String name = pName.equals(MemorySegment.NULL) ? <span class="jxr_string">""</span> : readWideString(pName.reinterpret(512));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <strong class="jxr_keyword">int</strong> threads = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_NUMBER_OF_THREADS);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                      <strong class="jxr_keyword">long</strong> pagefileUsage = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_PAGEFILE_USAGE)
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                              &amp; 0xffff_ffffL;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                     <strong class="jxr_keyword">long</strong> kernelTime = pProcessInfo.get(JAVA_LONG, base + PROCESS_INFO_EX_KERNEL_TIME) / 10_000L;
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                     <strong class="jxr_keyword">long</strong> userTime = pProcessInfo.get(JAVA_LONG, base + PROCESS_INFO_EX_USER_TIME) / 10_000L;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                     <strong class="jxr_keyword">int</strong> handles = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_HANDLE_COUNT);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                     wtsMap.put(pid, <strong class="jxr_keyword">new</strong> WtsInfo(name, <span class="jxr_string">""</span>, threads, pagefileUsage, kernelTime, userTime, handles));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">if</strong> (!Wtsapi32FFM.WTSFreeMemoryEx(WTS_TYPE_PROCESS_INFO_LEVEL_1, pProcessInfo, count)) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     LOG.warn(<span class="jxr_string">"Failed to Free Memory for Processes. Error code: {}"</span>,
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                             Kernel32FFM.GetLastError().orElse(-1));
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             LOG.error(<span class="jxr_string">"Failed to enumerate Processes via WTS"</span>, t);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">return</strong> wtsMap;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, WtsInfo&gt; queryProcessWtsMapFromWMI(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         Map&lt;Integer, WtsInfo&gt; wtsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         WmiResult&lt;ProcessXPProperty&gt; processWmiResult = Win32ProcessFFM.queryProcesses(pids);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; processWmiResult.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             wtsMap.put(WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), <strong class="jxr_keyword">new</strong> WtsInfo(
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                     WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.NAME, i),
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                     WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                     <em class="jxr_comment">// WMI Pagefile usage is in KB</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                     1024 * (WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> wtsMap;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

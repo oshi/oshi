@@ -161,128 +161,137 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) getfsstat64.invokeExact(buffer, bufsize, flags);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_comment">// void setutxent(void);</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_comment">// int statfs64(const char *path, struct statfs *buf);</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle setutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"setutxent"</span>),
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             FunctionDescriptor.ofVoid());
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle statfs64 = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"statfs64"</span>),
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> setutxent() <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         setutxent.invokeExact();
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> statfs64(MemorySegment path, MemorySegment buf) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) statfs64.invokeExact(path, buf);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <em class="jxr_comment">// struct utmpx * getutxent(void);</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <em class="jxr_comment">// void setutxent(void);</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a> 
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getutxent"</span>),
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             FunctionDescriptor.of(ADDRESS));
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle setutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"setutxent"</span>),
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             FunctionDescriptor.ofVoid());
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> MemorySegment getutxent() <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         MemorySegment result = (MemorySegment) getutxent.invokeExact();
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">return</strong> result.equals(MemorySegment.NULL) ? <strong class="jxr_keyword">null</strong> : result;
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_comment">// void endutxent(void);</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle endutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"endutxent"</span>),
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>             FunctionDescriptor.ofVoid());
-<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> endutxent() <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         endutxent.invokeExact();
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> setutxent() <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         setutxent.invokeExact();
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_comment">// struct utmpx * getutxent(void);</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getutxent"</span>),
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             FunctionDescriptor.of(ADDRESS));
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> MemorySegment getutxent() <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         MemorySegment result = (MemorySegment) getutxent.invokeExact();
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">return</strong> result.equals(MemorySegment.NULL) ? <strong class="jxr_keyword">null</strong> : result;
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <em class="jxr_comment">// int gethostname(char *name, size_t namelen);</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <em class="jxr_comment">// void endutxent(void);</em>
 <a class="jxr_linenumber" name="L185" href="#L185">185</a> 
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle gethostname = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"gethostname"</span>),
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle endutxent = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"endutxent"</span>),
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             FunctionDescriptor.ofVoid());
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> 
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> gethostname(MemorySegment name, <strong class="jxr_keyword">long</strong> namelen) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) gethostname.invokeExact(name, namelen);
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> endutxent() <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         endutxent.invokeExact();
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">// int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">// int gethostname(char *name, size_t namelen);</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getaddrinfo"</span>),
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle gethostname = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"gethostname"</span>),
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
 <a class="jxr_linenumber" name="L197" href="#L197">197</a> 
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getaddrinfo(MemorySegment node, MemorySegment service, MemorySegment hints, MemorySegment res)
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) getaddrinfo.invokeExact(node, service, hints, res);
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     }
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_comment">// void freeaddrinfo(struct addrinfo *res);</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle freeaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"freeaddrinfo"</span>),
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             FunctionDescriptor.ofVoid(ADDRESS));
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> freeaddrinfo(MemorySegment res) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         freeaddrinfo.invokeExact(res);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> gethostname(MemorySegment name, <strong class="jxr_keyword">long</strong> namelen) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) gethostname.invokeExact(name, namelen);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_comment">// int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> 
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getaddrinfo"</span>),
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getaddrinfo(MemorySegment node, MemorySegment service, MemorySegment hints, MemorySegment res)
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) getaddrinfo.invokeExact(node, service, hints, res);
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
 <a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <em class="jxr_comment">// const char * gai_strerror(int ecode);</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <em class="jxr_comment">// void freeaddrinfo(struct addrinfo *res);</em>
 <a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle gai_strerror = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"gai_strerror"</span>),
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             FunctionDescriptor.of(ADDRESS, JAVA_INT));
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle freeaddrinfo = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"freeaddrinfo"</span>),
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             FunctionDescriptor.ofVoid(ADDRESS));
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String gai_strerror(<strong class="jxr_keyword">int</strong> ecode) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         MemorySegment result = (MemorySegment) gai_strerror.invokeExact(ecode);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">return</strong> result.equals(MemorySegment.NULL) ? <span class="jxr_string">""</span> : result.reinterpret(256).getString(0);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     }
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle mach_host_self_handle = LINKER
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             .downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"mach_host_self"</span>), FunctionDescriptor.of(JAVA_INT));
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> mach_host_self() <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) mach_host_self_handle.invokeExact();
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_page_size = LINKER.downcallHandle(
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_page_size"</span>), FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_page_size(<strong class="jxr_keyword">int</strong> hostPort, MemorySegment pPageSize) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_page_size.invokeExact(hostPort, pPageSize);
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     }
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_statistics = LINKER.downcallHandle(
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_statistics"</span>),
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_statistics(MemorySegment callState, <strong class="jxr_keyword">int</strong> hostPort, <strong class="jxr_keyword">int</strong> hostStat, MemorySegment stats,
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>             MemorySegment count) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> freeaddrinfo(MemorySegment res) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         freeaddrinfo.invokeExact(res);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <em class="jxr_comment">// const char * gai_strerror(int ecode);</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle gai_strerror = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"gai_strerror"</span>),
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             FunctionDescriptor.of(ADDRESS, JAVA_INT));
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String gai_strerror(<strong class="jxr_keyword">int</strong> ecode) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         MemorySegment result = (MemorySegment) gai_strerror.invokeExact(ecode);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> result.equals(MemorySegment.NULL) ? <span class="jxr_string">""</span> : result.reinterpret(256).getString(0);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle mach_host_self_handle = LINKER
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             .downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"mach_host_self"</span>), FunctionDescriptor.of(JAVA_INT));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> mach_host_self() <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) mach_host_self_handle.invokeExact();
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_page_size = LINKER.downcallHandle(
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_page_size"</span>), FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_page_size(<strong class="jxr_keyword">int</strong> hostPort, MemorySegment pPageSize) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_page_size.invokeExact(hostPort, pPageSize);
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>     }
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> 
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <em class="jxr_comment">// kern_return_t host_processor_info(host_t host, processor_flavor_t flavor, natural_t *out_processor_count,</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <em class="jxr_comment">// processor_info_array_t *out_processor_info, mach_msg_type_number_t</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <em class="jxr_comment">// *out_processor_infoCnt);</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_statistics = LINKER.downcallHandle(
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_statistics"</span>),
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
 <a class="jxr_linenumber" name="L248" href="#L248">248</a> 
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_processor_info = LINKER.downcallHandle(
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_processor_info"</span>),
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_processor_info(MemorySegment callState, <strong class="jxr_keyword">int</strong> hostPort, <strong class="jxr_keyword">int</strong> flavor,
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             MemorySegment processorCount, MemorySegment processorInfo, MemorySegment processorInfoCount)
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>             <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_processor_info.invokeExact(callState, hostPort, flavor, processorCount, processorInfo,
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 processorInfoCount);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_comment">// int getloadavg(double loadavg[], int nelem);</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_statistics(MemorySegment callState, <strong class="jxr_keyword">int</strong> hostPort, <strong class="jxr_keyword">int</strong> hostStat, MemorySegment stats,
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             MemorySegment count) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_statistics.invokeExact(callState, hostPort, hostStat, stats, count);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <em class="jxr_comment">// kern_return_t host_processor_info(host_t host, processor_flavor_t flavor, natural_t *out_processor_count,</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_comment">// processor_info_array_t *out_processor_info, mach_msg_type_number_t</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <em class="jxr_comment">// *out_processor_infoCnt);</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle host_processor_info = LINKER.downcallHandle(
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"host_processor_info"</span>),
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS, ADDRESS), CAPTURE_CALL_STATE);
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getloadavg = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getloadavg"</span>),
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
-<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getloadavg(MemorySegment loadavg, <strong class="jxr_keyword">int</strong> nelem) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) getloadavg.invokeExact(loadavg, nelem);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> host_processor_info(MemorySegment callState, <strong class="jxr_keyword">int</strong> hostPort, <strong class="jxr_keyword">int</strong> flavor,
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             MemorySegment processorCount, MemorySegment processorInfo, MemorySegment processorInfoCount)
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) host_processor_info.invokeExact(callState, hostPort, flavor, processorCount, processorInfo,
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 processorInfoCount);
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
 <a class="jxr_linenumber" name="L268" href="#L268">268</a> 
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_comment">// kern_return_t vm_deallocate(vm_map_t target_task, vm_address_t address, vm_size_t size);</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_comment">// int getloadavg(double loadavg[], int nelem);</em>
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle vm_deallocate = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"vm_deallocate"</span>),
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, JAVA_LONG));
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle getloadavg = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"getloadavg"</span>),
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
 <a class="jxr_linenumber" name="L273" href="#L273">273</a> 
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> vm_deallocate(<strong class="jxr_keyword">int</strong> targetTask, <strong class="jxr_keyword">long</strong> address, <strong class="jxr_keyword">long</strong> size) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) vm_deallocate.invokeExact(targetTask, address, size);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getloadavg(MemorySegment loadavg, <strong class="jxr_keyword">int</strong> nelem) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) getloadavg.invokeExact(loadavg, nelem);
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_comment">// kern_return_t vm_deallocate(vm_map_t target_task, vm_address_t address, vm_size_t size);</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle vm_deallocate = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow(<span class="jxr_string">"vm_deallocate"</span>),
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, JAVA_LONG));
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> vm_deallocate(<strong class="jxr_keyword">int</strong> targetTask, <strong class="jxr_keyword">long</strong> address, <strong class="jxr_keyword">long</strong> size) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) vm_deallocate.invokeExact(targetTask, address, size);
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
