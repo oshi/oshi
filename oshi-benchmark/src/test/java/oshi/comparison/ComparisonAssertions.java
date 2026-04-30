@@ -14,10 +14,26 @@ final class ComparisonAssertions {
     private ComparisonAssertions() {
     }
 
+    /**
+     * Asserts that two {@code long} values are within the given ratio of each other.
+     *
+     * @param actual      the actual value
+     * @param expected    the expected (baseline) value
+     * @param ratio       the maximum allowed deviation (0.0–1.0)
+     * @param description a label for assertion failure messages
+     */
     static void assertWithinRatio(long actual, long expected, double ratio, String description) {
         assertWithinRatio((double) actual, (double) expected, ratio, description);
     }
 
+    /**
+     * Asserts that two {@code double} values are within the given ratio of each other.
+     *
+     * @param actual      the actual value
+     * @param expected    the expected (baseline) value
+     * @param ratio       the maximum allowed deviation (0.0–1.0)
+     * @param description a label for assertion failure messages
+     */
     static void assertWithinRatio(double actual, double expected, double ratio, String description) {
         if (expected == 0 && actual == 0) {
             return;

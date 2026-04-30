@@ -62,6 +62,10 @@ class NativeComparisonTest {
     private static OperatingSystem jnaOs;
     private static OperatingSystem ffmOs;
 
+    /**
+     * Initializes JNA (baseline) and FFM hardware and OS instances with memoization disabled and Windows-specific
+     * configuration options enabled for maximum coverage.
+     */
     @BeforeAll
     static void setup() {
         // Disable memoization so each call gets fresh data for accurate comparison
@@ -85,6 +89,7 @@ class NativeComparisonTest {
 
     // ---- Hardware: ComputerSystem, Firmware, Baseboard ----
 
+    /** Compares {@link ComputerSystem}, firmware, and baseboard fields. */
     @Test
     void computerSystem() {
         ComputerSystem jna = jnaHal.getComputerSystem();
@@ -94,12 +99,14 @@ class NativeComparisonTest {
 
     // ---- Hardware: CentralProcessor ----
 
+    /** Compares processor identifier fields (vendor, name, stepping, etc.). */
     @Test
     void processorIdentifier() {
         assertThat(ffmHal.getProcessor().getProcessorIdentifier()).usingRecursiveComparison()
                 .isEqualTo(jnaHal.getProcessor().getProcessorIdentifier());
     }
 
+    /** Compares processor topology: logical/physical counts, caches, and feature flags. */
     @Test
     void processorTopology() {
         CentralProcessor jna = jnaHal.getProcessor();
@@ -113,6 +120,7 @@ class NativeComparisonTest {
         assertThat(ffm.getFeatureFlags()).isEqualTo(jna.getFeatureFlags());
     }
 
+    /** Compares max and per-core current CPU frequencies. */
     @Test
     void processorFrequencies() {
         CentralProcessor jna = jnaHal.getProcessor();
@@ -126,6 +134,7 @@ class NativeComparisonTest {
         }
     }
 
+    /** Compares system and per-processor CPU load tick arrays. */
     @Test
     void processorCpuLoadTicks() {
         CentralProcessor jna = jnaHal.getProcessor();
@@ -143,6 +152,7 @@ class NativeComparisonTest {
         assertThat(ffmProc.length).as("processorCpuLoadTicks length").isEqualTo(jnaProc.length);
     }
 
+    /** Compares 1-, 5-, and 15-minute system load averages. */
     @Test
     void processorLoadAverage() {
         double[] jna = jnaHal.getProcessor().getSystemLoadAverage(3);
@@ -153,6 +163,7 @@ class NativeComparisonTest {
         }
     }
 
+    /** Compares context switch and interrupt counters. */
     @Test
     void processorContextSwitchesAndInterrupts() {
         CentralProcessor jna = jnaHal.getProcessor();
@@ -165,6 +176,7 @@ class NativeComparisonTest {
 
     // ---- Hardware: Memory ----
 
+    /** Compares total, page size, and available memory. */
     @Test
     void globalMemory() {
         GlobalMemory jna = jnaHal.getMemory();
@@ -175,6 +187,7 @@ class NativeComparisonTest {
         assertWithinRatio(ffm.getAvailable(), jna.getAvailable(), 0.25, "availableMemory");
     }
 
+    /** Compares swap and virtual memory statistics. */
     @Test
     void virtualMemory() {
         VirtualMemory jna = jnaHal.getMemory().getVirtualMemory();
@@ -185,6 +198,7 @@ class NativeComparisonTest {
         assertWithinRatio(ffm.getVirtualInUse(), jna.getVirtualInUse(), 0.25, "virtualInUse");
     }
 
+    /** Compares physical memory DIMM details. */
     @Test
     void physicalMemory() {
         List<PhysicalMemory> jna = jnaHal.getMemory().getPhysicalMemory();
