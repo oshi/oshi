@@ -9,9 +9,9 @@ import java.util.Objects;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 
 /**
  * Utility to query WMI class {@code MSAcpi_ThermalZoneTemperature} using FFM.

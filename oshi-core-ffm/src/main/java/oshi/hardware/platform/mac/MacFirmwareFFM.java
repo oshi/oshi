@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets;
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.mac.IOKitUtilFFM;
 import oshi.util.tuples.Quintet;
 
 /**

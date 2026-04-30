@@ -29,9 +29,9 @@ import oshi.ffm.mac.CoreFoundation.CFBooleanRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.software.os.OSDesktopWindow;
 import oshi.util.FormatUtil;
-import oshi.util.platform.mac.CFUtilFFM;
 
 /**
  * Utility to query desktop windows using FFM (no JNA dependency).

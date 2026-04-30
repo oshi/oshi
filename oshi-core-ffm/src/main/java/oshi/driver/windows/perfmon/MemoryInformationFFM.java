@@ -11,7 +11,7 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.MemoryInformation.PageSwapProperty;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
 
 /**
  * Utility to query Memory performance counter using FFM.

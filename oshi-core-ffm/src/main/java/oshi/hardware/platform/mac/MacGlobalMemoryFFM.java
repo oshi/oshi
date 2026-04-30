@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.mac.MacGlobalMemory;
-import oshi.util.platform.mac.SysctlUtilFFM;
 
 @ThreadSafe
 final class MacGlobalMemoryFFM extends MacGlobalMemory {

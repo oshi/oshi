@@ -10,9 +10,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Bios;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 
 /**
  * Utility to query WMI class {@code Win32_BIOS} using FFM.

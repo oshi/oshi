@@ -29,12 +29,12 @@ import oshi.ffm.mac.DiskArbitration.DADiskRef;
 import oshi.ffm.mac.DiskArbitration.DASessionRef;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.CFUtilFFM;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.mac.MacHWDiskStore;
 import oshi.util.Constants;
-import oshi.util.platform.mac.CFUtilFFM;
-import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**
  * Mac hard disk FFM implementation.

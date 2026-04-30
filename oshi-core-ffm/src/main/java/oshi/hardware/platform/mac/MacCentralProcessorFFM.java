@@ -27,12 +27,12 @@ import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.ffm.mac.MacSystem;
 import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.platform.mac.IOKitUtilFFM;
-import oshi.util.platform.mac.SysctlUtilFFM;
 
 /**
  * A CPU using FFM.

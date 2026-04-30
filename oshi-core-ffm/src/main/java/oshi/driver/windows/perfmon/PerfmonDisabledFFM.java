@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.util.GlobalConfig;
 import oshi.util.Util;
-import oshi.util.platform.windows.Advapi32UtilFFM;
 
 /**
  * Tests whether performance counters are disabled

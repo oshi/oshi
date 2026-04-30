@@ -36,11 +36,11 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.Wtsapi32FFM;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 
 /**
  * Utility to read process data from WTS native calls with backup from WMI.

@@ -45,6 +45,10 @@ import oshi.driver.windows.registry.SessionWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
+import oshi.ffm.util.platform.windows.Kernel32UtilFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
@@ -62,10 +66,6 @@ import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
-import oshi.util.platform.windows.Advapi32UtilFFM;
-import oshi.util.platform.windows.Kernel32UtilFFM;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe

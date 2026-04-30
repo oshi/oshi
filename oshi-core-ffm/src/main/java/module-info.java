@@ -21,9 +21,9 @@ module com.github.oshi.ffm {
     // API
     exports oshi.ffm;
     exports oshi.ffm.util;
-    exports oshi.util.gpu;
-    exports oshi.util.platform.mac;
-    exports oshi.util.platform.windows;
+    exports oshi.ffm.util.gpu;
+    exports oshi.ffm.util.platform.mac;
+    exports oshi.ffm.util.platform.windows;
 
     // dependencies
     requires transitive com.github.oshi.common;

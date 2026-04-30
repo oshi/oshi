@@ -38,12 +38,12 @@ import oshi.ffm.mac.DiskArbitration.DADiskRef;
 import oshi.ffm.mac.DiskArbitration.DASessionRef;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.CFUtilFFM;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.software.common.os.mac.MacFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileSystemUtil;
-import oshi.util.platform.mac.CFUtilFFM;
-import oshi.util.platform.mac.IOKitUtilFFM;
-import oshi.util.platform.mac.SysctlUtilFFM;
 
 /**
  * The Mac File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,

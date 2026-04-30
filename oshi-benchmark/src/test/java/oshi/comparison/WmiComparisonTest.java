@@ -91,12 +91,12 @@ import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.driver.windows.wmi.Win32VideoControllerFFM;
 import oshi.driver.windows.wmi.Win32VideoControllerJNA;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.util.PlatformEnum;
-import oshi.util.platform.windows.WbemcliUtilFFM;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
 import oshi.util.platform.windows.WmiUtil;
-import oshi.util.platform.windows.WmiUtilFFM;
 
 /**
  * Compares JNA and FFM WMI driver implementations to verify they return equivalent results.

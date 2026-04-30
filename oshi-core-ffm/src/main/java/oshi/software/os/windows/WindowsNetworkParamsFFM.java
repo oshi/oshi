@@ -6,11 +6,11 @@ package oshi.software.os.windows;
 
 import java.util.List;
 
+import oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM;
+import oshi.ffm.util.platform.windows.Kernel32UtilFFM;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.IPHlpAPIUtilFFM;
-import oshi.util.platform.windows.Kernel32UtilFFM;
 
 public final class WindowsNetworkParamsFFM extends AbstractNetworkParams {
 

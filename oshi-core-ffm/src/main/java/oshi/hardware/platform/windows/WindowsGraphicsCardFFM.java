@@ -23,6 +23,9 @@ import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProper
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.driver.windows.wmi.Win32VideoControllerFFM;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.DxgiFFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.hardware.GpuStats;
@@ -31,9 +34,6 @@ import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
-import oshi.util.platform.windows.Advapi32UtilFFM;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

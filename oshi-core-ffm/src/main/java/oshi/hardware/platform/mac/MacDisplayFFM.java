@@ -16,9 +16,9 @@ import oshi.ffm.mac.CoreFoundation.CFDataRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
-import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**
  * A Display

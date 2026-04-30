@@ -23,11 +23,11 @@ import oshi.ffm.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOService;
+import oshi.ffm.util.platform.mac.CFUtilFFM;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.platform.mac.MacPowerSource;
 import oshi.util.Constants;
-import oshi.util.platform.mac.CFUtilFFM;
-import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**
  * A Power Source

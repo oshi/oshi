@@ -10,10 +10,10 @@ import java.util.List;
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
 import oshi.driver.windows.wmi.Win32PrinterFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.windows.WindowsPrinter;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 
 /**
  * Printer data obtained from WMI using FFM.

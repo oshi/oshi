@@ -15,13 +15,13 @@ import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemP
 import oshi.driver.windows.wmi.Win32BiosFFM;
 import oshi.driver.windows.wmi.Win32ComputerSystemFFM;
 import oshi.driver.windows.wmi.Win32ComputerSystemProductFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**

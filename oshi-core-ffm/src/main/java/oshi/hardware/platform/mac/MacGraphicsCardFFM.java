@@ -7,10 +7,10 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.mac.MacGraphicsCard;
-import oshi.util.platform.mac.SysctlUtilFFM;
 
 /**
  * Graphics card info obtained by system_profiler SPDisplaysDataType.

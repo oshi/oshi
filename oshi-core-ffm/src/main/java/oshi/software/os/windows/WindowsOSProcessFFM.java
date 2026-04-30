@@ -48,6 +48,7 @@ import oshi.driver.windows.registry.ProcessWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
@@ -58,7 +59,6 @@ import oshi.software.common.os.windows.WindowsOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

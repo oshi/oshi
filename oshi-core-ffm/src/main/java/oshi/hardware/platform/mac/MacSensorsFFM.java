@@ -4,18 +4,18 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS;
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_TEMP;
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE;
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE_AS;
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_NUM;
-import static oshi.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_SPEED;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_TEMP;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE_AS;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_NUM;
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_SPEED;
 
 import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.platform.mac.SmcUtilFFM;
 
 /**
  * Sensors from SMC

@@ -28,6 +28,9 @@ import oshi.driver.windows.wmi.Win32DiskDriveFFM;
 import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
 import oshi.driver.windows.wmi.Win32DiskPartitionFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WindowsForeignFunctions;
 import oshi.ffm.windows.com.FfmComException;
@@ -35,9 +38,6 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**

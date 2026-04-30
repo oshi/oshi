@@ -2,7 +2,34 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.windows;
+package oshi.ffm.util.platform.windows;
+
+import static oshi.ffm.windows.com.VariantFFM.VT_BOOL;
+import static oshi.ffm.windows.com.VariantFFM.VT_BSTR;
+import static oshi.ffm.windows.com.VariantFFM.VT_EMPTY;
+import static oshi.ffm.windows.com.VariantFFM.VT_I1;
+import static oshi.ffm.windows.com.VariantFFM.VT_I2;
+import static oshi.ffm.windows.com.VariantFFM.VT_I4;
+import static oshi.ffm.windows.com.VariantFFM.VT_I8;
+import static oshi.ffm.windows.com.VariantFFM.VT_INT;
+import static oshi.ffm.windows.com.VariantFFM.VT_NULL;
+import static oshi.ffm.windows.com.VariantFFM.VT_R4;
+import static oshi.ffm.windows.com.VariantFFM.VT_R8;
+import static oshi.ffm.windows.com.VariantFFM.VT_UI1;
+import static oshi.ffm.windows.com.VariantFFM.VT_UI2;
+import static oshi.ffm.windows.com.VariantFFM.VT_UI4;
+import static oshi.ffm.windows.com.VariantFFM.VT_UI8;
+import static oshi.ffm.windows.com.VariantFFM.VT_UINT;
+import static oshi.ffm.windows.com.VariantFFM.clear;
+import static oshi.ffm.windows.com.VariantFFM.getBoolVal;
+import static oshi.ffm.windows.com.VariantFFM.getBstrVal;
+import static oshi.ffm.windows.com.VariantFFM.getByteVal;
+import static oshi.ffm.windows.com.VariantFFM.getDoubleVal;
+import static oshi.ffm.windows.com.VariantFFM.getFloatVal;
+import static oshi.ffm.windows.com.VariantFFM.getIntVal;
+import static oshi.ffm.windows.com.VariantFFM.getLongVal;
+import static oshi.ffm.windows.com.VariantFFM.getShortVal;
+import static oshi.ffm.windows.com.VariantFFM.getVt;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -127,8 +154,7 @@ public final class WbemcliUtilFFM {
          */
         public void add(int vtType, int cimType, T property, Object value) {
             propertyMap.get(property).add(value);
-            if (vtType != oshi.ffm.windows.com.VariantFFM.VT_NULL && vtType != oshi.ffm.windows.com.VariantFFM.VT_EMPTY
-                    && vtTypeMap.get(property) == 0) {
+            if (vtType != VT_NULL && vtType != VT_EMPTY && vtTypeMap.get(property) == 0) {
                 vtTypeMap.put(property, vtType);
             }
             if (cimType != WbemcliFFM.CIM_EMPTY && cimTypeMap.get(property) == WbemcliFFM.CIM_EMPTY) {
@@ -160,64 +186,54 @@ public final class WbemcliUtilFFM {
                     result.add(0, WbemcliFFM.CIM_EMPTY, property, null);
                     continue;
                 }
-                int vt = oshi.ffm.windows.com.VariantFFM.getVt(getResult.variant());
+                int vt = getVt(getResult.variant());
                 int cimType = getResult.cimType();
                 switch (vt) {
-                    case oshi.ffm.windows.com.VariantFFM.VT_BSTR:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getBstrVal(getResult.variant(), arena));
+                    case VT_BSTR:
+                        result.add(vt, cimType, property, getBstrVal(getResult.variant(), arena));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_I4:
-                    case oshi.ffm.windows.com.VariantFFM.VT_INT:
-                    case oshi.ffm.windows.com.VariantFFM.VT_UI4:
-                    case oshi.ffm.windows.com.VariantFFM.VT_UINT:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getIntVal(getResult.variant()));
+                    case VT_I4:
+                    case VT_INT:
+                    case VT_UI4:
+                    case VT_UINT:
+                        result.add(vt, cimType, property, getIntVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_I8:
-                    case oshi.ffm.windows.com.VariantFFM.VT_UI8:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getLongVal(getResult.variant()));
+                    case VT_I8:
+                    case VT_UI8:
+                        result.add(vt, cimType, property, getLongVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_I2:
-                        result.add(vt, cimType, property,
-                                (int) oshi.ffm.windows.com.VariantFFM.getShortVal(getResult.variant()));
+                    case VT_I2:
+                        result.add(vt, cimType, property, (int) getShortVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_UI2:
-                        result.add(vt, cimType, property,
-                                (int) oshi.ffm.windows.com.VariantFFM.getShortVal(getResult.variant()) & 0xFFFF);
+                    case VT_UI2:
+                        result.add(vt, cimType, property, (int) getShortVal(getResult.variant()) & 0xFFFF);
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_I1:
-                        result.add(vt, cimType, property,
-                                (int) oshi.ffm.windows.com.VariantFFM.getByteVal(getResult.variant()));
+                    case VT_I1:
+                        result.add(vt, cimType, property, (int) getByteVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_UI1:
-                        result.add(vt, cimType, property,
-                                (int) (oshi.ffm.windows.com.VariantFFM.getByteVal(getResult.variant()) & 0xFF));
+                    case VT_UI1:
+                        result.add(vt, cimType, property, (int) (getByteVal(getResult.variant()) & 0xFF));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_BOOL:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getBoolVal(getResult.variant()));
+                    case VT_BOOL:
+                        result.add(vt, cimType, property, getBoolVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_R4:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getFloatVal(getResult.variant()));
+                    case VT_R4:
+                        result.add(vt, cimType, property, getFloatVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_R8:
-                        result.add(vt, cimType, property,
-                                oshi.ffm.windows.com.VariantFFM.getDoubleVal(getResult.variant()));
+                    case VT_R8:
+                        result.add(vt, cimType, property, getDoubleVal(getResult.variant()));
                         break;
-                    case oshi.ffm.windows.com.VariantFFM.VT_NULL:
-                    case oshi.ffm.windows.com.VariantFFM.VT_EMPTY:
+                    case VT_NULL:
+                    case VT_EMPTY:
                         result.add(vt, cimType, property, null);
                         break;
                     default:
                         LOG.debug("Unhandled VT type {} for property {}", vt, property.name());
-                        result.add(oshi.ffm.windows.com.VariantFFM.VT_EMPTY, cimType, property, null);
+                        result.add(VT_EMPTY, cimType, property, null);
                         break;
                 }
             } finally {
-                oshi.ffm.windows.com.VariantFFM.clear(getResult.variant());
+                clear(getResult.variant());
             }
         }
         result.incrementResultCount();

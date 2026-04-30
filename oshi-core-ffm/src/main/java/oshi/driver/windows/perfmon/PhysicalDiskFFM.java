@@ -12,7 +12,7 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
-import oshi.util.platform.windows.PerfCounterWildcardQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
 
 /**

@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Triplet;
 
 /**

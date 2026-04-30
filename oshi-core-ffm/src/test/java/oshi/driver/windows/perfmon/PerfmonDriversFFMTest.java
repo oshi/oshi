@@ -49,9 +49,9 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCoun
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
-import oshi.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
 
 @EnabledOnOs(OS.WINDOWS)

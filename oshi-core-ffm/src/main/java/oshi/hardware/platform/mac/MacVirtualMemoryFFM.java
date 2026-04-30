@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystem;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.common.platform.mac.MacVirtualMemory;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.SysctlUtilFFM;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe

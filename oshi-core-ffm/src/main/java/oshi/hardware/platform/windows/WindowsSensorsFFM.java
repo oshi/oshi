@@ -25,11 +25,11 @@ import oshi.driver.windows.wmi.OhmHardwareFFM;
 import oshi.driver.windows.wmi.OhmSensorFFM;
 import oshi.driver.windows.wmi.Win32FanFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.util.platform.windows.WmiUtilFFM;
 
 /**
  * Sensors from WMI or Open Hardware Monitor or Libre Hardware Monitor using FFM.

@@ -24,14 +24,14 @@ import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
 import oshi.driver.windows.wmi.MSFTStorageFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 final class WindowsLogicalVolumeGroupFFM extends AbstractLogicalVolumeGroup {

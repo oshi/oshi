@@ -57,6 +57,7 @@ import static oshi.ffm.mac.MacSystemFunctions.getrlimit;
 import static oshi.ffm.mac.MacSystemFunctions.proc_pid_rusage;
 import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
 import static oshi.ffm.mac.MacSystemFunctions.proc_pidpath;
+import static oshi.ffm.util.platform.mac.SysctlUtilFFM.sysctl;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -66,7 +67,6 @@ import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
-import static oshi.util.platform.mac.SysctlUtilFFM.sysctl;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -87,12 +87,12 @@ import oshi.driver.common.mac.ThreadInfo;
 import oshi.ffm.ForeignFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.common.os.mac.MacOSThread;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
-import oshi.util.platform.mac.IOKitUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**

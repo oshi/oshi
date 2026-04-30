@@ -63,10 +63,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ParseUtil;
 import oshi.util.driver.unix.NetStat;
-import oshi.util.platform.mac.SysctlUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**

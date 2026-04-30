@@ -20,10 +20,10 @@ import oshi.ffm.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
+import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.util.platform.mac.IOKitUtilFFM;
-import oshi.util.platform.mac.SmcUtilFFM;
 
 /**
  * macOS {@link GpuStats} session using FFM.

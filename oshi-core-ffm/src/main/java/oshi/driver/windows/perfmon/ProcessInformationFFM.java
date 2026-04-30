@@ -16,8 +16,8 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
-import oshi.util.platform.windows.PerfCounterWildcardQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
 
 /**

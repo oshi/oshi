@@ -19,9 +19,9 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequenc
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
-import oshi.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
 
 /**

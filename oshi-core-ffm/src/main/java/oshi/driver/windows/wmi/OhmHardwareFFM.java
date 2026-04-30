@@ -6,9 +6,9 @@ package oshi.driver.windows.wmi;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.OhmHardware;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 
 /**
  * Utility to query Open Hardware Monitor WMI data for Hardware using FFM.

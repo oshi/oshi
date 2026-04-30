@@ -2,12 +2,13 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.windows;
+package oshi.ffm.util.platform.windows;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -133,8 +134,8 @@ public final class PerfCounterWildcardQueryFFM {
         List<String> instances = new ArrayList<>();
         EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);
 
-        List<Map<T, Object>> rows = WmiQueryHandlerFFM.createInstance().queryWMI(perfWmiClass, null,
-                () -> new EnumMap<T, Object>(propertyEnum), (pObject, arena, row) -> {
+        List<Map<T, Object>> rows = Objects.requireNonNull(WmiQueryHandlerFFM.createInstance()).queryWMI(perfWmiClass,
+                null, () -> new EnumMap<T, Object>(propertyEnum), (pObject, arena, row) -> {
                     for (T prop : props) {
                         if (prop.ordinal() == 0) {
                             row.put(prop, IWbemClassObjectFFM.getString(pObject, prop.name(), arena));

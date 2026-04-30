@@ -18,12 +18,12 @@ import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
+import oshi.ffm.util.gpu.AdlUtilFFM;
+import oshi.ffm.util.gpu.NvmlUtilFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
-import oshi.util.gpu.AdlUtilFFM;
-import oshi.util.gpu.NvmlUtilFFM;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Pair;
 
 /**

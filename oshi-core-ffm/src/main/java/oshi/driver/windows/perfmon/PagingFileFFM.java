@@ -11,7 +11,7 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PagingFile.PagingPercentProperty;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
 
 /**
  * Utility to query Paging File performance counter using FFM.

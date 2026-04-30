@@ -25,9 +25,9 @@ import oshi.ffm.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.mac.CoreFoundationFunctions;
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.mac.MacUsbDevice;
-import oshi.util.platform.mac.IOKitUtilFFM;
 
 /**
  * Mac USB device helper using FFM/IOKit. Instantiates {@link MacUsbDevice} objects.

@@ -11,11 +11,11 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
 import oshi.driver.windows.wmi.Win32BiosFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Quintet;
 
 /**

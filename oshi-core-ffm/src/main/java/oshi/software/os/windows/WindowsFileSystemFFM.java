@@ -30,11 +30,11 @@ import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiUtilFFM;
 
 @ThreadSafe
 public class WindowsFileSystemFFM extends AbstractFileSystem {

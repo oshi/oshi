@@ -22,14 +22,14 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.windows.WindowsGlobalMemory;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiUtilFFM;
 import oshi.util.tuples.Triplet;
 
 /**

@@ -12,12 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.windows.Win32Exception;
 import oshi.ffm.windows.WinErrorFFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
-import oshi.util.platform.windows.Advapi32UtilFFM;
 
 /**
  * Sound Card data obtained from registry using FFM.

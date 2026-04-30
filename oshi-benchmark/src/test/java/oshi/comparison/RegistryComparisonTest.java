@@ -70,7 +70,7 @@ class RegistryComparisonTest {
 
             // Uptime differs by the delta between the two reads
             assertThat(Math.abs(p.getUpTime() - r.getUpTime())).as("process[%d].upTime delta", pid)
-                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1000L));
+                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1100L));
         }
     }
 

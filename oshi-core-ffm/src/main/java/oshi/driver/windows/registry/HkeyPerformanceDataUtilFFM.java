@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.registry.HkeyPerformanceDataUtil;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.Advapi32UtilFFM;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

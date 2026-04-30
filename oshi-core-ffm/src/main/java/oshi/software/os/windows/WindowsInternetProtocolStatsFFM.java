@@ -4,12 +4,12 @@
  */
 package oshi.software.os.windows;
 
+import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryTCPv4Connections;
+import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryTCPv6Connections;
+import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv4Connections;
+import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv6Connections;
 import static oshi.ffm.windows.IPHlpAPIFFM.AF_INET;
 import static oshi.ffm.windows.IPHlpAPIFFM.AF_INET6;
-import static oshi.util.platform.windows.IPHlpAPIUtilFFM.queryTCPv4Connections;
-import static oshi.util.platform.windows.IPHlpAPIUtilFFM.queryTCPv6Connections;
-import static oshi.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv4Connections;
-import static oshi.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv6Connections;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM;
 import oshi.ffm.windows.Win32Exception;
 import oshi.software.common.AbstractInternetProtocolStats;
-import oshi.util.platform.windows.IPHlpAPIUtilFFM;
 
 public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
 

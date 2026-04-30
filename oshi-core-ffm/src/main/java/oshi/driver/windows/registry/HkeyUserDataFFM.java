@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.software.os.OSSession;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.Advapi32UtilFFM;
 
 /**
  * Utility to read session data from HKEY_USERS

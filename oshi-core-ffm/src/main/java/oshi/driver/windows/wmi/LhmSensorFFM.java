@@ -10,9 +10,9 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.LhmSensor;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 
 /**
  * Utility to query LibreHardwareMonitor WMI sensor data using FFM.

@@ -2,7 +2,7 @@
  * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.windows;
+package oshi.ffm.util.platform.windows;
 
 import static java.lang.foreign.MemoryLayout.PathElement;
 import static java.lang.foreign.MemorySegment.NULL;
@@ -236,7 +236,7 @@ public final class IPHlpAPIUtilFFM {
             int size = sizeSegment.get(JAVA_INT, 0);
             MemorySegment buffer = arena.allocate(size);
 
-            ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+            ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
@@ -334,7 +334,7 @@ public final class IPHlpAPIUtilFFM {
             int size = sizeSegment.get(JAVA_INT, 0);
             MemorySegment buffer = arena.allocate(size);
 
-            ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
+            ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
@@ -348,7 +348,7 @@ public final class IPHlpAPIUtilFFM {
 
                 byte[] localAddr = new byte[16];
                 MemorySegment localAddrSeg = rowSeg
-                        .asSlice(MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16);
+                        .asSlice(MIB_UDP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("ucLocalAddr")), 16);
                 for (int b = 0; b < 16; b++) {
                     localAddr[b] = localAddrSeg.get(JAVA_BYTE, b);
                 }

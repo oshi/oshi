@@ -5,8 +5,8 @@
 package oshi.hardware.platform.linux;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.gpu.NvmlUtilFFM;
 import oshi.hardware.common.platform.linux.LinuxGpuStats;
-import oshi.util.gpu.NvmlUtilFFM;
 
 /**
  * FFM-based Linux {@link LinuxGpuStats} subclass providing NVML integration via FFM.

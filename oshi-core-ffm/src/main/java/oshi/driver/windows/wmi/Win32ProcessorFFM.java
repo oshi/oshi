@@ -11,9 +11,9 @@ import oshi.driver.common.windows.wmi.Win32Processor;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 
 /**
  * Utility to query WMI class {@code Win32_Processor} using FFM.

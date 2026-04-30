@@ -1,5 +1,6 @@
 # 7.0.1 (in progress)
 
+* [#3220](https://github.com/oshi/oshi/pull/3220): Move `oshi-core-ffm` utility classes from `oshi.util.gpu`, `oshi.util.platform.mac`, and `oshi.util.platform.windows` packages to `oshi.ffm.util.gpu`, `oshi.ffm.util.platform.mac`, and `oshi.ffm.util.platform.windows`. This eliminates split-package conflicts so `oshi-core` and `oshi-core-ffm` can coexist on the module path - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.0.0 (2026-04-30)

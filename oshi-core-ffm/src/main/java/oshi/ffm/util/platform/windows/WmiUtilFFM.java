@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.windows;
+package oshi.ffm.util.platform.windows;
 
 import java.time.OffsetDateTime;
 import java.util.Locale;

@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.mac;
+package oshi.ffm.util.platform.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -200,7 +200,7 @@ public final class SmcUtilFFM {
 
         input.set(JAVA_INT, SMC_KEY_DATA.byteOffset(SMC_KEY), (int) ParseUtil.strToLong(key, 4));
 
-        int result = smcGetKeyInfo(conn, input, output, arena);
+        int result = smcGetKeyInfo(conn, input, output);
         if (result == 0) {
             int dataSize = output.get(JAVA_INT, KEY_INFO_DATA_SIZE_OFFSET);
             int dataType = output.get(JAVA_INT, KEY_INFO_DATA_TYPE_OFFSET);
@@ -224,8 +224,7 @@ public final class SmcUtilFFM {
         return result;
     }
 
-    private static int smcGetKeyInfo(int conn, MemorySegment input, MemorySegment output, Arena arena)
-            throws Throwable {
+    private static int smcGetKeyInfo(int conn, MemorySegment input, MemorySegment output) throws Throwable {
         int key = input.get(JAVA_INT, SMC_KEY_DATA.byteOffset(SMC_KEY));
         int[] cached = KEY_INFO_CACHE.get(key);
         if (cached != null) {

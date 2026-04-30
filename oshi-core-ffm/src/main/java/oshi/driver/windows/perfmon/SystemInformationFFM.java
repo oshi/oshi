@@ -12,7 +12,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
-import oshi.util.platform.windows.PerfCounterQueryFFM;
+import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
 
 /**
  * Utility to query System performance counters using FFM.
