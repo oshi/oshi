@@ -26,6 +26,6 @@ oshi.util.tuples
 module:com.github.oshi.ffm
 oshi.ffm
 oshi.ffm.util
-oshi.util.gpu
-oshi.util.platform.mac
-oshi.util.platform.windows
+oshi.ffm.util.gpu
+oshi.ffm.util.platform.mac
+oshi.ffm.util.platform.windows

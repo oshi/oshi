@@ -14,9 +14,9 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.OhmSensor;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryHandlerFFM;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * Utility to query Open Hardware Monitor WMI data for Sensors using FFM.</em>
@@ -35,7 +35,7 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * @param sensorType The type of sensor to query.</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @return The sensor value.</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ValueProperty&gt; querySensorValue(<a name="WmiQueryHandlerFFM" href="../../../../oshi/util/platform/windows/WmiQueryHandlerFFM.html#WmiQueryHandlerFFM">WmiQueryHandlerFFM</a> h, String identifier,
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ValueProperty&gt; querySensorValue(<a name="WmiQueryHandlerFFM" href="../../../../oshi/ffm/util/platform/windows/WmiQueryHandlerFFM.html#WmiQueryHandlerFFM">WmiQueryHandlerFFM</a> h, String identifier,
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>              String sensorType) {
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          WmiQuery&lt;ValueProperty&gt; ohmSensorQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(OHM_NAMESPACE,
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>                  buildSensorWmiClassNameWithWhere(identifier, sensorType), ValueProperty.<strong class="jxr_keyword">class</strong>);
