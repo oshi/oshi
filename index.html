@@ -32,9 +32,6 @@
             <li><a>Overview</a></li>
             <li><a href="oshi-core/apidocs/">Javadocs (JNA)</a></li>
             <li><a href="oshi-core-ffm/apidocs/">Javadocs (FFM)</a></li>
-            <li><a href="FAQ.html">Frequently Asked Questions</a></li>
-            <li><a href="Performance.html">Performance Considerations</a></li>
-            <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
             <li><a href="SampleOutput.html">Sample Output</a></li>
         </ul>
       </li>
@@ -124,9 +121,6 @@
     <li class="active"><a>Overview</a></li>
     <li><a href="oshi-core/apidocs/">Javadocs (JNA)</a></li>
     <li><a href="oshi-core-ffm/apidocs/">Javadocs (FFM)</a></li>
-    <li><a href="FAQ.html">Frequently Asked Questions</a></li>
-    <li><a href="Performance.html">Performance Considerations</a></li>
-    <li><a href="Upgrading.html">Major Version Breaking Changes</a></li>
     <li><a href="SampleOutput.html">Sample Output</a></li>
    <li class="nav-header">GitHub</li>
     <li><a href="https://github.com/oshi/oshi">OSHI on GitHub</a></li>
@@ -213,12 +207,12 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <ul>
 
 <li>Javadocs &#x2014; <a href="https://oshi.github.io/oshi/oshi-core/apidocs/" class="externalLink">JNA</a> | <a href="https://oshi.github.io/oshi/oshi-core-ffm/apidocs/" class="externalLink">FFM</a></li>
-<li><a href="src/site/markdown/FAQ.html">FAQ</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/FAQ.md" class="externalLink">FAQ</a></li>
 <li><a href="https://github.com/oshi/oshi/blob/master/CHANGELOG.md" class="externalLink">Change Log</a></li>
-<li><a href="src/site/markdown/Performance.html">Performance Considerations</a></li>
-<li><a href="src/site/markdown/Upgrading.html">Major Version Breaking Changes</a></li>
-<li><a href="src/site/markdown/SampleOutput.html">Sample Output</a></li>
-<li><a href="src/site/resources/Projects.html">Applications and Projects using OSHI</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/PERFORMANCE.md" class="externalLink">Performance Considerations</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/UPGRADING.md" class="externalLink">Major Version Breaking Changes</a></li>
+<li><a href="SampleOutput.html">Sample Output</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/src/site/resources/Projects.md" class="externalLink">Applications and Projects using OSHI</a></li>
 </ul></section><section><a id="Downloads_and_Dependency_Management"></a>
 <h2>Downloads and Dependency Management</h2>
 <p>Stable Release Versions</p>
@@ -280,7 +274,7 @@ memory and CPU usage, disks and partitions, devices, sensors, etc.</p>
 <li>We strongly recommend you add <code>oshi-core</code> as a dependency to your project dependency manager such as Maven or Gradle.</li>
 <li>For Windows, consider the optional <code>jLibreHardwareMonitor</code> dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.</li>
 <li>For Android, you'll need to add the <a href="https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android" class="externalLink">AAR artifact for JNA</a> and exclude OSHI's transitive (JAR) dependency.</li>
-<li>See the <a href="https://github.com/oshi/oshi/blob/master/src/site/markdown/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues" class="externalLink">FAQ</a> if you encounter <code>NoClassDefFoundError</code> or <code>NoSuchMethodError</code> problems.</li>
+<li>See the <a href="https://github.com/oshi/oshi/blob/master/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues" class="externalLink">FAQ</a> if you encounter <code>NoClassDefFoundError</code> or <code>NoSuchMethodError</code> problems.</li>
 </ul></li>
 <li>Create a new instance of <code>SystemInfo</code></li>
 <li>Use the getters from <code>SystemInfo</code> to access hardware or operating system components, such as:</li>
@@ -367,8 +361,8 @@ but we would love for <em>you</em> to help by:</p>
 <h2>Contributing to OSHI</h2>
 <ul>
 
-<li><a href="src/site/markdown/Contributing.html">How to Contribute</a></li>
-<li><a href="src/site/markdown/Releasing.html">How to Release</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/CONTRIBUTING.md" class="externalLink">How to Contribute</a></li>
+<li><a href="https://github.com/oshi/oshi/blob/master/RELEASING.md" class="externalLink">How to Release</a></li>
 </ul></section><section><a id="Acknowledgments"></a>
 <h2>Acknowledgments</h2>
 <p>Many thanks to the following companies for providing free support of Open Source projects including OSHI:</p>
