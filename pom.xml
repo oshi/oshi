@@ -744,6 +744,7 @@
                                         <exclusion>oshi.demo.**</exclusion>
                                         <exclusion>oshi.benchmark.**</exclusion>
                                         <exclusion>oshi.comparison.**</exclusion>
+                                        <exclusion>oshi.metrics.**</exclusion>
                                     </exclusions>
                                 </RestrictImports>
                             </rules>
@@ -1019,6 +1020,16 @@
             <properties>
                 <enable.native.access>--enable-native-access=${native.access.modules}</enable.native.access>
             </properties>
+        </profile>
+        <!-- Java 17+ profile -->
+        <profile>
+            <id>java17</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <modules>
+                <module>oshi-metrics</module>
+            </modules>
         </profile>
         <!-- Java 25+ profile -->
         <profile>

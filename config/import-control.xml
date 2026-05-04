@@ -108,4 +108,10 @@
         </subpackage>
     </subpackage>
 
+    <!-- Micrometer imports for metrics module -->
+    <subpackage name="metrics">
+        <allow pkg="io.micrometer.core.instrument" />
+        <allow pkg="io.micrometer.core.instrument.binder" />
+    </subpackage>
+
 </import-control>

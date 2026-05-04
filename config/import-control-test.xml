@@ -47,4 +47,14 @@
     <allow pkg="java.time" />
     <allow pkg="java.util" />
 
+    <!-- Micrometer imports for metrics module tests -->
+    <subpackage name="metrics">
+        <allow pkg="io.micrometer.core.instrument" />
+        <allow pkg="io.micrometer.core.instrument.binder" />
+        <allow pkg="io.micrometer.core.instrument.simple" />
+        <allow pkg="io.micrometer.prometheusmetrics" />
+        <allow pkg="com.sun.net.httpserver" />
+        <allow pkg="java.net" />
+    </subpackage>
+
 </import-control>
