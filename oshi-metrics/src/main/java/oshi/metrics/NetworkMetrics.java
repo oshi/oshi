@@ -131,7 +131,7 @@ public class NetworkMetrics implements MeterBinder {
                 .register(registry);
     }
 
-    private void refreshCache() {
+    private synchronized void refreshCache() {
         long now = System.currentTimeMillis();
         if (now - cacheTimestamp > CACHE_TTL_MS) {
             List<IPConnection> connections = ipStats.getConnections();

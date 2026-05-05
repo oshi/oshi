@@ -13,21 +13,12 @@ import java.time.Duration;
 import com.sun.net.httpserver.HttpServer;
 
 import oshi.SystemInfo;
+import oshi.annotation.SuppressForbidden;
 
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 
-/**
- * Demo: exposes OSHI metrics as a Prometheus scrape endpoint.
- *
- * <p>
- * Run this class, then open <a href="http://localhost:8080/metrics">http://localhost:8080/metrics</a> in your browser
- * (or {@code curl localhost:8080/metrics}) to see live Prometheus-formatted system metrics.
- *
- * <p>
- * This mirrors the production pattern: create {@link OshiMetrics} once and hold it as a field for the lifetime of the
- * application.
- */
+@SuppressForbidden(reason = "Demo test uses com.sun.net.httpserver and System.out for demonstration purposes")
 public class PrometheusDemoTest {
 
     // Hold references for the lifetime of the application, as you would in production

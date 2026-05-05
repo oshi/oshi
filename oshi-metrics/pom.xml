@@ -47,12 +47,6 @@
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-test</artifactId>
-            <version>${micrometer.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>${micrometer.version}</version>
             <scope>test</scope>
@@ -85,6 +79,17 @@
                     <suppressAnnotations>
                         <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
                     </suppressAnnotations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.github.oshi.metrics</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>

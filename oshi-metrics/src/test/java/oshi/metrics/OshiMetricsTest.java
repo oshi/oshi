@@ -104,6 +104,7 @@ class OshiMetricsTest {
         assertTrue(count.value() >= 1, "Logical CPU count should be at least 1");
         // logical >= physical
         Gauge physical = registry.find("system.cpu.physical.count").gauge();
+        assertNotNull(physical, "system.cpu.physical.count should be registered");
         assertTrue(count.value() >= physical.value(), "Logical count should be >= physical count");
     }
 
@@ -198,6 +199,16 @@ class OshiMetricsTest {
         Gauge limit = registry.find("system.filesystem.limit").gauge();
         assertNotNull(limit, "system.filesystem.limit should be registered");
         assertTrue(limit.value() >= 0, "Filesystem limit should be non-negative");
+    }
+
+    @Test
+    void filesystemUtilizationRegistered() {
+        Gauge used = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "used").gauge();
+        Gauge free = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "free").gauge();
+        assertNotNull(used, "system.filesystem.utilization{state=used} should be registered");
+        assertNotNull(free, "system.filesystem.utilization{state=free} should be registered");
+        assertTrue(used.value() >= 0, "Filesystem utilization used should be non-negative");
+        assertTrue(free.value() >= 0, "Filesystem utilization free should be non-negative");
     }
 
     @Test

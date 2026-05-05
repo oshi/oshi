@@ -77,11 +77,13 @@ public class ProcessMetrics implements MeterBinder {
 
         // process.memory.usage — UpDownCounter (Gauge), unit "By"
         Gauge.builder(MEMORY_USAGE, processSupplier, s -> s.get().getResidentMemory())
-                .description("The amount of physical memory in use").baseUnit("By").register(registry);
+                .description("The amount of physical memory in use").baseUnit("By").strongReference(true)
+                .register(registry);
 
         // process.memory.virtual — UpDownCounter (Gauge), unit "By"
         Gauge.builder(MEMORY_VIRTUAL, processSupplier, s -> s.get().getVirtualSize())
-                .description("The amount of committed virtual memory").baseUnit("By").register(registry);
+                .description("The amount of committed virtual memory").baseUnit("By").strongReference(true)
+                .register(registry);
 
         // process.disk.io — Counter, unit "By", attr disk.io.direction (Required)
         FunctionCounter.builder(DISK_IO, processSupplier, s -> s.get().getBytesRead()).tag("disk.io.direction", "read")
@@ -92,12 +94,12 @@ public class ProcessMetrics implements MeterBinder {
 
         // process.thread.count — UpDownCounter (Gauge), unit "{thread}"
         Gauge.builder(THREAD_COUNT, processSupplier, s -> s.get().getThreadCount()).description("Process threads count")
-                .baseUnit("{thread}").register(registry);
+                .baseUnit("{thread}").strongReference(true).register(registry);
 
         // process.open_file_descriptor.count — UpDownCounter (Gauge), unit "{file_descriptor}"
         Gauge.builder(OPEN_FD, processSupplier, s -> s.get().getOpenFiles())
                 .description("Number of file descriptors in use by the process").baseUnit("{file_descriptor}")
-                .register(registry);
+                .strongReference(true).register(registry);
 
         // process.paging.faults — Counter, unit "{fault}", attr system.paging.fault.type (Recommended)
         FunctionCounter.builder(PAGING_FAULTS, processSupplier, s -> s.get().getMinorFaults())
@@ -115,6 +117,7 @@ public class ProcessMetrics implements MeterBinder {
 
         // process.uptime — Gauge, unit "s"
         Gauge.builder(UPTIME, processSupplier, s -> s.get().getUpTime() / MS_PER_SECOND)
-                .description("The time the process has been running").baseUnit("s").register(registry);
+                .description("The time the process has been running").baseUnit("s").strongReference(true)
+                .register(registry);
     }
 }
