@@ -4,8 +4,10 @@
  */
 package oshi.metrics;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.hardware.NetworkIF;
@@ -49,9 +51,18 @@ public class NetworkMetrics implements MeterBinder {
     private static final String DIRECTION_KEY = "network.io.direction";
     private static final String TRANSPORT_KEY = "network.transport";
     private static final String STATE_KEY = "network.connection.state";
+    private static final long CACHE_TTL_MS = 1000L;
 
     private final Supplier<List<NetworkIF>> networkIFSupplier;
     private final InternetProtocolStats ipStats;
+
+    // Strong reference to prevent GC of NetworkIF objects used by FunctionCounter
+    private List<NetworkIF> networkIFs;
+
+    // Connection count cache to avoid repeated getConnections() calls per scrape
+    private volatile long cacheTimestamp;
+    private volatile Map<TcpState, Long> tcpCounts = new EnumMap<>(TcpState.class);
+    private volatile long udpCount;
 
     /**
      * Creates a new {@code NetworkMetrics} binder.
@@ -66,7 +77,9 @@ public class NetworkMetrics implements MeterBinder {
 
     @Override
     public void bindTo(MeterRegistry registry) {
-        for (NetworkIF net : networkIFSupplier.get()) {
+        this.networkIFs = networkIFSupplier.get();
+
+        for (NetworkIF net : networkIFs) {
             String device = net.getName();
 
             // system.network.io — Counter, unit "By", attrs: network.io.direction, system.device
@@ -104,25 +117,46 @@ public class NetworkMetrics implements MeterBinder {
     }
 
     private void registerConnectionCountGauges(MeterRegistry registry) {
-        // Register gauges for tcp and udp with all known states
         for (TcpState state : TcpState.values()) {
             if (state == TcpState.NONE) {
                 continue;
             }
             String stateValue = state.name().toLowerCase(Locale.ROOT);
-            Gauge.builder(NET_CONNECTIONS, ipStats, ip -> countConnections(ip, "tcp", state)).tag(TRANSPORT_KEY, "tcp")
+            Gauge.builder(NET_CONNECTIONS, this, self -> self.getCachedTcpCount(state)).tag(TRANSPORT_KEY, "tcp")
                     .tag(STATE_KEY, stateValue).description("Total number of connections in each state")
                     .baseUnit("{connection}").strongReference(true).register(registry);
         }
-        // UDP has no state; register without state attribute using NONE
-        Gauge.builder(NET_CONNECTIONS, ipStats, ip -> countConnections(ip, "udp", TcpState.NONE))
-                .tag(TRANSPORT_KEY, "udp").description("Total number of UDP connections").baseUnit("{connection}")
-                .strongReference(true).register(registry);
+        Gauge.builder(NET_CONNECTIONS, this, self -> self.getCachedUdpCount()).tag(TRANSPORT_KEY, "udp")
+                .description("Total number of UDP connections").baseUnit("{connection}").strongReference(true)
+                .register(registry);
     }
 
-    private static double countConnections(InternetProtocolStats ip, String transport, TcpState state) {
-        List<IPConnection> connections = ip.getConnections();
-        return connections.stream().filter(c -> c.getType().startsWith(transport))
-                .filter(c -> state == TcpState.NONE || c.getState() == state).count();
+    private void refreshCache() {
+        long now = System.currentTimeMillis();
+        if (now - cacheTimestamp > CACHE_TTL_MS) {
+            List<IPConnection> connections = ipStats.getConnections();
+            Map<TcpState, Long> tcp = new EnumMap<>(TcpState.class);
+            long udp = 0;
+            for (IPConnection conn : connections) {
+                if (conn.getType().startsWith("tcp")) {
+                    tcp.merge(conn.getState(), 1L, Long::sum);
+                } else if (conn.getType().startsWith("udp")) {
+                    udp++;
+                }
+            }
+            this.tcpCounts = tcp;
+            this.udpCount = udp;
+            this.cacheTimestamp = now;
+        }
+    }
+
+    private double getCachedTcpCount(TcpState state) {
+        refreshCache();
+        return tcpCounts.getOrDefault(state, 0L);
+    }
+
+    private double getCachedUdpCount() {
+        refreshCache();
+        return udpCount;
     }
 }

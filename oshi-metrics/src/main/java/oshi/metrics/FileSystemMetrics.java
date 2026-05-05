@@ -42,6 +42,11 @@ public class FileSystemMetrics implements MeterBinder {
     /**
      * Creates a new {@code FileSystemMetrics} binder.
      *
+     * <p>
+     * Note: {@link #bindTo(MeterRegistry)} calls the supplier once to capture a snapshot of filesystems. Filesystems
+     * mounted after binding will not be tracked; unmounted filesystems may leave stale meters. To refresh, create and
+     * bind a new instance.
+     *
      * @param fileStoreSupplier supplier that returns the current list of {@link OSFileStore} instances
      */
     public FileSystemMetrics(Supplier<List<OSFileStore>> fileStoreSupplier) {

@@ -46,6 +46,7 @@ public class DiskMetrics implements MeterBinder {
     private static final double MS_PER_SECOND = 1000.0;
 
     private final Supplier<List<HWDiskStore>> diskStoreSupplier;
+    private List<HWDiskStore> diskStores;
 
     /**
      * Creates a new {@code DiskMetrics} binder.
@@ -58,27 +59,42 @@ public class DiskMetrics implements MeterBinder {
 
     @Override
     public void bindTo(MeterRegistry registry) {
-        for (HWDiskStore disk : diskStoreSupplier.get()) {
+        List<HWDiskStore> disks = diskStoreSupplier.get();
+        // Hold strong references to prevent GC (FunctionCounter uses WeakReference)
+        this.diskStores = disks;
+
+        for (HWDiskStore disk : disks) {
             String device = disk.getName();
 
             // system.disk.io — Counter, unit "By", attrs: disk.io.direction, system.device
-            FunctionCounter.builder(DISK_IO, disk, HWDiskStore::getReadBytes).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "read").description("Disk bytes transferred").baseUnit("By").register(registry);
-            FunctionCounter.builder(DISK_IO, disk, HWDiskStore::getWriteBytes).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "write").description("Disk bytes transferred").baseUnit("By")
+            FunctionCounter.builder(DISK_IO, disk, d -> {
+                d.updateAttributes();
+                return d.getReadBytes();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "read").description("Disk bytes transferred").baseUnit("By")
+                    .register(registry);
+            FunctionCounter.builder(DISK_IO, disk, d -> {
+                d.updateAttributes();
+                return d.getWriteBytes();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "write").description("Disk bytes transferred").baseUnit("By")
                     .register(registry);
 
             // system.disk.operations — Counter, unit "{operation}", attrs: disk.io.direction, system.device
-            FunctionCounter.builder(DISK_OPERATIONS, disk, HWDiskStore::getReads).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "read").description("Disk operations count").baseUnit("{operation}")
-                    .register(registry);
-            FunctionCounter.builder(DISK_OPERATIONS, disk, HWDiskStore::getWrites).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "write").description("Disk operations count").baseUnit("{operation}")
-                    .register(registry);
+            FunctionCounter.builder(DISK_OPERATIONS, disk, d -> {
+                d.updateAttributes();
+                return d.getReads();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "read").description("Disk operations count")
+                    .baseUnit("{operation}").register(registry);
+            FunctionCounter.builder(DISK_OPERATIONS, disk, d -> {
+                d.updateAttributes();
+                return d.getWrites();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "write").description("Disk operations count")
+                    .baseUnit("{operation}").register(registry);
 
             // system.disk.io_time — Counter, unit "s", attr: system.device
-            FunctionCounter.builder(DISK_IO_TIME, disk, d -> d.getTransferTime() / MS_PER_SECOND)
-                    .tag(DEVICE_KEY, device).description("Time disk spent activated").baseUnit("s").register(registry);
+            FunctionCounter.builder(DISK_IO_TIME, disk, d -> {
+                d.updateAttributes();
+                return d.getTransferTime() / MS_PER_SECOND;
+            }).tag(DEVICE_KEY, device).description("Time disk spent activated").baseUnit("s").register(registry);
 
             // system.disk.limit — UpDownCounter (Gauge), unit "By", attr: system.device
             Gauge.builder(DISK_LIMIT, disk, HWDiskStore::getSize).tag(DEVICE_KEY, device)

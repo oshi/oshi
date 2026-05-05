@@ -71,7 +71,20 @@
                 <groupId>de.thetaphi</groupId>
                 <artifactId>forbiddenapis</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <failOnUnsupportedJava>false</failOnUnsupportedJava>
+                    <bundledSignatures>
+                        <bundledSignature>jdk-unsafe</bundledSignature>
+                        <bundledSignature>jdk-deprecated</bundledSignature>
+                        <bundledSignature>jdk-non-portable</bundledSignature>
+                        <bundledSignature>jdk-reflection</bundledSignature>
+                        <bundledSignature>jdk-system-out</bundledSignature>
+                    </bundledSignatures>
+                    <signaturesFiles>
+                        <signaturesFile>${main.basedir}/config/forbidden-apis.txt</signaturesFile>
+                    </signaturesFiles>
+                    <suppressAnnotations>
+                        <suppressAnnotation>oshi.annotation.SuppressForbidden</suppressAnnotation>
+                    </suppressAnnotations>
                 </configuration>
             </plugin>
             <plugin>

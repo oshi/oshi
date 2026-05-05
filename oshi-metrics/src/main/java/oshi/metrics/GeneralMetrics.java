@@ -43,6 +43,6 @@ public class GeneralMetrics implements MeterBinder {
         Gauge.builder(SYSTEM_UPTIME, os, o -> (double) o.getSystemUptime())
                 .description("The time the system has been running").baseUnit("s").register(registry);
         Gauge.builder(PROCESS_COUNT, os, OperatingSystem::getProcessCount)
-                .description("Total number of processes in each state").baseUnit("{process}").register(registry);
+                .description("Total number of processes on the system").baseUnit("{process}").register(registry);
     }
 }

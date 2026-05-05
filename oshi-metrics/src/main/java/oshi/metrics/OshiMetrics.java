@@ -71,8 +71,8 @@ public final class OshiMetrics implements MeterBinder {
      * @param os  the operating system
      */
     public OshiMetrics(HardwareAbstractionLayer hal, OperatingSystem os) {
-        this.hal = hal;
-        this.os = os;
+        this.hal = java.util.Objects.requireNonNull(hal, "hal must not be null");
+        this.os = java.util.Objects.requireNonNull(os, "os must not be null");
         this.general = true;
         this.cpu = true;
         this.memory = true;
@@ -153,8 +153,8 @@ public final class OshiMetrics implements MeterBinder {
         private boolean process = true;
 
         private Builder(HardwareAbstractionLayer hal, OperatingSystem os) {
-            this.hal = hal;
-            this.os = os;
+            this.hal = java.util.Objects.requireNonNull(hal, "hal must not be null");
+            this.os = java.util.Objects.requireNonNull(os, "os must not be null");
         }
 
         /**
