@@ -21,12 +21,14 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * Registers:
  * <ul>
  * <li>{@code system.memory.usage} — memory in use by state ({@code used}, {@code free}), in bytes</li>
+ * <li>{@code system.memory.limit} — total memory available in the system, in bytes</li>
  * <li>{@code system.memory.utilization} — fraction of memory in use by state (0.0–1.0)</li>
  * </ul>
  */
 public class MemoryMetrics implements MeterBinder {
 
     private static final String MEMORY_USAGE = "system.memory.usage";
+    private static final String MEMORY_LIMIT = "system.memory.limit";
     private static final String MEMORY_UTILIZATION = "system.memory.utilization";
     private static final Tag STATE_USED = Tag.of("system.memory.state", "used");
     private static final Tag STATE_FREE = Tag.of("system.memory.state", "free");
@@ -48,6 +50,8 @@ public class MemoryMetrics implements MeterBinder {
                 .description("Memory used in bytes").baseUnit("By").register(registry);
         Gauge.builder(MEMORY_USAGE, memory, GlobalMemory::getAvailable).tags(Tags.of(STATE_FREE))
                 .description("Memory available in bytes").baseUnit("By").register(registry);
+        Gauge.builder(MEMORY_LIMIT, memory, GlobalMemory::getTotal).description("Total memory available in the system")
+                .baseUnit("By").register(registry);
         Gauge.builder(MEMORY_UTILIZATION, memory,
                 mem -> mem.getTotal() == 0 ? 0d : (double) (mem.getTotal() - mem.getAvailable()) / mem.getTotal())
                 .tags(Tags.of(STATE_USED)).description("Fraction of memory used").register(registry);

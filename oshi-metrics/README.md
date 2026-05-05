@@ -41,4 +41,17 @@ Users can implement this themselves using `CentralProcessor.getSystemCpuLoadBetw
 | Metric | Instrument Type | Unit | Attributes | Description |
 |--------|----------------|------|------------|-------------|
 | `system.memory.usage` | Gauge | `By` | `system.memory.state` | Reports memory in use by state (used, free) |
+| `system.memory.limit` | Gauge | `By` | — | Total memory available in the system |
 | `system.memory.utilization` | Gauge | `1` | `system.memory.state` | Fraction of memory in use by state (0.0–1.0) |
+
+### [Paging/Swap metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#pagingswap-metrics)
+
+| Metric | Instrument Type | Unit | Attributes | Description |
+|--------|----------------|------|------------|-------------|
+| `system.paging.usage` | Gauge | `By` | `system.paging.state` | Unix swap or windows pagefile usage (used, free) |
+| `system.paging.utilization` | Gauge | `1` | `system.paging.state` | Fraction of swap/pagefile in use (0.0–1.0) |
+| `system.paging.operations` | FunctionCounter | `{operation}` | `system.paging.direction` | Cumulative paging operations (in, out) |
+
+#### `system.paging.faults`
+
+This metric is **not implemented** because OSHI does not expose system-level major/minor page fault counters.

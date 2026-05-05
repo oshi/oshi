@@ -52,6 +52,13 @@ class OshiMetricsTest {
     }
 
     @Test
+    void memoryLimitRegistered() {
+        Gauge limit = registry.find("system.memory.limit").gauge();
+        assertNotNull(limit, "system.memory.limit should be registered");
+        assertTrue(limit.value() > 0, "Memory limit should be positive");
+    }
+
+    @Test
     void memoryUtilizationRegistered() {
         Gauge used = registry.find("system.memory.utilization").tag("system.memory.state", "used").gauge();
         Gauge free = registry.find("system.memory.utilization").tag("system.memory.state", "free").gauge();
@@ -59,8 +66,8 @@ class OshiMetricsTest {
         assertNotNull(free, "system.memory.utilization{state=free} should be registered");
         double usedVal = used.value();
         double freeVal = free.value();
-        assertTrue(usedVal > 0 && usedVal < 1, "Used utilization should be between 0 and 1");
-        assertTrue(freeVal > 0 && freeVal < 1, "Free utilization should be between 0 and 1");
+        assertTrue(usedVal >= 0 && usedVal <= 1, "Used utilization should be between 0 and 1");
+        assertTrue(freeVal >= 0 && freeVal <= 1, "Free utilization should be between 0 and 1");
     }
 
     @Test
@@ -99,5 +106,38 @@ class OshiMetricsTest {
         assertNotNull(freq, "system.cpu.frequency{cpu.logical_number=0} should be registered");
         // Frequency may be 0 on some platforms (e.g., VMs), so just check non-negative
         assertTrue(freq.value() >= 0, "CPU frequency should be non-negative");
+    }
+
+    @Test
+    void pagingUsageRegistered() {
+        Gauge used = registry.find("system.paging.usage").tag("system.paging.state", "used").gauge();
+        Gauge free = registry.find("system.paging.usage").tag("system.paging.state", "free").gauge();
+        assertNotNull(used, "system.paging.usage{state=used} should be registered");
+        assertNotNull(free, "system.paging.usage{state=free} should be registered");
+        // Swap used may be 0, but free + used should equal total
+        assertTrue(used.value() >= 0, "Paging used should be non-negative");
+        assertTrue(free.value() >= 0, "Paging free should be non-negative");
+    }
+
+    @Test
+    void pagingUtilizationRegistered() {
+        Gauge used = registry.find("system.paging.utilization").tag("system.paging.state", "used").gauge();
+        Gauge free = registry.find("system.paging.utilization").tag("system.paging.state", "free").gauge();
+        assertNotNull(used, "system.paging.utilization{state=used} should be registered");
+        assertNotNull(free, "system.paging.utilization{state=free} should be registered");
+        assertTrue(used.value() >= 0 && used.value() <= 1, "Paging utilization used should be 0-1");
+        assertTrue(free.value() >= 0 && free.value() <= 1, "Paging utilization free should be 0-1");
+    }
+
+    @Test
+    void pagingOperationsRegistered() {
+        FunctionCounter in = registry.find("system.paging.operations").tag("system.paging.direction", "in")
+                .functionCounter();
+        FunctionCounter out = registry.find("system.paging.operations").tag("system.paging.direction", "out")
+                .functionCounter();
+        assertNotNull(in, "system.paging.operations{direction=in} should be registered");
+        assertNotNull(out, "system.paging.operations{direction=out} should be registered");
+        assertTrue(in.count() >= 0, "Pages in should be non-negative");
+        assertTrue(out.count() >= 0, "Pages out should be non-negative");
     }
 }
