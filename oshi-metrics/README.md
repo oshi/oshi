@@ -87,3 +87,13 @@ This metric is **not implemented** because OSHI does not expose system-level maj
 | `system.network.packet.dropped` | FunctionCounter | `{packet}` | `system.device`, `network.io.direction` | Dropped packets (receive only) |
 | `system.network.errors` | FunctionCounter | `{error}` | `system.device`, `network.io.direction` | Network errors (receive, transmit) |
 | `system.network.connection.count` | Gauge | `{connection}` | `network.transport`, `network.connection.state` | Connection count by protocol and state |
+
+### [Aggregate system process metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#aggregate-system-process-metrics)
+
+| Metric | Instrument Type | Unit | Attributes | Description |
+|--------|----------------|------|------------|-------------|
+| `system.process.count` | Gauge | `{process}` | — | Total number of processes on the system |
+
+#### Not implemented
+
+- `system.process.created` — OSHI does not expose total processes created over uptime

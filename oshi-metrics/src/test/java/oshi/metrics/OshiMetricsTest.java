@@ -42,6 +42,13 @@ class OshiMetricsTest {
     }
 
     @Test
+    void processCountRegistered() {
+        Gauge count = registry.find("system.process.count").gauge();
+        assertNotNull(count, "system.process.count should be registered");
+        assertTrue(count.value() >= 1, "Process count should be at least 1");
+    }
+
+    @Test
     void memoryUsageRegistered() {
         Gauge used = registry.find("system.memory.usage").tag("system.memory.state", "used").gauge();
         Gauge free = registry.find("system.memory.usage").tag("system.memory.state", "free").gauge();

@@ -19,11 +19,13 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * Registers:
  * <ul>
  * <li>{@code system.uptime} — the time the system has been running, in seconds</li>
+ * <li>{@code system.process.count} — total number of processes on the system</li>
  * </ul>
  */
 public class GeneralMetrics implements MeterBinder {
 
     private static final String SYSTEM_UPTIME = "system.uptime";
+    private static final String PROCESS_COUNT = "system.process.count";
 
     private final OperatingSystem os;
 
@@ -40,5 +42,7 @@ public class GeneralMetrics implements MeterBinder {
     public void bindTo(MeterRegistry registry) {
         Gauge.builder(SYSTEM_UPTIME, os, o -> (double) o.getSystemUptime())
                 .description("The time the system has been running").baseUnit("s").register(registry);
+        Gauge.builder(PROCESS_COUNT, os, OperatingSystem::getProcessCount)
+                .description("Total number of processes in each state").baseUnit("{process}").register(registry);
     }
 }
