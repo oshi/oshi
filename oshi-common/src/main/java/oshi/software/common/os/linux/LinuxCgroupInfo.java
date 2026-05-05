@@ -37,7 +37,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
     private static final long V1_NO_LIMIT_THRESHOLD = UNLIMITED_MEMORY - 0x1_0000;
 
     private static final String[] CONTAINER_MARKERS = { "/docker/", "/kubepods/", "/lxc/", "/containerd/", "/crio-",
-            "/buildkit/" };
+            "/buildkit/", "/libpod-", "/podman-" };
 
     private final Supplier<Integer> versionSupplier = memoize(this::detectVersion);
     private final Supplier<String> cgroupPathSupplier = memoize(this::parseCgroupPath);
@@ -60,7 +60,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
 
     private boolean detectContainerized() {
         // Check for known container indicator files
-        if (new File("/.dockerenv").exists()) {
+        if (new File("/.dockerenv").exists() || new File("/run/.containerenv").exists()) {
             return true;
         }
         // Check cgroup path for container-specific markers
