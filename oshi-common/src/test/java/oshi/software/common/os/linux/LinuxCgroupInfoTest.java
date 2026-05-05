@@ -5,8 +5,11 @@
 package oshi.software.common.os.linux;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static oshi.software.os.CgroupInfo.DEFAULT_CPU_PERIOD;
 import static oshi.software.os.CgroupInfo.UNLIMITED;
+import static oshi.software.os.CgroupInfo.UNLIMITED_CPUS;
 import static oshi.software.os.CgroupInfo.UNLIMITED_MEMORY;
 
 import java.io.IOException;
@@ -135,10 +138,10 @@ class LinuxCgroupInfoTest {
 
     @Test
     void effectiveCpusWithQuota() {
-        assertEquals(2.0d, new CgroupInfo() {
+        assertEquals(1.5d, new CgroupInfo() {
             @Override
             public long getCpuQuota() {
-                return 200000L;
+                return 150000L;
             }
 
             @Override
@@ -150,8 +153,80 @@ class LinuxCgroupInfoTest {
 
     @Test
     void effectiveCpusUnlimited() {
-        assertEquals(CgroupInfo.UNLIMITED_CPUS, new CgroupInfo() {
+        assertEquals(UNLIMITED_CPUS, new CgroupInfo() {
         }.getEffectiveCpus());
+    }
+
+    // --- Interface default tests ---
+
+    @Test
+    void interfaceDefaults() {
+        CgroupInfo defaults = new CgroupInfo() {
+        };
+        assertFalse(defaults.isContainerized());
+        assertEquals(0, defaults.getVersion());
+        assertEquals(UNLIMITED, defaults.getCpuQuota());
+        assertEquals(DEFAULT_CPU_PERIOD, defaults.getCpuPeriod());
+        assertEquals(0L, defaults.getCpuUsage());
+        assertEquals(UNLIMITED_CPUS, defaults.getEffectiveCpus());
+        assertEquals(UNLIMITED_MEMORY, defaults.getMemoryLimit());
+        assertEquals(0L, defaults.getMemoryUsage());
+        assertEquals(UNLIMITED, defaults.getPidLimit());
+        assertEquals(0L, defaults.getPidCurrent());
+    }
+
+    // --- LinuxCgroupInfo integration (runs on current host) ---
+
+    @Test
+    void linuxCgroupInfoVersionIsValid() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        int version = info.getVersion();
+        assertTrue(version >= 0 && version <= 2, "Version should be 0, 1, or 2, got " + version);
+    }
+
+    @Test
+    void linuxCgroupInfoCpuUsageNonNegative() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        assertTrue(info.getCpuUsage() >= 0, "CPU usage should be non-negative");
+    }
+
+    @Test
+    void linuxCgroupInfoMemoryUsageNonNegative() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        assertTrue(info.getMemoryUsage() >= 0, "Memory usage should be non-negative");
+    }
+
+    @Test
+    void linuxCgroupInfoPidCurrentNonNegative() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        assertTrue(info.getPidCurrent() >= 0, "PID current should be non-negative");
+    }
+
+    @Test
+    void linuxCgroupInfoCpuQuotaValid() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        long quota = info.getCpuQuota();
+        assertTrue(quota == UNLIMITED || quota > 0, "CPU quota should be -1 (unlimited) or positive");
+    }
+
+    @Test
+    void linuxCgroupInfoCpuPeriodPositive() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        assertTrue(info.getCpuPeriod() > 0, "CPU period should be positive");
+    }
+
+    @Test
+    void linuxCgroupInfoMemoryLimitValid() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        long limit = info.getMemoryLimit();
+        assertTrue(limit == UNLIMITED_MEMORY || limit > 0, "Memory limit should be unlimited or positive");
+    }
+
+    @Test
+    void linuxCgroupInfoPidLimitValid() {
+        LinuxCgroupInfo info = new LinuxCgroupInfo();
+        long limit = info.getPidLimit();
+        assertTrue(limit == UNLIMITED || limit > 0, "PID limit should be -1 (unlimited) or positive");
     }
 
     // --- V1 tests ---

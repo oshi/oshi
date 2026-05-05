@@ -47,6 +47,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.VirtualMemory;
 import oshi.software.os.ApplicationInfo;
+import oshi.software.os.CgroupInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -178,6 +179,20 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         lines.add("Sessions:");
         for (OSSession s : os.getSessions()) {
             lines.add(" " + s.toString());
+        }
+        CgroupInfo cgroup = os.getCgroupInfo();
+        if (cgroup.isContainerized()) {
+            lines.add("Container: cgroup v" + cgroup.getVersion());
+            lines.add(" CPU quota: "
+                    + (cgroup.getCpuQuota() == CgroupInfo.UNLIMITED ? "unlimited" : cgroup.getCpuQuota() + " us"));
+            lines.add(" Effective CPUs: " + (cgroup.getEffectiveCpus() == CgroupInfo.UNLIMITED_CPUS ? "unlimited"
+                    : String.format(Locale.ROOT, "%.2f", cgroup.getEffectiveCpus())));
+            lines.add(" Memory limit: " + (cgroup.getMemoryLimit() == CgroupInfo.UNLIMITED_MEMORY ? "unlimited"
+                    : FormatUtil.formatBytes(cgroup.getMemoryLimit())));
+            lines.add(" Memory usage: " + FormatUtil.formatBytes(cgroup.getMemoryUsage()));
+            lines.add(" PID limit: "
+                    + (cgroup.getPidLimit() == CgroupInfo.UNLIMITED ? "unlimited" : cgroup.getPidLimit()));
+            lines.add(" PID current: " + cgroup.getPidCurrent());
         }
     }
 

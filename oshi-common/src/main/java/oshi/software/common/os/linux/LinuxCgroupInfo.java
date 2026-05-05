@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -42,6 +44,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
     private final Supplier<Integer> versionSupplier = memoize(this::detectVersion);
     private final Supplier<String> cgroupPathSupplier = memoize(this::parseCgroupPath);
     private final Supplier<Boolean> containerizedSupplier = memoize(this::detectContainerized);
+    private final Supplier<List<String>> selfCgroupSupplier = memoize(() -> FileUtil.readFile(ProcPath.SELF_CGROUP));
     private final Supplier<Long> cpuQuotaSupplier = memoize(this::readCpuQuota, defaultExpiration());
     private final Supplier<Long> cpuPeriodSupplier = memoize(this::readCpuPeriod, defaultExpiration());
     private final Supplier<Long> memoryLimitSupplier = memoize(this::readMemoryLimit, defaultExpiration());
@@ -73,7 +76,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
             }
         }
         // Also check v1 cgroup entries for container markers
-        List<String> selfCgroup = FileUtil.readFile(ProcPath.SELF_CGROUP);
+        List<String> selfCgroup = selfCgroupSupplier.get();
         for (String line : selfCgroup) {
             for (String marker : CONTAINER_MARKERS) {
                 if (line.contains(marker)) {
@@ -146,7 +149,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         List<String> filesystems = FileUtil.readFile(ProcPath.FILESYSTEMS);
         boolean hasCgroup2 = filesystems.stream().anyMatch(line -> line.contains("cgroup2"));
 
-        List<String> selfCgroup = FileUtil.readFile(ProcPath.SELF_CGROUP);
+        List<String> selfCgroup = selfCgroupSupplier.get();
         if (selfCgroup.isEmpty()) {
             return 0;
         }
@@ -161,7 +164,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private String parseCgroupPath() {
-        List<String> selfCgroup = FileUtil.readFile(ProcPath.SELF_CGROUP);
+        List<String> selfCgroup = selfCgroupSupplier.get();
         if (selfCgroup.isEmpty()) {
             return "";
         }
@@ -192,8 +195,14 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return SysPath.CGROUP + cgroupPath + "/";
     }
 
+    private final Map<String, String> v1ControllerPathCache = new ConcurrentHashMap<>();
+
     private String getV1ControllerPath(String controller) {
-        List<String> selfCgroup = FileUtil.readFile(ProcPath.SELF_CGROUP);
+        return v1ControllerPathCache.computeIfAbsent(controller, this::resolveV1ControllerPath);
+    }
+
+    private String resolveV1ControllerPath(String controller) {
+        List<String> selfCgroup = selfCgroupSupplier.get();
         for (String line : selfCgroup) {
             // v1 format: "hierarchy-id:controllers:path"
             String[] parts = line.split(":");
