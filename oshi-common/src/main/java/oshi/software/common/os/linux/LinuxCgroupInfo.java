@@ -32,11 +32,16 @@ public class LinuxCgroupInfo implements CgroupInfo {
 
     private static final long NANOSECONDS_PER_MICROSECOND = 1000L;
 
+    // Kernel reports cgroup v1 "no limit" as a value near Long.MAX_VALUE, rounded down to page size.
+    // Use a generous guard band to handle page sizes up to 64KB.
+    private static final long V1_NO_LIMIT_THRESHOLD = UNLIMITED_MEMORY - 0x1_0000;
+
     private static final String[] CONTAINER_MARKERS = { "/docker/", "/kubepods/", "/lxc/", "/containerd/", "/crio-",
             "/buildkit/" };
 
     private final Supplier<Integer> versionSupplier = memoize(this::detectVersion);
     private final Supplier<String> cgroupPathSupplier = memoize(this::parseCgroupPath);
+    private final Supplier<Boolean> containerizedSupplier = memoize(this::detectContainerized);
     private final Supplier<Long> cpuQuotaSupplier = memoize(this::readCpuQuota, defaultExpiration());
     private final Supplier<Long> cpuPeriodSupplier = memoize(this::readCpuPeriod, defaultExpiration());
     private final Supplier<Long> memoryLimitSupplier = memoize(this::readMemoryLimit, defaultExpiration());
@@ -50,6 +55,10 @@ public class LinuxCgroupInfo implements CgroupInfo {
 
     @Override
     public boolean isContainerized() {
+        return containerizedSupplier.get();
+    }
+
+    private boolean detectContainerized() {
         // Check for known container indicator files
         if (new File("/.dockerenv").exists()) {
             return true;
@@ -240,8 +249,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuQuotaV1() {
-        String quotaPath = getV1ControllerPath("cpu") + "cpu.cfs_quota_us";
-        long quota = FileUtil.getLongFromFile(quotaPath);
+        return readCpuQuotaV1(getV1ControllerPath("cpu"));
+    }
+
+    // package-private for testing
+    long readCpuQuotaV1(String controllerBase) {
+        long quota = FileUtil.getLongFromFile(controllerBase + "cpu.cfs_quota_us");
         return quota == 0 ? UNLIMITED : quota;
     }
 
@@ -273,8 +286,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuPeriodV1() {
-        String periodPath = getV1ControllerPath("cpu") + "cpu.cfs_period_us";
-        long period = FileUtil.getLongFromFile(periodPath);
+        return readCpuPeriodV1(getV1ControllerPath("cpu"));
+    }
+
+    // package-private for testing
+    long readCpuPeriodV1(String controllerBase) {
+        long period = FileUtil.getLongFromFile(controllerBase + "cpu.cfs_period_us");
         return period == 0 ? DEFAULT_CPU_PERIOD : period;
     }
 
@@ -298,8 +315,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuUsageV1() {
-        String usagePath = getV1ControllerPath("cpuacct") + "cpuacct.usage";
-        return FileUtil.getLongFromFile(usagePath);
+        return readCpuUsageV1(getV1ControllerPath("cpuacct"));
+    }
+
+    // package-private for testing
+    long readCpuUsageV1(String controllerBase) {
+        return FileUtil.getLongFromFile(controllerBase + "cpuacct.usage");
     }
 
     private long readMemoryLimit() {
@@ -326,9 +347,13 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readMemoryLimitV1() {
-        String limitPath = getV1ControllerPath("memory") + "memory.limit_in_bytes";
-        long limit = FileUtil.getLongFromFile(limitPath);
-        if (limit == 0 || limit > UNLIMITED_MEMORY - 4096) {
+        return readMemoryLimitV1(getV1ControllerPath("memory"));
+    }
+
+    // package-private for testing
+    long readMemoryLimitV1(String controllerBase) {
+        long limit = FileUtil.getLongFromFile(controllerBase + "memory.limit_in_bytes");
+        if (limit == 0 || limit > V1_NO_LIMIT_THRESHOLD) {
             return UNLIMITED_MEMORY;
         }
         return limit;
@@ -345,8 +370,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readMemoryUsageV1() {
-        String usagePath = getV1ControllerPath("memory") + "memory.usage_in_bytes";
-        return FileUtil.getLongFromFile(usagePath);
+        return readMemoryUsageV1(getV1ControllerPath("memory"));
+    }
+
+    // package-private for testing
+    long readMemoryUsageV1(String controllerBase) {
+        return FileUtil.getLongFromFile(controllerBase + "memory.usage_in_bytes");
     }
 
     private long readPidLimit() {
@@ -373,8 +402,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readPidLimitV1() {
-        String maxPath = getV1ControllerPath("pids") + "pids.max";
-        String pidsMax = FileUtil.getStringFromFile(maxPath);
+        return readPidLimitV1(getV1ControllerPath("pids"));
+    }
+
+    // package-private for testing
+    long readPidLimitV1(String controllerBase) {
+        String pidsMax = FileUtil.getStringFromFile(controllerBase + "pids.max");
         if (pidsMax.isEmpty() || "max".equalsIgnoreCase(pidsMax.trim())) {
             return UNLIMITED;
         }
@@ -393,7 +426,11 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readPidCurrentV1() {
-        String currentPath = getV1ControllerPath("pids") + "pids.current";
-        return FileUtil.getLongFromFile(currentPath);
+        return readPidCurrentV1(getV1ControllerPath("pids"));
+    }
+
+    // package-private for testing
+    long readPidCurrentV1(String controllerBase) {
+        return FileUtil.getLongFromFile(controllerBase + "pids.current");
     }
 }
