@@ -5,6 +5,7 @@
 package oshi.metrics;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -234,5 +235,18 @@ class OshiMetricsTest {
         assertNotNull(udp, "system.network.connection.count{transport=udp} should be registered");
         assertTrue(tcp.value() >= 0, "TCP connection count should be non-negative");
         assertTrue(udp.value() >= 0, "UDP connection count should be non-negative");
+    }
+
+    @Test
+    void builderSelectiveRegistration() {
+        MeterRegistry selective = new SimpleMeterRegistry();
+        OshiMetrics.builder(hal, os).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
+                .enableFileSystem(false).enableNetwork(false).enableGeneral(false).build().bindTo(selective);
+        // CPU should be registered
+        assertNotNull(selective.find("system.cpu.time").functionCounter(), "CPU metrics should be registered");
+        // Memory should NOT be registered
+        assertNull(selective.find("system.memory.usage").gauge(), "Memory metrics should not be registered");
+        // Network should NOT be registered
+        assertNull(selective.find("system.network.io").functionCounter(), "Network metrics should not be registered");
     }
 }
