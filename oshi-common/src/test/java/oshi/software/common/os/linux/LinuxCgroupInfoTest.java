@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.software.os.CgroupInfo;
@@ -178,6 +180,7 @@ class LinuxCgroupInfoTest {
     // --- LinuxCgroupInfo integration (runs on current host) ---
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoVersionIsValid() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         int version = info.getVersion();
@@ -185,24 +188,28 @@ class LinuxCgroupInfoTest {
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoCpuUsageNonNegative() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         assertTrue(info.getCpuUsage() >= 0, "CPU usage should be non-negative");
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoMemoryUsageNonNegative() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         assertTrue(info.getMemoryUsage() >= 0, "Memory usage should be non-negative");
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoPidCurrentNonNegative() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         assertTrue(info.getPidCurrent() >= 0, "PID current should be non-negative");
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoCpuQuotaValid() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         long quota = info.getCpuQuota();
@@ -210,12 +217,14 @@ class LinuxCgroupInfoTest {
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoCpuPeriodPositive() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         assertTrue(info.getCpuPeriod() > 0, "CPU period should be positive");
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoMemoryLimitValid() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         long limit = info.getMemoryLimit();
@@ -223,6 +232,7 @@ class LinuxCgroupInfoTest {
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void linuxCgroupInfoPidLimitValid() {
         LinuxCgroupInfo info = new LinuxCgroupInfo();
         long limit = info.getPidLimit();
@@ -280,6 +290,14 @@ class LinuxCgroupInfoTest {
     }
 
     @Test
+    void readMemoryLimitV1BelowThreshold(@TempDir Path tempDir) throws IOException {
+        // A large but valid limit (8 TiB) should be returned as-is, not treated as unlimited
+        long eightTiB = 8L * 1024 * 1024 * 1024 * 1024;
+        Files.write(tempDir.resolve("memory.limit_in_bytes"), (eightTiB + "\n").getBytes(StandardCharsets.UTF_8));
+        assertEquals(eightTiB, cgroup.readMemoryLimitV1(tempDir.toString() + "/"));
+    }
+
+    @Test
     void readMemoryUsageV1(@TempDir Path tempDir) throws IOException {
         Files.write(tempDir.resolve("memory.usage_in_bytes"), "1048576\n".getBytes(StandardCharsets.UTF_8));
         assertEquals(1048576L, cgroup.readMemoryUsageV1(tempDir.toString() + "/"));
@@ -301,5 +319,106 @@ class LinuxCgroupInfoTest {
     void readPidCurrentV1(@TempDir Path tempDir) throws IOException {
         Files.write(tempDir.resolve("pids.current"), "17\n".getBytes(StandardCharsets.UTF_8));
         assertEquals(17L, cgroup.readPidCurrentV1(tempDir.toString() + "/"));
+    }
+
+    // --- Dispatch tests using subclass to force version ---
+
+    @Test
+    void dispatchV2CpuUsage(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("cpu.stat"), "usage_usec 1000\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
+        assertEquals(1_000_000L, testable.getCpuUsage());
+    }
+
+    @Test
+    void dispatchV2MemoryUsage(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("memory.current"), "4096\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
+        assertEquals(4096L, testable.getMemoryUsage());
+    }
+
+    @Test
+    void dispatchV2PidCurrent(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("pids.current"), "5\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
+        assertEquals(5L, testable.getPidCurrent());
+    }
+
+    @Test
+    void dispatchV1CpuUsage(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("cpuacct.usage"), "999\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
+        assertEquals(999L, testable.getCpuUsage());
+    }
+
+    @Test
+    void dispatchV1MemoryUsage(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("memory.usage_in_bytes"), "2048\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
+        assertEquals(2048L, testable.getMemoryUsage());
+    }
+
+    @Test
+    void dispatchV1PidCurrent(@TempDir Path tempDir) throws IOException {
+        Files.write(tempDir.resolve("pids.current"), "3\n".getBytes(StandardCharsets.UTF_8));
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
+        assertEquals(3L, testable.getPidCurrent());
+    }
+
+    @Test
+    void dispatchVersion0ReturnsDefaults() {
+        TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(0, "/nonexistent/");
+        assertEquals(0L, testable.getCpuUsage());
+        assertEquals(0L, testable.getMemoryUsage());
+        assertEquals(0L, testable.getPidCurrent());
+    }
+
+    /**
+     * Test subclass that overrides version detection and path resolution to enable unit testing of dispatch logic.
+     */
+    static class TestableLinuxCgroupInfo extends LinuxCgroupInfo {
+
+        private final int version;
+        private final String basePath;
+
+        TestableLinuxCgroupInfo(int version, String basePath) {
+            this.version = version;
+            this.basePath = basePath;
+        }
+
+        @Override
+        public int getVersion() {
+            return version;
+        }
+
+        @Override
+        long readCpuUsageV2() {
+            return super.readCpuUsageV2(basePath);
+        }
+
+        @Override
+        long readCpuUsageV1() {
+            return super.readCpuUsageV1(basePath);
+        }
+
+        @Override
+        long readMemoryUsageV2() {
+            return super.readMemoryUsageV2(basePath);
+        }
+
+        @Override
+        long readMemoryUsageV1() {
+            return super.readMemoryUsageV1(basePath);
+        }
+
+        @Override
+        long readPidCurrentV2() {
+            return super.readPidCurrentV2(basePath);
+        }
+
+        @Override
+        long readPidCurrentV1() {
+            return super.readPidCurrentV1(basePath);
+        }
     }
 }

@@ -76,6 +76,33 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: linux
 
+  # Cgroup integration test — runs inside a Docker container with known resource limits
+  container-cgroup:
+    runs-on: ubuntu-latest
+    name: Container Cgroup Test
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build oshi-common
+        run: ./mvnw install -pl oshi-common -am -DskipTests -q
+      - name: Run cgroup tests in constrained container
+        run: |
+          docker run --rm \
+            --cpus="1.5" \
+            --memory="512m" \
+            --pids-limit=256 \
+            -e OSHI_CGROUP_TEST=true \
+            -v "${{ github.workspace }}":/workspace \
+            -v "$HOME/.m2":/root/.m2 \
+            -w /workspace \
+            eclipse-temurin:17-jdk \
+            ./mvnw test -pl oshi-common -am -B
+
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
     runs-on: ubuntu-latest

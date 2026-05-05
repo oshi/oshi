@@ -38,8 +38,8 @@ public class LinuxCgroupInfo implements CgroupInfo {
     // Use a generous guard band to handle page sizes up to 64KB.
     private static final long V1_NO_LIMIT_THRESHOLD = UNLIMITED_MEMORY - 0x1_0000;
 
-    private static final String[] CONTAINER_MARKERS = { "/docker/", "/kubepods/", "/lxc/", "/containerd/", "/crio-",
-            "/buildkit/", "/libpod-", "/podman-" };
+    private static final String[] CONTAINER_MARKERS = { "/docker/", "docker-", "/kubepods/", "kubepods.slice", "/lxc/",
+            "/containerd/", "cri-containerd-", "/crio-", "/buildkit/", "/libpod-", "/podman-" };
 
     private final Supplier<Integer> versionSupplier = memoize(this::detectVersion);
     private final Supplier<String> cgroupPathSupplier = memoize(this::parseCgroupPath);
@@ -49,6 +49,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
     private final Supplier<Long> cpuPeriodSupplier = memoize(this::readCpuPeriod, defaultExpiration());
     private final Supplier<Long> memoryLimitSupplier = memoize(this::readMemoryLimit, defaultExpiration());
     private final Supplier<Long> pidLimitSupplier = memoize(this::readPidLimit, defaultExpiration());
+    private final Map<String, String> v1ControllerPathCache = new ConcurrentHashMap<>();
 
     /**
      * Constructs a new LinuxCgroupInfo instance.
@@ -195,8 +196,6 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return SysPath.CGROUP + cgroupPath + "/";
     }
 
-    private final Map<String, String> v1ControllerPathCache = new ConcurrentHashMap<>();
-
     private String getV1ControllerPath(String controller) {
         return v1ControllerPathCache.computeIfAbsent(controller, this::resolveV1ControllerPath);
     }
@@ -304,7 +303,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return period == 0 ? DEFAULT_CPU_PERIOD : period;
     }
 
-    private long readCpuUsageV2() {
+    long readCpuUsageV2() {
         return readCpuUsageV2(getV2CgroupBase());
     }
 
@@ -323,7 +322,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return 0L;
     }
 
-    private long readCpuUsageV1() {
+    long readCpuUsageV1() {
         return readCpuUsageV1(getV1ControllerPath("cpuacct"));
     }
 
@@ -368,7 +367,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return limit;
     }
 
-    private long readMemoryUsageV2() {
+    long readMemoryUsageV2() {
         return readMemoryUsageV2(getV2CgroupBase());
     }
 
@@ -378,7 +377,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return ParseUtil.parseLongOrDefault(memCurrent.trim(), 0L);
     }
 
-    private long readMemoryUsageV1() {
+    long readMemoryUsageV1() {
         return readMemoryUsageV1(getV1ControllerPath("memory"));
     }
 
@@ -424,7 +423,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return limit == 0 ? UNLIMITED : limit;
     }
 
-    private long readPidCurrentV2() {
+    long readPidCurrentV2() {
         return readPidCurrentV2(getV2CgroupBase());
     }
 
@@ -434,7 +433,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         return ParseUtil.parseLongOrDefault(pidsCurrent.trim(), 0L);
     }
 
-    private long readPidCurrentV1() {
+    long readPidCurrentV1() {
         return readPidCurrentV1(getV1ControllerPath("pids"));
     }
 
