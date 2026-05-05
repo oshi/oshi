@@ -77,3 +77,13 @@ This metric is **not implemented** because OSHI does not expose system-level maj
 | `system.filesystem.usage` | Gauge | `By` | `system.device`, `system.filesystem.mountpoint`, `system.filesystem.type`, `system.filesystem.mode`, `system.filesystem.state` | Filesystem space usage (used, free) |
 | `system.filesystem.utilization` | Gauge | `1` | (same as above) | Fraction of filesystem space in use (0.0–1.0) |
 | `system.filesystem.limit` | Gauge | `By` | `system.device`, `system.filesystem.mountpoint`, `system.filesystem.type`, `system.filesystem.mode` | Total capacity of the filesystem |
+
+### [Network metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#network-metrics)
+
+| Metric | Instrument Type | Unit | Attributes | Description |
+|--------|----------------|------|------------|-------------|
+| `system.network.io` | FunctionCounter | `By` | `system.device`, `network.io.direction` | Network bytes transferred (receive, transmit) |
+| `system.network.packet.count` | FunctionCounter | `{packet}` | `system.device`, `network.io.direction` | Network packets (receive, transmit) |
+| `system.network.packet.dropped` | FunctionCounter | `{packet}` | `system.device`, `network.io.direction` | Dropped packets (receive only) |
+| `system.network.errors` | FunctionCounter | `{error}` | `system.device`, `network.io.direction` | Network errors (receive, transmit) |
+| `system.network.connection.count` | Gauge | `{connection}` | `network.transport`, `network.connection.state` | Connection count by protocol and state |

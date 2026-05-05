@@ -66,5 +66,6 @@ public final class OshiMetrics implements MeterBinder {
         new CpuMetrics(hal.getProcessor()).bindTo(registry);
         new DiskMetrics(hal::getDiskStores).bindTo(registry);
         new FileSystemMetrics(os.getFileSystem()::getFileStores).bindTo(registry);
+        new NetworkMetrics(hal::getNetworkIFs, os.getInternetProtocolStats()).bindTo(registry);
     }
 }

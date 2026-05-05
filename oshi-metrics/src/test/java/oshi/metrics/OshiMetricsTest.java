@@ -191,4 +191,41 @@ class OshiMetricsTest {
         assertNotNull(limit, "system.filesystem.limit should be registered");
         assertTrue(limit.value() >= 0, "Filesystem limit should be non-negative");
     }
+
+    @Test
+    void networkIoRegistered() {
+        FunctionCounter recv = registry.find("system.network.io").tag("network.io.direction", "receive")
+                .functionCounter();
+        FunctionCounter xmit = registry.find("system.network.io").tag("network.io.direction", "transmit")
+                .functionCounter();
+        assertNotNull(recv, "system.network.io{direction=receive} should be registered");
+        assertNotNull(xmit, "system.network.io{direction=transmit} should be registered");
+        assertTrue(recv.count() >= 0, "Network bytes received should be non-negative");
+    }
+
+    @Test
+    void networkPacketCountRegistered() {
+        FunctionCounter recv = registry.find("system.network.packet.count").tag("network.io.direction", "receive")
+                .functionCounter();
+        assertNotNull(recv, "system.network.packet.count{direction=receive} should be registered");
+        assertTrue(recv.count() >= 0, "Network packets received should be non-negative");
+    }
+
+    @Test
+    void networkErrorsRegistered() {
+        FunctionCounter recv = registry.find("system.network.errors").tag("network.io.direction", "receive")
+                .functionCounter();
+        assertNotNull(recv, "system.network.errors{direction=receive} should be registered");
+        assertTrue(recv.count() >= 0, "Network errors should be non-negative");
+    }
+
+    @Test
+    void networkConnectionCountRegistered() {
+        Gauge tcp = registry.find("system.network.connection.count").tag("network.transport", "tcp").gauge();
+        Gauge udp = registry.find("system.network.connection.count").tag("network.transport", "udp").gauge();
+        assertNotNull(tcp, "system.network.connection.count{transport=tcp} should be registered");
+        assertNotNull(udp, "system.network.connection.count{transport=udp} should be registered");
+        assertTrue(tcp.value() >= 0, "TCP connection count should be non-negative");
+        assertTrue(udp.value() >= 0, "UDP connection count should be non-negative");
+    }
 }
