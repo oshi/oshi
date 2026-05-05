@@ -241,12 +241,46 @@ class OshiMetricsTest {
     void builderSelectiveRegistration() {
         MeterRegistry selective = new SimpleMeterRegistry();
         OshiMetrics.builder(hal, os).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
-                .enableFileSystem(false).enableNetwork(false).enableGeneral(false).build().bindTo(selective);
+                .enableFileSystem(false).enableNetwork(false).enableGeneral(false).enableProcess(false).build()
+                .bindTo(selective);
         // CPU should be registered
         assertNotNull(selective.find("system.cpu.time").functionCounter(), "CPU metrics should be registered");
         // Memory should NOT be registered
         assertNull(selective.find("system.memory.usage").gauge(), "Memory metrics should not be registered");
         // Network should NOT be registered
         assertNull(selective.find("system.network.io").functionCounter(), "Network metrics should not be registered");
+    }
+
+    @Test
+    void processCpuTimeRegistered() {
+        FunctionCounter user = registry.find("process.cpu.time").tag("cpu.mode", "user").functionCounter();
+        FunctionCounter system = registry.find("process.cpu.time").tag("cpu.mode", "system").functionCounter();
+        assertNotNull(user, "process.cpu.time{cpu.mode=user} should be registered");
+        assertNotNull(system, "process.cpu.time{cpu.mode=system} should be registered");
+        assertTrue(user.count() >= 0, "Process user CPU time should be non-negative");
+    }
+
+    @Test
+    void processMemoryRegistered() {
+        Gauge rss = registry.find("process.memory.usage").gauge();
+        Gauge virt = registry.find("process.memory.virtual").gauge();
+        assertNotNull(rss, "process.memory.usage should be registered");
+        assertNotNull(virt, "process.memory.virtual should be registered");
+        assertTrue(rss.value() > 0, "Process RSS should be positive");
+        assertTrue(virt.value() > 0, "Process virtual memory should be positive");
+    }
+
+    @Test
+    void processThreadCountRegistered() {
+        Gauge threads = registry.find("process.thread.count").gauge();
+        assertNotNull(threads, "process.thread.count should be registered");
+        assertTrue(threads.value() >= 1, "Process thread count should be at least 1");
+    }
+
+    @Test
+    void processUptimeRegistered() {
+        Gauge uptime = registry.find("process.uptime").gauge();
+        assertNotNull(uptime, "process.uptime should be registered");
+        assertTrue(uptime.value() > 0, "Process uptime should be positive");
     }
 }

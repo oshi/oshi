@@ -49,6 +49,7 @@ public final class OshiMetrics implements MeterBinder {
     private final boolean disk;
     private final boolean fileSystem;
     private final boolean network;
+    private final boolean process;
 
     private OshiMetrics(Builder builder) {
         this.hal = builder.hal;
@@ -60,6 +61,7 @@ public final class OshiMetrics implements MeterBinder {
         this.disk = builder.disk;
         this.fileSystem = builder.fileSystem;
         this.network = builder.network;
+        this.process = builder.process;
     }
 
     /**
@@ -78,6 +80,7 @@ public final class OshiMetrics implements MeterBinder {
         this.disk = true;
         this.fileSystem = true;
         this.network = true;
+        this.process = true;
     }
 
     /**
@@ -114,6 +117,9 @@ public final class OshiMetrics implements MeterBinder {
         if (network) {
             new NetworkMetrics(hal::getNetworkIFs, os.getInternetProtocolStats()).bindTo(registry);
         }
+        if (process) {
+            new ProcessMetrics(os::getCurrentProcess).bindTo(registry);
+        }
     }
 
     /**
@@ -144,6 +150,7 @@ public final class OshiMetrics implements MeterBinder {
         private boolean disk = true;
         private boolean fileSystem = true;
         private boolean network = true;
+        private boolean process = true;
 
         private Builder(HardwareAbstractionLayer hal, OperatingSystem os) {
             this.hal = hal;
@@ -224,6 +231,17 @@ public final class OshiMetrics implements MeterBinder {
          */
         public Builder enableNetwork(boolean enabled) {
             this.network = enabled;
+            return this;
+        }
+
+        /**
+         * Enable or disable current process metrics (cpu, memory, disk, threads, faults, uptime).
+         *
+         * @param enabled whether to register process metrics
+         * @return this builder
+         */
+        public Builder enableProcess(boolean enabled) {
+            this.process = enabled;
             return this;
         }
 
