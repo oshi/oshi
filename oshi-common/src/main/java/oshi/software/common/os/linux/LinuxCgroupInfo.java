@@ -213,7 +213,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuQuotaV2() {
-        String cpuMax = FileUtil.getStringFromFile(getV2CgroupBase() + "cpu.max");
+        return readCpuQuotaV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readCpuQuotaV2(String basePath) {
+        String cpuMax = FileUtil.getStringFromFile(basePath + "cpu.max");
         if (cpuMax.isEmpty()) {
             return UNLIMITED;
         }
@@ -244,7 +249,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuPeriodV2() {
-        String cpuMax = FileUtil.getStringFromFile(getV2CgroupBase() + "cpu.max");
+        return readCpuPeriodV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readCpuPeriodV2(String basePath) {
+        String cpuMax = FileUtil.getStringFromFile(basePath + "cpu.max");
         if (cpuMax.isEmpty()) {
             return DEFAULT_CPU_PERIOD;
         }
@@ -262,7 +272,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readCpuUsageV2() {
-        List<String> lines = FileUtil.readFile(getV2CgroupBase() + "cpu.stat");
+        return readCpuUsageV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readCpuUsageV2(String basePath) {
+        List<String> lines = FileUtil.readFile(basePath + "cpu.stat");
         for (String line : lines) {
             if (line.startsWith("usage_usec")) {
                 String[] parts = line.split("\\s+");
@@ -291,7 +306,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readMemoryLimitV2() {
-        String memMax = FileUtil.getStringFromFile(getV2CgroupBase() + "memory.max");
+        return readMemoryLimitV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readMemoryLimitV2(String basePath) {
+        String memMax = FileUtil.getStringFromFile(basePath + "memory.max");
         if (memMax.isEmpty() || "max".equalsIgnoreCase(memMax.trim())) {
             return UNLIMITED_MEMORY;
         }
@@ -308,7 +328,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readMemoryUsageV2() {
-        String memCurrent = FileUtil.getStringFromFile(getV2CgroupBase() + "memory.current");
+        return readMemoryUsageV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readMemoryUsageV2(String basePath) {
+        String memCurrent = FileUtil.getStringFromFile(basePath + "memory.current");
         return ParseUtil.parseLongOrDefault(memCurrent.trim(), 0L);
     }
 
@@ -328,7 +353,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readPidLimitV2() {
-        String pidsMax = FileUtil.getStringFromFile(getV2CgroupBase() + "pids.max");
+        return readPidLimitV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readPidLimitV2(String basePath) {
+        String pidsMax = FileUtil.getStringFromFile(basePath + "pids.max");
         if (pidsMax.isEmpty() || "max".equalsIgnoreCase(pidsMax.trim())) {
             return UNLIMITED;
         }
@@ -346,7 +376,12 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private long readPidCurrentV2() {
-        String pidsCurrent = FileUtil.getStringFromFile(getV2CgroupBase() + "pids.current");
+        return readPidCurrentV2(getV2CgroupBase());
+    }
+
+    // package-private for testing
+    long readPidCurrentV2(String basePath) {
+        String pidsCurrent = FileUtil.getStringFromFile(basePath + "pids.current");
         return ParseUtil.parseLongOrDefault(pidsCurrent.trim(), 0L);
     }
 
