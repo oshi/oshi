@@ -35,6 +35,13 @@ class OshiMetricsTest {
     }
 
     @Test
+    void systemUptimeRegistered() {
+        Gauge uptime = registry.find("system.uptime").gauge();
+        assertNotNull(uptime, "system.uptime should be registered");
+        assertTrue(uptime.value() > 0, "System uptime should be positive");
+    }
+
+    @Test
     void memoryUsageRegistered() {
         Gauge used = registry.find("system.memory.usage").tag("system.memory.state", "used").gauge();
         Gauge free = registry.find("system.memory.usage").tag("system.memory.state", "free").gauge();
@@ -58,15 +65,39 @@ class OshiMetricsTest {
 
     @Test
     void cpuTimeRegistered() {
-        // Should have one counter per cpu.mode
         String[] modes = { "user", "nice", "system", "idle", "iowait", "interrupt", "softirq", "steal" };
         for (String mode : modes) {
             assertNotNull(registry.find("system.cpu.time").tag("cpu.mode", mode).functionCounter(),
                     "system.cpu.time{cpu.mode=" + mode + "} should be registered");
         }
-        // idle should be nonzero on any running system
         FunctionCounter idleCounter = registry.find("system.cpu.time").tag("cpu.mode", "idle").functionCounter();
         assertNotNull(idleCounter, "idle counter should exist");
         assertTrue(idleCounter.count() > 0, "Idle CPU time should be positive, got " + idleCounter.count());
+    }
+
+    @Test
+    void cpuPhysicalCountRegistered() {
+        Gauge count = registry.find("system.cpu.physical.count").gauge();
+        assertNotNull(count, "system.cpu.physical.count should be registered");
+        assertTrue(count.value() >= 1, "Physical CPU count should be at least 1");
+    }
+
+    @Test
+    void cpuLogicalCountRegistered() {
+        Gauge count = registry.find("system.cpu.logical.count").gauge();
+        assertNotNull(count, "system.cpu.logical.count should be registered");
+        assertTrue(count.value() >= 1, "Logical CPU count should be at least 1");
+        // logical >= physical
+        Gauge physical = registry.find("system.cpu.physical.count").gauge();
+        assertTrue(count.value() >= physical.value(), "Logical count should be >= physical count");
+    }
+
+    @Test
+    void cpuFrequencyRegistered() {
+        // At least cpu.logical_number=0 should exist
+        Gauge freq = registry.find("system.cpu.frequency").tag("cpu.logical_number", "0").gauge();
+        assertNotNull(freq, "system.cpu.frequency{cpu.logical_number=0} should be registered");
+        // Frequency may be 0 on some platforms (e.g., VMs), so just check non-negative
+        assertTrue(freq.value() >= 0, "CPU frequency should be non-negative");
     }
 }

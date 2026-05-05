@@ -60,6 +60,7 @@ public final class OshiMetrics implements MeterBinder {
 
     @Override
     public void bindTo(MeterRegistry registry) {
+        new GeneralMetrics(os).bindTo(registry);
         new MemoryMetrics(hal.getMemory()).bindTo(registry);
         new CpuMetrics(hal.getProcessor()).bindTo(registry);
     }
