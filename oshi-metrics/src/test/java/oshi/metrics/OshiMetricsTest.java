@@ -140,4 +140,55 @@ class OshiMetricsTest {
         assertTrue(in.count() >= 0, "Pages in should be non-negative");
         assertTrue(out.count() >= 0, "Pages out should be non-negative");
     }
+
+    @Test
+    void diskIoRegistered() {
+        // At least one disk should exist with read direction
+        FunctionCounter read = registry.find("system.disk.io").tag("disk.io.direction", "read").functionCounter();
+        FunctionCounter write = registry.find("system.disk.io").tag("disk.io.direction", "write").functionCounter();
+        assertNotNull(read, "system.disk.io{direction=read} should be registered");
+        assertNotNull(write, "system.disk.io{direction=write} should be registered");
+        assertTrue(read.count() >= 0, "Disk read bytes should be non-negative");
+    }
+
+    @Test
+    void diskOperationsRegistered() {
+        FunctionCounter read = registry.find("system.disk.operations").tag("disk.io.direction", "read")
+                .functionCounter();
+        assertNotNull(read, "system.disk.operations{direction=read} should be registered");
+        assertTrue(read.count() >= 0, "Disk read operations should be non-negative");
+    }
+
+    @Test
+    void diskIoTimeRegistered() {
+        FunctionCounter ioTime = registry.find("system.disk.io_time").functionCounter();
+        assertNotNull(ioTime, "system.disk.io_time should be registered");
+        assertTrue(ioTime.count() >= 0, "Disk io_time should be non-negative");
+    }
+
+    @Test
+    void diskLimitRegistered() {
+        Gauge limit = registry.find("system.disk.limit").gauge();
+        assertNotNull(limit, "system.disk.limit should be registered");
+        // Some disks (loop devices) may have size 0, just verify registration
+        assertTrue(limit.value() >= 0, "Disk limit should be non-negative");
+    }
+
+    @Test
+    void filesystemUsageRegistered() {
+        Gauge used = registry.find("system.filesystem.usage").tag("system.filesystem.state", "used").gauge();
+        Gauge free = registry.find("system.filesystem.usage").tag("system.filesystem.state", "free").gauge();
+        assertNotNull(used, "system.filesystem.usage{state=used} should be registered");
+        assertNotNull(free, "system.filesystem.usage{state=free} should be registered");
+        // Some filesystems (e.g., tmpfs) may report 0; just verify non-negative
+        assertTrue(used.value() >= 0, "Filesystem used should be non-negative");
+        assertTrue(free.value() >= 0, "Filesystem free should be non-negative");
+    }
+
+    @Test
+    void filesystemLimitRegistered() {
+        Gauge limit = registry.find("system.filesystem.limit").gauge();
+        assertNotNull(limit, "system.filesystem.limit should be registered");
+        assertTrue(limit.value() >= 0, "Filesystem limit should be non-negative");
+    }
 }

@@ -55,3 +55,25 @@ Users can implement this themselves using `CentralProcessor.getSystemCpuLoadBetw
 #### `system.paging.faults`
 
 This metric is **not implemented** because OSHI does not expose system-level major/minor page fault counters.
+
+### [Disk controller metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#disk-controller-metrics)
+
+| Metric | Instrument Type | Unit | Attributes | Description |
+|--------|----------------|------|------------|-------------|
+| `system.disk.io` | FunctionCounter | `By` | `system.device`, `disk.io.direction` | Disk bytes transferred (read, write) |
+| `system.disk.operations` | FunctionCounter | `{operation}` | `system.device`, `disk.io.direction` | Disk operations count (read, write) |
+| `system.disk.io_time` | FunctionCounter | `s` | `system.device` | Time disk spent activated |
+| `system.disk.limit` | Gauge | `By` | `system.device` | Total storage capacity of the disk |
+
+#### Not implemented
+
+- `system.disk.operation_time` — OSHI does not expose per-direction operation time
+- `system.disk.merged` — OSHI does not expose merged operation counts
+
+### [Filesystem metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#filesystem-metrics)
+
+| Metric | Instrument Type | Unit | Attributes | Description |
+|--------|----------------|------|------------|-------------|
+| `system.filesystem.usage` | Gauge | `By` | `system.device`, `system.filesystem.mountpoint`, `system.filesystem.type`, `system.filesystem.mode`, `system.filesystem.state` | Filesystem space usage (used, free) |
+| `system.filesystem.utilization` | Gauge | `1` | (same as above) | Fraction of filesystem space in use (0.0–1.0) |
+| `system.filesystem.limit` | Gauge | `By` | `system.device`, `system.filesystem.mountpoint`, `system.filesystem.type`, `system.filesystem.mode` | Total capacity of the filesystem |
