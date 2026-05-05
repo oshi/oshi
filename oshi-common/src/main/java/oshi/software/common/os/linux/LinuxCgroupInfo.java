@@ -190,12 +190,19 @@ public class LinuxCgroupInfo implements CgroupInfo {
             String[] parts = line.split(":");
             if (parts.length >= 3) {
                 String controllers = parts[1];
+                if (controllers.isEmpty()) {
+                    continue;
+                }
                 String path = parts[2];
-                if (controllers.contains(controller) || controllers.isEmpty()) {
-                    if (path.startsWith("/")) {
-                        path = path.substring(1);
+                // Exact match: split comma-separated controllers
+                for (String c : controllers.split(",")) {
+                    if (c.equals(controller)) {
+                        if (path.startsWith("/")) {
+                            path = path.substring(1);
+                        }
+                        // Use the full controllers string as the mount name (e.g., "cpu,cpuacct")
+                        return SysPath.CGROUP + controllers + "/" + path + "/";
                     }
-                    return SysPath.CGROUP + controller + "/" + path + "/";
                 }
             }
         }
