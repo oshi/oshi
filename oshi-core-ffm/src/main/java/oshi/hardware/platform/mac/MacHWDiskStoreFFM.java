@@ -50,6 +50,12 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
         updateDiskStats(session, mountPointMap, cfKeyMap);
     }
 
+    private MacHWDiskStoreFFM(String name, String model, String serial, long size, String diskType,
+            DASessionRef session, Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
+        super(name, model, serial, size, diskType);
+        updateDiskStats(session, mountPointMap, cfKeyMap);
+    }
+
     @Override
     public boolean updateAttributes() {
         try {
@@ -348,8 +354,8 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     if (size <= 0) {
                         continue;
                     }
-                    diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size, session,
-                            mountPointMap, cfKeyMap));
+                    diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size,
+                            detectDiskType(bsdName), session, mountPointMap, cfKeyMap));
                 }
             } finally {
                 session.release();
@@ -376,6 +382,75 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
             keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
         }
         return keyMap;
+    }
+
+    private static String detectDiskType(String bsdName) {
+        MemorySegment matchingDict = IOKitUtilFFM.getBSDNameMatchingDict(bsdName);
+        if (matchingDict == null || matchingDict.equals(MemorySegment.NULL)) {
+            return "Unknown";
+        }
+        IOIterator iter = IOKitUtilFFM.getMatchingServices(matchingDict);
+        if (iter == null) {
+            return "Unknown";
+        }
+        try {
+            IORegistryEntry media = iter.next();
+            if (media == null) {
+                return "Unknown";
+            }
+            try {
+                // Check removable at the IOMedia level
+                Boolean removable = media.getBooleanProperty("Removable");
+                if (removable != null && removable) {
+                    return "Removable";
+                }
+                // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
+                IORegistryEntry driver = media.getParentEntry("IOService");
+                if (driver != null) {
+                    try {
+                        IORegistryEntry device = driver.getParentEntry("IOService");
+                        if (device != null) {
+                            try {
+                                MemorySegment propsSeg = device.createCFProperties();
+                                if (!propsSeg.equals(MemorySegment.NULL)) {
+                                    CFDictionaryRef props = new CFDictionaryRef(propsSeg);
+                                    try {
+                                        MemorySegment charSeg = props
+                                                .getValue(CFStringRef.createCFString("Device Characteristics"));
+                                        if (!charSeg.equals(MemorySegment.NULL)) {
+                                            CFDictionaryRef chars = new CFDictionaryRef(charSeg);
+                                            MemorySegment typeSeg = chars
+                                                    .getValue(CFStringRef.createCFString("Medium Type"));
+                                            if (!typeSeg.equals(MemorySegment.NULL)) {
+                                                String type = new CFStringRef(typeSeg).stringValue();
+                                                if (type != null) {
+                                                    if (type.contains("Solid State") || type.contains("SSD")) {
+                                                        return "SSD";
+                                                    } else if (type.contains("Rotational")) {
+                                                        return "HDD";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } finally {
+                                        props.release();
+                                    }
+                                }
+                            } finally {
+                                device.release();
+                            }
+                        }
+                    } finally {
+                        driver.release();
+                    }
+                }
+            } finally {
+                media.release();
+            }
+        } finally {
+            iter.release();
+        }
+        return "Unknown";
     }
 
 }

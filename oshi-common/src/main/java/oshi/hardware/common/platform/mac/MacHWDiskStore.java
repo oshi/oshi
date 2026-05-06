@@ -31,6 +31,10 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
         super(name, model, serial, size);
     }
 
+    protected MacHWDiskStore(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     @Override
     public long getReads() {
         return reads;

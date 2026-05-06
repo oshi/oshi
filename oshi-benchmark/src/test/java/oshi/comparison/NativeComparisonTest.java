@@ -258,6 +258,7 @@ class NativeComparisonTest {
             assertThat(f.getModel()).isEqualTo(j.getModel());
             assertThat(f.getSerial()).isEqualTo(j.getSerial());
             assertThat(f.getSize()).isEqualTo(j.getSize());
+            assertThat(f.getDiskType()).as("diskType(%s)", j.getName()).isEqualTo(j.getDiskType());
             // Stats are nondecreasing; FFM called second
             assertThat(f.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
             assertThat(f.getReadBytes()).as("readBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
