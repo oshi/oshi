@@ -6,6 +6,7 @@ package oshi.driver.windows.perfmon;
 
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_FORMATTED_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
@@ -19,6 +20,7 @@ import com.sun.jna.platform.win32.VersionHelpers;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerformanceProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
@@ -102,5 +104,19 @@ public final class ProcessorInformationJNA {
         }
         return PerfCounterWildcardQuery.queryInstancesAndValues(ProcessorFrequencyProperty.class, PROCESSOR_INFORMATION,
                 WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
+    }
+
+    /**
+     * Returns processor performance percentage (cooked) from the WMI Formatted Data table. Values above 100 indicate
+     * turbo boost.
+     *
+     * @return Processor performance percentage for each processor, or empty if unavailable.
+     */
+    public static Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> queryProcessorPerformanceCounters() {
+        if (PerfmonDisabled.PERF_OS_DISABLED) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
+        return PerfCounterWildcardQuery.queryInstancesAndValuesFromWMI(ProcessorPerformanceProperty.class,
+                WIN32_PERF_FORMATTED_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }

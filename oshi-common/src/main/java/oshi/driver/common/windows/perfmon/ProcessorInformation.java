@@ -118,6 +118,28 @@ public final class ProcessorInformation {
     }
 
     /**
+     * Processor Performance counters from the WMI Formatted Data table. Reports above 100% with turbo boost. Requires
+     * Win8 or greater.
+     */
+    public enum ProcessorPerformanceProperty implements PdhCounterWildcardProperty {
+        // First element defines WMI instance name field and PDH instance filter
+        NAME(NOT_TOTAL_INSTANCES),
+        // Remaining elements define counters
+        PERCENTPROCESSORPERFORMANCE("% Processor Performance");
+
+        private final String counter;
+
+        ProcessorPerformanceProperty(String counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        public String getCounter() {
+            return counter;
+        }
+    }
+
+    /**
      * System performance counters
      */
     public enum SystemTickCountProperty implements PdhCounterProperty {

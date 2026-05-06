@@ -5,7 +5,10 @@
 * [#2857](https://github.com/oshi/oshi/issues/2857): Add disk type information (SSD, HDD, Removable, Virtual) - [@dbwiddis](https://github.com/dbwiddis).
 * [#2904](https://github.com/oshi/oshi/issues/2904): Add voluntary/involuntary context switch methods to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
 * [#3223](https://github.com/oshi/oshi/issues/3223): Add `oshi-metrics` module with Micrometer integration for system metrics following OpenTelemetry semantic conventions - [@dbwiddis](https://github.com/dbwiddis).
-* Your contribution here!
+
+##### Bug Fixes and Improvements
+
+* [#3233](https://github.com/oshi/oshi/pull/3233): Use WMI formatted `% Processor Performance` counter for Windows CPU frequency, reporting actual turbo boost speeds above base frequency - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.0.0 (2026-04-30), 7.0.1 (2026-05-02)
 
