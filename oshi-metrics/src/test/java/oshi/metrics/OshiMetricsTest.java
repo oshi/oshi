@@ -207,8 +207,8 @@ class OshiMetricsTest {
         Gauge free = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "free").gauge();
         assertNotNull(used, "system.filesystem.utilization{state=used} should be registered");
         assertNotNull(free, "system.filesystem.utilization{state=free} should be registered");
-        assertTrue(used.value() >= 0, "Filesystem utilization used should be non-negative");
-        assertTrue(free.value() >= 0, "Filesystem utilization free should be non-negative");
+        assertTrue(used.value() >= 0 && used.value() <= 1, "Filesystem utilization used should be in [0,1]");
+        assertTrue(free.value() >= 0 && free.value() <= 1, "Filesystem utilization free should be in [0,1]");
     }
 
     @Test
@@ -252,8 +252,8 @@ class OshiMetricsTest {
     void builderSelectiveRegistration() {
         MeterRegistry selective = new SimpleMeterRegistry();
         OshiMetrics.builder(hal, os).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
-                .enableFileSystem(false).enableNetwork(false).enableGeneral(false).enableProcess(false).build()
-                .bindTo(selective);
+                .enableFileSystem(false).enableNetwork(false).enableGeneral(false).enableProcess(false)
+                .enableContainer(false).build().bindTo(selective);
         // CPU should be registered
         assertNotNull(selective.find("system.cpu.time").functionCounter(), "CPU metrics should be registered");
         // Memory should NOT be registered

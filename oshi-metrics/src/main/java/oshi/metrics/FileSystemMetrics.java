@@ -59,32 +59,43 @@ public class FileSystemMetrics implements MeterBinder {
             String device = fs.getVolume();
             String mount = fs.getMount();
             String type = fs.getType();
-            String mode = fs.getOptions().contains("rw") ? "rw" : "ro";
+            String opts = fs.getOptions();
+            String mode = opts != null && java.util.Arrays.asList(opts.split(",")).contains("rw") ? "rw" : "ro";
 
             // system.filesystem.usage — UpDownCounter (Gauge), unit "By", attr: state, device, mount, type, mode
-            Gauge.builder(FS_USAGE, fs, f -> Math.max(0L, f.getTotalSpace() - f.getUsableSpace()))
-                    .tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
+            Gauge.builder(FS_USAGE, fs, f -> {
+                f.updateAttributes();
+                return Math.max(0L, f.getTotalSpace() - f.getUsableSpace());
+            }).tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
                     .tag(MODE_KEY, mode).description("Filesystem space usage").baseUnit("By").strongReference(true)
                     .register(registry);
-            Gauge.builder(FS_USAGE, fs, OSFileStore::getUsableSpace).tag(STATE_KEY, "free").tag(DEVICE_KEY, device)
-                    .tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type).tag(MODE_KEY, mode)
-                    .description("Filesystem space usage").baseUnit("By").strongReference(true).register(registry);
+            Gauge.builder(FS_USAGE, fs, f -> {
+                f.updateAttributes();
+                return (double) f.getUsableSpace();
+            }).tag(STATE_KEY, "free").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
+                    .tag(MODE_KEY, mode).description("Filesystem space usage").baseUnit("By").strongReference(true)
+                    .register(registry);
 
             // system.filesystem.utilization — Gauge, unit "1", attr: state, device, mount, type, mode
-            Gauge.builder(FS_UTILIZATION, fs,
-                    f -> f.getTotalSpace() == 0 ? 0d
-                            : Math.max(0d, (double) (f.getTotalSpace() - f.getUsableSpace()) / f.getTotalSpace()))
-                    .tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
+            Gauge.builder(FS_UTILIZATION, fs, f -> {
+                f.updateAttributes();
+                return f.getTotalSpace() == 0 ? 0d
+                        : Math.max(0d, (double) (f.getTotalSpace() - f.getUsableSpace()) / f.getTotalSpace());
+            }).tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
                     .tag(MODE_KEY, mode).description("Filesystem utilization").strongReference(true).register(registry);
-            Gauge.builder(FS_UTILIZATION, fs,
-                    f -> f.getTotalSpace() == 0 ? 0d : (double) f.getUsableSpace() / f.getTotalSpace())
-                    .tag(STATE_KEY, "free").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
+            Gauge.builder(FS_UTILIZATION, fs, f -> {
+                f.updateAttributes();
+                return f.getTotalSpace() == 0 ? 0d : (double) f.getUsableSpace() / f.getTotalSpace();
+            }).tag(STATE_KEY, "free").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
                     .tag(MODE_KEY, mode).description("Filesystem utilization").strongReference(true).register(registry);
 
             // system.filesystem.limit — UpDownCounter (Gauge), unit "By", attr: device, mount, type, mode
-            Gauge.builder(FS_LIMIT, fs, OSFileStore::getTotalSpace).tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount)
-                    .tag(TYPE_KEY, type).tag(MODE_KEY, mode).description("Total capacity of the filesystem")
-                    .baseUnit("By").strongReference(true).register(registry);
+            Gauge.builder(FS_LIMIT, fs, f -> {
+                f.updateAttributes();
+                return (double) f.getTotalSpace();
+            }).tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type).tag(MODE_KEY, mode)
+                    .description("Total capacity of the filesystem").baseUnit("By").strongReference(true)
+                    .register(registry);
         }
     }
 }

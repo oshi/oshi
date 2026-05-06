@@ -58,11 +58,12 @@ OshiMetrics.builder(si.getHardware(), si.getOperatingSystem())
     .enableFileSystem(true)
     .enableNetwork(false)
     .enableProcess(true)
+    .enableContainer(true)
     .build()
     .bindTo(registry);
 ```
 
-All categories are enabled by default.
+All categories are enabled by default. Categories: `general`, `cpu`, `memory`, `paging`, `disk`, `fileSystem`, `network`, `process`, `container`.
 
 ### Spring Boot
 
@@ -178,3 +179,19 @@ Not implemented — OSHI does not expose system-level major/minor page fault cou
 #### Not implemented
 
 - `process.network.io` — OSHI does not expose per-process network I/O
+
+### [Container metrics](https://opentelemetry.io/docs/specs/semconv/system/container-metrics/) (when containerized)
+
+| Metric | Instrument Type | Unit | Description |
+|--------|----------------|------|-------------|
+| `container.uptime` | Gauge | `s` | Time the container has been running (from PID 1 start time) |
+| `container.cpu.time` | FunctionCounter | `s` | Total CPU time consumed by the container |
+| `container.memory.usage` | Gauge | `By` | Container memory usage |
+| `container.memory.available` | Gauge | `By` | Container memory available (limit - usage, only when limit is set) |
+
+#### Not implemented
+
+- `container.cpu.usage` — requires polling interval
+- `container.disk.io`, `container.network.io` — OSHI does not expose per-cgroup I/O
+- `container.memory.rss`, `container.memory.working_set`, `container.memory.paging.faults` — not available via CgroupInfo
+- `container.filesystem.*` — not available via CgroupInfo

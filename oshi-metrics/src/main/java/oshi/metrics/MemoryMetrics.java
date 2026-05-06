@@ -47,16 +47,18 @@ public class MemoryMetrics implements MeterBinder {
     @Override
     public void bindTo(MeterRegistry registry) {
         Gauge.builder(MEMORY_USAGE, memory, mem -> mem.getTotal() - mem.getAvailable()).tags(Tags.of(STATE_USED))
-                .description("Memory used in bytes").baseUnit("By").register(registry);
+                .description("Memory used in bytes").baseUnit("By").strongReference(true).register(registry);
         Gauge.builder(MEMORY_USAGE, memory, GlobalMemory::getAvailable).tags(Tags.of(STATE_FREE))
-                .description("Memory available in bytes").baseUnit("By").register(registry);
+                .description("Memory available in bytes").baseUnit("By").strongReference(true).register(registry);
         Gauge.builder(MEMORY_LIMIT, memory, GlobalMemory::getTotal).description("Total memory available in the system")
-                .baseUnit("By").register(registry);
+                .baseUnit("By").strongReference(true).register(registry);
         Gauge.builder(MEMORY_UTILIZATION, memory,
                 mem -> mem.getTotal() == 0 ? 0d : (double) (mem.getTotal() - mem.getAvailable()) / mem.getTotal())
-                .tags(Tags.of(STATE_USED)).description("Fraction of memory used").register(registry);
+                .tags(Tags.of(STATE_USED)).description("Fraction of memory used").strongReference(true)
+                .register(registry);
         Gauge.builder(MEMORY_UTILIZATION, memory,
                 mem -> mem.getTotal() == 0 ? 0d : (double) mem.getAvailable() / mem.getTotal())
-                .tags(Tags.of(STATE_FREE)).description("Fraction of memory free").register(registry);
+                .tags(Tags.of(STATE_FREE)).description("Fraction of memory free").strongReference(true)
+                .register(registry);
     }
 }

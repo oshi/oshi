@@ -83,31 +83,46 @@ public class NetworkMetrics implements MeterBinder {
             String device = net.getName();
 
             // system.network.io — Counter, unit "By", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_IO, net, NetworkIF::getBytesRecv).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "receive").description("Network bytes transferred").baseUnit("By")
-                    .register(registry);
-            FunctionCounter.builder(NET_IO, net, NetworkIF::getBytesSent).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "transmit").description("Network bytes transferred").baseUnit("By")
-                    .register(registry);
+            FunctionCounter.builder(NET_IO, net, n -> {
+                n.updateAttributes();
+                return n.getBytesRecv();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network bytes transferred")
+                    .baseUnit("By").register(registry);
+            FunctionCounter.builder(NET_IO, net, n -> {
+                n.updateAttributes();
+                return n.getBytesSent();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network bytes transferred")
+                    .baseUnit("By").register(registry);
 
             // system.network.packet.count — Counter, unit "{packet}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_PACKETS, net, NetworkIF::getPacketsRecv).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "receive").description("Network packets transferred").baseUnit("{packet}")
-                    .register(registry);
-            FunctionCounter.builder(NET_PACKETS, net, NetworkIF::getPacketsSent).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "transmit").description("Network packets transferred").baseUnit("{packet}")
-                    .register(registry);
+            FunctionCounter.builder(NET_PACKETS, net, n -> {
+                n.updateAttributes();
+                return n.getPacketsRecv();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network packets transferred")
+                    .baseUnit("{packet}").register(registry);
+            FunctionCounter.builder(NET_PACKETS, net, n -> {
+                n.updateAttributes();
+                return n.getPacketsSent();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network packets transferred")
+                    .baseUnit("{packet}").register(registry);
 
             // system.network.packet.dropped — Counter, unit "{packet}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_DROPPED, net, NetworkIF::getInDrops).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "receive").description("Count of packets dropped").baseUnit("{packet}")
-                    .register(registry);
+            FunctionCounter.builder(NET_DROPPED, net, n -> {
+                n.updateAttributes();
+                return n.getInDrops();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Count of packets dropped")
+                    .baseUnit("{packet}").register(registry);
 
             // system.network.errors — Counter, unit "{error}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_ERRORS, net, NetworkIF::getInErrors).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "receive").description("Network errors").baseUnit("{error}").register(registry);
-            FunctionCounter.builder(NET_ERRORS, net, NetworkIF::getOutErrors).tag(DEVICE_KEY, device)
-                    .tag(DIRECTION_KEY, "transmit").description("Network errors").baseUnit("{error}")
+            FunctionCounter.builder(NET_ERRORS, net, n -> {
+                n.updateAttributes();
+                return n.getInErrors();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network errors").baseUnit("{error}")
+                    .register(registry);
+            FunctionCounter.builder(NET_ERRORS, net, n -> {
+                n.updateAttributes();
+                return n.getOutErrors();
+            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network errors").baseUnit("{error}")
                     .register(registry);
         }
 
@@ -131,22 +146,26 @@ public class NetworkMetrics implements MeterBinder {
                 .register(registry);
     }
 
-    private synchronized void refreshCache() {
-        long now = System.currentTimeMillis();
-        if (now - cacheTimestamp > CACHE_TTL_MS) {
-            List<IPConnection> connections = ipStats.getConnections();
-            Map<TcpState, Long> tcp = new EnumMap<>(TcpState.class);
-            long udp = 0;
-            for (IPConnection conn : connections) {
-                if (conn.getType().startsWith("tcp")) {
-                    tcp.merge(conn.getState(), 1L, Long::sum);
-                } else if (conn.getType().startsWith("udp")) {
-                    udp++;
+    private void refreshCache() {
+        if (System.currentTimeMillis() - cacheTimestamp > CACHE_TTL_MS) {
+            synchronized (this) {
+                long now = System.currentTimeMillis();
+                if (now - cacheTimestamp > CACHE_TTL_MS) {
+                    List<IPConnection> connections = ipStats.getConnections();
+                    Map<TcpState, Long> tcp = new EnumMap<>(TcpState.class);
+                    long udp = 0;
+                    for (IPConnection conn : connections) {
+                        if (conn.getType().startsWith("tcp")) {
+                            tcp.merge(conn.getState(), 1L, Long::sum);
+                        } else if (conn.getType().startsWith("udp")) {
+                            udp++;
+                        }
+                    }
+                    this.tcpCounts = tcp;
+                    this.udpCount = udp;
+                    this.cacheTimestamp = now;
                 }
             }
-            this.tcpCounts = tcp;
-            this.udpCount = udp;
-            this.cacheTimestamp = now;
         }
     }
 

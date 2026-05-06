@@ -50,6 +50,7 @@ public final class OshiMetrics implements MeterBinder {
     private final boolean fileSystem;
     private final boolean network;
     private final boolean process;
+    private final boolean container;
 
     private OshiMetrics(Builder builder) {
         this.hal = builder.hal;
@@ -62,6 +63,7 @@ public final class OshiMetrics implements MeterBinder {
         this.fileSystem = builder.fileSystem;
         this.network = builder.network;
         this.process = builder.process;
+        this.container = builder.container;
     }
 
     /**
@@ -81,6 +83,7 @@ public final class OshiMetrics implements MeterBinder {
         this.fileSystem = true;
         this.network = true;
         this.process = true;
+        this.container = true;
     }
 
     /**
@@ -120,6 +123,9 @@ public final class OshiMetrics implements MeterBinder {
         if (process) {
             new ProcessMetrics(os::getCurrentProcess).bindTo(registry);
         }
+        if (container) {
+            new ContainerMetrics(os, os.getCgroupInfo()).bindTo(registry);
+        }
     }
 
     /**
@@ -151,6 +157,7 @@ public final class OshiMetrics implements MeterBinder {
         private boolean fileSystem = true;
         private boolean network = true;
         private boolean process = true;
+        private boolean container = true;
 
         private Builder(HardwareAbstractionLayer hal, OperatingSystem os) {
             this.hal = java.util.Objects.requireNonNull(hal, "hal must not be null");
@@ -242,6 +249,17 @@ public final class OshiMetrics implements MeterBinder {
          */
         public Builder enableProcess(boolean enabled) {
             this.process = enabled;
+            return this;
+        }
+
+        /**
+         * Enable or disable container metrics (cpu time, memory usage/available).
+         *
+         * @param enabled whether to register container metrics
+         * @return this builder
+         */
+        public Builder enableContainer(boolean enabled) {
+            this.container = enabled;
             return this;
         }
 
