@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
-[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/oshi/oshi)](https://app.coderabbit.ai/dashboard/summary)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/oshi/oshi?utm_source=oss&amp;utm_medium=github&amp;utm_campaign=oshi%2Foshi&amp;labelColor=171717&amp;color=FF570A&amp;link=https%3A%2F%2Fcoderabbit.ai&amp;label=CodeRabbit+Reviews)](https://app.coderabbit.ai/dashboard/summary)
 [![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)](https://github.com/oshi/oshi/graphs/contributors)
 
 OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.

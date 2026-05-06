@@ -4,7 +4,15 @@
  */
 package oshi.util;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.NotThreadSafe;
 import oshi.hardware.CentralProcessor;
@@ -12,12 +20,17 @@ import oshi.hardware.CentralProcessor;
 /**
  * The global configuration utility. See {@code src/main/resources/oshi.properties} for default values.
  * <p>
- * Configuration values set as Java System Properties using {@link System#setProperty(String, String)} will override
- * values from the {@code oshi.properties} file, but may then be later altered using {@link #set(String, Object)} or
- * {@link #remove(String)}.
+ * Configuration is resolved in the following precedence order (highest wins):
+ * <ol>
+ * <li>{@link #set(String, Object)} — programmatic, at runtime</li>
+ * <li>Java system properties ({@code -Doshi.*})</li>
+ * <li>Environment variables ({@code OSHI_*}) — mapped by uppercasing and replacing dots with underscores</li>
+ * <li>External properties file ({@code -Doshi.properties.file=/path/to/file})</li>
+ * <li>{@code oshi.properties} on the classpath (defaults)</li>
+ * </ol>
  * <p>
  * This class is not thread safe if methods manipulating the configuration are used. These methods are intended for use
- * by a single thread at startup, before instantiation of any other OSHI classes. OSHI does not guarantee re- reading of
+ * by a single thread at startup, before instantiation of any other OSHI classes. OSHI does not guarantee re-reading of
  * any configuration changes.
  */
 @NotThreadSafe
@@ -25,14 +38,54 @@ public final class GlobalConfig {
 
     private static final String OSHI_PROPERTIES = "oshi.properties";
 
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalConfig.class);
+
     private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
     static {
-        System.getProperties().forEach((k, v) -> {
-            String key = k.toString();
-            if (key.startsWith("oshi.")) {
-                set(key, v);
+        loadExternalConfig(CONFIG);
+    }
+
+    // package-private for testing
+    static void loadExternalConfig(Properties config) {
+        // External properties file: system property takes precedence, env var as fallback
+        String externalFile = System.getProperty("oshi.properties.file");
+        if (externalFile == null || externalFile.isEmpty()) {
+            externalFile = System.getenv("OSHI_PROPERTIES_FILE");
+        }
+        if (externalFile != null && !externalFile.isEmpty()) {
+            try (InputStream is = new FileInputStream(externalFile)) {
+                config.load(is);
+            } catch (FileNotFoundException e) {
+                LOG.debug("External properties file '{}' not found, continuing", externalFile);
+            } catch (IOException e) {
+                LOG.debug("Failed to load external properties file '{}'", externalFile, e);
+            }
+        }
+        // Environment variables (OSHI_*) override external file and classpath defaults
+        System.getenv().forEach((k, v) -> {
+            if (k.startsWith("OSHI_") && !"OSHI_PROPERTIES_FILE".equals(k)) {
+                config.setProperty(envKeyToProperty(k), v);
             }
         });
+        // System properties (-Doshi.*) override everything else
+        System.getProperties().forEach((k, v) -> {
+            String key = k.toString();
+            if (key.startsWith("oshi.") && !"oshi.properties.file".equals(key)) {
+                config.setProperty(key, v.toString());
+            }
+        });
+    }
+
+    /**
+     * Converts an environment variable name to a property key. For example, {@code OSHI_OS_LINUX_PRIVILEGED_PREFIX}
+     * becomes {@code oshi.os.linux.privileged.prefix}.
+     *
+     * @param envKey the environment variable name (e.g., {@code OSHI_UTIL_MEMOIZER_EXPIRATION})
+     * @return the corresponding property key
+     */
+    // package-private for testing
+    static String envKeyToProperty(String envKey) {
+        return envKey.toLowerCase(Locale.ROOT).replace('_', '.');
     }
 
     /**
@@ -184,13 +237,13 @@ public final class GlobalConfig {
      * access the same data structures. The command-line variant may use reentrant code on some platforms. Default is
      * {@code false}.
      */
-    public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whoCommand";
+    public static final String OSHI_OS_UNIX_WHOCOMMAND = "oshi.os.unix.whocommand";
     /**
      * Whether to allow use of the kstat2 API on Solaris 11.4+. The new API offers additional features but may have a
      * file descriptor leak when parallel GC is in use. Set to {@code false} to always use the original kstat API.
      * Default is {@code true}.
      */
-    public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = "oshi.os.solaris.allowKstat2";
+    public static final String OSHI_OS_SOLARIS_ALLOWKSTAT2 = "oshi.os.solaris.allowkstat2";
 
     /**
      * The command prefix to prepend for privileged command execution on Linux (e.g., {@code "sudo -n"} for
@@ -216,15 +269,11 @@ public final class GlobalConfig {
      * normal file read fails due to permissions. Supports Java glob patterns ({@code *}, {@code ?}, {@code [abc]}).
      * <p>
      * <b>Security warning:</b> Take care when adding paths. Allowing privileged reads of sensitive files such as
-     * {@code /proc/*
-     /
-    environ} can expose credentials to unprivileged users. Default is the empty
-     *
-     * string (no files allowed).
+     * process environ files can expose credentials to unprivileged users. Default is the empty string (no files
+     * allowed).
      *
      * @see #OSHI_OS_LINUX_PRIVILEGED_PREFIX
      */
-
     public static final String OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST = "oshi.os.linux.privileged.file.allowlist";
 
     private GlobalConfig() {

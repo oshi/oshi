@@ -351,7 +351,7 @@ public interface OperatingSystem {
      * <p>
      * The {@code Who#queryWho()} method produces similar output parsing the output of the Posix-standard {@code who}
      * command, and may internally employ reentrant code on some platforms. Users may opt to use this command-line
-     * variant by default using the {@code oshi.os.unix.whoCommand} configuration property.
+     * variant by default using the {@code oshi.os.unix.whocommand} configuration property.
      *
      * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users
      */

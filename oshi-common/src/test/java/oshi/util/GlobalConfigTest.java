@@ -16,11 +16,15 @@ import static oshi.util.GlobalConfig.remove;
 import static oshi.util.GlobalConfig.set;
 import static oshi.util.GlobalConfigTest.GlobalConfigAsserter.asserter;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 
 import oshi.util.GlobalConfig.PropertyException;
@@ -121,6 +125,56 @@ class GlobalConfigTest {
                 "/proc/*/io,/sys/devices/virtual/dmi/id/product_serial");
         assertThat(get(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""),
                 is("/proc/*/io,/sys/devices/virtual/dmi/id/product_serial"));
+    }
+
+    @Test
+    void testLoadExternalConfig(@TempDir Path tempDir) throws Exception {
+        // Write a temp properties file
+        Path propsFile = tempDir.resolve("test-oshi.properties");
+        Files.write(propsFile, "oshi.test.external=fromfile\n".getBytes(StandardCharsets.UTF_8));
+
+        // Set system property to point to it
+        System.setProperty("oshi.properties.file", propsFile.toString());
+        try {
+            Properties config = new Properties();
+            GlobalConfig.loadExternalConfig(config);
+            // External file value should be loaded
+            assertThat(config.getProperty("oshi.test.external"), is("fromfile"));
+            // System property override should win
+            System.setProperty("oshi.test.external", "fromsysprop");
+            config = new Properties();
+            GlobalConfig.loadExternalConfig(config);
+            assertThat(config.getProperty("oshi.test.external"), is("fromsysprop"));
+        } finally {
+            System.clearProperty("oshi.properties.file");
+            System.clearProperty("oshi.test.external");
+        }
+    }
+
+    @Test
+    void testLoadExternalConfigMissingFile() {
+        // Non-existent file should not throw or mutate config
+        System.setProperty("oshi.properties.file", "/nonexistent/path/oshi.properties");
+        try {
+            Properties config = new Properties();
+            GlobalConfig.loadExternalConfig(config);
+            assertThat("Config should not contain the meta-property", config.getProperty("oshi.properties.file"),
+                    is((String) null));
+        } finally {
+            System.clearProperty("oshi.properties.file");
+        }
+    }
+
+    @Test
+    void testEnvKeyToProperty() {
+        assertThat(GlobalConfig.envKeyToProperty("OSHI_OS_LINUX_PRIVILEGED_PREFIX"),
+                is("oshi.os.linux.privileged.prefix"));
+        assertThat(GlobalConfig.envKeyToProperty("OSHI_UTIL_MEMOIZER_EXPIRATION"), is("oshi.util.memoizer.expiration"));
+        assertThat(GlobalConfig.envKeyToProperty("OSHI_UTIL_PROC_PATH"), is("oshi.util.proc.path"));
+        // Verify renamed constants match their env var mapping
+        assertThat(GlobalConfig.envKeyToProperty("OSHI_OS_UNIX_WHOCOMMAND"), is(GlobalConfig.OSHI_OS_UNIX_WHOCOMMAND));
+        assertThat(GlobalConfig.envKeyToProperty("OSHI_OS_SOLARIS_ALLOWKSTAT2"),
+                is(GlobalConfig.OSHI_OS_SOLARIS_ALLOWKSTAT2));
     }
 
     private Properties propertiesWith(String value) {

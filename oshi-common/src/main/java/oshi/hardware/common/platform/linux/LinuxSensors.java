@@ -43,7 +43,7 @@ class LinuxSensors extends AbstractSensors {
      * </ul>
      */
     public static final String OSHI_HWMON_NAME_PRIORITY = "oshi.os.linux.sensors.hwmon.names";
-    public static final String OSHI_THERMAL_ZONE_TYPE_PRIORITY = "oshi.os.linux.sensors.cpuTemperature.types";
+    public static final String OSHI_THERMAL_ZONE_TYPE_PRIORITY = "oshi.os.linux.sensors.cputemperature.types";
 
     private static final List<String> HWMON_NAME_PRIORITY = Stream.of(GlobalConfig
             .get(OSHI_HWMON_NAME_PRIORITY, "coretemp,k10temp,zenpower,k8temp,via-cputemp,acpitz").split(","))

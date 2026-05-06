@@ -1,5 +1,17 @@
 # Guide to upgrading from OSHI 6.x to 7.x
 
+## Configuration property key changes (7.1.0)
+
+Three property keys have been renamed to use consistent all-lowercase naming, enabling environment variable configuration:
+
+| Old key | New key |
+|---------|---------|
+| `oshi.os.unix.whoCommand` | `oshi.os.unix.whocommand` |
+| `oshi.os.solaris.allowKstat2` | `oshi.os.solaris.allowkstat2` |
+| `oshi.os.linux.sensors.cpuTemperature.types` | `oshi.os.linux.sensors.cputemperature.types` |
+
+If you reference these keys in your `oshi.properties` file, update them to the new lowercase names. Old camelCase keys (`whoCommand`, `allowKstat2`, `cpuTemperature.types`) will be silently ignored if present. The Java constant names (`OSHI_OS_UNIX_WHOCOMMAND`, `OSHI_OS_SOLARIS_ALLOWKSTAT2`) are unchanged.
+
 ## Deprecated method and class removal
 
 ### Process memory: `getResidentSetSize()` replaced by two methods

@@ -11,6 +11,7 @@
   * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
   * [Does OSHI work in containers (Docker, Kubernetes)?](#does-oshi-work-in-containers-docker-kubernetes)
+  * [How do I configure OSHI?](#how-do-i-configure-oshi)
   * [How does OSHI support the Principle of Least Privilege?](#how-does-oshi-support-the-principle-of-least-privilege)
   * [How do I get CPU usage?](#how-do-i-get-cpu-usage)
   * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
@@ -68,7 +69,7 @@ each class. The following classes are not thread-safe:
  However, these methods are intended to be used by a single thread at startup in lieu of reading a configuration file.
  OSHI gives no guarantees on re-reading changed configurations.
  - On non-Windows platforms, the `getSessions()` method on the `OperatingSystem` interface uses native code which is not thread safe. While OSHI's methods employ synchronization to coordinate access from its own threads, users are cautioned that other operating system code may access the same underlying data structures and produce unexpected results, particularly on servers with frequent new logins.
-The `oshi.os.unix.whoCommand` property may be set to parse the Posix-standard `who` command in preference to the native implementation,
+The `oshi.os.unix.whocommand` property may be set to parse the Posix-standard `who` command in preference to the native implementation,
 which may use reentrant code on some platforms.
  - The `PerfCounterQueryHandler` class is not thread-safe but is only internally used in single-thread contexts,
 and is not intended for user use.
@@ -174,6 +175,126 @@ long cpuPeriod = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_period_us"
 
 // Memory limit (bytes)
 long memLimit = FileUtil.getLongFromFile("/sys/fs/cgroup/memory/memory.limit_in_bytes");
+```
+
+## How do I configure OSHI?
+
+OSHI supports multiple configuration mechanisms with a clear precedence order. Higher-priority sources override lower ones:
+
+| Priority | Source | Example |
+|----------|--------|---------|
+| 1 (highest) | `GlobalConfig.set()` in Java code | `GlobalConfig.set("oshi.os.linux.privileged.prefix", "sudo -n");` |
+| 2 | Java system properties | `java -Doshi.os.linux.privileged.prefix="sudo -n" -jar app.jar` |
+| 3 | Environment variables (`OSHI_*`) | `export OSHI_OS_LINUX_PRIVILEGED_PREFIX="sudo -n"` |
+| 4 | External properties file | `java -Doshi.properties.file=/etc/oshi.conf -jar app.jar` |
+| 5 (lowest) | `oshi.properties` on classpath | Place in `src/main/resources/oshi.properties` |
+
+### Environment variables
+
+Environment variables use the convention: uppercase the property name and replace dots with underscores.
+
+| Property key | Environment variable |
+|---|---|
+| `oshi.os.linux.privileged.prefix` | `OSHI_OS_LINUX_PRIVILEGED_PREFIX` |
+| `oshi.util.memoizer.expiration` | `OSHI_UTIL_MEMOIZER_EXPIRATION` |
+| `oshi.util.proc.path` | `OSHI_UTIL_PROC_PATH` |
+
+This is the recommended approach for containers, Kubernetes, and 12-factor apps:
+
+```sh
+# Docker
+docker run -e OSHI_OS_LINUX_PRIVILEGED_PREFIX="sudo -n" myapp
+
+# Kubernetes (in pod spec)
+env:
+  - name: OSHI_OS_LINUX_PRIVILEGED_PREFIX
+    value: "sudo -n"
+```
+
+### External properties file
+
+Point OSHI at a properties file on disk using the `oshi.properties.file` system property:
+
+```sh
+java -Doshi.properties.file=/etc/oshi.conf -jar app.jar
+```
+
+This is useful for server deployments where config lives in `/etc/` or Docker containers mounting config files as volumes.
+
+### Java system properties
+
+Pass properties on the command line with `-D`:
+
+```sh
+java -Doshi.os.linux.privileged.prefix="sudo -n" -Doshi.util.memoizer.expiration=500 -jar app.jar
+```
+
+### Programmatic configuration
+
+Set values in Java code at startup, before creating any OSHI objects:
+
+```java
+GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");
+GlobalConfig.set(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 500);
+```
+
+### Properties file
+
+Place an `oshi.properties` file in `src/main/resources/` to override defaults. See the [default oshi.properties](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) for all available keys and their defaults.
+
+### Spring Boot integration
+
+Spring Boot does not automatically propagate its `application.yml` properties to Java system properties. Use one of these approaches:
+
+**Option A** — Set environment variables (works with the new `OSHI_*` support):
+```yaml
+# In your deployment config or docker-compose.yml
+environment:
+  OSHI_OS_LINUX_PRIVILEGED_PREFIX: "sudo -n"
+```
+
+**Option B** — Bridge all `oshi.*` properties from `application.yml` (recommended for Spring Boot):
+
+```yaml
+# application.yml
+oshi:
+  os:
+    linux:
+      privileged:
+        prefix: "sudo -n"
+  util:
+    memoizer:
+      expiration: 500
+```
+
+```java
+@Configuration
+public class OshiConfig {
+    @Autowired
+    private Environment env;
+
+    @PostConstruct
+    void init() {
+        // Bridge any oshi.* properties from Spring Environment to OSHI GlobalConfig
+        for (String key : new String[] {
+                GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX,
+                GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST,
+                GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST,
+                GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION
+                // Add other keys as needed
+        }) {
+            String value = env.getProperty(key);
+            if (value != null) {
+                GlobalConfig.set(key, value);
+            }
+        }
+    }
+}
+```
+
+**Option C** — Use `-D` flags in your startup script:
+```sh
+java -Doshi.os.linux.privileged.prefix="sudo -n" -jar myapp.jar
 ```
 
 ## How does OSHI support the Principle of Least Privilege?

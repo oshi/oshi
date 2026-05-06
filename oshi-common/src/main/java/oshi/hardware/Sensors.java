@@ -38,7 +38,7 @@ public interface Sensors {
      *         <p>
      *         On Linux, values are read from hwmon sensors or thermal zones. The sensor names and priority can be
      *         configured via {@code oshi.os.linux.sensors.hwmon.names} and
-     *         {@code oshi.os.linux.sensors.cpuTemperature.types} in the configuration.
+     *         {@code oshi.os.linux.sensors.cputemperature.types} in the configuration.
      */
     double getCpuTemperature();
 

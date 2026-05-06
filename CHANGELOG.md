@@ -1,6 +1,7 @@
 # 7.1.0 (in progress)
 
 * [#3225](https://github.com/oshi/oshi/pull/3225): Add CgroupInfo API with Linux cgroup v1/v2 support - [@rohan-coder02](https://github.com/rohan-coder02).
+* [#3229](https://github.com/oshi/oshi/pull/3229): Support environment variables (`OSHI_*`) for configuration - [@dbwiddis](https://github.com/dbwiddis).
 * [#3223](https://github.com/oshi/oshi/issues/3223): Add `oshi-metrics` module with Micrometer integration for system metrics following OpenTelemetry semantic conventions - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
