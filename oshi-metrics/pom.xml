@@ -17,7 +17,7 @@
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.testRelease>17</maven.compiler.testRelease>
-        <micrometer.version>1.14.11</micrometer.version>
+        <micrometer.version>1.16.5</micrometer.version>
     </properties>
 
     <dependencies>
