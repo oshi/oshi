@@ -12,16 +12,12 @@ import oshi.hardware.CentralProcessor;
 /**
  * The global configuration utility. See {@code src/main/resources/oshi.properties} for default values.
  * <p>
- * Configuration is resolved in the following precedence order (highest wins):
- * <ol>
- * <li>{@link #set(String, Object)} — programmatic, at runtime</li>
- * <li>Java system properties ({@code -Doshi.*})</li>
- * <li>Environment variables ({@code OSHI_*}) — mapped by uppercasing and replacing dots with underscores</li>
- * <li>{@code oshi.properties} on the classpath (defaults)</li>
- * </ol>
+ * Configuration values set as Java System Properties using {@link System#setProperty(String, String)} will override
+ * values from the {@code oshi.properties} file, but may then be later altered using {@link #set(String, Object)} or
+ * {@link #remove(String)}.
  * <p>
  * This class is not thread safe if methods manipulating the configuration are used. These methods are intended for use
- * by a single thread at startup, before instantiation of any other OSHI classes. OSHI does not guarantee re-reading of
+ * by a single thread at startup, before instantiation of any other OSHI classes. OSHI does not guarantee re- reading of
  * any configuration changes.
  */
 @NotThreadSafe
@@ -31,14 +27,6 @@ public final class GlobalConfig {
 
     private static final Properties CONFIG = FileUtil.readPropertiesFromFilename(OSHI_PROPERTIES);
     static {
-        // Environment variables (OSHI_*) override properties file defaults
-        System.getenv().forEach((k, v) -> {
-            if (k.startsWith("OSHI_")) {
-                String propKey = k.toLowerCase(java.util.Locale.ROOT).replace('_', '.');
-                CONFIG.putIfAbsent(propKey, v);
-            }
-        });
-        // System properties (-Doshi.*) override environment variables
         System.getProperties().forEach((k, v) -> {
             String key = k.toString();
             if (key.startsWith("oshi.")) {
