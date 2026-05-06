@@ -52,6 +52,10 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
         super(name, model, serial, size);
     }
 
+    private WindowsHWDiskStoreFFM(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     @Override
     protected DiskStats queryReadWriteStats(String index) {
         return populateDiskStats(index, PhysicalDiskFFM.queryDiskCounters());
@@ -78,7 +82,8 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
                         String.format(Locale.ROOT, "%s %s", WmiUtilFFM.getString(vals, DiskDriveProperty.MODEL, i),
                                 WmiUtilFFM.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtilFFM.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtilFFM.getUint64(vals, DiskDriveProperty.SIZE, i));
+                        WmiUtilFFM.getUint64(vals, DiskDriveProperty.SIZE, i),
+                        parseWindowsMediaType(WmiUtilFFM.getString(vals, DiskDriveProperty.MEDIATYPE, i)));
 
                 String index = Integer.toString(WmiUtilFFM.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);

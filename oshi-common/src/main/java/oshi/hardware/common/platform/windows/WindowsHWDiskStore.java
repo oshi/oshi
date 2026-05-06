@@ -50,6 +50,10 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         super(name, model, serial, size);
     }
 
+    protected WindowsHWDiskStore(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     @Override
     public long getReads() {
         return reads;
@@ -322,5 +326,26 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         public Map<String, List<HWPartition>> getPartitionMap() {
             return partitionMap;
         }
+    }
+
+    /**
+     * Parses the WMI MediaType string into a disk type.
+     *
+     * @param mediaType the WMI MediaType value from Win32_DiskDrive
+     * @return the disk type string
+     */
+    protected static String parseWindowsMediaType(String mediaType) {
+        if (mediaType == null || mediaType.isEmpty()) {
+            return "Unknown";
+        }
+        String lower = mediaType.toLowerCase(java.util.Locale.ROOT);
+        if (lower.contains("removable")) {
+            return "Removable";
+        } else if (lower.contains("fixed") || lower.contains("external")) {
+            // WMI Win32_DiskDrive MediaType doesn't distinguish SSD from HDD;
+            // "Fixed hard disk media" could be either. Return HDD as default for fixed.
+            return "HDD";
+        }
+        return "Unknown";
     }
 }

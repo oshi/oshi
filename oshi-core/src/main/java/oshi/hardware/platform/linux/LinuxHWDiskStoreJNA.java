@@ -40,6 +40,10 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
         super(name, model, serial, size);
     }
 
+    LinuxHWDiskStoreJNA(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     /**
      * Gets the disks on this machine
      *
@@ -84,7 +88,7 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                         devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = device.getPropertyValue(DM_UUID);
                                         store = new LinuxHWDiskStoreJNA(devnode, devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
                                         if (vgName != null && lvName != null && devSerial != null
@@ -106,7 +110,8 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                     } else {
                                         store = new LinuxHWDiskStoreJNA(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize,
+                                                detectDiskType(device));
                                     }
                                     if (storeToUpdate == null) {
                                         computeDiskStats(store, device.getSysattrValue(STAT));
@@ -158,5 +163,19 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
     @Override
     public boolean updateAttributes() {
         return !getDisks(this).isEmpty();
+    }
+
+    private static String detectDiskType(UdevDevice device) {
+        String removable = device.getSysattrValue("removable");
+        if ("1".equals(removable)) {
+            return "Removable";
+        }
+        String rotational = device.getSysattrValue("queue/rotational");
+        if ("0".equals(rotational)) {
+            return "SSD";
+        } else if ("1".equals(rotational)) {
+            return "HDD";
+        }
+        return "Unknown";
     }
 }

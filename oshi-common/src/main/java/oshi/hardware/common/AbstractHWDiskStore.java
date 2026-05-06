@@ -18,12 +18,18 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final String model;
     private final String serial;
     private final long size;
+    private final String diskType;
 
     protected AbstractHWDiskStore(String name, String model, String serial, long size) {
+        this(name, model, serial, size, "Unknown");
+    }
+
+    protected AbstractHWDiskStore(String name, String model, String serial, long size, String diskType) {
         this.name = name;
         this.model = model;
         this.serial = serial;
         this.size = size;
+        this.diskType = diskType;
     }
 
     @Override
@@ -47,12 +53,18 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     }
 
     @Override
+    public String getDiskType() {
+        return this.diskType;
+    }
+
+    @Override
     public String toString() {
         boolean readwrite = getReads() > 0 || getWrites() > 0;
         StringBuilder sb = new StringBuilder();
         sb.append(getName()).append(": ");
         sb.append("(model: ").append(getModel());
-        sb.append(" - S/N: ").append(getSerial()).append(") ");
+        sb.append(" - S/N: ").append(getSerial());
+        sb.append(" - type: ").append(getDiskType()).append(") ");
         sb.append("size: ").append(getSize() > 0 ? FormatUtil.formatBytesDecimal(getSize()) : "?").append(", ");
         sb.append("reads: ").append(readwrite ? getReads() : "?");
         sb.append(" (").append(readwrite ? FormatUtil.formatBytes(getReadBytes()) : "?").append("), ");

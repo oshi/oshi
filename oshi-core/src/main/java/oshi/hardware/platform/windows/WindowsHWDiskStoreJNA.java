@@ -47,6 +47,10 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
         super(name, model, serial, size);
     }
 
+    private WindowsHWDiskStoreJNA(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     @Override
     protected DiskStats queryReadWriteStats(String index) {
         return populateDiskStats(index, PhysicalDiskJNA.queryDiskCounters());
@@ -72,7 +76,8 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
                         String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
                                 WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i));
+                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i),
+                        parseWindowsMediaType(WmiUtil.getString(vals, DiskDriveProperty.MEDIATYPE, i)));
 
                 String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);

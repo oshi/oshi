@@ -37,6 +37,10 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
         super(name, model, serial, size);
     }
 
+    LinuxHWDiskStoreFFM(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
+    }
+
     /**
      * Gets the disks on this machine
      *
@@ -97,7 +101,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                         devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = UdevFunctions.getPropertyValue(device, DM_UUID, arena);
                                         store = new LinuxHWDiskStoreFFM(devnode, devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
                                         if (devSerial != null && devSerial.startsWith("LVM-")) {
                                             String vgName = UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena);
                                             String lvName = UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena);
@@ -122,7 +126,8 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                     } else {
                                         store = new LinuxHWDiskStoreFFM(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize);
+                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize,
+                                                detectDiskType(device, arena));
                                     }
                                     if (storeToUpdate == null) {
                                         computeDiskStats(store, UdevFunctions.getSysattrValue(device, STAT, arena));
@@ -190,5 +195,23 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
     @Override
     public boolean updateAttributes() {
         return !getDisks(this).isEmpty();
+    }
+
+    private static String detectDiskType(MemorySegment device, Arena arena) {
+        try {
+            String removable = UdevFunctions.getSysattrValue(device, "removable", arena);
+            if ("1".equals(removable)) {
+                return "Removable";
+            }
+            String rotational = UdevFunctions.getSysattrValue(device, "queue/rotational", arena);
+            if ("0".equals(rotational)) {
+                return "SSD";
+            } else if ("1".equals(rotational)) {
+                return "HDD";
+            }
+        } catch (Throwable t) { // NOSONAR
+            LOG.debug("Unable to read disk type sysattr", t);
+        }
+        return "Unknown";
     }
 }

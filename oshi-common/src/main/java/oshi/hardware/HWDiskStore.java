@@ -52,6 +52,15 @@ public interface HWDiskStore {
     String getName();
 
     /**
+     * The type of the disk, such as SSD, HDD, Removable, Virtual, or Unknown.
+     *
+     * @return the disk type string
+     */
+    default String getDiskType() {
+        return "Unknown";
+    }
+
+    /**
      * The disk model
      *
      * @return the model
