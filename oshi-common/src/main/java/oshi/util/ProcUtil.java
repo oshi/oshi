@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 import oshi.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
+/**
+ * Utility class for parsing /proc filesystem statistics.
+ */
 public final class ProcUtil {
 
     private ProcUtil() {

@@ -22,6 +22,20 @@ public final class ProcessPerfCounterBlock {
     private final long bytesWritten;
     private final long pageFaults;
 
+    /**
+     * Creates a ProcessPerfCounterBlock.
+     *
+     * @param name                  the process name
+     * @param parentProcessID       the parent process ID
+     * @param priority              the priority
+     * @param privateWorkingSetSize the private working set size
+     * @param workingSetSize        the working set size
+     * @param startTime             the start time
+     * @param upTime                the up time
+     * @param bytesRead             bytes read
+     * @param bytesWritten          bytes written
+     * @param pageFaults            page faults
+     */
     public ProcessPerfCounterBlock(String name, int parentProcessID, int priority, long privateWorkingSetSize,
             long workingSetSize, long startTime, long upTime, long bytesRead, long bytesWritten, long pageFaults) {
         this.name = name;
@@ -37,6 +51,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the name.
+     *
      * @return the name
      */
     public String getName() {
@@ -44,6 +60,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the parentProcessID.
+     *
      * @return the parentProcessID
      */
     public int getParentProcessID() {
@@ -51,6 +69,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the priority.
+     *
      * @return the priority
      */
     public int getPriority() {
@@ -72,6 +92,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the startTime.
+     *
      * @return the startTime
      */
     public long getStartTime() {
@@ -79,6 +101,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the upTime.
+     *
      * @return the upTime
      */
     public long getUpTime() {
@@ -86,6 +110,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the bytesRead.
+     *
      * @return the bytesRead
      */
     public long getBytesRead() {
@@ -93,6 +119,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the bytesWritten.
+     *
      * @return the bytesWritten
      */
     public long getBytesWritten() {
@@ -100,6 +128,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the pageFaults.
+     *
      * @return the pageFaults
      */
     public long getPageFaults() {

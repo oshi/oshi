@@ -20,17 +20,25 @@ public final class ProcessInformation {
      * Process performance counters
      */
     public enum ProcessPerformanceProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
+        /** Instance filter (not _Total). */
         NAME(NOT_TOTAL_INSTANCES),
-        // Remaining elements define counters
-        PRIORITYBASE("Priority Base"), //
-        ELAPSEDTIME("Elapsed Time"), //
-        IDPROCESS("ID Process"), //
-        CREATINGPROCESSID("Creating Process ID"), //
-        IOREADBYTESPERSEC("IO Read Bytes/sec"), //
-        IOWRITEBYTESPERSEC("IO Write Bytes/sec"), //
-        WORKINGSETPRIVATE("Working Set - Private"), //
-        WORKINGSET("Working Set"), //
+        /** Process priority base. */
+        PRIORITYBASE("Priority Base"),
+        /** Process elapsed time. */
+        ELAPSEDTIME("Elapsed Time"),
+        /** Process ID. */
+        IDPROCESS("ID Process"),
+        /** Creating process ID. */
+        CREATINGPROCESSID("Creating Process ID"),
+        /** I/O read bytes per second. */
+        IOREADBYTESPERSEC("IO Read Bytes/sec"),
+        /** I/O write bytes per second. */
+        IOWRITEBYTESPERSEC("IO Write Bytes/sec"),
+        /** Working set private bytes. */
+        WORKINGSETPRIVATE("Working Set - Private"),
+        /** Working set bytes. */
+        WORKINGSET("Working Set"),
+        /** Page faults per second. */
         PAGEFAULTSPERSEC("Page Faults/sec");
 
         private final String counter;
@@ -49,6 +57,7 @@ public final class ProcessInformation {
      * Handle performance counters
      */
     public enum HandleCountProperty implements PdhCounterProperty {
+        /** Handle count for _Total instance. */
         HANDLECOUNT(TOTAL_INSTANCE, "Handle Count");
 
         private final String instance;
@@ -74,10 +83,11 @@ public final class ProcessInformation {
      * Processor performance counters
      */
     public enum IdleProcessorTimeProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
+        /** Instance filter (_Total and Idle). */
         NAME(TOTAL_OR_IDLE_INSTANCES),
-        // Remaining elements define counters
-        PERCENTPROCESSORTIME("% Processor Time"), //
+        /** Percent processor time. */
+        PERCENTPROCESSORTIME("% Processor Time"),
+        /** Elapsed time. */
         ELAPSEDTIME("Elapsed Time");
 
         private final String counter;

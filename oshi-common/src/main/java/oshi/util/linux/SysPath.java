@@ -23,13 +23,21 @@ public final class SysPath {
      */
     public static final String SYS = querySysConfig() + "/";
 
+    /** Path to CPU devices. */
     public static final String CPU = SYS + "devices/system/cpu/";
+    /** Path to DMI identification. */
     public static final String DMI_ID = SYS + "devices/virtual/dmi/id/";
+    /** Path to network interfaces. */
     public static final String NET = SYS + "class/net/";
+    /** Path to device tree model. */
     public static final String MODEL = SYS + "firmware/devicetree/base/model";
+    /** Path to power supply class. */
     public static final String POWER_SUPPLY = SYS + "class/power_supply";
+    /** Path to hardware monitoring. */
     public static final String HWMON = SYS + "class/hwmon/";
+    /** Path to thermal class. */
     public static final String THERMAL = SYS + "class/thermal/";
+    /** Path to cgroup filesystem. */
     public static final String CGROUP = SYS + "fs/cgroup/";
 
     private SysPath() {
