@@ -1,6 +1,8 @@
-# 7.1.1 (in progress)
+# 7.2.0 (in progress)
 
-* Your contribution here!
+##### New Features
+
+* [#3234](https://github.com/oshi/oshi/pull/3234): Add `SystemInfoProvider` SPI and `SystemInfoFactory` for automatic selection of the best available OSHI implementation at runtime - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 

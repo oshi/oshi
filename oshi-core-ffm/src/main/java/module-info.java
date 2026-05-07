@@ -25,6 +25,8 @@ module com.github.oshi.ffm {
     exports oshi.ffm.util.platform.mac;
     exports oshi.ffm.util.platform.windows;
 
+    provides oshi.spi.SystemInfoProvider with oshi.ffm.SystemInfo;
+
     // dependencies
     requires transitive com.github.oshi.common;
     requires transitive java.desktop;

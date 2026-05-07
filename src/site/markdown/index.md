@@ -2,8 +2,8 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name)
-[![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![javadoc](https://javadoc.io/badge2/com.github.oshi/oshi-core/javadoc.svg)](https://javadoc.io/doc/com.github.oshi/oshi-core)
+[![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)](https://github.com/oshi/oshi/graphs/contributors)
 
 OSHI is a free native (JNA or FFM) Operating System and Hardware Information library for Java.
@@ -51,8 +51,8 @@ Stable Release Versions
   * FFM: [oshi-core-ffm-7.1.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.1.0)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.1.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.1.1-SNAPSHOT)
-  * FFM: [oshi-core-ffm-7.1.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.1.1-SNAPSHOT/)
+  * JNA: [oshi-core-7.2.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.2.0-SNAPSHOT)
+  * FFM: [oshi-core-ffm-7.2.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.2.0-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -77,18 +77,10 @@ CentralProcessor cpu = hal.getProcessor();
 To include both implementations and select at runtime:
 
 ```java
-// Runtime selection — both return the same HAL/OS interfaces
-HardwareAbstractionLayer hal;
-OperatingSystem os;
-if (useFFM) { // Requires JDK 25+; supports Windows, macOS, Linux
-    oshi.ffm.SystemInfo si = new oshi.ffm.SystemInfo();
-    hal = si.getHardware();
-    os = si.getOperatingSystem();
-} else { // JDK 8+; supports all platforms including AIX, FreeBSD, OpenBSD, Solaris
-    oshi.SystemInfo si = new oshi.SystemInfo();
-    hal = si.getHardware();
-    os = si.getOperatingSystem();
-}
+// Automatic selection — picks FFM on JDK 25+ (Windows/macOS/Linux), falls back to JNA
+SystemInfoProvider si = SystemInfoFactory.create();
+HardwareAbstractionLayer hal = si.getHardware();
+OperatingSystem os = si.getOperatingSystem();
 ```
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.

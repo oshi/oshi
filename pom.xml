@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>7.1.1-SNAPSHOT</version>
+    <version>7.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -369,8 +369,6 @@
                         <detectLinks>false</detectLinks>
                         <links>
                             <link>https://java-native-access.github.io/jna/${jna.version}/javadoc/</link>
-                            <link>https://javadoc.io/doc/org.junit.jupiter/junit-jupiter-api/${junit.version}/</link>
-                            <link>https://javadoc.io/doc/org.hamcrest/hamcrest/${hamcrest.version}/</link>
                         </links>
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <additionalJOptions>

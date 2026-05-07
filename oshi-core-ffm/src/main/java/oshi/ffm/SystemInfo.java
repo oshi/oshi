@@ -6,6 +6,8 @@ package oshi.ffm;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import oshi.annotation.PublicApi;
@@ -17,6 +19,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
+import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
 
 /**
@@ -59,7 +62,7 @@ import oshi.util.PlatformEnum;
  * point is used. The API is identical; only the underlying native access mechanism differs.
  */
 @PublicApi
-public class SystemInfo {
+public class SystemInfo implements SystemInfoProvider {
 
     private static final String NOT_SUPPORTED = "Unsupported platform: " + PlatformEnum.getCurrentPlatform().getName();
 
@@ -71,6 +74,19 @@ public class SystemInfo {
      */
     public SystemInfo() {
         // Intentionally empty, here to enable the constructor javadoc.
+    }
+
+    @Override
+    public int getPriority() {
+        return 20;
+    }
+
+    private static final Set<PlatformEnum> SUPPORTED_PLATFORMS = EnumSet.of(PlatformEnum.LINUX, PlatformEnum.MACOS,
+            PlatformEnum.WINDOWS);
+
+    @Override
+    public boolean isAvailable() {
+        return SUPPORTED_PLATFORMS.contains(PlatformEnum.getCurrentPlatform()) && Runtime.version().feature() >= 25;
     }
 
     private static OperatingSystem createOperatingSystem() {

@@ -27,6 +27,8 @@ module com.github.oshi {
     exports oshi.util.platform.unix.solaris;
     exports oshi.util.platform.windows;
 
+    provides oshi.spi.SystemInfoProvider with oshi.SystemInfo;
+
     // JNA needs reflective access to Structure and ByReference subclasses
     opens oshi.jna to com.sun.jna;
     opens oshi.jna.common to com.sun.jna;

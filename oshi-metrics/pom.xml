@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.oshi</groupId>
         <artifactId>oshi-parent</artifactId>
-        <version>7.1.1-SNAPSHOT</version>
+        <version>7.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>oshi-metrics</artifactId>
@@ -93,6 +93,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
+                        <manifestFile combine.self="override" />
                         <manifestEntries>
                             <Automatic-Module-Name>com.github.oshi.metrics</Automatic-Module-Name>
                         </manifestEntries>
