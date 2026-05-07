@@ -166,8 +166,28 @@ public class LinuxOSThread extends AbstractOSThread {
     private enum ThreadPidStat {
         // The parsing implementation in ParseUtil requires these to be declared
         // in increasing order
-        PPID(4), MINOR_FAULTS(10), MAJOR_FAULT(12), USER_TIME(14), KERNEL_TIME(15), PRIORITY(18), THREAD_COUNT(20),
-        START_TIME(22), VSZ(23), RSS(24), START_CODE(26);
+        /** PPID property. */
+        PPID(4),
+        /** MINOR_FAULTS property. */
+        MINOR_FAULTS(10),
+        /** MAJOR_FAULT property. */
+        MAJOR_FAULT(12),
+        /** USER_TIME property. */
+        USER_TIME(14),
+        /** KERNEL_TIME property. */
+        KERNEL_TIME(15),
+        /** PRIORITY property. */
+        PRIORITY(18),
+        /** THREAD_COUNT property. */
+        THREAD_COUNT(20),
+        /** START_TIME property. */
+        START_TIME(22),
+        /** VSZ property. */
+        VSZ(23),
+        /** RSS property. */
+        RSS(24),
+        /** START_CODE property. */
+        START_CODE(26);
 
         private final int order;
 

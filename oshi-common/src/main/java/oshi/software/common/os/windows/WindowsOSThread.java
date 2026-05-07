@@ -35,6 +35,9 @@ public abstract class WindowsOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
+    /**
+     * Constructor.
+     */
     protected WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
         super(pid);
         this.threadId = tid;

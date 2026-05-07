@@ -21,7 +21,10 @@ public class Win32Processor {
      * Processor voltage properties.
      */
     public enum VoltProperty {
-        CURRENTVOLTAGE, VOLTAGECAPS;
+        /** CURRENTVOLTAGE property. */
+        CURRENTVOLTAGE,
+        /** VOLTAGECAPS property. */
+        VOLTAGECAPS
     }
 
     /**
@@ -38,6 +41,9 @@ public class Win32Processor {
         ADDRESSWIDTH;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32Processor() {
     }
 }

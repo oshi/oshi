@@ -81,6 +81,9 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private int bitness;
     private long pageFaults;
 
+    /**
+     * Constructor.
+     */
     protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid);

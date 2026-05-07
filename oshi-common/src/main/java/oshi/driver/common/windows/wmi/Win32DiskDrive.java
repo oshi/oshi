@@ -37,6 +37,9 @@ public class Win32DiskDrive {
         SIZE;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32DiskDrive() {
     }
 }

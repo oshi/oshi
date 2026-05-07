@@ -33,6 +33,9 @@ public class Win32OperatingSystem {
         SUITEMASK;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32OperatingSystem() {
     }
 }

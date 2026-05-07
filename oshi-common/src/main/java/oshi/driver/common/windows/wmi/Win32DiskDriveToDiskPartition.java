@@ -27,6 +27,9 @@ public class Win32DiskDriveToDiskPartition {
         DEPENDENT;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32DiskDriveToDiskPartition() {
     }
 }

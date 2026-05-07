@@ -21,9 +21,23 @@ public class Win32VideoController {
      * Video Controller properties.
      */
     public enum VideoControllerProperty {
-        ADAPTERCOMPATIBILITY, ADAPTERRAM, CONFIGMANAGERERRORCODE, DRIVERVERSION, NAME, PNPDEVICEID;
+        /** ADAPTERCOMPATIBILITY property. */
+        ADAPTERCOMPATIBILITY,
+        /** ADAPTERRAM property. */
+        ADAPTERRAM,
+        /** CONFIGMANAGERERRORCODE property. */
+        CONFIGMANAGERERRORCODE,
+        /** DRIVERVERSION property. */
+        DRIVERVERSION,
+        /** NAME property. */
+        NAME,
+        /** PNPDEVICEID property. */
+        PNPDEVICEID
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32VideoController() {
     }
 }

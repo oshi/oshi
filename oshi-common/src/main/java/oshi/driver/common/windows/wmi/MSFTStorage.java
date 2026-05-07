@@ -80,6 +80,9 @@ public class MSFTStorage {
         OBJECTID;
     }
 
+    /**
+     * Constructor.
+     */
     protected MSFTStorage() {
     }
 }

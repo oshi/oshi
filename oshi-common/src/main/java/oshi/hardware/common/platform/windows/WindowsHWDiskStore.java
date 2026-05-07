@@ -46,10 +46,16 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     private long timeStamp = 0L;
     private List<HWPartition> partitionList = Collections.emptyList();
 
+    /**
+     * Constructor.
+     */
     protected WindowsHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
+    /**
+     * Constructor.
+     */
     protected WindowsHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
     }

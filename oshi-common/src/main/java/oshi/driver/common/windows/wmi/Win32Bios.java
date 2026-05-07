@@ -41,6 +41,9 @@ public class Win32Bios {
         RELEASEDATE;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32Bios() {
     }
 }

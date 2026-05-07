@@ -30,6 +30,9 @@ public class OhmSensor {
         VALUE;
     }
 
+    /**
+     * Constructor.
+     */
     protected OhmSensor() {
     }
 

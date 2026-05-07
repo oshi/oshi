@@ -27,6 +27,9 @@ public class Win32ComputerSystemProduct {
         UUID;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32ComputerSystemProduct() {
     }
 }

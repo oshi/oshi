@@ -25,6 +25,9 @@ public class Win32Fan {
         DESIREDSPEED;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32Fan() {
     }
 }

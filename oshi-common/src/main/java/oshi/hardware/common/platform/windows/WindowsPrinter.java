@@ -19,6 +19,9 @@ public abstract class WindowsPrinter extends AbstractPrinter {
     private static final String[] ERROR_STATE_NAMES = { "Unknown", "Other", "", "Low Paper", "No Paper", "Low Toner",
             "No Toner", "Door Open", "Jammed", "Offline", "Service Requested", "Output Bin Full" };
 
+    /**
+     * Constructor.
+     */
     protected WindowsPrinter(String name, String driverName, String description, PrinterStatus status,
             String statusReason, boolean isDefault, boolean isLocal, String portName) {
         super(name, driverName, description, status, statusReason, isDefault, isLocal, portName);

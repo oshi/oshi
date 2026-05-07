@@ -30,6 +30,9 @@ public class OhmHardware {
         IDENTIFIER;
     }
 
+    /**
+     * Constructor.
+     */
     protected OhmHardware() {
     }
 

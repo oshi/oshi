@@ -17,6 +17,9 @@ public final class WtsInfo {
     private final long userTime;
     private final long openFiles;
 
+    /**
+     * Constructor.
+     */
     public WtsInfo(String name, String path, int threadCount, long virtualSize, long kernelTime, long userTime,
             long openFiles) {
         this.name = name;
@@ -29,6 +32,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the name.
+     *
      * @return the name
      */
     public String getName() {
@@ -36,6 +41,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the path.
+     *
      * @return the path
      */
     public String getPath() {
@@ -43,6 +50,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the threadCount.
+     *
      * @return the threadCount
      */
     public int getThreadCount() {
@@ -50,6 +59,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the virtualSize.
+     *
      * @return the virtualSize
      */
     public long getVirtualSize() {
@@ -57,6 +68,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the kernelTime.
+     *
      * @return the kernelTime
      */
     public long getKernelTime() {
@@ -64,6 +77,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the userTime.
+     *
      * @return the userTime
      */
     public long getUserTime() {
@@ -71,6 +86,8 @@ public final class WtsInfo {
     }
 
     /**
+     * Gets the openFiles.
+     *
      * @return the openFiles
      */
     public long getOpenFiles() {

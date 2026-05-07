@@ -41,6 +41,9 @@ public class Win32LogicalDisk {
         VOLUMENAME;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32LogicalDisk() {
     }
 

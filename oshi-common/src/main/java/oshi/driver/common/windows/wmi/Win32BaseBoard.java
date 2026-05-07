@@ -33,6 +33,9 @@ public class Win32BaseBoard {
         SERIALNUMBER;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32BaseBoard() {
     }
 }

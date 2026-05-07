@@ -24,16 +24,37 @@ public class Win32Process {
      * Process command lines.
      */
     public enum CommandLineProperty {
-        PROCESSID, COMMANDLINE;
+        /** PROCESSID property. */
+        PROCESSID,
+        /** COMMANDLINE property. */
+        COMMANDLINE
     }
 
     /**
      * Process properties accessible from WTSEnumerateProcesses in Vista+.
      */
     public enum ProcessXPProperty {
-        PROCESSID, NAME, KERNELMODETIME, USERMODETIME, THREADCOUNT, PAGEFILEUSAGE, HANDLECOUNT, EXECUTABLEPATH;
+        /** PROCESSID property. */
+        PROCESSID,
+        /** NAME property. */
+        NAME,
+        /** KERNELMODETIME property. */
+        KERNELMODETIME,
+        /** USERMODETIME property. */
+        USERMODETIME,
+        /** THREADCOUNT property. */
+        THREADCOUNT,
+        /** PAGEFILEUSAGE property. */
+        PAGEFILEUSAGE,
+        /** HANDLECOUNT property. */
+        HANDLECOUNT,
+        /** EXECUTABLEPATH property. */
+        EXECUTABLEPATH
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32Process() {
     }
 

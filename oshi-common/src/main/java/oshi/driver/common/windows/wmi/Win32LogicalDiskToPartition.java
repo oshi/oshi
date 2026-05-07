@@ -31,6 +31,9 @@ public class Win32LogicalDiskToPartition {
         STARTINGADDRESS;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32LogicalDiskToPartition() {
     }
 }

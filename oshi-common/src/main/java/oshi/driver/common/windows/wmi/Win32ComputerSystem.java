@@ -27,6 +27,9 @@ public class Win32ComputerSystem {
         MODEL;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32ComputerSystem() {
     }
 }

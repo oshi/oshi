@@ -24,6 +24,9 @@ public abstract class WindowsOSFileStore extends AbstractOSFileStore {
     private long freeInodes;
     private long totalInodes;
 
+    /**
+     * Constructor.
+     */
     protected WindowsOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {

@@ -57,6 +57,9 @@ public class Win32PhysicalMemory {
         SERIALNUMBER
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32PhysicalMemory() {
     }
 }

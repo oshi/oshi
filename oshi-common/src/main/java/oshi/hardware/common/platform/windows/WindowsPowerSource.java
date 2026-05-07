@@ -37,6 +37,9 @@ public abstract class WindowsPowerSource extends AbstractPowerSource {
     protected static final int BATTERY_MANUFACTURE_NAME_LEVEL = 6;
     protected static final int BATTERY_SERIAL_NUMBER_LEVEL = 8;
 
+    /**
+     * Constructor.
+     */
     protected WindowsPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,

@@ -39,6 +39,9 @@ public class Win32Printer {
         DESCRIPTION;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32Printer() {
     }
 }

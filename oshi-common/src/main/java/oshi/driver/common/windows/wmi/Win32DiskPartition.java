@@ -37,6 +37,9 @@ public class Win32DiskPartition {
         TYPE;
     }
 
+    /**
+     * Constructor.
+     */
     protected Win32DiskPartition() {
     }
 }
