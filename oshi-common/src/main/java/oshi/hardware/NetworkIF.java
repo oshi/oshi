@@ -359,6 +359,8 @@ public interface NetworkIF {
         }
 
         /**
+         * Gets the RFC 2863 integer value for this operational status.
+         *
          * @return the integer value specified in RFC 2863 for this operational status.
          */
         public int getValue() {

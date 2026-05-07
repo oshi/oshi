@@ -24,6 +24,17 @@ public class PhysicalMemory {
     private final String partNumber;
     private final String serialNumber;
 
+    /**
+     * Creates a PhysicalMemory instance.
+     *
+     * @param bankLabel    the bank label
+     * @param capacity     the capacity in bytes
+     * @param clockSpeed   the clock speed in Hz
+     * @param manufacturer the manufacturer
+     * @param memoryType   the memory type
+     * @param partNumber   the part number
+     * @param serialNumber the serial number
+     */
     public PhysicalMemory(String bankLabel, long capacity, long clockSpeed, String manufacturer, String memoryType,
             String partNumber, String serialNumber) {
         this.bankLabel = bankLabel;

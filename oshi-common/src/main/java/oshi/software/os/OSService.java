@@ -27,7 +27,12 @@ public class OSService {
      */
     @PublicApi
     public enum State {
-        RUNNING, STOPPED, OTHER
+        /** Service is running. */
+        RUNNING,
+        /** Service is stopped. */
+        STOPPED,
+        /** Service is in another state. */
+        OTHER
     }
 
     /**

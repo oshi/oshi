@@ -109,42 +109,74 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             this.pciBusId = pciBusId;
         }
 
-        /** @return the name */
+        /**
+         * Gets the name.
+         *
+         * @return the name
+         */
         public String getName() {
             return name;
         }
 
-        /** @return the device ID */
+        /**
+         * Gets the device ID.
+         *
+         * @return the device ID
+         */
         public String getDeviceId() {
             return deviceId;
         }
 
-        /** @return the vendor */
+        /**
+         * Gets the vendor.
+         *
+         * @return the vendor
+         */
         public String getVendor() {
             return vendor;
         }
 
-        /** @return the version info */
+        /**
+         * Gets the version info.
+         *
+         * @return the version info
+         */
         public String getVersionInfo() {
             return versionInfo;
         }
 
-        /** @return the VRAM in bytes */
+        /**
+         * Gets the VRAM in bytes.
+         *
+         * @return the VRAM in bytes
+         */
         public long getVram() {
             return vram;
         }
 
-        /** @return the DRM device path */
+        /**
+         * Gets the DRM device path.
+         *
+         * @return the DRM device path
+         */
         public String getDrmDevicePath() {
             return drmDevicePath;
         }
 
-        /** @return the driver name */
+        /**
+         * Gets the driver name.
+         *
+         * @return the driver name
+         */
         public String getDriverName() {
             return driverName;
         }
 
-        /** @return the PCI bus ID */
+        /**
+         * Gets the PCI bus ID.
+         *
+         * @return the PCI bus ID
+         */
         public String getPciBusId() {
             return pciBusId;
         }

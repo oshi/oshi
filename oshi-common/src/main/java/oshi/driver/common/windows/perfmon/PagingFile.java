@@ -18,6 +18,7 @@ public final class PagingFile {
      * For swap file usage
      */
     public enum PagingPercentProperty implements PdhCounterProperty {
+        /** Percentage of paging file in use. */
         PERCENTUSAGE(TOTAL_INSTANCE, "% Usage");
 
         private final String instance;

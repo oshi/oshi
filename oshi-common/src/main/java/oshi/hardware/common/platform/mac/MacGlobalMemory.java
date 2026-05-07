@@ -25,6 +25,12 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class MacGlobalMemory extends AbstractGlobalMemory {
 
+    /**
+     * Default constructor.
+     */
+    protected MacGlobalMemory() {
+    }
+
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
     private final Supplier<Long> total = memoize(this::queryPhysMem);

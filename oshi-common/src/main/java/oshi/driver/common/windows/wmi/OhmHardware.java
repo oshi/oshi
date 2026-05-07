@@ -26,6 +26,7 @@ public class OhmHardware {
      * HW Identifier Property.
      */
     public enum IdentifierProperty {
+        /** Hardware identifier. */
         IDENTIFIER;
     }
 

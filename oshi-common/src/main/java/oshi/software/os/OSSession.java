@@ -31,6 +31,14 @@ public class OSSession {
     private final long loginTime;
     private final String host;
 
+    /**
+     * Creates an OSSession.
+     *
+     * @param userName       the user name
+     * @param terminalDevice the terminal device
+     * @param loginTime      the login time in epoch ms
+     * @param host           the remote host
+     */
     public OSSession(String userName, String terminalDevice, long loginTime, String host) {
         this.userName = userName;
         this.terminalDevice = terminalDevice;

@@ -26,6 +26,13 @@ public final class PerfCounter {
      */
     public static final String BASE_SUFFIX = "_Base";
 
+    /**
+     * Creates a PerfCounter.
+     *
+     * @param objectName   the PDH object name
+     * @param instanceName the instance name
+     * @param counterName  the counter name (may end with _Base for SecondValue)
+     */
     public PerfCounter(String objectName, String instanceName, String counterName) {
         this.object = objectName;
         this.instance = instanceName;
@@ -35,6 +42,8 @@ public final class PerfCounter {
     }
 
     /**
+     * Gets the PDH object name.
+     *
      * @return Returns the object.
      */
     public String getObject() {
@@ -42,6 +51,8 @@ public final class PerfCounter {
     }
 
     /**
+     * Gets the PDH instance name.
+     *
      * @return Returns the instance.
      */
     public String getInstance() {
@@ -49,6 +60,8 @@ public final class PerfCounter {
     }
 
     /**
+     * Gets the PDH counter name.
+     *
      * @return Returns the counter.
      */
     public String getCounter() {
@@ -56,6 +69,8 @@ public final class PerfCounter {
     }
 
     /**
+     * Checks whether this is a base (SecondValue) counter.
+     *
      * @return Returns whether the counter is a base counter
      */
     public boolean isBaseCounter() {

@@ -18,14 +18,19 @@ public final class PhysicalDisk {
      * Physical Disk performance counters.
      */
     public enum PhysicalDiskProperty implements PdhCounterWildcardProperty {
-        // First element defines WMI instance name field and PDH instance filter
+        /** Instance filter (not _Total). */
         NAME(NOT_TOTAL_INSTANCE),
-        // Remaining elements define counters
-        DISKREADSPERSEC("Disk Reads/sec"), //
-        DISKREADBYTESPERSEC("Disk Read Bytes/sec"), //
-        DISKWRITESPERSEC("Disk Writes/sec"), //
-        DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"), //
-        CURRENTDISKQUEUELENGTH("Current Disk Queue Length"), //
+        /** Disk reads per second. */
+        DISKREADSPERSEC("Disk Reads/sec"),
+        /** Disk read bytes per second. */
+        DISKREADBYTESPERSEC("Disk Read Bytes/sec"),
+        /** Disk writes per second. */
+        DISKWRITESPERSEC("Disk Writes/sec"),
+        /** Disk write bytes per second. */
+        DISKWRITEBYTESPERSEC("Disk Write Bytes/sec"),
+        /** Current disk queue length. */
+        CURRENTDISKQUEUELENGTH("Current Disk Queue Length"),
+        /** Percent disk time. */
         PERCENTDISKTIME("% Disk Time");
 
         private final String counter;

@@ -30,6 +30,17 @@ public class OSDesktopWindow {
     private final int order;
     private final boolean visible;
 
+    /**
+     * Creates an OSDesktopWindow.
+     *
+     * @param windowId        the window ID
+     * @param title           the window title
+     * @param command         the owning command
+     * @param locAndSize      the location and size
+     * @param owningProcessId the owning process ID
+     * @param order           the window order
+     * @param visible         whether visible
+     */
     public OSDesktopWindow(long windowId, String title, String command, Rectangle locAndSize, long owningProcessId,
             int order, boolean visible) {
         super();

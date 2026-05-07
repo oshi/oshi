@@ -79,6 +79,15 @@ public interface Printer {
      */
     @PublicApi
     enum PrinterStatus {
-        IDLE, PRINTING, ERROR, OFFLINE, UNKNOWN
+        /** Printer is idle. */
+        IDLE,
+        /** Printer is printing. */
+        PRINTING,
+        /** Printer has an error. */
+        ERROR,
+        /** Printer is offline. */
+        OFFLINE,
+        /** Printer status is unknown. */
+        UNKNOWN
     }
 }

@@ -26,6 +26,11 @@ public final class Memoizer {
         return TimeUnit.MILLISECONDS.toNanos(GlobalConfig.get(GlobalConfig.OSHI_UTIL_MEMOIZER_EXPIRATION, 300));
     }
 
+    /**
+     * Gets the expiration for installed apps cache.
+     *
+     * @return the expiration in nanoseconds
+     */
     public static long installedAppsExpiration() {
         return TimeUnit.MINUTES.toNanos(1);
     }

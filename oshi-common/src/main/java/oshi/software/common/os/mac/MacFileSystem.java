@@ -20,6 +20,12 @@ import oshi.util.FileSystemUtil;
 @ThreadSafe
 public abstract class MacFileSystem extends AbstractFileSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected MacFileSystem() {
+    }
+
     /** Configuration key for path excludes. */
     public static final String OSHI_MAC_FS_PATH_EXCLUDES = "oshi.os.mac.filesystem.path.excludes";
     /** Configuration key for path includes. */

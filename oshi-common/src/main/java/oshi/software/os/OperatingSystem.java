@@ -413,6 +413,13 @@ public interface OperatingSystem {
         private final String buildNumber;
         private final String versionStr;
 
+        /**
+         * Creates an OSVersionInfo.
+         *
+         * @param version     the version string
+         * @param codeName    the code name
+         * @param buildNumber the build number
+         */
         public OSVersionInfo(String version, String codeName, String buildNumber) {
             this.version = version;
             this.codeName = codeName;

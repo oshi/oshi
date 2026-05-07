@@ -21,6 +21,7 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class MacGraphicsCard extends AbstractGraphicsCard {
 
+    /** Whether running on Apple Silicon. */
     protected static final boolean IS_APPLE_SILICON = "aarch64".equals(System.getProperty("os.arch"));
 
     /**
@@ -105,6 +106,16 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
      */
     @FunctionalInterface
     protected interface GraphicsCardFactory {
+        /**
+         * Creates a GraphicsCard instance.
+         *
+         * @param name        the card name
+         * @param deviceId    the device ID
+         * @param vendor      the vendor
+         * @param versionInfo the version info
+         * @param vram        the VRAM in bytes
+         * @return the graphics card
+         */
         GraphicsCard create(String name, String deviceId, String vendor, String versionInfo, long vram);
     }
 
@@ -113,6 +124,13 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
      */
     @FunctionalInterface
     protected interface SysctlLong {
+        /**
+         * Gets a sysctl long value.
+         *
+         * @param name         the sysctl name
+         * @param defaultValue the default value
+         * @return the sysctl value
+         */
         long get(String name, long defaultValue);
     }
 }

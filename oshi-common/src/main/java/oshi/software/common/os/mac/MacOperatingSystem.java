@@ -44,6 +44,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOperatingSystem.class);
 
+    /** Configuration key for macOS version properties file. */
     public static final String MACOS_VERSIONS_PROPERTIES = "oshi.macos.versions.properties";
 
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";

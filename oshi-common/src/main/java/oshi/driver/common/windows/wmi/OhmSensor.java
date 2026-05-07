@@ -26,6 +26,7 @@ public class OhmSensor {
      * Sensor value property.
      */
     public enum ValueProperty {
+        /** Sensor value. */
         VALUE;
     }
 

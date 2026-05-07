@@ -34,6 +34,12 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public abstract class MacCentralProcessor extends AbstractCentralProcessor {
 
+    /**
+     * Default constructor.
+     */
+    protected MacCentralProcessor() {
+    }
+
     private static final Set<String> ARM_P_CORES = Stream
             .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8").collect(Collectors.toSet());
 

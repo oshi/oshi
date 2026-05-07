@@ -92,42 +92,74 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
         return this.partitionList;
     }
 
-    /** @param reads the reads to set */
+    /**
+     * Sets the reads.
+     *
+     * @param reads the reads to set
+     */
     protected void setReads(long reads) {
         this.reads = reads;
     }
 
-    /** @param readBytes the read bytes to set */
+    /**
+     * Sets the read bytes.
+     *
+     * @param readBytes the read bytes to set
+     */
     protected void setReadBytes(long readBytes) {
         this.readBytes = readBytes;
     }
 
-    /** @param writes the writes to set */
+    /**
+     * Sets the writes.
+     *
+     * @param writes the writes to set
+     */
     protected void setWrites(long writes) {
         this.writes = writes;
     }
 
-    /** @param writeBytes the write bytes to set */
+    /**
+     * Sets the write bytes.
+     *
+     * @param writeBytes the write bytes to set
+     */
     protected void setWriteBytes(long writeBytes) {
         this.writeBytes = writeBytes;
     }
 
-    /** @param currentQueueLength the queue length to set */
+    /**
+     * Sets the queue length.
+     *
+     * @param currentQueueLength the queue length to set
+     */
     protected void setCurrentQueueLength(long currentQueueLength) {
         this.currentQueueLength = currentQueueLength;
     }
 
-    /** @param transferTime the transfer time to set */
+    /**
+     * Sets the transfer time.
+     *
+     * @param transferTime the transfer time to set
+     */
     protected void setTransferTime(long transferTime) {
         this.transferTime = transferTime;
     }
 
-    /** @param timeStamp the timestamp to set */
+    /**
+     * Sets the timestamp.
+     *
+     * @param timeStamp the timestamp to set
+     */
     protected void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
-    /** @param partitionList the partition list to set */
+    /**
+     * Sets the partition list.
+     *
+     * @param partitionList the partition list to set
+     */
     protected void setPartitionList(List<HWPartition> partitionList) {
         this.partitionList = partitionList;
     }

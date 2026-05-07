@@ -69,7 +69,17 @@ public abstract class MacVirtualMemory extends AbstractVirtualMemory {
         return inOut.get().getB();
     }
 
+    /**
+     * Queries swap usage.
+     *
+     * @return a pair of (swap used, swap total) in bytes
+     */
     protected abstract Pair<Long, Long> querySwapUsage();
 
+    /**
+     * Queries virtual memory statistics.
+     *
+     * @return a pair of (virtual max, virtual in use) in bytes
+     */
     protected abstract Pair<Long, Long> queryVmStat();
 }
