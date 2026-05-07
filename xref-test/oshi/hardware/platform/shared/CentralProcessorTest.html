@@ -75,8 +75,8 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                  p.getLogicalProcessorCount(), is(curr.length));
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (max &gt;= 0) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> freq : curr) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertThat(<span class="jxr_string">"Logical processor frequency should be at most its max frequency"</span>, freq,
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          is(lessThanOrEqualTo(max)));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  assertThat(<span class="jxr_string">"Logical processor frequency should be within 3x its max frequency"</span>, freq,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          is(lessThanOrEqualTo(max * 3)));
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              }
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }

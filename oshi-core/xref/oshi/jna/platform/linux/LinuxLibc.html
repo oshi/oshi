@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/jna/platform/linux/LinuxLibc.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2023 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2019-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.jna.platform.linux;
@@ -101,7 +101,33 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     *         success. A -1 return value indicates an error, and an error code is stored in errno.</em>
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>      NativeLong syscall(NativeLong number, Object... args);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      @FieldOrder({ <span class="jxr_string">"ru_utime_sec"</span>, <span class="jxr_string">"ru_utime_usec"</span>, <span class="jxr_string">"ru_stime_sec"</span>, <span class="jxr_string">"ru_stime_usec"</span>, <span class="jxr_string">"ru_maxrss"</span>, <span class="jxr_string">"ru_ixrss"</span>, <span class="jxr_string">"ru_idrss"</span>,
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              <span class="jxr_string">"ru_isrss"</span>, <span class="jxr_string">"ru_minflt"</span>, <span class="jxr_string">"ru_majflt"</span>, <span class="jxr_string">"ru_nswap"</span>, <span class="jxr_string">"ru_inblock"</span>, <span class="jxr_string">"ru_oublock"</span>, <span class="jxr_string">"ru_msgsnd"</span>, <span class="jxr_string">"ru_msgrcv"</span>,
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <span class="jxr_string">"ru_nsignals"</span>, <span class="jxr_string">"ru_nvcsw"</span>, <span class="jxr_string">"ru_nivcsw"</span> })
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">class</strong> Rusage <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_utime_sec;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_utime_usec;
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_stime_sec;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_stime_usec;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_maxrss;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_ixrss;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_idrss;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_isrss;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_minflt;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_majflt;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_nswap;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_inblock;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_oublock;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_msgsnd;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_msgrcv;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_nsignals;
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_nvcsw;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">public</strong> NativeLong ru_nivcsw;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">int</strong> getrusage(<strong class="jxr_keyword">int</strong> who, Rusage rusage);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

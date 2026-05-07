@@ -63,20 +63,22 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UPTIME = PROC + <span class="jxr_string">"/uptime"</span>;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERSION = PROC + <span class="jxr_string">"/version"</span>;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VMSTAT = PROC + <span class="jxr_string">"/vmstat"</span>;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <a name="ProcPath" href="../../../oshi/util/linux/ProcPath.html#ProcPath">ProcPath</a>() {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryProcConfig() {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"/proc"</span>);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// Ensure prefix begins with path separator, but doesn't end with one</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          procPath = '/' + procPath.replaceAll(<span class="jxr_string">"/$|^/"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">new</strong> File(procPath).exists()) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"The path does not exist"</span>);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> procPath;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SELF_CGROUP = PROC + <span class="jxr_string">"/self/cgroup"</span>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String FILESYSTEMS = PROC + <span class="jxr_string">"/filesystems"</span>;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <a name="ProcPath" href="../../../oshi/util/linux/ProcPath.html#ProcPath">ProcPath</a>() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryProcConfig() {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"/proc"</span>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// Ensure prefix begins with path separator, but doesn't end with one</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          procPath = '/' + procPath.replaceAll(<span class="jxr_string">"/$|^/"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">new</strong> File(procPath).exists()) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"The path does not exist"</span>);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> procPath;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

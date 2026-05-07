@@ -266,405 +266,412 @@
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>             assertThat(f.getModel()).isEqualTo(j.getModel());
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>             assertThat(f.getSerial()).isEqualTo(j.getSerial());
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             assertThat(f.getSize()).isEqualTo(j.getSize());
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>             <em class="jxr_comment">// Stats are nondecreasing; FFM called second</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>             assertThat(f.getReads()).as(<span class="jxr_string">"reads(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getReads());
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>             assertThat(f.getReadBytes()).as(<span class="jxr_string">"readBytes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>             assertThat(f.getWrites()).as(<span class="jxr_string">"writes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getWrites());
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>             assertThat(f.getWriteBytes()).as(<span class="jxr_string">"writeBytes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getWriteBytes());
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <em class="jxr_comment">// Partitions should match exactly</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         }
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_comment">// ---- Hardware: Logical Volume Groups ----</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     @Test
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">void</strong> logicalVolumeGroups() {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         List&lt;LogicalVolumeGroup&gt; jna = jnaHal.getLogicalVolumeGroups();
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         List&lt;LogicalVolumeGroup&gt; ffm = ffmHal.getLogicalVolumeGroups();
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_comment">// ---- Hardware: Network Interfaces ----</em>
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     @Test
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>     <strong class="jxr_keyword">void</strong> networkInterfaces() {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         List&lt;NetworkIF&gt; jna = jnaHal.getNetworkIFs();
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         List&lt;NetworkIF&gt; ffm = ffmHal.getNetworkIFs();
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         assertThat(ffm).hasSameSizeAs(jna);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         Map&lt;String, NetworkIF&gt; ffmByName = ffm.stream()
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 .collect(Collectors.toMap(NetworkIF::getName, Function.identity()));
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">for</strong> (NetworkIF j : jna) {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             NetworkIF f = ffmByName.get(j.getName());
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>             assertThat(f).as(<span class="jxr_string">"networkIF %s"</span>, j.getName()).isNotNull();
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>             assertThat(f.getDisplayName()).isEqualTo(j.getDisplayName());
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>             assertThat(f.getMacaddr()).isEqualTo(j.getMacaddr());
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>             assertThat(f.getIPv4addr()).isEqualTo(j.getIPv4addr());
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>             assertThat(f.getIPv6addr()).isEqualTo(j.getIPv6addr());
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>             assertThat(f.getMTU()).isEqualTo(j.getMTU());
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>             assertThat(f.getSpeed()).isEqualTo(j.getSpeed());
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>             assertThat(f.getIfAlias()).isEqualTo(j.getIfAlias());
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             assertThat(f.getIfOperStatus()).isEqualTo(j.getIfOperStatus());
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             <em class="jxr_comment">// Traffic counters are nondecreasing</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>             assertThat(f.getBytesSent()).as(<span class="jxr_string">"bytesSent(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getBytesSent());
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>             assertThat(f.getBytesRecv()).as(<span class="jxr_string">"bytesRecv(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getBytesRecv());
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>             assertThat(f.getPacketsSent()).as(<span class="jxr_string">"packetsSent(%s)"</span>, j.getName())
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                     .isGreaterThanOrEqualTo(j.getPacketsSent());
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>             assertThat(f.getPacketsRecv()).as(<span class="jxr_string">"packetsRecv(%s)"</span>, j.getName())
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                     .isGreaterThanOrEqualTo(j.getPacketsRecv());
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         }
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     }
-<a class="jxr_linenumber" name="L309" href="#L309">309</a> 
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <em class="jxr_comment">// ---- Hardware: Displays ----</em>
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>     @Test
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">void</strong> displays() {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         List&lt;Display&gt; jna = jnaHal.getDisplays();
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         List&lt;Display&gt; ffm = ffmHal.getDisplays();
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a> 
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <em class="jxr_comment">// ---- Hardware: USB Devices ----</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>     @Test
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <strong class="jxr_keyword">void</strong> usbDevices() {
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         List&lt;UsbDevice&gt; jna = jnaHal.getUsbDevices(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         List&lt;UsbDevice&gt; ffm = ffmHal.getUsbDevices(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_comment">// ---- Hardware: Sound Cards ----</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a> 
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>     @Test
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">void</strong> soundCards() {
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         List&lt;SoundCard&gt; jna = jnaHal.getSoundCards();
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         List&lt;SoundCard&gt; ffm = ffmHal.getSoundCards();
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>     }
-<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>     <em class="jxr_comment">// ---- Hardware: Graphics Cards ----</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a> 
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>     @Test
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">void</strong> graphicsCards() {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         List&lt;GraphicsCard&gt; jna = jnaHal.getGraphicsCards();
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         List&lt;GraphicsCard&gt; ffm = ffmHal.getGraphicsCards();
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>     }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a> 
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <em class="jxr_comment">// ---- OS: OperatingSystem ----</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a> 
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>     @Test
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">void</strong> operatingSystemInfo() {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         assertThat(ffmOs.getFamily()).isEqualTo(jnaOs.getFamily());
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         assertThat(ffmOs.getManufacturer()).isEqualTo(jnaOs.getManufacturer());
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         assertThat(ffmOs.getBitness()).isEqualTo(jnaOs.getBitness());
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         assertThat(ffmOs.getVersionInfo()).usingRecursiveComparison().isEqualTo(jnaOs.getVersionInfo());
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         assertThat(ffmOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <em class="jxr_comment">// FFM called second, uptime should be &gt;= JNA</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         assertThat(ffmOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         assertThat(ffmOs.isElevated()).isEqualTo(jnaOs.isElevated());
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         assertThat(ffmOs.getProcessCount()).isGreaterThan(0);
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>         assertThat(ffmOs.getThreadCount()).isGreaterThan(0);
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <em class="jxr_comment">// ---- OS: Current Process ----</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> 
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>     @Test
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">void</strong> currentProcess() {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         assertThat(ffmOs.getProcessId()).isEqualTo(pid);
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         OSProcess jna = jnaOs.getProcess(pid);
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         OSProcess ffm = ffmOs.getProcess(pid);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         assertThat(ffm).isNotNull();
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         assertThat(ffm.getName()).isEqualTo(jna.getName());
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThat(ffm.getPath()).isEqualTo(jna.getPath());
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         assertThat(ffm.getUser()).isEqualTo(jna.getUser());
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         assertThat(ffm.getUserID()).isEqualTo(jna.getUserID());
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         assertThat(ffm.getGroup()).isEqualTo(jna.getGroup());
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         assertThat(ffm.getGroupID()).isEqualTo(jna.getGroupID());
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         assertThat(ffm.getParentProcessID()).isEqualTo(jna.getParentProcessID());
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         assertThat(ffm.getPriority()).isEqualTo(jna.getPriority());
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <em class="jxr_comment">// Memory values should be in the same ballpark</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// Virtual size can differ significantly between JNA and FFM due to timing of memory-mapped regions</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <em class="jxr_comment">// and DLL loading between the two snapshots; 0.95 tolerance accommodates this variance</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.95, <span class="jxr_string">"process.virtualSize"</span>);
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.75, <span class="jxr_string">"process.residentMemory"</span>);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <em class="jxr_comment">// Time counters: snapshots taken close together, allow small difference</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         assertThat(ffm.getKernelTime()).as(<span class="jxr_string">"process.kernelTime"</span>).isGreaterThanOrEqualTo(jna.getKernelTime());
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         assertThat(ffm.getUserTime()).as(<span class="jxr_string">"process.userTime"</span>).isGreaterThanOrEqualTo(jna.getUserTime());
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <em class="jxr_comment">// Uptime may differ due to memoization (300ms TTL), use max of 10% or 300ms</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as(<span class="jxr_string">"process.upTime"</span>)
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>     @Test
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <strong class="jxr_keyword">void</strong> currentProcessUpdateAttributes() {
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         OSProcess jna = jnaOs.getProcess(pid);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         OSProcess ffm = ffmOs.getProcess(pid);
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         assertThat(jna).isNotNull();
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         assertThat(ffm).isNotNull();
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <em class="jxr_comment">// Call updateAttributes to refresh and verify it succeeds</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         assertThat(jna.updateAttributes()).as(<span class="jxr_string">"JNA updateAttributes"</span>).isTrue();
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         assertThat(ffm.updateAttributes()).as(<span class="jxr_string">"FFM updateAttributes"</span>).isTrue();
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <em class="jxr_comment">// After refresh, basic fields should still match</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>         assertThat(ffm.getName()).isEqualTo(jna.getName());
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <em class="jxr_comment">// Command line exercises Win32ProcessCached when batch mode is enabled</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>     }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <em class="jxr_comment">// ---- OS: FileSystem ----</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a> 
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     @Test
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <strong class="jxr_keyword">void</strong> fileSystem() {
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>         FileSystem jnaFs = jnaOs.getFileSystem();
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         FileSystem ffmFs = ffmOs.getFileSystem();
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         assertThat(ffmFs.getMaxFileDescriptors()).isEqualTo(jnaFs.getMaxFileDescriptors());
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         assertWithinRatio(ffmFs.getOpenFileDescriptors(), jnaFs.getOpenFileDescriptors(), 0.25, <span class="jxr_string">"openFileDescriptors"</span>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             assertThat(f.getDiskType()).as(<span class="jxr_string">"diskType(%s)"</span>, j.getName()).isEqualTo(j.getDiskType());
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <em class="jxr_comment">// Stats are nondecreasing; FFM called second</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             assertThat(f.getReads()).as(<span class="jxr_string">"reads(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getReads());
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             assertThat(f.getReadBytes()).as(<span class="jxr_string">"readBytes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             assertThat(f.getWrites()).as(<span class="jxr_string">"writes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getWrites());
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             assertThat(f.getWriteBytes()).as(<span class="jxr_string">"writeBytes(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getWriteBytes());
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <em class="jxr_comment">// Partitions should match exactly</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         }
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     }
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <em class="jxr_comment">// ---- Hardware: Logical Volume Groups ----</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Test
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">void</strong> logicalVolumeGroups() {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         List&lt;LogicalVolumeGroup&gt; jna = jnaHal.getLogicalVolumeGroups();
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         List&lt;LogicalVolumeGroup&gt; ffm = ffmHal.getLogicalVolumeGroups();
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     }
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <em class="jxr_comment">// ---- Hardware: Network Interfaces ----</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     @Test
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <strong class="jxr_keyword">void</strong> networkInterfaces() {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         List&lt;NetworkIF&gt; jna = jnaHal.getNetworkIFs();
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         List&lt;NetworkIF&gt; ffm = ffmHal.getNetworkIFs();
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         assertThat(ffm).hasSameSizeAs(jna);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         Map&lt;String, NetworkIF&gt; ffmByName = ffm.stream()
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 .collect(Collectors.toMap(NetworkIF::getName, Function.identity()));
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">for</strong> (NetworkIF j : jna) {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>             NetworkIF f = ffmByName.get(j.getName());
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>             assertThat(f).as(<span class="jxr_string">"networkIF %s"</span>, j.getName()).isNotNull();
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>             assertThat(f.getDisplayName()).isEqualTo(j.getDisplayName());
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>             assertThat(f.getMacaddr()).isEqualTo(j.getMacaddr());
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>             assertThat(f.getIPv4addr()).isEqualTo(j.getIPv4addr());
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>             assertThat(f.getIPv6addr()).isEqualTo(j.getIPv6addr());
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>             assertThat(f.getMTU()).isEqualTo(j.getMTU());
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>             assertThat(f.getSpeed()).isEqualTo(j.getSpeed());
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             assertThat(f.getIfAlias()).isEqualTo(j.getIfAlias());
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             assertThat(f.getIfOperStatus()).isEqualTo(j.getIfOperStatus());
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <em class="jxr_comment">// Traffic counters are nondecreasing</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>             assertThat(f.getBytesSent()).as(<span class="jxr_string">"bytesSent(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getBytesSent());
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             assertThat(f.getBytesRecv()).as(<span class="jxr_string">"bytesRecv(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getBytesRecv());
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>             assertThat(f.getPacketsSent()).as(<span class="jxr_string">"packetsSent(%s)"</span>, j.getName())
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>                     .isGreaterThanOrEqualTo(j.getPacketsSent());
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             assertThat(f.getPacketsRecv()).as(<span class="jxr_string">"packetsRecv(%s)"</span>, j.getName())
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                     .isGreaterThanOrEqualTo(j.getPacketsRecv());
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <em class="jxr_comment">// ---- Hardware: Displays ----</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     @Test
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">void</strong> displays() {
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         List&lt;Display&gt; jna = jnaHal.getDisplays();
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         List&lt;Display&gt; ffm = ffmHal.getDisplays();
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>     }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> 
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <em class="jxr_comment">// ---- Hardware: USB Devices ----</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>     @Test
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <strong class="jxr_keyword">void</strong> usbDevices() {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         List&lt;UsbDevice&gt; jna = jnaHal.getUsbDevices(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         List&lt;UsbDevice&gt; ffm = ffmHal.getUsbDevices(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <em class="jxr_comment">// ---- Hardware: Sound Cards ----</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     @Test
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>     <strong class="jxr_keyword">void</strong> soundCards() {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         List&lt;SoundCard&gt; jna = jnaHal.getSoundCards();
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         List&lt;SoundCard&gt; ffm = ffmHal.getSoundCards();
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     }
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <em class="jxr_comment">// ---- Hardware: Graphics Cards ----</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a> 
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>     @Test
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     <strong class="jxr_keyword">void</strong> graphicsCards() {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         List&lt;GraphicsCard&gt; jna = jnaHal.getGraphicsCards();
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         List&lt;GraphicsCard&gt; ffm = ffmHal.getGraphicsCards();
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     }
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> 
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     <em class="jxr_comment">// ---- OS: OperatingSystem ----</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     @Test
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">void</strong> operatingSystemInfo() {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         assertThat(ffmOs.getFamily()).isEqualTo(jnaOs.getFamily());
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         assertThat(ffmOs.getManufacturer()).isEqualTo(jnaOs.getManufacturer());
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         assertThat(ffmOs.getBitness()).isEqualTo(jnaOs.getBitness());
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         assertThat(ffmOs.getVersionInfo()).usingRecursiveComparison().isEqualTo(jnaOs.getVersionInfo());
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         assertThat(ffmOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <em class="jxr_comment">// FFM called second, uptime should be &gt;= JNA</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         assertThat(ffmOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         assertThat(ffmOs.isElevated()).isEqualTo(jnaOs.isElevated());
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         assertThat(ffmOs.getProcessCount()).isGreaterThan(0);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         assertThat(ffmOs.getThreadCount()).isGreaterThan(0);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>     }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <em class="jxr_comment">// ---- OS: Current Process ----</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     @Test
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">void</strong> currentProcess() {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         assertThat(ffmOs.getProcessId()).isEqualTo(pid);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         OSProcess jna = jnaOs.getProcess(pid);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         OSProcess ffm = ffmOs.getProcess(pid);
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         assertThat(ffm).isNotNull();
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThat(ffm.getName()).isEqualTo(jna.getName());
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         assertThat(ffm.getPath()).isEqualTo(jna.getPath());
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         assertThat(ffm.getUser()).isEqualTo(jna.getUser());
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         assertThat(ffm.getUserID()).isEqualTo(jna.getUserID());
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         assertThat(ffm.getGroup()).isEqualTo(jna.getGroup());
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         assertThat(ffm.getGroupID()).isEqualTo(jna.getGroupID());
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         assertThat(ffm.getParentProcessID()).isEqualTo(jna.getParentProcessID());
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         assertThat(ffm.getPriority()).isEqualTo(jna.getPriority());
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// Memory values should be in the same ballpark</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <em class="jxr_comment">// Virtual size can differ significantly between JNA and FFM due to timing of memory-mapped regions</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <em class="jxr_comment">// and DLL loading between the two snapshots; 0.95 tolerance accommodates this variance</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.95, <span class="jxr_string">"process.virtualSize"</span>);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.75, <span class="jxr_string">"process.residentMemory"</span>);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <em class="jxr_comment">// Time counters: snapshots taken close together, allow small difference</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         assertThat(ffm.getKernelTime()).as(<span class="jxr_string">"process.kernelTime"</span>).isGreaterThanOrEqualTo(jna.getKernelTime());
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         assertThat(ffm.getUserTime()).as(<span class="jxr_string">"process.userTime"</span>).isGreaterThanOrEqualTo(jna.getUserTime());
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <em class="jxr_comment">// Uptime may differ due to memoization (300ms TTL), use max of 10% or 300ms</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as(<span class="jxr_string">"process.upTime"</span>)
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <em class="jxr_comment">// Context switches: both use getrusage, snapshots taken at different times</em>
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         assertWithinRatio(ffm.getContextSwitches(), jna.getContextSwitches(), 0.1, <span class="jxr_string">"process.contextSwitches"</span>);
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         assertWithinRatio(ffm.getVoluntaryContextSwitches(), jna.getVoluntaryContextSwitches(), 0.1,
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                 <span class="jxr_string">"process.voluntaryContextSwitches"</span>);
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         assertWithinRatio(ffm.getInvoluntaryContextSwitches(), jna.getInvoluntaryContextSwitches(), 0.1,
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 <span class="jxr_string">"process.involuntaryContextSwitches"</span>);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>     }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     @Test
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">void</strong> currentProcessUpdateAttributes() {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         OSProcess jna = jnaOs.getProcess(pid);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         OSProcess ffm = ffmOs.getProcess(pid);
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         assertThat(jna).isNotNull();
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         assertThat(ffm).isNotNull();
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <em class="jxr_comment">// Call updateAttributes to refresh and verify it succeeds</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         assertThat(jna.updateAttributes()).as(<span class="jxr_string">"JNA updateAttributes"</span>).isTrue();
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         assertThat(ffm.updateAttributes()).as(<span class="jxr_string">"FFM updateAttributes"</span>).isTrue();
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <em class="jxr_comment">// After refresh, basic fields should still match</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         assertThat(ffm.getName()).isEqualTo(jna.getName());
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <em class="jxr_comment">// Command line exercises Win32ProcessCached when batch mode is enabled</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     }
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     <em class="jxr_comment">// ---- OS: FileSystem ----</em>
 <a class="jxr_linenumber" name="L420" href="#L420">420</a> 
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         List&lt;OSFileStore&gt; jnaStores = jnaFs.getFileStores();
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         List&lt;OSFileStore&gt; ffmStores = ffmFs.getFileStores();
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         assertThat(ffmStores).hasSameSizeAs(jnaStores);
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         Map&lt;String, OSFileStore&gt; ffmByMount = ffmStores.stream()
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>                 .collect(Collectors.toMap(OSFileStore::getMount, Function.identity(), (a, b) -&gt; a));
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>         <strong class="jxr_keyword">for</strong> (OSFileStore j : jnaStores) {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>             OSFileStore f = ffmByMount.get(j.getMount());
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             assertThat(f).as(<span class="jxr_string">"fileStore at %s"</span>, j.getMount()).isNotNull();
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>             assertThat(f.getName()).isEqualTo(j.getName());
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>             assertThat(f.getType()).isEqualTo(j.getType());
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             assertThat(f.getVolume()).isEqualTo(j.getVolume());
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             assertThat(f.getTotalSpace()).isEqualTo(j.getTotalSpace());
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>             <em class="jxr_comment">// Usable space fluctuates</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             assertWithinRatio(f.getUsableSpace(), j.getUsableSpace(), 0.25, <span class="jxr_string">"usableSpace("</span> + j.getMount() + <span class="jxr_string">")"</span>);
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         }
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a> 
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <em class="jxr_comment">// ---- OS: Network Params ----</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     @Test
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     <strong class="jxr_keyword">void</strong> networkParams() {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         NetworkParams jna = jnaOs.getNetworkParams();
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         NetworkParams ffm = ffmOs.getNetworkParams();
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>         assertThat(ffm.getHostName()).isEqualTo(jna.getHostName());
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         assertThat(ffm.getDomainName()).isEqualTo(jna.getDomainName());
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         assertThat(ffm.getDnsServers()).isEqualTo(jna.getDnsServers());
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         assertThat(ffm.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         assertThat(ffm.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     }
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> 
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <em class="jxr_comment">// ---- OS: Internet Protocol Stats ----</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     @Test
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <strong class="jxr_keyword">void</strong> internetProtocolStats() {
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     @Test
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <strong class="jxr_keyword">void</strong> fileSystem() {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         FileSystem jnaFs = jnaOs.getFileSystem();
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         FileSystem ffmFs = ffmOs.getFileSystem();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         assertThat(ffmFs.getMaxFileDescriptors()).isEqualTo(jnaFs.getMaxFileDescriptors());
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         assertWithinRatio(ffmFs.getOpenFileDescriptors(), jnaFs.getOpenFileDescriptors(), 0.25, <span class="jxr_string">"openFileDescriptors"</span>);
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         List&lt;OSFileStore&gt; jnaStores = jnaFs.getFileStores();
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>         List&lt;OSFileStore&gt; ffmStores = ffmFs.getFileStores();
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         assertThat(ffmStores).hasSameSizeAs(jnaStores);
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         Map&lt;String, OSFileStore&gt; ffmByMount = ffmStores.stream()
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                 .collect(Collectors.toMap(OSFileStore::getMount, Function.identity(), (a, b) -&gt; a));
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">for</strong> (OSFileStore j : jnaStores) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             OSFileStore f = ffmByMount.get(j.getMount());
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             assertThat(f).as(<span class="jxr_string">"fileStore at %s"</span>, j.getMount()).isNotNull();
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             assertThat(f.getName()).isEqualTo(j.getName());
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             assertThat(f.getType()).isEqualTo(j.getType());
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>             assertThat(f.getVolume()).isEqualTo(j.getVolume());
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             assertThat(f.getTotalSpace()).isEqualTo(j.getTotalSpace());
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             <em class="jxr_comment">// Usable space fluctuates</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             assertWithinRatio(f.getUsableSpace(), j.getUsableSpace(), 0.25, <span class="jxr_string">"usableSpace("</span> + j.getMount() + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     }
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <em class="jxr_comment">// ---- OS: Network Params ----</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     @Test
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">void</strong> networkParams() {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         NetworkParams jna = jnaOs.getNetworkParams();
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         NetworkParams ffm = ffmOs.getNetworkParams();
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         assertThat(ffm.getHostName()).isEqualTo(jna.getHostName());
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         assertThat(ffm.getDomainName()).isEqualTo(jna.getDomainName());
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         assertThat(ffm.getDnsServers()).isEqualTo(jna.getDnsServers());
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         assertThat(ffm.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         assertThat(ffm.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     }
 <a class="jxr_linenumber" name="L457" href="#L457">457</a> 
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <em class="jxr_comment">// TCP stats — counters may not be strictly monotonic between calls on all platforms</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>         InternetProtocolStats.TcpStats jnaTcp4 = jna.getTCPv4Stats();
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         InternetProtocolStats.TcpStats ffmTcp4 = ffm.getTCPv4Stats();
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         assertThat(ffmTcp4).as(<span class="jxr_string">"FFM TCPv4 stats"</span>).isNotNull();
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         assertThat(ffmTcp4.getConnectionsEstablished()).as(<span class="jxr_string">"TCPv4 established"</span>).isGreaterThanOrEqualTo(0);
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         assertWithinRatio(ffmTcp4.getSegmentsSent(), jnaTcp4.getSegmentsSent(), 0.05, <span class="jxr_string">"TCPv4 segmentsSent"</span>);
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         assertWithinRatio(ffmTcp4.getSegmentsReceived(), jnaTcp4.getSegmentsReceived(), 0.05, <span class="jxr_string">"TCPv4 segmentsReceived"</span>);
-<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         InternetProtocolStats.TcpStats jnaTcp6 = jna.getTCPv6Stats();
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         InternetProtocolStats.TcpStats ffmTcp6 = ffm.getTCPv6Stats();
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         assertThat(ffmTcp6).as(<span class="jxr_string">"FFM TCPv6 stats"</span>).isNotNull();
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         assertWithinRatio(ffmTcp6.getSegmentsSent(), jnaTcp6.getSegmentsSent(), 0.05, <span class="jxr_string">"TCPv6 segmentsSent"</span>);
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         assertWithinRatio(ffmTcp6.getSegmentsReceived(), jnaTcp6.getSegmentsReceived(), 0.05, <span class="jxr_string">"TCPv6 segmentsReceived"</span>);
-<a class="jxr_linenumber" name="L471" href="#L471">471</a> 
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <em class="jxr_comment">// UDP stats — counters may not be strictly monotonic between calls on all platforms</em>
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>         InternetProtocolStats.UdpStats jnaUdp4 = jna.getUDPv4Stats();
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         InternetProtocolStats.UdpStats ffmUdp4 = ffm.getUDPv4Stats();
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         assertThat(ffmUdp4).as(<span class="jxr_string">"FFM UDPv4 stats"</span>).isNotNull();
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>         assertWithinRatio(ffmUdp4.getDatagramsSent(), jnaUdp4.getDatagramsSent(), 0.05, <span class="jxr_string">"UDPv4 datagramsSent"</span>);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         assertWithinRatio(ffmUdp4.getDatagramsReceived(), jnaUdp4.getDatagramsReceived(), 0.05,
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>                 <span class="jxr_string">"UDPv4 datagramsReceived"</span>);
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> 
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         InternetProtocolStats.UdpStats jnaUdp6 = jna.getUDPv6Stats();
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         InternetProtocolStats.UdpStats ffmUdp6 = ffm.getUDPv6Stats();
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>         assertThat(ffmUdp6).as(<span class="jxr_string">"FFM UDPv6 stats"</span>).isNotNull();
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         assertWithinRatio(ffmUdp6.getDatagramsSent(), jnaUdp6.getDatagramsSent(), 0.05, <span class="jxr_string">"UDPv6 datagramsSent"</span>);
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         assertWithinRatio(ffmUdp6.getDatagramsReceived(), jnaUdp6.getDatagramsReceived(), 0.05,
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 <span class="jxr_string">"UDPv6 datagramsReceived"</span>);
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>     }
-<a class="jxr_linenumber" name="L487" href="#L487">487</a> 
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     @Test
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     <strong class="jxr_keyword">void</strong> internetProtocolConnections() {
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
-<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         List&lt;InternetProtocolStats.IPConnection&gt; jnaConns = jna.getConnections();
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>         List&lt;InternetProtocolStats.IPConnection&gt; ffmConns = ffm.getConnections();
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         assertThat(ffmConns).as(<span class="jxr_string">"FFM connections"</span>).isNotNull();
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>         assertThat(jnaConns).as(<span class="jxr_string">"JNA connections"</span>).isNotNull();
-<a class="jxr_linenumber" name="L497" href="#L497">497</a> 
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <em class="jxr_comment">// Both sides should return connections or both should be empty</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>         assertThat(ffmConns.isEmpty()).as(<span class="jxr_string">"FFM and JNA should agree on emptiness"</span>).isEqualTo(jnaConns.isEmpty());
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">if</strong> (jnaConns.isEmpty()) {
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         }
-<a class="jxr_linenumber" name="L503" href="#L503">503</a> 
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <em class="jxr_comment">// Connection counts can fluctuate significantly between the two reads</em>
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>         assertWithinRatio(ffmConns.size(), jnaConns.size(), 0.50, <span class="jxr_string">"connections.size"</span>);
-<a class="jxr_linenumber" name="L506" href="#L506">506</a> 
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <em class="jxr_comment">// Build unique tuple sets for overlap check</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         Set&lt;String&gt; jnaKeys = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : jnaConns) {
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>             jnaKeys.add(c.getType() + <span class="jxr_string">":"</span> + c.getLocalPort() + <span class="jxr_string">":"</span> + c.getForeignPort());
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>         }
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>         Set&lt;String&gt; ffmKeys = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : ffmConns) {
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>             ffmKeys.add(c.getType() + <span class="jxr_string">":"</span> + c.getLocalPort() + <span class="jxr_string">":"</span> + c.getForeignPort());
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         }
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <em class="jxr_comment">// Count unique tuples present in both</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         Set&lt;String&gt; intersection = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(ffmKeys);
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         intersection.retainAll(jnaKeys);
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>         assertThat(intersection.size()).as(<span class="jxr_string">"unique connection tuple overlap"</span>)
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>                 .isGreaterThanOrEqualTo(ffmKeys.size() / 4);
-<a class="jxr_linenumber" name="L521" href="#L521">521</a> 
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <em class="jxr_comment">// Verify structural correctness of FFM connections</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : ffmConns) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             assertThat(c.getType()).as(<span class="jxr_string">"connection type"</span>).isNotEmpty();
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>             assertThat(c.getLocalPort()).as(<span class="jxr_string">"localPort"</span>).isBetween(0, 0xffff);
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>             assertThat(c.getForeignPort()).as(<span class="jxr_string">"foreignPort"</span>).isBetween(0, 0xffff);
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>             assertThat(c.getState()).as(<span class="jxr_string">"state"</span>).isNotNull();
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>         }
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     }
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> 
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>     <em class="jxr_comment">// ---- OS: Sessions ----</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     @Test
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">void</strong> sessions() {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         List&lt;OSSession&gt; jnaSessions = jnaOs.getSessions();
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         List&lt;OSSession&gt; ffmSessions = ffmOs.getSessions();
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>         <em class="jxr_comment">// Sessions should be the same set of users</em>
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         assertThat(ffmSessions).hasSameSizeAs(jnaSessions);
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <em class="jxr_comment">// On Linux, compare session details (user, device, host)</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">if</strong> (isLinux() &amp;&amp; !jnaSessions.isEmpty()) {
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             Map&lt;String, OSSession&gt; ffmByKey = ffmSessions.stream()
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>                     .collect(Collectors.toMap(s -&gt; s.getUserName() + <span class="jxr_string">"|"</span> + s.getTerminalDevice(), s -&gt; s, (a, b) -&gt; a));
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>             <strong class="jxr_keyword">for</strong> (OSSession j : jnaSessions) {
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>                 String key = j.getUserName() + <span class="jxr_string">"|"</span> + j.getTerminalDevice();
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 OSSession f = ffmByKey.get(key);
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>                 assertThat(f).as(<span class="jxr_string">"session %s"</span>, key).isNotNull();
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>                 assertThat(f.getHost()).as(<span class="jxr_string">"session[%s].host"</span>, key).isEqualTo(j.getHost());
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>                 <em class="jxr_comment">// Login times should be within 1 second of each other</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>                 assertThat(Math.abs(f.getLoginTime() - j.getLoginTime())).as(<span class="jxr_string">"session[%s].loginTime"</span>, key)
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>                         .isLessThanOrEqualTo(1000L);
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>             }
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         }
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>     }
-<a class="jxr_linenumber" name="L554" href="#L554">554</a> 
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>     <em class="jxr_comment">// ---- OS: Services ----</em>
-<a class="jxr_linenumber" name="L556" href="#L556">556</a> 
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>     @Test
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     <strong class="jxr_keyword">void</strong> services() {
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         <em class="jxr_comment">// Services can start/stop between calls; just verify they're in the same ballpark</em>
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">int</strong> jnaSize = jnaOs.getServices().size();
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <strong class="jxr_keyword">int</strong> ffmSize = ffmOs.getServices().size();
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>         assertWithinRatio(ffmSize, jnaSize, 0.05, <span class="jxr_string">"services.size"</span>);
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>     }
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> 
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <em class="jxr_comment">// ---- Hardware: Printers ----</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> 
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>     @Test
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>     <strong class="jxr_keyword">void</strong> printers() {
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         List&lt;Printer&gt; jna = jnaHal.getPrinters();
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>         List&lt;Printer&gt; ffm = ffmHal.getPrinters();
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>     }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <em class="jxr_comment">// ---- OS: Internet Protocol Stats ----</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     @Test
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">void</strong> internetProtocolStats() {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <em class="jxr_comment">// TCP stats — counters may not be strictly monotonic between calls on all platforms</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         InternetProtocolStats.TcpStats jnaTcp4 = jna.getTCPv4Stats();
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         InternetProtocolStats.TcpStats ffmTcp4 = ffm.getTCPv4Stats();
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         assertThat(ffmTcp4).as(<span class="jxr_string">"FFM TCPv4 stats"</span>).isNotNull();
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         assertThat(ffmTcp4.getConnectionsEstablished()).as(<span class="jxr_string">"TCPv4 established"</span>).isGreaterThanOrEqualTo(0);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         assertWithinRatio(ffmTcp4.getSegmentsSent(), jnaTcp4.getSegmentsSent(), 0.05, <span class="jxr_string">"TCPv4 segmentsSent"</span>);
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         assertWithinRatio(ffmTcp4.getSegmentsReceived(), jnaTcp4.getSegmentsReceived(), 0.05, <span class="jxr_string">"TCPv4 segmentsReceived"</span>);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         InternetProtocolStats.TcpStats jnaTcp6 = jna.getTCPv6Stats();
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         InternetProtocolStats.TcpStats ffmTcp6 = ffm.getTCPv6Stats();
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         assertThat(ffmTcp6).as(<span class="jxr_string">"FFM TCPv6 stats"</span>).isNotNull();
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         assertWithinRatio(ffmTcp6.getSegmentsSent(), jnaTcp6.getSegmentsSent(), 0.05, <span class="jxr_string">"TCPv6 segmentsSent"</span>);
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         assertWithinRatio(ffmTcp6.getSegmentsReceived(), jnaTcp6.getSegmentsReceived(), 0.05, <span class="jxr_string">"TCPv6 segmentsReceived"</span>);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <em class="jxr_comment">// UDP stats — counters may not be strictly monotonic between calls on all platforms</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         InternetProtocolStats.UdpStats jnaUdp4 = jna.getUDPv4Stats();
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         InternetProtocolStats.UdpStats ffmUdp4 = ffm.getUDPv4Stats();
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         assertThat(ffmUdp4).as(<span class="jxr_string">"FFM UDPv4 stats"</span>).isNotNull();
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         assertWithinRatio(ffmUdp4.getDatagramsSent(), jnaUdp4.getDatagramsSent(), 0.05, <span class="jxr_string">"UDPv4 datagramsSent"</span>);
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         assertWithinRatio(ffmUdp4.getDatagramsReceived(), jnaUdp4.getDatagramsReceived(), 0.05,
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 <span class="jxr_string">"UDPv4 datagramsReceived"</span>);
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         InternetProtocolStats.UdpStats jnaUdp6 = jna.getUDPv6Stats();
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         InternetProtocolStats.UdpStats ffmUdp6 = ffm.getUDPv6Stats();
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         assertThat(ffmUdp6).as(<span class="jxr_string">"FFM UDPv6 stats"</span>).isNotNull();
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         assertWithinRatio(ffmUdp6.getDatagramsSent(), jnaUdp6.getDatagramsSent(), 0.05, <span class="jxr_string">"UDPv6 datagramsSent"</span>);
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         assertWithinRatio(ffmUdp6.getDatagramsReceived(), jnaUdp6.getDatagramsReceived(), 0.05,
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 <span class="jxr_string">"UDPv6 datagramsReceived"</span>);
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     }
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> 
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>     @Test
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     <strong class="jxr_keyword">void</strong> internetProtocolConnections() {
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> 
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         List&lt;InternetProtocolStats.IPConnection&gt; jnaConns = jna.getConnections();
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         List&lt;InternetProtocolStats.IPConnection&gt; ffmConns = ffm.getConnections();
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>         assertThat(ffmConns).as(<span class="jxr_string">"FFM connections"</span>).isNotNull();
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         assertThat(jnaConns).as(<span class="jxr_string">"JNA connections"</span>).isNotNull();
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> 
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <em class="jxr_comment">// Both sides should return connections or both should be empty</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         assertThat(ffmConns.isEmpty()).as(<span class="jxr_string">"FFM and JNA should agree on emptiness"</span>).isEqualTo(jnaConns.isEmpty());
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <strong class="jxr_keyword">if</strong> (jnaConns.isEmpty()) {
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>         }
+<a class="jxr_linenumber" name="L510" href="#L510">510</a> 
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>         <em class="jxr_comment">// Connection counts can fluctuate significantly between the two reads</em>
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>         assertWithinRatio(ffmConns.size(), jnaConns.size(), 0.50, <span class="jxr_string">"connections.size"</span>);
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         <em class="jxr_comment">// Build unique tuple sets for overlap check</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         Set&lt;String&gt; jnaKeys = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : jnaConns) {
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             jnaKeys.add(c.getType() + <span class="jxr_string">":"</span> + c.getLocalPort() + <span class="jxr_string">":"</span> + c.getForeignPort());
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         }
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         Set&lt;String&gt; ffmKeys = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : ffmConns) {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             ffmKeys.add(c.getType() + <span class="jxr_string">":"</span> + c.getLocalPort() + <span class="jxr_string">":"</span> + c.getForeignPort());
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         }
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <em class="jxr_comment">// Count unique tuples present in both</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         Set&lt;String&gt; intersection = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(ffmKeys);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         intersection.retainAll(jnaKeys);
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         assertThat(intersection.size()).as(<span class="jxr_string">"unique connection tuple overlap"</span>)
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>                 .isGreaterThanOrEqualTo(ffmKeys.size() / 4);
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> 
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <em class="jxr_comment">// Verify structural correctness of FFM connections</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">for</strong> (InternetProtocolStats.IPConnection c : ffmConns) {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>             assertThat(c.getType()).as(<span class="jxr_string">"connection type"</span>).isNotEmpty();
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>             assertThat(c.getLocalPort()).as(<span class="jxr_string">"localPort"</span>).isBetween(0, 0xffff);
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>             assertThat(c.getForeignPort()).as(<span class="jxr_string">"foreignPort"</span>).isBetween(0, 0xffff);
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             assertThat(c.getState()).as(<span class="jxr_string">"state"</span>).isNotNull();
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         }
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>     }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     <em class="jxr_comment">// ---- OS: Sessions ----</em>
+<a class="jxr_linenumber" name="L539" href="#L539">539</a> 
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>     @Test
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">void</strong> sessions() {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         List&lt;OSSession&gt; jnaSessions = jnaOs.getSessions();
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         List&lt;OSSession&gt; ffmSessions = ffmOs.getSessions();
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <em class="jxr_comment">// Sessions should be the same set of users</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         assertThat(ffmSessions).hasSameSizeAs(jnaSessions);
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <em class="jxr_comment">// On Linux, compare session details (user, device, host)</em>
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">if</strong> (isLinux() &amp;&amp; !jnaSessions.isEmpty()) {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>             Map&lt;String, OSSession&gt; ffmByKey = ffmSessions.stream()
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>                     .collect(Collectors.toMap(s -&gt; s.getUserName() + <span class="jxr_string">"|"</span> + s.getTerminalDevice(), s -&gt; s, (a, b) -&gt; a));
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>             <strong class="jxr_keyword">for</strong> (OSSession j : jnaSessions) {
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>                 String key = j.getUserName() + <span class="jxr_string">"|"</span> + j.getTerminalDevice();
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>                 OSSession f = ffmByKey.get(key);
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>                 assertThat(f).as(<span class="jxr_string">"session %s"</span>, key).isNotNull();
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>                 assertThat(f.getHost()).as(<span class="jxr_string">"session[%s].host"</span>, key).isEqualTo(j.getHost());
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>                 <em class="jxr_comment">// Login times should be within 1 second of each other</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>                 assertThat(Math.abs(f.getLoginTime() - j.getLoginTime())).as(<span class="jxr_string">"session[%s].loginTime"</span>, key)
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>                         .isLessThanOrEqualTo(1000L);
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>             }
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         }
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <em class="jxr_comment">// ---- OS: Services ----</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> 
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>     @Test
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <strong class="jxr_keyword">void</strong> services() {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         <em class="jxr_comment">// Services can start/stop between calls; just verify they're in the same ballpark</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>         <strong class="jxr_keyword">int</strong> jnaSize = jnaOs.getServices().size();
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>         <strong class="jxr_keyword">int</strong> ffmSize = ffmOs.getServices().size();
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>         assertWithinRatio(ffmSize, jnaSize, 0.05, <span class="jxr_string">"services.size"</span>);
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>     }
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> 
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <em class="jxr_comment">// ---- Hardware: Printers ----</em>
 <a class="jxr_linenumber" name="L573" href="#L573">573</a> 
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>     <em class="jxr_comment">// ---- OS: Current Thread ----</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> 
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>     @Test
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <strong class="jxr_keyword">void</strong> currentThread() {
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">int</strong> jnaTid = jnaOs.getThreadId();
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">int</strong> ffmTid = ffmOs.getThreadId();
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>         assertThat(ffmTid).isEqualTo(jnaTid);
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>         OSThread jnaThread = jnaOs.getCurrentThread();
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>         OSThread ffmThread = ffmOs.getCurrentThread();
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>         assertThat(ffmThread).isNotNull();
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>         assertThat(ffmThread.getThreadId()).isEqualTo(jnaThread.getThreadId());
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>         assertThat(ffmThread.getOwningProcessId()).isEqualTo(jnaThread.getOwningProcessId());
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>         assertThat(ffmThread.getName()).isEqualTo(jnaThread.getName());
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>     }
-<a class="jxr_linenumber" name="L588" href="#L588">588</a> 
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>     <em class="jxr_comment">// ---- OS: Desktop Windows ----</em>
-<a class="jxr_linenumber" name="L590" href="#L590">590</a> 
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     @Test
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <strong class="jxr_keyword">void</strong> desktopWindows() {
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <em class="jxr_comment">// Desktop windows can change rapidly; just verify both return non-null lists</em>
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>         assertThat(ffmOs.getDesktopWindows(<strong class="jxr_keyword">true</strong>)).isNotNull();
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>         assertThat(jnaOs.getDesktopWindows(<strong class="jxr_keyword">true</strong>)).isNotNull();
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>     }
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     @Test
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>     <strong class="jxr_keyword">void</strong> printers() {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         List&lt;Printer&gt; jna = jnaHal.getPrinters();
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         List&lt;Printer&gt; ffm = ffmHal.getPrinters();
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>     }
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> 
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>     <em class="jxr_comment">// ---- OS: Current Thread ----</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> 
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>     @Test
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">void</strong> currentThread() {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">int</strong> jnaTid = jnaOs.getThreadId();
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>         <strong class="jxr_keyword">int</strong> ffmTid = ffmOs.getThreadId();
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         assertThat(ffmTid).isEqualTo(jnaTid);
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>         OSThread jnaThread = jnaOs.getCurrentThread();
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         OSThread ffmThread = ffmOs.getCurrentThread();
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         assertThat(ffmThread).isNotNull();
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         assertThat(ffmThread.getThreadId()).isEqualTo(jnaThread.getThreadId());
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         assertThat(ffmThread.getOwningProcessId()).isEqualTo(jnaThread.getOwningProcessId());
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         assertThat(ffmThread.getName()).isEqualTo(jnaThread.getName());
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>     }
+<a class="jxr_linenumber" name="L595" href="#L595">595</a> 
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     <em class="jxr_comment">// ---- OS: Desktop Windows ----</em>
 <a class="jxr_linenumber" name="L597" href="#L597">597</a> 
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>     <em class="jxr_comment">// ---- OS: Installed Applications ----</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> 
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>     @Test
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>     <strong class="jxr_keyword">void</strong> installedApplications() {
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>         Set&lt;String&gt; jna = jnaOs.getInstalledApplications().stream().map(ApplicationInfo::getName)
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>                 .collect(Collectors.toSet());
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>         Set&lt;String&gt; ffm = ffmOs.getInstalledApplications().stream().map(ApplicationInfo::getName)
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>                 .collect(Collectors.toSet());
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>         <em class="jxr_comment">// Apps can be installed/uninstalled between calls; compare name sets with tolerance</em>
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>         assertWithinRatio(ffm.size(), jna.size(), 0.05, <span class="jxr_string">"installedApplications.size"</span>);
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>     }
-<a class="jxr_linenumber" name="L609" href="#L609">609</a> 
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>     <em class="jxr_comment">// ---- OS: Processes (structural) ----</em>
-<a class="jxr_linenumber" name="L611" href="#L611">611</a> 
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>     @Test
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>     <strong class="jxr_keyword">void</strong> processListStructure() {
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>         <em class="jxr_comment">// Both should return a non-empty process list</em>
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>         List&lt;OSProcess&gt; jna = jnaOs.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0);
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>         List&lt;OSProcess&gt; ffm = ffmOs.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0);
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>         assertThat(ffm).isNotEmpty();
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>         <em class="jxr_comment">// Process counts can differ slightly but should be in the same ballpark</em>
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>         assertWithinRatio(ffm.size(), jna.size(), 0.25, <span class="jxr_string">"processCount"</span>);
-<a class="jxr_linenumber" name="L620" href="#L620">620</a> 
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>         <em class="jxr_comment">// The longest-lived processes should be present in both lists</em>
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>         List&lt;OSProcess&gt; jnaSorted = jna.stream().sorted(Comparator.comparingLong(OSProcess::getStartTime)).limit(10)
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>                 .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L624" href="#L624">624</a>         Map&lt;Integer, OSProcess&gt; ffmByPid = ffm.stream()
-<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 .collect(Collectors.toMap(OSProcess::getProcessID, Function.identity(), (a, b) -&gt; a));
-<a class="jxr_linenumber" name="L626" href="#L626">626</a>         <strong class="jxr_keyword">for</strong> (OSProcess j : jnaSorted) {
-<a class="jxr_linenumber" name="L627" href="#L627">627</a>             OSProcess f = ffmByPid.get(j.getProcessID());
-<a class="jxr_linenumber" name="L628" href="#L628">628</a>             <strong class="jxr_keyword">if</strong> (f != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L629" href="#L629">629</a>                 <em class="jxr_comment">// Kernel worker threads (kworker) are renamed dynamically based on current work; skip name check</em>
-<a class="jxr_linenumber" name="L630" href="#L630">630</a>                 <strong class="jxr_keyword">if</strong> (!j.getName().startsWith(<span class="jxr_string">"kworker/"</span>)) {
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>                     assertThat(f.getName()).as(<span class="jxr_string">"process[%d].name"</span>, j.getProcessID()).isEqualTo(j.getName());
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>                 }
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>                 assertThat(f.getStartTime()).as(<span class="jxr_string">"process[%d].startTime"</span>, j.getProcessID()).isEqualTo(j.getStartTime());
-<a class="jxr_linenumber" name="L634" href="#L634">634</a>             }
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>         }
-<a class="jxr_linenumber" name="L636" href="#L636">636</a>     }
-<a class="jxr_linenumber" name="L637" href="#L637">637</a> 
-<a class="jxr_linenumber" name="L638" href="#L638">638</a>     <em class="jxr_comment">// ---- OS: Threads of current process ----</em>
-<a class="jxr_linenumber" name="L639" href="#L639">639</a> 
-<a class="jxr_linenumber" name="L640" href="#L640">640</a>     @Test
-<a class="jxr_linenumber" name="L641" href="#L641">641</a>     <strong class="jxr_keyword">void</strong> currentProcessThreads() {
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>         OSProcess jna = jnaOs.getProcess(pid);
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>         OSProcess ffm = ffmOs.getProcess(pid);
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>         List&lt;OSThread&gt; jnaThreads = jna.getThreadDetails();
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>         List&lt;OSThread&gt; ffmThreads = ffm.getThreadDetails();
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>         <em class="jxr_comment">// Thread count can change but should be in the same ballpark</em>
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>         assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.5, <span class="jxr_string">"threadDetails.size"</span>);
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>     }
-<a class="jxr_linenumber" name="L650" href="#L650">650</a> 
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>     <em class="jxr_comment">// ---- Conditions ----</em>
-<a class="jxr_linenumber" name="L652" href="#L652">652</a> 
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isLinux() {
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>         <strong class="jxr_keyword">return</strong> PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>     }
-<a class="jxr_linenumber" name="L656" href="#L656">656</a> 
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>     <em class="jxr_comment">// ---- Helpers ----</em>
-<a class="jxr_linenumber" name="L658" href="#L658">658</a> 
-<a class="jxr_linenumber" name="L659" href="#L659">659</a> }
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>     @Test
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>     <strong class="jxr_keyword">void</strong> desktopWindows() {
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <em class="jxr_comment">// Desktop windows can change rapidly; just verify both return non-null lists</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>         assertThat(ffmOs.getDesktopWindows(<strong class="jxr_keyword">true</strong>)).isNotNull();
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>         assertThat(jnaOs.getDesktopWindows(<strong class="jxr_keyword">true</strong>)).isNotNull();
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>     }
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <em class="jxr_comment">// ---- OS: Installed Applications ----</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> 
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>     @Test
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>     <strong class="jxr_keyword">void</strong> installedApplications() {
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>         Set&lt;String&gt; jna = jnaOs.getInstalledApplications().stream().map(ApplicationInfo::getName)
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>                 .collect(Collectors.toSet());
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>         Set&lt;String&gt; ffm = ffmOs.getInstalledApplications().stream().map(ApplicationInfo::getName)
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 .collect(Collectors.toSet());
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>         <em class="jxr_comment">// Apps can be installed/uninstalled between calls; compare name sets with tolerance</em>
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>         assertWithinRatio(ffm.size(), jna.size(), 0.05, <span class="jxr_string">"installedApplications.size"</span>);
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>     }
+<a class="jxr_linenumber" name="L616" href="#L616">616</a> 
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>     <em class="jxr_comment">// ---- OS: Processes (structural) ----</em>
+<a class="jxr_linenumber" name="L618" href="#L618">618</a> 
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>     @Test
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>     <strong class="jxr_keyword">void</strong> processListStructure() {
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>         <em class="jxr_comment">// Both should return a non-empty process list</em>
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>         List&lt;OSProcess&gt; jna = jnaOs.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0);
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>         List&lt;OSProcess&gt; ffm = ffmOs.getProcesses(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, 0);
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>         assertThat(ffm).isNotEmpty();
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>         <em class="jxr_comment">// Process counts can differ slightly but should be in the same ballpark</em>
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>         assertWithinRatio(ffm.size(), jna.size(), 0.25, <span class="jxr_string">"processCount"</span>);
+<a class="jxr_linenumber" name="L627" href="#L627">627</a> 
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>         <em class="jxr_comment">// The longest-lived processes should be present in both lists</em>
+<a class="jxr_linenumber" name="L629" href="#L629">629</a>         List&lt;OSProcess&gt; jnaSorted = jna.stream().sorted(Comparator.comparingLong(OSProcess::getStartTime)).limit(10)
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>                 .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>         Map&lt;Integer, OSProcess&gt; ffmByPid = ffm.stream()
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>                 .collect(Collectors.toMap(OSProcess::getProcessID, Function.identity(), (a, b) -&gt; a));
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>         <strong class="jxr_keyword">for</strong> (OSProcess j : jnaSorted) {
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>             OSProcess f = ffmByPid.get(j.getProcessID());
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>             <strong class="jxr_keyword">if</strong> (f != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>                 <em class="jxr_comment">// Kernel worker threads (kworker) are renamed dynamically based on current work; skip name check</em>
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>                 <strong class="jxr_keyword">if</strong> (!j.getName().startsWith(<span class="jxr_string">"kworker/"</span>)) {
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>                     assertThat(f.getName()).as(<span class="jxr_string">"process[%d].name"</span>, j.getProcessID()).isEqualTo(j.getName());
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>                 }
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>                 assertThat(f.getStartTime()).as(<span class="jxr_string">"process[%d].startTime"</span>, j.getProcessID()).isEqualTo(j.getStartTime());
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>             }
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>         }
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>     }
+<a class="jxr_linenumber" name="L644" href="#L644">644</a> 
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>     <em class="jxr_comment">// ---- OS: Threads of current process ----</em>
+<a class="jxr_linenumber" name="L646" href="#L646">646</a> 
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>     @Test
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>     <strong class="jxr_keyword">void</strong> currentProcessThreads() {
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>         <strong class="jxr_keyword">int</strong> pid = jnaOs.getProcessId();
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>         OSProcess jna = jnaOs.getProcess(pid);
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>         OSProcess ffm = ffmOs.getProcess(pid);
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>         List&lt;OSThread&gt; jnaThreads = jna.getThreadDetails();
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>         List&lt;OSThread&gt; ffmThreads = ffm.getThreadDetails();
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>         <em class="jxr_comment">// Thread count can change but should be in the same ballpark</em>
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>         assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.5, <span class="jxr_string">"threadDetails.size"</span>);
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>     }
+<a class="jxr_linenumber" name="L657" href="#L657">657</a> 
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>     <em class="jxr_comment">// ---- Conditions ----</em>
+<a class="jxr_linenumber" name="L659" href="#L659">659</a> 
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isLinux() {
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">return</strong> PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>     }
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> 
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>     <em class="jxr_comment">// ---- Helpers ----</em>
+<a class="jxr_linenumber" name="L665" href="#L665">665</a> 
+<a class="jxr_linenumber" name="L666" href="#L666">666</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
