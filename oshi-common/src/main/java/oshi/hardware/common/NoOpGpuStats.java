@@ -24,7 +24,7 @@ public final class NoOpGpuStats implements GpuStats {
     /**
      * Default constructor.
      */
-    protected NoOpGpuStats() {
+    public NoOpGpuStats() {
     }
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
