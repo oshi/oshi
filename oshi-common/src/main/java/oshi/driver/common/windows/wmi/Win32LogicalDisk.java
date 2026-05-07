@@ -21,7 +21,24 @@ public class Win32LogicalDisk {
      * Logical disk properties.
      */
     public enum LogicalDiskProperty {
-        ACCESS, DESCRIPTION, DRIVETYPE, FILESYSTEM, FREESPACE, NAME, PROVIDERNAME, SIZE, VOLUMENAME;
+        /** ACCESS property. */
+        ACCESS,
+        /** DESCRIPTION property. */
+        DESCRIPTION,
+        /** DRIVETYPE property. */
+        DRIVETYPE,
+        /** FILESYSTEM property. */
+        FILESYSTEM,
+        /** FREESPACE property. */
+        FREESPACE,
+        /** NAME property. */
+        NAME,
+        /** PROVIDERNAME property. */
+        PROVIDERNAME,
+        /** SIZE property. */
+        SIZE,
+        /** VOLUMENAME property. */
+        VOLUMENAME;
     }
 
     protected Win32LogicalDisk() {

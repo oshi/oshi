@@ -21,6 +21,7 @@ public class Win32Bios {
      * Serial number property.
      */
     public enum BiosSerialProperty {
+        /** BIOS serial number. */
         SERIALNUMBER;
     }
 

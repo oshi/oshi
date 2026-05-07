@@ -21,7 +21,16 @@ public class Win32OperatingSystem {
      * Operating System properties.
      */
     public enum OSVersionProperty {
-        VERSION, PRODUCTTYPE, BUILDNUMBER, CSDVERSION, SUITEMASK;
+        /** VERSION property. */
+        VERSION,
+        /** PRODUCTTYPE property. */
+        PRODUCTTYPE,
+        /** BUILDNUMBER property. */
+        BUILDNUMBER,
+        /** CSDVERSION property. */
+        CSDVERSION,
+        /** SUITEMASK property. */
+        SUITEMASK;
     }
 
     protected Win32OperatingSystem() {

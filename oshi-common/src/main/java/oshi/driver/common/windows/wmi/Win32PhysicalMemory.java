@@ -21,14 +21,40 @@ public class Win32PhysicalMemory {
      * Physical Memory properties for Win10 and later.
      */
     public enum PhysicalMemoryProperty {
-        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, PARTNUMBER, SMBIOSMEMORYTYPE, SERIALNUMBER
+        /** BANKLABEL property. */
+        BANKLABEL,
+        /** CAPACITY property. */
+        CAPACITY,
+        /** SPEED property. */
+        SPEED,
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** PARTNUMBER property. */
+        PARTNUMBER,
+        /** SMBIOSMEMORYTYPE property. */
+        SMBIOSMEMORYTYPE,
+        /** SERIALNUMBER property. */
+        SERIALNUMBER
     }
 
     /**
      * Physical Memory properties for Win8 and earlier.
      */
     public enum PhysicalMemoryPropertyWin8 {
-        BANKLABEL, CAPACITY, SPEED, MANUFACTURER, MEMORYTYPE, PARTNUMBER, SERIALNUMBER
+        /** BANKLABEL property. */
+        BANKLABEL,
+        /** CAPACITY property. */
+        CAPACITY,
+        /** SPEED property. */
+        SPEED,
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** MEMORYTYPE property. */
+        MEMORYTYPE,
+        /** PARTNUMBER property. */
+        PARTNUMBER,
+        /** SERIALNUMBER property. */
+        SERIALNUMBER
     }
 
     protected Win32PhysicalMemory() {

@@ -21,7 +21,22 @@ public class Win32Printer {
      * Printer properties from WMI.
      */
     public enum PrinterProperty {
-        NAME, DRIVERNAME, PRINTERSTATUS, DETECTEDERRORSTATE, DEFAULT, LOCAL, PORTNAME, DESCRIPTION;
+        /** NAME property. */
+        NAME,
+        /** DRIVERNAME property. */
+        DRIVERNAME,
+        /** PRINTERSTATUS property. */
+        PRINTERSTATUS,
+        /** DETECTEDERRORSTATE property. */
+        DETECTEDERRORSTATE,
+        /** DEFAULT property. */
+        DEFAULT,
+        /** LOCAL property. */
+        LOCAL,
+        /** PORTNAME property. */
+        PORTNAME,
+        /** DESCRIPTION property. */
+        DESCRIPTION;
     }
 
     protected Win32Printer() {

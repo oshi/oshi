@@ -21,6 +21,7 @@ public class Win32Fan {
      * Fan speed property.
      */
     public enum SpeedProperty {
+        /** Desired fan speed. */
         DESIREDSPEED;
     }
 
