@@ -21,6 +21,15 @@ public abstract class WindowsPrinter extends AbstractPrinter {
 
     /**
      * Constructor.
+     *
+     * @param name         the name
+     * @param driverName   the driverName
+     * @param description  the description
+     * @param status       the status
+     * @param statusReason the statusReason
+     * @param isDefault    the isDefault
+     * @param isLocal      the isLocal
+     * @param portName     the portName
      */
     protected WindowsPrinter(String name, String driverName, String description, PrinterStatus status,
             String statusReason, boolean isDefault, boolean isLocal, String portName) {

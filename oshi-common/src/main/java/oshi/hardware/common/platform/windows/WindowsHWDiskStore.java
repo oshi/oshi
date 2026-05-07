@@ -48,6 +48,11 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
     /**
      * Constructor.
+     *
+     * @param name   the name
+     * @param model  the model
+     * @param serial the serial
+     * @param size   the size
      */
     protected WindowsHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -55,6 +60,12 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
     /**
      * Constructor.
+     *
+     * @param name     the name
+     * @param model    the model
+     * @param serial   the serial
+     * @param size     the size
+     * @param diskType the diskType
      */
     protected WindowsHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);

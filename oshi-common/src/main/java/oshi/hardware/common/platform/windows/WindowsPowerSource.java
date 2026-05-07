@@ -39,6 +39,28 @@ public abstract class WindowsPowerSource extends AbstractPowerSource {
 
     /**
      * Constructor.
+     *
+     * @param psName                     the psName
+     * @param psDeviceName               the psDeviceName
+     * @param psRemainingCapacityPercent the psRemainingCapacityPercent
+     * @param psTimeRemainingEstimated   the psTimeRemainingEstimated
+     * @param psTimeRemainingInstant     the psTimeRemainingInstant
+     * @param psPowerUsageRate           the psPowerUsageRate
+     * @param psVoltage                  the psVoltage
+     * @param psAmperage                 the psAmperage
+     * @param psPowerOnLine              the psPowerOnLine
+     * @param psCharging                 the psCharging
+     * @param psDischarging              the psDischarging
+     * @param psCapacityUnits            the psCapacityUnits
+     * @param psCurrentCapacity          the psCurrentCapacity
+     * @param psMaxCapacity              the psMaxCapacity
+     * @param psDesignCapacity           the psDesignCapacity
+     * @param psCycleCount               the psCycleCount
+     * @param psChemistry                the psChemistry
+     * @param psManufactureDate          the psManufactureDate
+     * @param psManufacturer             the psManufacturer
+     * @param psSerialNumber             the psSerialNumber
+     * @param psTemperature              the psTemperature
      */
     protected WindowsPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,

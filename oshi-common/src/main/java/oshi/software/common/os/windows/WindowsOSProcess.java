@@ -83,6 +83,12 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     /**
      * Constructor.
+     *
+     * @param pid           the pid
+     * @param os            the os
+     * @param processMap    the processMap
+     * @param processWtsMap the processWtsMap
+     * @param threadMap     the threadMap
      */
     protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {

@@ -373,6 +373,12 @@
                             <link>https://javadoc.io/doc/org.hamcrest/hamcrest/${hamcrest.version}/</link>
                         </links>
                         <detectJavaApiLink>false</detectJavaApiLink>
+                        <additionalJOptions>
+                            <additionalJOption>-Xmaxwarns</additionalJOption>
+                            <additionalJOption>1000</additionalJOption>
+                            <additionalJOption>-Xmaxerrs</additionalJOption>
+                            <additionalJOption>1000</additionalJOption>
+                        </additionalJOptions>
                     </configuration>
                 </plugin>
                 <!-- Tools -->

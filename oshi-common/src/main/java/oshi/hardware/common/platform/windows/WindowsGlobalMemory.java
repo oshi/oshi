@@ -13,6 +13,13 @@ import oshi.hardware.common.AbstractGlobalMemory;
 @ThreadSafe
 public abstract class WindowsGlobalMemory extends AbstractGlobalMemory {
 
+    /**
+     * memoryType.
+     *
+     * @param type the type
+     * @return the result
+     */
+
     protected static String memoryType(int type) {
         switch (type) {
             case 0:
@@ -67,6 +74,13 @@ public abstract class WindowsGlobalMemory extends AbstractGlobalMemory {
                 return smBiosMemoryType(type);
         }
     }
+
+    /**
+     * smBiosMemoryType.
+     *
+     * @param type the type
+     * @return the result
+     */
 
     protected static String smBiosMemoryType(int type) {
         switch (type) {

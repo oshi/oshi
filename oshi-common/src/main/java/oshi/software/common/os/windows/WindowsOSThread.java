@@ -37,6 +37,11 @@ public abstract class WindowsOSThread extends AbstractOSThread {
 
     /**
      * Constructor.
+     *
+     * @param pid      the pid
+     * @param tid      the tid
+     * @param procName the procName
+     * @param pcb      the pcb
      */
     protected WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
         super(pid);

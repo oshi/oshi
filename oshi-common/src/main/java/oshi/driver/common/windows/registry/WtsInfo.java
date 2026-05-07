@@ -19,6 +19,14 @@ public final class WtsInfo {
 
     /**
      * Constructor.
+     *
+     * @param name        the name
+     * @param path        the path
+     * @param threadCount the threadCount
+     * @param virtualSize the virtualSize
+     * @param kernelTime  the kernelTime
+     * @param userTime    the userTime
+     * @param openFiles   the openFiles
      */
     public WtsInfo(String name, String path, int threadCount, long virtualSize, long kernelTime, long userTime,
             long openFiles) {

@@ -25,6 +25,18 @@ public final class ThreadPerfCounterBlock {
 
     /**
      * Constructor.
+     *
+     * @param name             the name
+     * @param threadID         the threadID
+     * @param owningProcessID  the owningProcessID
+     * @param startTime        the startTime
+     * @param userTime         the userTime
+     * @param kernelTime       the kernelTime
+     * @param priority         the priority
+     * @param threadState      the threadState
+     * @param threadWaitReason the threadWaitReason
+     * @param startAddress     the startAddress
+     * @param contextSwitches  the contextSwitches
      */
     public ThreadPerfCounterBlock(String name, int threadID, int owningProcessID, long startTime, long userTime,
             long kernelTime, int priority, int threadState, int threadWaitReason, long startAddress,

@@ -55,6 +55,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * LinuxCentralProcessor.
+     *
+     * @param hz the hz
      */
     protected LinuxCentralProcessor(long hz) {
         this.hz = hz;
@@ -248,6 +250,12 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * getLogicalProcessorFromSyspath.
+     *
+     * @param syspath           the syspath
+     * @param caches            the caches
+     * @param modAlias          the modAlias
+     * @param coreEfficiencyMap the coreEfficiencyMap
+     * @param modAliasMap       the modAliasMap
      */
     protected static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
             String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
@@ -476,6 +484,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     /**
      * queryCurrentFreqFromSysfs.
+     *
+     * @param freqs the freqs
+     * @return the result
      */
     protected static boolean queryCurrentFreqFromSysfs(long[] freqs) {
         long max = 0L;
