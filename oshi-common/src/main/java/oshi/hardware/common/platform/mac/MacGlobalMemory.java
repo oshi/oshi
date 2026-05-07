@@ -137,12 +137,6 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
     }
 
     /**
-     * Queries the host page size. Implementations should return the page size on success, or {@code 4096L} as a
-     * fallback on failure.
-     *
-     * @return the page size in bytes
-     */
-    /**
      * Queries the page size.
      *
      * @return the page size in bytes

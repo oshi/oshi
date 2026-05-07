@@ -41,7 +41,6 @@ public abstract class MacOSFileStore extends AbstractOSFileStore {
      * @param totalSpace    total space in bytes
      * @param freeInodes    free inodes
      * @param totalInodes   total inodes
-     * @param fs            the parent filesystem
      * @param logicalVolume the logicalVolume
      */
     protected MacOSFileStore(String name, String volume, String label, String mount, String options, String uuid,

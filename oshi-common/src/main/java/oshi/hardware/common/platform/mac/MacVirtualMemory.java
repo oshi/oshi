@@ -26,11 +26,6 @@ public abstract class MacVirtualMemory extends AbstractVirtualMemory {
     private final Supplier<Pair<Long, Long>> inOut = memoize(this::queryVmStat, defaultExpiration());
 
     /**
-     * Constructor for MacVirtualMemory.
-     *
-     * @param macGlobalMemory The parent global memory class instantiating this
-     */
-    /**
      * Creates a MacVirtualMemory.
      *
      * @param macGlobalMemory the parent global memory

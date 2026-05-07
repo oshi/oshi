@@ -167,12 +167,6 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Creates a new {@link OSProcess} instance for the given PID using the appropriate native implementation.
-     *
-     * @param pid the process ID
-     * @return a new OS process instance
-     */
-    /**
      * Creates an OS process for the given PID.
      *
      * @param pid the process ID

@@ -203,11 +203,6 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Reads CPU topology using udev. Subclasses provide the implementation.
-     *
-     * @return topology quartet of logical processors, caches, core efficiency map, and mod alias map
-     */
-    /**
      * Reads processor topology using udev.
      *
      * @return a quartet of logical processors, caches, efficiency map, and modalias map
@@ -256,6 +251,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @param modAlias          the modAlias
      * @param coreEfficiencyMap the coreEfficiencyMap
      * @param modAliasMap       the modAliasMap
+     * @return a LogicalProcessor for the given syspath
      */
     protected static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
             String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
@@ -525,11 +521,6 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 .orElse(-1L);
     }
 
-    /**
-     * Queries the max CPU frequency from udev. Subclasses provide the implementation.
-     *
-     * @return max frequency in Hz, or -1 if unavailable
-     */
     /**
      * Queries the maximum frequency from udev.
      *
