@@ -55,6 +55,11 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
     private transient JRadioButton cumulativeCpuButton = new JRadioButton("Cumulative CPU");
     private transient JRadioButton memButton = new JRadioButton("Memory %");
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public ProcessPanel(SystemInfo si) {
         super();
         init(si);

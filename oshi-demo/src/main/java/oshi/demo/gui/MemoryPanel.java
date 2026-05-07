@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -47,6 +47,11 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public MemoryPanel(SystemInfo si) {
         super();
         init(si.getHardware().getMemory());

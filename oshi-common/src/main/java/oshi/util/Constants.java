@@ -27,6 +27,7 @@ public final class Constants {
      */
     public static final OffsetDateTime UNIX_EPOCH = OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC);
 
+    /** Pattern matching one or more digits. */
     public static final Pattern DIGITS = Pattern.compile("\\d+");
 
     /**

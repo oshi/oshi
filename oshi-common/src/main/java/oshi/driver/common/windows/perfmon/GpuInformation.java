@@ -17,11 +17,11 @@ public final class GpuInformation {
      * {@code pid_<PID>_luid_0x<HIGH>_0x<LOW>_phys_0_eng_<N>_engtype_<TYPE>}
      */
     public enum GpuEngineProperty implements PdhCounterWildcardProperty {
-        // First element: instance filter (all instances)
+        /** Instance filter (all instances). */
         NAME("*"),
-        // Running time in 100ns units (raw cumulative counter)
+        /** Running time in 100ns units (raw cumulative counter). */
         RUNNING_TIME("Running Time"),
-        // Total elapsed time in 100ns units (SecondValue of Running Time counter; idle = base - active)
+        /** Total elapsed time in 100ns units (SecondValue of Running Time counter; idle = base - active). */
         RUNNING_TIME_BASE("Running Time_Base");
 
         private final String counter;
@@ -40,8 +40,12 @@ public final class GpuInformation {
      * GPU Adapter Memory counter properties. Instance names have the form: {@code luid_0x<HIGH>_0x<LOW>_phys_0}
      */
     public enum GpuAdapterMemoryProperty implements PdhCounterWildcardProperty {
-        // First element: instance filter (all instances)
-        NAME("*"), DEDICATED_USAGE("Dedicated Usage"), SHARED_USAGE("Shared Usage");
+        /** Instance filter (all instances). */
+        NAME("*"),
+        /** Dedicated GPU memory usage in bytes. */
+        DEDICATED_USAGE("Dedicated Usage"),
+        /** Shared GPU memory usage in bytes. */
+        SHARED_USAGE("Shared Usage");
 
         private final String counter;
 

@@ -384,6 +384,8 @@ public final class GlobalConfig {
         private static final long serialVersionUID = -7482581936621748005L;
 
         /**
+         * Creates a PropertyException for an invalid property value.
+         *
          * @param property The property name
          */
         public PropertyException(String property) {
@@ -391,6 +393,8 @@ public final class GlobalConfig {
         }
 
         /**
+         * Creates a PropertyException with a custom message.
+         *
          * @param property The property name
          * @param message  An exception message
          */

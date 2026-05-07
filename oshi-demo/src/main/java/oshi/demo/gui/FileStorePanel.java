@@ -45,6 +45,11 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final DecimalFormatSymbols ROOT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.ROOT);
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public FileStorePanel(SystemInfo si) {
         super();
         init(si.getOperatingSystem().getFileSystem());

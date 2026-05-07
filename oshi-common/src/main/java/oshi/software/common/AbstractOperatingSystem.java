@@ -37,6 +37,13 @@ import oshi.util.tuples.Pair;
  */
 public abstract class AbstractOperatingSystem implements OperatingSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractOperatingSystem() {
+    }
+
+    /** Whether to use the 'who' command for session queries. */
     protected static final boolean USE_WHO_COMMAND = GlobalConfig.get(GlobalConfig.OSHI_OS_UNIX_WHOCOMMAND, false);
 
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
@@ -48,6 +55,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return manufacturer.get();
     }
 
+    /**
+     * Queries the OS manufacturer.
+     *
+     * @return the manufacturer string
+     */
     protected abstract String queryManufacturer();
 
     @Override
@@ -60,6 +72,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         return familyVersionInfo.get().getB();
     }
 
+    /**
+     * Queries the OS family and version info.
+     *
+     * @return a pair of family string and OS version info
+     */
     protected abstract Pair<String, OSVersionInfo> queryFamilyVersionInfo();
 
     @Override
@@ -92,6 +109,11 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Queries all processes on the system.
+     *
+     * @return a list of all OS processes
+     */
     protected abstract List<OSProcess> queryAllProcesses();
 
     @Override
@@ -110,6 +132,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Queries the children of a process.
+     *
+     * @param parentPid the parent process ID
+     * @return a list of child processes (including the parent itself)
+     */
     protected abstract List<OSProcess> queryChildProcesses(int parentPid);
 
     @Override
@@ -128,6 +156,12 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Queries the descendants of a process.
+     *
+     * @param parentPid the parent process ID
+     * @return a list of descendant processes (including the parent itself)
+     */
     protected abstract List<OSProcess> queryDescendantProcesses(int parentPid);
 
     /**

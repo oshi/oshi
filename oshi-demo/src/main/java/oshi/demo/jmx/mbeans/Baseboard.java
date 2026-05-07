@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx.mbeans;
@@ -24,6 +24,9 @@ import javax.management.ReflectionException;
 
 import oshi.demo.jmx.demo.PropertiesAvailable;
 
+/**
+ * JMX MBean for baseboard information.
+ */
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
     private oshi.hardware.Baseboard baseboard;
@@ -47,6 +50,13 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
                 new MBeanNotificationInfo[0]);
     }
 
+    /**
+     * Creates a Baseboard MBean.
+     *
+     * @param baseboard the baseboard instance
+     * @throws java.beans.IntrospectionException       if introspection fails
+     * @throws javax.management.IntrospectionException if JMX introspection fails
+     */
     public Baseboard(oshi.hardware.Baseboard baseboard)
             throws IntrospectionException, javax.management.IntrospectionException {
         this.baseboard = baseboard;
@@ -56,18 +66,18 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
     @Override
     public Object getAttribute(String attribute) {
         switch (attribute) {
-        case PROPERTIES:
-            return this.getProperties();
-        case "Manufacturer":
-            return baseboard.getManufacturer();
-        case "Model":
-            return baseboard.getModel();
-        case "Version":
-            return baseboard.getVersion();
-        case "SerialNumber":
-            return baseboard.getSerialNumber();
-        default:
-            throw new IllegalArgumentException("No attribute " + attribute);
+            case PROPERTIES:
+                return this.getProperties();
+            case "Manufacturer":
+                return baseboard.getManufacturer();
+            case "Model":
+                return baseboard.getModel();
+            case "Version":
+                return baseboard.getVersion();
+            case "SerialNumber":
+                return baseboard.getSerialNumber();
+            default:
+                throw new IllegalArgumentException("No attribute " + attribute);
         }
     }
 

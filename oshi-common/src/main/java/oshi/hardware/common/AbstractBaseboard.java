@@ -13,6 +13,12 @@ import oshi.hardware.Baseboard;
 @Immutable
 public abstract class AbstractBaseboard implements Baseboard {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractBaseboard() {
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

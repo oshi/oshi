@@ -21,6 +21,18 @@ import oshi.util.driver.unix.Lpstat;
 @Immutable
 public abstract class CupsPrinter extends AbstractPrinter {
 
+    /**
+     * Creates a CupsPrinter with the given parameters.
+     *
+     * @param name         the printer name
+     * @param driverName   the driver name
+     * @param description  the description
+     * @param status       the printer status
+     * @param statusReason the status reason
+     * @param isDefault    whether this is the default printer
+     * @param isLocal      whether this is a local printer
+     * @param portName     the port name
+     */
     protected CupsPrinter(String name, String driverName, String description, PrinterStatus status, String statusReason,
             boolean isDefault, boolean isLocal, String portName) {
         super(name, driverName, description, status, statusReason, isDefault, isLocal, portName);

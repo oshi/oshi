@@ -21,6 +21,17 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String uuid;
     private boolean local;
 
+    /**
+     * Creates an AbstractOSFileStore with the given parameters.
+     *
+     * @param name    the file store name
+     * @param volume  the volume name
+     * @param label   the volume label
+     * @param mount   the mount point
+     * @param options the mount options
+     * @param uuid    the UUID
+     * @param local   whether this is a local file store
+     */
     protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local) {
         this.name = name;
@@ -32,6 +43,9 @@ public abstract class AbstractOSFileStore implements OSFileStore {
         this.local = local;
     }
 
+    /**
+     * Default constructor for subclass use.
+     */
     protected AbstractOSFileStore() {
     }
 

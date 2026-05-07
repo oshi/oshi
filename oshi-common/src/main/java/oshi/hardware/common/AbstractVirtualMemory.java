@@ -14,6 +14,12 @@ import oshi.util.FormatUtil;
 @ThreadSafe
 public abstract class AbstractVirtualMemory implements VirtualMemory {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractVirtualMemory() {
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

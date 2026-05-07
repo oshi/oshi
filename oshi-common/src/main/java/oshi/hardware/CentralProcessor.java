@@ -446,6 +446,8 @@ public interface CentralProcessor {
         }
 
         /**
+         * Gets the integer index of this tick type.
+         *
          * @return The integer index of this ENUM in the processor tick arrays, which matches the output of Linux
          *         /proc/cpuinfo
          */
@@ -468,6 +470,8 @@ public interface CentralProcessor {
         private final int processorGroup;
 
         /**
+         * Creates a LogicalProcessor with the given processor, core, and package numbers.
+         *
          * @param processorNumber         the Processor number
          * @param physicalProcessorNumber the core number
          * @param physicalPackageNumber   the package/socket number
@@ -477,6 +481,8 @@ public interface CentralProcessor {
         }
 
         /**
+         * Creates a LogicalProcessor with the given processor, core, package, and NUMA node numbers.
+         *
          * @param processorNumber         the Processor number
          * @param physicalProcessorNumber the core number
          * @param physicalPackageNumber   the package/socket number
@@ -488,6 +494,8 @@ public interface CentralProcessor {
         }
 
         /**
+         * Creates a LogicalProcessor with the given processor, core, package, NUMA node, and processor group numbers.
+         *
          * @param processorNumber         the Processor number
          * @param physicalProcessorNumber the core number
          * @param physicalPackageNumber   the package/socket number
@@ -573,10 +581,24 @@ public interface CentralProcessor {
         private final int efficiency;
         private final String idString;
 
+        /**
+         * Creates a PhysicalProcessor with the given package and processor numbers.
+         *
+         * @param physicalPackageNumber   the package/socket number
+         * @param physicalProcessorNumber the core number
+         */
         public PhysicalProcessor(int physicalPackageNumber, int physicalProcessorNumber) {
             this(physicalPackageNumber, physicalProcessorNumber, 0, "");
         }
 
+        /**
+         * Creates a PhysicalProcessor with the given package, processor, efficiency, and ID string.
+         *
+         * @param physicalPackageNumber   the package/socket number
+         * @param physicalProcessorNumber the core number
+         * @param efficiency              the efficiency class of this core
+         * @param idString                an identifier string for this core
+         */
         public PhysicalProcessor(int physicalPackageNumber, int physicalProcessorNumber, int efficiency,
                 String idString) {
             this.physicalPackageNumber = physicalPackageNumber;
@@ -669,7 +691,14 @@ public interface CentralProcessor {
          */
         @PublicApi
         public enum Type {
-            UNIFIED, INSTRUCTION, DATA, TRACE;
+            /** Unified cache (data and instructions). */
+            UNIFIED,
+            /** Instruction cache. */
+            INSTRUCTION,
+            /** Data cache. */
+            DATA,
+            /** Trace cache. */
+            TRACE;
 
             @Override
             public String toString() {
@@ -683,6 +712,15 @@ public interface CentralProcessor {
         private final int cacheSize;
         private final Type type;
 
+        /**
+         * Creates a ProcessorCache with the given parameters.
+         *
+         * @param level         the cache level (1, 2, 3, or 4)
+         * @param associativity the cache associativity
+         * @param lineSize      the cache line size in bytes
+         * @param cacheSize     the cache size in bytes
+         * @param type          the cache type
+         */
         public ProcessorCache(byte level, byte associativity, short lineSize, int cacheSize, Type type) {
             this.level = level;
             this.associativity = associativity;
@@ -691,6 +729,15 @@ public interface CentralProcessor {
             this.type = type;
         }
 
+        /**
+         * Creates a ProcessorCache with the given parameters, casting to appropriate types.
+         *
+         * @param level         the cache level (1, 2, 3, or 4)
+         * @param associativity the cache associativity
+         * @param lineSize      the cache line size in bytes
+         * @param cacheSize     the cache size in bytes
+         * @param type          the cache type
+         */
         public ProcessorCache(int level, int associativity, int lineSize, long cacheSize, Type type) {
             this((byte) level, (byte) associativity, (short) lineSize, (int) cacheSize, type);
         }
@@ -788,11 +835,34 @@ public interface CentralProcessor {
 
         private final Supplier<String> microArchictecture = memoize(this::queryMicroarchitecture);
 
+        /**
+         * Creates a ProcessorIdentifier with the given parameters and unknown vendor frequency.
+         *
+         * @param cpuVendor   the CPU vendor
+         * @param cpuName     the CPU name
+         * @param cpuFamily   the CPU family
+         * @param cpuModel    the CPU model
+         * @param cpuStepping the CPU stepping
+         * @param processorID the processor ID
+         * @param cpu64bit    whether the CPU is 64-bit
+         */
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit) {
             this(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, -1L);
         }
 
+        /**
+         * Creates a ProcessorIdentifier with the given parameters.
+         *
+         * @param cpuVendor   the CPU vendor
+         * @param cpuName     the CPU name
+         * @param cpuFamily   the CPU family
+         * @param cpuModel    the CPU model
+         * @param cpuStepping the CPU stepping
+         * @param processorID the processor ID
+         * @param cpu64bit    whether the CPU is 64-bit
+         * @param vendorFreq  the vendor-advertised frequency in Hz, or -1 if unknown
+         */
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;

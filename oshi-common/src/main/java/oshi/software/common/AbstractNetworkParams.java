@@ -22,6 +22,12 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class AbstractNetworkParams implements NetworkParams {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractNetworkParams() {
+    }
+
     private static final String NAMESERVER = "nameserver";
 
     @Override

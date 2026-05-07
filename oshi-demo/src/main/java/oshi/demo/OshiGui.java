@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -32,11 +32,22 @@ import oshi.demo.gui.UsbPanel;
  */
 public class OshiGui {
 
+    /**
+     * Private constructor for utility class.
+     */
+    private OshiGui() {
+    }
+
     private JFrame mainFrame;
     private JButton jMenu;
 
     private SystemInfo si = new SystemInfo();
 
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         OshiGui gui = new OshiGui();
         gui.init();

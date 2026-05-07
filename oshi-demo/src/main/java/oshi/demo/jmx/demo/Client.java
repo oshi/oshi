@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx.demo;
@@ -22,7 +22,28 @@ import javax.management.remote.JMXServiceURL;
 
 import oshi.annotation.SuppressForbidden;
 
+/**
+ * Demo JMX client.
+ */
 public class Client {
+
+    /**
+     * Private constructor.
+     */
+    private Client() {
+    }
+
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     * @throws IOException                  if an I/O error occurs
+     * @throws MalformedObjectNameException if object name is malformed
+     * @throws ReflectionException          if a reflection error occurs
+     * @throws InstanceNotFoundException    if instance not found
+     * @throws MBeanException               if an MBean error occurs
+     * @throws AttributeNotFoundException   if attribute not found
+     */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) throws IOException, MalformedObjectNameException, ReflectionException,
             InstanceNotFoundException, MBeanException, AttributeNotFoundException {

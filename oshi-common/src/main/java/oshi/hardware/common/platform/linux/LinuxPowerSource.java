@@ -28,14 +28,60 @@ import oshi.util.linux.SysPath;
 @ThreadSafe
 public class LinuxPowerSource extends AbstractPowerSource {
 
+    /**
+     * Power supply uevent properties from sysfs.
+     */
     protected enum Prop {
-        POWER_SUPPLY_NAME, POWER_SUPPLY_STATUS, POWER_SUPPLY_CAPACITY, POWER_SUPPLY_PRESENT, POWER_SUPPLY_ONLINE,
-        POWER_SUPPLY_ENERGY_NOW, POWER_SUPPLY_CHARGE_NOW, POWER_SUPPLY_ENERGY_FULL, POWER_SUPPLY_CHARGE_FULL,
-        POWER_SUPPLY_ENERGY_FULL_DESIGN, POWER_SUPPLY_CHARGE_FULL_DESIGN, POWER_SUPPLY_VOLTAGE_NOW,
-        POWER_SUPPLY_POWER_NOW, POWER_SUPPLY_CURRENT_NOW, POWER_SUPPLY_CYCLE_COUNT, POWER_SUPPLY_TECHNOLOGY,
-        POWER_SUPPLY_MODEL_NAME, POWER_SUPPLY_MANUFACTURER, POWER_SUPPLY_SERIAL_NUMBER, POWER_SUPPLY_TEMP,
-        POWER_SUPPLY_TIME_TO_EMPTY_NOW, POWER_SUPPLY_TIME_TO_FULL_NOW, POWER_SUPPLY_MANUFACTURE_YEAR,
-        POWER_SUPPLY_MANUFACTURE_MONTH, POWER_SUPPLY_MANUFACTURE_DAY
+        /** Power supply name. */
+        POWER_SUPPLY_NAME,
+        /** Power supply status (Charging, Discharging, etc.). */
+        POWER_SUPPLY_STATUS,
+        /** Remaining capacity percentage. */
+        POWER_SUPPLY_CAPACITY,
+        /** Whether the power supply is present. */
+        POWER_SUPPLY_PRESENT,
+        /** Whether the power supply is online. */
+        POWER_SUPPLY_ONLINE,
+        /** Current energy in microwatt-hours. */
+        POWER_SUPPLY_ENERGY_NOW,
+        /** Current charge in microamp-hours. */
+        POWER_SUPPLY_CHARGE_NOW,
+        /** Full energy capacity in microwatt-hours. */
+        POWER_SUPPLY_ENERGY_FULL,
+        /** Full charge capacity in microamp-hours. */
+        POWER_SUPPLY_CHARGE_FULL,
+        /** Design energy capacity in microwatt-hours. */
+        POWER_SUPPLY_ENERGY_FULL_DESIGN,
+        /** Design charge capacity in microamp-hours. */
+        POWER_SUPPLY_CHARGE_FULL_DESIGN,
+        /** Current voltage in microvolts. */
+        POWER_SUPPLY_VOLTAGE_NOW,
+        /** Current power draw in microwatts. */
+        POWER_SUPPLY_POWER_NOW,
+        /** Current draw in microamps. */
+        POWER_SUPPLY_CURRENT_NOW,
+        /** Battery cycle count. */
+        POWER_SUPPLY_CYCLE_COUNT,
+        /** Battery technology/chemistry. */
+        POWER_SUPPLY_TECHNOLOGY,
+        /** Model name. */
+        POWER_SUPPLY_MODEL_NAME,
+        /** Manufacturer name. */
+        POWER_SUPPLY_MANUFACTURER,
+        /** Serial number. */
+        POWER_SUPPLY_SERIAL_NUMBER,
+        /** Temperature in tenths of degrees Celsius. */
+        POWER_SUPPLY_TEMP,
+        /** Estimated time to empty in seconds. */
+        POWER_SUPPLY_TIME_TO_EMPTY_NOW,
+        /** Estimated time to full in seconds. */
+        POWER_SUPPLY_TIME_TO_FULL_NOW,
+        /** Manufacture year. */
+        POWER_SUPPLY_MANUFACTURE_YEAR,
+        /** Manufacture month. */
+        POWER_SUPPLY_MANUFACTURE_MONTH,
+        /** Manufacture day. */
+        POWER_SUPPLY_MANUFACTURE_DAY
     }
 
     /**
@@ -51,6 +97,31 @@ public class LinuxPowerSource extends AbstractPowerSource {
         }
     }
 
+    /**
+     * Creates a LinuxPowerSource with the given parameters.
+     *
+     * @param psName                     power source name
+     * @param psDeviceName               device name
+     * @param psRemainingCapacityPercent remaining capacity percentage
+     * @param psTimeRemainingEstimated   estimated time remaining
+     * @param psTimeRemainingInstant     instant time remaining
+     * @param psPowerUsageRate           power usage rate
+     * @param psVoltage                  voltage
+     * @param psAmperage                 amperage
+     * @param psPowerOnLine              whether on AC power
+     * @param psCharging                 whether charging
+     * @param psDischarging              whether discharging
+     * @param psCapacityUnits            capacity units
+     * @param psCurrentCapacity          current capacity
+     * @param psMaxCapacity              max capacity
+     * @param psDesignCapacity           design capacity
+     * @param psCycleCount               cycle count
+     * @param psChemistry                chemistry
+     * @param psManufactureDate          manufacture date
+     * @param psManufacturer             manufacturer
+     * @param psSerialNumber             serial number
+     * @param psTemperature              temperature
+     */
     public LinuxPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
@@ -63,6 +134,11 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    /**
+     * Copy constructor.
+     *
+     * @param src the source to copy from
+     */
     protected LinuxPowerSource(LinuxPowerSource src) {
         this(src.getName(), src.getDeviceName(), src.getRemainingCapacityPercent(), src.getTimeRemainingEstimated(),
                 src.getTimeRemainingInstant(), src.getPowerUsageRate(), src.getVoltage(), src.getAmperage(),
@@ -121,6 +197,13 @@ public class LinuxPowerSource extends AbstractPowerSource {
         return psList;
     }
 
+    /**
+     * Builds a LinuxPowerSource from parsed uevent properties.
+     *
+     * @param name  the power supply name
+     * @param props the parsed properties map
+     * @return a new LinuxPowerSource instance
+     */
     protected static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
         String psName = props.getOrDefault(Prop.POWER_SUPPLY_NAME, name);
         String status = props.get(Prop.POWER_SUPPLY_STATUS);

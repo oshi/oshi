@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -44,6 +44,11 @@ public class InterfacePanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String[] COLUMNS = { "Name", "Index", "Speed", "IPv4 Address", "IPv6 address", "MAC address" };
     private static final double[] COLUMN_WIDTH_PERCENT = { 0.02, 0.02, 0.1, 0.25, 0.45, 0.15 };
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public InterfacePanel(SystemInfo si) {
         super();
         init(si);

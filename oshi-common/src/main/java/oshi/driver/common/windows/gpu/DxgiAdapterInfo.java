@@ -24,6 +24,8 @@ public final class DxgiAdapterInfo {
     private final int luidHighPart;
 
     /**
+     * Creates a new DxgiAdapterInfo instance.
+     *
      * @param description          adapter description string from {@code DXGI_ADAPTER_DESC.Description}
      * @param vendorId             PCI vendor ID
      * @param deviceId             PCI device ID
@@ -41,26 +43,56 @@ public final class DxgiAdapterInfo {
         this.luidHighPart = luidHighPart;
     }
 
+    /**
+     * Gets the adapter description string.
+     *
+     * @return the adapter description string
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Gets the PCI vendor ID.
+     *
+     * @return the PCI vendor ID
+     */
     public int getVendorId() {
         return vendorId;
     }
 
+    /**
+     * Gets the PCI device ID.
+     *
+     * @return the PCI device ID
+     */
     public int getDeviceId() {
         return deviceId;
     }
 
+    /**
+     * Gets the dedicated video memory in bytes.
+     *
+     * @return the dedicated video memory in bytes
+     */
     public long getDedicatedVideoMemory() {
         return dedicatedVideoMemory;
     }
 
+    /**
+     * Gets the low 32 bits of the adapter LUID.
+     *
+     * @return the low 32 bits of the adapter LUID
+     */
     public int getLuidLowPart() {
         return luidLowPart;
     }
 
+    /**
+     * Gets the high 32 bits of the adapter LUID.
+     *
+     * @return the high 32 bits of the adapter LUID
+     */
     public int getLuidHighPart() {
         return luidHighPart;
     }

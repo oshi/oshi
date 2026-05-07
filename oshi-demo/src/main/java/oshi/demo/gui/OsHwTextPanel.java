@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -39,8 +39,14 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
     private static final String HARDWARE_INFORMATION = "Hardware Information";
     private static final String PROCESSOR = "Processor";
     private static final String DISPLAYS = "Displays";
+    /** OS info prefix string. */
     private String osPrefix;
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public OsHwTextPanel(SystemInfo si) {
         super();
         init(si);

@@ -1,22 +1,32 @@
 /*
- * Copyright 2022 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.jmx.strategiesplatform;
 
+import java.beans.IntrospectionException;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
 import oshi.SystemInfo;
 import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
 
-import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import java.beans.IntrospectionException;
-
+/**
+ * Windows-specific MBean registration strategy.
+ */
 public class WindowsStrategyRegistrattionPlatform implements StrategyRegistrationPlatformMBeans {
+
+    /**
+     * Default constructor.
+     */
+    public WindowsStrategyRegistrattionPlatform() {
+    }
+
     @Override
     public void registerMBeans(SystemInfo systemInfo, MBeanServer mBeanServer)
             throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException,

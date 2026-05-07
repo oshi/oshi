@@ -14,6 +14,12 @@ import oshi.util.Constants;
 @Immutable
 public abstract class AbstractFirmware implements Firmware {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractFirmware() {
+    }
+
     /*
      * Multiple classes don't have these, set defaults here
      */

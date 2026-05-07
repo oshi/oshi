@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -26,6 +26,11 @@ public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final String USB_DEVICES = "USB Devices";
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public UsbPanel(SystemInfo si) {
         super();
         init(si.getHardware());

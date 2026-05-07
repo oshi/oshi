@@ -114,6 +114,20 @@ public interface InternetProtocolStats {
         private final long inErrors;
         private final long outResets;
 
+        /**
+         * Constructs a new TcpStats instance with the given counters.
+         *
+         * @param connectionsEstablished TCP connections currently established
+         * @param connectionsActive      active connection openings
+         * @param connectionsPassive     passive connection openings
+         * @param connectionFailures     failed connection attempts
+         * @param connectionsReset       connections reset
+         * @param segmentsSent           segments sent
+         * @param segmentsReceived       segments received
+         * @param segmentsRetransmitted  segments retransmitted
+         * @param inErrors               segments received in error
+         * @param outResets              resets sent
+         */
         public TcpStats(long connectionsEstablished, long connectionsActive, long connectionsPassive,
                 long connectionFailures, long connectionsReset, long segmentsSent, long segmentsReceived,
                 long segmentsRetransmitted, long inErrors, long outResets) {
@@ -251,6 +265,14 @@ public interface InternetProtocolStats {
         private final long datagramsNoPort;
         private final long datagramsReceivedErrors;
 
+        /**
+         * Constructs a new UdpStats instance with the given counters.
+         *
+         * @param datagramsSent           datagrams sent
+         * @param datagramsReceived       datagrams received
+         * @param datagramsNoPort         datagrams received with no application at destination port
+         * @param datagramsReceivedErrors datagrams that could not be delivered
+         */
         public UdpStats(long datagramsSent, long datagramsReceived, long datagramsNoPort,
                 long datagramsReceivedErrors) {
             this.datagramsSent = datagramsSent;
@@ -310,8 +332,32 @@ public interface InternetProtocolStats {
      */
     @PublicApi
     enum TcpState {
-        UNKNOWN, CLOSED, LISTEN, SYN_SENT, SYN_RECV, ESTABLISHED, FIN_WAIT_1, FIN_WAIT_2, CLOSE_WAIT, CLOSING, LAST_ACK,
-        TIME_WAIT, NONE;
+        /** Unknown state. */
+        UNKNOWN,
+        /** Connection closed. */
+        CLOSED,
+        /** Waiting for a connection request. */
+        LISTEN,
+        /** Waiting for acknowledgment of a connection request. */
+        SYN_SENT,
+        /** Waiting for acknowledgment of a connection request after having received one. */
+        SYN_RECV,
+        /** Connection established. */
+        ESTABLISHED,
+        /** Waiting for a connection termination request from the remote TCP. */
+        FIN_WAIT_1,
+        /** Waiting for a connection termination request from the remote TCP after sending one. */
+        FIN_WAIT_2,
+        /** Waiting for a connection termination request from the local user. */
+        CLOSE_WAIT,
+        /** Waiting for acknowledgment of a connection termination request. */
+        CLOSING,
+        /** Waiting for acknowledgment of the connection termination request sent to the remote TCP. */
+        LAST_ACK,
+        /** Waiting for enough time to pass to be sure the remote TCP received acknowledgment. */
+        TIME_WAIT,
+        /** No state. */
+        NONE;
     }
 
     /**
@@ -330,6 +376,19 @@ public interface InternetProtocolStats {
         private final int receiveQueue;
         private int owningProcessId;
 
+        /**
+         * Constructs a new IPConnection instance.
+         *
+         * @param type            the protocol type (e.g., tcp4, tcp6, udp4, udp6)
+         * @param localAddress    the local address bytes
+         * @param localPort       the local port
+         * @param foreignAddress  the remote address bytes
+         * @param foreignPort     the remote port
+         * @param state           the TCP state
+         * @param transmitQueue   the transmit queue size
+         * @param receiveQueue    the receive queue size
+         * @param owningProcessId the PID of the owning process
+         */
         public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
                 TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
             this.type = type;

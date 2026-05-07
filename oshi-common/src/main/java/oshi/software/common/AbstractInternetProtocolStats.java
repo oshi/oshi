@@ -14,6 +14,12 @@ import oshi.util.driver.unix.NetStat;
  */
 public abstract class AbstractInternetProtocolStats implements InternetProtocolStats {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractInternetProtocolStats() {
+    }
+
     @Override
     public TcpStats getTCPv6Stats() {
         // Default when OS doesn't have separate TCPv6 stats

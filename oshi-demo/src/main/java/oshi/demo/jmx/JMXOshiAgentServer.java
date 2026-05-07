@@ -44,6 +44,9 @@ import oshi.demo.jmx.api.StrategyRegistrationPlatformMBeans;
 import oshi.demo.jmx.strategiesplatform.WindowsStrategyRegistrattionPlatform;
 import oshi.util.PlatformEnum;
 
+/**
+ * JMX agent server implementation.
+ */
 public class JMXOshiAgentServer implements JMXOshiAgent {
     private String host;
     private Integer port;
@@ -68,6 +71,16 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     /* A singleton Method just to retrieve the instance of JMSOshiAgentServer */
+    /**
+     * Gets or creates the singleton agent server instance.
+     *
+     * @param host       the host
+     * @param port       the port
+     * @param properties the JMX properties
+     * @param platform   the registration platform
+     * @return the agent server instance
+     * @throws Exception if creation fails
+     */
     protected static JMXOshiAgentServer getInstance(String host, Integer port, Map<String, ?> properties,
             ContextRegistrationPlatform platform) throws Exception {
         if (jmxOshiAgentServer == null) {

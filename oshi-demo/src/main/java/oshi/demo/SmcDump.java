@@ -4,10 +4,10 @@
  */
 package oshi.demo;
 
+import java.util.Locale;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
-
-import java.util.Locale;
 
 import oshi.annotation.SuppressForbidden;
 import oshi.jna.ByRef.CloseableNativeLongByReference;
@@ -29,6 +29,11 @@ public final class SmcDump {
     private SmcDump() {
     }
 
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         IOConnect conn = SmcUtil.smcOpen();

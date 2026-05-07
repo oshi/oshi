@@ -19,6 +19,12 @@ import oshi.hardware.Sensors;
 @ThreadSafe
 public abstract class AbstractSensors implements Sensors {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractSensors() {
+    }
+
     private final Supplier<Double> cpuTemperature = memoize(this::queryCpuTemperature, defaultExpiration());
 
     private final Supplier<int[]> fanSpeeds = memoize(this::queryFanSpeeds, defaultExpiration());
@@ -30,6 +36,11 @@ public abstract class AbstractSensors implements Sensors {
         return cpuTemperature.get();
     }
 
+    /**
+     * Queries the CPU temperature.
+     *
+     * @return the CPU temperature in degrees Celsius
+     */
     protected abstract double queryCpuTemperature();
 
     @Override
@@ -37,6 +48,11 @@ public abstract class AbstractSensors implements Sensors {
         return fanSpeeds.get();
     }
 
+    /**
+     * Queries the fan speeds.
+     *
+     * @return an array of fan speeds in RPM
+     */
     protected abstract int[] queryFanSpeeds();
 
     @Override
@@ -44,6 +60,11 @@ public abstract class AbstractSensors implements Sensors {
         return cpuVoltage.get();
     }
 
+    /**
+     * Queries the CPU voltage.
+     *
+     * @return the CPU voltage in Volts
+     */
     protected abstract double queryCpuVoltage();
 
     @Override

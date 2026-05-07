@@ -21,6 +21,12 @@ import oshi.util.FileUtil;
  */
 public class DetectVM {
 
+    /**
+     * Private constructor for utility class.
+     */
+    private DetectVM() {
+    }
+
     private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
     private static final Properties vmMacAddressProps = FileUtil
             .readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
@@ -49,6 +55,12 @@ public class DetectVM {
      * @param args Arguments, ignored.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
+
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         String vmString = identifyVM();
 

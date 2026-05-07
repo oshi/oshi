@@ -40,6 +40,31 @@ public abstract class AbstractPowerSource implements PowerSource {
     private String serialNumber;
     private double temperature;
 
+    /**
+     * Creates an AbstractPowerSource with the given parameters.
+     *
+     * @param name                     the power source name
+     * @param deviceName               the device name
+     * @param remainingCapacityPercent remaining capacity as a percentage
+     * @param timeRemainingEstimated   estimated time remaining in seconds
+     * @param timeRemainingInstant     instant time remaining in seconds
+     * @param powerUsageRate           power usage rate in milliwatts
+     * @param voltage                  voltage in volts
+     * @param amperage                 amperage in milliamps
+     * @param powerOnLine              whether on AC power
+     * @param charging                 whether charging
+     * @param discharging              whether discharging
+     * @param capacityUnits            the capacity units
+     * @param currentCapacity          current capacity
+     * @param maxCapacity              maximum capacity
+     * @param designCapacity           design capacity
+     * @param cycleCount               charge cycle count
+     * @param chemistry                battery chemistry
+     * @param manufactureDate          manufacture date
+     * @param manufacturer             manufacturer name
+     * @param serialNumber             serial number
+     * @param temperature              temperature in degrees Celsius
+     */
     protected AbstractPowerSource(String name, String deviceName, double remainingCapacityPercent,
             double timeRemainingEstimated, double timeRemainingInstant, double powerUsageRate, double voltage,
             double amperage, boolean powerOnLine, boolean charging, boolean discharging, CapacityUnits capacityUnits,

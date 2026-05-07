@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -22,6 +22,13 @@ import oshi.util.Constants;
  */
 public class ComputerID {
 
+    /**
+     * Private constructor for utility class.
+     */
+    private ComputerID() {
+    }
+
+    /** UUIDs that are known to be non-unique across systems. */
     public static final List<String> NON_UNIQUE_UUIDS = Arrays.asList("03000200-0400-0500-0006-000700080009",
             "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "00000000-0000-0000-0000-000000000000");
 
@@ -33,6 +40,12 @@ public class ComputerID {
      * @param args an array of {@link java.lang.String} objects.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
+
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         String unknownHash = String.format(Locale.ROOT, "%08x", Constants.UNKNOWN.hashCode());
 

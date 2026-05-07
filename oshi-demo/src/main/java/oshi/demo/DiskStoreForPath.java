@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -24,6 +24,13 @@ import oshi.util.tuples.Pair;
  * In pariticular, this won't work in all cases, particularly with logical partitions.
  */
 public class DiskStoreForPath {
+
+    /**
+     * Private constructor for utility class.
+     */
+    private DiskStoreForPath() {
+    }
+
     /**
      * Main method
      *
@@ -31,6 +38,12 @@ public class DiskStoreForPath {
      * @throws URISyntaxException on invalid path
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
+
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) throws URISyntaxException {
         // Use the arg as a file path or get this class's path
         String filePath = args.length > 0 ? args[0]

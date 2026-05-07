@@ -19,11 +19,20 @@ import oshi.util.GlobalConfig;
 public abstract class AbstractFileSystem implements FileSystem {
 
     /**
+     * Default constructor.
+     */
+    protected AbstractFileSystem() {
+    }
+
+    /**
      * FileSystem types which are network-based and should be excluded from local-only lists
      */
     protected static final List<String> NETWORK_FS_TYPES = Arrays
             .asList(GlobalConfig.get(GlobalConfig.OSHI_NETWORK_FILESYSTEM_TYPES, "").split(","));
 
+    /**
+     * FileSystem types which are pseudo-filesystems and should be excluded from local-only lists
+     */
     protected static final List<String> PSEUDO_FS_TYPES = Arrays
             .asList(GlobalConfig.get(GlobalConfig.OSHI_PSEUDO_FILESYSTEM_TYPES, "").split(","));
 

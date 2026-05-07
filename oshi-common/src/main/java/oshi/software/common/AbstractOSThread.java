@@ -23,6 +23,11 @@ public abstract class AbstractOSThread implements OSThread {
 
     private final int owningProcessId;
 
+    /**
+     * Creates an AbstractOSThread for the given owning process ID.
+     *
+     * @param processId the owning process ID
+     */
     protected AbstractOSThread(int processId) {
         this.owningProcessId = processId;
     }

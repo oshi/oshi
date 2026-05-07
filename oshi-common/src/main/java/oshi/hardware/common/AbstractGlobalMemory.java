@@ -21,6 +21,12 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class AbstractGlobalMemory implements GlobalMemory {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractGlobalMemory() {
+    }
+
     @Override
     public List<PhysicalMemory> getPhysicalMemory() {
         // dmidecode requires sudo permission but is the only option on Linux

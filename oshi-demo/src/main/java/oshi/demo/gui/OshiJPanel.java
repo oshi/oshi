@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -18,9 +18,14 @@ public class OshiJPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
+    /** Message label. */
     protected JLabel msgLabel = new JLabel();
+    /** Message panel. */
     protected JPanel msgPanel = new JPanel();
 
+    /**
+     * Default constructor.
+     */
     public OshiJPanel() {
         Dimension maxSize = getMaximumSize();
         if (maxSize != null) {

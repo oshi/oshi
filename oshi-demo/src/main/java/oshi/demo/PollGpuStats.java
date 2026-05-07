@@ -9,9 +9,9 @@ import java.util.Locale;
 
 import oshi.SystemInfo;
 import oshi.annotation.SuppressForbidden;
-import oshi.hardware.GraphicsCard;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
+import oshi.hardware.GraphicsCard;
 import oshi.util.FormatUtil;
 
 /**
@@ -27,6 +27,12 @@ public final class PollGpuStats {
     private PollGpuStats() {
     }
 
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     * @throws InterruptedException if interrupted
+     */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) throws InterruptedException {
         List<GraphicsCard> cards = new SystemInfo().getHardware().getGraphicsCards();

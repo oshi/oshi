@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo.gui;
@@ -31,9 +31,16 @@ public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
 
     private static final long serialVersionUID = 1L;
 
+    /** Previous tick values. */
     private long[] oldTicks;
+    /** Previous per-processor tick values. */
     private long[][] oldProcTicks;
 
+    /**
+     * Creates this panel.
+     *
+     * @param si the SystemInfo instance
+     */
     public ProcessorPanel(SystemInfo si) {
         super();
         CentralProcessor cpu = si.getHardware().getProcessor();

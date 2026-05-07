@@ -141,6 +141,11 @@ public final class CpuInfo {
         }
     }
 
+    /**
+     * Queries CPU feature flags from /proc/cpuinfo.
+     *
+     * @return a list of feature flag strings
+     */
     public static List<String> queryFeatureFlags() {
         return queryFeatureFlags(FileUtil.readFile(CPUINFO));
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -17,6 +17,13 @@ import oshi.hardware.HardwareAbstractionLayer;
  * Demonstrates the use of Jackson's ObjectMapper to create JSON from OSHI objects
  */
 public class Json {
+
+    /**
+     * Private constructor for utility class.
+     */
+    private Json() {
+    }
+
     /**
      * <p>
      * main.
@@ -25,6 +32,12 @@ public class Json {
      * @param args an array of {@link java.lang.String} objects.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
+
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         // Jackson ObjectMapper
         ObjectMapper mapper = new ObjectMapper();

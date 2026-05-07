@@ -25,6 +25,17 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     private final String uniqueDeviceId;
     private final List<UsbDevice> connectedDevices;
 
+    /**
+     * Creates an AbstractUsbDevice with the given parameters.
+     *
+     * @param name             the device name
+     * @param vendor           the vendor name
+     * @param vendorId         the vendor ID
+     * @param productId        the product ID
+     * @param serialNumber     the serial number
+     * @param uniqueDeviceId   the unique device ID
+     * @param connectedDevices the list of connected child devices
+     */
     protected AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         this.name = name;

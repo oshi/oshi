@@ -20,10 +20,27 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final long size;
     private final String diskType;
 
+    /**
+     * Creates an AbstractHWDiskStore with unknown disk type.
+     *
+     * @param name   the disk name
+     * @param model  the disk model
+     * @param serial the disk serial number
+     * @param size   the disk size in bytes
+     */
     protected AbstractHWDiskStore(String name, String model, String serial, long size) {
         this(name, model, serial, size, "Unknown");
     }
 
+    /**
+     * Creates an AbstractHWDiskStore.
+     *
+     * @param name     the disk name
+     * @param model    the disk model
+     * @param serial   the disk serial number
+     * @param size     the disk size in bytes
+     * @param diskType the disk type (e.g., SSD, HDD)
+     */
     protected AbstractHWDiskStore(String name, String model, String serial, long size, String diskType) {
         this.name = name;
         this.model = model;

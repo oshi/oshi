@@ -22,6 +22,18 @@ public abstract class AbstractPrinter implements Printer {
     private final boolean isLocal;
     private final String portName;
 
+    /**
+     * Creates an AbstractPrinter with the given parameters.
+     *
+     * @param name         the printer name
+     * @param driverName   the driver name
+     * @param description  the description
+     * @param status       the printer status
+     * @param statusReason the status reason
+     * @param isDefault    whether this is the default printer
+     * @param isLocal      whether this is a local printer
+     * @param portName     the port name
+     */
     protected AbstractPrinter(String name, String driverName, String description, PrinterStatus status,
             String statusReason, boolean isDefault, boolean isLocal, String portName) {
         this.name = name;

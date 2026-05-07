@@ -23,10 +23,15 @@ public final class DevPath {
      */
     public static final String DEV = queryDevConfig() + "/";
 
+    /** Path to disk-by-uuid directory. */
     public static final String DISK_BY_UUID = DEV + "disk/by-uuid";
+    /** Path prefix for device-mapper devices. */
     public static final String DM = DEV + "dm";
+    /** Path prefix for loop devices. */
     public static final String LOOP = DEV + "loop";
+    /** Path prefix for device-mapper mapped names. */
     public static final String MAPPER = DEV + "mapper/";
+    /** Path prefix for RAM disk devices. */
     public static final String RAM = DEV + "ram";
 
     private DevPath() {

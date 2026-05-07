@@ -35,16 +35,27 @@ public class LhmSensor {
      * Sensor properties returned by LHM WMI queries.
      */
     public enum LhmSensorProperty {
-        NAME, VALUE, PARENT;
+        /** Sensor name. */
+        NAME,
+        /** Sensor value. */
+        VALUE,
+        /** Parent hardware identifier. */
+        PARENT;
     }
 
     /**
      * LHM Hardware properties.
      */
     public enum LhmHardwareProperty {
-        IDENTIFIER, NAME;
+        /** Hardware identifier. */
+        IDENTIFIER,
+        /** Hardware name. */
+        NAME;
     }
 
+    /**
+     * Default constructor.
+     */
     protected LhmSensor() {
     }
 

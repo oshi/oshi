@@ -10,6 +10,8 @@ package oshi.driver.common.windows.perfmon;
  */
 public interface PdhCounterWildcardProperty {
     /**
+     * Gets the counter name for this property.
+     *
      * @return Returns the counter. The first element of the enum will return the instance filter rather than a counter.
      */
     String getCounter();

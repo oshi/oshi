@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.demo;
@@ -41,11 +41,21 @@ public class OshiHTTPServer implements Runnable {
     // Client Connection via Socket Class
     private Socket connect;
 
+    /**
+     * Creates an HTTP server handler for the given socket.
+     *
+     * @param c the client socket
+     */
     public OshiHTTPServer(Socket c) {
         connect = c;
         logger.debug("Connecton opened.");
     }
 
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         try (ServerSocket serverConnect = new ServerSocket(PORT)) {
             logger.info("Server started. Listening for connections on port {}", PORT);

@@ -32,5 +32,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.CLASS)
 public @interface GuardedBy {
+    /**
+     * The lock that guards the annotated field or method.
+     *
+     * @return the lock expression
+     */
     String value();
 }

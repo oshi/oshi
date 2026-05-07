@@ -23,6 +23,12 @@ import oshi.hardware.Sensors;
 @ThreadSafe
 public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstractionLayer {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractHardwareAbstractionLayer() {
+    }
+
     private final Supplier<ComputerSystem> computerSystem = memoize(this::createComputerSystem);
 
     private final Supplier<CentralProcessor> processor = memoize(this::createProcessor);

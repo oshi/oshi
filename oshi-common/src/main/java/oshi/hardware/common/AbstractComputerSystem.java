@@ -19,6 +19,12 @@ import oshi.hardware.Firmware;
 @Immutable
 public abstract class AbstractComputerSystem implements ComputerSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected AbstractComputerSystem() {
+    }
+
     private final Supplier<Firmware> firmware = memoize(this::createFirmware);
 
     private final Supplier<Baseboard> baseboard = memoize(this::createBaseboard);

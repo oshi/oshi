@@ -17,8 +17,19 @@ import oshi.util.platform.windows.WmiQueryHandler;
  */
 public class UserComInit {
 
+    /**
+     * Private constructor for utility class.
+     */
+    private UserComInit() {
+    }
+
     private static final int REPETITIONS = 300;
 
+    /**
+     * Entry point.
+     *
+     * @param args command line arguments
+     */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         wakeUpCom();

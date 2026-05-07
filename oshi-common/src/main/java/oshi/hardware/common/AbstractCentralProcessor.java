@@ -415,6 +415,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         return String.format(Locale.ROOT, "%016X", processorIdBytes);
     }
 
+    /**
+     * Creates a list of physical processors from dmesg output.
+     *
+     * @param logProcs the list of logical processors
+     * @param dmesg    a map of physical processor numbers to their dmesg identification strings
+     * @return a list of physical processors
+     */
     protected List<PhysicalProcessor> createProcListFromDmesg(List<LogicalProcessor> logProcs,
             Map<Integer, String> dmesg) {
         // Check if multiple CPU types
