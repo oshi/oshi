@@ -18,6 +18,12 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class LinuxNetworkParams extends AbstractNetworkParams {
 
+    /**
+     * Default constructor.
+     */
+    protected LinuxNetworkParams() {
+    }
+
     private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
     private static final String IPV6_DEFAULT_DEST = "::/0";
 

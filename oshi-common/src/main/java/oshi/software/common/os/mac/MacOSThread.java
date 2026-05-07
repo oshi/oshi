@@ -22,6 +22,18 @@ public class MacOSThread extends AbstractOSThread {
     private final long upTime;
     private final int priority;
 
+    /**
+     * Creates a MacOSThread with full parameters.
+     *
+     * @param pid        the process ID
+     * @param threadId   the thread ID
+     * @param state      the thread state
+     * @param kernelTime kernel time
+     * @param userTime   user time
+     * @param startTime  start time
+     * @param upTime     up time
+     * @param priority   the priority
+     */
     public MacOSThread(int pid, int threadId, State state, long kernelTime, long userTime, long startTime, long upTime,
             int priority) {
         super(pid);
@@ -34,6 +46,11 @@ public class MacOSThread extends AbstractOSThread {
         this.priority = priority;
     }
 
+    /**
+     * Creates a MacOSThread with just a process ID.
+     *
+     * @param processId the process ID
+     */
     public MacOSThread(int processId) {
         this(processId, 0, State.INVALID, 0L, 0L, 0L, 0L, 0);
     }

@@ -49,15 +49,24 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
 
+    /** Maximum number of processes. */
     protected final int maxProc;
 
+    /** macOS version string. */
     protected final String osXVersion;
+    /** Major version number. */
     protected final int major;
+    /** Minor version number. */
     protected final int minor;
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
+    /**
+     * Creates a MacOperatingSystem.
+     *
+     * @param maxproc the maximum number of processes
+     */
     protected MacOperatingSystem(int maxproc) {
         String version = System.getProperty("os.version");
         int verMajor = ParseUtil.getFirstIntValue(version);
@@ -87,6 +96,11 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
         return "Apple";
     }
 
+    /**
+     * Parses the macOS code name from the version.
+     *
+     * @return the code name
+     */
     protected String parseCodeName() {
         Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
         String codeName = null;

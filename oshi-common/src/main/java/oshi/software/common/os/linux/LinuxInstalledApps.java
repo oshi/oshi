@@ -18,6 +18,9 @@ import oshi.software.os.ApplicationInfo;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * Utility class for querying installed applications on Linux.
+ */
 public final class LinuxInstalledApps {
 
     private static final Pattern PIPE_PATTERN = Pattern.compile("\\|");

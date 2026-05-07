@@ -30,6 +30,11 @@ public abstract class MacVirtualMemory extends AbstractVirtualMemory {
      *
      * @param macGlobalMemory The parent global memory class instantiating this
      */
+    /**
+     * Creates a MacVirtualMemory.
+     *
+     * @param macGlobalMemory the parent global memory
+     */
     protected MacVirtualMemory(MacGlobalMemory macGlobalMemory) {
         this.global = macGlobalMemory;
     }

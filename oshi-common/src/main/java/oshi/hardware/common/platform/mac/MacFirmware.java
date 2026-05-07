@@ -18,6 +18,12 @@ import oshi.util.tuples.Quintet;
 @Immutable
 public abstract class MacFirmware extends AbstractFirmware {
 
+    /**
+     * Default constructor.
+     */
+    protected MacFirmware() {
+    }
+
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
             this::queryEfi);
 
@@ -46,5 +52,10 @@ public abstract class MacFirmware extends AbstractFirmware {
         return manufNameDescVersRelease.get().getE();
     }
 
+    /**
+     * Queries EFI firmware information.
+     *
+     * @return a quintet of manufacturer, name, description, version, release date
+     */
     protected abstract Quintet<String, String, String, String, String> queryEfi();
 }

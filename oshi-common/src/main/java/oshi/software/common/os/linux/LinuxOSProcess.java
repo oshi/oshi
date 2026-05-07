@@ -104,6 +104,12 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     private long voluntaryContextSwitches;
     private long involuntaryContextSwitches;
 
+    /**
+     * Creates a LinuxOSProcess.
+     *
+     * @param pid the process ID
+     * @param os  the operating system
+     */
     public LinuxOSProcess(int pid, LinuxOperatingSystem os) {
         super(pid);
         this.os = os;
@@ -504,6 +510,13 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         }
     }
 
+    /**
+     * Gets the open file limit for a process.
+     *
+     * @param processId the process ID
+     * @param index     the limit index (soft=0, hard=1)
+     * @return the file limit
+     */
     protected long getProcessOpenFileLimit(long processId, int index) {
         final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
         if (!Files.exists(Paths.get(limitsPath))) {

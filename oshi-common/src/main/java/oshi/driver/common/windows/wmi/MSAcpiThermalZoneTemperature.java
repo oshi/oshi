@@ -26,9 +26,13 @@ public class MSAcpiThermalZoneTemperature {
      * Current temperature property.
      */
     public enum TemperatureProperty {
+        /** Current temperature in tenths of degrees Kelvin. */
         CURRENTTEMPERATURE;
     }
 
+    /**
+     * Default constructor.
+     */
     protected MSAcpiThermalZoneTemperature() {
     }
 }

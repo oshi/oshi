@@ -14,13 +14,27 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 
+/**
+ * Linux implementation of LogicalVolumeGroup.
+ */
 public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
 
+    /** Sysfs block device type. */
     protected static final String BLOCK = "block";
+    /** Device-mapper UUID property. */
     protected static final String DM_UUID = "DM_UUID";
+    /** Device-mapper volume group name property. */
     protected static final String DM_VG_NAME = "DM_VG_NAME";
+    /** Device-mapper logical volume name property. */
     protected static final String DM_LV_NAME = "DM_LV_NAME";
 
+    /**
+     * Creates a LinuxLogicalVolumeGroup.
+     *
+     * @param name  the volume group name
+     * @param lvMap the logical volume map
+     * @param pvSet the physical volume set
+     */
     protected LinuxLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
     }

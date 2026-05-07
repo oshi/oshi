@@ -20,47 +20,77 @@ import oshi.util.FileSystemUtil;
 @ThreadSafe
 public abstract class MacFileSystem extends AbstractFileSystem {
 
+    /** Configuration key for path excludes. */
     public static final String OSHI_MAC_FS_PATH_EXCLUDES = "oshi.os.mac.filesystem.path.excludes";
+    /** Configuration key for path includes. */
     public static final String OSHI_MAC_FS_PATH_INCLUDES = "oshi.os.mac.filesystem.path.includes";
+    /** Configuration key for volume excludes. */
     public static final String OSHI_MAC_FS_VOLUME_EXCLUDES = "oshi.os.mac.filesystem.volume.excludes";
+    /** Configuration key for volume includes. */
     public static final String OSHI_MAC_FS_VOLUME_INCLUDES = "oshi.os.mac.filesystem.volume.includes";
 
+    /** File system path exclude matchers. */
     protected static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_MAC_FS_PATH_EXCLUDES);
+    /** File system path include matchers. */
     protected static final List<PathMatcher> FS_PATH_INCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_MAC_FS_PATH_INCLUDES);
+    /** File system volume exclude matchers. */
     protected static final List<PathMatcher> FS_VOLUME_EXCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_MAC_FS_VOLUME_EXCLUDES);
+    /** File system volume include matchers. */
     protected static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_MAC_FS_VOLUME_INCLUDES);
 
-    // Regexp matcher for /dev/disk0s2 etc.
+    /** Pattern matching local disk device paths. */
     protected static final Pattern LOCAL_DISK = Pattern.compile("/dev/disk\\d+(s\\d+)?");
 
-    // User specifiable flags.
+    /** Mount flag: read-only. */
     protected static final int MNT_RDONLY = 0x00000001;
+    /** Mount flag: synchronous. */
     protected static final int MNT_SYNCHRONOUS = 0x00000002;
+    /** Mount flag: no exec. */
     protected static final int MNT_NOEXEC = 0x00000004;
+    /** Mount flag: no setuid. */
     protected static final int MNT_NOSUID = 0x00000008;
+    /** Mount flag: no device access. */
     protected static final int MNT_NODEV = 0x00000010;
+    /** Mount flag: union. */
     protected static final int MNT_UNION = 0x00000020;
+    /** Mount flag: asynchronous. */
     protected static final int MNT_ASYNC = 0x00000040;
+    /** Mount flag: content protection. */
     protected static final int MNT_CPROTECT = 0x00000080;
+    /** Mount flag: exported. */
     protected static final int MNT_EXPORTED = 0x00000100;
+    /** Mount flag: quarantined. */
     protected static final int MNT_QUARANTINE = 0x00000400;
+    /** Mount flag: local. */
     protected static final int MNT_LOCAL = 0x00001000;
+    /** Mount flag: quotas. */
     protected static final int MNT_QUOTA = 0x00002000;
+    /** Mount flag: root filesystem. */
     protected static final int MNT_ROOTFS = 0x00004000;
+    /** Mount flag: volfs. */
     protected static final int MNT_DOVOLFS = 0x00008000;
+    /** Mount flag: don't browse. */
     protected static final int MNT_DONTBROWSE = 0x00100000;
+    /** Mount flag: ignore ownership. */
     protected static final int MNT_IGNORE_OWNERSHIP = 0x00200000;
+    /** Mount flag: automounted. */
     protected static final int MNT_AUTOMOUNTED = 0x00400000;
+    /** Mount flag: journaled. */
     protected static final int MNT_JOURNALED = 0x00800000;
+    /** Mount flag: no user extended attributes. */
     protected static final int MNT_NOUSERXATTR = 0x01000000;
+    /** Mount flag: deferred writes. */
     protected static final int MNT_DEFWRITE = 0x02000000;
+    /** Mount flag: multilabel MAC. */
     protected static final int MNT_MULTILABEL = 0x04000000;
+    /** Mount flag: no access time. */
     protected static final int MNT_NOATIME = 0x10000000;
 
+    /** Map of mount flags to option strings. */
     protected static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
     static {
         OPTIONS_MAP.put(MNT_SYNCHRONOUS, "synchronous");

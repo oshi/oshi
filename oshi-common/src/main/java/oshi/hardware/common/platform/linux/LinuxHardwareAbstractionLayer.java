@@ -23,6 +23,12 @@ import oshi.hardware.common.platform.unix.UnixDisplay;
 @ThreadSafe
 public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    /**
+     * Default constructor.
+     */
+    protected LinuxHardwareAbstractionLayer() {
+    }
+
     @Override
     public ComputerSystem createComputerSystem() {
         return new LinuxComputerSystem();

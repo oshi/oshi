@@ -16,7 +16,9 @@ public final class MemoryInformation {
      * For pages in/out
      */
     public enum PageSwapProperty implements PdhCounterProperty {
-        PAGESINPUTPERSEC(null, "Pages Input/sec"), //
+        /** Pages read from disk per second. */
+        PAGESINPUTPERSEC(null, "Pages Input/sec"),
+        /** Pages written to disk per second. */
         PAGESOUTPUTPERSEC(null, "Pages Output/sec");
 
         private final String instance;

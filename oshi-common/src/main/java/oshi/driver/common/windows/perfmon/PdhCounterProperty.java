@@ -10,11 +10,15 @@ package oshi.driver.common.windows.perfmon;
  */
 public interface PdhCounterProperty {
     /**
+     * Gets the PDH counter instance name.
+     *
      * @return Returns the instance.
      */
     String getInstance();
 
     /**
+     * Gets the PDH counter name.
+     *
      * @return Returns the counter.
      */
     String getCounter();

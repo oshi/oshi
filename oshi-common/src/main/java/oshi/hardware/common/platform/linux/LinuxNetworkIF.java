@@ -35,6 +35,13 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
     private String ifAlias = "";
     private IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
+    /**
+     * Creates a LinuxNetworkIF.
+     *
+     * @param netint the network interface
+     * @param model  the model string
+     * @throws InstantiationException if the interface cannot be instantiated
+     */
     protected LinuxNetworkIF(NetworkInterface netint, String model) throws InstantiationException {
         super(netint, model);
         updateAttributes();
@@ -165,6 +172,12 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
         return true;
     }
 
+    /**
+     * Parses the operational status from a sysfs operstate string.
+     *
+     * @param operState the operstate string
+     * @return the parsed IfOperStatus
+     */
     protected static IfOperStatus parseIfOperStatus(String operState) {
         switch (operState) {
             case "up":

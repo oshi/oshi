@@ -202,8 +202,18 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      *
      * @return topology quartet of logical processors, caches, core efficiency map, and mod alias map
      */
+    /**
+     * Reads processor topology using udev.
+     *
+     * @return a quartet of logical processors, caches, efficiency map, and modalias map
+     */
     protected abstract Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev();
 
+    /**
+     * Reads processor topology from sysfs using the default CPU path.
+     *
+     * @return a quartet of logical processors, caches, efficiency map, and modalias map
+     */
     protected static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
         return readTopologyFromSysfs(SysPath.CPU);
     }
@@ -500,12 +510,28 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      *
      * @return max frequency in Hz, or -1 if unavailable
      */
+    /**
+     * Queries the maximum frequency from udev.
+     *
+     * @return the maximum frequency in Hz
+     */
     protected abstract long queryMaxFreqFromUdev();
 
+    /**
+     * Queries the maximum frequency from sysfs.
+     *
+     * @return the maximum frequency in Hz
+     */
     protected static long queryMaxFreqFromSysfs() {
         return queryMaxFreqFromCpuFreqPath(SysPath.CPU.substring(0, SysPath.CPU.length() - 1) + "/cpufreq");
     }
 
+    /**
+     * Queries the maximum frequency from a cpufreq path.
+     *
+     * @param cpuFreqPath the cpufreq directory path
+     * @return the maximum frequency in Hz
+     */
     protected static long queryMaxFreqFromCpuFreqPath(String cpuFreqPath) {
         String policyPrefix = Paths.get(cpuFreqPath, "policy").toString();
         try (Stream<Path> path = Files.list(Paths.get(cpuFreqPath))) {

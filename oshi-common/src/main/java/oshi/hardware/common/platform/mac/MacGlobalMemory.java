@@ -110,8 +110,20 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
         return pmList;
     }
 
+    /**
+     * Queries VM statistics for available memory.
+     *
+     * @return available memory in bytes
+     */
     protected abstract long queryVmStats();
 
+    /**
+     * Queries a sysctl long value.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value
+     * @return the sysctl value
+     */
     protected abstract long sysctl(String name, long defaultValue);
 
     private long queryPhysMem() {
@@ -124,7 +136,17 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
      *
      * @return the page size in bytes
      */
+    /**
+     * Queries the page size.
+     *
+     * @return the page size in bytes
+     */
     protected abstract long queryPageSize();
 
+    /**
+     * Creates the virtual memory instance.
+     *
+     * @return the virtual memory
+     */
     protected abstract VirtualMemory createVirtualMemory();
 }

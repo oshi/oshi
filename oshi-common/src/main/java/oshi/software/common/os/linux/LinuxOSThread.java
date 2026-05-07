@@ -44,6 +44,13 @@ public class LinuxOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
+    /**
+     * Creates a LinuxOSThread.
+     *
+     * @param processId the owning process ID
+     * @param tid       the thread ID
+     * @param os        the operating system
+     */
     public LinuxOSThread(int processId, int tid, LinuxOperatingSystem os) {
         super(processId);
         this.threadId = tid;

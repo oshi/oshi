@@ -28,6 +28,13 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
     private long speed;
     private long timeStamp;
 
+    /**
+     * Creates a MacNetworkIF.
+     *
+     * @param netint      the network interface
+     * @param displayName the display name
+     * @throws InstantiationException if the interface cannot be instantiated
+     */
     protected MacNetworkIF(NetworkInterface netint, String displayName) throws InstantiationException {
         super(netint, displayName);
     }
@@ -87,46 +94,57 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
         return this.timeStamp;
     }
 
+    /** @param ifType the interface type to set */
     protected void setIfType(int ifType) {
         this.ifType = ifType;
     }
 
+    /** @param bytesRecv the bytes received to set */
     protected void setBytesRecv(long bytesRecv) {
         this.bytesRecv = bytesRecv;
     }
 
+    /** @param bytesSent the bytes sent to set */
     protected void setBytesSent(long bytesSent) {
         this.bytesSent = bytesSent;
     }
 
+    /** @param packetsRecv the packets received to set */
     protected void setPacketsRecv(long packetsRecv) {
         this.packetsRecv = packetsRecv;
     }
 
+    /** @param packetsSent the packets sent to set */
     protected void setPacketsSent(long packetsSent) {
         this.packetsSent = packetsSent;
     }
 
+    /** @param inErrors the input errors to set */
     protected void setInErrors(long inErrors) {
         this.inErrors = inErrors;
     }
 
+    /** @param outErrors the output errors to set */
     protected void setOutErrors(long outErrors) {
         this.outErrors = outErrors;
     }
 
+    /** @param inDrops the input drops to set */
     protected void setInDrops(long inDrops) {
         this.inDrops = inDrops;
     }
 
+    /** @param collisions the collisions to set */
     protected void setCollisions(long collisions) {
         this.collisions = collisions;
     }
 
+    /** @param speed the speed to set */
     protected void setSpeed(long speed) {
         this.speed = speed;
     }
 
+    /** @param timeStamp the timestamp to set */
     protected void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }

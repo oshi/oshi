@@ -41,7 +41,10 @@ public class MSFTStorage {
      * Properties to identify the storage pool. The Object ID uniquely defines the pool.
      */
     public enum StoragePoolProperty {
-        FRIENDLYNAME, OBJECTID;
+        /** Friendly name of the storage pool. */
+        FRIENDLYNAME,
+        /** Object ID of the storage pool. */
+        OBJECTID;
     }
 
     /**
@@ -49,21 +52,32 @@ public class MSFTStorage {
      * the object IDs.
      */
     public enum StoragePoolToPhysicalDiskProperty {
-        STORAGEPOOL, PHYSICALDISK;
+        /** Storage pool reference. */
+        STORAGEPOOL,
+        /** Physical disk reference. */
+        PHYSICALDISK;
     }
 
     /**
      * Properties for a physical disk. The Object ID uniquely defines the disk.
      */
     public enum PhysicalDiskProperty {
-        FRIENDLYNAME, PHYSICALLOCATION, OBJECTID;
+        /** Friendly name of the physical disk. */
+        FRIENDLYNAME,
+        /** Physical location of the disk. */
+        PHYSICALLOCATION,
+        /** Object ID of the physical disk. */
+        OBJECTID;
     }
 
     /**
      * Properties for a virtual disk. The Object ID uniquely defines the disk.
      */
     public enum VirtualDiskProperty {
-        FRIENDLYNAME, OBJECTID;
+        /** Friendly name of the virtual disk. */
+        FRIENDLYNAME,
+        /** Object ID of the virtual disk. */
+        OBJECTID;
     }
 
     protected MSFTStorage() {

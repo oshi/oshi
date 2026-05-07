@@ -23,10 +23,26 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
 
     protected static final boolean IS_APPLE_SILICON = "aarch64".equals(System.getProperty("os.arch"));
 
+    /**
+     * Creates a MacGraphicsCard.
+     *
+     * @param name        the card name
+     * @param deviceId    the device ID
+     * @param vendor      the vendor
+     * @param versionInfo the version info
+     * @param vram        the VRAM in bytes
+     */
     protected MacGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }
 
+    /**
+     * Parses graphics cards from system_profiler output.
+     *
+     * @param factory the factory to create cards
+     * @param sysctl  the sysctl accessor
+     * @return a list of graphics cards
+     */
     protected static List<GraphicsCard> parseGraphicsCards(GraphicsCardFactory factory, SysctlLong sysctl) {
         List<String> sp = ExecutingCommand.runNative("system_profiler SPDisplaysDataType");
         return parseGraphicsCards(sp, factory, sysctl);
@@ -84,11 +100,17 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
         return parsedVram;
     }
 
+    /**
+     * Factory for creating GraphicsCard instances.
+     */
     @FunctionalInterface
     protected interface GraphicsCardFactory {
         GraphicsCard create(String name, String deviceId, String vendor, String versionInfo, long vram);
     }
 
+    /**
+     * Functional interface for sysctl long queries.
+     */
     @FunctionalInterface
     protected interface SysctlLong {
         long get(String name, long defaultValue);

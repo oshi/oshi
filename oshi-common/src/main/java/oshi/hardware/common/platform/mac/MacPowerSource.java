@@ -15,6 +15,31 @@ import oshi.hardware.common.AbstractPowerSource;
 @ThreadSafe
 public abstract class MacPowerSource extends AbstractPowerSource {
 
+    /**
+     * Creates a MacPowerSource.
+     *
+     * @param psName                     power source name
+     * @param psDeviceName               device name
+     * @param psRemainingCapacityPercent remaining capacity percentage
+     * @param psTimeRemainingEstimated   estimated time remaining
+     * @param psTimeRemainingInstant     instant time remaining
+     * @param psPowerUsageRate           power usage rate
+     * @param psVoltage                  voltage
+     * @param psAmperage                 amperage
+     * @param psPowerOnLine              whether on AC power
+     * @param psCharging                 whether charging
+     * @param psDischarging              whether discharging
+     * @param psCapacityUnits            capacity units
+     * @param psCurrentCapacity          current capacity
+     * @param psMaxCapacity              max capacity
+     * @param psDesignCapacity           design capacity
+     * @param psCycleCount               cycle count
+     * @param psChemistry                chemistry
+     * @param psManufactureDate          manufacture date
+     * @param psManufacturer             manufacturer
+     * @param psSerialNumber             serial number
+     * @param psTemperature              temperature
+     */
     public MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,

@@ -18,6 +18,12 @@ import oshi.util.tuples.Quartet;
 @Immutable
 public abstract class MacComputerSystem extends AbstractComputerSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected MacComputerSystem() {
+    }
+
     private final Supplier<Quartet<String, String, String, String>> manufacturerModelSerialUUID = memoize(
             this::platformExpert);
 
@@ -41,5 +47,10 @@ public abstract class MacComputerSystem extends AbstractComputerSystem {
         return manufacturerModelSerialUUID.get().getD();
     }
 
+    /**
+     * Queries platform expert computer system information.
+     *
+     * @return a quartet of manufacturer, model, serial number, UUID
+     */
     protected abstract Quartet<String, String, String, String> platformExpert();
 }

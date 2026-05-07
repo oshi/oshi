@@ -21,6 +21,17 @@ import oshi.hardware.common.AbstractUsbDevice;
 @Immutable
 public class MacUsbDevice extends AbstractUsbDevice {
 
+    /**
+     * Creates a MacUsbDevice.
+     *
+     * @param name             the device name
+     * @param vendor           the vendor
+     * @param vendorId         the vendor ID
+     * @param productId        the product ID
+     * @param serialNumber     the serial number
+     * @param uniqueDeviceId   the unique device ID
+     * @param connectedDevices the connected devices
+     */
     protected MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);

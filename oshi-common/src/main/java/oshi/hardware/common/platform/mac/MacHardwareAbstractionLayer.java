@@ -17,6 +17,12 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 @ThreadSafe
 public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
+    /**
+     * Default constructor.
+     */
+    protected MacHardwareAbstractionLayer() {
+    }
+
     @Override
     public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
         return MacLogicalVolumeGroup.getLogicalVolumeGroups();

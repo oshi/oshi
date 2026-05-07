@@ -37,11 +37,21 @@ import oshi.util.linux.ProcPath;
 @ThreadSafe
 public abstract class LinuxFileSystem extends AbstractFileSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected LinuxFileSystem() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystem.class);
 
+    /** Configuration key for path excludes. */
     public static final String OSHI_LINUX_FS_PATH_EXCLUDES = "oshi.os.linux.filesystem.path.excludes";
+    /** Configuration key for path includes. */
     public static final String OSHI_LINUX_FS_PATH_INCLUDES = "oshi.os.linux.filesystem.path.includes";
+    /** Configuration key for volume excludes. */
     public static final String OSHI_LINUX_FS_VOLUME_EXCLUDES = "oshi.os.linux.filesystem.volume.excludes";
+    /** Configuration key for volume includes. */
     public static final String OSHI_LINUX_FS_VOLUME_INCLUDES = "oshi.os.linux.filesystem.volume.includes";
 
     private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
@@ -71,6 +81,11 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         return getFileStoreMatching(null, buildUuidMap(), localOnly);
     }
 
+    /**
+     * Builds a map of filesystem UUIDs to device paths.
+     *
+     * @return the UUID map
+     */
     protected static Map<String, String> buildUuidMap() {
         // Map of volume with device path as key
         Map<String, String> volumeDeviceMap = new HashMap<>();

@@ -16,6 +16,12 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public abstract class LoadAverage {
 
+    /**
+     * Default constructor.
+     */
+    protected LoadAverage() {
+    }
+
     // Daemon thread for Load Average
     private Thread loadAvgThread = null;
 
@@ -38,12 +44,21 @@ public abstract class LoadAverage {
      */
     protected abstract long queryQueueLength();
 
+    /**
+     * Queries the load average values.
+     *
+     * @param nelem number of elements to return (1, 2, or 3)
+     * @return array of load averages
+     */
     public double[] queryLoadAverage(int nelem) {
         synchronized (loadAverages) {
             return Arrays.copyOf(loadAverages, nelem);
         }
     }
 
+    /**
+     * Stops the load average daemon thread.
+     */
     public synchronized void stopDaemon() {
         if (loadAvgThread != null) {
             loadAvgThread.interrupt();
@@ -51,6 +66,9 @@ public abstract class LoadAverage {
         }
     }
 
+    /**
+     * Starts the load average daemon thread.
+     */
     public synchronized void startDaemon() {
         if (loadAvgThread != null) {
             return;

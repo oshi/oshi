@@ -172,8 +172,20 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @param pid the process ID
      * @return a new OS process instance
      */
+    /**
+     * Creates an OS process for the given PID.
+     *
+     * @param pid the process ID
+     * @return the OS process
+     */
     protected abstract OSProcess createOSProcess(int pid);
 
+    /**
+     * Gets parent PIDs from proc filesystem files.
+     *
+     * @param pidFiles the proc pid directories
+     * @return a map of PID to parent PID
+     */
     protected static Map<Integer, Integer> getParentPidsFromProcFiles(File[] pidFiles) {
         Map<Integer, Integer> parentPidMap = new HashMap<>();
         for (File procFile : pidFiles) {

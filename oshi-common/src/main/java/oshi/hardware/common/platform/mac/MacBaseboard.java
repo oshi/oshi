@@ -18,6 +18,12 @@ import oshi.util.tuples.Quartet;
 @Immutable
 public abstract class MacBaseboard extends AbstractBaseboard {
 
+    /**
+     * Default constructor.
+     */
+    protected MacBaseboard() {
+    }
+
     private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(this::queryPlatform);
 
     @Override
@@ -40,5 +46,10 @@ public abstract class MacBaseboard extends AbstractBaseboard {
         return manufModelVersSerial.get().getD();
     }
 
+    /**
+     * Queries platform baseboard information.
+     *
+     * @return a quartet of manufacturer, model, version, serial number
+     */
     protected abstract Quartet<String, String, String, String> queryPlatform();
 }

@@ -27,6 +27,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
+/**
+ * Utility class for querying installed applications on macOS.
+ */
 public final class MacInstalledApps {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacInstalledApps.class);
@@ -34,6 +37,11 @@ public final class MacInstalledApps {
     private MacInstalledApps() {
     }
 
+    /**
+     * Queries installed applications.
+     *
+     * @return a list of installed applications
+     */
     public static List<ApplicationInfo> queryInstalledApps() {
         List<String> output = ExecutingCommand.runNative("system_profiler -xml SPApplicationsDataType");
 

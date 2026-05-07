@@ -37,10 +37,15 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Set<String> ARM_P_CORES = Stream
             .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8").collect(Collectors.toSet());
 
+    /** ARM CPU type constant. */
     protected static final int ARM_CPUTYPE = 0x0100000C;
+    /** M1 CPU family constant. */
     protected static final int M1_CPUFAMILY = 0x1b588bb3;
+    /** M2 CPU family constant. */
     protected static final int M2_CPUFAMILY = 0xda33d83d;
+    /** M3 CPU family constant. */
     protected static final int M3_CPUFAMILY = 0x8765edea;
+    /** Default frequency in Hz. */
     protected static final long DEFAULT_FREQUENCY = 2_400_000_000L;
 
     private final Supplier<String> vendor = memoize(this::platformExpert);
@@ -49,38 +54,111 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private long performanceCoreFrequency = DEFAULT_FREQUENCY;
     private long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
 
+    /**
+     * Queries a sysctl integer value.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value if not found
+     * @return the sysctl value
+     */
     protected abstract int sysctlInt(String name, int defaultValue);
 
+    /**
+     * Queries a sysctl integer value without logging warnings.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value if not found
+     * @return the sysctl value
+     */
     protected abstract int sysctlIntNoWarn(String name, int defaultValue);
 
+    /**
+     * Queries a sysctl long value.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value if not found
+     * @return the sysctl value
+     */
     protected abstract long sysctlLong(String name, long defaultValue);
 
+    /**
+     * Queries a sysctl string value.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value if not found
+     * @return the sysctl value
+     */
     protected abstract String sysctlString(String name, String defaultValue);
 
+    /**
+     * Queries a sysctl string value without logging warnings.
+     *
+     * @param name         the sysctl name
+     * @param defaultValue the default value if not found
+     * @return the sysctl value
+     */
     protected abstract String sysctlStringNoWarn(String name, String defaultValue);
 
+    /**
+     * Queries the platform expert vendor string.
+     *
+     * @return the vendor string
+     */
     protected abstract String platformExpert();
 
+    /**
+     * Queries compatible strings for CPU identification.
+     *
+     * @return a map of physical processor numbers to compatible strings
+     */
     protected abstract Map<Integer, String> queryCompatibleStrings();
 
+    /**
+     * Calculates nominal frequencies for performance and efficiency cores.
+     */
     protected abstract void calculateNominalFrequencies();
 
+    /**
+     * Gets the performance core frequency.
+     *
+     * @return the performance core frequency in Hz
+     */
     protected long getPerformanceCoreFrequency() {
         return performanceCoreFrequency;
     }
 
+    /**
+     * Sets the performance core frequency.
+     *
+     * @param freq the frequency in Hz
+     */
     protected void setPerformanceCoreFrequency(long freq) {
         this.performanceCoreFrequency = freq;
     }
 
+    /**
+     * Gets the efficiency core frequency.
+     *
+     * @return the efficiency core frequency in Hz
+     */
     protected long getEfficiencyCoreFrequency() {
         return efficiencyCoreFrequency;
     }
 
+    /**
+     * Sets the efficiency core frequency.
+     *
+     * @param freq the frequency in Hz
+     */
     protected void setEfficiencyCoreFrequency(long freq) {
         this.efficiencyCoreFrequency = freq;
     }
 
+    /**
+     * Checks if this is an ARM CPU.
+     *
+     * @return true if ARM
+     */
     protected boolean isArm() {
         return isArmCpu;
     }
@@ -242,6 +320,12 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         return getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -> id.contains("arm"));
     }
 
+    /**
+     * Extracts the maximum frequency from a byte array property.
+     *
+     * @param data the byte array from IOKit
+     * @return the frequency in Hz, or DEFAULT_FREQUENCY if unavailable
+     */
     protected long getMaxFreqFromByteArray(byte[] data) {
         if (data != null && data.length >= 8) {
             byte[] freqData = Arrays.copyOfRange(data, data.length - 8, data.length - 4);
