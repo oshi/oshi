@@ -1117,7 +1117,8 @@
                         <artifactId>dependency-check-maven</artifactId>
                         <configuration>
                             <nvdMaxRetryCount>25</nvdMaxRetryCount>
-                            <nvdApiDelay>32000</nvdApiDelay>
+                            <nvdApiDelay>6000</nvdApiDelay>
+                            <nvdValidForHours>168</nvdValidForHours>
                         </configuration>
                         <executions>
                             <execution>

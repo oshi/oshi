@@ -25,6 +25,11 @@ jobs:
           cache: maven
           distribution: temurin
           java-version: 25
+      - name: Cache NVD database
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-db
       - name: Build site
         run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
         env:
