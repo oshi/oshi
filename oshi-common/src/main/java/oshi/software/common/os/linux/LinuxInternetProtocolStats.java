@@ -36,6 +36,12 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
 
+    /**
+     * Default constructor.
+     */
+    protected LinuxInternetProtocolStats() {
+    }
+
     private final String tcpColon = "Tcp:";
     private final String udpColon = "Udp:";
     private final String udp6 = "Udp6";

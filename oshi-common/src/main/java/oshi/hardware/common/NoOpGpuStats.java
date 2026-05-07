@@ -21,6 +21,12 @@ import oshi.hardware.GpuTicks;
 @ThreadSafe
 public final class NoOpGpuStats implements GpuStats {
 
+    /**
+     * Default constructor.
+     */
+    protected NoOpGpuStats() {
+    }
+
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     @Override

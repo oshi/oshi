@@ -17,6 +17,12 @@ import oshi.util.GlobalConfig;
 @ThreadSafe
 public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
 
+    /**
+     * Default constructor.
+     */
+    protected WindowsOperatingSystem() {
+    }
+
     protected static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 

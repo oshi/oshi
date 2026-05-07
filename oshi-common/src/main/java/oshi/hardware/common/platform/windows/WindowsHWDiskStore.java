@@ -29,6 +29,12 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
+    /**
+     * Default constructor.
+     */
+    protected WindowsHWDiskStore() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStore.class);
 
     protected static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
