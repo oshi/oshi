@@ -28,6 +28,7 @@ import com.sun.jna.platform.win32.WinReg;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerformanceProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
@@ -200,27 +201,48 @@ final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         if (VersionHelpers.IsWindows7OrGreater()) {
-            Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> instanceValuePair = ProcessorInformationJNA
-                    .queryFrequencyCounters();
-            List<String> instances = instanceValuePair.getA();
-            Map<ProcessorFrequencyProperty, List<Long>> valueMap = instanceValuePair.getB();
-            List<Long> percentMaxList = valueMap.get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
-            if (!instances.isEmpty()) {
-                long maxFreq = this.getMaxFreq();
-                long[] freqs = new long[getLogicalProcessorCount()];
-                for (String instance : instances) {
-                    int cpu = instance.contains(",") ? getNumaNodeProcToLogicalProcMap().getOrDefault(instance, 0)
-                            : ParseUtil.parseIntOrDefault(instance, 0);
-                    if (cpu >= getLogicalProcessorCount()) {
-                        continue;
-                    }
-                    freqs[cpu] = percentMaxList.get(cpu) * maxFreq / 100L;
+            long maxFreq = this.getMaxFreq();
+            if (maxFreq > 0) {
+                // Prefer % Processor Performance from WMI formatted table (Win8+, reports >100% with turbo)
+                Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> perfPair = ProcessorInformationJNA
+                        .queryProcessorPerformanceCounters();
+                List<Long> perfList = perfPair.getB().get(ProcessorPerformanceProperty.PERCENTPROCESSORPERFORMANCE);
+                long[] freqs = mapPercentToFreqs(perfPair.getA(), perfList, maxFreq);
+                if (freqs != null) {
+                    return freqs;
                 }
-                return freqs;
+                // Fall back to % of Maximum Frequency (Win7, caps at 100%)
+                Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> freqPair = ProcessorInformationJNA
+                        .queryFrequencyCounters();
+                List<Long> percentMaxList = freqPair.getB().get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
+                freqs = mapPercentToFreqs(freqPair.getA(), percentMaxList, maxFreq);
+                if (freqs != null) {
+                    return freqs;
+                }
             }
         }
         // If <Win7 or anything failed in PDH/WMI, use the native call
         return queryNTPower(2); // Current is field index 2
+    }
+
+    private long[] mapPercentToFreqs(List<String> instances, List<Long> percentList, long maxFreq) {
+        if (instances.isEmpty() || percentList == null) {
+            return null;
+        }
+        long[] freqs = new long[getLogicalProcessorCount()];
+        boolean populated = false;
+        for (String instance : instances) {
+            int cpu = instance.contains(",") ? getNumaNodeProcToLogicalProcMap().getOrDefault(instance, 0)
+                    : ParseUtil.parseIntOrDefault(instance, 0);
+            if (cpu >= getLogicalProcessorCount()) {
+                continue;
+            }
+            freqs[cpu] = percentList.get(cpu) * maxFreq / 100L;
+            if (freqs[cpu] > 0) {
+                populated = true;
+            }
+        }
+        return populated ? freqs : null;
     }
 
     @Override

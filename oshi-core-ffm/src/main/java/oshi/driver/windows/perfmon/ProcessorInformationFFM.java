@@ -6,6 +6,7 @@ package oshi.driver.windows.perfmon;
 
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESSOR_INFORMATION;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_FORMATTED_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_NOT_TOTAL;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_PROCESSOR_WHERE_NAME_TOTAL;
@@ -16,6 +17,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.InterruptsProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerformanceProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
@@ -87,5 +89,15 @@ public final class ProcessorInformationFFM {
     public static Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> queryFrequencyCounters() {
         return PerfCounterWildcardQueryFFM.queryInstancesAndValues(ProcessorFrequencyProperty.class,
                 PROCESSOR_INFORMATION, WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
+    }
+
+    /**
+     * Returns processor performance percentage (cooked) from the WMI Formatted Data table.
+     *
+     * @return Processor performance percentage for each processor, or empty if unavailable.
+     */
+    public static Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> queryProcessorPerformanceCounters() {
+        return PerfCounterWildcardQueryFFM.queryInstancesAndValuesFromWMI(ProcessorPerformanceProperty.class,
+                WIN32_PERF_FORMATTED_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL);
     }
 }

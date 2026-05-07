@@ -53,6 +53,7 @@ public final class PerfmonConstants {
     // For Win7+ ... NAME field includes NUMA nodes
     public static final String PROCESSOR_INFORMATION = "Processor Information";
     public static final String WIN32_PERF_RAW_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfRawData_Counters_ProcessorInformation WHERE NOT Name LIKE \"%_Total\"";
+    public static final String WIN32_PERF_FORMATTED_DATA_COUNTERS_PROCESSOR_INFORMATION_WHERE_NOT_NAME_LIKE_TOTAL = "Win32_PerfFormattedData_Counters_ProcessorInformation WHERE NOT Name LIKE \"%_Total\"";
 
     public static final String SYSTEM = "System";
     public static final String WIN32_PERF_RAW_DATA_PERF_OS_SYSTEM = "Win32_PerfRawData_PerfOS_System";
