@@ -35,6 +35,12 @@ public final class ThreadInfo {
     private ThreadInfo() {
     }
 
+    /**
+     * Queries thread statistics for a process.
+     *
+     * @param pid the process ID
+     * @return a list of thread statistics
+     */
     public static List<ThreadStats> queryTaskThreads(int pid) {
         String pidStr = " " + pid + " ";
         List<ThreadStats> taskThreads = new ArrayList<>();
@@ -69,6 +75,16 @@ public final class ThreadInfo {
         private final State state;
         private final int priority;
 
+        /**
+         * Creates a ThreadStats instance.
+         *
+         * @param tid   the thread ID
+         * @param cpu   the CPU usage percentage
+         * @param state the thread state character
+         * @param sTime the system time
+         * @param uTime the user time
+         * @param pri   the priority
+         */
         public ThreadStats(int tid, double cpu, char state, long sTime, long uTime, int pri) {
             this.threadId = tid;
             this.userTime = uTime;
@@ -101,6 +117,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the threadId.
+         *
          * @return the threadId
          */
         public int getThreadId() {
@@ -108,6 +126,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the userTime.
+         *
          * @return the userTime
          */
         public long getUserTime() {
@@ -115,6 +135,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the systemTime.
+         *
          * @return the systemTime
          */
         public long getSystemTime() {
@@ -122,6 +144,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the upTime.
+         *
          * @return the upTime
          */
         public long getUpTime() {
@@ -129,6 +153,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the state.
+         *
          * @return the state
          */
         public State getState() {
@@ -136,6 +162,8 @@ public final class ThreadInfo {
         }
 
         /**
+         * Gets the priority.
+         *
          * @return the priority
          */
         public int getPriority() {

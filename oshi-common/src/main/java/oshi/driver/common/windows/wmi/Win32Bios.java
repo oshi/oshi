@@ -28,7 +28,16 @@ public class Win32Bios {
      * BIOS description properties.
      */
     public enum BiosProperty {
-        MANUFACTURER, NAME, DESCRIPTION, VERSION, RELEASEDATE;
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** NAME property. */
+        NAME,
+        /** DESCRIPTION property. */
+        DESCRIPTION,
+        /** VERSION property. */
+        VERSION,
+        /** RELEASEDATE property. */
+        RELEASEDATE;
     }
 
     protected Win32Bios() {

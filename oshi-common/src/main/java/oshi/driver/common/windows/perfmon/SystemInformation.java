@@ -16,6 +16,7 @@ public final class SystemInformation {
      * Context switch property
      */
     public enum ContextSwitchProperty implements PdhCounterProperty {
+        /** Context switches per second. */
         CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
 
         private final String instance;
@@ -41,6 +42,7 @@ public final class SystemInformation {
      * Processor Queue Length property
      */
     public enum ProcessorQueueLengthProperty implements PdhCounterProperty {
+        /** Processor queue length. */
         PROCESSORQUEUELENGTH(null, "Processor Queue Length");
 
         private final String instance;

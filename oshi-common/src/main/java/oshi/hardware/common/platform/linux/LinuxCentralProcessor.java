@@ -53,6 +53,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private final long hz;
 
+    /**
+     * LinuxCentralProcessor.
+     */
     protected LinuxCentralProcessor(long hz) {
         this.hz = hz;
     }
@@ -243,6 +246,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
 
+    /**
+     * getLogicalProcessorFromSyspath.
+     */
     protected static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
             String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
@@ -468,6 +474,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      */
     protected abstract boolean queryCurrentFreqFromUdev(long[] freqs);
 
+    /**
+     * queryCurrentFreqFromSysfs.
+     */
     protected static boolean queryCurrentFreqFromSysfs(long[] freqs) {
         long max = 0L;
         try (Stream<Path> cpuFiles = Files.find(Paths.get(SysPath.CPU), 1,

@@ -21,7 +21,16 @@ public class Win32BaseBoard {
      * Baseboard description properties.
      */
     public enum BaseBoardProperty {
-        MANUFACTURER, MODEL, PRODUCT, VERSION, SERIALNUMBER;
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** MODEL property. */
+        MODEL,
+        /** PRODUCT property. */
+        PRODUCT,
+        /** VERSION property. */
+        VERSION,
+        /** SERIALNUMBER property. */
+        SERIALNUMBER;
     }
 
     protected Win32BaseBoard() {

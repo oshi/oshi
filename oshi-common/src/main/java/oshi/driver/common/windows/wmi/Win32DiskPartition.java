@@ -21,7 +21,20 @@ public class Win32DiskPartition {
      * Disk partition properties.
      */
     public enum DiskPartitionProperty {
-        INDEX, DESCRIPTION, DEVICEID, DISKINDEX, NAME, SIZE, TYPE;
+        /** INDEX property. */
+        INDEX,
+        /** DESCRIPTION property. */
+        DESCRIPTION,
+        /** DEVICEID property. */
+        DEVICEID,
+        /** DISKINDEX property. */
+        DISKINDEX,
+        /** NAME property. */
+        NAME,
+        /** SIZE property. */
+        SIZE,
+        /** TYPE property. */
+        TYPE;
     }
 
     protected Win32DiskPartition() {

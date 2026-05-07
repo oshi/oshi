@@ -21,7 +21,20 @@ public class Win32DiskDrive {
      * Disk drive properties.
      */
     public enum DiskDriveProperty {
-        INDEX, MANUFACTURER, MEDIATYPE, MODEL, NAME, SERIALNUMBER, SIZE;
+        /** INDEX property. */
+        INDEX,
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** MEDIATYPE property. */
+        MEDIATYPE,
+        /** MODEL property. */
+        MODEL,
+        /** NAME property. */
+        NAME,
+        /** SERIALNUMBER property. */
+        SERIALNUMBER,
+        /** SIZE property. */
+        SIZE;
     }
 
     protected Win32DiskDrive() {

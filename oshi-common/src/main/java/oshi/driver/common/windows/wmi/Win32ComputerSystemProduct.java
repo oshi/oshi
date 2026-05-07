@@ -21,7 +21,10 @@ public class Win32ComputerSystemProduct {
      * Computer System ID number.
      */
     public enum ComputerSystemProductProperty {
-        IDENTIFYINGNUMBER, UUID;
+        /** IDENTIFYINGNUMBER property. */
+        IDENTIFYINGNUMBER,
+        /** UUID property. */
+        UUID;
     }
 
     protected Win32ComputerSystemProduct() {

@@ -21,7 +21,10 @@ public class Win32DiskDriveToDiskPartition {
      * Links disk drives to partitions.
      */
     public enum DriveToPartitionProperty {
-        ANTECEDENT, DEPENDENT;
+        /** ANTECEDENT property. */
+        ANTECEDENT,
+        /** DEPENDENT property. */
+        DEPENDENT;
     }
 
     protected Win32DiskDriveToDiskPartition() {

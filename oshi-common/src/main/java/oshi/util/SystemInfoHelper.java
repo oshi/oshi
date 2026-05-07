@@ -52,6 +52,11 @@ public final class SystemInfoHelper {
     private SystemInfoHelper() {
     }
 
+    /**
+     * Prints Operating System information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printOperatingSystem(List<String> lines, final OperatingSystem os) {
         lines.add(String.valueOf(os));
         lines.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
@@ -63,6 +68,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Installed Apps information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printInstalledApps(List<String> lines, List<ApplicationInfo> installedApplications) {
         lines.add("Apps: ");
         for (int i = 0; i < 5 && i < installedApplications.size(); i++) {
@@ -70,12 +80,22 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Computer System information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printComputerSystem(List<String> lines, final ComputerSystem computerSystem) {
         lines.add("System: " + computerSystem.toString());
         lines.add(" Firmware: " + computerSystem.getFirmware().toString());
         lines.add(" Baseboard: " + computerSystem.getBaseboard().toString());
     }
 
+    /**
+     * Prints Processor information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printProcessor(List<String> lines, CentralProcessor processor) {
         lines.add(processor.toString());
 
@@ -133,6 +153,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Memory information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printMemory(List<String> lines, GlobalMemory memory) {
         lines.add("Physical Memory: \n " + memory.toString());
         VirtualMemory vm = memory.getVirtualMemory();
@@ -146,6 +171,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Cpu information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printCpu(List<String> lines, CentralProcessor processor) {
         lines.add("Context Switches/Interrupts: " + processor.getContextSwitches() + " / " + processor.getInterrupts());
 
@@ -209,6 +239,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Processes information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printProcesses(List<String> lines, OperatingSystem os, GlobalMemory memory) {
         OSProcess myProc = os.getProcess(os.getProcessId());
         if (myProc == null) {
@@ -242,6 +277,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Services information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printServices(List<String> lines, OperatingSystem os) {
         lines.add("Services: ");
         lines.add("   PID   State   Name");
@@ -259,10 +299,20 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Sensors information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printSensors(List<String> lines, Sensors sensors) {
         lines.add("Sensors: " + sensors.toString());
     }
 
+    /**
+     * Prints Power Sources information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printPowerSources(List<String> lines, List<PowerSource> list) {
         StringBuilder sb = new StringBuilder("Power Sources: ");
         if (list.isEmpty()) {
@@ -274,6 +324,11 @@ public final class SystemInfoHelper {
         lines.add(sb.toString());
     }
 
+    /**
+     * Prints Disks information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printDisks(List<String> lines, List<HWDiskStore> list) {
         lines.add("Disks:");
         for (HWDiskStore disk : list) {
@@ -284,6 +339,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints L Vgroups information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printLVgroups(List<String> lines, List<LogicalVolumeGroup> list) {
         if (!list.isEmpty()) {
             lines.add("Logical Volume Groups:");
@@ -293,6 +353,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints File System information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printFileSystem(List<String> lines, FileSystem fileSystem) {
         lines.add("File System:");
         lines.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
@@ -312,6 +377,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Network Interfaces information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printNetworkInterfaces(List<String> lines, List<NetworkIF> list) {
         StringBuilder sb = new StringBuilder("Network Interfaces:");
         if (list.isEmpty()) {
@@ -324,10 +394,20 @@ public final class SystemInfoHelper {
         lines.add(sb.toString());
     }
 
+    /**
+     * Prints Network Parameters information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printNetworkParameters(List<String> lines, NetworkParams networkParams) {
         lines.add("Network parameters:\n " + networkParams.toString());
     }
 
+    /**
+     * Prints Internet Protocol Stats information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printInternetProtocolStats(List<String> lines, InternetProtocolStats ip) {
         lines.add("Internet Protocol statistics:");
         lines.add(" TCPv4: " + ip.getTCPv4Stats());
@@ -336,6 +416,11 @@ public final class SystemInfoHelper {
         lines.add(" UDPv6: " + ip.getUDPv6Stats());
     }
 
+    /**
+     * Prints Displays information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printDisplays(List<String> lines, List<Display> list) {
         lines.add("Displays:");
         int i = 0;
@@ -346,6 +431,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Usb Devices information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printUsbDevices(List<String> lines, List<UsbDevice> list) {
         lines.add("USB Devices:");
         for (UsbDevice usbDevice : list) {
@@ -353,6 +443,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Sound Cards information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printSoundCards(List<String> lines, List<SoundCard> list) {
         lines.add("Sound Cards:");
         for (SoundCard card : list) {
@@ -360,6 +455,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Graphics Cards information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printGraphicsCards(List<String> lines, List<GraphicsCard> list) {
         lines.add("Graphics Cards:");
         if (list.isEmpty()) {
@@ -371,6 +471,11 @@ public final class SystemInfoHelper {
         }
     }
 
+    /**
+     * Prints Printers information to the output lines.
+     *
+     * @param lines the output list
+     */
     public static void printPrinters(List<String> lines, List<Printer> list) {
         lines.add("Printers:");
         if (list.isEmpty()) {

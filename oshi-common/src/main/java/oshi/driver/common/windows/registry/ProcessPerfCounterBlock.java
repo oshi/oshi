@@ -78,6 +78,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the Private Working Set size.
+     *
      * @return the Private Working Set size
      */
     public long getPrivateWorkingSetSize() {
@@ -85,6 +87,8 @@ public final class ProcessPerfCounterBlock {
     }
 
     /**
+     * Gets the Working Set size (RSS).
+     *
      * @return the Working Set size (RSS)
      */
     public long getWorkingSetSize() {

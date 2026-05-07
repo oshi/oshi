@@ -21,7 +21,10 @@ public class Win32ComputerSystem {
      * Computer System properties.
      */
     public enum ComputerSystemProperty {
-        MANUFACTURER, MODEL;
+        /** MANUFACTURER property. */
+        MANUFACTURER,
+        /** MODEL property. */
+        MODEL;
     }
 
     protected Win32ComputerSystem() {

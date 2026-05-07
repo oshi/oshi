@@ -23,6 +23,9 @@ public final class ThreadPerfCounterBlock {
     private final long startAddress;
     private final long contextSwitches;
 
+    /**
+     * Constructor.
+     */
     public ThreadPerfCounterBlock(String name, int threadID, int owningProcessID, long startTime, long userTime,
             long kernelTime, int priority, int threadState, int threadWaitReason, long startAddress,
             long contextSwitches) {
@@ -40,6 +43,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the name.
+     *
      * @return the name
      */
     public String getName() {
@@ -47,6 +52,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the threadID.
+     *
      * @return the threadID
      */
     public int getThreadID() {
@@ -54,6 +61,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the owningProcessID.
+     *
      * @return the owningProcessID
      */
     public int getOwningProcessID() {
@@ -61,6 +70,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the startTime.
+     *
      * @return the startTime
      */
     public long getStartTime() {
@@ -68,6 +79,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the userTime.
+     *
      * @return the userTime
      */
     public long getUserTime() {
@@ -75,6 +88,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the kernelTime.
+     *
      * @return the kernelTime
      */
     public long getKernelTime() {
@@ -82,6 +97,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the priority.
+     *
      * @return the priority
      */
     public int getPriority() {
@@ -89,6 +106,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the threadState.
+     *
      * @return the threadState
      */
     public int getThreadState() {
@@ -96,6 +115,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the threadWaitReason.
+     *
      * @return the threadWaitReason
      */
     public int getThreadWaitReason() {
@@ -103,6 +124,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the startMemoryAddress.
+     *
      * @return the startMemoryAddress
      */
     public long getStartAddress() {
@@ -110,6 +133,8 @@ public final class ThreadPerfCounterBlock {
     }
 
     /**
+     * Gets the contextSwitches.
+     *
      * @return the contextSwitches
      */
     public long getContextSwitches() {
