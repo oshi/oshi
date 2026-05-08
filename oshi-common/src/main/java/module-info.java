@@ -36,12 +36,15 @@ module com.github.oshi.common {
     exports oshi.software.common.os.mac;
     exports oshi.software.common.os.windows;
     exports oshi.software.os;
+    exports oshi.spi;
     exports oshi.util;
     exports oshi.util.driver.linux;
     exports oshi.util.driver.linux.proc;
     exports oshi.util.driver.unix;
     exports oshi.util.linux;
     exports oshi.util.tuples;
+
+    uses oshi.spi.SystemInfoProvider;
 
     requires transitive java.desktop;
     requires org.slf4j;

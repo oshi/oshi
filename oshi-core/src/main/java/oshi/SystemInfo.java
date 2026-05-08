@@ -25,6 +25,7 @@ import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
+import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
 
 /**
@@ -65,7 +66,7 @@ import oshi.util.PlatformEnum;
  * for details.
  */
 @PublicApi
-public class SystemInfo {
+public class SystemInfo implements SystemInfoProvider {
 
     private static final String NOT_SUPPORTED = "Operating system not supported: ";
 
@@ -84,6 +85,16 @@ public class SystemInfo {
      */
     public SystemInfo() {
         // Intentionally empty, here to enable the constructor javadoc.
+    }
+
+    @Override
+    public int getPriority() {
+        return 10;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
     }
 
     /**
