@@ -1,0 +1,46 @@
+name: Debug AIX
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - debug-aix
+
+jobs:
+  testaix:
+    name: Test JDK 17, aix
+    concurrency: aix_gcc119
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test in AIX
+      uses: appleboy/ssh-action@master
+      with:
+        host: gcc119.fsffrance.org
+        username: oshi
+        key: ${{ secrets.AIX_OSHI_KEY }}
+        port: 22
+        command_timeout: 15m
+        script: |
+          set -e
+          rm -fR ~/javashared*
+          cd ~/git/oshi
+          export JAVA_HOME=~/java/jdk-17.0.8.1+1
+          export PATH=$PATH:/opt/freeware/bin
+          export MAVEN_OPTS="-Xshareclasses:none -Djna.tmpdir=/home/oshi/.cache/jna"
+          git reset --hard
+          git checkout master
+          git reset --hard HEAD~2
+          git pull upstream master
+          # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
+          MAVEN_VERSION=3.9.15
+          MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
+          if [ ! -d "$MAVEN_DIR" ]; then
+            mkdir -p /home/oshi/software
+            wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv -O /tmp/maven.tar.gz
+            gunzip -f /tmp/maven.tar.gz
+            cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
+            cd ~/git/oshi
+          fi
+          mkdir -p /home/oshi/.cache/jna
+          export PATH=$MAVEN_DIR/bin:$PATH
+          mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna; }; }
