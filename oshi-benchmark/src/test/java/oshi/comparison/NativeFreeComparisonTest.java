@@ -19,7 +19,9 @@ import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.hardware.VirtualMemory;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -169,6 +171,51 @@ class NativeFreeComparisonTest {
         assertThat(nf.getParentProcessID()).isEqualTo(jna.getParentProcessID());
         assertThat(nf.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(nf.getStartTime()).isEqualTo(jna.getStartTime());
+    }
+
+    // ---- Hardware: Disks ----
+
+    @Test
+    void diskStores() {
+        List<HWDiskStore> jna = jnaHal.getDiskStores();
+        List<HWDiskStore> nf = nfHal.getDiskStores();
+        assertThat(nf).hasSameSizeAs(jna);
+        Map<String, HWDiskStore> nfByName = nf.stream()
+                .collect(Collectors.toMap(HWDiskStore::getName, Function.identity()));
+        for (HWDiskStore j : jna) {
+            HWDiskStore n = nfByName.get(j.getName());
+            assertThat(n).as("disk %s", j.getName()).isNotNull();
+            // Model may differ in space vs underscore: sysfs uses raw kernel string,
+            // udev may normalize spaces to underscores (or vice versa depending on device)
+            assertThat(n.getModel().replace('_', ' ')).isEqualTo(j.getModel().replace('_', ' '));
+            // Serial: udev ID_SERIAL_SHORT may expose serials not available in sysfs device/serial
+            if (!n.getSerial().isEmpty()) {
+                assertThat(n.getSerial()).isEqualTo(j.getSerial());
+            }
+            assertThat(n.getSize()).isEqualTo(j.getSize());
+            assertThat(n.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
+            assertThat(n.getPartitions().size()).as("partitions(%s)", j.getName()).isEqualTo(j.getPartitions().size());
+        }
+    }
+
+    // ---- Hardware: Network Interfaces ----
+
+    @Test
+    void networkInterfaces() {
+        List<NetworkIF> jna = jnaHal.getNetworkIFs();
+        List<NetworkIF> nf = nfHal.getNetworkIFs();
+        assertThat(nf).hasSameSizeAs(jna);
+        Map<String, NetworkIF> nfByName = nf.stream()
+                .collect(Collectors.toMap(NetworkIF::getName, Function.identity()));
+        for (NetworkIF j : jna) {
+            NetworkIF n = nfByName.get(j.getName());
+            assertThat(n).as("networkIF %s", j.getName()).isNotNull();
+            assertThat(n.getMacaddr()).isEqualTo(j.getMacaddr());
+            assertThat(n.getIPv4addr()).isEqualTo(j.getIPv4addr());
+            assertThat(n.getIPv6addr()).isEqualTo(j.getIPv6addr());
+            assertThat(n.getMTU()).isEqualTo(j.getMTU());
+            assertThat(n.getSpeed()).isEqualTo(j.getSpeed());
+        }
     }
 
     // ---- OS: FileSystem ----

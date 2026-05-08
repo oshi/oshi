@@ -17,14 +17,15 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.common.platform.linux.LinuxPowerSource;
 import oshi.software.common.os.linux.nativefree.LinuxOperatingSystemNF;
 
 /**
  * Native-free hardware abstraction layer for Linux. Extends {@link LinuxHardwareAbstractionLayer}, providing
  * implementations that require no native access.
  * <p>
- * Currently provides full CPU and memory support. Disk, network, power, USB, and graphics card enumeration return empty
- * lists and will be implemented in future phases.
+ * Currently provides full CPU, memory, disk, network, and power source support. USB and graphics card enumeration
+ * return empty lists and will be implemented in future phases.
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstractionLayer {
@@ -41,17 +42,17 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return Collections.emptyList();
+        return LinuxHWDiskStoreNF.getDisks();
     }
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return Collections.emptyList();
+        return LinuxNetworkIFNF.getNetworks(includeLocalInterfaces);
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return Collections.emptyList();
+        return LinuxPowerSource.getPowerSources();
     }
 
     @Override

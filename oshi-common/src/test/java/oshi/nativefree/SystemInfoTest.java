@@ -153,6 +153,31 @@ class SystemInfoTest {
     }
 
     @Test
+    void testDiskStores() {
+        List<oshi.hardware.HWDiskStore> disks = hal.getDiskStores();
+        assertThat(disks.size(), greaterThan(0));
+
+        for (oshi.hardware.HWDiskStore disk : disks) {
+            logger.info("Disk: {} ({}) serial={} size={} type={}", disk.getName(), disk.getModel(), disk.getSerial(),
+                    disk.getSize(), disk.getDiskType());
+            assertThat(disk.getName(), is(not("")));
+            assertThat(disk.getSize(), greaterThan(0L));
+        }
+    }
+
+    @Test
+    void testNetworkInterfaces() {
+        List<oshi.hardware.NetworkIF> nets = hal.getNetworkIFs();
+        assertThat(nets.size(), greaterThan(0));
+
+        for (oshi.hardware.NetworkIF net : nets) {
+            logger.info("Net: {} mac={} speed={} ipv4={}", net.getName(), net.getMacaddr(), net.getSpeed(),
+                    Arrays.toString(net.getIPv4addr()));
+            assertThat(net.getName(), is(not("")));
+        }
+    }
+
+    @Test
     void testCurrentProcess() {
         int pid = os.getProcessId();
         OSProcess proc = os.getProcess(pid);
