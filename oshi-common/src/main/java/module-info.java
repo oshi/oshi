@@ -31,6 +31,7 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.windows;
+    exports oshi.nativefree;
     exports oshi.software.common;
     exports oshi.software.common.os.linux;
     exports oshi.software.common.os.mac;
@@ -45,6 +46,8 @@ module com.github.oshi.common {
     exports oshi.util.tuples;
 
     uses oshi.spi.SystemInfoProvider;
+
+    provides oshi.spi.SystemInfoProvider with oshi.nativefree.SystemInfo;
 
     requires transitive java.desktop;
     requires org.slf4j;

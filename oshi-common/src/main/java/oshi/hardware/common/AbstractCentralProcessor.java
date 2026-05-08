@@ -366,12 +366,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                         processorIdBytes |= 1L << 48;
                         break;
                     case "pse-36":
+                    case "pse36":
                         processorIdBytes |= 1L << 49;
                         break;
                     case "psn":
                         processorIdBytes |= 1L << 50;
                         break;
                     case "clfsh":
+                    case "clflush":
                         processorIdBytes |= 1L << 51;
                         break;
                     case "ds":
@@ -396,6 +398,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                         processorIdBytes |= 1L << 59;
                         break;
                     case "htt":
+                    case "ht":
                         processorIdBytes |= 1L << 60;
                         break;
                     case "tm":
