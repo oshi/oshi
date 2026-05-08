@@ -46,8 +46,8 @@ public final class SystemInfoFactory {
      * Among available providers, the one with the highest {@link SystemInfoProvider#getPriority()} is selected.
      *
      * @return a new instance of the best available {@link SystemInfoProvider}
-     * @throws IllegalStateException if no available provider is found. Ensure {@code oshi-core} or
-     *                               {@code oshi-core-ffm} is declared as a dependency.
+     * @throws IllegalStateException if no available provider is found. Ensure {@code oshi-core}, {@code oshi-core-ffm},
+     *                               or (on Linux) {@code oshi-common} alone is on the classpath.
      */
     public static SystemInfoProvider create() {
         SystemInfoProvider best = null;
