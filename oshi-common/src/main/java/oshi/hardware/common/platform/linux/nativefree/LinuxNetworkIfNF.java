@@ -19,11 +19,11 @@ import oshi.hardware.common.platform.linux.LinuxNetworkIF;
  * Native-free Linux network interface implementation. Uses sysfs for model identification.
  */
 @ThreadSafe
-public final class LinuxNetworkIFNF extends LinuxNetworkIF {
+public final class LinuxNetworkIfNF extends LinuxNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIFNF.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIfNF.class);
 
-    LinuxNetworkIFNF(NetworkInterface netint) throws InstantiationException {
+    LinuxNetworkIfNF(NetworkInterface netint) throws InstantiationException {
         super(netint, queryIfModelFromSysfs(netint.getName()));
     }
 
@@ -37,7 +37,7 @@ public final class LinuxNetworkIFNF extends LinuxNetworkIF {
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
             try {
-                ifList.add(new LinuxNetworkIFNF(ni));
+                ifList.add(new LinuxNetworkIfNF(ni));
             } catch (InstantiationException e) {
                 LOG.debug("Network Interface Instantiation failed: {}", e.toString());
             }

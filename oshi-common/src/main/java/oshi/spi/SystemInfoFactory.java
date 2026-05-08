@@ -66,7 +66,8 @@ public final class SystemInfoFactory {
         }
         if (best == null) {
             throw new IllegalStateException(
-                    "No SystemInfoProvider found. Add oshi-core or oshi-core-ffm as a dependency.");
+                    "No SystemInfoProvider found. Add oshi-core or oshi-core-ffm as a dependency,"
+                            + " or use oshi-common alone if on Linux (native-free provider).");
         }
         return best;
     }

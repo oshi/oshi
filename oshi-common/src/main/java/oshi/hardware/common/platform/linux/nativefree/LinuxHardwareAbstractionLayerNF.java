@@ -4,7 +4,6 @@
  */
 package oshi.hardware.common.platform.linux.nativefree;
 
-import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -23,9 +22,6 @@ import oshi.software.common.os.linux.nativefree.LinuxOperatingSystemNF;
 /**
  * Native-free hardware abstraction layer for Linux. Extends {@link LinuxHardwareAbstractionLayer}, providing
  * implementations that require no native access.
- * <p>
- * Currently provides full CPU, memory, disk, network, and power source support. USB and graphics card enumeration
- * return empty lists and will be implemented in future phases.
  */
 @ThreadSafe
 public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstractionLayer {
@@ -47,7 +43,7 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return LinuxNetworkIFNF.getNetworks(includeLocalInterfaces);
+        return LinuxNetworkIfNF.getNetworks(includeLocalInterfaces);
     }
 
     @Override
@@ -57,11 +53,11 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return Collections.emptyList();
+        return LinuxUsbDeviceNF.getUsbDevices(tree);
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return Collections.emptyList();
+        return LinuxGraphicsCardNF.getGraphicsCards();
     }
 }

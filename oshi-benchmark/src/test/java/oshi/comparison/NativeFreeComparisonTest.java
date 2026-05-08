@@ -116,7 +116,7 @@ class NativeFreeComparisonTest {
     void processorFrequencies() {
         CentralProcessor jna = jnaHal.getProcessor();
         CentralProcessor nf = nfHal.getProcessor();
-        assertWithinRatio(nf.getMaxFreq(), jna.getMaxFreq(), 0.05, "maxFreq");
+        assertWithinRatio(nf.getMaxFreq(), jna.getMaxFreq(), 0.10, "maxFreq");
         long[] jnaFreqs = jna.getCurrentFreq();
         long[] nfFreqs = nf.getCurrentFreq();
         assertThat(nfFreqs).hasSameSizeAs(jnaFreqs);

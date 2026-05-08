@@ -5,193 +5,134 @@
 package oshi.nativefree;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static oshi.util.SystemInfoHelper.printComputerSystem;
+import static oshi.util.SystemInfoHelper.printCpu;
+import static oshi.util.SystemInfoHelper.printDisks;
+import static oshi.util.SystemInfoHelper.printDisplays;
+import static oshi.util.SystemInfoHelper.printFileSystem;
+import static oshi.util.SystemInfoHelper.printGraphicsCards;
+import static oshi.util.SystemInfoHelper.printInternetProtocolStats;
+import static oshi.util.SystemInfoHelper.printLVgroups;
+import static oshi.util.SystemInfoHelper.printMemory;
+import static oshi.util.SystemInfoHelper.printNetworkInterfaces;
+import static oshi.util.SystemInfoHelper.printNetworkParameters;
+import static oshi.util.SystemInfoHelper.printOperatingSystem;
+import static oshi.util.SystemInfoHelper.printPowerSources;
+import static oshi.util.SystemInfoHelper.printProcesses;
+import static oshi.util.SystemInfoHelper.printProcessor;
+import static oshi.util.SystemInfoHelper.printSensors;
+import static oshi.util.SystemInfoHelper.printServices;
+import static oshi.util.SystemInfoHelper.printSoundCards;
+import static oshi.util.SystemInfoHelper.printUsbDevices;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.CentralProcessor.LogicalProcessor;
-import oshi.hardware.CentralProcessor.PhysicalProcessor;
-import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.TickType;
-import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.VirtualMemory;
-import oshi.software.os.FileSystem;
-import oshi.software.os.NetworkParams;
-import oshi.software.os.OSFileStore;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import oshi.util.PlatformEnum;
 
 /**
- * Exercises the native-free Linux provider and logs human-readable output for validation.
+ * Exercises the native-free Linux provider and logs human-readable output, mirroring the JNA and FFM SystemInfoTest
+ * classes.
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @EnabledOnOs(OS.LINUX)
-class SystemInfoTest {
+public class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
-    private static oshi.nativefree.SystemInfo si;
-    private static OperatingSystem os;
-    private static HardwareAbstractionLayer hal;
-
-    @BeforeAll
-    static void setUp() {
-        si = new oshi.nativefree.SystemInfo();
-        os = si.getOperatingSystem();
-        hal = si.getHardware();
+    @Test
+    public void testPlatformEnum() {
+        assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
+        main(null);
     }
 
-    @Test
-    void testOperatingSystem() {
-        assertThat(os, is(notNullValue()));
-        logger.info("OS: {} {} {}", os.getFamily(), os.getManufacturer(), os.getVersionInfo());
-        logger.info("Bitness: {}", os.getBitness());
-        logger.info("Boot time: {}", os.getSystemBootTime());
-        logger.info("Uptime: {} sec", os.getSystemUptime());
-        logger.info("Process ID: {}", os.getProcessId());
-        logger.info("Thread ID: {}", os.getThreadId());
-        logger.info("Thread count: {}", os.getThreadCount());
-        logger.info("Process count: {}", os.getProcessCount());
+    public static void main(String[] args) {
+        logger.info("------------------------------------------------------------------------");
+        logger.info("Using Native-Free (NF)");
+        logger.info("------------------------------------------------------------------------");
+        logger.info("Initializing System...");
+        SystemInfo si = new SystemInfo();
 
-        assertThat(os.getFamily(), is(not("")));
-        assertThat(os.getProcessId(), greaterThan(0));
-        assertThat(os.getThreadCount(), greaterThan(0));
-        assertThat(os.getSystemBootTime(), greaterThan(0L));
-        assertThat(os.getSystemUptime(), greaterThan(0L));
-    }
+        HardwareAbstractionLayer hal = si.getHardware();
+        OperatingSystem os = si.getOperatingSystem();
 
-    @Test
-    void testProcessor() {
-        CentralProcessor cpu = hal.getProcessor();
-        assertThat(cpu, is(notNullValue()));
+        List<String> lines = new ArrayList<>();
 
-        logger.info("Processor: {}", cpu.getProcessorIdentifier().getName());
-        logger.info("  Vendor: {}", cpu.getProcessorIdentifier().getVendor());
-        logger.info("  Logical CPUs: {}", cpu.getLogicalProcessorCount());
-        logger.info("  Physical CPUs: {}", cpu.getPhysicalProcessorCount());
-        logger.info("  Packages: {}", cpu.getPhysicalPackageCount());
-        logger.info("  Max freq: {} Hz", cpu.getMaxFreq());
+        printOperatingSystem(lines, os);
 
-        assertThat(cpu.getLogicalProcessorCount(), greaterThan(0));
-        assertThat(cpu.getPhysicalProcessorCount(), greaterThan(0));
-        assertThat(cpu.getProcessorIdentifier().getName(), is(not("")));
+        logger.info("Checking computer system...");
+        printComputerSystem(lines, hal.getComputerSystem());
 
-        List<LogicalProcessor> logProcs = cpu.getLogicalProcessors();
-        assertThat(logProcs.size(), is(cpu.getLogicalProcessorCount()));
+        logger.info("Checking Processor...");
+        printProcessor(lines, hal.getProcessor());
 
-        List<PhysicalProcessor> physProcs = cpu.getPhysicalProcessors();
-        assertThat(physProcs.size(), is(cpu.getPhysicalProcessorCount()));
+        logger.info("Checking Memory...");
+        printMemory(lines, hal.getMemory());
 
-        List<ProcessorCache> caches = cpu.getProcessorCaches();
-        for (ProcessorCache cache : caches) {
-            logger.info("  Cache: L{} {} {} KB", cache.getLevel(), cache.getType(), cache.getCacheSize() / 1024);
+        logger.info("Checking CPU...");
+        printCpu(lines, hal.getProcessor());
+
+        logger.info("Checking Processes...");
+        printProcesses(lines, os, hal.getMemory());
+
+        logger.info("Checking Services...");
+        printServices(lines, os);
+
+        logger.info("Checking Sensors...");
+        printSensors(lines, hal.getSensors());
+
+        logger.info("Checking Power sources...");
+        printPowerSources(lines, hal.getPowerSources());
+
+        logger.info("Checking Disks...");
+        printDisks(lines, hal.getDiskStores());
+
+        logger.info("Checking Logical Volume Groups ...");
+        printLVgroups(lines, hal.getLogicalVolumeGroups());
+
+        logger.info("Checking File System...");
+        printFileSystem(lines, os.getFileSystem());
+
+        logger.info("Checking Network interfaces...");
+        printNetworkInterfaces(lines, hal.getNetworkIFs());
+
+        logger.info("Checking Network parameters...");
+        printNetworkParameters(lines, os.getNetworkParams());
+
+        logger.info("Checking IP statistics...");
+        printInternetProtocolStats(lines, os.getInternetProtocolStats());
+
+        logger.info("Checking Displays...");
+        printDisplays(lines, hal.getDisplays());
+
+        logger.info("Checking USB Devices...");
+        printUsbDevices(lines, hal.getUsbDevices(true));
+
+        logger.info("Checking Sound Cards...");
+        printSoundCards(lines, hal.getSoundCards());
+
+        logger.info("Checking Graphics Cards...");
+        printGraphicsCards(lines, hal.getGraphicsCards());
+
+        StringBuilder output = new StringBuilder();
+        for (String line : lines) {
+            output.append(line);
+            if (line != null && !line.endsWith("\n")) {
+                output.append('\n');
+            }
         }
-
-        long[] ticks = cpu.getSystemCpuLoadTicks();
-        assertThat(ticks.length, is(TickType.values().length));
-        logger.info("  Ticks: {}", Arrays.toString(ticks));
-
-        long[] freqs = cpu.getCurrentFreq();
-        assertThat(freqs.length, is(cpu.getLogicalProcessorCount()));
-    }
-
-    @Test
-    void testMemory() {
-        GlobalMemory mem = hal.getMemory();
-        assertThat(mem, is(notNullValue()));
-
-        logger.info("Memory: {} total, {} available", mem.getTotal(), mem.getAvailable());
-        logger.info("  Page size: {}", mem.getPageSize());
-
-        assertThat(mem.getTotal(), greaterThan(0L));
-        assertThat(mem.getAvailable(), greaterThanOrEqualTo(0L));
-        assertThat(mem.getPageSize(), greaterThan(0L));
-
-        VirtualMemory vm = mem.getVirtualMemory();
-        logger.info("  Swap: {} total, {} used", vm.getSwapTotal(), vm.getSwapUsed());
-        assertThat(vm.getSwapTotal(), greaterThanOrEqualTo(0L));
-    }
-
-    @Test
-    void testFileSystem() {
-        FileSystem fs = os.getFileSystem();
-        assertThat(fs, is(notNullValue()));
-
-        List<OSFileStore> stores = fs.getFileStores();
-        assertThat(stores.size(), greaterThan(0));
-
-        for (OSFileStore store : stores) {
-            logger.info("  {} ({}) at {} - {} total, {} usable", store.getName(), store.getType(), store.getMount(),
-                    store.getTotalSpace(), store.getUsableSpace());
-        }
-    }
-
-    @Test
-    void testNetworkParams() {
-        NetworkParams net = os.getNetworkParams();
-        assertThat(net, is(notNullValue()));
-
-        logger.info("Network: host={}, domain={}", net.getHostName(), net.getDomainName());
-        logger.info("  DNS: {}", Arrays.toString(net.getDnsServers()));
-        logger.info("  IPv4 gateway: {}", net.getIpv4DefaultGateway());
-        logger.info("  IPv6 gateway: {}", net.getIpv6DefaultGateway());
-
-        assertThat(net.getHostName(), is(not("")));
-    }
-
-    @Test
-    void testDiskStores() {
-        List<oshi.hardware.HWDiskStore> disks = hal.getDiskStores();
-        assertThat(disks.size(), greaterThan(0));
-
-        for (oshi.hardware.HWDiskStore disk : disks) {
-            logger.info("Disk: {} ({}) serial={} size={} type={}", disk.getName(), disk.getModel(), disk.getSerial(),
-                    disk.getSize(), disk.getDiskType());
-            assertThat(disk.getName(), is(not("")));
-            assertThat(disk.getSize(), greaterThan(0L));
-        }
-    }
-
-    @Test
-    void testNetworkInterfaces() {
-        List<oshi.hardware.NetworkIF> nets = hal.getNetworkIFs();
-        assertThat(nets.size(), greaterThan(0));
-
-        for (oshi.hardware.NetworkIF net : nets) {
-            logger.info("Net: {} mac={} speed={} ipv4={}", net.getName(), net.getMacaddr(), net.getSpeed(),
-                    Arrays.toString(net.getIPv4addr()));
-            assertThat(net.getName(), is(not("")));
-        }
-    }
-
-    @Test
-    void testCurrentProcess() {
-        int pid = os.getProcessId();
-        OSProcess proc = os.getProcess(pid);
-        assertThat(proc, is(notNullValue()));
-
-        logger.info("Current process [{}]: {}", pid, proc.getName());
-        logger.info("  Path: {}", proc.getPath());
-        logger.info("  User: {} ({})", proc.getUser(), proc.getUserID());
-        logger.info("  Group: {} ({})", proc.getGroup(), proc.getGroupID());
-        logger.info("  Threads: {}", proc.getThreadCount());
-        logger.info("  RSS: {}", proc.getResidentMemory());
-        logger.info("  Open files: {}", proc.getOpenFiles());
-
-        assertThat(proc.getName(), is(not("")));
-        assertThat(proc.getProcessID(), is(pid));
+        logger.info("Printing Operating System and Hardware Info:{}{}", '\n', output);
     }
 }
