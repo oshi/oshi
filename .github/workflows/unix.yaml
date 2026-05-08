@@ -94,6 +94,7 @@ jobs:
           set -e
           source .profile
           cd ~/git/oshi
+          git reset --hard
           git checkout master
           git reset --hard HEAD~2
           git pull
@@ -125,6 +126,7 @@ jobs:
           export JAVA_HOME=~/java/jdk-17.0.8.1+1
           export PATH=$PATH:/opt/freeware/bin
           export MAVEN_OPTS="-Xshareclasses:none"
+          git reset --hard
           git checkout master
           git reset --hard HEAD~2
           git pull upstream master
