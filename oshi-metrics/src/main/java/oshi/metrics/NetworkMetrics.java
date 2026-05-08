@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import oshi.hardware.NetworkIF;
@@ -62,7 +63,7 @@ public class NetworkMetrics implements MeterBinder {
 
     // Connection count cache to avoid repeated getConnections() calls per scrape
     private volatile long cacheTimestamp;
-    private volatile Map<TcpState, Long> tcpCounts = Collections.emptyMap();
+    private final AtomicReference<Map<TcpState, Long>> tcpCounts = new AtomicReference<>(Collections.emptyMap());
     private volatile long udpCount;
 
     /**
@@ -162,7 +163,7 @@ public class NetworkMetrics implements MeterBinder {
                             udp++;
                         }
                     }
-                    this.tcpCounts = Collections.unmodifiableMap(tcp);
+                    this.tcpCounts.set(Collections.unmodifiableMap(tcp));
                     this.udpCount = udp;
                     this.cacheTimestamp = now;
                 }
@@ -172,7 +173,7 @@ public class NetworkMetrics implements MeterBinder {
 
     private double getCachedTcpCount(TcpState state) {
         refreshCache();
-        return tcpCounts.getOrDefault(state, 0L);
+        return tcpCounts.get().getOrDefault(state, 0L);
     }
 
     private double getCachedUdpCount() {
