@@ -850,6 +850,21 @@
                         <!-- Windows Storage Spaces: requires configured storage pools -->
                         <exclude>**/WindowsLogicalVolumeGroupJNA*</exclude>
                         <exclude>**/WindowsLogicalVolumeGroupFFM*</exclude>
+                        <!-- USB enumeration: needs real device tree, CI has minimal -->
+                        <exclude>**/LinuxUsbDeviceJNA*</exclude>
+                        <exclude>**/LinuxUsbDeviceFFM*</exclude>
+                        <exclude>**/WindowsUsbDeviceJNA*</exclude>
+                        <exclude>**/WindowsUsbDeviceFFM*</exclude>
+                        <exclude>**/MacUsbDeviceJNA*</exclude>
+                        <exclude>**/MacUsbDeviceFFM*</exclude>
+                        <!-- CUPS: requires print service -->
+                        <exclude>**/CupsPrinterJNA*</exclude>
+                        <!-- Windows WMI infrastructure: tested indirectly -->
+                        <exclude>**/WmiUtil*</exclude>
+                        <exclude>**/WmiQueryHandler*</exclude>
+                        <!-- Windows sessions/devices: requires active RDP/device tree -->
+                        <exclude>**/SessionWtsData*</exclude>
+                        <exclude>**/DeviceTree*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
