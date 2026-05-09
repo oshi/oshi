@@ -31,6 +31,9 @@ public final class Xwininfo {
     private static final String[] XWININFO_ROOT_TREE = ParseUtil.whitespaces.split("xwininfo -root -tree");
     private static final String[] XPROP_NET_WM_PID_ID = ParseUtil.whitespaces.split("xprop _NET_WM_PID -id");
 
+    private static final Pattern WINDOW_PATTERN = Pattern.compile(
+            "(0x\\S+) (?:\"(.+)\")?.*: \\((?:\"(.+)\" \".+\")?\\)  (\\d+)x(\\d+)\\+.+  \\+(-?\\d+)\\+(-?\\d+)");
+
     private Xwininfo() {
     }
 
@@ -41,18 +44,36 @@ public final class Xwininfo {
      * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.
      */
     public static List<OSDesktopWindow> queryXWindows(boolean visibleOnly) {
-        // Attempted to implement using native X11 code. However, this produced native X
-        // errors (e.g., BadValue) which cannot be caught on the Java side and
-        // terminated the thread. Using x command lines which execute in a separate
-        // process. Errors are caught by the terminal process and safely ignored.
-
-        // Get visible windows in their Z order. Assign 1 to bottom and increment.
-        // All other non visible windows will be assigned 0.
-        Map<String, Integer> zOrderMap = new HashMap<>();
-        int z = 0;
-
         // X commands don't work with LC_ALL
         List<String> stacking = ExecutingCommand.runNative(NET_CLIENT_LIST_STACKING, null);
+        List<String> tree = ExecutingCommand.runNative(XWININFO_ROOT_TREE, null);
+
+        Map<String, Integer> zOrderMap = parseZOrder(stacking);
+        Map<String, String> windowNameMap = new HashMap<>();
+        Map<String, String> windowPathMap = new HashMap<>();
+        Map<String, Rectangle> windowMap = parseWindowTree(tree, visibleOnly, zOrderMap, windowNameMap, windowPathMap);
+
+        // Get PID for each window and build result list
+        List<OSDesktopWindow> windowList = new ArrayList<>();
+        for (Entry<String, Rectangle> e : windowMap.entrySet()) {
+            String id = e.getKey();
+            long pid = queryPidFromId(id);
+            boolean visible = zOrderMap.containsKey(id);
+            windowList.add(new OSDesktopWindow(ParseUtil.hexStringToLong(id, 0L), windowNameMap.getOrDefault(id, ""),
+                    windowPathMap.getOrDefault(id, ""), e.getValue(), pid, zOrderMap.getOrDefault(id, 0), visible));
+        }
+        return windowList;
+    }
+
+    /**
+     * Parses the z-order stacking from xprop _NET_CLIENT_LIST_STACKING output.
+     *
+     * @param stacking the output lines from xprop
+     * @return a map of window ID to z-order (1 = bottom)
+     */
+    static Map<String, Integer> parseZOrder(List<String> stacking) {
+        Map<String, Integer> zOrderMap = new HashMap<>();
+        int z = 0;
         if (!stacking.isEmpty()) {
             String stack = stacking.get(0);
             int bottom = stack.indexOf("0x");
@@ -62,16 +83,24 @@ public final class Xwininfo {
                 }
             }
         }
-        // Get all windows along with title and path info
-        Pattern windowPattern = Pattern.compile(
-                "(0x\\S+) (?:\"(.+)\")?.*: \\((?:\"(.+)\" \".+\")?\\)  (\\d+)x(\\d+)\\+.+  \\+(-?\\d+)\\+(-?\\d+)");
-        Map<String, String> windowNameMap = new HashMap<>();
-        Map<String, String> windowPathMap = new HashMap<>();
-        // This map will include all the windows, preserve the insertion order
+        return zOrderMap;
+    }
+
+    /**
+     * Parses the window tree from xwininfo -root -tree output.
+     *
+     * @param tree          the output lines from xwininfo
+     * @param visibleOnly   whether to restrict to visible windows
+     * @param zOrderMap     the z-order map for visibility filtering
+     * @param windowNameMap populated with window names (output parameter)
+     * @param windowPathMap populated with window paths (output parameter)
+     * @return a map of window ID to rectangle bounds, in insertion order
+     */
+    static Map<String, Rectangle> parseWindowTree(List<String> tree, boolean visibleOnly,
+            Map<String, Integer> zOrderMap, Map<String, String> windowNameMap, Map<String, String> windowPathMap) {
         Map<String, Rectangle> windowMap = new LinkedHashMap<>();
-        // X commands don't work with LC_ALL
-        for (String line : ExecutingCommand.runNative(XWININFO_ROOT_TREE, null)) {
-            Matcher m = windowPattern.matcher(line.trim());
+        for (String line : tree) {
+            Matcher m = WINDOW_PATTERN.matcher(line.trim());
             if (m.matches()) {
                 String id = m.group(1);
                 if (!visibleOnly || zOrderMap.containsKey(id)) {
@@ -89,17 +118,7 @@ public final class Xwininfo {
                 }
             }
         }
-        // Get info for each window
-        // Prepare a list to return
-        List<OSDesktopWindow> windowList = new ArrayList<>();
-        for (Entry<String, Rectangle> e : windowMap.entrySet()) {
-            String id = e.getKey();
-            long pid = queryPidFromId(id);
-            boolean visible = zOrderMap.containsKey(id);
-            windowList.add(new OSDesktopWindow(ParseUtil.hexStringToLong(id, 0L), windowNameMap.getOrDefault(id, ""),
-                    windowPathMap.getOrDefault(id, ""), e.getValue(), pid, zOrderMap.getOrDefault(id, 0), visible));
-        }
-        return windowList;
+        return windowMap;
     }
 
     private static long queryPidFromId(String id) {

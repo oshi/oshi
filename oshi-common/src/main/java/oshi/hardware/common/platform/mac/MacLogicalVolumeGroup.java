@@ -31,6 +31,16 @@ public final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     }
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return parseDiskutilCsList(ExecutingCommand.runNative(DISKUTIL_CS_LIST));
+    }
+
+    /**
+     * Parses the output of {@code diskutil cs list} into logical volume groups.
+     *
+     * @param lines the output lines from diskutil cs list
+     * @return a list of logical volume groups
+     */
+    static List<LogicalVolumeGroup> parseDiskutilCsList(List<String> lines) {
         Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
 
@@ -38,8 +48,7 @@ public final class MacLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         boolean lookForVGName = false;
         boolean lookForPVName = false;
         int indexOf;
-        // Parse `diskutil cs list` to populate logical volume map
-        for (String line : ExecutingCommand.runNative(DISKUTIL_CS_LIST)) {
+        for (String line : lines) {
             if (line.contains(LOGICAL_VOLUME_GROUP)) {
                 // Disks that follow should be attached to this VG
                 lookForVGName = true;

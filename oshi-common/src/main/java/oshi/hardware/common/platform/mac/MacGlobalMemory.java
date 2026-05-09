@@ -61,8 +61,17 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
 
     @Override
     public List<PhysicalMemory> getPhysicalMemory() {
+        return parseSystemProfilerMemory(ExecutingCommand.runNative("system_profiler SPMemoryDataType"));
+    }
+
+    /**
+     * Parses the output of {@code system_profiler SPMemoryDataType} into physical memory objects.
+     *
+     * @param lines the output lines from system_profiler
+     * @return a list of physical memory objects
+     */
+    static List<PhysicalMemory> parseSystemProfilerMemory(List<String> lines) {
         List<PhysicalMemory> pmList = new ArrayList<>();
-        List<String> sp = ExecutingCommand.runNative("system_profiler SPMemoryDataType");
         int bank = 0;
         String bankLabel = Constants.UNKNOWN;
         long capacity = 0L;
@@ -71,12 +80,12 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
         String memoryType = Constants.UNKNOWN;
         String partNumber = Constants.UNKNOWN;
         String serialNumber = Constants.UNKNOWN;
-        for (String line : sp) {
+        for (String line : lines) {
             if (line.trim().startsWith("BANK")) {
                 // Save previous bank
                 if (bank++ > 0) {
-                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType,
-                            Constants.UNKNOWN, serialNumber));
+                    pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber,
+                            serialNumber));
                 }
                 bankLabel = line.trim();
                 int colon = bankLabel.lastIndexOf(':');
