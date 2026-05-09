@@ -83,6 +83,8 @@ HardwareAbstractionLayer hal = si.getHardware();
 OperatingSystem os = si.getOperatingSystem();
 ```
 
+On Linux, a native-free implementation is also available in `oshi-common` alone (no JNA or FFM required). It reads from `/proc` and `/sys` using pure Java. If only `oshi-common` is on the classpath, `SystemInfoFactory.create()` will select it automatically.
+
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 
 Documentation

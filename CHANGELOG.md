@@ -3,6 +3,11 @@
 ##### New Features
 
 * [#3234](https://github.com/oshi/oshi/pull/3234): Add `SystemInfoProvider` SPI and `SystemInfoFactory` for automatic selection of the best available OSHI implementation at runtime - [@dbwiddis](https://github.com/dbwiddis).
+* [#3238](https://github.com/oshi/oshi/pull/3238): Add native-free Linux `SystemInfoProvider` implementation in `oshi-common`, enabling Linux system info without JNA or FFM dependencies - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug Fixes and Improvements
+
+* [#3245](https://github.com/oshi/oshi/pull/3245): Fix `MacGlobalMemory.getPhysicalMemory()` returning empty data on Apple Silicon Macs - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 
@@ -10,9 +15,10 @@
 
 * [#3225](https://github.com/oshi/oshi/pull/3225): Add CgroupInfo API with Linux cgroup v1/v2 support - [@rohan-coder02](https://github.com/rohan-coder02).
 * [#3229](https://github.com/oshi/oshi/pull/3229): Support environment variables (`OSHI_*`) for configuration - [@dbwiddis](https://github.com/dbwiddis).
-* [#2857](https://github.com/oshi/oshi/issues/2857): Add disk type information (SSD, HDD, Removable, Virtual) - [@dbwiddis](https://github.com/dbwiddis).
-* [#2904](https://github.com/oshi/oshi/issues/2904): Add voluntary/involuntary context switch methods to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
-* [#3223](https://github.com/oshi/oshi/issues/3223): Add `oshi-metrics` module with Micrometer integration for system metrics following OpenTelemetry semantic conventions - [@dbwiddis](https://github.com/dbwiddis).
+* [#3230](https://github.com/oshi/oshi/pull/3230),
+  [#3231](https://github.com/oshi/oshi/pull/3231): Add disk type information (SSD, HDD, Removable, Virtual) - [@dbwiddis](https://github.com/dbwiddis).
+* [#3232](https://github.com/oshi/oshi/pull/3232): Add voluntary/involuntary context switch methods to OSProcess - [@dbwiddis](https://github.com/dbwiddis).
+* [#3227](https://github.com/oshi/oshi/pull/3227): Add `oshi-metrics` module with Micrometer integration for system metrics following OpenTelemetry semantic conventions - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
@@ -31,6 +37,10 @@ See [Upgrading](UPGRADING.md) for breaking changes and migration guide.
 ##### New Features
 
 * [#3183](https://github.com/oshi/oshi/pull/3183): Add `@PublicApi` annotation to all SemVer-guaranteed API types in `oshi.hardware`, `oshi.software.os`, both `SystemInfo` entry points, and `PlatformEnum` - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug Fixes and Improvements
+
+* [#3195](https://github.com/oshi/oshi/pull/3195): Add fast path to `OSFileStore.updateAttributes()` using direct stat/statfs calls instead of re-enumerating all filesystems - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### JPMS Package Moves
 
