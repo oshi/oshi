@@ -827,6 +827,20 @@
                         <exclude>**/unix/*OpenBsd*</exclude>
                         <exclude>**/unix/*Solaris*</exclude>
                         <exclude>**/unix/UnixBaseboard*</exclude>
+                        <!-- Hardware-dependent: no GPU/sensors/battery on CI runners -->
+                        <exclude>**/gpu/NvmlUtil*</exclude>
+                        <exclude>**/gpu/AdlUtil*</exclude>
+                        <exclude>**/MacGpuStats*</exclude>
+                        <exclude>**/WindowsGpuStats*</exclude>
+                        <exclude>**/LinuxGpuStatsJNA*</exclude>
+                        <exclude>**/LinuxGpuStatsFFM*</exclude>
+                        <exclude>**/IOReportClient*</exclude>
+                        <exclude>**/SmcUtil*</exclude>
+                        <exclude>**/MacSensors*</exclude>
+                        <exclude>**/WindowsSensors*</exclude>
+                        <exclude>**/MacPowerSource*</exclude>
+                        <exclude>**/WindowsPowerSource*</exclude>
+                        <exclude>**/LinuxPowerSource*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
