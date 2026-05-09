@@ -32,7 +32,7 @@ public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
      * @return a list of {@link UsbDevice} objects
      */
     public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = queryUsbDevices();
+        List<UsbDevice> devices = queryUsbDevices(SYS_USB);
         if (tree) {
             return devices;
         }
@@ -43,8 +43,17 @@ public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
         return deviceList;
     }
 
-    private static List<UsbDevice> queryUsbDevices() {
-        File usbDir = new File(SYS_USB);
+    /**
+     * Queries USB devices from the specified sysfs path.
+     *
+     * @param sysUsbPath the path to the USB devices directory (e.g., /sys/bus/usb/devices/)
+     * @return a list of USB device trees rooted at controllers
+     */
+    static List<UsbDevice> queryUsbDevices(String sysUsbPath) {
+        if (!sysUsbPath.endsWith(File.separator)) {
+            sysUsbPath += File.separator;
+        }
+        File usbDir = new File(sysUsbPath);
         File[] deviceDirs = usbDir.listFiles();
         if (deviceDirs == null) {
             return new ArrayList<>();
@@ -99,7 +108,7 @@ public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
                 } else {
                     parentName = name;
                 }
-                String parentPath = SYS_USB + parentName;
+                String parentPath = sysUsbPath + parentName;
                 hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(syspath);
             }
         }
