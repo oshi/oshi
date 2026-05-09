@@ -94,7 +94,8 @@ class PrivilegedUtilEscalationTest {
     void testReadFilePrivilegedEscalationPath(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("restricted.txt");
         Files.write(testFile, "secret\n".getBytes(StandardCharsets.UTF_8));
-        assumeTrue(testFile.toFile().setReadable(false), "Could not make file unreadable");
+        assumeTrue(testFile.toFile().setReadable(false) && !Files.isReadable(testFile),
+                "Could not make file unreadable (possibly running as root)");
 
         try {
             String filePath = testFile.toString();
@@ -139,7 +140,8 @@ class PrivilegedUtilEscalationTest {
     void testReadAllBytesPrivilegedEscalationPath(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("restricted.bin");
         Files.write(testFile, new byte[] { 10, 20, 30 });
-        assumeTrue(testFile.toFile().setReadable(false), "Could not make file unreadable");
+        assumeTrue(testFile.toFile().setReadable(false) && !Files.isReadable(testFile),
+                "Could not make file unreadable (possibly running as root)");
 
         try {
             String filePath = testFile.toString();
@@ -158,7 +160,8 @@ class PrivilegedUtilEscalationTest {
     void testReadAllBytesPrivilegedEscalationWithReportError(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("restricted2.bin");
         Files.write(testFile, new byte[] { 10, 20, 30 });
-        assumeTrue(testFile.toFile().setReadable(false), "Could not make file unreadable");
+        assumeTrue(testFile.toFile().setReadable(false) && !Files.isReadable(testFile),
+                "Could not make file unreadable (possibly running as root)");
 
         try {
             String filePath = testFile.toString();

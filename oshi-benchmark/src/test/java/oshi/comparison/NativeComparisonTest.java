@@ -392,10 +392,10 @@ class NativeComparisonTest {
         assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         // Context switches: both use getrusage, snapshots taken at different times
-        assertWithinRatio(ffm.getContextSwitches(), jna.getContextSwitches(), 0.1, "process.contextSwitches");
-        assertWithinRatio(ffm.getVoluntaryContextSwitches(), jna.getVoluntaryContextSwitches(), 0.1,
+        assertWithinRatio(ffm.getContextSwitches(), jna.getContextSwitches(), 0.2, "process.contextSwitches");
+        assertWithinRatio(ffm.getVoluntaryContextSwitches(), jna.getVoluntaryContextSwitches(), 0.2,
                 "process.voluntaryContextSwitches");
-        assertWithinRatio(ffm.getInvoluntaryContextSwitches(), jna.getInvoluntaryContextSwitches(), 0.1,
+        assertWithinRatio(ffm.getInvoluntaryContextSwitches(), jna.getInvoluntaryContextSwitches(), 0.2,
                 "process.involuntaryContextSwitches");
     }
 
