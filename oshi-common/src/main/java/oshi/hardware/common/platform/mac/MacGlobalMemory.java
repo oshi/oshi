@@ -120,7 +120,46 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
                 }
             }
         }
-        pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber, serialNumber));
+        if (bank > 0 && capacity > 0) {
+            // Intel/socketed format: save the last bank
+            pmList.add(
+                    new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber, serialNumber));
+        } else {
+            // Apple Silicon format: no BANK lines, parse top-level keys
+            for (String line : lines) {
+                String[] split = line.trim().split(":");
+                if (split.length == 2) {
+                    String key = split[0].trim();
+                    String value = split[1].trim();
+                    switch (key) {
+                        case "Memory":
+                            capacity = ParseUtil.parseDecimalMemorySizeToBinary(value);
+                            break;
+                        case "Type":
+                            memoryType = value;
+                            break;
+                        case "Speed":
+                            speed = ParseUtil.parseHertz(split[1]);
+                            break;
+                        case "Manufacturer":
+                            manufacturer = value;
+                            break;
+                        case "Part Number":
+                            partNumber = value;
+                            break;
+                        case "Serial Number":
+                            serialNumber = value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (capacity > 0) {
+                pmList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memoryType, partNumber,
+                        serialNumber));
+            }
+        }
 
         return pmList;
     }

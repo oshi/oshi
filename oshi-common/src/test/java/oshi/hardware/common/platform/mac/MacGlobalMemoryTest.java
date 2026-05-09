@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.mac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -16,12 +17,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.PhysicalMemory;
-import oshi.util.Constants;
 
 class MacGlobalMemoryTest {
 
-    // Fixture: typical system_profiler SPMemoryDataType output
-    // Note: real output has " :" (space before colon) in bank labels
     private static final List<String> SP_MEMORY_TWO_BANKS = Arrays.asList("Memory:", "", "    Memory Slots:", "",
             "      ECC: Disabled", "      Upgradeable Memory: Yes", "", "        BANK 0/DIMM0 :", "",
             "          Size: 8 GB", "          Type: DDR4", "          Speed: 2400 MHz",
@@ -54,10 +52,7 @@ class MacGlobalMemoryTest {
     @Test
     void testParseSystemProfilerMemoryEmpty() {
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(Collections.emptyList());
-        // Always returns at least one entry (the final add outside the loop)
-        assertThat(result, hasSize(1));
-        assertThat(result.get(0).getBankLabel(), is(Constants.UNKNOWN));
-        assertThat(result.get(0).getCapacity(), is(0L));
+        assertThat(result, is(empty()));
     }
 
     @Test
@@ -75,10 +70,28 @@ class MacGlobalMemoryTest {
 
     @Test
     void testParseSystemProfilerMemoryNoColon() {
-        // Bank label without trailing colon — substring logic skipped
         List<String> noColon = Arrays.asList("        BANK 0", "          Size: 4 GB", "          Type: DDR3");
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(noColon);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getBankLabel(), is("BANK 0"));
+    }
+
+    @Test
+    void testParseSystemProfilerMemoryAppleSilicon() {
+        List<String> appleSilicon = Arrays.asList("Memory:", "", "      Memory: 36 GB", "      Type: LPDDR5",
+                "      Manufacturer: Micron");
+        List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(appleSilicon);
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0).getCapacity(), is(greaterThan(0L)));
+        assertThat(result.get(0).getMemoryType(), is("LPDDR5"));
+        assertThat(result.get(0).getManufacturer(), is("Micron"));
+    }
+
+    @Test
+    void testParseSystemProfilerMemoryAppleSiliconMinimal() {
+        List<String> minimal = Arrays.asList("      Memory: 8 GB");
+        List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(minimal);
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0).getCapacity(), is(greaterThan(0L)));
     }
 }
