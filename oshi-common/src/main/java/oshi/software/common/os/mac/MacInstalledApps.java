@@ -136,7 +136,7 @@ public final class MacInstalledApps {
         }
     }
 
-    private static List<Map<String, String>> parseItems(String xml) {
+    static List<Map<String, String>> parseItems(String xml) {
         if (xml == null) {
             return Collections.emptyList();
         }
@@ -164,7 +164,7 @@ public final class MacInstalledApps {
         return out;
     }
 
-    private static Map<String, String> parseDict(String dictInner) {
+    static Map<String, String> parseDict(String dictInner) {
         Map<String, String> map = new LinkedHashMap<>();
         int pos = 0;
         while (true) {
@@ -208,7 +208,7 @@ public final class MacInstalledApps {
         return map;
     }
 
-    private static String parseStringArray(String arrayInner) {
+    static String parseStringArray(String arrayInner) {
         int lt = arrayInner.indexOf('<');
         if (lt >= 0) {
             if (startsWith(arrayInner, lt, "<string>")) {
@@ -282,7 +282,7 @@ public final class MacInstalledApps {
         return blocks;
     }
 
-    private static String unescape(String s) {
+    static String unescape(String s) {
         return s.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"")
                 .replace("&apos;", "'");
     }
