@@ -41,7 +41,8 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static final Set<String> ARM_P_CORES = Stream
-            .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8").collect(Collectors.toSet());
+            .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8", "apple,donan arm,v8")
+            .collect(Collectors.toSet());
 
     /** ARM CPU type constant. */
     protected static final int ARM_CPUTYPE = 0x0100000C;
@@ -51,6 +52,10 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     protected static final int M2_CPUFAMILY = 0xda33d83d;
     /** M3 CPU family constant. */
     protected static final int M3_CPUFAMILY = 0x8765edea;
+    /** M3 Pro/Max CPU family constant. */
+    protected static final int M3_PRO_CPUFAMILY = 0x5f4dea93;
+    /** M4 CPU family constant. */
+    protected static final int M4_CPUFAMILY = 0x6f5129ac;
     /** Default frequency in Hz. */
     protected static final long DEFAULT_FREQUENCY = 2_400_000_000L;
 
@@ -194,6 +199,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
                             break;
                         case 3:
                             family = M3_CPUFAMILY;
+                            break;
+                        case 4:
+                            family = M4_CPUFAMILY;
                             break;
                         default:
                             family = M1_CPUFAMILY;
