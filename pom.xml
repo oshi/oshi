@@ -841,6 +841,15 @@
                         <exclude>**/MacPowerSource*</exclude>
                         <exclude>**/WindowsPowerSource*</exclude>
                         <exclude>**/LinuxPowerSource*</exclude>
+                        <!-- Systemd/utmp fallback paths: CI always succeeds on first path -->
+                        <exclude>**/driver/linux/WhoJNA*</exclude>
+                        <exclude>**/driver/linux/WhoFFM*</exclude>
+                        <!-- Windows Graphics: requires real GPU in VM -->
+                        <exclude>**/WindowsGraphicsCardJNA*</exclude>
+                        <exclude>**/WindowsGraphicsCardFFM*</exclude>
+                        <!-- Windows Storage Spaces: requires configured storage pools -->
+                        <exclude>**/WindowsLogicalVolumeGroupJNA*</exclude>
+                        <exclude>**/WindowsLogicalVolumeGroupFFM*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
