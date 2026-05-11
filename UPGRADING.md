@@ -1,3 +1,23 @@
+# Project Dependencies
+
+Dependency management tools such as Maven or Gradle automatically handle transitive dependencies. If you manage JAR files manually, the following notes may help.
+
+## JNA version coupling
+
+OSHI's `oshi-core` module is tightly coupled with [JNA](https://github.com/java-native-access/jna) and requires at least the version specified in the POM. Using an older JNA version may cause `NoClassDefFoundError` or `NoSuchMethodError` at runtime due to missing classes or methods. See the [FAQ](FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) for troubleshooting.
+
+## Module split (6.12.0+)
+
+Starting with version 6.12.0, OSHI was split from a single `oshi-core` artifact into multiple modules:
+
+- **`oshi-common`** — shared API interfaces and utilities that do not require JNA or FFM.
+- **`oshi-core`** — JNA-based implementation (depends on `oshi-common`).
+- **`oshi-core-ffm`** — FFM-based implementation (depends on `oshi-common`, requires JDK 25+).
+
+Both `oshi-core` and `oshi-core-ffm` declare a transitive dependency on `oshi-common`, so dependency managers resolve it automatically. If you use raw JAR files, you must include `oshi-common` on the classpath alongside your chosen implementation module. All needed JARs are available in the [oshi-dist](https://repo1.maven.org/maven2/com/github/oshi/oshi-dist/) zip files on Maven Central.
+
+---
+
 # Guide to upgrading from OSHI 6.x to 7.x
 
 ## Configuration property key changes (7.1.0)
@@ -75,10 +95,6 @@ The JPMS module name for the FFM module has changed from `com.github.oshi` to `c
 ```java
 requires com.github.oshi.ffm;
 ```
-
-## Additional need for oshi-commons
-
-If you do not use Maven or similar tools but the raw JAR files, this subject is for you. Since Version 7, oshi-commons is a new dependency of oshi-core. Therefore, in addition to the oshi-core JAR file, you will need the JAR file for oshi-commons in the classpath / modulepath. Otherwise, some classes may not be accessible, since e.g. the subpackage oshi.tuples (used e.g. for the Pair class) will not be found during import.
 
 # Guide to upgrading from OSHI 5.x to 6.x
 
