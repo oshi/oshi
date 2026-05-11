@@ -15,16 +15,22 @@ Add `oshi-metrics` alongside your OSHI implementation and a Micrometer registry:
     <version>${oshi.version}</version>
 </dependency>
 
-<!-- Pick ONE OSHI implementation -->
+<!-- Pick an OSHI implementation -->
 <dependency>
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-core</artifactId>        <!-- JNA, JDK 8+ -->
     <version>${oshi.version}</version>
 </dependency>
+<!-- AND/OR -->
+<dependency>
+    <groupId>com.github.oshi</groupId>
+    <artifactId>oshi-core-ffm</artifactId>    <!-- FFM, JDK 25+, Linux/MacOS/Windows only -->
+    <version>${oshi.version}</version>
+</dependency>
 <!-- OR -->
 <dependency>
     <groupId>com.github.oshi</groupId>
-    <artifactId>oshi-core-ffm</artifactId>    <!-- FFM, JDK 25+ -->
+    <artifactId>oshi-common</artifactId>    <!-- No native access, Linux only, JDK 8+ -->
     <version>${oshi.version}</version>
 </dependency>
 
@@ -41,14 +47,17 @@ Add `oshi-metrics` alongside your OSHI implementation and a Micrometer registry:
 ### Register all metrics
 
 ```java
-SystemInfo si = new SystemInfo();  // or new oshi.ffm.SystemInfo()
+SystemInfoProvider si = SystemInfoFactory.create();
 OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
 ```
+
+`SystemInfoFactory.create()` auto-selects the best available implementation (JNA, FFM, or native-free on Linux).
+See the [project README](../README.md) for details on implementation choices.
 
 ### Selective registration (Builder API)
 
 ```java
-SystemInfo si = new SystemInfo();
+SystemInfoProvider si = SystemInfoFactory.create();
 OshiMetrics.builder(si.getHardware(), si.getOperatingSystem())
     .enableGeneral(true)
     .enableCpu(true)
@@ -65,17 +74,86 @@ OshiMetrics.builder(si.getHardware(), si.getOperatingSystem())
 
 All categories are enabled by default. Categories: `general`, `cpu`, `memory`, `paging`, `disk`, `fileSystem`, `network`, `process`, `container`.
 
-### Spring Boot
+### Spring Boot or OpenTelemetry Spring Boot Starter
 
-`OshiMetrics` implements `MeterBinder`, so Spring Boot auto-discovers it if you expose it as a bean:
+`OshiMetrics` implements `MeterBinder`, so Spring Boot auto-discovers it if you expose it as a bean. If you use the
+[OpenTelemetry Spring Boot Starter](https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/), the Micrometer
+bridge is auto-configured and metrics flow to your OTel backend automatically.
 
 ```java
 @Bean
 public OshiMetrics oshiMetrics() {
-    SystemInfo si = new SystemInfo();
+    SystemInfoProvider si = SystemInfoFactory.create();
     return new OshiMetrics(si.getHardware(), si.getOperatingSystem());
 }
 ```
+
+### OpenTelemetry
+
+OSHI metrics can be exported to any [OpenTelemetry](https://opentelemetry.io/) backend using the
+[OpenTelemetry Micrometer bridge](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/micrometer/micrometer-1.5/library).
+Since `oshi-metrics` already follows OpenTelemetry semantic conventions for metric names and attributes, the resulting
+telemetry is fully specification-compliant.
+
+#### With the OpenTelemetry Java Agent
+
+If your application runs with the
+[OpenTelemetry Java Agent](https://opentelemetry.io/docs/zero-code/java/agent/), enable the Micrometer bridge and
+register OSHI metrics with Micrometer's global registry:
+
+```
+-Dotel.instrumentation.micrometer.enabled=true
+```
+
+```java
+import io.micrometer.core.instrument.Metrics;
+
+SystemInfoProvider si = SystemInfoFactory.create();
+OshiMetrics.bindTo(Metrics.globalRegistry, si.getHardware(), si.getOperatingSystem());
+```
+
+The agent automatically bridges `Metrics.globalRegistry` to the OpenTelemetry SDK — no additional wiring needed.
+
+#### Programmatic (no agent)
+
+Add the [OpenTelemetry Micrometer bridge](https://central.sonatype.com/artifact/io.opentelemetry.instrumentation/opentelemetry-micrometer-1.5)
+dependency:
+
+```xml
+<dependency>
+    <groupId>io.opentelemetry.instrumentation</groupId>
+    <artifactId>opentelemetry-micrometer-1.5</artifactId>
+    <version>${opentelemetry-instrumentation.version}</version>
+</dependency>
+```
+
+Then create a bridged registry and bind OSHI metrics to it:
+
+```java
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.micrometer.v1_5.OpenTelemetryMeterRegistry;
+
+OpenTelemetry otel = // your configured OpenTelemetry SDK instance
+MeterRegistry otelRegistry = OpenTelemetryMeterRegistry.create(otel);
+
+SystemInfoProvider si = SystemInfoFactory.create();
+OshiMetrics.bindTo(otelRegistry, si.getHardware(), si.getOperatingSystem());
+```
+
+See [Register all metrics](#register-all-metrics) for `SystemInfoFactory` options (JNA, FFM, or native-free on Linux).
+
+#### Note on the upstream OSHI instrumentation
+
+The [OpenTelemetry Java Instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation) project
+includes a built-in OSHI instrumentation that produces a small subset of system metrics (memory, network, and disk).
+If you enable both that instrumentation and `oshi-metrics` via the Micrometer bridge, you may see duplicate metrics.
+To avoid this, disable the upstream instrumentation:
+
+```
+-Dotel.instrumentation.oshi.experimental-metrics.enabled=false
+```
+
+The `oshi-metrics` module provides significantly broader coverage and stays in sync with OSHI API changes.
 
 ## Implemented Metrics
 
