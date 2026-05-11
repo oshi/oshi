@@ -76,6 +76,10 @@ The JPMS module name for the FFM module has changed from `com.github.oshi` to `c
 requires com.github.oshi.ffm;
 ```
 
+## Additional need for oshi-commons
+
+If you do not use Maven or similar tools but the raw JAR files, this subject is for you. Since Version 7, oshi-commons is a new dependency of oshi-core. Therefore, in addition to the oshi-core JAR file, you will need the JAR file for oshi-commons in the classpath / modulepath. Otherwise, some classes may not be accessible, since e.g. the subpackage oshi.tuples (used e.g. for the Pair class) will not be found during import.
+
 # Guide to upgrading from OSHI 5.x to 6.x
 
 OSHI 6.0.0 is functionally equivalent to 5.8.7, with minor API updates as noted below.
