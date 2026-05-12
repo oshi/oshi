@@ -61,7 +61,8 @@ Legacy Versions
 Usage
 -----
 1. Include OSHI and its dependencies on your classpath.
-   - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle.
+   - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle. Transitive dependencies (including `oshi-common` and JNA) are resolved automatically.
+   - If you manage JAR files manually, download all needed JARs from the [oshi-dist](https://repo1.maven.org/maven2/com/github/oshi/oshi-dist/) zip files. See [UPGRADING.md](UPGRADING.md#project-dependencies) for details.
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
