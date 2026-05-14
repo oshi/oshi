@@ -39,6 +39,8 @@ public final class SysPath {
     public static final String THERMAL = SYS + "class/thermal/";
     /** Path to cgroup filesystem. */
     public static final String CGROUP = SYS + "fs/cgroup/";
+    /** Path to DRM (Direct Rendering Manager) class. */
+    public static final String DRM = SYS + "class/drm/";
 
     private SysPath() {
     }

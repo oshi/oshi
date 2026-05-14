@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.linux;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
@@ -16,6 +17,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.util.driver.linux.DrmEdid;
 
 /**
  * LinuxHardwareAbstractionLayer class.
@@ -47,6 +49,10 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
 
     @Override
     public List<Display> getDisplays() {
+        List<byte[]> edids = DrmEdid.getEdidArrays();
+        if (!edids.isEmpty()) {
+            return edids.stream().map(UnixDisplay::new).collect(Collectors.toList());
+        }
         return UnixDisplay.getDisplays();
     }
 
