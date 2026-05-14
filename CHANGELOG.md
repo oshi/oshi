@@ -7,6 +7,7 @@
 
 ##### Bug Fixes and Improvements
 
+* [#3249](https://github.com/oshi/oshi/pull/3249): Read EDID from `/sys/class/drm` on Linux, fixing display detection on Wayland - [@dbwiddis](https://github.com/dbwiddis).
 * [#3245](https://github.com/oshi/oshi/pull/3245): Fix `MacGlobalMemory.getPhysicalMemory()` returning empty data on Apple Silicon Macs - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)

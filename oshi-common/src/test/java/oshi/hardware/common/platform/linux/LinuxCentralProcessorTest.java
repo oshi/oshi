@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
+import static oshi.util.TestFileUtil.writeFile;
 
 import java.io.IOException;
 import java.nio.file.Files;

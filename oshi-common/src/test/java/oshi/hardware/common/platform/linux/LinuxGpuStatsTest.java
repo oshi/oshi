@@ -8,7 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
+import static oshi.util.TestFileUtil.writeFile;
 
 import java.io.IOException;
 import java.nio.file.Files;

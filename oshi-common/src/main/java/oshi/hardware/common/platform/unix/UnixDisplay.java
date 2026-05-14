@@ -23,7 +23,7 @@ public final class UnixDisplay extends AbstractDisplay {
      *
      * @param edid a byte array representing a display EDID
      */
-    UnixDisplay(byte[] edid) {
+    public UnixDisplay(byte[] edid) {
         super(edid);
     }
 

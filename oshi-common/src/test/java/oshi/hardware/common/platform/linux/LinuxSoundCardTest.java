@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static oshi.hardware.common.platform.linux.TestFileUtil.writeFile;
+import static oshi.util.TestFileUtil.writeFile;
 
 import java.io.File;
 import java.io.IOException;
