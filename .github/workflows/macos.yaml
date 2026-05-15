@@ -54,7 +54,7 @@ jobs:
 
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
-    runs-on: macos-15
+    runs-on: macos-26
     name: JMH Benchmarks
     steps:
       - uses: actions/checkout@v6
