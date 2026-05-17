@@ -25,7 +25,7 @@ public class BluetoothApisFFM extends WindowsForeignFunctions {
     /** Maximum Bluetooth device name length. */
     public static final int BLUETOOTH_MAX_NAME_SIZE = 248;
 
-    private static final SymbolLookup BTHPROPS = lib("bthprops.cpl");
+    private static final SymbolLookup BTHPROPS = lib("BluetoothApis");
 
     /** SYSTEMTIME layout: 8 shorts = 16 bytes. */
     public static final StructLayout SYSTEMTIME_LAYOUT = structLayout(JAVA_SHORT.withName("wYear"),

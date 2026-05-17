@@ -137,7 +137,7 @@ class LinuxBluetoothDeviceTest {
 
     @Test
     void testParseMajorDeviceClass() {
-        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0), is(""));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0), is("Miscellaneous"));
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000100), is("Computer"));
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000200), is("Phone"));
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000300), is("Networking"));
@@ -147,7 +147,8 @@ class LinuxBluetoothDeviceTest {
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000700), is("Wearable"));
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000800), is("Toy"));
         assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000900), is("Health"));
-        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x001F00), is(""));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x001F00), is("Uncategorized"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000A00), is(""));
     }
 
     @Test

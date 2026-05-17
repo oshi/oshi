@@ -4,6 +4,7 @@
 
 * [#3234](https://github.com/oshi/oshi/pull/3234): Add `SystemInfoProvider` SPI and `SystemInfoFactory` for automatic selection of the best available OSHI implementation at runtime - [@dbwiddis](https://github.com/dbwiddis).
 * [#3238](https://github.com/oshi/oshi/pull/3238): Add native-free Linux `SystemInfoProvider` implementation in `oshi-common`, enabling Linux system info without JNA or FFM dependencies - [@dbwiddis](https://github.com/dbwiddis).
+* [#3255](https://github.com/oshi/oshi/pull/3255): Add `BluetoothDevice` enumeration for paired/connected Bluetooth peripherals on Linux, Windows, and macOS - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

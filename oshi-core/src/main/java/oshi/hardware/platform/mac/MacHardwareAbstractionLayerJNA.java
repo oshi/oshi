@@ -7,6 +7,7 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -80,5 +81,10 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     @Override
     public List<Printer> getPrinters() {
         return CupsPrinterJNA.getPrinters();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return MacBluetoothDeviceJNA.getBluetoothDevices();
     }
 }

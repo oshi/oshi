@@ -30,7 +30,7 @@ Supported Features
 * Disk drives (model, serial, size, reads and writes) and partitions
 * Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
 * Battery state (% capacity, time remaining, power usage stats)
-* USB Devices
+* Peripheral devices (USB, Bluetooth)
 * Connected displays (with EDID info), graphics and audio cards
 * Sensors (temperature, fan speeds, voltage) on some hardware
 * Container resource limits and usage (cgroup v1/v2)

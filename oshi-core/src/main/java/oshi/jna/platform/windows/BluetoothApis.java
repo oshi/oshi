@@ -18,7 +18,7 @@ import com.sun.jna.win32.W32APIOptions;
 public interface BluetoothApis extends com.sun.jna.win32.StdCallLibrary {
 
     /** Instance of BluetoothApis. */
-    BluetoothApis INSTANCE = Native.load("bthprops.cpl", BluetoothApis.class, W32APIOptions.DEFAULT_OPTIONS);
+    BluetoothApis INSTANCE = Native.load("BluetoothApis", BluetoothApis.class, W32APIOptions.DEFAULT_OPTIONS);
 
     /** Maximum Bluetooth device name length. */
     int BLUETOOTH_MAX_NAME_SIZE = 248;

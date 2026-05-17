@@ -8,6 +8,7 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.unix.CupsPrinterFFM;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -76,5 +77,10 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
     @Override
     public List<GraphicsCard> getGraphicsCards() {
         return MacGraphicsCardFFM.getGraphicsCards();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return MacBluetoothDeviceFFM.getBluetoothDevices();
     }
 }
