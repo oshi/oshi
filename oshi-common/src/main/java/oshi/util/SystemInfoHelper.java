@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
@@ -33,6 +34,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.VirtualMemory;
 import oshi.software.os.ApplicationInfo;
+import oshi.software.os.CgroupInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -66,6 +68,20 @@ public final class SystemInfoHelper {
         lines.add("Sessions:");
         for (OSSession s : os.getSessions()) {
             lines.add(" " + s.toString());
+        }
+        CgroupInfo cgroup = os.getCgroupInfo();
+        if (cgroup.isContainerized()) {
+            lines.add("Container: cgroup v" + cgroup.getVersion());
+            lines.add(" CPU quota: "
+                    + (cgroup.getCpuQuota() == CgroupInfo.UNLIMITED ? "unlimited" : cgroup.getCpuQuota() + " us"));
+            lines.add(" Effective CPUs: " + (cgroup.getEffectiveCpus() == CgroupInfo.UNLIMITED_CPUS ? "unlimited"
+                    : String.format(Locale.ROOT, "%.2f", cgroup.getEffectiveCpus())));
+            lines.add(" Memory limit: " + (cgroup.getMemoryLimit() == CgroupInfo.UNLIMITED_MEMORY ? "unlimited"
+                    : FormatUtil.formatBytes(cgroup.getMemoryLimit())));
+            lines.add(" Memory usage: " + FormatUtil.formatBytes(cgroup.getMemoryUsage()));
+            lines.add(" PID limit: "
+                    + (cgroup.getPidLimit() == CgroupInfo.UNLIMITED ? "unlimited" : cgroup.getPidLimit()));
+            lines.add(" PID current: " + cgroup.getPidCurrent());
         }
     }
 
@@ -459,6 +475,23 @@ public final class SystemInfoHelper {
         lines.add("USB Devices:");
         for (UsbDevice usbDevice : list) {
             lines.add(String.valueOf(usbDevice));
+        }
+    }
+
+    /**
+     * Prints Bluetooth Devices information to the output lines.
+     *
+     * @param lines the output list
+     * @param list  the list
+     */
+    public static void printBluetoothDevices(List<String> lines, List<BluetoothDevice> list) {
+        lines.add("Bluetooth Devices:");
+        if (list.isEmpty()) {
+            lines.add(" None detected.");
+        } else {
+            for (BluetoothDevice device : list) {
+                lines.add(" " + String.valueOf(device));
+            }
         }
     }
 
