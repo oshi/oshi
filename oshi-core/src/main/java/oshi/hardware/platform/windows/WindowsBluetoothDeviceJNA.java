@@ -7,9 +7,9 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -21,12 +21,15 @@ import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_INFO;
 import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_SEARCH_PARAMS;
 import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_FIND_RADIO_PARAMS;
 import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_RADIO_INFO;
+import oshi.util.FormatUtil;
 
 /**
  * Windows Bluetooth device enumeration via the Bluetooth API (bthprops.cpl).
  */
 @Immutable
 public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
+
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
     private WindowsBluetoothDeviceJNA(String name, String address, String majorDeviceClass, boolean connected,
             boolean paired, int batteryLevel, String adapterName) {
@@ -39,6 +42,9 @@ public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
      * @return a list of {@link BluetoothDevice} objects
      */
     public static List<BluetoothDevice> getBluetoothDevices() {
+        if (!IS_VISTA_OR_GREATER) {
+            return Collections.emptyList();
+        }
         List<BluetoothDevice> devices = new ArrayList<>();
         BLUETOOTH_FIND_RADIO_PARAMS radioParams = new BLUETOOTH_FIND_RADIO_PARAMS();
         PointerByReference phRadio = new PointerByReference();
@@ -51,9 +57,12 @@ public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
         try {
             do {
                 HANDLE hRadio = new HANDLE(phRadio.getValue());
-                String adapterName = getRadioName(hRadio);
-                queryDevicesForRadio(hRadio, adapterName, devices);
-                Kernel32.INSTANCE.CloseHandle(hRadio);
+                try {
+                    String adapterName = getRadioName(hRadio);
+                    queryDevicesForRadio(hRadio, adapterName, devices);
+                } finally {
+                    Kernel32.INSTANCE.CloseHandle(hRadio);
+                }
             } while (BluetoothApis.INSTANCE.BluetoothFindNextRadio(hFindRadio, phRadio));
         } finally {
             BluetoothApis.INSTANCE.BluetoothFindRadioClose(hFindRadio);
@@ -98,15 +107,11 @@ public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
 
     private static WindowsBluetoothDeviceJNA parseDeviceInfo(BLUETOOTH_DEVICE_INFO info, String adapterName) {
         String name = new String(info.szName).trim();
-        String address = formatAddress(info.Address);
+        String address = FormatUtil.formatMacAddress(info.Address.getAddress());
         String majorClass = AbstractBluetoothDevice.parseMajorDeviceClass(info.ulClassofDevice);
         boolean connected = info.fConnected;
         boolean paired = info.fRemembered;
         return new WindowsBluetoothDeviceJNA(name, address, majorClass, connected, paired, -1, adapterName);
     }
 
-    private static String formatAddress(long addr) {
-        return String.format(Locale.ROOT, "%02X:%02X:%02X:%02X:%02X:%02X", (addr >> 40) & 0xFF, (addr >> 32) & 0xFF,
-                (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF);
-    }
 }

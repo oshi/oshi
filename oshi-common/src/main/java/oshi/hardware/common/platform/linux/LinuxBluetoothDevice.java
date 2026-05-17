@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.BluetoothDevice;
@@ -29,6 +30,7 @@ public final class LinuxBluetoothDevice extends AbstractBluetoothDevice {
 
     private static final String SYS_BLUETOOTH = SysPath.SYS + "class/bluetooth/";
     private static final String VAR_LIB_BLUETOOTH = "/var/lib/bluetooth/";
+    private static final Pattern MAC_PATTERN = Pattern.compile("(?i)([0-9a-f]{2}:){5}[0-9a-f]{2}");
 
     private LinuxBluetoothDevice(String name, String address, String majorDeviceClass, boolean connected,
             boolean paired, int batteryLevel, String adapterName) {
@@ -71,7 +73,7 @@ public final class LinuxBluetoothDevice extends AbstractBluetoothDevice {
             File adapterStateDir = new File(varLibPath + adapterAddress.toUpperCase(Locale.ROOT));
             if (!adapterStateDir.isDirectory()) {
                 // Try lowercase (some systems)
-                adapterStateDir = new File(varLibPath + adapterAddress);
+                adapterStateDir = new File(varLibPath + adapterAddress.toLowerCase(Locale.ROOT));
             }
             if (!adapterStateDir.isDirectory()) {
                 continue;
@@ -85,7 +87,7 @@ public final class LinuxBluetoothDevice extends AbstractBluetoothDevice {
             for (File deviceDir : deviceDirs) {
                 String dirName = deviceDir.getName();
                 // Device directories are MAC addresses (XX:XX:XX:XX:XX:XX)
-                if (!dirName.contains(":") || dirName.length() != 17) {
+                if (!MAC_PATTERN.matcher(dirName).matches()) {
                     continue;
                 }
                 File infoFile = new File(deviceDir, "info");

@@ -7,6 +7,7 @@ package oshi.jna.platform.windows;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.Union;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.W32APIOptions;
@@ -24,13 +25,43 @@ public interface BluetoothApis extends com.sun.jna.win32.StdCallLibrary {
     int BLUETOOTH_MAX_NAME_SIZE = 248;
 
     /**
+     * BLUETOOTH_ADDRESS union. Contains a Bluetooth device address as either a ULONGLONG or a 6-byte array.
+     */
+    class BLUETOOTH_ADDRESS extends Union {
+        public long ullLong;
+        public byte[] rgBytes = new byte[6];
+
+        /**
+         * Gets the address as a long.
+         *
+         * @return the address
+         */
+        public long getAddress() {
+            setType("ullLong");
+            read();
+            return ullLong;
+        }
+
+        /**
+         * Gets the address as a 6-byte array.
+         *
+         * @return the address bytes
+         */
+        public byte[] getBytes() {
+            setType("rgBytes");
+            read();
+            return rgBytes;
+        }
+    }
+
+    /**
      * BLUETOOTH_DEVICE_INFO structure.
      */
     @FieldOrder({ "dwSize", "Address", "ulClassofDevice", "fConnected", "fRemembered", "fAuthenticated", "stLastSeen",
             "stLastUsed", "szName" })
     class BLUETOOTH_DEVICE_INFO extends Structure {
         public int dwSize;
-        public long Address;
+        public BLUETOOTH_ADDRESS Address;
         public int ulClassofDevice;
         public boolean fConnected;
         public boolean fRemembered;
@@ -97,7 +128,7 @@ public interface BluetoothApis extends com.sun.jna.win32.StdCallLibrary {
     @FieldOrder({ "dwSize", "address", "szName", "ulClassofDevice", "lmpSubversion", "manufacturer" })
     class BLUETOOTH_RADIO_INFO extends Structure {
         public int dwSize;
-        public long address;
+        public BLUETOOTH_ADDRESS address;
         public char[] szName = new char[BLUETOOTH_MAX_NAME_SIZE];
         public int ulClassofDevice;
         public short lmpSubversion;

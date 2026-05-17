@@ -157,4 +157,19 @@ class FormatUtilTest {
         assertThat("Improper rounding 1", FormatUtil.roundToInt(1d), is(1));
     }
 
+    @Test
+    void testFormatMacAddressFromLong() {
+        assertThat(FormatUtil.formatMacAddress(0xAABBCCDDEEFFL), is("AA:BB:CC:DD:EE:FF"));
+        assertThat(FormatUtil.formatMacAddress(0x000000000000L), is("00:00:00:00:00:00"));
+        assertThat(FormatUtil.formatMacAddress(0x112233445566L), is("11:22:33:44:55:66"));
+    }
+
+    @Test
+    void testFormatMacAddressFromString() {
+        assertThat(FormatUtil.formatMacAddress("aa-bb-cc-dd-ee-ff"), is("AA:BB:CC:DD:EE:FF"));
+        assertThat(FormatUtil.formatMacAddress("11:22:33:44:55:66"), is("11:22:33:44:55:66"));
+        assertThat(FormatUtil.formatMacAddress("aabbccddeeff"), is("AA:BB:CC:DD:EE:FF"));
+        assertThat(FormatUtil.formatMacAddress("abcd"), is("ABCD"));
+    }
+
 }

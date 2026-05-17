@@ -20,7 +20,6 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,11 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.windows.BluetoothApisFFM;
 import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.WindowsForeignFunctions;
 import oshi.hardware.BluetoothDevice;
 import oshi.hardware.common.AbstractBluetoothDevice;
+import oshi.util.FormatUtil;
 
 /**
  * Windows Bluetooth device enumeration via FFM (bthprops.cpl).
@@ -39,6 +40,8 @@ import oshi.hardware.common.AbstractBluetoothDevice;
 public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsBluetoothDeviceFFM.class);
+
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpersFFM.IsWindowsVistaOrGreater();
 
     private WindowsBluetoothDeviceFFM(String name, String address, String majorDeviceClass, boolean connected,
             boolean paired, int batteryLevel, String adapterName) {
@@ -51,6 +54,9 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
      * @return a list of {@link BluetoothDevice} objects
      */
     public static List<BluetoothDevice> getBluetoothDevices() {
+        if (!IS_VISTA_OR_GREATER) {
+            return Collections.emptyList();
+        }
         List<BluetoothDevice> devices = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment radioParams = arena.allocate(BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT);
@@ -65,9 +71,12 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
             try {
                 do {
                     MemorySegment hRadio = phRadio.get(ADDRESS, 0);
-                    String adapterName = getRadioName(arena, hRadio);
-                    queryDevicesForRadio(arena, hRadio, adapterName, devices);
-                    Kernel32FFM.CloseHandle(hRadio);
+                    try {
+                        String adapterName = getRadioName(arena, hRadio);
+                        queryDevicesForRadio(arena, hRadio, adapterName, devices);
+                    } finally {
+                        Kernel32FFM.CloseHandle(hRadio);
+                    }
                 } while (WindowsForeignFunctions
                         .isSuccess(BluetoothApisFFM.BluetoothFindNextRadio(hFindRadio, phRadio)));
             } finally {
@@ -134,7 +143,7 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
         String name = readDeviceName(info,
                 BLUETOOTH_DEVICE_INFO_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("szName")));
         String majorClass = AbstractBluetoothDevice.parseMajorDeviceClass(cod);
-        String address = formatAddress(addr);
+        String address = FormatUtil.formatMacAddress(addr);
         return new WindowsBluetoothDeviceFFM(name, address, majorClass, connected, paired, -1, adapterName);
     }
 
@@ -148,10 +157,5 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
             sb.append(c);
         }
         return sb.toString();
-    }
-
-    private static String formatAddress(long addr) {
-        return String.format(Locale.ROOT, "%02X:%02X:%02X:%02X:%02X:%02X", (addr >> 40) & 0xFF, (addr >> 32) & 0xFF,
-                (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF);
     }
 }

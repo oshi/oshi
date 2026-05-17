@@ -221,4 +221,43 @@ public final class FormatUtil {
     public static int roundToInt(double x) {
         return (int) Math.round(x);
     }
+
+    /**
+     * Formats a 6-byte MAC address stored in the lower 48 bits of a long to colon-separated uppercase hex (e.g.,
+     * {@code AA:BB:CC:DD:EE:FF}).
+     *
+     * @param addr the MAC address as a long (lower 48 bits)
+     * @return the formatted MAC address string
+     */
+    public static String formatMacAddress(long addr) {
+        return String.format(Locale.ROOT, "%02X:%02X:%02X:%02X:%02X:%02X", (addr >> 40) & 0xFF, (addr >> 32) & 0xFF,
+                (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF);
+    }
+
+    /**
+     * Normalizes a MAC address string (which may use dashes, colons, or no separators) to colon-separated uppercase hex
+     * (e.g., {@code AA:BB:CC:DD:EE:FF}).
+     *
+     * @param raw the raw MAC address string
+     * @return the normalized MAC address, or the original string uppercased if it cannot be parsed as 6 bytes
+     */
+    public static String formatMacAddress(String raw) {
+        String cleaned = raw.replace("-", "").replace(":", "").trim();
+        if (cleaned.length() == 12 && isHex(cleaned)) {
+            return String.format(Locale.ROOT, "%s:%s:%s:%s:%s:%s", cleaned.substring(0, 2), cleaned.substring(2, 4),
+                    cleaned.substring(4, 6), cleaned.substring(6, 8), cleaned.substring(8, 10),
+                    cleaned.substring(10, 12)).toUpperCase(Locale.ROOT);
+        }
+        return raw.toUpperCase(Locale.ROOT);
+    }
+
+    private static boolean isHex(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -31,5 +32,10 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     @Override
     public List<SoundCard> getSoundCards() {
         return MacSoundCard.getSoundCards();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return MacBluetoothDevice.getBluetoothDevices();
     }
 }

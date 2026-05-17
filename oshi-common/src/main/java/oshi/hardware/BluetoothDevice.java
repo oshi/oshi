@@ -13,6 +13,16 @@ import oshi.annotation.concurrent.Immutable;
  * <p>
  * Bluetooth devices are enumerated per adapter. Each device reports its name, MAC address, major device class,
  * connection/pairing state, and battery level when available.
+ * <p>
+ * Example usage:
+ *
+ * <pre>{@code
+ * for (BluetoothDevice device : hal.getBluetoothDevices()) {
+ *     System.out.printf("%s [%s] %s%s (battery: %s)%n", device.getName(), device.getAddress(),
+ *             device.getMajorDeviceClass(), device.isConnected() ? " *connected*" : "",
+ *             device.getBatteryLevel() >= 0 ? device.getBatteryLevel() + "%" : "N/A");
+ * }
+ * }</pre>
  */
 @PublicApi
 @Immutable
