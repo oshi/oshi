@@ -7,6 +7,7 @@ package oshi.hardware.platform.windows;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -91,5 +92,10 @@ public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstract
     @Override
     public List<Printer> getPrinters() {
         return WindowsPrinterJNA.getPrinters();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return WindowsBluetoothDeviceJNA.getBluetoothDevices();
     }
 }

@@ -83,4 +83,42 @@ public abstract class AbstractBluetoothDevice implements BluetoothDevice {
         return "BluetoothDevice [name=" + name + ", address=" + address + ", class=" + majorDeviceClass + ", connected="
                 + connected + ", paired=" + paired + ", battery=" + batteryLevel + ", adapter=" + adapterName + "]";
     }
+
+    /**
+     * Parses the major device class from the Bluetooth Class of Device (CoD) integer.
+     * <p>
+     * The major device class is bits 12–8 of the CoD value.
+     *
+     * @param cod the Class of Device integer
+     * @return a human-readable major device class string
+     */
+    public static String parseMajorDeviceClass(int cod) {
+        int major = (cod >> 8) & 0x1F;
+        switch (major) {
+            case 0:
+                return "Miscellaneous";
+            case 1:
+                return "Computer";
+            case 2:
+                return "Phone";
+            case 3:
+                return "Networking";
+            case 4:
+                return "Audio/Video";
+            case 5:
+                return "Peripheral";
+            case 6:
+                return "Imaging";
+            case 7:
+                return "Wearable";
+            case 8:
+                return "Toy";
+            case 9:
+                return "Health";
+            case 31:
+                return "Uncategorized";
+            default:
+                return "";
+        }
+    }
 }

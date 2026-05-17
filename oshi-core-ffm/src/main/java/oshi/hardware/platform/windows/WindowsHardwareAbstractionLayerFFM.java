@@ -7,6 +7,7 @@ package oshi.hardware.platform.windows;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -92,5 +93,10 @@ public final class WindowsHardwareAbstractionLayerFFM extends AbstractHardwareAb
     @Override
     public List<Printer> getPrinters() {
         return WindowsPrinterFFM.getPrinters();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return WindowsBluetoothDeviceFFM.getBluetoothDevices();
     }
 }

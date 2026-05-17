@@ -21,6 +21,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.BluetoothDevice;
+import oshi.hardware.common.AbstractBluetoothDevice;
 
 @EnabledOnOs(OS.LINUX)
 class LinuxBluetoothDeviceTest {
@@ -136,17 +137,17 @@ class LinuxBluetoothDeviceTest {
 
     @Test
     void testParseMajorDeviceClass() {
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0), is(""));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000100), is("Computer"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000200), is("Phone"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000300), is("Networking"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000400), is("Audio/Video"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000500), is("Peripheral"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000600), is("Imaging"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000700), is("Wearable"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000800), is("Toy"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x000900), is("Health"));
-        assertThat(LinuxBluetoothDevice.parseMajorDeviceClass(0x001F00), is(""));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0), is(""));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000100), is("Computer"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000200), is("Phone"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000300), is("Networking"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000400), is("Audio/Video"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000500), is("Peripheral"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000600), is("Imaging"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000700), is("Wearable"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000800), is("Toy"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x000900), is("Health"));
+        assertThat(AbstractBluetoothDevice.parseMajorDeviceClass(0x001F00), is(""));
     }
 
     @Test
