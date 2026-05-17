@@ -7,6 +7,7 @@ package oshi.nativefree;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static oshi.util.SystemInfoHelper.printBluetoothDevices;
 import static oshi.util.SystemInfoHelper.printComputerSystem;
 import static oshi.util.SystemInfoHelper.printCpu;
 import static oshi.util.SystemInfoHelper.printDisks;
@@ -119,6 +120,9 @@ public class SystemInfoTest {
 
         logger.info("Checking USB Devices...");
         printUsbDevices(lines, hal.getUsbDevices(true));
+
+        logger.info("Checking Bluetooth Devices...");
+        printBluetoothDevices(lines, hal.getBluetoothDevices());
 
         logger.info("Checking Sound Cards...");
         printSoundCards(lines, hal.getSoundCards());
