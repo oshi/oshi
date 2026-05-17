@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -59,6 +60,11 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     @Override
     public List<SoundCard> getSoundCards() {
         return LinuxSoundCard.getSoundCards();
+    }
+
+    @Override
+    public List<BluetoothDevice> getBluetoothDevices() {
+        return LinuxBluetoothDevice.getBluetoothDevices();
     }
 
     @Override

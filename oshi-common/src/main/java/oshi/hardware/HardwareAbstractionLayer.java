@@ -161,4 +161,14 @@ public interface HardwareAbstractionLayer {
     default List<Printer> getPrinters() {
         return Collections.emptyList();
     }
+
+    /**
+     * Instantiates a list of {@link oshi.hardware.BluetoothDevice} objects, representing Bluetooth devices (paired or
+     * connected) known to the system.
+     *
+     * @return A list of BluetoothDevice objects or an empty list if none are present.
+     */
+    default List<BluetoothDevice> getBluetoothDevices() {
+        return Collections.emptyList();
+    }
 }
