@@ -4,6 +4,12 @@
  */
 package oshi.driver.common.windows.perfmon;
 
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_OS_MEMORY;
+
+import java.util.Collections;
+import java.util.Map;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -41,5 +47,18 @@ public final class MemoryInformation {
     }
 
     private MemoryInformation() {
+    }
+
+    /**
+     * Returns page swap counters.
+     *
+     * @param executor the performance counter query executor
+     * @return Page swap counters for memory, or empty map if OS counters are disabled.
+     */
+    public static Map<PageSwapProperty, Long> queryPageSwaps(PerfCounterQueryExecutor executor) {
+        if (executor.isPerfOsDisabled()) {
+            return Collections.emptyMap();
+        }
+        return executor.queryValues(PageSwapProperty.class, MEMORY, WIN32_PERF_RAW_DATA_PERF_OS_MEMORY);
     }
 }
