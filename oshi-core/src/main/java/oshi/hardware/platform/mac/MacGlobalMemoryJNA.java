@@ -12,10 +12,10 @@ import com.sun.jna.platform.mac.SystemB;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.mac.MacGlobalMemory;
+import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseableLongByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
-import oshi.util.platform.mac.SysctlUtil;
 
 @ThreadSafe
 final class MacGlobalMemoryJNA extends MacGlobalMemory {
@@ -37,8 +37,8 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
     }
 
     @Override
-    protected long sysctl(String name, long defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue);
+    protected SysctlProvider sysctlProvider() {
+        return SysctlProviderJNA.INSTANCE;
     }
 
     @Override

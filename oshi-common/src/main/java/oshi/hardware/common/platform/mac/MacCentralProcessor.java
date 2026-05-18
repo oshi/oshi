@@ -71,13 +71,22 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
 
     /**
+     * Returns the sysctl provider for this implementation.
+     *
+     * @return the sysctl provider
+     */
+    protected abstract SysctlProvider sysctlProvider();
+
+    /**
      * Queries a sysctl integer value.
      *
      * @param name         the sysctl name
      * @param defaultValue the default value if not found
      * @return the sysctl value
      */
-    protected abstract int sysctlInt(String name, int defaultValue);
+    protected int sysctlInt(String name, int defaultValue) {
+        return sysctlProvider().sysctlInt(name, defaultValue);
+    }
 
     /**
      * Queries a sysctl integer value without logging warnings.
@@ -86,7 +95,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param defaultValue the default value if not found
      * @return the sysctl value
      */
-    protected abstract int sysctlIntNoWarn(String name, int defaultValue);
+    protected int sysctlIntNoWarn(String name, int defaultValue) {
+        return sysctlProvider().sysctlIntNoWarn(name, defaultValue);
+    }
 
     /**
      * Queries a sysctl long value.
@@ -95,7 +106,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param defaultValue the default value if not found
      * @return the sysctl value
      */
-    protected abstract long sysctlLong(String name, long defaultValue);
+    protected long sysctlLong(String name, long defaultValue) {
+        return sysctlProvider().sysctlLong(name, defaultValue);
+    }
 
     /**
      * Queries a sysctl string value.
@@ -104,7 +117,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param defaultValue the default value if not found
      * @return the sysctl value
      */
-    protected abstract String sysctlString(String name, String defaultValue);
+    protected String sysctlString(String name, String defaultValue) {
+        return sysctlProvider().sysctlString(name, defaultValue);
+    }
 
     /**
      * Queries a sysctl string value without logging warnings.
@@ -113,7 +128,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param defaultValue the default value if not found
      * @return the sysctl value
      */
-    protected abstract String sysctlStringNoWarn(String name, String defaultValue);
+    protected String sysctlStringNoWarn(String name, String defaultValue) {
+        return sysctlProvider().sysctlStringNoWarn(name, defaultValue);
+    }
 
     /**
      * Returns the IOKit provider for this implementation.

@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystem;
 import oshi.ffm.mac.MacSystemFunctions;
-import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.common.platform.mac.IOKitProvider;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
+import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.util.FormatUtil;
 
 /**
@@ -33,28 +33,8 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessorFFM.class);
 
     @Override
-    protected int sysctlInt(String name, int defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected int sysctlIntNoWarn(String name, int defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue, false);
-    }
-
-    @Override
-    protected long sysctlLong(String name, long defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected String sysctlString(String name, String defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected String sysctlStringNoWarn(String name, String defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue, false);
+    protected SysctlProvider sysctlProvider() {
+        return SysctlProviderFFM.INSTANCE;
     }
 
     @Override
