@@ -67,4 +67,19 @@ public class Win32LogicalDisk {
         }
         return wmiClassName.toString();
     }
+
+    /**
+     * Queries logical disk information.
+     *
+     * @param h           An instantiated {@link WmiQueryExecutor}.
+     * @param nameToMatch an optional string to filter match, null otherwise
+     * @param localOnly   Whether to only search local drives
+     * @return Logical Disk Information
+     */
+    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(WmiQueryExecutor h, String nameToMatch,
+            boolean localOnly) {
+        WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(
+                buildWmiClassNameWithWhere(nameToMatch, localOnly), LogicalDiskProperty.class);
+        return h.queryWMI(logicalDiskQuery);
+    }
 }

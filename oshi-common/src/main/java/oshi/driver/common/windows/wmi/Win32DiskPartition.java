@@ -42,4 +42,15 @@ public class Win32DiskPartition {
      */
     protected Win32DiskPartition() {
     }
+
+    /**
+     * Queries disk partition information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Disk partition information.
+     */
+    public static WmiResult<DiskPartitionProperty> queryPartition(WmiQueryExecutor h) {
+        WmiQuery<DiskPartitionProperty> query = new WmiQuery<>(WIN32_DISK_PARTITION, DiskPartitionProperty.class);
+        return h.queryWMI(query, false);
+    }
 }

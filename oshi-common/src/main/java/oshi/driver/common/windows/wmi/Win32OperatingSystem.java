@@ -38,4 +38,15 @@ public class Win32OperatingSystem {
      */
     protected Win32OperatingSystem() {
     }
+
+    /**
+     * Queries the operating system version.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return OS version information.
+     */
+    public static WmiResult<OSVersionProperty> queryOsVersion(WmiQueryExecutor h) {
+        WmiQuery<OSVersionProperty> osVersionQuery = new WmiQuery<>(WIN32_OPERATING_SYSTEM, OSVersionProperty.class);
+        return h.queryWMI(osVersionQuery);
+    }
 }

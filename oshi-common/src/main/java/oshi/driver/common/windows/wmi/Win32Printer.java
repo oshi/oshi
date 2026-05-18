@@ -44,4 +44,15 @@ public class Win32Printer {
      */
     protected Win32Printer() {
     }
+
+    /**
+     * Queries printer information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Printer information.
+     */
+    public static WmiResult<PrinterProperty> queryPrinters(WmiQueryExecutor h) {
+        WmiQuery<PrinterProperty> query = new WmiQuery<>(WIN32_PRINTER, PrinterProperty.class);
+        return h.queryWMI(query);
+    }
 }

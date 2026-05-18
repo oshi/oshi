@@ -40,4 +40,15 @@ public class Win32VideoController {
      */
     protected Win32VideoController() {
     }
+
+    /**
+     * Queries video controller information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Video controller information.
+     */
+    public static WmiResult<VideoControllerProperty> queryVideoController(WmiQueryExecutor h) {
+        WmiQuery<VideoControllerProperty> query = new WmiQuery<>(WIN32_VIDEO_CONTROLLER, VideoControllerProperty.class);
+        return h.queryWMI(query);
+    }
 }

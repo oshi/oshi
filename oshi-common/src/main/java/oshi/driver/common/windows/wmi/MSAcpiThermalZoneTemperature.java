@@ -35,4 +35,16 @@ public class MSAcpiThermalZoneTemperature {
      */
     protected MSAcpiThermalZoneTemperature() {
     }
+
+    /**
+     * Queries current temperature from thermal zone.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Temperature information.
+     */
+    public static WmiResult<TemperatureProperty> queryCurrentTemperature(WmiQueryExecutor h) {
+        WmiQuery<TemperatureProperty> query = new WmiQuery<>(WMI_NAMESPACE, MS_ACPI_THERMAL_ZONE_TEMPERATURE,
+                TemperatureProperty.class);
+        return h.queryWMI(query);
+    }
 }

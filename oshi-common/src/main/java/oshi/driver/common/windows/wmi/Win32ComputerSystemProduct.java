@@ -32,4 +32,16 @@ public class Win32ComputerSystemProduct {
      */
     protected Win32ComputerSystemProduct() {
     }
+
+    /**
+     * Queries the UUID and identifying number.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return UUID and identifying number.
+     */
+    public static WmiResult<ComputerSystemProductProperty> queryIdentifyingNumberUUID(WmiQueryExecutor h) {
+        WmiQuery<ComputerSystemProductProperty> cspQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM_PRODUCT,
+                ComputerSystemProductProperty.class);
+        return h.queryWMI(cspQuery);
+    }
 }
