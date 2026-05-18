@@ -42,4 +42,15 @@ public class Win32DiskDrive {
      */
     protected Win32DiskDrive() {
     }
+
+    /**
+     * Queries disk drive information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Information regarding each disk drive.
+     */
+    public static WmiResult<DiskDriveProperty> queryDiskDrive(WmiQueryExecutor h) {
+        WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
+        return h.queryWMI(diskDriveQuery, false);
+    }
 }
