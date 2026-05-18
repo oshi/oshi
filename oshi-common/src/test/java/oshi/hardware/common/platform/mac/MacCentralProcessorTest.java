@@ -84,6 +84,11 @@ class MacCentralProcessorTest {
         }
 
         @Override
+        protected IOKitProvider ioKitProvider() {
+            return null; // Not used; platformExpert/queryCompatibleStrings/calculateNominalFrequencies are overridden
+        }
+
+        @Override
         protected String platformExpert() {
             return "Apple";
         }

@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.mac;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +46,8 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private static final Set<String> ARM_P_CORES = Stream
             .of("apple,firestorm arm,v8", "apple,avalanche arm,v8", "apple,everest arm,v8", "apple,donan arm,v8")
             .collect(Collectors.toSet());
+
+    private static final Pattern CPU_N = Pattern.compile("^cpu(\\d+)");
 
     /** ARM CPU type constant. */
     protected static final int ARM_CPUTYPE = 0x0100000C;
@@ -111,23 +116,63 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     protected abstract String sysctlStringNoWarn(String name, String defaultValue);
 
     /**
+     * Returns the IOKit provider for this implementation.
+     *
+     * @return the IOKit provider
+     */
+    protected abstract IOKitProvider ioKitProvider();
+
+    /**
      * Queries the platform expert vendor string.
      *
      * @return the vendor string
      */
-    protected abstract String platformExpert();
+    protected String platformExpert() {
+        String manufacturer = ioKitProvider().withMatchingService("IOPlatformExpertDevice", entry -> {
+            byte[] data = entry.getByteArrayProperty("manufacturer");
+            return data != null ? new String(data, StandardCharsets.UTF_8).replace("\0", "").trim() : null;
+        });
+        return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
+    }
 
     /**
      * Queries compatible strings for CPU identification.
      *
      * @return a map of physical processor numbers to compatible strings
      */
-    protected abstract Map<Integer, String> queryCompatibleStrings();
+    protected Map<Integer, String> queryCompatibleStrings() {
+        Map<Integer, String> compatibleStrMap = new HashMap<>();
+        ioKitProvider().forEachMatchingService("IOPlatformDevice", entry -> {
+            String name = entry.getName();
+            if (name != null) {
+                Matcher m = CPU_N.matcher(name.toLowerCase(Locale.ROOT));
+                if (m.matches()) {
+                    int procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                    byte[] data = entry.getByteArrayProperty("compatible");
+                    if (data != null) {
+                        compatibleStrMap.put(procId,
+                                new String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
+                    }
+                }
+            }
+        });
+        return compatibleStrMap;
+    }
 
     /**
      * Calculates nominal frequencies for performance and efficiency cores.
      */
-    protected abstract void calculateNominalFrequencies();
+    protected void calculateNominalFrequencies() {
+        ioKitProvider().forEachMatchingServiceUntil("AppleARMIODevice", entry -> {
+            if ("pmgr".equalsIgnoreCase(entry.getName())) {
+                setPerformanceCoreFrequency(
+                        getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states5-sram")));
+                setEfficiencyCoreFrequency(getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states1-sram")));
+                return true;
+            }
+            return false;
+        });
+    }
 
     /**
      * Gets the performance core frequency.

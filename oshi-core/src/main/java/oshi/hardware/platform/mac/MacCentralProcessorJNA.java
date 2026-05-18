@@ -4,31 +4,20 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.mac.IOKit.IOIterator;
-import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
-import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.common.platform.mac.IOKitProvider;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.Struct.CloseableHostCpuLoadInfo;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.platform.mac.SysctlUtil;
 
 /**
@@ -38,7 +27,6 @@ import oshi.util.platform.mac.SysctlUtil;
 final class MacCentralProcessorJNA extends MacCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessorJNA.class);
-    private static final Pattern CPU_N = Pattern.compile("^cpu(\\d+)");
 
     @Override
     protected int sysctlInt(String name, int defaultValue) {
@@ -99,6 +87,11 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
     }
 
     @Override
+    protected IOKitProvider ioKitProvider() {
+        return IOKitProviderJNA.INSTANCE;
+    }
+
+    @Override
     public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
 
@@ -138,70 +131,4 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
         return ticks;
     }
 
-    @Override
-    protected String platformExpert() {
-        String manufacturer = null;
-        IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
-        if (platformExpert != null) {
-            byte[] data = platformExpert.getByteArrayProperty("manufacturer");
-            if (data != null) {
-                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
-            }
-            platformExpert.release();
-        }
-        return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
-    }
-
-    @Override
-    protected Map<Integer, String> queryCompatibleStrings() {
-        Map<Integer, String> compatibleStrMap = new HashMap<>();
-        IOIterator iter = IOKitUtil.getMatchingServices("IOPlatformDevice");
-        if (iter != null) {
-            IORegistryEntry cpu = iter.next();
-            while (cpu != null) {
-                Matcher m = CPU_N.matcher(cpu.getName().toLowerCase(Locale.ROOT));
-                if (m.matches()) {
-                    int procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                    byte[] data = cpu.getByteArrayProperty("compatible");
-                    if (data != null) {
-                        compatibleStrMap.put(procId,
-                                new String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
-                    }
-                }
-                cpu.release();
-                cpu = iter.next();
-            }
-            iter.release();
-        }
-        return compatibleStrMap;
-    }
-
-    @Override
-    protected void calculateNominalFrequencies() {
-        IOIterator iter = IOKitUtil.getMatchingServices("AppleARMIODevice");
-        if (iter != null) {
-            try {
-                IORegistryEntry device = iter.next();
-                try {
-                    while (device != null) {
-                        if (device.getName().equalsIgnoreCase("pmgr")) {
-                            setPerformanceCoreFrequency(
-                                    getMaxFreqFromByteArray(device.getByteArrayProperty("voltage-states5-sram")));
-                            setEfficiencyCoreFrequency(
-                                    getMaxFreqFromByteArray(device.getByteArrayProperty("voltage-states1-sram")));
-                            return;
-                        }
-                        device.release();
-                        device = iter.next();
-                    }
-                } finally {
-                    if (device != null) {
-                        device.release();
-                    }
-                }
-            } finally {
-                iter.release();
-            }
-        }
-    }
 }

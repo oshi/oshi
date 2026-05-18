@@ -11,28 +11,18 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.ffm.mac.MacSystem;
 import oshi.ffm.mac.MacSystemFunctions;
-import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.ffm.util.platform.mac.SysctlUtilFFM;
+import oshi.hardware.common.platform.mac.IOKitProvider;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.util.FormatUtil;
-import oshi.util.ParseUtil;
-import oshi.util.Util;
 
 /**
  * A CPU using FFM.
@@ -41,7 +31,6 @@ import oshi.util.Util;
 final class MacCentralProcessorFFM extends MacCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessorFFM.class);
-    private static final Pattern CPU_N = Pattern.compile("^cpu(\\d+)");
 
     @Override
     protected int sysctlInt(String name, int defaultValue) {
@@ -121,6 +110,11 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
     }
 
     @Override
+    protected IOKitProvider ioKitProvider() {
+        return IOKitProviderFFM.INSTANCE;
+    }
+
+    @Override
     public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         try (Arena arena = Arena.ofConfined()) {
@@ -169,82 +163,4 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
         return ticks;
     }
 
-    @Override
-    protected String platformExpert() {
-        String manufacturer = null;
-        IORegistryEntry platformExpert = IOKitUtilFFM.getMatchingService("IOPlatformExpertDevice");
-        if (platformExpert != null) {
-            try {
-                byte[] data = platformExpert.getByteArrayProperty("manufacturer");
-                if (data != null) {
-                    manufacturer = new String(data, StandardCharsets.UTF_8).replace("\0", "").trim();
-                }
-            } finally {
-                platformExpert.release();
-            }
-        }
-        return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
-    }
-
-    @Override
-    protected Map<Integer, String> queryCompatibleStrings() {
-        Map<Integer, String> compatibleStrMap = new HashMap<>();
-        IOIterator iter = IOKitUtilFFM.getMatchingServices("IOPlatformDevice");
-        if (iter != null) {
-            try {
-                IORegistryEntry cpu = iter.next();
-                while (cpu != null) {
-                    try {
-                        String name = cpu.getName();
-                        if (name != null) {
-                            Matcher m = CPU_N.matcher(name.toLowerCase(Locale.ROOT));
-                            if (m.matches()) {
-                                int procId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                                byte[] data = cpu.getByteArrayProperty("compatible");
-                                if (data != null) {
-                                    compatibleStrMap.put(procId,
-                                            new String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim());
-                                }
-                            }
-                        }
-                    } finally {
-                        cpu.release();
-                    }
-                    cpu = iter.next();
-                }
-            } finally {
-                iter.release();
-            }
-        }
-        return compatibleStrMap;
-    }
-
-    @Override
-    protected void calculateNominalFrequencies() {
-        IOIterator iter = IOKitUtilFFM.getMatchingServices("AppleARMIODevice");
-        if (iter != null) {
-            try {
-                IORegistryEntry device = iter.next();
-                try {
-                    while (device != null) {
-                        if ("pmgr".equalsIgnoreCase(device.getName())) {
-                            setPerformanceCoreFrequency(
-                                    getMaxFreqFromByteArray(device.getByteArrayProperty("voltage-states5-sram")));
-                            setEfficiencyCoreFrequency(
-                                    getMaxFreqFromByteArray(device.getByteArrayProperty("voltage-states1-sram")));
-                            return;
-                        }
-                        device.release();
-                        device = iter.next();
-                    }
-                } finally {
-                    if (device != null) {
-                        device.release();
-                    }
-                }
-            } finally {
-                iter.release();
-            }
-        }
-    }
 }
