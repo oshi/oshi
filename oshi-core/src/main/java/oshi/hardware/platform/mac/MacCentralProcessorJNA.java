@@ -14,11 +14,11 @@ import com.sun.jna.platform.mac.SystemB;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.mac.IOKitProvider;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
+import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.Struct.CloseableHostCpuLoadInfo;
 import oshi.util.FormatUtil;
-import oshi.util.platform.mac.SysctlUtil;
 
 /**
  * A CPU using JNA.
@@ -29,28 +29,8 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessorJNA.class);
 
     @Override
-    protected int sysctlInt(String name, int defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected int sysctlIntNoWarn(String name, int defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue, false);
-    }
-
-    @Override
-    protected long sysctlLong(String name, long defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected String sysctlString(String name, String defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue);
-    }
-
-    @Override
-    protected String sysctlStringNoWarn(String name, String defaultValue) {
-        return SysctlUtil.sysctl(name, defaultValue, false);
+    protected SysctlProvider sysctlProvider() {
+        return SysctlProviderJNA.INSTANCE;
     }
 
     @Override

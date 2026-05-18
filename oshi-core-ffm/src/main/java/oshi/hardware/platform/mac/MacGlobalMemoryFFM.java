@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.mac.MacSystemFunctions;
-import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.mac.MacGlobalMemory;
+import oshi.hardware.common.platform.mac.SysctlProvider;
 
 @ThreadSafe
 final class MacGlobalMemoryFFM extends MacGlobalMemory {
@@ -47,8 +47,8 @@ final class MacGlobalMemoryFFM extends MacGlobalMemory {
     }
 
     @Override
-    protected long sysctl(String name, long defaultValue) {
-        return SysctlUtilFFM.sysctl(name, defaultValue);
+    protected SysctlProvider sysctlProvider() {
+        return SysctlProviderFFM.INSTANCE;
     }
 
     @Override

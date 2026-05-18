@@ -84,6 +84,11 @@ class MacCentralProcessorTest {
         }
 
         @Override
+        protected SysctlProvider sysctlProvider() {
+            return null; // Not used; sysctl methods are overridden directly
+        }
+
+        @Override
         protected IOKitProvider ioKitProvider() {
             return null; // Not used; platformExpert/queryCompatibleStrings/calculateNominalFrequencies are overridden
         }

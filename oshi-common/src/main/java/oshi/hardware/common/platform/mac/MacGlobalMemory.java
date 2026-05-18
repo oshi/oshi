@@ -172,13 +172,22 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
     protected abstract long queryVmStats();
 
     /**
+     * Returns the sysctl provider for this implementation.
+     *
+     * @return the sysctl provider
+     */
+    protected abstract SysctlProvider sysctlProvider();
+
+    /**
      * Queries a sysctl long value.
      *
      * @param name         the sysctl name
      * @param defaultValue the default value
      * @return the sysctl value
      */
-    protected abstract long sysctl(String name, long defaultValue);
+    protected long sysctl(String name, long defaultValue) {
+        return sysctlProvider().sysctlLong(name, defaultValue);
+    }
 
     private long queryPhysMem() {
         return sysctl("hw.memsize", 0L);
