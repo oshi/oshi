@@ -32,4 +32,15 @@ public class Win32ComputerSystem {
      */
     protected Win32ComputerSystem() {
     }
+
+    /**
+     * Queries computer system information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Computer system information.
+     */
+    public static WmiResult<ComputerSystemProperty> queryComputerSystem(WmiQueryExecutor h) {
+        WmiQuery<ComputerSystemProperty> csQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM, ComputerSystemProperty.class);
+        return h.queryWMI(csQuery);
+    }
 }

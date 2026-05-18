@@ -36,4 +36,16 @@ public class Win32LogicalDiskToPartition {
      */
     protected Win32LogicalDiskToPartition() {
     }
+
+    /**
+     * Queries logical disk to partition mapping.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Logical disk to partition mapping.
+     */
+    public static WmiResult<DiskToPartitionProperty> queryDiskToPartition(WmiQueryExecutor h) {
+        WmiQuery<DiskToPartitionProperty> query = new WmiQuery<>(WIN32_LOGICAL_DISK_TO_PARTITION,
+                DiskToPartitionProperty.class);
+        return h.queryWMI(query, false);
+    }
 }

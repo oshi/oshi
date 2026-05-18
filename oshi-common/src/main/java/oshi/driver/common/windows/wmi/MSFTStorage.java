@@ -85,4 +85,52 @@ public class MSFTStorage {
      */
     protected MSFTStorage() {
     }
+
+    /**
+     * Queries storage pools.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Storage pool information.
+     */
+    public static WmiResult<StoragePoolProperty> queryStoragePools(WmiQueryExecutor h) {
+        WmiQuery<StoragePoolProperty> query = new WmiQuery<>(STORAGE_NAMESPACE,
+                MSFT_STORAGE_POOL_WHERE_IS_PRIMORDIAL_FALSE, StoragePoolProperty.class);
+        return h.queryWMI(query, false);
+    }
+
+    /**
+     * Queries storage pool to physical disk mapping.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Storage pool to physical disk mapping.
+     */
+    public static WmiResult<StoragePoolToPhysicalDiskProperty> queryStoragePoolPhysicalDisks(WmiQueryExecutor h) {
+        WmiQuery<StoragePoolToPhysicalDiskProperty> query = new WmiQuery<>(STORAGE_NAMESPACE,
+                MSFT_STORAGE_POOL_TO_PHYSICAL_DISK, StoragePoolToPhysicalDiskProperty.class);
+        return h.queryWMI(query, false);
+    }
+
+    /**
+     * Queries physical disks.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Physical disk information.
+     */
+    public static WmiResult<PhysicalDiskProperty> queryPhysicalDisks(WmiQueryExecutor h) {
+        WmiQuery<PhysicalDiskProperty> query = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
+                PhysicalDiskProperty.class);
+        return h.queryWMI(query, false);
+    }
+
+    /**
+     * Queries virtual disks.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Virtual disk information.
+     */
+    public static WmiResult<VirtualDiskProperty> queryVirtualDisks(WmiQueryExecutor h) {
+        WmiQuery<VirtualDiskProperty> query = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,
+                VirtualDiskProperty.class);
+        return h.queryWMI(query, false);
+    }
 }

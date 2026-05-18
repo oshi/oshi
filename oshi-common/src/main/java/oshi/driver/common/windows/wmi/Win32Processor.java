@@ -46,4 +46,37 @@ public class Win32Processor {
      */
     protected Win32Processor() {
     }
+
+    /**
+     * Queries processor voltage.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Processor voltage.
+     */
+    public static WmiResult<VoltProperty> queryVoltage(WmiQueryExecutor h) {
+        WmiQuery<VoltProperty> query = new WmiQuery<>(WIN32_PROCESSOR, VoltProperty.class);
+        return h.queryWMI(query);
+    }
+
+    /**
+     * Queries processor ID.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Processor ID.
+     */
+    public static WmiResult<ProcessorIdProperty> queryProcessorId(WmiQueryExecutor h) {
+        WmiQuery<ProcessorIdProperty> query = new WmiQuery<>(WIN32_PROCESSOR, ProcessorIdProperty.class);
+        return h.queryWMI(query);
+    }
+
+    /**
+     * Queries processor bitness.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Processor bitness.
+     */
+    public static WmiResult<BitnessProperty> queryBitness(WmiQueryExecutor h) {
+        WmiQuery<BitnessProperty> query = new WmiQuery<>(WIN32_PROCESSOR, BitnessProperty.class);
+        return h.queryWMI(query);
+    }
 }

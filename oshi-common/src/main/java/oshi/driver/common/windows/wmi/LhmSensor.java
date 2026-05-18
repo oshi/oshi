@@ -81,4 +81,30 @@ public class LhmSensor {
     public static String buildGpuHardwareWmiClassName() {
         return HARDWARE + " WHERE HardwareType=\"GpuNvidia\" OR HardwareType=\"GpuAmd\" OR HardwareType=\"GpuIntel\"";
     }
+
+    /**
+     * Queries all sensors of a given type belonging to a specific hardware parent.
+     *
+     * @param h          An instantiated {@link WmiQueryExecutor}.
+     * @param parent     the LHM hardware identifier (e.g. {@code /gpu-nvidia/0})
+     * @param sensorType the sensor type string (e.g. {@code "Load"}, {@code "SmallData"})
+     * @return WMI result containing NAME, VALUE, and PARENT columns
+     */
+    public static WmiResult<LhmSensorProperty> querySensors(WmiQueryExecutor h, String parent, String sensorType) {
+        WmiQuery<LhmSensorProperty> query = new WmiQuery<>(LHM_NAMESPACE,
+                buildSensorWmiClassNameWithWhere(parent, sensorType), LhmSensorProperty.class);
+        return h.queryWMI(query);
+    }
+
+    /**
+     * Queries all GPU hardware entries from LHM to discover parent identifiers.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return WMI result with IDENTIFIER and NAME columns for all GPU hardware entries
+     */
+    public static WmiResult<LhmHardwareProperty> queryGpuHardware(WmiQueryExecutor h) {
+        WmiQuery<LhmHardwareProperty> query = new WmiQuery<>(LHM_NAMESPACE, buildGpuHardwareWmiClassName(),
+                LhmHardwareProperty.class);
+        return h.queryWMI(query);
+    }
 }

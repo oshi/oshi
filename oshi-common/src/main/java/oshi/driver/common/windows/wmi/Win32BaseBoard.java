@@ -38,4 +38,15 @@ public class Win32BaseBoard {
      */
     protected Win32BaseBoard() {
     }
+
+    /**
+     * Queries baseboard information.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Baseboard information.
+     */
+    public static WmiResult<BaseBoardProperty> queryBaseboardInfo(WmiQueryExecutor h) {
+        WmiQuery<BaseBoardProperty> baseboardQuery = new WmiQuery<>(WIN32_BASEBOARD, BaseBoardProperty.class);
+        return h.queryWMI(baseboardQuery);
+    }
 }

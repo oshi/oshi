@@ -30,4 +30,15 @@ public class Win32Fan {
      */
     protected Win32Fan() {
     }
+
+    /**
+     * Queries fan speed.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}.
+     * @return Fan speed information.
+     */
+    public static WmiResult<SpeedProperty> querySpeed(WmiQueryExecutor h) {
+        WmiQuery<SpeedProperty> fanQuery = new WmiQuery<>(WIN32_FAN, SpeedProperty.class);
+        return h.queryWMI(fanQuery);
+    }
 }

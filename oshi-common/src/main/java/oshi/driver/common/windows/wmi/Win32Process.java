@@ -5,6 +5,7 @@
 package oshi.driver.common.windows.wmi;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -70,5 +71,31 @@ public class Win32Process {
         }
         return WIN32_PROCESS + " WHERE ProcessID="
                 + pids.stream().map(String::valueOf).collect(Collectors.joining(" OR PROCESSID="));
+    }
+
+    /**
+     * Returns process command lines.
+     *
+     * @param h           An instantiated {@link WmiQueryExecutor}.
+     * @param pidsToQuery Process IDs to query for command lines. Pass {@code null} to query all processes.
+     * @return A {@link WmiResult} containing process IDs and command lines.
+     */
+    public static WmiResult<CommandLineProperty> queryCommandLines(WmiQueryExecutor h, Set<Integer> pidsToQuery) {
+        WmiQuery<CommandLineProperty> commandLineQuery = new WmiQuery<>(buildWmiClassNameWithPidFilter(pidsToQuery),
+                CommandLineProperty.class);
+        return h.queryWMI(commandLineQuery);
+    }
+
+    /**
+     * Returns process info.
+     *
+     * @param h    An instantiated {@link WmiQueryExecutor}.
+     * @param pids Process IDs to query.
+     * @return Information on the provided processes.
+     */
+    public static WmiResult<ProcessXPProperty> queryProcesses(WmiQueryExecutor h, Collection<Integer> pids) {
+        WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(buildWmiClassNameWithPidFilter(pids),
+                ProcessXPProperty.class);
+        return h.queryWMI(processQueryXP);
     }
 }
