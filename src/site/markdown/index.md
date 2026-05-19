@@ -61,25 +61,37 @@ Legacy Versions
 Usage
 -----
 1. Include OSHI and its dependencies on your classpath.
-   - We strongly recommend you add `oshi-core` as a dependency to your project dependency manager such as Maven or Gradle.
+   - We strongly recommend you add `oshi-core` (and/or `oshi-core-ffm`) as a dependency to your project dependency manager such as Maven or Gradle.
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
-2. Create a new instance of `SystemInfo`
+2. Create a new instance of `SystemInfo`. As of OSHI 7.2.0, the recommended approach is `SystemInfoFactory.create()`, which automatically selects the best available implementation based on your classpath and runtime:
+
+| Classpath | JDK | Platform | Selected implementation |
+|-----------|-----|----------|------------------------|
+| `oshi-core` only | 8+ | Any | JNA (`oshi.SystemInfo`) |
+| `oshi-core-ffm` only | 25+ | Linux, macOS, Windows | FFM (`oshi.ffm.SystemInfo`) |
+| Both `oshi-core` and `oshi-core-ffm` | 25+ | Linux, macOS, Windows | FFM (higher priority) |
+| Both `oshi-core` and `oshi-core-ffm` | &lt;25 or unsupported platform | Any | JNA (FFM unavailable) |
+| `oshi-common` only | 8+ | Linux | No `--enable-native-access` required (`oshi.nativefree.SystemInfo`) |
+
+```java
+// Recommended: automatic selection via ServiceLoader
+SystemInfoProvider si = SystemInfoFactory.create();
+```
+
+You can also instantiate directly, maintaining compatibility with previous OSHI versions:
+
+```java
+SystemInfo si = new SystemInfo();           // JNA (oshi-core)
+oshi.ffm.SystemInfo si = new oshi.ffm.SystemInfo(); // FFM (oshi-core-ffm, JDK 25+)
+```
+
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
 ```java
-SystemInfo si = new SystemInfo(); // oshi.SystemInfo or oshi.ffm.SystemInfo
 HardwareAbstractionLayer hal = si.getHardware();
 CentralProcessor cpu = hal.getProcessor();
-```
-
-To include both implementations and select at runtime:
-
-```java
-// Automatic selection — picks FFM on JDK 25+ (Windows/macOS/Linux), falls back to JNA
-SystemInfoProvider si = SystemInfoFactory.create();
-HardwareAbstractionLayer hal = si.getHardware();
 OperatingSystem os = si.getOperatingSystem();
 ```
 
