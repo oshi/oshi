@@ -22,16 +22,6 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
 
     private int ifType;
     private boolean connectorPresent;
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
     private String ifAlias = "";
     private IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
@@ -81,56 +71,6 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public String getIfAlias() {
         return ifAlias;
     }
@@ -152,20 +92,20 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
             return false;
         }
 
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         this.ifType = FileUtil.getIntFromFile(name + "/type");
         this.connectorPresent = FileUtil.getIntFromFile(name + "/carrier") > 0;
-        this.bytesSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_bytes");
-        this.bytesRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_bytes");
-        this.packetsSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_packets");
-        this.packetsRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_packets");
-        this.outErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_errors");
-        this.inErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_errors");
-        this.collisions = FileUtil.getUnsignedLongFromFile(name + "/statistics/collisions");
-        this.inDrops = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_dropped");
+        setBytesSent(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_bytes"));
+        setBytesRecv(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_bytes"));
+        setPacketsSent(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_packets"));
+        setPacketsRecv(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_packets"));
+        setOutErrors(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_errors"));
+        setInErrors(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_errors"));
+        setCollisions(FileUtil.getUnsignedLongFromFile(name + "/statistics/collisions"));
+        setInDrops(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_dropped"));
         long speedMbps = FileUtil.getUnsignedLongFromFile(name + "/speed");
         // speed may be -1 from file.
-        this.speed = speedMbps < 0 ? 0 : speedMbps * 1000000L;
+        setSpeed(speedMbps < 0 ? 0 : speedMbps * 1000000L);
         this.ifAlias = FileUtil.getStringFromFile(name + "/ifalias");
         this.ifOperStatus = parseIfOperStatus(FileUtil.getStringFromFile(name + "/operstate"));
 

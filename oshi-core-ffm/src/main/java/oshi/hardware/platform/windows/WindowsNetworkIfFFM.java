@@ -33,16 +33,6 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
     private int ifType;
     private int ndisPhysicalMediumType;
     private boolean connectorPresent;
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
     private String ifAlias;
     private IfOperStatus ifOperStatus;
 
@@ -79,56 +69,6 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
     }
 
     @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public String getIfAlias() {
         return ifAlias;
     }
@@ -155,15 +95,15 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
             this.ndisPhysicalMediumType = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_PHYSICAL_MEDIUM_TYPE);
             byte flags = ifRow.get(ValueLayout.JAVA_BYTE, IPHlpAPIFFM.OFFSET_FLAGS);
             this.connectorPresent = (flags & CONNECTOR_PRESENT_BIT) > 0;
-            this.speed = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED);
-            this.bytesRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS);
-            this.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS);
-            this.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
-            this.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
-            this.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
-            this.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS);
-            this.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
-            this.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
+            setSpeed(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED));
+            setBytesRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS));
+            setPacketsRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS));
+            setInErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS));
+            setInDrops(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS));
+            setBytesSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS));
+            setPacketsSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS));
+            setOutErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS));
+            setCollisions(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS));
             // Alias is WCHAR[257] at OFFSET_ALIAS
             MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
             this.ifAlias = readWideString(aliasSlice);
@@ -174,7 +114,7 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
                     t.getMessage());
             return false;
         }
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         return true;
     }
 

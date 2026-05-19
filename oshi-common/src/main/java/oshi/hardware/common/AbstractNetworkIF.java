@@ -51,6 +51,17 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private String[] ipv6;
     private Short[] prefixLengths;
 
+    private long bytesRecv;
+    private long bytesSent;
+    private long packetsRecv;
+    private long packetsSent;
+    private long inErrors;
+    private long outErrors;
+    private long inDrops;
+    private long collisions;
+    private long speed;
+    private long timeStamp;
+
     private final Supplier<Properties> vmMacAddrProps = memoize(AbstractNetworkIF::queryVmMacAddrProps);
 
     /**
@@ -215,6 +226,146 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     private static Properties queryVmMacAddrProps() {
         return FileUtil.readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
+    }
+
+    @Override
+    public long getBytesRecv() {
+        return this.bytesRecv;
+    }
+
+    @Override
+    public long getBytesSent() {
+        return this.bytesSent;
+    }
+
+    @Override
+    public long getPacketsRecv() {
+        return this.packetsRecv;
+    }
+
+    @Override
+    public long getPacketsSent() {
+        return this.packetsSent;
+    }
+
+    @Override
+    public long getInErrors() {
+        return this.inErrors;
+    }
+
+    @Override
+    public long getOutErrors() {
+        return this.outErrors;
+    }
+
+    @Override
+    public long getInDrops() {
+        return this.inDrops;
+    }
+
+    @Override
+    public long getCollisions() {
+        return this.collisions;
+    }
+
+    @Override
+    public long getSpeed() {
+        return this.speed;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
+
+    /**
+     * Sets the bytes received.
+     *
+     * @param bytesRecv the bytes received
+     */
+    protected void setBytesRecv(long bytesRecv) {
+        this.bytesRecv = bytesRecv;
+    }
+
+    /**
+     * Sets the bytes sent.
+     *
+     * @param bytesSent the bytes sent
+     */
+    protected void setBytesSent(long bytesSent) {
+        this.bytesSent = bytesSent;
+    }
+
+    /**
+     * Sets the packets received.
+     *
+     * @param packetsRecv the packets received
+     */
+    protected void setPacketsRecv(long packetsRecv) {
+        this.packetsRecv = packetsRecv;
+    }
+
+    /**
+     * Sets the packets sent.
+     *
+     * @param packetsSent the packets sent
+     */
+    protected void setPacketsSent(long packetsSent) {
+        this.packetsSent = packetsSent;
+    }
+
+    /**
+     * Sets the input errors.
+     *
+     * @param inErrors the input errors
+     */
+    protected void setInErrors(long inErrors) {
+        this.inErrors = inErrors;
+    }
+
+    /**
+     * Sets the output errors.
+     *
+     * @param outErrors the output errors
+     */
+    protected void setOutErrors(long outErrors) {
+        this.outErrors = outErrors;
+    }
+
+    /**
+     * Sets the input drops.
+     *
+     * @param inDrops the input drops
+     */
+    protected void setInDrops(long inDrops) {
+        this.inDrops = inDrops;
+    }
+
+    /**
+     * Sets the collisions.
+     *
+     * @param collisions the collisions
+     */
+    protected void setCollisions(long collisions) {
+        this.collisions = collisions;
+    }
+
+    /**
+     * Sets the speed.
+     *
+     * @param speed the speed in bits per second
+     */
+    protected void setSpeed(long speed) {
+        this.speed = speed;
+    }
+
+    /**
+     * Sets the timestamp.
+     *
+     * @param timeStamp the timestamp
+     */
+    protected void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     @Override

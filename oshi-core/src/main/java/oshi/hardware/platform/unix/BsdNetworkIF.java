@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix;
@@ -25,16 +25,6 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(BsdNetworkIF.class);
 
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long timeStamp;
-
     public BsdNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
@@ -59,72 +49,22 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return 0;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public boolean updateAttributes() {
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         String[] split = ParseUtil.whitespaces.split(stats);
         if (split.length < 12) {
             // No update
             return false;
         }
-        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);
-        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);
-        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);
-        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);
-        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);
-        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);
-        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);
-        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);
+        setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));
+        setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));
+        setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));
+        setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
+        setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));
+        setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
+        setCollisions(ParseUtil.parseUnsignedLongOrDefault(split[11], 0L));
+        setInDrops(ParseUtil.parseUnsignedLongOrDefault(split[6], 0L));
         return true;
     }
 }
