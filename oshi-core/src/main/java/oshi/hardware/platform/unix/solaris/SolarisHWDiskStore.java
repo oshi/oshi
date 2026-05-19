@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -34,78 +34,27 @@ import oshi.util.tuples.Quintet;
 @ThreadSafe
 public final class SolarisHWDiskStore extends AbstractHWDiskStore {
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
-
     private SolarisHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
     @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
-    }
-
-    @Override
     public boolean updateAttributes() {
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         if (HAS_KSTAT2) {
-            // Use Kstat2 implementation
             return updateAttributes2();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = kc.lookup(null, 0, getName());
             if (ksp != null && kc.read(ksp)) {
                 KstatIO data = new KstatIO(ksp.ks_data);
-                this.reads = data.reads;
-                this.writes = data.writes;
-                this.readBytes = data.nread;
-                this.writeBytes = data.nwritten;
-                this.currentQueueLength = (long) data.wcnt + data.rcnt;
-                // rtime and snaptime are nanoseconds, convert to millis
-                this.transferTime = data.rtime / 1_000_000L;
-                this.timeStamp = ksp.ks_snaptime / 1_000_000L;
+                setReads(data.reads);
+                setWrites(data.writes);
+                setReadBytes(data.nread);
+                setWriteBytes(data.nwritten);
+                setCurrentQueueLength((long) data.wcnt + data.rcnt);
+                setTransferTime(data.rtime / 1_000_000L);
+                setTimeStamp(ksp.ks_snaptime / 1_000_000L);
                 return true;
             }
         }
@@ -123,10 +72,8 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
                 break;
             }
         }
-        // Try device style notation
         Object[] results = KstatUtil.queryKstat2("kstat:/disk/" + alpha + "/" + getName() + "/0", "reads", "writes",
                 "nread", "nwritten", "wcnt", "rcnt", "rtime", "snaptime");
-        // If failure try io notation
         if (results[results.length - 1] == null) {
             results = KstatUtil.queryKstat2("kstat:/disk/" + alpha + "/" + numeric + "/io", "reads", "writes", "nread",
                     "nwritten", "wcnt", "rcnt", "rtime", "snaptime");
@@ -134,15 +81,15 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
         if (results[results.length - 1] == null) {
             return false;
         }
-        this.reads = results[0] == null ? 0L : (long) results[0];
-        this.writes = results[1] == null ? 0L : (long) results[1];
-        this.readBytes = results[2] == null ? 0L : (long) results[2];
-        this.writeBytes = results[3] == null ? 0L : (long) results[3];
-        this.currentQueueLength = results[4] == null ? 0L : (long) results[4];
-        this.currentQueueLength += results[5] == null ? 0L : (long) results[5];
-        // rtime and snaptime are nanoseconds, convert to millis
-        this.transferTime = results[6] == null ? 0L : (long) results[6] / 1_000_000L;
-        this.timeStamp = (long) results[7] / 1_000_000L;
+        setReads(results[0] == null ? 0L : (long) results[0]);
+        setWrites(results[1] == null ? 0L : (long) results[1]);
+        setReadBytes(results[2] == null ? 0L : (long) results[2]);
+        setWriteBytes(results[3] == null ? 0L : (long) results[3]);
+        long queueLen = results[4] == null ? 0L : (long) results[4];
+        queueLen += results[5] == null ? 0L : (long) results[5];
+        setCurrentQueueLength(queueLen);
+        setTransferTime(results[6] == null ? 0L : (long) results[6] / 1_000_000L);
+        setTimeStamp((long) results[7] / 1_000_000L);
         return true;
     }
 
@@ -181,8 +128,8 @@ public final class SolarisHWDiskStore extends AbstractHWDiskStore {
             String serial, long size, String mount, int major) {
         SolarisHWDiskStore store = new SolarisHWDiskStore(diskName,
                 model.isEmpty() ? (vendor + " " + product).trim() : model, serial, size);
-        store.partitionList = Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
-                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
+        store.setPartitionList(Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
+                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
         store.updateAttributes();
         return store;
     }

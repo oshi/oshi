@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -19,7 +19,6 @@ import oshi.driver.unix.aix.Ls;
 import oshi.driver.unix.aix.Lscfg;
 import oshi.driver.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.tuples.Pair;
@@ -32,58 +31,9 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
 
     private final Supplier<perfstat_disk_t[]> diskStats;
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
-
     private AixHWDiskStore(String name, String model, String serial, long size, Supplier<perfstat_disk_t[]> diskStats) {
         super(name, model, serial, size);
         this.diskStats = diskStats;
-    }
-
-    @Override
-    public synchronized long getReads() {
-        return reads;
-    }
-
-    @Override
-    public synchronized long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public synchronized long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public synchronized long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public synchronized long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public synchronized long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public synchronized long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
     }
 
     @Override
@@ -95,24 +45,24 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
                 // we only have total transfers so estimate read/write ratio from blocks
                 long blks = stat.rblks + stat.wblks;
                 if (blks == 0L) {
-                    this.reads = stat.xfers;
-                    this.writes = 0L;
+                    setReads(stat.xfers);
+                    setWrites(0L);
                 } else {
                     long approximateReads = Math.round(stat.xfers * stat.rblks / (double) blks);
                     long approximateWrites = stat.xfers - approximateReads;
                     // Enforce monotonic increase
-                    if (approximateReads > this.reads) {
-                        this.reads = approximateReads;
+                    if (approximateReads > getReads()) {
+                        setReads(approximateReads);
                     }
-                    if (approximateWrites > this.writes) {
-                        this.writes = approximateWrites;
+                    if (approximateWrites > getWrites()) {
+                        setWrites(approximateWrites);
                     }
                 }
-                this.readBytes = stat.rblks * stat.bsize;
-                this.writeBytes = stat.wblks * stat.bsize;
-                this.currentQueueLength = stat.qdepth;
-                this.transferTime = stat.time;
-                this.timeStamp = now;
+                setReadBytes(stat.rblks * stat.bsize);
+                setWriteBytes(stat.wblks * stat.bsize);
+                setCurrentQueueLength(stat.qdepth);
+                setTransferTime(stat.time);
+                setTimeStamp(now);
                 return true;
             }
         }
@@ -146,7 +96,7 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
             Supplier<perfstat_disk_t[]> diskStats, Map<String, Pair<Integer, Integer>> majMinMap) {
         AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
                 diskStats);
-        store.partitionList = Lspv.queryLogicalVolumes(diskName, majMinMap);
+        store.setPartitionList(Lspv.queryLogicalVolumes(diskName, majMinMap));
         store.updateAttributes();
         return store;
     }

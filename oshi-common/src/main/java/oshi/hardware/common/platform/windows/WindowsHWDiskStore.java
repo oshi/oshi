@@ -37,15 +37,6 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     protected static final int GUID_BUFSIZE = 100;
     protected static final int LABEL_BUFSIZE = 33;
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList = Collections.emptyList();
-
     /**
      * Constructor.
      *
@@ -71,55 +62,6 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         super(name, model, serial, size, diskType);
     }
 
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
-    }
-
-    /**
-     * Sets the partition list for this disk.
-     *
-     * @param partitionList the partition list
-     */
-    protected void setPartitionList(List<HWPartition> partitionList) {
-        this.partitionList = partitionList;
-    }
-
     /**
      * Sets all disk statistics from a DiskStats object for the given index.
      *
@@ -127,13 +69,10 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * @param index the disk index key
      */
     protected void setDiskStats(DiskStats stats, String index) {
-        this.reads = stats.getReadMap().getOrDefault(index, 0L);
-        this.readBytes = stats.getReadByteMap().getOrDefault(index, 0L);
-        this.writes = stats.getWriteMap().getOrDefault(index, 0L);
-        this.writeBytes = stats.getWriteByteMap().getOrDefault(index, 0L);
-        this.currentQueueLength = stats.getQueueLengthMap().getOrDefault(index, 0L);
-        this.transferTime = stats.getDiskTimeMap().getOrDefault(index, 0L);
-        this.timeStamp = stats.getTimeStamp();
+        super.setDiskStats(stats.getReadMap().getOrDefault(index, 0L), stats.getReadByteMap().getOrDefault(index, 0L),
+                stats.getWriteMap().getOrDefault(index, 0L), stats.getWriteByteMap().getOrDefault(index, 0L),
+                stats.getQueueLengthMap().getOrDefault(index, 0L), stats.getDiskTimeMap().getOrDefault(index, 0L),
+                stats.getTimeStamp());
     }
 
     @Override

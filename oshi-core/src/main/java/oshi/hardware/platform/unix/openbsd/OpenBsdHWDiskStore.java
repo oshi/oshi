@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -30,15 +30,6 @@ import oshi.util.tuples.Quartet;
 public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
     private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
-
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
 
     private OpenBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -98,7 +89,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                 }
             }
             store = new OpenBsdHWDiskStore(diskName, model, diskdata.getB(), size);
-            store.partitionList = diskdata.getD();
+            store.setPartitionList(diskdata.getD());
             store.updateAttributes();
 
             diskList.add(store);
@@ -107,82 +98,20 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
-    }
-
-    @Override
     public boolean updateAttributes() {
-        /*-
-        └─ $ ▶ systat -b iostat
-                0 users Load 2.04 4.02 3.96                          thinkpad.local 00:14:35
-                DEVICE          READ    WRITE     RTPS    WTPS     SEC            STATS
-                sd0           49937M   25774M  1326555 1695370   945.9
-                cd0                0        0        0       0     0.0
-                sd1          1573888      204       29       0     0.1
-                Totals        49939M   25774M  1326585 1695371   946.0
-                                                                               126568 total pages
-                                                                               126568 dma pages
-                                                                                  100 dirty pages
-                                                                                   14 delwri bufs
-                                                                                    0 busymap bufs
-                                                                                 6553 avail kvaslots
-                                                                                 6553 kvaslots
-                                                                                    0 pending writes
-                                                                                   12 pending reads
-                                                                                    0 cache hits
-                                                                                    0 high flips
-                                                                                    0 high flops
-                                                                                    0 dma flips
-        */
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : iostat.get()) {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length < 7 && split[0].equals(getName())) {
                 diskFound = true;
-                this.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);
-                this.writeBytes = ParseUtil.parseMultipliedToLongs(split[2]);
-                this.reads = (long) ParseUtil.parseDoubleOrDefault(split[3], 0d);
-                this.writes = (long) ParseUtil.parseDoubleOrDefault(split[4], 0d);
+                setReadBytes(ParseUtil.parseMultipliedToLongs(split[1]));
+                setWriteBytes(ParseUtil.parseMultipliedToLongs(split[2]));
+                setReads((long) ParseUtil.parseDoubleOrDefault(split[3], 0d));
+                setWrites((long) ParseUtil.parseDoubleOrDefault(split[4], 0d));
                 // In seconds, multiply for ms
-                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000);
-                this.timeStamp = now;
+                setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000));
+                setTimeStamp(now);
             }
         }
         return diskFound;

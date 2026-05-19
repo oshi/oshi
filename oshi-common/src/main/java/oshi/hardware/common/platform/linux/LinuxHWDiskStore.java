@@ -86,15 +86,6 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         UDEV_STAT_LENGTH = statLength;
     }
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList = new ArrayList<>();
-
     /**
      * Creates a LinuxHWDiskStore with unknown disk type.
      *
@@ -105,6 +96,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      */
     protected LinuxHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
+        setPartitionList(new ArrayList<>());
     }
 
     /**
@@ -118,77 +110,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      */
     protected LinuxHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
-    }
-
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
-    }
-
-    /**
-     * Sets the disk statistics.
-     *
-     * @param reads              number of reads
-     * @param readBytes          bytes read
-     * @param writes             number of writes
-     * @param writeBytes         bytes written
-     * @param currentQueueLength current I/O queue length
-     * @param transferTime       time spent on transfers in ms
-     * @param timeStamp          timestamp of the measurement
-     */
-    protected void setDiskStats(long reads, long readBytes, long writes, long writeBytes, long currentQueueLength,
-            long transferTime, long timeStamp) {
-        this.reads = reads;
-        this.readBytes = readBytes;
-        this.writes = writes;
-        this.writeBytes = writeBytes;
-        this.currentQueueLength = currentQueueLength;
-        this.transferTime = transferTime;
-        this.timeStamp = timeStamp;
-    }
-
-    /**
-     * Sets the partition list.
-     *
-     * @param partitionList the list of partitions
-     */
-    protected void setPartitionList(List<HWPartition> partitionList) {
-        this.partitionList = partitionList;
+        setPartitionList(new ArrayList<>());
     }
 
     /**
@@ -197,7 +119,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @return the mutable partition list
      */
     protected List<HWPartition> getMutablePartitionList() {
-        return this.partitionList;
+        return (List<HWPartition>) getPartitions();
     }
 
     /**

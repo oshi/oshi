@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -30,57 +30,8 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList;
-
     private FreeBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
-    }
-
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
     }
 
     @Override
@@ -94,16 +45,16 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
                 continue;
             }
             diskFound = true;
-            this.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
-            this.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+            setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
+            setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
             // In KB
-            this.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
-            this.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+            setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
+            setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
             // # transactions
-            this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+            setCurrentQueueLength(ParseUtil.parseLongOrDefault(split[5], 0L));
             // In seconds, multiply for ms
-            this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
-            this.timeStamp = now;
+            setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
+            setTimeStamp(now);
         }
         return diskFound;
     }
@@ -136,19 +87,19 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
                 FreeBsdHWDiskStore store = (storeInfo == null)
                         ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
                         : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
-                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
-                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+                store.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
+                store.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
                 // In KB
-                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
-                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+                store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
+                store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
                 // # transactions
-                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+                store.setCurrentQueueLength(ParseUtil.parseLongOrDefault(split[5], 0L));
                 // In seconds, multiply for ms
-                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
-                store.partitionList = Collections
+                store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
+                store.setPartitionList(Collections
                         .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
-                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList()));
-                store.timeStamp = now;
+                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
+                store.setTimeStamp(now);
                 diskList.add(store);
             }
         }

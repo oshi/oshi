@@ -4,11 +4,7 @@
  */
 package oshi.hardware.common.platform.mac;
 
-import java.util.Collections;
-import java.util.List;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 
 /**
@@ -17,15 +13,6 @@ import oshi.hardware.common.AbstractHWDiskStore;
  */
 @ThreadSafe
 public abstract class MacHWDiskStore extends AbstractHWDiskStore {
-
-    private long reads = 0L;
-    private long readBytes = 0L;
-    private long writes = 0L;
-    private long writeBytes = 0L;
-    private long currentQueueLength = 0L;
-    private long transferTime = 0L;
-    private long timeStamp = 0L;
-    private List<HWPartition> partitionList = Collections.emptyList();
 
     /**
      * Creates a MacHWDiskStore with unknown disk type.
@@ -50,118 +37,6 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
      */
     protected MacHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
-    }
-
-    @Override
-    public long getReads() {
-        return reads;
-    }
-
-    @Override
-    public long getReadBytes() {
-        return readBytes;
-    }
-
-    @Override
-    public long getWrites() {
-        return writes;
-    }
-
-    @Override
-    public long getWriteBytes() {
-        return writeBytes;
-    }
-
-    @Override
-    public long getCurrentQueueLength() {
-        return currentQueueLength;
-    }
-
-    @Override
-    public long getTransferTime() {
-        return transferTime;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    @Override
-    public List<HWPartition> getPartitions() {
-        return this.partitionList;
-    }
-
-    /**
-     * Sets the reads.
-     *
-     * @param reads the reads to set
-     */
-    protected void setReads(long reads) {
-        this.reads = reads;
-    }
-
-    /**
-     * Sets the read bytes.
-     *
-     * @param readBytes the read bytes to set
-     */
-    protected void setReadBytes(long readBytes) {
-        this.readBytes = readBytes;
-    }
-
-    /**
-     * Sets the writes.
-     *
-     * @param writes the writes to set
-     */
-    protected void setWrites(long writes) {
-        this.writes = writes;
-    }
-
-    /**
-     * Sets the write bytes.
-     *
-     * @param writeBytes the write bytes to set
-     */
-    protected void setWriteBytes(long writeBytes) {
-        this.writeBytes = writeBytes;
-    }
-
-    /**
-     * Sets the queue length.
-     *
-     * @param currentQueueLength the queue length to set
-     */
-    protected void setCurrentQueueLength(long currentQueueLength) {
-        this.currentQueueLength = currentQueueLength;
-    }
-
-    /**
-     * Sets the transfer time.
-     *
-     * @param transferTime the transfer time to set
-     */
-    protected void setTransferTime(long transferTime) {
-        this.transferTime = transferTime;
-    }
-
-    /**
-     * Sets the timestamp.
-     *
-     * @param timeStamp the timestamp to set
-     */
-    protected void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    /**
-     * Sets the partition list.
-     *
-     * @param partitionList the partition list to set
-     */
-    protected void setPartitionList(List<HWPartition> partitionList) {
-        this.partitionList = partitionList;
     }
 
     /**
