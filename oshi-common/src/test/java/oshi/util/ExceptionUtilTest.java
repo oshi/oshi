@@ -98,6 +98,12 @@ class ExceptionUtilTest {
         assertThat(result, is(0));
     }
 
+    @Test
+    void testGetIntOrDefaultWithLoggingSuccess() {
+        int result = ExceptionUtil.getIntOrDefault(() -> 42, -1, LOG, "Should not log");
+        assertThat(result, is(42));
+    }
+
     // -- getLongOrDefault --
 
     @Test
@@ -120,6 +126,12 @@ class ExceptionUtilTest {
             throw new RuntimeException("fail");
         }, 0L, LOG, "Long op failed: {}");
         assertThat(result, is(0L));
+    }
+
+    @Test
+    void testGetLongOrDefaultWithLoggingSuccess() {
+        long result = ExceptionUtil.getLongOrDefault(() -> 100L, -1L, LOG, "Should not log");
+        assertThat(result, is(100L));
     }
 
     // -- getBooleanOrDefault --
@@ -146,6 +158,12 @@ class ExceptionUtilTest {
         assertThat(result, is(true));
     }
 
+    @Test
+    void testGetBooleanOrDefaultWithLoggingSuccess() {
+        boolean result = ExceptionUtil.getBooleanOrDefault(() -> true, false, LOG, "Should not log");
+        assertThat(result, is(true));
+    }
+
     // -- getDoubleOrDefault --
 
     @Test
@@ -168,6 +186,12 @@ class ExceptionUtilTest {
             throw new RuntimeException("fail");
         }, -1d, LOG, "Double op failed: {}");
         assertThat(result, is(-1d));
+    }
+
+    @Test
+    void testGetDoubleOrDefaultWithLoggingSuccess() {
+        double result = ExceptionUtil.getDoubleOrDefault(() -> 3.14, -1d, LOG, "Should not log");
+        assertThat(result, is(3.14));
     }
 
     // -- getOptional --
