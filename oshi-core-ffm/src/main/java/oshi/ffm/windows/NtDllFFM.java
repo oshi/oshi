@@ -12,6 +12,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -122,13 +123,10 @@ public final class NtDllFFM extends WindowsForeignFunctions {
      */
     public static int NtQueryInformationProcess(MemorySegment processHandle, int processInformationClass,
             MemorySegment processInformation, int processInformationLength, MemorySegment returnLength) {
-        try {
+        return getIntOrDefault(() -> {
             return (int) NtQueryInformationProcess.invokeExact(processHandle, processInformationClass,
                     processInformation, processInformationLength, returnLength);
-        } catch (Throwable t) {
-            LOG.debug("NtDllFFM.NtQueryInformationProcess failed", t);
-            return -1;
-        }
+        }, -1, LOG, "NtDllFFM.NtQueryInformationProcess failed");
     }
 
     /**

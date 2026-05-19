@@ -15,6 +15,7 @@ import static oshi.ffm.mac.MacSystem.TIMEVAL;
 import static oshi.ffm.mac.MacSystemFunctions.getpid;
 import static oshi.ffm.mac.MacSystemFunctions.proc_listpids;
 import static oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -126,22 +127,13 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public int getProcessId() {
-        try {
-            return getpid();
-        } catch (Throwable e) {
-            LOG.warn("Failed to get current pid: {}", e.getMessage(), e);
-            return 0;
-        }
+        return getIntOrDefault(() -> getpid(), 0, LOG, "Failed to get current pid: {}");
     }
 
     @Override
     public int getProcessCount() {
-        try {
-            return proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
-        } catch (Throwable e) {
-            LOG.warn("Failed to query processes: {}", e.getMessage(), e);
-            return 0;
-        }
+        return getIntOrDefault(() -> proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE, 0, LOG,
+                "Failed to query processes: {}");
     }
 
     @Override

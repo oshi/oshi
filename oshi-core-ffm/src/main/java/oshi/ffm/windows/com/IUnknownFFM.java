@@ -7,6 +7,7 @@ package oshi.ffm.windows.com;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -49,15 +50,12 @@ public class IUnknownFFM extends ForeignFunctions {
         if (pObject == null || pObject.equals(NULL)) {
             return 0;
         }
-        try {
+        return getIntOrDefault(() -> {
             MemorySegment vtable = ComObjectFFM.getVtable(pObject, arena);
             MemorySegment fnAddRef = ComObjectFFM.getVtableFunction(vtable, WbemcliFFM.IUNKNOWN_ADDREF);
             MethodHandle mh = ComObjectFFM.createDowncall(fnAddRef, ADDREF_DESC);
             return (int) mh.invokeExact(pObject);
-        } catch (Throwable t) {
-            LOG.debug("IUnknownFFM.addRef failed", t);
-            return 0;
-        }
+        }, 0, LOG, "IUnknownFFM.addRef failed");
     }
 
     /**
@@ -71,15 +69,12 @@ public class IUnknownFFM extends ForeignFunctions {
         if (pObject == null || pObject.equals(NULL)) {
             return 0;
         }
-        try {
+        return getIntOrDefault(() -> {
             MemorySegment vtable = ComObjectFFM.getVtable(pObject, arena);
             MemorySegment fnRelease = ComObjectFFM.getVtableFunction(vtable, WbemcliFFM.IUNKNOWN_RELEASE);
             MethodHandle mh = ComObjectFFM.createDowncall(fnRelease, RELEASE_DESC);
             return (int) mh.invokeExact(pObject);
-        } catch (Throwable t) {
-            LOG.debug("IUnknownFFM.release failed", t);
-            return 0;
-        }
+        }, 0, LOG, "IUnknownFFM.release failed");
     }
 
     /**

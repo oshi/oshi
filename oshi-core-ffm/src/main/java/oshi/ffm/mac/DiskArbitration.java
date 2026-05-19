@@ -9,6 +9,7 @@ import static oshi.ffm.mac.DiskArbitrationFunctions.DADiskCreateFromBSDName;
 import static oshi.ffm.mac.DiskArbitrationFunctions.DADiskCreateFromIOMedia;
 import static oshi.ffm.mac.DiskArbitrationFunctions.DADiskGetBSDName;
 import static oshi.ffm.mac.DiskArbitrationFunctions.DASessionCreate;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -39,13 +40,11 @@ public interface DiskArbitration {
          * @return A reference to a new DASession
          */
         public static DASessionRef create(CFAllocatorRef allocator) {
-            try {
+            return getOrDefault(() -> {
                 MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
                 MemorySegment sessionSeg = DASessionCreate(allocSeg);
                 return new DASessionRef(sessionSeg);
-            } catch (Throwable e) {
-                return new DASessionRef(MemorySegment.NULL);
-            }
+            }, new DASessionRef(MemorySegment.NULL));
         }
     }
 
@@ -87,15 +86,13 @@ public interface DiskArbitration {
          */
         public static DADiskRef createFromIOMedia(CFAllocatorRef allocator, DASessionRef session,
                 IOKit.IOObject media) {
-            try {
+            return getOrDefault(() -> {
                 MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
                 MemorySegment sessionSeg = session != null ? session.segment() : MemorySegment.NULL;
                 MemorySegment mediaSeg = media != null ? media.segment() : MemorySegment.NULL;
                 MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaSeg);
                 return new DADiskRef(diskSeg);
-            } catch (Throwable e) {
-                return new DADiskRef(MemorySegment.NULL);
-            }
+            }, new DADiskRef(MemorySegment.NULL));
         }
 
         /**
@@ -107,12 +104,10 @@ public interface DiskArbitration {
             if (isNull()) {
                 return new CFDictionaryRef(MemorySegment.NULL);
             }
-            try {
+            return getOrDefault(() -> {
                 MemorySegment dictSeg = DADiskCopyDescription(segment());
                 return new CFDictionaryRef(dictSeg);
-            } catch (Throwable e) {
-                return new CFDictionaryRef(MemorySegment.NULL);
-            }
+            }, new CFDictionaryRef(MemorySegment.NULL));
         }
 
         /**

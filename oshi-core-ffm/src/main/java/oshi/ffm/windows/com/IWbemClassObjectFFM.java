@@ -7,6 +7,7 @@ package oshi.ffm.windows.com;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -73,7 +74,7 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
         if (pObject == null || pObject.equals(NULL)) {
             return new GetResult(WbemcliFFM.WBEM_E_FAILED, NULL, WbemcliFFM.CIM_ILLEGAL);
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment vtable = getVtable(pObject, arena);
             MemorySegment fnGet = getVtableFunction(vtable, WbemcliFFM.IWBEMCLASSOBJECT_GET);
             MethodHandle mh = createDowncall(fnGet, GET_DESC);
@@ -89,10 +90,8 @@ public final class IWbemClassObjectFFM extends ComObjectFFM {
             // Only read pType on success; use CIM_ILLEGAL on failure
             int cimType = Ole32FFM.succeeded(hr) ? pType.get(JAVA_INT, 0) : WbemcliFFM.CIM_ILLEGAL;
             return new GetResult(hr, pVal, cimType);
-        } catch (Throwable t) {
-            LOG.debug("IWbemClassObjectFFM.get failed", t);
-            return new GetResult(WbemcliFFM.WBEM_E_FAILED, NULL, WbemcliFFM.CIM_ILLEGAL);
-        }
+        }, new GetResult(WbemcliFFM.WBEM_E_FAILED, NULL, WbemcliFFM.CIM_ILLEGAL), LOG,
+                "IWbemClassObjectFFM.get failed");
     }
 
     /**

@@ -6,6 +6,7 @@ package oshi.hardware.platform.mac;
 
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.getErrno;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -130,12 +131,10 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                             procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_IDLE));
                 }
             } finally {
-                try {
+                runOrLog(() -> {
                     MacSystemFunctions.vm_deallocate(MacSystemFunctions.mach_task_self(), rawProcInfoPtr.address(),
                             (long) procInfoCount * MacSystem.INT_SIZE);
-                } catch (Throwable e) {
-                    LOG.warn("Failed to vm_deallocate processor info buffer", e);
-                }
+                }, LOG, "Failed to vm_deallocate processor info buffer");
             }
         } catch (Throwable e) {
             LOG.error("Failed to update CPU Load", e);

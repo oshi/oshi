@@ -4,6 +4,8 @@
  */
 package oshi.driver.mac;
 
+import static oshi.util.ExceptionUtil.runSilently;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -333,11 +335,7 @@ public final class IOReportClientFFM {
 
     private static void cfRelease(MemorySegment seg) {
         if (seg != null && !seg.equals(MemorySegment.NULL)) {
-            try {
-                oshi.ffm.mac.CoreFoundationFunctions.CFRelease(seg);
-            } catch (Throwable ignored) {
-                // CFRelease declares throws Throwable; swallow in cleanup path
-            }
+            runSilently(() -> oshi.ffm.mac.CoreFoundationFunctions.CFRelease(seg));
         }
     }
 }

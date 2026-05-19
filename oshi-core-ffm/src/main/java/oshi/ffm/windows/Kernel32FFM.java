@@ -10,6 +10,9 @@ import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.windows.WinNTFFM.INVALID_HANDLE_VALUE;
+import static oshi.util.ExceptionUtil.getOptional;
+import static oshi.util.ExceptionUtil.getOptionalInt;
+import static oshi.util.ExceptionUtil.getOptionalLong;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -105,25 +108,15 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     public static OptionalInt FindNextVolume(MemorySegment hFindVolume, MemorySegment lpszVolumeName,
             int cchBufferLength) {
-        try {
-            int result = (int) FindNextVolume.invokeExact(hFindVolume, lpszVolumeName, cchBufferLength);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.FindNextVolume failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) FindNextVolume.invokeExact(hFindVolume, lpszVolumeName, cchBufferLength), LOG,
+                "Kernel32FFM.FindNextVolume failed: {}");
     }
 
     private static final MethodHandle FindVolumeClose = downcall(K32, "FindVolumeClose", JAVA_INT, ADDRESS);
 
     public static OptionalInt FindVolumeClose(MemorySegment hFindVolume) {
-        try {
-            int result = (int) FindVolumeClose.invokeExact(hFindVolume);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.FindVolumeClose failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) FindVolumeClose.invokeExact(hFindVolume), LOG,
+                "Kernel32FFM.FindVolumeClose failed: {}");
     }
 
     private static final MethodHandle GetComputerName = downcall(K32, "GetComputerNameW", JAVA_INT, ADDRESS, ADDRESS);
@@ -181,12 +174,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle GetCurrentProcess = downcall(K32, "GetCurrentProcess", ADDRESS);
 
     public static Optional<MemorySegment> GetCurrentProcess() {
-        try {
-            return Optional.of((MemorySegment) GetCurrentProcess.invokeExact());
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetCurrentProcess failed: {}", t.getMessage());
-            return Optional.empty();
-        }
+        return getOptional(() -> (MemorySegment) GetCurrentProcess.invokeExact(), LOG,
+                "Kernel32FFM.GetCurrentProcess failed: {}");
     }
 
     private static final MethodHandle GetCurrentProcessId = downcall(K32, "GetCurrentProcessId", JAVA_INT);
@@ -229,26 +218,17 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     public static OptionalInt GetDiskFreeSpaceEx(MemorySegment lpDirectoryName,
             MemorySegment lpFreeBytesAvailableToCaller, MemorySegment lpTotalNumberOfBytes,
             MemorySegment lpTotalNumberOfFreeBytes) {
-        try {
-            int result = (int) GetDiskFreeSpaceEx.invokeExact(lpDirectoryName, lpFreeBytesAvailableToCaller,
-                    lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetDiskFreeSpaceEx failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(
+                () -> (int) GetDiskFreeSpaceEx.invokeExact(lpDirectoryName, lpFreeBytesAvailableToCaller,
+                        lpTotalNumberOfBytes, lpTotalNumberOfFreeBytes),
+                LOG, "Kernel32FFM.GetDiskFreeSpaceEx failed: {}");
     }
 
     private static final MethodHandle GetDriveType = downcall(K32, "GetDriveTypeW", JAVA_INT, ADDRESS);
 
     public static OptionalInt GetDriveType(MemorySegment lpRootPathName) {
-        try {
-            int result = (int) GetDriveType.invokeExact(lpRootPathName);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetDriveType failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetDriveType.invokeExact(lpRootPathName), LOG,
+                "Kernel32FFM.GetDriveType failed: {}");
     }
 
     private static final MethodHandle GetVolumeInformation = downcall(K32, "GetVolumeInformationW", JAVA_INT, ADDRESS,
@@ -257,15 +237,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     public static OptionalInt GetVolumeInformation(MemorySegment lpRootPathName, MemorySegment lpVolumeNameBuffer,
             int nVolumeNameSize, MemorySegment lpVolumeSerialNumber, MemorySegment lpMaximumComponentLength,
             MemorySegment lpFileSystemFlags, MemorySegment lpFileSystemNameBuffer, int nFileSystemNameSize) {
-        try {
-            int result = (int) GetVolumeInformation.invokeExact(lpRootPathName, lpVolumeNameBuffer, nVolumeNameSize,
-                    lpVolumeSerialNumber, lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer,
-                    nFileSystemNameSize);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetVolumeInformation failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetVolumeInformation.invokeExact(lpRootPathName, lpVolumeNameBuffer,
+                nVolumeNameSize, lpVolumeSerialNumber, lpMaximumComponentLength, lpFileSystemFlags,
+                lpFileSystemNameBuffer, nFileSystemNameSize), LOG, "Kernel32FFM.GetVolumeInformation failed: {}");
     }
 
     private static final MethodHandle GetVolumePathNamesForVolumeName = downcall(K32,
@@ -273,25 +247,16 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     public static OptionalInt GetVolumePathNamesForVolumeName(MemorySegment lpszVolumeName,
             MemorySegment lpszVolumePathNames, int cchBufferLength, MemorySegment lpcchReturnLength) {
-        try {
-            int result = (int) GetVolumePathNamesForVolumeName.invokeExact(lpszVolumeName, lpszVolumePathNames,
-                    cchBufferLength, lpcchReturnLength);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetVolumePathNamesForVolumeName failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(
+                () -> (int) GetVolumePathNamesForVolumeName.invokeExact(lpszVolumeName, lpszVolumePathNames,
+                        cchBufferLength, lpcchReturnLength),
+                LOG, "Kernel32FFM.GetVolumePathNamesForVolumeName failed: {}");
     }
 
     private static final MethodHandle GetTickCount = downcall(K32, "GetTickCount64", JAVA_LONG);
 
     public static OptionalLong GetTickCount() {
-        try {
-            return OptionalLong.of((long) GetTickCount.invokeExact());
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetTickCount64 failed: {}", t.getMessage());
-            return OptionalLong.empty();
-        }
+        return getOptionalLong(() -> (long) GetTickCount.invokeExact(), LOG, "Kernel32FFM.GetTickCount64 failed: {}");
     }
 
     private static final MethodHandle SetErrorMode = downcall(K32, "SetErrorMode", JAVA_INT, JAVA_INT);
@@ -318,14 +283,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static OptionalInt GetVolumeNameForVolumeMountPoint(MemorySegment lpszVolumeMountPoint,
             MemorySegment lpszVolumeName, int cchBufferLength) {
-        try {
-            int result = (int) GetVolumeNameForVolumeMountPoint.invokeExact(lpszVolumeMountPoint, lpszVolumeName,
-                    cchBufferLength);
-            return OptionalInt.of(result);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetVolumeNameForVolumeMountPoint failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetVolumeNameForVolumeMountPoint.invokeExact(lpszVolumeMountPoint,
+                lpszVolumeName, cchBufferLength), LOG, "Kernel32FFM.GetVolumeNameForVolumeMountPoint failed: {}");
     }
 
     private static final MethodHandle OpenProcess = downcall(K32, "OpenProcess", ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT);
