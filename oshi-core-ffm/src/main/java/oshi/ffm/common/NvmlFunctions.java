@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemoryLayout;
@@ -154,12 +155,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int init() {
-        try {
-            return (int) nvmlInit_v2.invokeExact();
-        } catch (Throwable t) {
-            LOG.debug("nvmlInit_v2 failed: {}", t.getMessage());
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlInit_v2.invokeExact(), -1, LOG, "nvmlInit_v2 failed: {}");
     }
 
     /**
@@ -168,12 +164,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int shutdown() {
-        try {
-            return (int) nvmlShutdown.invokeExact();
-        } catch (Throwable t) {
-            LOG.debug("nvmlShutdown failed: {}", t.getMessage());
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlShutdown.invokeExact(), -1, LOG, "nvmlShutdown failed: {}");
     }
 
     /**
@@ -183,11 +174,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetCount(MemorySegment countSeg) {
-        try {
-            return (int) nvmlDeviceGetCount_v2.invokeExact(countSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetCount_v2.invokeExact(countSeg), -1);
     }
 
     /**
@@ -198,11 +185,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetHandleByIndex(int index, MemorySegment handleSeg) {
-        try {
-            return (int) nvmlDeviceGetHandleByIndex_v2.invokeExact(index, handleSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetHandleByIndex_v2.invokeExact(index, handleSeg), -1);
     }
 
     /**
@@ -214,11 +197,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetName(MemorySegment device, MemorySegment nameSeg, int length) {
-        try {
-            return (int) nvmlDeviceGetName.invokeExact(device, nameSeg, length);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetName.invokeExact(device, nameSeg, length), -1);
     }
 
     /**
@@ -229,11 +208,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetPciInfo(MemorySegment device, MemorySegment pciSeg) {
-        try {
-            return (int) nvmlDeviceGetPciInfo_v3.invokeExact(device, pciSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetPciInfo_v3.invokeExact(device, pciSeg), -1);
     }
 
     /**
@@ -244,11 +219,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetUtilizationRates(MemorySegment device, MemorySegment utilSeg) {
-        try {
-            return (int) nvmlDeviceGetUtilizationRates.invokeExact(device, utilSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetUtilizationRates.invokeExact(device, utilSeg), -1);
     }
 
     /**
@@ -259,11 +230,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetMemoryInfo(MemorySegment device, MemorySegment memSeg) {
-        try {
-            return (int) nvmlDeviceGetMemoryInfo.invokeExact(device, memSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetMemoryInfo.invokeExact(device, memSeg), -1);
     }
 
     /**
@@ -275,11 +242,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetTemperature(MemorySegment device, int sensorType, MemorySegment tempSeg) {
-        try {
-            return (int) nvmlDeviceGetTemperature.invokeExact(device, sensorType, tempSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetTemperature.invokeExact(device, sensorType, tempSeg), -1);
     }
 
     /**
@@ -290,11 +253,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetPowerUsage(MemorySegment device, MemorySegment powerSeg) {
-        try {
-            return (int) nvmlDeviceGetPowerUsage.invokeExact(device, powerSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetPowerUsage.invokeExact(device, powerSeg), -1);
     }
 
     /**
@@ -306,11 +265,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetClockInfo(MemorySegment device, int clockType, MemorySegment clockSeg) {
-        try {
-            return (int) nvmlDeviceGetClockInfo.invokeExact(device, clockType, clockSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetClockInfo.invokeExact(device, clockType, clockSeg), -1);
     }
 
     /**
@@ -321,11 +276,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int deviceGetFanSpeed(MemorySegment device, MemorySegment speedSeg) {
-        try {
-            return (int) nvmlDeviceGetFanSpeed.invokeExact(device, speedSeg);
-        } catch (Throwable t) {
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) nvmlDeviceGetFanSpeed.invokeExact(device, speedSeg), -1);
     }
 
     /**
