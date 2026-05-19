@@ -4,7 +4,14 @@
  */
 package oshi.driver.common.windows.perfmon;
 
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.GPU_ADAPTER_MEMORY;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.GPU_ENGINE;
+
+import java.util.List;
+import java.util.Map;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.tuples.Pair;
 
 /**
  * GPU performance counter enums. Available on Windows 10 version 1709 and later.
@@ -60,5 +67,27 @@ public final class GpuInformation {
     }
 
     private GpuInformation() {
+    }
+
+    /**
+     * Queries GPU Engine counters for all instances.
+     *
+     * @param executor the performance counter query executor
+     * @return pair of instance name list and counter value map
+     */
+    public static Pair<List<String>, Map<GpuEngineProperty, List<Long>>> queryGpuEngineCounters(
+            PerfCounterQueryExecutor executor) {
+        return executor.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, GPU_ENGINE);
+    }
+
+    /**
+     * Queries GPU Adapter Memory counters for all instances.
+     *
+     * @param executor the performance counter query executor
+     * @return pair of instance name list and counter value map
+     */
+    public static Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> queryGpuAdapterMemoryCounters(
+            PerfCounterQueryExecutor executor) {
+        return executor.queryInstancesAndValuesFromPDH(GpuAdapterMemoryProperty.class, GPU_ADAPTER_MEMORY);
     }
 }

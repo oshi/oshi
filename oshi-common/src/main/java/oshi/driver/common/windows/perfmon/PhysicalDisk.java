@@ -5,8 +5,15 @@
 package oshi.driver.common.windows.perfmon;
 
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.NOT_TOTAL_INSTANCE;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PHYSICAL_DISK;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.tuples.Pair;
 
 /**
  * Physical Disk performance counter enums
@@ -46,5 +53,20 @@ public final class PhysicalDisk {
     }
 
     private PhysicalDisk() {
+    }
+
+    /**
+     * Returns physical disk performance counters.
+     *
+     * @param executor the performance counter query executor
+     * @return Performance Counters for physical disks, or empty if disk counters are disabled.
+     */
+    public static Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> queryDiskCounters(
+            PerfCounterQueryExecutor executor) {
+        if (executor.isPerfDiskDisabled()) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
+        return executor.queryInstancesAndValues(PhysicalDiskProperty.class, PHYSICAL_DISK,
+                WIN32_PERF_RAW_DATA_PERF_DISK_PHYSICAL_DISK_WHERE_NAME_NOT_TOTAL);
     }
 }

@@ -5,10 +5,19 @@
 package oshi.driver.common.windows.perfmon;
 
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.NOT_TOTAL_INSTANCES;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.PROCESS;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.TOTAL_INSTANCE;
 import static oshi.driver.common.windows.perfmon.PerfmonConstants.TOTAL_OR_IDLE_INSTANCES;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL;
+import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.tuples.Pair;
 
 /**
  * Process performance counter enums
@@ -103,5 +112,48 @@ public final class ProcessInformation {
     }
 
     private ProcessInformation() {
+    }
+
+    /**
+     * Returns process performance counters.
+     *
+     * @param executor the performance counter query executor
+     * @return Performance Counters for processes, or empty if process counters are disabled.
+     */
+    public static Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> queryProcessCounters(
+            PerfCounterQueryExecutor executor) {
+        if (executor.isPerfProcDisabled()) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
+        return executor.queryInstancesAndValues(ProcessPerformanceProperty.class, PROCESS,
+                WIN32_PERFPROC_PROCESS_WHERE_NOT_NAME_LIKE_TOTAL);
+    }
+
+    /**
+     * Returns handle count.
+     *
+     * @param executor the performance counter query executor
+     * @return Handle count, or empty map if process counters are disabled.
+     */
+    public static Map<HandleCountProperty, Long> queryHandles(PerfCounterQueryExecutor executor) {
+        if (executor.isPerfProcDisabled()) {
+            return Collections.emptyMap();
+        }
+        return executor.queryValues(HandleCountProperty.class, PROCESS, WIN32_PERFPROC_PROCESS_WHERE_NAME_TOTAL);
+    }
+
+    /**
+     * Returns idle process counters (for load average calculation).
+     *
+     * @param executor the performance counter query executor
+     * @return Idle process counters, or empty if OS counters are disabled.
+     */
+    public static Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> queryIdleProcessCounters(
+            PerfCounterQueryExecutor executor) {
+        if (executor.isPerfOsDisabled()) {
+            return new Pair<>(Collections.emptyList(), Collections.emptyMap());
+        }
+        return executor.queryInstancesAndValues(IdleProcessorTimeProperty.class, PROCESS,
+                WIN32_PERFPROC_PROCESS_WHERE_IDPROCESS_0);
     }
 }
