@@ -23,6 +23,7 @@ import static oshi.ffm.mac.MacSystem.SMC_VAL_BYTES;
 import static oshi.ffm.mac.MacSystem.SMC_VAL_DATA_SIZE;
 import static oshi.ffm.mac.MacSystem.SMC_VAL_DATA_TYPE;
 import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -117,11 +118,7 @@ public final class SmcUtilFFM {
      * @return 0 if successful, nonzero if failure
      */
     public static int smcClose(int conn) {
-        try {
-            return IOServiceClose(conn);
-        } catch (Throwable e) {
-            return -1;
-        }
+        return getIntOrDefault(() -> IOServiceClose(conn), -1);
     }
 
     /**

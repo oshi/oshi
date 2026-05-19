@@ -27,6 +27,7 @@ import static oshi.ffm.windows.WinPerfFFM.PERF_OBJECT_TYPE_ObjectNameTitleIndex;
 import static oshi.ffm.windows.WinPerfFFM.PERF_OBJECT_TYPE_TotalByteLength;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -229,7 +230,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
         // Now load the data from the registry.
         // Use a global arena so the returned segment outlives this method
         Arena arena = Arena.ofAuto();
-        try {
+        return getOrDefault(() -> {
             MemorySegment lpValueName = toWideString(arena, objectIndexStr);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             lpcbData.set(JAVA_INT, 0, maxPerfBufferSize);
@@ -254,10 +255,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
                 return null;
             }
             return pPerfData;
-        } catch (Throwable t) {
-            LOG.error("Error reading performance data from registry for {}.", objectName, t);
-            return null;
-        }
+        }, null, LOG, "Error reading performance data from registry for {}.");
     }
 
     /*

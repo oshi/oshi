@@ -12,6 +12,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.windows.com.Ole32FFM.S_OK;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -224,11 +225,6 @@ public final class VariantFFM extends WindowsForeignFunctions {
         if (variant == null || variant.equals(MemorySegment.NULL)) {
             return S_OK;
         }
-        try {
-            return (int) VariantClear.invokeExact(variant);
-        } catch (Throwable t) {
-            LOG.debug("VariantFFM.clear failed", t);
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) VariantClear.invokeExact(variant), -1, LOG, "VariantFFM.clear failed");
     }
 }

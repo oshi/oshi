@@ -14,6 +14,8 @@ import static oshi.ffm.mac.IOKitFunctions.IOServiceGetMatchingServices;
 import static oshi.ffm.mac.IOKitFunctions.IOServiceMatching;
 import static oshi.ffm.mac.MacSystemFunctions.mach_port_deallocate;
 import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runSilently;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -54,14 +56,12 @@ public final class IOKitUtilFFM {
      * @return a handle to the IORoot. Callers should release when finished.
      */
     public static IORegistryEntry getRoot() {
-        try {
+        return getOrDefault(() -> {
             int masterPort = getMasterPort();
             MemorySegment root = IORegistryGetRootEntry(masterPort);
             deallocatePort(masterPort);
             return root.equals(MemorySegment.NULL) ? null : new IORegistryEntry(root);
-        } catch (Throwable e) {
-            return null;
-        }
+        }, null);
     }
 
     /**
@@ -90,14 +90,12 @@ public final class IOKitUtilFFM {
      * @return a handle to an IOService if successful, {@code null} if failed. Callers should release when finished.
      */
     public static IOService getMatchingService(MemorySegment matchingDictionary) {
-        try {
+        return getOrDefault(() -> {
             int masterPort = getMasterPort();
             MemorySegment service = IOServiceGetMatchingService(masterPort, matchingDictionary);
             deallocatePort(masterPort);
             return service.equals(MemorySegment.NULL) ? null : new IOService(service);
-        } catch (Throwable e) {
-            return null;
-        }
+        }, null);
     }
 
     /**
@@ -169,12 +167,10 @@ public final class IOKitUtilFFM {
      * @param port the port to deallocate
      */
     private static void deallocatePort(int port) {
-        try {
+        runSilently(() -> {
             if (port != 0) {
                 mach_port_deallocate(mach_task_self(), port);
             }
-        } catch (Throwable e) {
-            // Ignore
-        }
+        });
     }
 }

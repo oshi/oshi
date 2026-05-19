@@ -5,6 +5,7 @@
 package oshi.hardware.platform.mac;
 
 import static java.util.Collections.emptyList;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
@@ -161,7 +162,7 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
     private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
             CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
         // Build matching dict: { IOPropertyMatch: { locationID: <locationId> } }
-        try {
+        runOrLog(() -> {
             CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
             CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(CoreFoundationFunctions
                     .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
@@ -199,8 +200,6 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
                     serviceIterator.release();
                 }
             }
-        } catch (Throwable e) {
-            LOG.debug("Failed to retrieve controller vendor/product IDs for id {}", id, e);
-        }
+        }, LOG, "Failed to retrieve controller vendor/product IDs for id {}");
     }
 }

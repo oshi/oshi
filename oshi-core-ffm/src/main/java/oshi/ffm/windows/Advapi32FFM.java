@@ -6,6 +6,7 @@ package oshi.ffm.windows;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -60,16 +61,14 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
     }
 
     public static Optional<MemorySegment> OpenEventLog(Arena arena, String source) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment lpSource = WindowsForeignFunctions.toWideString(arena, source);
             MemorySegment handle = (MemorySegment) OpenEventLog.invokeExact(MemorySegment.NULL, lpSource);
             if (handle.address() == 0) {
                 return Optional.empty();
             }
             return Optional.of(handle);
-        } catch (Throwable t) {
-            return Optional.empty();
-        }
+        }, Optional.empty());
     }
 
     private static final MethodHandle OpenProcessToken = downcall(ADV, "OpenProcessToken", JAVA_INT, ADDRESS, JAVA_INT,

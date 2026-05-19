@@ -7,6 +7,8 @@ package oshi.ffm.windows.com;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -80,13 +82,10 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      * @return HRESULT: S_OK if successful, S_FALSE if already initialized, or error code
      */
     public static OptionalInt CoInitializeEx(int coInit) {
-        try {
+        return getOrDefault(() -> {
             int hr = (int) CoInitializeEx.invokeExact(NULL, coInit);
             return OptionalInt.of(hr);
-        } catch (Throwable t) {
-            LOG.debug("Ole32FFM.CoInitializeEx failed", t);
-            return OptionalInt.empty();
-        }
+        }, OptionalInt.empty(), LOG, "Ole32FFM.CoInitializeEx failed");
     }
 
     // CoUninitialize
@@ -96,11 +95,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      * Closes the COM library on the current thread.
      */
     public static void CoUninitialize() {
-        try {
-            CoUninitialize.invokeExact();
-        } catch (Throwable t) {
-            LOG.debug("Ole32FFM.CoUninitialize failed", t);
-        }
+        runOrLog(() -> CoUninitialize.invokeExact(), LOG, "Ole32FFM.CoUninitialize failed");
     }
 
     // CoInitializeSecurity
@@ -116,7 +111,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      * @return HRESULT: S_OK if successful, RPC_E_TOO_LATE if already called, or error code
      */
     public static OptionalInt CoInitializeSecurity(int authnLevel, int impLevel, int capabilities) {
-        try {
+        return getOrDefault(() -> {
             int hr = (int) CoInitializeSecurity.invokeExact(NULL, // pSecDesc
                     -1, // cAuthSvc
                     NULL, // asAuthSvc
@@ -128,10 +123,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
                     NULL // pReserved3
             );
             return OptionalInt.of(hr);
-        } catch (Throwable t) {
-            LOG.debug("Ole32FFM.CoInitializeSecurity failed", t);
-            return OptionalInt.empty();
-        }
+        }, OptionalInt.empty(), LOG, "Ole32FFM.CoInitializeSecurity failed");
     }
 
     // CoCreateInstance
@@ -148,7 +140,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      * @return the interface pointer, or NULL if failed
      */
     public static MemorySegment CoCreateInstance(Arena arena, MemorySegment clsid, int clsctx, MemorySegment iid) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment ppv = arena.allocate(ADDRESS);
             int hr = (int) CoCreateInstance.invokeExact(clsid, NULL, clsctx, iid, ppv);
             if (hr != S_OK) {
@@ -156,10 +148,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
                 return NULL;
             }
             return ppv.get(ADDRESS, 0);
-        } catch (Throwable t) {
-            LOG.debug("Ole32FFM.CoCreateInstance failed", t);
-            return NULL;
-        }
+        }, NULL, LOG, "Ole32FFM.CoCreateInstance failed");
     }
 
     // CoSetProxyBlanket
@@ -179,7 +168,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      */
     public static OptionalInt CoSetProxyBlanket(MemorySegment pProxy, int authnSvc, int authzSvc, int authnLevel,
             int impLevel, int capabilities) {
-        try {
+        return getOrDefault(() -> {
             int hr = (int) CoSetProxyBlanket.invokeExact(pProxy, authnSvc, // dwAuthnSvc
                     authzSvc, // dwAuthzSvc
                     NULL, // pServerPrincName
@@ -189,10 +178,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
                     capabilities // dwCapabilities
             );
             return OptionalInt.of(hr);
-        } catch (Throwable t) {
-            LOG.debug("Ole32FFM.CoSetProxyBlanket failed", t);
-            return OptionalInt.empty();
-        }
+        }, OptionalInt.empty(), LOG, "Ole32FFM.CoSetProxyBlanket failed");
     }
 
     /**

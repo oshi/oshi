@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.ExceptionUtil.runOrLog;
+
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,7 +87,7 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
         TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
         List<GraphicsCard> cardList = new ArrayList<>();
 
-        try {
+        runOrLog(() -> {
             String[] keys = Advapi32UtilFFM.registryGetKeys(HKLM, DISPLAY_DEVICES_REGISTRY_PATH, 0);
             int index = 1;
             for (String key : keys) {
@@ -153,9 +155,7 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
                     LOG.debug("Error reading graphics card registry key {}: {}", key, t.getMessage());
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to enumerate display device registry keys: {}", t.getMessage());
-        }
+        }, LOG, "Failed to enumerate display device registry keys: {}");
 
         List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
         result.addAll(cardList);

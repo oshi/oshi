@@ -7,6 +7,7 @@ package oshi.ffm.windows.com;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -73,7 +74,7 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
         if (pEnum == null || pEnum.equals(NULL)) {
             return new NextResult(WbemcliFFM.WBEM_E_FAILED, NULL);
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment vtable = getVtable(pEnum, arena);
             MemorySegment fnNext = getVtableFunction(vtable, WbemcliFFM.IENUMWBEMCLASSOBJECT_NEXT);
             MethodHandle mh = createDowncall(fnNext, NEXT_DESC);
@@ -88,10 +89,7 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
             MemorySegment pObject = returned > 0 ? apObjects.get(ADDRESS, 0) : NULL;
 
             return new NextResult(hr, pObject);
-        } catch (Throwable t) {
-            LOG.debug("IEnumWbemClassObjectFFM.next failed", t);
-            return new NextResult(WbemcliFFM.WBEM_E_FAILED, NULL);
-        }
+        }, new NextResult(WbemcliFFM.WBEM_E_FAILED, NULL), LOG, "IEnumWbemClassObjectFFM.next failed");
     }
 
     /**
@@ -119,15 +117,12 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
         if (pEnum == null || pEnum.equals(NULL)) {
             return OptionalInt.empty();
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment vtable = getVtable(pEnum, arena);
             MemorySegment fnReset = getVtableFunction(vtable, WbemcliFFM.IENUMWBEMCLASSOBJECT_RESET);
             MethodHandle mh = createDowncall(fnReset, RESET_DESC);
             int hr = (int) mh.invokeExact(pEnum);
             return OptionalInt.of(hr);
-        } catch (Throwable t) {
-            LOG.debug("IEnumWbemClassObjectFFM.reset failed", t);
-            return OptionalInt.empty();
-        }
+        }, OptionalInt.empty(), LOG, "IEnumWbemClassObjectFFM.reset failed");
     }
 }

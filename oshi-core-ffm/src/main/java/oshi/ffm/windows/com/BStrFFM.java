@@ -7,6 +7,9 @@ package oshi.ffm.windows.com;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -48,13 +51,10 @@ public final class BStrFFM extends WindowsForeignFunctions {
         if (str == null) {
             return MemorySegment.NULL;
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment wideStr = toWideString(arena, str);
             return (MemorySegment) SysAllocString.invokeExact(wideStr);
-        } catch (Throwable t) {
-            LOG.debug("BStrFFM.fromString failed", t);
-            return MemorySegment.NULL;
-        }
+        }, MemorySegment.NULL, LOG, "BStrFFM.fromString failed");
     }
 
     // SysFreeString
@@ -69,11 +69,7 @@ public final class BStrFFM extends WindowsForeignFunctions {
         if (bstr == null || bstr.equals(MemorySegment.NULL)) {
             return;
         }
-        try {
-            SysFreeString.invokeExact(bstr);
-        } catch (Throwable t) {
-            LOG.debug("BStrFFM.free failed", t);
-        }
+        runOrLog(() -> SysFreeString.invokeExact(bstr), LOG, "BStrFFM.free failed");
     }
 
     // SysStringLen
@@ -89,12 +85,7 @@ public final class BStrFFM extends WindowsForeignFunctions {
         if (bstr == null || bstr.equals(MemorySegment.NULL)) {
             return 0;
         }
-        try {
-            return (int) SysStringLen.invokeExact(bstr);
-        } catch (Throwable t) {
-            LOG.debug("BStrFFM.length failed", t);
-            return 0;
-        }
+        return getIntOrDefault(() -> (int) SysStringLen.invokeExact(bstr), 0, LOG, "BStrFFM.length failed");
     }
 
     /**

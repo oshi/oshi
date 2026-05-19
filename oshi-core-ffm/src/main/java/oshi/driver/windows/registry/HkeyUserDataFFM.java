@@ -17,6 +17,8 @@ import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.windows.WinNTFFM.KEY_READ;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -53,7 +55,7 @@ public final class HkeyUserDataFFM {
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();
         MemorySegment hKeyUsers = MemorySegment.ofAddress(WinRegFFM.HKEY_USERS);
-        try {
+        runOrLog(() -> {
             String[] sidKeys = Advapi32UtilFFM.registryGetKeys(hKeyUsers);
             for (String sidKey : sidKeys) {
                 if (!sidKey.startsWith(".") && !sidKey.endsWith("_Classes")) {
@@ -94,9 +96,7 @@ public final class HkeyUserDataFFM {
                     }
                 }
             }
-        } catch (Throwable t) {
-            LOG.warn("Error enumerating HKEY_USERS: {}", t.getMessage());
-        }
+        }, LOG, "Error enumerating HKEY_USERS: {}");
         return sessions;
     }
 
@@ -177,11 +177,7 @@ public final class HkeyUserDataFFM {
     }
 
     private static String[] getSubKeys(MemorySegment rootKey, String keyPath) {
-        try {
-            return Advapi32UtilFFM.registryGetKeys(rootKey, keyPath, 0);
-        } catch (Throwable t) {
-            LOG.debug("Error getting subkeys for {}: {}", keyPath, t.getMessage());
-            return new String[0];
-        }
+        return getOrDefault(() -> Advapi32UtilFFM.registryGetKeys(rootKey, keyPath, 0), new String[0], LOG,
+                "Error getting subkeys for {}: {}");
     }
 }
