@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -22,6 +21,8 @@ import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.PhysicalDiskJNA;
 import oshi.driver.windows.wmi.Win32DiskDriveJNA;
 import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionJNA;
@@ -32,7 +33,6 @@ import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**

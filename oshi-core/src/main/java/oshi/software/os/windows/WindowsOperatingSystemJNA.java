@@ -33,7 +33,6 @@ import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogIterator;
 import com.sun.jna.platform.win32.Advapi32Util.EventLogRecord;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.Tlhelp32;
@@ -53,6 +52,8 @@ import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.EnumWindows;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
@@ -81,7 +82,6 @@ import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**

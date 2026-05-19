@@ -43,12 +43,12 @@ import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
 import oshi.driver.windows.registry.ProcessWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
@@ -174,7 +174,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         }
         var commandLineProcs = Win32ProcessFFM.queryCommandLines(Collections.singleton(getProcessID()));
         if (commandLineProcs.getResultCount() > 0) {
-            return WmiUtilFFM.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
+            return WmiUtil.getString(commandLineProcs, CommandLineProperty.COMMANDLINE, 0);
         }
         return "";
     }

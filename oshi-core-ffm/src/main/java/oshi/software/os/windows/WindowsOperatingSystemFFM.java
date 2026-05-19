@@ -37,6 +37,8 @@ import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.registry.HkeyUserDataFFM;
 import oshi.driver.windows.registry.NetSessionDataFFM;
 import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
@@ -47,8 +49,6 @@ import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.util.platform.windows.Kernel32UtilFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
@@ -391,12 +391,12 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
         String buildNumber = "";
         WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystemFFM.queryOsVersion();
         if (versionInfo.getResultCount() > 0) {
-            sp = WmiUtilFFM.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
+            sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
             if (!sp.isEmpty() && !"unknown".equals(sp)) {
                 version = version + " " + sp.replace("Service Pack ", "SP");
             }
-            suiteMask = WmiUtilFFM.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
-            buildNumber = WmiUtilFFM.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
+            suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
+            buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
         }
         String codeName = parseCodeName(suiteMask);
         if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
@@ -419,7 +419,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
         if (jvmBitness < 64 && System.getenv("ProgramFiles(x86)") != null) {
             WmiResult<BitnessProperty> bitnessMap = Win32ProcessorFFM.queryBitness();
             if (bitnessMap.getResultCount() > 0) {
-                return WmiUtilFFM.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
+                return WmiUtil.getUint16(bitnessMap, BitnessProperty.ADDRESSWIDTH, 0);
             }
         }
         return jvmBitness;

@@ -6,28 +6,16 @@ package oshi.driver.windows.wmi;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
+import oshi.driver.common.windows.wmi.WmiResult;
 
-/**
- * Utility to query WMI class {@code Win32_LogicalDiskToPartition} using FFM.
- */
 @ThreadSafe
 public final class Win32LogicalDiskToPartitionFFM extends Win32LogicalDiskToPartition {
-
     private Win32LogicalDiskToPartitionFFM() {
     }
 
-    /**
-     * Queries the association between logical disk and partition.
-     *
-     * @param h An instantiated {@link WmiQueryHandlerFFM}. User should have already initialized COM.
-     * @return Antecedent-dependent pairs of disk and partition.
-     */
-    public static WmiResult<DiskToPartitionProperty> queryDiskToPartition(WmiQueryHandlerFFM h) {
-        WmiQuery<DiskToPartitionProperty> diskToPartitionQuery = new WmiQuery<>(WIN32_LOGICAL_DISK_TO_PARTITION,
-                DiskToPartitionProperty.class);
-        return h.queryWMI(diskToPartitionQuery, false);
+    public static WmiResult<DiskToPartitionProperty> queryDiskToPartition(WmiQueryExecutor h) {
+        return Win32LogicalDiskToPartition.queryDiskToPartition(h);
     }
 }

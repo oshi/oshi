@@ -20,12 +20,12 @@ import oshi.driver.common.windows.gpu.DxgiUtil;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.driver.windows.wmi.Win32VideoControllerFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.DxgiFFM;
 import oshi.ffm.windows.WinRegFFM;
 import oshi.hardware.GpuStats;
@@ -175,15 +175,14 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
 
         WmiResult<VideoControllerProperty> cards = Win32VideoControllerFFM.queryVideoController();
         for (int index = 0; index < cards.getResultCount(); index++) {
-            if (dxgiAvailable
-                    && WmiUtilFFM.getUint32(cards, VideoControllerProperty.CONFIGMANAGERERRORCODE, index) != 0) {
+            if (dxgiAvailable && WmiUtil.getUint32(cards, VideoControllerProperty.CONFIGMANAGERERRORCODE, index) != 0) {
                 continue;
             }
-            String name = WmiUtilFFM.getString(cards, VideoControllerProperty.NAME, index);
+            String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
             Triplet<String, String, String> idPair = ParseUtil.parseDeviceIdToVendorProductSerial(
-                    WmiUtilFFM.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
+                    WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
             String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();
-            String vendor = WmiUtilFFM.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);
+            String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);
             if (idPair != null) {
                 if (Util.isBlank(vendor)) {
                     deviceId = idPair.getA();
@@ -191,7 +190,7 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
                     vendor = vendor + " (" + idPair.getA() + ")";
                 }
             }
-            String versionInfo = WmiUtilFFM.getString(cards, VideoControllerProperty.DRIVERVERSION, index);
+            String versionInfo = WmiUtil.getString(cards, VideoControllerProperty.DRIVERVERSION, index);
             if (!Util.isBlank(versionInfo)) {
                 versionInfo = "DriverVersion=" + versionInfo;
             } else {
@@ -199,7 +198,7 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
             }
 
             Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(
-                    WmiUtilFFM.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
+                    WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
             int pciVendorId = pciIds == null ? 0 : pciIds.getA();
             int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
             DxgiAdapterInfo dxgiMatch = DxgiUtil.findMatch(working, pciVendorId, pciDeviceId, name);
@@ -213,7 +212,7 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
                 dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                 luidPrefix = DxgiUtil.buildLuidPrefix(dxgiMatch);
             } else {
-                vram = WmiUtilFFM.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
+                vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
             }
             String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? "" : name), "");
             GraphicsCard card = new WindowsGraphicsCardFFM(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
@@ -238,8 +237,8 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
         try {
             WmiResult<LhmHardwareProperty> hw = LhmSensorFFM.queryGpuHardware();
             for (int i = 0; i < hw.getResultCount(); i++) {
-                String identifier = WmiUtilFFM.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
-                String hwName = WmiUtilFFM.getString(hw, LhmHardwareProperty.NAME, i);
+                String identifier = WmiUtil.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
+                String hwName = WmiUtil.getString(hw, LhmHardwareProperty.NAME, i);
                 if (!identifier.isEmpty() && !hwName.isEmpty()) {
                     String norm = DxgiUtil.normalizeName(hwName);
                     if (map.containsKey(norm)) {

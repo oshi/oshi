@@ -20,19 +20,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.MSFTStorageJNA;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 final class WindowsLogicalVolumeGroupJNA extends AbstractLogicalVolumeGroup {

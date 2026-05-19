@@ -29,12 +29,12 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityT
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.LogicalProcessorInformationFFM;
 import oshi.driver.windows.perfmon.LoadAverageFFM;
 import oshi.driver.windows.perfmon.ProcessorInformationFFM;
 import oshi.driver.windows.perfmon.SystemInformationFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
@@ -164,7 +164,7 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
 
         var processorIdResult = Win32ProcessorFFM.queryProcessorId();
         if (processorIdResult.getResultCount() > 0) {
-            processorID = WmiUtilFFM.getString(processorIdResult, ProcessorIdProperty.PROCESSORID, 0);
+            processorID = WmiUtil.getString(processorIdResult, ProcessorIdProperty.PROCESSORID, 0);
         } else {
             processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
                     cpu64bit ? new String[] { "ia64" } : new String[0]);

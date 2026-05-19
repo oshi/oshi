@@ -4,21 +4,17 @@
  */
 package oshi.driver.windows.perfmon;
 
-import static oshi.driver.common.windows.perfmon.PerfmonConstants.GPU_ADAPTER_MEMORY;
-import static oshi.driver.common.windows.perfmon.PerfmonConstants.GPU_ENGINE;
-
 import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.GpuInformation;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
-import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.tuples.Pair;
 
 /**
- * Utility to query GPU Engine and GPU Adapter Memory performance counters. Available on Windows 10 version 1709 and
- * later.
+ * Utility to query GPU performance counter
  */
 @ThreadSafe
 public final class GpuInformationJNA {
@@ -26,22 +22,11 @@ public final class GpuInformationJNA {
     private GpuInformationJNA() {
     }
 
-    /**
-     * Queries GPU Engine running time counters for all instances.
-     *
-     * @return pair of instance name list and counter value map
-     */
     public static Pair<List<String>, Map<GpuEngineProperty, List<Long>>> queryGpuEngineCounters() {
-        return PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuEngineProperty.class, GPU_ENGINE);
+        return GpuInformation.queryGpuEngineCounters(PerfCounterQueryExecutorJNA.INSTANCE);
     }
 
-    /**
-     * Queries GPU Adapter Memory counters for all instances.
-     *
-     * @return pair of instance name list and counter value map
-     */
     public static Pair<List<String>, Map<GpuAdapterMemoryProperty, List<Long>>> queryGpuAdapterMemoryCounters() {
-        return PerfCounterWildcardQuery.queryInstancesAndValuesFromPDH(GpuAdapterMemoryProperty.class,
-                GPU_ADAPTER_MEMORY);
+        return GpuInformation.queryGpuAdapterMemoryCounters(PerfCounterQueryExecutorJNA.INSTANCE);
     }
 }

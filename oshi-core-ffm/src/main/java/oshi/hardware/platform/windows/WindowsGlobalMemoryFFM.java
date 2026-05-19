@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.PsapiFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
@@ -77,28 +77,27 @@ final class WindowsGlobalMemoryFFM extends WindowsGlobalMemory {
         if (IS_WINDOWS10_OR_GREATER) {
             WmiResult<PhysicalMemoryProperty> bankMap = Win32PhysicalMemoryFFM.queryPhysicalMemory();
             for (int index = 0; index < bankMap.getResultCount(); index++) {
-                String bankLabel = WmiUtilFFM.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
-                long capacity = WmiUtilFFM.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
-                long speed = WmiUtilFFM.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;
-                String manufacturer = WmiUtilFFM.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
+                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryProperty.BANKLABEL, index);
+                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryProperty.CAPACITY, index);
+                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SPEED, index) * 1_000_000L;
+                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryProperty.MANUFACTURER, index);
                 String memType = smBiosMemoryType(
-                        WmiUtilFFM.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
-                String partNumber = WmiUtilFFM.getString(bankMap, PhysicalMemoryProperty.PARTNUMBER, index);
-                String serialNumber = WmiUtilFFM.getString(bankMap, PhysicalMemoryProperty.SERIALNUMBER, index);
+                        WmiUtil.getUint32(bankMap, PhysicalMemoryProperty.SMBIOSMEMORYTYPE, index));
+                String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryProperty.PARTNUMBER, index);
+                String serialNumber = WmiUtil.getString(bankMap, PhysicalMemoryProperty.SERIALNUMBER, index);
                 physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memType, partNumber,
                         serialNumber));
             }
         } else {
             WmiResult<PhysicalMemoryPropertyWin8> bankMap = Win32PhysicalMemoryFFM.queryPhysicalMemoryWin8();
             for (int index = 0; index < bankMap.getResultCount(); index++) {
-                String bankLabel = WmiUtilFFM.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);
-                long capacity = WmiUtilFFM.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);
-                long speed = WmiUtilFFM.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;
-                String manufacturer = WmiUtilFFM.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);
-                String memType = memoryType(
-                        WmiUtilFFM.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
-                String partNumber = WmiUtilFFM.getString(bankMap, PhysicalMemoryPropertyWin8.PARTNUMBER, index);
-                String serialNumber = WmiUtilFFM.getString(bankMap, PhysicalMemoryPropertyWin8.SERIALNUMBER, index);
+                String bankLabel = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.BANKLABEL, index);
+                long capacity = WmiUtil.getUint64(bankMap, PhysicalMemoryPropertyWin8.CAPACITY, index);
+                long speed = WmiUtil.getUint32(bankMap, PhysicalMemoryPropertyWin8.SPEED, index) * 1_000_000L;
+                String manufacturer = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.MANUFACTURER, index);
+                String memType = memoryType(WmiUtil.getUint16(bankMap, PhysicalMemoryPropertyWin8.MEMORYTYPE, index));
+                String partNumber = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.PARTNUMBER, index);
+                String serialNumber = WmiUtil.getString(bankMap, PhysicalMemoryPropertyWin8.SERIALNUMBER, index);
                 physicalMemoryList.add(new PhysicalMemory(bankLabel, capacity, speed, manufacturer, memType, partNumber,
                         serialNumber));
             }

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -34,6 +33,8 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityT
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.LogicalProcessorInformation;
 import oshi.driver.windows.perfmon.LoadAverageJNA;
 import oshi.driver.windows.perfmon.ProcessorInformationJNA;
@@ -46,7 +47,6 @@ import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;

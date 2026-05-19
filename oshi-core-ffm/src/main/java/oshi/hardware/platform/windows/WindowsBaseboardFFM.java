@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32BaseBoardFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -54,14 +54,14 @@ final class WindowsBaseboardFFM extends AbstractBaseboard {
         String serialNumber = null;
         WmiResult<BaseBoardProperty> win32BaseBoard = Win32BaseBoardFFM.queryBaseboardInfo();
         if (win32BaseBoard.getResultCount() > 0) {
-            manufacturer = WmiUtilFFM.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
-            model = WmiUtilFFM.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
-            String product = WmiUtilFFM.getString(win32BaseBoard, BaseBoardProperty.PRODUCT, 0);
+            manufacturer = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MANUFACTURER, 0);
+            model = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.MODEL, 0);
+            String product = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.PRODUCT, 0);
             if (!Util.isBlank(product)) {
                 model = Util.isBlank(model) ? product : (model + " (" + product + ")");
             }
-            version = WmiUtilFFM.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
-            serialNumber = WmiUtilFFM.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
+            version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
+            serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
         }
         return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,

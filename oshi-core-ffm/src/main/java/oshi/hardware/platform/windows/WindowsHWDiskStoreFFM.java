@@ -23,14 +23,14 @@ import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.PhysicalDiskFFM;
 import oshi.driver.windows.wmi.Win32DiskDriveFFM;
 import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
 import oshi.driver.windows.wmi.Win32DiskPartitionFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
 import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.WindowsForeignFunctions;
 import oshi.ffm.windows.com.FfmComException;
@@ -77,15 +77,14 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
 
             WmiResult<DiskDriveProperty> vals = Win32DiskDriveFFM.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
-                WindowsHWDiskStoreFFM ds = new WindowsHWDiskStoreFFM(
-                        WmiUtilFFM.getString(vals, DiskDriveProperty.NAME, i),
-                        String.format(Locale.ROOT, "%s %s", WmiUtilFFM.getString(vals, DiskDriveProperty.MODEL, i),
-                                WmiUtilFFM.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
-                        ParseUtil.hexStringToString(WmiUtilFFM.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtilFFM.getUint64(vals, DiskDriveProperty.SIZE, i),
-                        parseWindowsMediaType(WmiUtilFFM.getString(vals, DiskDriveProperty.MEDIATYPE, i)));
+                WindowsHWDiskStoreFFM ds = new WindowsHWDiskStoreFFM(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
+                        String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
+                                WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
+                        ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
+                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i),
+                        parseWindowsMediaType(WmiUtil.getString(vals, DiskDriveProperty.MEDIATYPE, i)));
 
-                String index = Integer.toString(WmiUtilFFM.getUint32(vals, DiskDriveProperty.INDEX, i));
+                String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);
                 ds.setPartitionList(buildPartitionList(maps, ds.getName()));
                 result.add(ds);
@@ -108,25 +107,24 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
         WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartitionFFM
                 .queryDriveToPartition(h);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
-            mapDriveToPartition(maps,
-                    WmiUtilFFM.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i),
-                    WmiUtilFFM.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
+            mapDriveToPartition(maps, WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i),
+                    WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
         }
 
         // Map partitions to logical disks
         WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartitionFFM.queryDiskToPartition(h);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
-            long size = WmiUtilFFM.getUint64(diskPartitionMap, DiskToPartitionProperty.ENDINGADDRESS, i)
-                    - WmiUtilFFM.getUint64(diskPartitionMap, DiskToPartitionProperty.STARTINGADDRESS, i) + 1L;
+            long size = WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.ENDINGADDRESS, i)
+                    - WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.STARTINGADDRESS, i) + 1L;
             mapPartitionToLogicalDrive(maps,
-                    WmiUtilFFM.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i),
-                    WmiUtilFFM.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i), size);
+                    WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.ANTECEDENT, i),
+                    WmiUtil.getRefString(diskPartitionMap, DiskToPartitionProperty.DEPENDENT, i), size);
         }
 
         // Get all partitions and create objects
         WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartitionFFM.queryPartition(h);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
-            String deviceID = WmiUtilFFM.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
+            String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             List<Pair<String, Long>> logicalDrives = maps.getPartitionToLogicalDriveMap().get(deviceID);
             if (logicalDrives == null) {
                 continue;
@@ -155,12 +153,12 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
                         }
                     }
                     HWPartition pt = new HWPartition(
-                            WmiUtilFFM.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
-                            WmiUtilFFM.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
-                            WmiUtilFFM.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid,
-                            label, logicalDrive.getB(),
-                            WmiUtilFFM.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
-                            WmiUtilFFM.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i),
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
+                            WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i), uuid, label,
+                            logicalDrive.getB(),
+                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
+                            WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i),
                             logicalDrive.getA());
                     maps.getPartitionMap().computeIfAbsent(deviceID, x -> new ArrayList<>()).add(pt);
                 }

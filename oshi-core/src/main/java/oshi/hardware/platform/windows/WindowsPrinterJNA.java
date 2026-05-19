@@ -7,14 +7,13 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32PrinterJNA;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.windows.WindowsPrinter;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Printer data obtained from WMI

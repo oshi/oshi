@@ -21,13 +21,14 @@ import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.util.GlobalConfig;
 
 /**
  * Utility to handle WMI Queries. Designed to be extended with user-customized behavior.
  */
 @ThreadSafe
-public class WmiQueryHandler {
+public class WmiQueryHandler implements WmiQueryExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandler.class);
 
@@ -155,6 +156,41 @@ public class WmiQueryHandler {
             }
         }
         return result;
+    }
+
+    @Override
+    public <T extends Enum<T>> oshi.driver.common.windows.wmi.WmiResult<T> queryWMI(
+            oshi.driver.common.windows.wmi.WmiQuery<T> query) {
+        return queryWMI(query, true);
+    }
+
+    @Override
+    public <T extends Enum<T>> oshi.driver.common.windows.wmi.WmiResult<T> queryWMI(
+            oshi.driver.common.windows.wmi.WmiQuery<T> query, boolean initCom) {
+        WbemcliUtil.WmiQuery<T> jnaQuery = new WbemcliUtil.WmiQuery<>(query.getNameSpace(), query.getWmiClassName(),
+                query.getPropertyEnum());
+        WbemcliUtil.WmiResult<T> jnaResult = queryWMI(jnaQuery, initCom);
+        return new oshi.driver.common.windows.wmi.WmiResult<T>() {
+            @Override
+            public int getResultCount() {
+                return jnaResult.getResultCount();
+            }
+
+            @Override
+            public Object getValue(T property, int index) {
+                return jnaResult.getValue(property, index);
+            }
+
+            @Override
+            public int getVtType(T property) {
+                return jnaResult.getVtType(property);
+            }
+
+            @Override
+            public int getCIMType(T property) {
+                return jnaResult.getCIMType(property);
+            }
+        };
     }
 
     /**

@@ -16,12 +16,12 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.ffm.util.gpu.AdlUtilFFM;
 import oshi.ffm.util.gpu.NvmlUtilFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.util.tuples.Pair;
@@ -116,8 +116,8 @@ final class WindowsGpuStatsFFM implements GpuStats {
             try {
                 WmiResult<LhmSensorProperty> sensors = LhmSensorFFM.querySensors(lhmParent, "Load");
                 for (int i = 0; i < sensors.getResultCount(); i++) {
-                    if (GPU_CORE.equals(WmiUtilFFM.getString(sensors, LhmSensorProperty.NAME, i))) {
-                        return WmiUtilFFM.getFloat(sensors, LhmSensorProperty.VALUE, i);
+                    if (GPU_CORE.equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
+                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
                     }
                 }
             } catch (Exception e) {
@@ -152,8 +152,8 @@ final class WindowsGpuStatsFFM implements GpuStats {
             try {
                 WmiResult<LhmSensorProperty> sensors = LhmSensorFFM.querySensors(lhmParent, "SmallData");
                 for (int i = 0; i < sensors.getResultCount(); i++) {
-                    if ("GPU Memory Used".equals(WmiUtilFFM.getString(sensors, LhmSensorProperty.NAME, i))) {
-                        float mb = WmiUtilFFM.getFloat(sensors, LhmSensorProperty.VALUE, i);
+                    if ("GPU Memory Used".equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
+                        float mb = WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
                         return (long) (mb * MB_TO_BYTES);
                     }
                 }
@@ -348,8 +348,8 @@ final class WindowsGpuStatsFFM implements GpuStats {
         try {
             WmiResult<LhmSensorProperty> sensors = LhmSensorFFM.querySensors(lhmParent, sensorType);
             for (int i = 0; i < sensors.getResultCount(); i++) {
-                if (sensorName.equals(WmiUtilFFM.getString(sensors, LhmSensorProperty.NAME, i))) {
-                    return WmiUtilFFM.getFloat(sensors, LhmSensorProperty.VALUE, i);
+                if (sensorName.equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
+                    return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
                 }
             }
         } catch (Exception e) {
