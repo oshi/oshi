@@ -29,6 +29,11 @@ import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetName;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetParentEntry;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntryGetRegistryEntryID;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryEntrySearchCFProperty;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getLongOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runSilently;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -67,23 +72,19 @@ public interface IOKit {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return IOObjectRelease(segment);
-            } catch (Throwable e) {
-                return -1;
-            }
+            return getIntOrDefault(() -> IOObjectRelease(segment), -1);
         }
 
         public boolean conformsTo(String className) {
             if (isNull()) {
                 return false;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment classNameStr = arena.allocateFrom(className);
-                return IOObjectConformsTo(segment, classNameStr);
-            } catch (Throwable e) {
-                return false;
-            }
+            return getBooleanOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment classNameStr = arena.allocateFrom(className);
+                    return IOObjectConformsTo(segment, classNameStr);
+                }
+            }, false);
         }
     }
 
@@ -96,12 +97,10 @@ public interface IOKit {
             if (isNull()) {
                 return null;
             }
-            try {
+            return getOrDefault(() -> {
                 MemorySegment nextObj = IOIteratorNext(segment());
                 return nextObj.equals(MemorySegment.NULL) ? null : new IORegistryEntry(nextObj);
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public List<IORegistryEntry> listEntries() {
@@ -127,251 +126,249 @@ public interface IOKit {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment idSeg = arena.allocate(ValueLayout.JAVA_LONG);
-                int result = IORegistryEntryGetRegistryEntryID(segment(), idSeg);
-                if (result != 0) {
-                    return 0;
+            return getLongOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment idSeg = arena.allocate(ValueLayout.JAVA_LONG);
+                    int result = IORegistryEntryGetRegistryEntryID(segment(), idSeg);
+                    if (result != 0) {
+                        return 0L;
+                    }
+                    return idSeg.get(ValueLayout.JAVA_LONG, 0);
                 }
-                return idSeg.get(ValueLayout.JAVA_LONG, 0);
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, 0);
         }
 
         public String getName() {
             if (isNull()) {
                 return null;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment nameSeg = arena.allocate(128);
-                int result = IORegistryEntryGetName(segment(), nameSeg);
-                if (result != 0) {
-                    return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment nameSeg = arena.allocate(128);
+                    int result = IORegistryEntryGetName(segment(), nameSeg);
+                    if (result != 0) {
+                        return null;
+                    }
+                    return nameSeg.getString(0);
                 }
-                return nameSeg.getString(0);
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public IOIterator getChildIterator(String plane) {
             if (isNull()) {
                 return null;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment planeStr = arena.allocateFrom(plane);
-                MemorySegment iterSeg = arena.allocate(ADDRESS);
-                int result = IORegistryEntryGetChildIterator(segment(), planeStr, iterSeg);
-                if (result != 0) {
-                    return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment planeStr = arena.allocateFrom(plane);
+                    MemorySegment iterSeg = arena.allocate(ADDRESS);
+                    int result = IORegistryEntryGetChildIterator(segment(), planeStr, iterSeg);
+                    if (result != 0) {
+                        return null;
+                    }
+                    MemorySegment iterator = iterSeg.get(ADDRESS, 0);
+                    return iterator.equals(MemorySegment.NULL) ? null : new IOIterator(iterator);
                 }
-                MemorySegment iterator = iterSeg.get(ADDRESS, 0);
-                return iterator.equals(MemorySegment.NULL) ? null : new IOIterator(iterator);
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public IORegistryEntry getChildEntry(String plane) {
             if (isNull()) {
                 return null;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment planeStr = arena.allocateFrom(plane);
-                MemorySegment childSeg = arena.allocate(ADDRESS);
-                int result = IORegistryEntryGetChildEntry(segment(), planeStr, childSeg);
-                if (result == kIOReturnNoDevice || result != 0) {
-                    return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment planeStr = arena.allocateFrom(plane);
+                    MemorySegment childSeg = arena.allocate(ADDRESS);
+                    int result = IORegistryEntryGetChildEntry(segment(), planeStr, childSeg);
+                    if (result == kIOReturnNoDevice || result != 0) {
+                        return null;
+                    }
+                    MemorySegment child = childSeg.get(ADDRESS, 0);
+                    return child.equals(MemorySegment.NULL) ? null : new IORegistryEntry(child);
                 }
-                MemorySegment child = childSeg.get(ADDRESS, 0);
-                return child.equals(MemorySegment.NULL) ? null : new IORegistryEntry(child);
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public IORegistryEntry getParentEntry(String plane) {
             if (isNull()) {
                 return null;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment planeStr = arena.allocateFrom(plane);
-                MemorySegment parentSeg = arena.allocate(ADDRESS);
-                int result = IORegistryEntryGetParentEntry(segment(), planeStr, parentSeg);
-                if (result == kIOReturnNoDevice || result != 0) {
-                    return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment planeStr = arena.allocateFrom(plane);
+                    MemorySegment parentSeg = arena.allocate(ADDRESS);
+                    int result = IORegistryEntryGetParentEntry(segment(), planeStr, parentSeg);
+                    if (result == kIOReturnNoDevice || result != 0) {
+                        return null;
+                    }
+                    MemorySegment parent = parentSeg.get(ADDRESS, 0);
+                    return parent.equals(MemorySegment.NULL) ? null : new IORegistryEntry(parent);
                 }
-                MemorySegment parent = parentSeg.get(ADDRESS, 0);
-                return parent.equals(MemorySegment.NULL) ? null : new IORegistryEntry(parent);
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public MemorySegment createCFProperty(MemorySegment key) {
             if (isNull()) {
                 return MemorySegment.NULL;
             }
-            try {
+            return getOrDefault(() -> {
                 MemorySegment allocator = CFAllocatorGetDefault();
                 return IORegistryEntryCreateCFProperty(segment(), key, allocator, 0);
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            }, MemorySegment.NULL);
         }
 
         public MemorySegment createCFProperties() {
             if (isNull()) {
                 return MemorySegment.NULL;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment propsSeg = arena.allocate(ADDRESS);
-                MemorySegment allocator = CFAllocatorGetDefault();
-                int result = IORegistryEntryCreateCFProperties(segment(), propsSeg, allocator, 0);
-                if (result != 0) {
-                    return MemorySegment.NULL;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment propsSeg = arena.allocate(ADDRESS);
+                    MemorySegment allocator = CFAllocatorGetDefault();
+                    int result = IORegistryEntryCreateCFProperties(segment(), propsSeg, allocator, 0);
+                    if (result != 0) {
+                        return MemorySegment.NULL;
+                    }
+                    return propsSeg.get(ADDRESS, 0);
                 }
-                return propsSeg.get(ADDRESS, 0);
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            }, MemorySegment.NULL);
         }
 
         public MemorySegment searchCFProperty(String plane, MemorySegment key, int options) {
             if (isNull()) {
                 return MemorySegment.NULL;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment planeStr = arena.allocateFrom(plane);
-                MemorySegment allocator = CFAllocatorGetDefault();
-                return IORegistryEntrySearchCFProperty(segment(), planeStr, key, allocator, options);
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment planeStr = arena.allocateFrom(plane);
+                    MemorySegment allocator = CFAllocatorGetDefault();
+                    return IORegistryEntrySearchCFProperty(segment(), planeStr, key, allocator, options);
+                }
+            }, MemorySegment.NULL);
         }
 
         // Property accessor methods
         public String getStringProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
-                        return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        return getStringFromCFString(cfValue, arena);
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    return getStringFromCFString(cfValue, arena);
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public Long getLongProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
+                        if (CFNumberGetValue(cfValue, kCFNumberSInt64Type, valuePtr)) {
+                            return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+                        }
                         return null;
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
-                    if (CFNumberGetValue(cfValue, kCFNumberSInt64Type, valuePtr)) {
-                        return valuePtr.get(ValueLayout.JAVA_LONG, 0);
-                    }
-                    return null;
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public Integer getIntegerProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
+                        if (CFNumberGetValue(cfValue, kCFNumberSInt32Type, valuePtr)) {
+                            return valuePtr.get(ValueLayout.JAVA_INT, 0);
+                        }
                         return null;
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
-                    if (CFNumberGetValue(cfValue, kCFNumberSInt32Type, valuePtr)) {
-                        return valuePtr.get(ValueLayout.JAVA_INT, 0);
-                    }
-                    return null;
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public Double getDoubleProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_DOUBLE);
+                        if (CFNumberGetValue(cfValue, kCFNumberFloat64Type, valuePtr)) {
+                            return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
+                        }
                         return null;
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_DOUBLE);
-                    if (CFNumberGetValue(cfValue, kCFNumberFloat64Type, valuePtr)) {
-                        return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
-                    }
-                    return null;
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public byte[] getByteArrayProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
-                        return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        long length = CFDataGetLength(cfValue);
+                        MemorySegment bytePtr = CFDataGetBytePtr(cfValue);
+                        return getByteArrayFromNativePointer(bytePtr, length, arena);
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    long length = CFDataGetLength(cfValue);
-                    MemorySegment bytePtr = CFDataGetBytePtr(cfValue);
-                    return getByteArrayFromNativePointer(bytePtr, length, arena);
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         public Boolean getBooleanProperty(String key) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment cfKey = createCFString(key, arena);
-                MemorySegment cfValue = null;
-                try {
-                    cfValue = createCFProperty(cfKey);
-                    if (cfValue.equals(MemorySegment.NULL)) {
-                        return null;
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment cfKey = createCFString(key, arena);
+                    MemorySegment cfValue = null;
+                    try {
+                        cfValue = createCFProperty(cfKey);
+                        if (cfValue.equals(MemorySegment.NULL)) {
+                            return null;
+                        }
+                        return CFBooleanGetValue(cfValue) != 0;
+                    } finally {
+                        releaseCFObjects(cfKey, cfValue);
                     }
-                    return CFBooleanGetValue(cfValue) != 0;
-                } finally {
-                    releaseCFObjects(cfKey, cfValue);
                 }
-            } catch (Throwable e) {
-                return null;
-            }
+            }, null);
         }
 
         private static MemorySegment createCFString(String str, Arena arena) throws Throwable {
@@ -410,11 +407,7 @@ public interface IOKit {
     private static void releaseCFObjects(MemorySegment... cfObjects) {
         for (MemorySegment segment : cfObjects) {
             if (segment != null && !segment.equals(MemorySegment.NULL)) {
-                try {
-                    CoreFoundationFunctions.CFRelease(segment);
-                } catch (Throwable e) {
-                    // Ignore
-                }
+                runSilently(() -> CoreFoundationFunctions.CFRelease(segment));
             }
         }
     }

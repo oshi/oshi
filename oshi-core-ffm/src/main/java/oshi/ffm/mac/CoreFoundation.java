@@ -34,6 +34,12 @@ import static oshi.ffm.mac.CoreFoundationFunctions.DATA_TYPE_ID;
 import static oshi.ffm.mac.CoreFoundationFunctions.DICTIONARY_TYPE_ID;
 import static oshi.ffm.mac.CoreFoundationFunctions.NUMBER_TYPE_ID;
 import static oshi.ffm.mac.CoreFoundationFunctions.STRING_TYPE_ID;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getDoubleOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getLongOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runSilently;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -106,11 +112,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return CFGetTypeID(segment());
-            } catch (Throwable e) {
-                return 0;
-            }
+            return getLongOrDefault(() -> CFGetTypeID(segment()), 0);
         }
 
         /**
@@ -128,11 +130,7 @@ public interface CoreFoundation {
          */
         public void retain() {
             if (!isNull()) {
-                try {
-                    CFRetain(segment());
-                } catch (Throwable e) {
-                    // Ignore
-                }
+                runSilently(() -> CFRetain(segment()));
             }
         }
 
@@ -141,11 +139,7 @@ public interface CoreFoundation {
          */
         public void release() {
             if (!isNull()) {
-                try {
-                    CFRelease(segment());
-                } catch (Throwable e) {
-                    // Ignore
-                }
+                runSilently(() -> CFRelease(segment()));
             }
         }
 
@@ -161,11 +155,7 @@ public interface CoreFoundation {
             if (isNull() || cfTypeRef.isNull()) {
                 return isNull() == cfTypeRef.isNull();
             }
-            try {
-                return CFEqual(segment(), cfTypeRef.segment);
-            } catch (Throwable e) {
-                return false;
-            }
+            return getBooleanOrDefault(() -> CFEqual(segment(), cfTypeRef.segment()), false);
         }
 
         @Override
@@ -173,11 +163,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return Long.hashCode(CFHash(segment()));
-            } catch (Throwable e) {
-                return Objects.hash(segment());
-            }
+            return getIntOrDefault(() -> Long.hashCode(CFHash(segment())), Objects.hash(segment()));
         }
     }
 
@@ -210,15 +196,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
-                if (CFNumberGetValue(segment(), kCFNumberLongLongType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+            return getLongOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
+                    if (CFNumberGetValue(segment(), kCFNumberLongLongType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+                    }
+                    return 0L;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, 0);
         }
 
         /**
@@ -230,15 +216,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
-                if (CFNumberGetValue(segment(), kCFNumberIntType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_INT, 0);
+            return getIntOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
+                    if (CFNumberGetValue(segment(), kCFNumberIntType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_INT, 0);
+                    }
+                    return 0;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, 0);
         }
 
         /**
@@ -250,15 +236,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_SHORT);
-                if (CFNumberGetValue(segment(), kCFNumberShortType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_SHORT, 0);
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_SHORT);
+                    if (CFNumberGetValue(segment(), kCFNumberShortType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_SHORT, 0);
+                    }
+                    return (short) 0;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, (short) 0);
         }
 
         /**
@@ -270,15 +256,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_BYTE);
-                if (CFNumberGetValue(segment(), kCFNumberCharType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_BYTE, 0);
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_BYTE);
+                    if (CFNumberGetValue(segment(), kCFNumberCharType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_BYTE, 0);
+                    }
+                    return (byte) 0;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, (byte) 0);
         }
 
         /**
@@ -290,15 +276,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_DOUBLE);
-                if (CFNumberGetValue(segment(), kCFNumberDoubleType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
+            return getDoubleOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_DOUBLE);
+                    if (CFNumberGetValue(segment(), kCFNumberDoubleType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
+                    }
+                    return 0d;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, 0);
         }
 
         /**
@@ -310,15 +296,15 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_FLOAT);
-                if (CFNumberGetValue(segment(), kCFNumberFloatType, valuePtr)) {
-                    return valuePtr.get(ValueLayout.JAVA_FLOAT, 0);
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_FLOAT);
+                    if (CFNumberGetValue(segment(), kCFNumberFloatType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_FLOAT, 0);
+                    }
+                    return 0f;
                 }
-                return 0;
-            } catch (Throwable e) {
-                return 0;
-            }
+            }, 0f);
         }
     }
 
@@ -342,11 +328,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return false;
             }
-            try {
-                return CFBooleanGetValue(segment()) != 0;
-            } catch (Throwable e) {
-                return false;
-            }
+            return getBooleanOrDefault(() -> CFBooleanGetValue(segment()) != 0, false);
         }
     }
 
@@ -370,11 +352,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return (int) CFArrayGetCount(segment());
-            } catch (Throwable e) {
-                return 0;
-            }
+            return getIntOrDefault(() -> (int) CFArrayGetCount(segment()), 0);
         }
 
         /**
@@ -387,11 +365,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return MemorySegment.NULL;
             }
-            try {
-                return CFArrayGetValueAtIndex(segment(), idx);
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            return getOrDefault(() -> CFArrayGetValueAtIndex(segment(), idx), MemorySegment.NULL);
         }
     }
 
@@ -415,11 +389,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return (int) CFDataGetLength(segment());
-            } catch (Throwable e) {
-                return 0;
-            }
+            return getIntOrDefault(() -> (int) CFDataGetLength(segment()), 0);
         }
 
         /**
@@ -431,11 +401,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return MemorySegment.NULL;
             }
-            try {
-                return CFDataGetBytePtr(segment());
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            return getOrDefault(() -> CFDataGetBytePtr(segment()), MemorySegment.NULL);
         }
 
         /**
@@ -447,13 +413,13 @@ public interface CoreFoundation {
             if (isNull()) {
                 return new byte[0];
             }
-            try (Arena arena = Arena.ofConfined()) {
-                int length = getLength();
-                MemorySegment bytePtr = getBytePtr();
-                return getByteArrayFromNativePointer(bytePtr, length, arena);
-            } catch (Throwable e) {
-                return new byte[0];
-            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    int length = getLength();
+                    MemorySegment bytePtr = getBytePtr();
+                    return getByteArrayFromNativePointer(bytePtr, length, arena);
+                }
+            }, new byte[0]);
         }
     }
 
@@ -478,11 +444,7 @@ public interface CoreFoundation {
             if (isNull() || key == null || key.isNull()) {
                 return MemorySegment.NULL;
             }
-            try {
-                return CFDictionaryGetValue(segment(), key.segment);
-            } catch (Throwable e) {
-                return MemorySegment.NULL;
-            }
+            return getOrDefault(() -> CFDictionaryGetValue(segment(), key.segment()), MemorySegment.NULL);
         }
 
         /**
@@ -494,11 +456,7 @@ public interface CoreFoundation {
             if (isNull()) {
                 return 0;
             }
-            try {
-                return CFDictionaryGetCount(segment());
-            } catch (Throwable e) {
-                return 0;
-            }
+            return getLongOrDefault(() -> CFDictionaryGetCount(segment()), 0);
         }
 
         /**
@@ -512,11 +470,8 @@ public interface CoreFoundation {
             if (isNull() || key == null || key.isNull()) {
                 return false;
             }
-            try {
-                return CFDictionaryGetValueIfPresent(segment(), key.segment, value) != 0;
-            } catch (Throwable e) {
-                return false;
-            }
+            return getBooleanOrDefault(() -> CFDictionaryGetValueIfPresent(segment(), key.segment(), value) != 0,
+                    false);
         }
     }
 
@@ -538,11 +493,7 @@ public interface CoreFoundation {
             if (isNull() || key == null || key.isNull() || value == null || value.isNull()) {
                 return;
             }
-            try {
-                CFDictionarySetValue(segment(), key.segment, value.segment);
-            } catch (Throwable e) {
-                // Ignore
-            }
+            runSilently(() -> CFDictionarySetValue(segment(), key.segment(), value.segment()));
         }
     }
 
@@ -564,17 +515,17 @@ public interface CoreFoundation {
          * @return The CFString
          */
         public static CFStringRef createCFString(String s) {
-            try (Arena arena = Arena.ofConfined()) {
-                char[] chars = s.toCharArray();
-                MemorySegment charsSeg = arena.allocateFrom(ValueLayout.JAVA_CHAR, chars);
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    char[] chars = s.toCharArray();
+                    MemorySegment charsSeg = arena.allocateFrom(ValueLayout.JAVA_CHAR, chars);
 
-                MemorySegment allocator = CFAllocatorGetDefault();
-                MemorySegment stringRef = CFStringCreateWithCharacters(allocator, charsSeg, chars.length);
+                    MemorySegment allocator = CFAllocatorGetDefault();
+                    MemorySegment stringRef = CFStringCreateWithCharacters(allocator, charsSeg, chars.length);
 
-                return new CFStringRef(stringRef);
-            } catch (Throwable e) {
-                return new CFStringRef(MemorySegment.NULL);
-            }
+                    return new CFStringRef(stringRef);
+                }
+            }, new CFStringRef(MemorySegment.NULL));
         }
 
         /**
@@ -586,30 +537,29 @@ public interface CoreFoundation {
             if (isNull()) {
                 return "";
             }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    // Get length and calculate buffer size
+                    long length = CFStringGetLength(segment());
+                    if (length == 0) {
+                        return "";
+                    }
 
-            try (Arena arena = Arena.ofConfined()) {
-                // Get length and calculate buffer size
-                long length = CFStringGetLength(segment());
-                if (length == 0) {
-                    return "";
+                    long maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+                    if (maxSize == CoreFoundation.kCFNotFound) {
+                        throw new StringIndexOutOfBoundsException("CFString maximum number of bytes exceeds LONG_MAX.");
+                    }
+
+                    // Allocate buffer (add 1 for null terminator)
+                    MemorySegment buf = arena.allocate(maxSize + 1);
+
+                    if (CFStringGetCString(segment(), buf, maxSize + 1, kCFStringEncodingUTF8)) {
+                        return buf.getString(0);
+                    }
+
+                    throw new IllegalArgumentException("CFString conversion failed or buffer too small.");
                 }
-
-                long maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
-                if (maxSize == CoreFoundation.kCFNotFound) {
-                    throw new StringIndexOutOfBoundsException("CFString maximum number of bytes exceeds LONG_MAX.");
-                }
-
-                // Allocate buffer (add 1 for null terminator)
-                MemorySegment buf = arena.allocate(maxSize + 1);
-
-                if (CFStringGetCString(segment(), buf, maxSize + 1, kCFStringEncodingUTF8)) {
-                    return buf.getString(0);
-                }
-
-                throw new IllegalArgumentException("CFString conversion failed or buffer too small.");
-            } catch (Throwable e) {
-                return "";
-            }
+            }, "");
         }
     }
 
@@ -627,11 +577,7 @@ public interface CoreFoundation {
          * @return The current locale
          */
         public static CFLocale copyCurrent() {
-            try {
-                return new CFLocale(CFLocaleCopyCurrent());
-            } catch (Throwable e) {
-                return new CFLocale(MemorySegment.NULL);
-            }
+            return getOrDefault(() -> new CFLocale(CFLocaleCopyCurrent()), new CFLocale(MemorySegment.NULL));
         }
     }
 
@@ -653,15 +599,13 @@ public interface CoreFoundation {
          * @return A new date formatter
          */
         public static CFDateFormatter create(CFAllocatorRef allocator, CFLocale locale, int dateStyle, int timeStyle) {
-            try {
+            return getOrDefault(() -> {
                 MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
                 MemorySegment localeSeg = locale != null ? locale.segment() : MemorySegment.NULL;
 
                 MemorySegment formatter = CFDateFormatterCreate(allocSeg, localeSeg, dateStyle, timeStyle);
                 return new CFDateFormatter(formatter);
-            } catch (Throwable e) {
-                return new CFDateFormatter(MemorySegment.NULL);
-            }
+            }, new CFDateFormatter(MemorySegment.NULL));
         }
 
         /**
@@ -673,11 +617,8 @@ public interface CoreFoundation {
             if (isNull()) {
                 return new CFStringRef(MemorySegment.NULL);
             }
-            try {
-                return new CFStringRef(CFDateFormatterGetFormat(segment()));
-            } catch (Throwable e) {
-                return new CFStringRef(MemorySegment.NULL);
-            }
+            return getOrDefault(() -> new CFStringRef(CFDateFormatterGetFormat(segment())),
+                    new CFStringRef(MemorySegment.NULL));
         }
     }
 
