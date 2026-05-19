@@ -24,6 +24,14 @@ class UtilTest {
     }
 
     @Test
+    void testSleepInterrupted() {
+        Thread.currentThread().interrupt();
+        Util.sleep(0);
+        // Verify the interrupt flag is restored
+        assertThat(Thread.interrupted(), is(true));
+    }
+
+    @Test
     void testWildcardMatch() {
         assertThat("Test should not match est", Util.wildcardMatch("Test", "est"), is(false));
         assertThat("Test should match ^est", Util.wildcardMatch("Test", "^est"), is(true));

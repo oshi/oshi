@@ -55,3 +55,7 @@
   org.hamcrest,org.slf4j.simple
 --add-reads
   com.github.oshi=org.junit.jupiter.api,org.hamcrest
+--add-opens
+  com.github.oshi/oshi.util.platform.mac=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.util.platform.windows=org.junit.platform.commons

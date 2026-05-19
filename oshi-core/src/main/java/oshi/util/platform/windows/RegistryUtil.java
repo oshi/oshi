@@ -1,24 +1,25 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.windows;
+
+import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
+import static com.sun.jna.platform.win32.WinNT.KEY_READ;
+import static oshi.util.ParseUtil.decodeBinaryToString;
+
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinReg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import oshi.util.ParseUtil;
-
 import com.sun.jna.platform.win32.WinReg.HKEY;
 
-import java.util.Objects;
-
-import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
-import static com.sun.jna.platform.win32.WinNT.KEY_READ;
-import static oshi.util.ParseUtil.decodeBinaryToString;
+import oshi.util.ParseUtil;
 
 public final class RegistryUtil {
 
@@ -98,7 +99,7 @@ public final class RegistryUtil {
      * @param val the registry value
      * @return the value as a long
      */
-    private static long registryValueToLong(Object val) {
+    static long registryValueToLong(Object val) {
         if (val == null) {
             return 0L;
         }
@@ -163,7 +164,7 @@ public final class RegistryUtil {
      * @param val the registry value
      * @return the decoded string
      */
-    private static String registryValueToString(Object val) {
+    static String registryValueToString(Object val) {
         if (val == null) {
             return null;
         }
