@@ -21,19 +21,38 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String uuid;
     private boolean local;
 
+    private String logicalVolume;
+    private String description;
+    private String fsType;
+
+    private long freeSpace;
+    private long usableSpace;
+    private long totalSpace;
+    private long freeInodes;
+    private long totalInodes;
+
     /**
-     * Creates an AbstractOSFileStore with the given parameters.
+     * Creates an AbstractOSFileStore with all parameters.
      *
-     * @param name    the file store name
-     * @param volume  the volume name
-     * @param label   the volume label
-     * @param mount   the mount point
-     * @param options the mount options
-     * @param uuid    the UUID
-     * @param local   whether this is a local file store
+     * @param name          the file store name
+     * @param volume        the volume name
+     * @param label         the volume label
+     * @param mount         the mount point
+     * @param options       the mount options
+     * @param uuid          the UUID
+     * @param local         whether this is a local file store
+     * @param logicalVolume the logical volume
+     * @param description   the description
+     * @param fsType        the filesystem type
+     * @param freeSpace     free space in bytes
+     * @param usableSpace   usable space in bytes
+     * @param totalSpace    total space in bytes
+     * @param freeInodes    free inodes
+     * @param totalInodes   total inodes
      */
     protected AbstractOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            boolean local) {
+            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
+            long totalSpace, long freeInodes, long totalInodes) {
         this.name = name;
         this.volume = volume;
         this.label = label;
@@ -41,12 +60,14 @@ public abstract class AbstractOSFileStore implements OSFileStore {
         this.options = options;
         this.uuid = uuid;
         this.local = local;
-    }
-
-    /**
-     * Default constructor for subclass use.
-     */
-    protected AbstractOSFileStore() {
+        this.logicalVolume = logicalVolume;
+        this.description = description;
+        this.fsType = fsType;
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
     }
 
     @Override
@@ -82,6 +103,93 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     @Override
     public boolean isLocal() {
         return this.local;
+    }
+
+    @Override
+    public String getLogicalVolume() {
+        return this.logicalVolume;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
+
+    @Override
+    public String getType() {
+        return this.fsType;
+    }
+
+    @Override
+    public long getFreeSpace() {
+        return this.freeSpace;
+    }
+
+    @Override
+    public long getUsableSpace() {
+        return this.usableSpace;
+    }
+
+    @Override
+    public long getTotalSpace() {
+        return this.totalSpace;
+    }
+
+    @Override
+    public long getFreeInodes() {
+        return this.freeInodes;
+    }
+
+    @Override
+    public long getTotalInodes() {
+        return this.totalInodes;
+    }
+
+    /**
+     * Copies mutable attributes from another file store into this one.
+     *
+     * @param fileStore the source file store
+     */
+    protected void updateFrom(OSFileStore fileStore) {
+        this.logicalVolume = fileStore.getLogicalVolume();
+        this.description = fileStore.getDescription();
+        this.fsType = fileStore.getType();
+        this.freeSpace = fileStore.getFreeSpace();
+        this.usableSpace = fileStore.getUsableSpace();
+        this.totalSpace = fileStore.getTotalSpace();
+        this.freeInodes = fileStore.getFreeInodes();
+        this.totalInodes = fileStore.getTotalInodes();
+    }
+
+    /**
+     * Updates only the space and inode fields.
+     *
+     * @param freeSpace   free space in bytes
+     * @param usableSpace usable space in bytes
+     * @param totalSpace  total space in bytes
+     * @param freeInodes  free inodes
+     * @param totalInodes total inodes
+     */
+    protected void updateSpaceAndInodes(long freeSpace, long usableSpace, long totalSpace, long freeInodes,
+            long totalInodes) {
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
+        this.freeInodes = freeInodes;
+        this.totalInodes = totalInodes;
+    }
+
+    /**
+     * Updates only the space fields (no inodes).
+     *
+     * @param freeSpace   free space in bytes
+     * @param usableSpace usable space in bytes
+     * @param totalSpace  total space in bytes
+     */
+    protected void updateSpace(long freeSpace, long usableSpace, long totalSpace) {
+        this.freeSpace = freeSpace;
+        this.usableSpace = usableSpace;
+        this.totalSpace = totalSpace;
     }
 
     @Override

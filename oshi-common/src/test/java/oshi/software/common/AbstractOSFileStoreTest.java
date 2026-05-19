@@ -7,54 +7,14 @@ package oshi.software.common;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.Test;
 
 class AbstractOSFileStoreTest {
 
     private static AbstractOSFileStore createFileStore() {
-        return new AbstractOSFileStore("TestFS", "/dev/sda1", "MyLabel", "/mnt/data", "rw,noatime", "1234-5678", true) {
-            @Override
-            public String getLogicalVolume() {
-                return "lv0";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Local Disk";
-            }
-
-            @Override
-            public String getType() {
-                return "ext4";
-            }
-
-            @Override
-            public long getFreeSpace() {
-                return 1000L;
-            }
-
-            @Override
-            public long getUsableSpace() {
-                return 900L;
-            }
-
-            @Override
-            public long getTotalSpace() {
-                return 5000L;
-            }
-
-            @Override
-            public long getFreeInodes() {
-                return 100L;
-            }
-
-            @Override
-            public long getTotalInodes() {
-                return 500L;
-            }
-
+        return new AbstractOSFileStore("TestFS", "/dev/sda1", "MyLabel", "/mnt/data", "rw,noatime", "1234-5678", true,
+                "lv0", "Local Disk", "ext4", 1000L, 900L, 5000L, 100L, 500L) {
             @Override
             public boolean updateAttributes() {
                 return false;
@@ -72,58 +32,14 @@ class AbstractOSFileStoreTest {
         assertThat(fs.getOptions(), is("rw,noatime"));
         assertThat(fs.getUUID(), is("1234-5678"));
         assertThat(fs.isLocal(), is(true));
-    }
-
-    @Test
-    void testDefaultConstructorNulls() {
-        AbstractOSFileStore fs = new AbstractOSFileStore() {
-            @Override
-            public String getLogicalVolume() {
-                return "";
-            }
-
-            @Override
-            public String getDescription() {
-                return "";
-            }
-
-            @Override
-            public String getType() {
-                return "";
-            }
-
-            @Override
-            public long getFreeSpace() {
-                return 0;
-            }
-
-            @Override
-            public long getUsableSpace() {
-                return 0;
-            }
-
-            @Override
-            public long getTotalSpace() {
-                return 0;
-            }
-
-            @Override
-            public long getFreeInodes() {
-                return 0;
-            }
-
-            @Override
-            public long getTotalInodes() {
-                return 0;
-            }
-
-            @Override
-            public boolean updateAttributes() {
-                return false;
-            }
-        };
-        assertThat(fs.getName(), is(nullValue()));
-        assertThat(fs.isLocal(), is(false));
+        assertThat(fs.getLogicalVolume(), is("lv0"));
+        assertThat(fs.getDescription(), is("Local Disk"));
+        assertThat(fs.getType(), is("ext4"));
+        assertThat(fs.getFreeSpace(), is(1000L));
+        assertThat(fs.getUsableSpace(), is(900L));
+        assertThat(fs.getTotalSpace(), is(5000L));
+        assertThat(fs.getFreeInodes(), is(100L));
+        assertThat(fs.getTotalInodes(), is(500L));
     }
 
     @Test
