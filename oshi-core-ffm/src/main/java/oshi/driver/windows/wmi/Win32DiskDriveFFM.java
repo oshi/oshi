@@ -6,27 +6,16 @@ package oshi.driver.windows.wmi;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32DiskDrive;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
+import oshi.driver.common.windows.wmi.WmiResult;
 
-/**
- * Utility to query WMI class {@code Win32_DiskDrive} using FFM.
- */
 @ThreadSafe
 public final class Win32DiskDriveFFM extends Win32DiskDrive {
-
     private Win32DiskDriveFFM() {
     }
 
-    /**
-     * Queries disk drive information.
-     *
-     * @param h An instantiated {@link WmiQueryHandlerFFM}. User should have already initialized COM.
-     * @return Information regarding each disk drive.
-     */
-    public static WmiResult<DiskDriveProperty> queryDiskDrive(WmiQueryHandlerFFM h) {
-        WmiQuery<DiskDriveProperty> diskDriveQuery = new WmiQuery<>(WIN32_DISK_DRIVE, DiskDriveProperty.class);
-        return h.queryWMI(diskDriveQuery, false);
+    public static WmiResult<DiskDriveProperty> queryDiskDrive(WmiQueryExecutor h) {
+        return Win32DiskDrive.queryDiskDrive(h);
     }
 }

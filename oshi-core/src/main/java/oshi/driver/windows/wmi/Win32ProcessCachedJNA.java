@@ -11,12 +11,11 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**

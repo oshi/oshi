@@ -8,15 +8,14 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32BaseBoardJNA;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Quartet;
 
 /**

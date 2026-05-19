@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.Wtsapi32FFM;
@@ -118,15 +118,15 @@ public final class ProcessWtsDataFFM {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         WmiResult<ProcessXPProperty> processWmiResult = Win32ProcessFFM.queryProcesses(pids);
         for (int i = 0; i < processWmiResult.getResultCount(); i++) {
-            wtsMap.put(WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(
-                    WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.NAME, i),
-                    WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
-                    WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
+            wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(
+                    WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),
+                    WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
+                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
                     // WMI Pagefile usage is in KB
-                    1024 * (WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL),
-                    WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
-                    WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
-                    WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
+                    1024 * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) & 0xffff_ffffL),
+                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
+                    WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
+                    WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
         }
         return wtsMap;
     }

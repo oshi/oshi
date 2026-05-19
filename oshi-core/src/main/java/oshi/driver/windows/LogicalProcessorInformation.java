@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
@@ -27,13 +27,15 @@ import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
 import com.sun.jna.platform.win32.WinNT.SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.Win32Processor;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
-import oshi.driver.windows.wmi.Win32ProcessorJNA;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiQueryExecutorJNA;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -110,7 +112,8 @@ public final class LogicalProcessorInformation {
 
         // Fetch the processorIDs from WMI
         Map<Integer, String> processorIdMap = new HashMap<>();
-        WmiResult<ProcessorIdProperty> processorId = Win32ProcessorJNA.queryProcessorId();
+        WmiResult<ProcessorIdProperty> processorId = Win32Processor
+                .queryProcessorId(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()));
         // One entry for each package/socket
         for (int pkg = 0; pkg < processorId.getResultCount(); pkg++) {
             processorIdMap.put(pkg, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, pkg));

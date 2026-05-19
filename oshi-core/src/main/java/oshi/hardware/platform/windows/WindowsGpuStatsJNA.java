@@ -12,19 +12,18 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
 import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
 import oshi.util.gpu.AdlUtilJNA;
 import oshi.util.gpu.NvmlUtilJNA;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**

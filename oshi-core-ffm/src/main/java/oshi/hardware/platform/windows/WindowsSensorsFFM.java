@@ -20,14 +20,14 @@ import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureFFM;
 import oshi.driver.windows.wmi.OhmHardwareFFM;
 import oshi.driver.windows.wmi.OhmSensorFFM;
 import oshi.driver.windows.wmi.Win32FanFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
 import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.hardware.common.AbstractSensors;
 
@@ -64,7 +64,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
 
     private static double getTempFromOHM() {
         WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", TEMPERATURE, (h, ohmHardware) -> {
-            String cpuIdentifier = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (!cpuIdentifier.isEmpty()) {
                 return OhmSensorFFM.querySensorValue(h, cpuIdentifier, TEMPERATURE);
             }
@@ -73,7 +73,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             double sum = 0;
             for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                sum += WmiUtilFFM.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
             }
             return sum / ohmSensors.getResultCount();
         }
@@ -91,7 +91,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
         WmiResult<TemperatureProperty> result = MSAcpiThermalZoneTemperatureFFM.queryCurrentTemperature();
         if (result.getResultCount() > 0) {
             LOG.debug("Found Temperature data in WMI");
-            tempK = WmiUtilFFM.getUint32asLong(result, TemperatureProperty.CURRENTTEMPERATURE, 0);
+            tempK = WmiUtil.getUint32asLong(result, TemperatureProperty.CURRENTTEMPERATURE, 0);
         }
         if (tempK > 2732L) {
             tempC = tempK / 10d - 273.15;
@@ -120,7 +120,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
 
     private static int[] getFansFromOHM() {
         WmiResult<ValueProperty> ohmSensors = getOhmSensors("Hardware", "CPU", "Fan", (h, ohmHardware) -> {
-            String cpuIdentifier = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+            String cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             if (!cpuIdentifier.isEmpty()) {
                 return OhmSensorFFM.querySensorValue(h, cpuIdentifier, "Fan");
             }
@@ -129,7 +129,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             int[] fanSpeeds = new int[ohmSensors.getResultCount()];
             for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                fanSpeeds[i] = (int) WmiUtilFFM.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
             }
             return fanSpeeds;
         }
@@ -172,7 +172,7 @@ final class WindowsSensorsFFM extends AbstractSensors {
             LOG.debug("Found Fan data in WMI");
             int[] fanSpeeds = new int[fan.getResultCount()];
             for (int i = 0; i < fan.getResultCount(); i++) {
-                fanSpeeds[i] = (int) WmiUtilFFM.getUint64(fan, SpeedProperty.DESIREDSPEED, i);
+                fanSpeeds[i] = (int) WmiUtil.getUint64(fan, SpeedProperty.DESIREDSPEED, i);
             }
             return fanSpeeds;
         }
@@ -197,19 +197,19 @@ final class WindowsSensorsFFM extends AbstractSensors {
         WmiResult<ValueProperty> ohmSensors = getOhmSensors("Sensor", VOLTAGE, VOLTAGE, (h, ohmHardware) -> {
             String cpuIdentifier = null;
             for (int i = 0; i < ohmHardware.getResultCount(); i++) {
-                String id = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
+                String id = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, i);
                 if (id.toLowerCase(Locale.ROOT).contains("cpu")) {
                     cpuIdentifier = id;
                     break;
                 }
             }
             if (cpuIdentifier == null) {
-                cpuIdentifier = WmiUtilFFM.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+                cpuIdentifier = WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
             }
             return OhmSensorFFM.querySensorValue(h, cpuIdentifier, VOLTAGE);
         });
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
-            return WmiUtilFFM.getFloat(ohmSensors, ValueProperty.VALUE, 0);
+            return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
         }
         return 0d;
     }
@@ -223,10 +223,10 @@ final class WindowsSensorsFFM extends AbstractSensors {
         WmiResult<VoltProperty> voltage = Win32ProcessorFFM.queryVoltage();
         if (voltage.getResultCount() > 1) {
             LOG.debug("Found Voltage data in WMI");
-            int decivolts = WmiUtilFFM.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
+            int decivolts = WmiUtil.getUint16(voltage, VoltProperty.CURRENTVOLTAGE, 0);
             if (decivolts > 0) {
                 if ((decivolts & 0x80) == 0) {
-                    decivolts = WmiUtilFFM.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
+                    decivolts = WmiUtil.getUint32(voltage, VoltProperty.VOLTAGECAPS, 0);
                     if ((decivolts & 0x1) > 0) {
                         return 5.0;
                     } else if ((decivolts & 0x2) > 0) {

@@ -9,9 +9,9 @@ import java.util.List;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32PrinterFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.windows.WindowsPrinter;
 
@@ -36,14 +36,14 @@ final class WindowsPrinterFFM extends WindowsPrinter {
         WmiResult<PrinterProperty> result = Win32PrinterFFM.queryPrinters();
 
         for (int i = 0; i < result.getResultCount(); i++) {
-            String name = WmiUtilFFM.getString(result, PrinterProperty.NAME, i);
-            String driverName = WmiUtilFFM.getString(result, PrinterProperty.DRIVERNAME, i);
-            String description = WmiUtilFFM.getString(result, PrinterProperty.DESCRIPTION, i);
-            int statusCode = WmiUtilFFM.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
-            int errorState = WmiUtilFFM.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
+            String name = WmiUtil.getString(result, PrinterProperty.NAME, i);
+            String driverName = WmiUtil.getString(result, PrinterProperty.DRIVERNAME, i);
+            String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
+            int statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
+            int errorState = WmiUtil.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
             boolean isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
             boolean isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
-            String portName = WmiUtilFFM.getString(result, PrinterProperty.PORTNAME, i);
+            String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
 
             printers.add(new WindowsPrinterFFM(name, driverName, description, parseStatus(statusCode, errorState),
                     parseErrorState(errorState), isDefault, isLocal, portName));

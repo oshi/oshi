@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 @EnabledOnOs(OS.WINDOWS)
 class WMIDriversTest {

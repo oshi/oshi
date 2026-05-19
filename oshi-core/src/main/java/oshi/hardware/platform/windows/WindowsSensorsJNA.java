@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.COM.COMException;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
@@ -23,6 +22,8 @@ import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureJNA;
 import oshi.driver.windows.wmi.OhmHardwareJNA;
 import oshi.driver.windows.wmi.OhmSensorJNA;
@@ -30,7 +31,6 @@ import oshi.driver.windows.wmi.Win32FanJNA;
 import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.platform.windows.WmiQueryHandler;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * Sensors from WMI or Open Hardware Monitor or Libre Hardware Monitor

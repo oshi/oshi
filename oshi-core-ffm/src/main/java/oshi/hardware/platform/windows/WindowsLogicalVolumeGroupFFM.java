@@ -23,10 +23,10 @@ import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.MSFTStorageFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
 import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.hardware.LogicalVolumeGroup;
@@ -66,37 +66,37 @@ final class WindowsLogicalVolumeGroupFFM extends AbstractLogicalVolumeGroup {
             WmiResult<VirtualDiskProperty> vds = MSFTStorageFFM.queryVirtualDisks(h);
             count = vds.getResultCount();
             for (int i = 0; i < count; i++) {
-                String vdObjectId = WmiUtilFFM.getString(vds, VirtualDiskProperty.OBJECTID, i);
+                String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);
                 Matcher m = VD_OBJECT_ID.matcher(vdObjectId);
                 if (m.matches()) {
                     vdObjectId = m.group(2) + " " + m.group(1);
                 }
-                vdMap.put(vdObjectId, WmiUtilFFM.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));
+                vdMap.put(vdObjectId, WmiUtil.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));
             }
 
             Map<String, Pair<String, String>> pdMap = new HashMap<>();
             WmiResult<PhysicalDiskProperty> pds = MSFTStorageFFM.queryPhysicalDisks(h);
             count = pds.getResultCount();
             for (int i = 0; i < count; i++) {
-                String pdObjectId = WmiUtilFFM.getString(pds, PhysicalDiskProperty.OBJECTID, i);
+                String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);
                 Matcher m = PD_OBJECT_ID.matcher(pdObjectId);
                 if (m.matches()) {
                     pdObjectId = m.group(1);
                 }
-                pdMap.put(pdObjectId, new Pair<>(WmiUtilFFM.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),
-                        WmiUtilFFM.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));
+                pdMap.put(pdObjectId, new Pair<>(WmiUtil.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),
+                        WmiUtil.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));
             }
 
             Map<String, String> sppdMap = new HashMap<>();
             WmiResult<StoragePoolToPhysicalDiskProperty> sppd = MSFTStorageFFM.queryStoragePoolPhysicalDisks(h);
             count = sppd.getResultCount();
             for (int i = 0; i < count; i++) {
-                String spObjectId = WmiUtilFFM.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);
+                String spObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);
                 Matcher m = SP_OBJECT_ID.matcher(spObjectId);
                 if (m.matches()) {
                     spObjectId = m.group(1);
                 }
-                String pdObjectId = WmiUtilFFM.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);
+                String pdObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);
                 m = PD_OBJECT_ID.matcher(pdObjectId);
                 if (m.matches()) {
                     pdObjectId = m.group(1);
@@ -107,8 +107,8 @@ final class WindowsLogicalVolumeGroupFFM extends AbstractLogicalVolumeGroup {
             List<LogicalVolumeGroup> lvgList = new ArrayList<>();
             count = sp.getResultCount();
             for (int i = 0; i < count; i++) {
-                String name = WmiUtilFFM.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);
-                String spObjectId = WmiUtilFFM.getString(sp, StoragePoolProperty.OBJECTID, i);
+                String name = WmiUtil.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);
+                String spObjectId = WmiUtil.getString(sp, StoragePoolProperty.OBJECTID, i);
                 Matcher m = SP_OBJECT_ID.matcher(spObjectId);
                 if (m.matches()) {
                     spObjectId = m.group(1);

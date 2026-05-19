@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32BiosFFM;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -60,11 +60,11 @@ final class WindowsFirmwareFFM extends AbstractFirmware {
         String releaseDate = null;
         WmiResult<BiosProperty> win32BIOS = Win32BiosFFM.queryBiosInfo();
         if (win32BIOS.getResultCount() > 0) {
-            manufacturer = WmiUtilFFM.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
-            name = WmiUtilFFM.getString(win32BIOS, BiosProperty.NAME, 0);
-            description = WmiUtilFFM.getString(win32BIOS, BiosProperty.DESCRIPTION, 0);
-            version = WmiUtilFFM.getString(win32BIOS, BiosProperty.VERSION, 0);
-            releaseDate = WmiUtilFFM.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);
+            manufacturer = WmiUtil.getString(win32BIOS, BiosProperty.MANUFACTURER, 0);
+            name = WmiUtil.getString(win32BIOS, BiosProperty.NAME, 0);
+            description = WmiUtil.getString(win32BIOS, BiosProperty.DESCRIPTION, 0);
+            version = WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0);
+            releaseDate = WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);
         }
         return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
                 Util.isBlank(name) ? Constants.UNKNOWN : name,

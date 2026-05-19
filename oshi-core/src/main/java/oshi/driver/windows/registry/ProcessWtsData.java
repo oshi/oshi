@@ -7,12 +7,12 @@ package oshi.driver.windows.registry;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Wtsapi32;
@@ -20,11 +20,13 @@ import com.sun.jna.platform.win32.Wtsapi32.WTS_PROCESS_INFO_EX;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.WtsInfo;
+import oshi.driver.common.windows.wmi.Win32Process;
 import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
-import oshi.driver.windows.wmi.Win32ProcessJNA;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
-import oshi.util.platform.windows.WmiUtil;
+import oshi.util.platform.windows.WmiQueryExecutorJNA;
 
 /**
  * Utility to read process data from HKEY_PERFORMANCE_DATA information with backup from Performance Counters or WMI
@@ -88,7 +90,8 @@ public final class ProcessWtsData {
 
     private static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
-        WmiResult<ProcessXPProperty> processWmiResult = Win32ProcessJNA.queryProcesses(pids);
+        WmiResult<ProcessXPProperty> processWmiResult = Win32Process
+                .queryProcesses(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()), pids);
         for (int i = 0; i < processWmiResult.getResultCount(); i++) {
             wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), new WtsInfo(
                     WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),

@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Psapi;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -22,12 +21,13 @@ import com.sun.jna.platform.win32.VersionHelpers;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryPropertyWin8;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryJNA;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.windows.WindowsGlobalMemory;
 import oshi.jna.Struct.CloseablePerformanceInformation;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Triplet;
 
 /**

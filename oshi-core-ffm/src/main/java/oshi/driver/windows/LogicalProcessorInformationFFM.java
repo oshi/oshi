@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Processor.ProcessorIdProperty;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
@@ -119,7 +119,7 @@ public final class LogicalProcessorInformationFFM {
         Map<Integer, String> processorIdMap = new HashMap<>();
         var processorId = Win32ProcessorFFM.queryProcessorId();
         for (int pkg = 0; pkg < processorId.getResultCount(); pkg++) {
-            processorIdMap.put(pkg, WmiUtilFFM.getString(processorId, ProcessorIdProperty.PROCESSORID, pkg));
+            processorIdMap.put(pkg, WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, pkg));
         }
 
         // Build logical processor list

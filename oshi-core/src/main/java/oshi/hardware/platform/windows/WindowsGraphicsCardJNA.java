@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
@@ -26,6 +25,8 @@ import oshi.driver.common.windows.gpu.DxgiUtil;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
 import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.driver.windows.wmi.Win32VideoControllerJNA;
@@ -37,7 +38,6 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.gpu.DxgiUtilJNA;
 import oshi.util.platform.windows.RegistryUtil;
-import oshi.util.platform.windows.WmiUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

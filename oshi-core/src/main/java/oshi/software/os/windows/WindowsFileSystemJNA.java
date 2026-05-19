@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.sun.jna.Native;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
@@ -20,13 +19,14 @@ import com.sun.jna.platform.win32.WinNT;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.ProcessInformationJNA;
 import oshi.driver.windows.wmi.Win32LogicalDiskJNA;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
-import oshi.util.platform.windows.WmiUtil;
 
 /**
  * The Windows File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,

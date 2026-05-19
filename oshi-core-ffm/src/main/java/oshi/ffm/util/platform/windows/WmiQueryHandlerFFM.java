@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.ffm.windows.com.FfmComException;
 import oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
 import oshi.ffm.windows.com.IUnknownFFM;
@@ -31,7 +32,7 @@ import oshi.util.GlobalConfig;
  * FFM-based utility to handle WMI Queries. Designed to mirror the JNA {@code WmiQueryHandler} API.
  */
 @ThreadSafe
-public class WmiQueryHandlerFFM {
+public class WmiQueryHandlerFFM implements WmiQueryExecutor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WmiQueryHandlerFFM.class);
 
@@ -217,6 +218,41 @@ public class WmiQueryHandlerFFM {
             }
         }
         return result;
+    }
+
+    @Override
+    public <T extends Enum<T>> oshi.driver.common.windows.wmi.WmiResult<T> queryWMI(
+            oshi.driver.common.windows.wmi.WmiQuery<T> query) {
+        return queryWMI(query, true);
+    }
+
+    @Override
+    public <T extends Enum<T>> oshi.driver.common.windows.wmi.WmiResult<T> queryWMI(
+            oshi.driver.common.windows.wmi.WmiQuery<T> query, boolean initCom) {
+        WbemcliUtilFFM.WmiQuery<T> ffmQuery = new WbemcliUtilFFM.WmiQuery<>(query.getNameSpace(),
+                query.getWmiClassName(), query.getPropertyEnum());
+        WbemcliUtilFFM.WmiResult<T> ffmResult = queryWMI(ffmQuery, initCom);
+        return new oshi.driver.common.windows.wmi.WmiResult<T>() {
+            @Override
+            public int getResultCount() {
+                return ffmResult.getResultCount();
+            }
+
+            @Override
+            public Object getValue(T property, int index) {
+                return ffmResult.getValue(property, index);
+            }
+
+            @Override
+            public int getVtType(T property) {
+                return ffmResult.getVtType(property);
+            }
+
+            @Override
+            public int getCIMType(T property) {
+                return ffmResult.getCIMType(property);
+            }
+        };
     }
 
     /**

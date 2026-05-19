@@ -9,28 +9,15 @@ import java.util.Objects;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32ComputerSystem;
 import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.ffm.util.platform.windows.WmiQueryExecutorFFM;
 
-/**
- * Utility to query WMI class {@code Win32_ComputerSystem} using FFM.
- */
 @ThreadSafe
 public final class Win32ComputerSystemFFM extends Win32ComputerSystem {
-
     private Win32ComputerSystemFFM() {
     }
 
-    /**
-     * Queries the Computer System.
-     *
-     * @return Computer System Manufacturer and Model
-     */
     public static WmiResult<ComputerSystemProperty> queryComputerSystem() {
-        WmiQuery<ComputerSystemProperty> computerSystemQuery = new WmiQuery<>(WIN32_COMPUTER_SYSTEM,
-                ComputerSystemProperty.class);
-        return Objects.requireNonNull(WmiQueryHandlerFFM.createInstance(),
-                "WmiQueryHandlerFFM.createInstance() returned null").queryWMI(computerSystemQuery);
+        return Win32ComputerSystem.queryComputerSystem(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()));
     }
 }

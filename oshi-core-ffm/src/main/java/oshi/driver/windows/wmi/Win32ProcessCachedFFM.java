@@ -14,8 +14,8 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-import oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-import oshi.ffm.util.platform.windows.WmiUtilFFM;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -68,8 +68,8 @@ public final class Win32ProcessCachedFFM {
                 }
                 String result = "";
                 for (int i = 0; i < commandLineAllProcs.getResultCount(); i++) {
-                    int pid = WmiUtilFFM.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
-                    String cl = WmiUtilFFM.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
+                    int pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
+                    String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
                     commandLineCache.put(pid, new Pair<>(now, cl));
                     if (pid == processId) {
                         result = cl;
