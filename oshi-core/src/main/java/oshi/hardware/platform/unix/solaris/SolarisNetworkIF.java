@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -29,17 +29,6 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisNetworkIF.class);
 
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
-
     public SolarisNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
@@ -64,59 +53,9 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public boolean updateAttributes() {
         // Initialize to a sane default value
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return updateAttributes2();
@@ -127,17 +66,17 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
                 ksp = kc.lookup(null, -1, getName());
             }
             if (ksp != null && kc.read(ksp)) {
-                this.bytesSent = KstatUtil.dataLookupLong(ksp, "obytes64");
-                this.bytesRecv = KstatUtil.dataLookupLong(ksp, "rbytes64");
-                this.packetsSent = KstatUtil.dataLookupLong(ksp, "opackets64");
-                this.packetsRecv = KstatUtil.dataLookupLong(ksp, "ipackets64");
-                this.outErrors = KstatUtil.dataLookupLong(ksp, "oerrors");
-                this.inErrors = KstatUtil.dataLookupLong(ksp, "ierrors");
-                this.collisions = KstatUtil.dataLookupLong(ksp, "collisions");
-                this.inDrops = KstatUtil.dataLookupLong(ksp, "dl_idrops");
-                this.speed = KstatUtil.dataLookupLong(ksp, "ifspeed");
+                setBytesSent(KstatUtil.dataLookupLong(ksp, "obytes64"));
+                setBytesRecv(KstatUtil.dataLookupLong(ksp, "rbytes64"));
+                setPacketsSent(KstatUtil.dataLookupLong(ksp, "opackets64"));
+                setPacketsRecv(KstatUtil.dataLookupLong(ksp, "ipackets64"));
+                setOutErrors(KstatUtil.dataLookupLong(ksp, "oerrors"));
+                setInErrors(KstatUtil.dataLookupLong(ksp, "ierrors"));
+                setCollisions(KstatUtil.dataLookupLong(ksp, "collisions"));
+                setInDrops(KstatUtil.dataLookupLong(ksp, "dl_idrops"));
+                setSpeed(KstatUtil.dataLookupLong(ksp, "ifspeed"));
                 // Snap time in ns; convert to ms
-                this.timeStamp = ksp.ks_snaptime / 1_000_000L;
+                setTimeStamp(ksp.ks_snaptime / 1_000_000L);
                 return true;
             }
         }
@@ -150,16 +89,17 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
         if (results[results.length - 1] == null) {
             return false;
         }
-        this.bytesSent = results[0] == null ? 0L : (long) results[0];
-        this.bytesRecv = results[1] == null ? 0L : (long) results[1];
-        this.packetsSent = results[2] == null ? 0L : (long) results[2];
-        this.packetsRecv = results[3] == null ? 0L : (long) results[3];
-        this.outErrors = results[4] == null ? 0L : (long) results[4];
-        this.collisions = results[5] == null ? 0L : (long) results[5];
-        this.inDrops = results[6] == null ? 0L : (long) results[6];
-        this.speed = results[7] == null ? 0L : (long) results[7];
+        setBytesSent(results[0] == null ? 0L : (long) results[0]);
+        setBytesRecv(results[1] == null ? 0L : (long) results[1]);
+        setPacketsSent(results[2] == null ? 0L : (long) results[2]);
+        setPacketsRecv(results[3] == null ? 0L : (long) results[3]);
+        setOutErrors(results[4] == null ? 0L : (long) results[4]);
+        setInErrors(results[5] == null ? 0L : (long) results[5]);
+        setCollisions(results[6] == null ? 0L : (long) results[6]);
+        setInDrops(results[7] == null ? 0L : (long) results[7]);
+        setSpeed(results[8] == null ? 0L : (long) results[8]);
         // Snap time in ns; convert to ms
-        this.timeStamp = (long) results[8] / 1_000_000L;
+        setTimeStamp((long) results[9] / 1_000_000L);
         return true;
     }
 }

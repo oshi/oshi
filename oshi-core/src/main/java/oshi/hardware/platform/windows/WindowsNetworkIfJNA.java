@@ -36,16 +36,6 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
     private int ifType;
     private int ndisPhysicalMediumType;
     private boolean connectorPresent;
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
     private String ifAlias;
     private IfOperStatus ifOperStatus;
 
@@ -88,56 +78,6 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
     }
 
     @Override
-    public long getBytesRecv() {
-        return this.bytesRecv;
-    }
-
-    @Override
-    public long getBytesSent() {
-        return this.bytesSent;
-    }
-
-    @Override
-    public long getPacketsRecv() {
-        return this.packetsRecv;
-    }
-
-    @Override
-    public long getPacketsSent() {
-        return this.packetsSent;
-    }
-
-    @Override
-    public long getInErrors() {
-        return this.inErrors;
-    }
-
-    @Override
-    public long getOutErrors() {
-        return this.outErrors;
-    }
-
-    @Override
-    public long getInDrops() {
-        return this.inDrops;
-    }
-
-    @Override
-    public long getCollisions() {
-        return this.collisions;
-    }
-
-    @Override
-    public long getSpeed() {
-        return this.speed;
-    }
-
-    @Override
-    public long getTimeStamp() {
-        return this.timeStamp;
-    }
-
-    @Override
     public String getIfAlias() {
         return ifAlias;
     }
@@ -163,15 +103,15 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
                 this.ifType = ifRow.Type;
                 this.ndisPhysicalMediumType = ifRow.PhysicalMediumType;
                 this.connectorPresent = (ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0;
-                this.bytesSent = ifRow.OutOctets;
-                this.bytesRecv = ifRow.InOctets;
-                this.packetsSent = ifRow.OutUcastPkts;
-                this.packetsRecv = ifRow.InUcastPkts;
-                this.outErrors = ifRow.OutErrors;
-                this.inErrors = ifRow.InErrors;
-                this.collisions = ifRow.OutDiscards; // closest proxy
-                this.inDrops = ifRow.InDiscards; // closest proxy
-                this.speed = ifRow.ReceiveLinkSpeed;
+                setBytesSent(ifRow.OutOctets);
+                setBytesRecv(ifRow.InOctets);
+                setPacketsSent(ifRow.OutUcastPkts);
+                setPacketsRecv(ifRow.InUcastPkts);
+                setOutErrors(ifRow.OutErrors);
+                setInErrors(ifRow.InErrors);
+                setCollisions(ifRow.OutDiscards);
+                setInDrops(ifRow.InDiscards);
+                setSpeed(ifRow.ReceiveLinkSpeed);
                 this.ifAlias = Native.toString(ifRow.Alias);
                 this.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
             }
@@ -187,20 +127,20 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
                 }
                 this.ifType = ifRow.dwType;
                 // These are unsigned ints. Widen them to longs.
-                this.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
-                this.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
-                this.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
-                this.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
-                this.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
-                this.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
-                this.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards); // closest proxy
-                this.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards); // closest proxy
-                this.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
+                setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
+                setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
+                setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
+                setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
+                setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
+                setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
+                setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards));
+                setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards));
+                setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
                 this.ifAlias = ""; // not supported by MIB_IFROW
                 this.ifOperStatus = IfOperStatus.UNKNOWN; // not supported
             }
         }
-        this.timeStamp = System.currentTimeMillis();
+        setTimeStamp(System.currentTimeMillis());
         return true;
     }
 }

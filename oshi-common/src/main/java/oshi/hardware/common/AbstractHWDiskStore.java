@@ -4,8 +4,12 @@
  */
 package oshi.hardware.common;
 
+import java.util.Collections;
+import java.util.List;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.util.FormatUtil;
 
 /**
@@ -19,6 +23,15 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final String serial;
     private final long size;
     private final String diskType;
+
+    private volatile long reads;
+    private volatile long readBytes;
+    private volatile long writes;
+    private volatile long writeBytes;
+    private volatile long currentQueueLength;
+    private volatile long transferTime;
+    private volatile long timeStamp;
+    private volatile List<HWPartition> partitionList = Collections.emptyList();
 
     /**
      * Creates an AbstractHWDiskStore with unknown disk type.
@@ -72,6 +85,140 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     @Override
     public String getDiskType() {
         return this.diskType;
+    }
+
+    @Override
+    public long getReads() {
+        return this.reads;
+    }
+
+    @Override
+    public long getReadBytes() {
+        return this.readBytes;
+    }
+
+    @Override
+    public long getWrites() {
+        return this.writes;
+    }
+
+    @Override
+    public long getWriteBytes() {
+        return this.writeBytes;
+    }
+
+    @Override
+    public long getCurrentQueueLength() {
+        return this.currentQueueLength;
+    }
+
+    @Override
+    public long getTransferTime() {
+        return this.transferTime;
+    }
+
+    @Override
+    public long getTimeStamp() {
+        return this.timeStamp;
+    }
+
+    @Override
+    public List<HWPartition> getPartitions() {
+        return this.partitionList;
+    }
+
+    /**
+     * Sets the disk statistics.
+     *
+     * @param reads              number of reads
+     * @param readBytes          bytes read
+     * @param writes             number of writes
+     * @param writeBytes         bytes written
+     * @param currentQueueLength current I/O queue length
+     * @param transferTime       time spent on transfers in ms
+     * @param timeStamp          timestamp of the measurement
+     */
+    protected void setDiskStats(long reads, long readBytes, long writes, long writeBytes, long currentQueueLength,
+            long transferTime, long timeStamp) {
+        this.reads = reads;
+        this.readBytes = readBytes;
+        this.writes = writes;
+        this.writeBytes = writeBytes;
+        this.currentQueueLength = currentQueueLength;
+        this.transferTime = transferTime;
+        this.timeStamp = timeStamp;
+    }
+
+    /**
+     * Sets the reads.
+     *
+     * @param reads the reads
+     */
+    protected void setReads(long reads) {
+        this.reads = reads;
+    }
+
+    /**
+     * Sets the read bytes.
+     *
+     * @param readBytes the read bytes
+     */
+    protected void setReadBytes(long readBytes) {
+        this.readBytes = readBytes;
+    }
+
+    /**
+     * Sets the writes.
+     *
+     * @param writes the writes
+     */
+    protected void setWrites(long writes) {
+        this.writes = writes;
+    }
+
+    /**
+     * Sets the write bytes.
+     *
+     * @param writeBytes the write bytes
+     */
+    protected void setWriteBytes(long writeBytes) {
+        this.writeBytes = writeBytes;
+    }
+
+    /**
+     * Sets the current queue length.
+     *
+     * @param currentQueueLength the queue length
+     */
+    protected void setCurrentQueueLength(long currentQueueLength) {
+        this.currentQueueLength = currentQueueLength;
+    }
+
+    /**
+     * Sets the transfer time.
+     *
+     * @param transferTime the transfer time in ms
+     */
+    protected void setTransferTime(long transferTime) {
+        this.transferTime = transferTime;
+    }
+
+    /**
+     * Sets the timestamp.
+     *
+     * @param timeStamp the timestamp
+     */
+    protected void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    /**
+     * Sets the partition list.
+     *
+     * @param partitionList the partition list
+     */
+    protected void setPartitionList(List<HWPartition> partitionList) {
+        this.partitionList = partitionList;
     }
 
     @Override

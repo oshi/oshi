@@ -353,8 +353,8 @@ class NativeComparisonTest {
         assertThat(ffmOs.getBitness()).isEqualTo(jnaOs.getBitness());
         assertThat(ffmOs.getVersionInfo()).usingRecursiveComparison().isEqualTo(jnaOs.getVersionInfo());
         assertThat(ffmOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
-        // FFM called second, uptime should be >= JNA
-        assertThat(ffmOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
+        // FFM called second, uptime should be >= JNA (allow 2s tolerance for clock resolution)
+        assertThat(ffmOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime() - 2L);
         assertThat(ffmOs.isElevated()).isEqualTo(jnaOs.isElevated());
         assertThat(ffmOs.getProcessCount()).isGreaterThan(0);
         assertThat(ffmOs.getThreadCount()).isGreaterThan(0);
