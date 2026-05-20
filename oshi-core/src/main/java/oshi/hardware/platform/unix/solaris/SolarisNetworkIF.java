@@ -94,11 +94,12 @@ public final class SolarisNetworkIF extends AbstractNetworkIF {
         setPacketsSent(results[2] == null ? 0L : (long) results[2]);
         setPacketsRecv(results[3] == null ? 0L : (long) results[3]);
         setOutErrors(results[4] == null ? 0L : (long) results[4]);
-        setCollisions(results[5] == null ? 0L : (long) results[5]);
-        setInDrops(results[6] == null ? 0L : (long) results[6]);
-        setSpeed(results[7] == null ? 0L : (long) results[7]);
+        setInErrors(results[5] == null ? 0L : (long) results[5]);
+        setCollisions(results[6] == null ? 0L : (long) results[6]);
+        setInDrops(results[7] == null ? 0L : (long) results[7]);
+        setSpeed(results[8] == null ? 0L : (long) results[8]);
         // Snap time in ns; convert to ms
-        setTimeStamp((long) results[8] / 1_000_000L);
+        setTimeStamp((long) results[9] / 1_000_000L);
         return true;
     }
 }

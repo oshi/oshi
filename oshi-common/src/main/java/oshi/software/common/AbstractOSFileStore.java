@@ -21,15 +21,15 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String uuid;
     private boolean local;
 
-    private String logicalVolume;
-    private String description;
-    private String fsType;
+    private volatile String logicalVolume;
+    private volatile String description;
+    private volatile String fsType;
 
-    private long freeSpace;
-    private long usableSpace;
-    private long totalSpace;
-    private long freeInodes;
-    private long totalInodes;
+    private volatile long freeSpace;
+    private volatile long usableSpace;
+    private volatile long totalSpace;
+    private volatile long freeInodes;
+    private volatile long totalInodes;
 
     /**
      * Creates an AbstractOSFileStore with all parameters.

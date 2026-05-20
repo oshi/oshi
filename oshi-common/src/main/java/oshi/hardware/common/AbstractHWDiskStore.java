@@ -24,14 +24,14 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final long size;
     private final String diskType;
 
-    private long reads;
-    private long readBytes;
-    private long writes;
-    private long writeBytes;
-    private long currentQueueLength;
-    private long transferTime;
-    private long timeStamp;
-    private List<HWPartition> partitionList = Collections.emptyList();
+    private volatile long reads;
+    private volatile long readBytes;
+    private volatile long writes;
+    private volatile long writeBytes;
+    private volatile long currentQueueLength;
+    private volatile long transferTime;
+    private volatile long timeStamp;
+    private volatile List<HWPartition> partitionList = Collections.emptyList();
 
     /**
      * Creates an AbstractHWDiskStore with unknown disk type.
