@@ -4,55 +4,24 @@
  */
 package oshi.hardware.platform.windows;
 
-import static oshi.util.Memoizer.memoize;
-
-import java.util.function.Supplier;
+import java.util.Objects;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
-import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
-import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
-import oshi.driver.common.windows.wmi.WmiResult;
-import oshi.driver.common.windows.wmi.WmiUtil;
-import oshi.driver.windows.wmi.Win32BiosJNA;
-import oshi.driver.windows.wmi.Win32ComputerSystemJNA;
-import oshi.driver.windows.wmi.Win32ComputerSystemProductJNA;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
-import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.Constants;
-import oshi.util.Util;
-import oshi.util.tuples.Pair;
+import oshi.hardware.common.platform.windows.WindowsComputerSystem;
+import oshi.util.platform.windows.WmiQueryExecutorJNA;
 
 /**
- * Hardware data obtained from WMI.
+ * Hardware data obtained from WMI using JNA.
  */
 @Immutable
-final class WindowsComputerSystemJNA extends AbstractComputerSystem {
-
-    private final Supplier<Pair<String, String>> manufacturerModel = memoize(
-            WindowsComputerSystemJNA::queryManufacturerModel);
-    private final Supplier<Pair<String, String>> serialNumberUUID = memoize(
-            WindowsComputerSystemJNA::querySystemSerialNumberUUID);
+final class WindowsComputerSystemJNA extends WindowsComputerSystem {
 
     @Override
-    public String getManufacturer() {
-        return manufacturerModel.get().getA();
-    }
-
-    @Override
-    public String getModel() {
-        return manufacturerModel.get().getB();
-    }
-
-    @Override
-    public String getSerialNumber() {
-        return serialNumberUUID.get().getA();
-    }
-
-    @Override
-    public String getHardwareUUID() {
-        return serialNumberUUID.get().getB();
+    protected WmiQueryExecutor getWmiQueryExecutor() {
+        return Objects.requireNonNull(WmiQueryExecutorJNA.createInstance());
     }
 
     @Override
@@ -63,47 +32,5 @@ final class WindowsComputerSystemJNA extends AbstractComputerSystem {
     @Override
     public Baseboard createBaseboard() {
         return new WindowsBaseboardJNA();
-    }
-
-    private static Pair<String, String> queryManufacturerModel() {
-        String manufacturer = null;
-        String model = null;
-        WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystemJNA.queryComputerSystem();
-        if (win32ComputerSystem.getResultCount() > 0) {
-            manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
-            model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
-        }
-        return new Pair<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(model) ? Constants.UNKNOWN : model);
-    }
-
-    private static Pair<String, String> querySystemSerialNumberUUID() {
-        String serialNumber = null;
-        String uuid = null;
-        WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProductJNA
-                .queryIdentifyingNumberUUID();
-        if (win32ComputerSystemProduct.getResultCount() > 0) {
-            serialNumber = WmiUtil.getString(win32ComputerSystemProduct,
-                    ComputerSystemProductProperty.IDENTIFYINGNUMBER, 0);
-            uuid = WmiUtil.getString(win32ComputerSystemProduct, ComputerSystemProductProperty.UUID, 0);
-        }
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = querySerialFromBios();
-        }
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = Constants.UNKNOWN;
-        }
-        if (Util.isBlank(uuid)) {
-            uuid = Constants.UNKNOWN;
-        }
-        return new Pair<>(serialNumber, uuid);
-    }
-
-    private static String querySerialFromBios() {
-        WmiResult<BiosSerialProperty> serialNum = Win32BiosJNA.querySerialNumber();
-        if (serialNum.getResultCount() > 0) {
-            return WmiUtil.getString(serialNum, BiosSerialProperty.SERIALNUMBER, 0);
-        }
-        return null;
     }
 }
