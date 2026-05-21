@@ -127,7 +127,7 @@ See the [oshi-demo README](https://github.com/oshi/oshi/blob/master/oshi-demo/) 
 First-party [Micrometer](https://micrometer.io/) integration providing system, process, and container metrics following [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/). Works with Prometheus, Grafana, Datadog, and any Micrometer-compatible backend.
 
 ```java
-OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
+OshiMetrics.bindTo(registry, SystemInfoFactory.create());
 ```
 
 See the [oshi-metrics README](https://github.com/oshi/oshi/blob/master/oshi-metrics/) for full setup, selective registration, and the complete list of metrics.

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.spi.SystemInfoProvider;
 
 import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
@@ -29,10 +30,10 @@ class OshiMetricsTest {
     @BeforeAll
     static void setUp() {
         registry = new SimpleMeterRegistry();
-        SystemInfo si = new SystemInfo();
+        SystemInfoProvider si = new SystemInfo();
         hal = si.getHardware();
         os = si.getOperatingSystem();
-        OshiMetrics.bindTo(registry, hal, os);
+        OshiMetrics.bindTo(registry, si);
     }
 
     @Test

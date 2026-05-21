@@ -6,6 +6,7 @@ package oshi.metrics;
 
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
+import oshi.spi.SystemInfoProvider;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
@@ -21,8 +22,7 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * Usage (all metrics):
  *
  * <pre>{@code
- * SystemInfoProvider si = SystemInfoFactory.create();
- * OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
+ * OshiMetrics.bindTo(registry, SystemInfoFactory.create());
  * }</pre>
  *
  * <p>
@@ -84,6 +84,16 @@ public final class OshiMetrics implements MeterBinder {
         this.network = true;
         this.process = true;
         this.container = true;
+    }
+
+    /**
+     * Convenience method to create and bind all OSHI metrics in one call.
+     *
+     * @param registry the meter registry
+     * @param si       the system info provider
+     */
+    public static void bindTo(MeterRegistry registry, SystemInfoProvider si) {
+        bindTo(registry, si.getHardware(), si.getOperatingSystem());
     }
 
     /**
