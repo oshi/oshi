@@ -21,7 +21,7 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * Usage (all metrics):
  *
  * <pre>{@code
- * SystemInfo si = new SystemInfo();
+ * SystemInfoProvider si = SystemInfoFactory.create();
  * OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
  * }</pre>
  *

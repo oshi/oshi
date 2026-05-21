@@ -35,7 +35,7 @@ import oshi.util.Util;
  * non-blocking updates:
  *
  * <pre>{@code
- * CentralProcessor cpu = new SystemInfo().getHardware().getProcessor();
+ * CentralProcessor cpu = SystemInfoFactory.create().getHardware().getProcessor();
  *
  * // Option 1: Convenience method (blocks for the specified delay)
  * double cpuLoad = cpu.getSystemCpuLoad(1000L); // 1-second sample

@@ -32,7 +32,7 @@ import oshi.util.PlatformEnum;
  * Quick start:
  *
  * <pre>{@code
- * SystemInfo si = new SystemInfo(); // oshi.ffm.SystemInfo
+ * SystemInfoProvider si = SystemInfoFactory.create();
  * HardwareAbstractionLayer hal = si.getHardware();
  * OperatingSystem os = si.getOperatingSystem();
  *

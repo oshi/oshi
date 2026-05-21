@@ -28,7 +28,7 @@
 
 ## What is the intended use of the API?
 
-Users should create a new instance of SystemInfo ([JNA](https://oshi.github.io/oshi/oshi-core/apidocs/com.github.oshi/oshi/SystemInfo.html) \| [FFM](https://oshi.github.io/oshi/oshi-core-ffm/apidocs/com.github.oshi.ffm/oshi/ffm/SystemInfo.html)) and use the getters from this class to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
+Users should create a new instance of `SystemInfo` using `SystemInfoFactory.create()` (see the [Usage](README.md#usage) section) and use the getters to access the platform-specific hardware and software interfaces using the respective `get*()` methods. The interfaces in `oshi.hardware` and `oshi.software.os` provide cross-platform functionality. See the `main()` method of [SystemInfoTest](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for sample code.
 
 Methods return a "snapshot" of current levels. To display values which change over time, it is intended that users poll for information no more frequently than approximately every second. Disk and file system calls may incur some latency and should be polled less frequently.
 CPU usage calculation precision depends on the relation of the polling interval to both system clock tick granularity and the number of logical processors.
@@ -47,16 +47,18 @@ OSHI adds OSGi manifest entries using `maven-source-plugin` and `mvn-bnd-plugin`
 
 ## Does OSHI support Java Module System (JPMS) modules?
 
-Yes. OSHI provides two named JPMS modules:
+Yes. OSHI provides three named JPMS modules:
 
+- `com.github.oshi.common` — the public API interfaces and the native-free implementation (`oshi-common`). Works on JDK 8+ on the classpath; JDK 9+ on the module path. Currently supports Linux only.
 - `com.github.oshi` — the JNA-based implementation (`oshi-core`). Works on JDK 8+ on the classpath; JDK 9+ on the module path.
 - `com.github.oshi.ffm` — the FFM-based implementation (`oshi-core-ffm`). Requires JDK 25+.
 
-Both modules export the public API packages and declare the appropriate `requires` directives. Add the one that matches your native access preference to your `module-info.java`:
+All modules export the public API packages and declare the appropriate `requires` directives. Add the one that matches your native access preference to your `module-info.java`:
 
 ```java
-requires com.github.oshi;     // JNA
-requires com.github.oshi.ffm; // FFM
+requires com.github.oshi.common; // API + native-free implementation (Linux only)
+requires com.github.oshi;        // JNA
+requires com.github.oshi.ffm;    // FFM
 ```
 
 Note: In OSHI 6.x, `oshi-core` only had an `Automatic-Module-Name` and a separate `oshi-core-java11` artifact provided the full module descriptor. Starting with OSHI 7.0, `oshi-core` includes the module descriptor directly.
@@ -127,11 +129,10 @@ OSHI uses the latest version of JNA, which may conflict with other dependencies 
 If you experience a `NoClassDefFoundError` or `NoSuchMethodError` issues with JNA artifacts, likely causes include file system
 permissions or an older version of either `jna` or `jna-platform` in your classpath from a transitive dependency on another
 project. Consider one or more of the following steps to resolve the conflict:
+ - Ensure you are using the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` or `build.gradle`. Use a dependency analyzer to verify the resolved version.
+ - If using Maven, import OSHI's dependency management per [Maven Documentation](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies) (preferred), or list OSHI earlier (or first) in your dependency list to influence dependency resolution.
+ - If using Gradle, force the JNA version in your `build.gradle` using `resolutionStrategy { force 'net.java.dev.jna:jna:<version>' }` for both `jna` and `jna-platform` artifacts.
  - JNA needs to write its [native DLL](https://javadoc.io/static/net.java.dev.jna/jna/5.13.0/com/sun/jna/Native.html), usually to a temporary file unless you've configured otherwise. File system permissions or capacity may prevent this from happening. Pre-extracting the DLL and placing it in a known location resolves this.
- - Use a dependency analyzer to verify you're importing the correct version.
- - If using Maven, import OSHI's dependency management per [Maven Documentation](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#importing-dependencies)
- - If using Maven, list OSHI earlier (or first) in your dependency list to influence dependency resolution.
- - Specify the most recent version of JNA (both `jna` and `jna-platform` artifacts) in your `pom.xml` (For Gradle, `build.gradle` includes additional options to force the version). For Android, see the next paragraph.
  - If you are using the Spring Boot Starter Parent version 2.2 and earlier that includes JNA as a dependency:
    - Upgrade to version 2.3 which does not have a JNA dependency (preferred)
    - If you must use version 2.2 or earlier, override the `jna.version` property to the latest JNA version.
@@ -153,29 +154,20 @@ OSHI reads from the same OS-level sources (procfs, sysfs, WMI, etc.) regardless 
  - **Hardware identifiers are unavailable.** Serial numbers, baseboard info, and disk details are typically not exposed to containers and will return "unknown" ([#2620](https://github.com/oshi/oshi/issues/2620)).
  - **File store duplication.** Docker's overlay mounts can cause the same device to appear multiple times in `getFileStores()` ([#438](https://github.com/oshi/oshi/issues/438)).
 
-If you need container-scoped resource limits rather than host values, read them directly from the cgroup filesystem. OSHI's `FileUtil` class (in the `oshi.util` package) can read these files. On **cgroup v2** (default on modern kernels and Kubernetes):
+If you need container-scoped resource limits rather than host values, use OSHI's `CgroupInfo` API, which abstracts the differences between cgroup v1 and v2:
 
 ```java
-// CPU limit: "200000 100000" means 200ms quota per 100ms period = 2 CPUs
-String cpuMax = FileUtil.getStringFromFile("/sys/fs/cgroup/cpu.max");
+OperatingSystem os = SystemInfoFactory.create().getOperatingSystem();
+CgroupInfo cgroup = os.getCgroupInfo();
 
-// Memory limit (bytes), or "max" if unlimited
-String memMax = FileUtil.getStringFromFile("/sys/fs/cgroup/memory.max");
-
-// Current memory usage (bytes)
-long memCurrent = FileUtil.getLongFromFile("/sys/fs/cgroup/memory.current");
+if (cgroup.isContainerized()) {
+    double effectiveCpus = cgroup.getEffectiveCpus();  // quota / period
+    long memoryLimit = cgroup.getMemoryLimit();        // bytes, or UNLIMITED_MEMORY
+    long memoryUsage = cgroup.getMemoryUsage();        // current usage in bytes
+}
 ```
 
-On **cgroup v1** (older Docker / Kubernetes):
-
-```java
-// CPU quota (microseconds per period, -1 if unlimited) and period
-long cpuQuota = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_quota_us");
-long cpuPeriod = FileUtil.getLongFromFile("/sys/fs/cgroup/cpu/cpu.cfs_period_us");
-
-// Memory limit (bytes)
-long memLimit = FileUtil.getLongFromFile("/sys/fs/cgroup/memory/memory.limit_in_bytes");
-```
+See the [`CgroupInfo`](https://oshi.github.io/oshi/oshi-core/apidocs/com.github.oshi.common/oshi/software/os/CgroupInfo.html) Javadoc for the full API.
 
 ## How do I configure OSHI?
 
@@ -360,7 +352,7 @@ CPU usage is computed by comparing tick counters at two points in time. A single
 **System-level CPU usage** uses `CentralProcessor.getSystemCpuLoadTicks()`, which returns 8 tick values (User, Nice, System, Idle, IOWait, IRQ, SoftIRQ, Steal). The ratio of active ticks to total ticks (active + idle) gives the CPU load:
 
 ```java
-CentralProcessor cpu = new SystemInfo().getHardware().getProcessor();
+CentralProcessor cpu = SystemInfoFactory.create().getHardware().getProcessor();
 
 // First snapshot
 long[] prevTicks = cpu.getSystemCpuLoadTicks();
@@ -377,7 +369,7 @@ prevTicks = cpu.getSystemCpuLoadTicks();
 **Process-level CPU usage** uses `OSProcess.getProcessCpuLoadBetweenTicks(previousSnapshot)`. Unlike system ticks, processes have **no idle counter** — the calculation is (kernel + user time) / elapsed up time. This means a multi-threaded process on a 4-core system can report up to 400% CPU (matching `top` on Linux/Unix). On Windows, the Task Manager divides by logical processor count to cap at 100%; to match that display, divide OSHI's value by `getLogicalProcessorCount()`.
 
 ```java
-SystemInfo si = new SystemInfo();
+SystemInfoProvider si = SystemInfoFactory.create();
 OperatingSystem os = si.getOperatingSystem();
 int cpuCount = si.getHardware().getProcessor().getLogicalProcessorCount();
 

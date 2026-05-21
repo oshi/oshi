@@ -9,7 +9,7 @@
  * <h2>Quick Start</h2>
  *
  * <pre>{@code
- * SystemInfo si = new SystemInfo();
+ * SystemInfoProvider si = SystemInfoFactory.create();
  * HardwareAbstractionLayer hal = si.getHardware();
  * OperatingSystem os = si.getOperatingSystem();
  *
