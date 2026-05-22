@@ -4,6 +4,8 @@
  */
 package oshi.metrics;
 
+import java.util.Objects;
+
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.spi.SystemInfoProvider;
@@ -29,8 +31,8 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * Usage (selective):
  *
  * <pre>{@code
- * OshiMetrics.builder(si.getHardware(), si.getOperatingSystem()).enableCpu(true).enableMemory(true).enableDisk(false)
- *         .build().bindTo(registry);
+ * OshiMetrics.builder(SystemInfoFactory.create()).enableCpu(true).enableMemory(true).enableDisk(false).build()
+ *         .bindTo(registry);
  * }</pre>
  *
  * <p>
@@ -69,12 +71,21 @@ public final class OshiMetrics implements MeterBinder {
     /**
      * Creates a new {@code OshiMetrics} instance that registers all metrics.
      *
+     * @param si the system info provider
+     */
+    public OshiMetrics(SystemInfoProvider si) {
+        this(Objects.requireNonNull(si, "si must not be null").getHardware(), si.getOperatingSystem());
+    }
+
+    /**
+     * Creates a new {@code OshiMetrics} instance that registers all metrics.
+     *
      * @param hal the hardware abstraction layer
      * @param os  the operating system
      */
     public OshiMetrics(HardwareAbstractionLayer hal, OperatingSystem os) {
-        this.hal = java.util.Objects.requireNonNull(hal, "hal must not be null");
-        this.os = java.util.Objects.requireNonNull(os, "os must not be null");
+        this.hal = Objects.requireNonNull(hal, "hal must not be null");
+        this.os = Objects.requireNonNull(os, "os must not be null");
         this.general = true;
         this.cpu = true;
         this.memory = true;
@@ -93,6 +104,7 @@ public final class OshiMetrics implements MeterBinder {
      * @param si       the system info provider
      */
     public static void bindTo(MeterRegistry registry, SystemInfoProvider si) {
+        Objects.requireNonNull(si, "si must not be null");
         bindTo(registry, si.getHardware(), si.getOperatingSystem());
     }
 
@@ -141,6 +153,17 @@ public final class OshiMetrics implements MeterBinder {
     /**
      * Creates a new builder for selective metric registration.
      *
+     * @param si the system info provider
+     * @return a new {@link Builder}
+     */
+    public static Builder builder(SystemInfoProvider si) {
+        Objects.requireNonNull(si, "si must not be null");
+        return builder(si.getHardware(), si.getOperatingSystem());
+    }
+
+    /**
+     * Creates a new builder for selective metric registration.
+     *
      * @param hal the hardware abstraction layer
      * @param os  the operating system
      * @return a new {@link Builder}
@@ -170,8 +193,8 @@ public final class OshiMetrics implements MeterBinder {
         private boolean container = true;
 
         private Builder(HardwareAbstractionLayer hal, OperatingSystem os) {
-            this.hal = java.util.Objects.requireNonNull(hal, "hal must not be null");
-            this.os = java.util.Objects.requireNonNull(os, "os must not be null");
+            this.hal = Objects.requireNonNull(hal, "hal must not be null");
+            this.os = Objects.requireNonNull(os, "os must not be null");
         }
 
         /**
