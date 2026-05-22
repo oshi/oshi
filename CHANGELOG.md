@@ -12,6 +12,7 @@
 * [#3245](https://github.com/oshi/oshi/pull/3245): Fix `MacGlobalMemory.getPhysicalMemory()` returning empty data on Apple Silicon Macs - [@dbwiddis](https://github.com/dbwiddis).
 * [#3278](https://github.com/oshi/oshi/pull/3278),
   [#3280](https://github.com/oshi/oshi/pull/3280): Add `SystemInfoProvider` convenience overloads to `OshiMetrics` constructor, `bindTo`, and `builder` methods - [@dbwiddis](https://github.com/dbwiddis).
+* [#3281](https://github.com/oshi/oshi/pull/3281): Fix AIX processor count detection to use LPAR vcpu and SMT configuration instead of frame-level physical processor count - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -97,19 +97,15 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
         this.config = PerfstatConfig.queryConfig();
 
-        // Reporting "online" or "active" values can lead to nonsense so we go with max
-        int physProcs = (int) config.numProcessors.max;
+        // Use max vcpus (cores) for physical processor count and multiply by SMT threads
+        // for logical processor count. These represent the LPAR's configured maximum capacity.
+        // numProcessors refers to the physical frame, not this LPAR.
+        int physProcs = (int) config.vcpus.max;
         if (physProcs < 1) {
             physProcs = 1;
         }
-        int lcpus = (int) config.vcpus.max;
-        if (lcpus < 1) {
-            lcpus = 1;
-        }
-        // Sanity check to ensure lp/pp ratio >= 1
-        if (physProcs > lcpus) {
-            physProcs = lcpus;
-        }
+        int smtThreads = config.smtthreads > 0 ? config.smtthreads : 1;
+        int lcpus = physProcs * smtThreads;
         int lpPerPp = lcpus / physProcs;
         // Get node and package mapping
         Map<Integer, Pair<Integer, Integer>> nodePkgMap = Lssrad.queryNodesPackages();
@@ -129,27 +125,27 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         List<ProcessorCache> caches = new ArrayList<>();
         int powerVersion = ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer("uname -n"));
         switch (powerVersion) {
-        case 7:
-            caches.add(new ProcessorCache(3, 8, 128, (2 * 32) << 20, Type.UNIFIED));
-            caches.add(new ProcessorCache(2, 8, 128, 256 << 10, Type.UNIFIED));
-            caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
-            caches.add(new ProcessorCache(1, 4, 128, 32 << 10, Type.INSTRUCTION));
-            break;
-        case 8:
-            caches.add(new ProcessorCache(4, 8, 128, (16 * 16) << 20, Type.UNIFIED));
-            caches.add(new ProcessorCache(3, 8, 128, 40 << 20, Type.UNIFIED));
-            caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
-            caches.add(new ProcessorCache(1, 8, 128, 64 << 10, Type.DATA));
-            caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
-            break;
-        case 9:
-            caches.add(new ProcessorCache(3, 20, 128, (cores * 10) << 20, Type.UNIFIED));
-            caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
-            caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
-            caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
-            break;
-        default:
-            // Don't guess
+            case 7:
+                caches.add(new ProcessorCache(3, 8, 128, (2 * 32) << 20, Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 256 << 10, Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
+                caches.add(new ProcessorCache(1, 4, 128, 32 << 10, Type.INSTRUCTION));
+                break;
+            case 8:
+                caches.add(new ProcessorCache(4, 8, 128, (16 * 16) << 20, Type.UNIFIED));
+                caches.add(new ProcessorCache(3, 8, 128, 40 << 20, Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 64 << 10, Type.DATA));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
+                break;
+            case 9:
+                caches.add(new ProcessorCache(3, 20, 128, (cores * 10) << 20, Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
+                break;
+            default:
+                // Don't guess
         }
         return caches;
     }
@@ -219,9 +215,10 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
         perfstat_cpu_t[] cpu = cpuProc.get();
-        // oversize the array to ensure constant length; we'll only fill cpu.length of it
-        long[][] ticks = new long[cpu.length][TickType.values().length];
-        for (int i = 0; i < cpu.length; i++) {
+        // Allocate for max logical processors; fill only what perfstat_cpu reports online
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        // DLPAR could theoretically add CPUs beyond vcpus.max if admin reconfigures at runtime
+        for (int i = 0; i < cpu.length && i < ticks.length; i++) {
             ticks[i] = new long[TickType.values().length];
             ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;
             // Skip NICE
