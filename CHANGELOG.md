@@ -10,7 +10,8 @@
 
 * [#3249](https://github.com/oshi/oshi/pull/3249): Read EDID from `/sys/class/drm` on Linux, fixing display detection on Wayland - [@dbwiddis](https://github.com/dbwiddis).
 * [#3245](https://github.com/oshi/oshi/pull/3245): Fix `MacGlobalMemory.getPhysicalMemory()` returning empty data on Apple Silicon Macs - [@dbwiddis](https://github.com/dbwiddis).
-* [#3278](https://github.com/oshi/oshi/pull/3278): Add `OshiMetrics.bindTo(MeterRegistry, SystemInfoProvider)` convenience method - [@dbwiddis](https://github.com/dbwiddis).
+* [#3278](https://github.com/oshi/oshi/pull/3278),
+  [#3280](https://github.com/oshi/oshi/pull/3280): Add `SystemInfoProvider` convenience overloads to `OshiMetrics` constructor, `bindTo`, and `builder` methods - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 

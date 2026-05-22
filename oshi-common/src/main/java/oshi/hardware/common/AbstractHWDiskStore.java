@@ -6,6 +6,7 @@ package oshi.hardware.common;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
@@ -31,7 +32,7 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private volatile long currentQueueLength;
     private volatile long transferTime;
     private volatile long timeStamp;
-    private volatile List<HWPartition> partitionList = Collections.emptyList();
+    private final AtomicReference<List<HWPartition>> partitionList = new AtomicReference<>(Collections.emptyList());
 
     /**
      * Creates an AbstractHWDiskStore with unknown disk type.
@@ -124,7 +125,7 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
 
     @Override
     public List<HWPartition> getPartitions() {
-        return this.partitionList;
+        return this.partitionList.get();
     }
 
     /**
@@ -218,7 +219,7 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
      * @param partitionList the partition list
      */
     protected void setPartitionList(List<HWPartition> partitionList) {
-        this.partitionList = partitionList;
+        this.partitionList.set(partitionList);
     }
 
     @Override

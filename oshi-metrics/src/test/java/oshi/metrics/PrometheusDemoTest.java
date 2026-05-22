@@ -39,7 +39,7 @@ public class PrometheusDemoTest {
             }
         });
         SystemInfo si = new SystemInfo();
-        this.oshiMetrics = new OshiMetrics(si.getHardware(), si.getOperatingSystem());
+        this.oshiMetrics = new OshiMetrics(si);
         this.oshiMetrics.bindTo(registry);
     }
 

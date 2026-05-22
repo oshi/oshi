@@ -47,8 +47,7 @@ Add `oshi-metrics` alongside your OSHI implementation and a Micrometer registry:
 ### Register all metrics
 
 ```java
-SystemInfoProvider si = SystemInfoFactory.create();
-OshiMetrics.bindTo(registry, si.getHardware(), si.getOperatingSystem());
+OshiMetrics.bindTo(registry, SystemInfoFactory.create());
 ```
 
 `SystemInfoFactory.create()` auto-selects the best available implementation (JNA, FFM, or native-free on Linux).
@@ -57,8 +56,7 @@ See the [project README](../README.md) for details on implementation choices.
 ### Selective registration (Builder API)
 
 ```java
-SystemInfoProvider si = SystemInfoFactory.create();
-OshiMetrics.builder(si.getHardware(), si.getOperatingSystem())
+OshiMetrics.builder(SystemInfoFactory.create())
     .enableGeneral(true)
     .enableCpu(true)
     .enableMemory(true)
@@ -83,8 +81,7 @@ bridge is auto-configured and metrics flow to your OTel backend automatically.
 ```java
 @Bean
 public OshiMetrics oshiMetrics() {
-    SystemInfoProvider si = SystemInfoFactory.create();
-    return new OshiMetrics(si.getHardware(), si.getOperatingSystem());
+    return new OshiMetrics(SystemInfoFactory.create());
 }
 ```
 
@@ -108,8 +105,7 @@ register OSHI metrics with Micrometer's global registry:
 ```java
 import io.micrometer.core.instrument.Metrics;
 
-SystemInfoProvider si = SystemInfoFactory.create();
-OshiMetrics.bindTo(Metrics.globalRegistry, si.getHardware(), si.getOperatingSystem());
+OshiMetrics.bindTo(Metrics.globalRegistry, SystemInfoFactory.create());
 ```
 
 The agent automatically bridges `Metrics.globalRegistry` to the OpenTelemetry SDK — no additional wiring needed.
@@ -136,8 +132,7 @@ import io.opentelemetry.instrumentation.micrometer.v1_5.OpenTelemetryMeterRegist
 OpenTelemetry otel = // your configured OpenTelemetry SDK instance
 MeterRegistry otelRegistry = OpenTelemetryMeterRegistry.create(otel);
 
-SystemInfoProvider si = SystemInfoFactory.create();
-OshiMetrics.bindTo(otelRegistry, si.getHardware(), si.getOperatingSystem());
+OshiMetrics.bindTo(otelRegistry, SystemInfoFactory.create());
 ```
 
 See [Register all metrics](#register-all-metrics) for `SystemInfoFactory` options (JNA, FFM, or native-free on Linux).

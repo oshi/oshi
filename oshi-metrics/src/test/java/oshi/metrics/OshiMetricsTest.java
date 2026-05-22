@@ -250,9 +250,17 @@ class OshiMetricsTest {
     }
 
     @Test
+    void constructorWithSystemInfoProvider() {
+        MeterRegistry r = new SimpleMeterRegistry();
+        new OshiMetrics(new SystemInfo()).bindTo(r);
+        assertNotNull(r.find("system.uptime").gauge(), "system.uptime should be registered");
+    }
+
+    @Test
     void builderSelectiveRegistration() {
         MeterRegistry selective = new SimpleMeterRegistry();
-        OshiMetrics.builder(hal, os).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
+        SystemInfoProvider si = new SystemInfo();
+        OshiMetrics.builder(si).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
                 .enableFileSystem(false).enableNetwork(false).enableGeneral(false).enableProcess(false)
                 .enableContainer(false).build().bindTo(selective);
         // CPU should be registered
