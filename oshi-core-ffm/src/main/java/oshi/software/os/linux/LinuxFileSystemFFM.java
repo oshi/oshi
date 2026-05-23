@@ -4,7 +4,9 @@
  */
 package oshi.software.os.linux;
 
-import java.lang.foreign.Arena;
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+
 import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ final class LinuxFileSystemFFM extends LinuxFileSystem {
 
     @Override
     protected long[] queryStatvfs(String path) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment pathSeg = arena.allocateFrom(path);
             MemorySegment buf = arena.allocate(LinuxLibcFunctions.STATVFS_LAYOUT);
             if (0 == LinuxLibcFunctions.statvfs(pathSeg, buf)) {
@@ -34,9 +36,7 @@ final class LinuxFileSystemFFM extends LinuxFileSystem {
                         LinuxLibcFunctions.statvfsBfree(buf) * frsize };
             }
             LOG.debug("statvfs failed for path: {}", path);
-        } catch (Throwable e) {
-            LOG.debug("FFM statvfs error for path {}: {}", path, e.toString());
-        }
-        return null;
+            return null;
+        }, LOG, DEBUG, "FFM statvfs error for path " + path, null);
     }
 }
