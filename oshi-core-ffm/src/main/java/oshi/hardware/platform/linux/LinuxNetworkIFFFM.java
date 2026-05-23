@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.linux.LinuxNetworkIF;
@@ -45,10 +46,10 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
             if (MemorySegment.NULL.equals(udev)) {
                 return queryIfModelFromSysfs(name);
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment device = UdevFunctions.deviceNewFromSyspath(udev, SysPath.NET + name, arena);
                 if (!MemorySegment.NULL.equals(device)) {
-                    try {
+                    try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                         String devVendor = UdevFunctions.getPropertyValue(device, "ID_VENDOR_FROM_DATABASE", arena);
                         String devModel = UdevFunctions.getPropertyValue(device, "ID_MODEL_FROM_DATABASE", arena);
                         if (!Util.isBlank(devModel)) {
@@ -57,12 +58,8 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
                             }
                             return devModel;
                         }
-                    } finally {
-                        UdevFunctions.udev_device_unref(device);
                     }
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
             return name;
         }, LOG, WARN, "Error querying network interface model for " + name, name);

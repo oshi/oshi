@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.SetupApiFFM;
 import oshi.ffm.windows.WindowsForeignFunctions;
@@ -130,7 +131,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                 LOG.warn("SetupDiGetClassDevs failed for battery class");
             } else {
                 MemorySegment hdev = hdevOpt.get();
-                try {
+                try (NativeHandle devInfoHandle = NativeHandle.of(hdev, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
                     boolean batteryFound = false;
                     for (int idev = 0; !batteryFound && idev < 100; idev++) {
                         MemorySegment did = arena.allocate(SP_DEVICE_INTERFACE_DATA);
@@ -163,7 +164,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             continue;
                         }
                         MemorySegment hBattery = hBatteryOpt.get();
-                        try {
+                        try (NativeHandle batteryHandle = NativeHandle.of(hBattery, Kernel32FFM::CloseHandle)) {
                             // Ask the battery for its tag
                             MemorySegment dwWait = arena.allocate(JAVA_INT);
                             MemorySegment dwTag = arena.allocate(JAVA_INT);
@@ -289,12 +290,8 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             }
 
                             batteryFound = true;
-                        } finally {
-                            Kernel32FFM.CloseHandle(hBattery);
                         }
                     }
-                } finally {
-                    SetupApiFFM.SetupDiDestroyDeviceInfoList(hdev);
                 }
             }
         }

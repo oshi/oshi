@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.proc.AuxvFFM;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.LinuxLibcFunctions;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
@@ -83,9 +84,10 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                     if (MemorySegment.NULL.equals(udev)) {
                         return readTopologyFromSysfs();
                     }
-                    try {
+                    try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                         MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                        try {
+                        try (NativeHandle enumHandle = NativeHandle.of(enumerate,
+                                UdevFunctions::udev_enumerate_unref)) {
                             UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                             UdevFunctions.udev_enumerate_scan_devices(enumerate);
                             for (MemorySegment entry = UdevFunctions
@@ -99,20 +101,15 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                                 MemorySegment device = UdevFunctions.deviceNewFromSyspath(udev, syspath, arena);
                                 String modAlias = null;
                                 if (!MemorySegment.NULL.equals(device)) {
-                                    try {
+                                    try (NativeHandle devHandle = NativeHandle.of(device,
+                                            UdevFunctions::udev_device_unref)) {
                                         modAlias = UdevFunctions.getPropertyValue(device, "MODALIAS", arena);
-                                    } finally {
-                                        UdevFunctions.udev_device_unref(device);
                                     }
                                 }
                                 logProcs.add(getLogicalProcessorFromSyspath(syspath, caches, modAlias,
                                         coreEfficiencyMap, modAliasMap));
                             }
-                        } finally {
-                            UdevFunctions.udev_enumerate_unref(enumerate);
                         }
-                    } finally {
-                        UdevFunctions.udev_unref(udev);
                     }
                     return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
                 }, LOG, WARN, "Error reading CPU topology via udev, falling back to sysfs", null);
@@ -129,9 +126,9 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
             if (MemorySegment.NULL.equals(udev)) {
                 return false;
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     long max = 0L;
@@ -159,11 +156,7 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                         }
                         return true;
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
             return false;
         }, LOG, WARN, "Error reading CPU frequencies via udev", false);
@@ -180,9 +173,9 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
             if (MemorySegment.NULL.equals(udev)) {
                 return -1L;
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     MemorySegment entry = UdevFunctions.udev_enumerate_get_list_entry(enumerate);
@@ -193,11 +186,7 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                                     syspath.substring(0, syspath.lastIndexOf('/')) + "/cpufreq");
                         }
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
             return -1L;
         }, LOG, WARN, "Error reading max CPU frequency via udev", -1L);

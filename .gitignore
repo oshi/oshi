@@ -16,3 +16,4 @@ release.properties
 *.releaseBackup
 bin/
 META-INF/
+AGENTS.md

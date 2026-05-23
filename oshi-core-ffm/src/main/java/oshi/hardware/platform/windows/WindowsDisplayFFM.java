@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.SetupApiFFM;
 import oshi.hardware.Display;
@@ -56,7 +57,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                 return displays;
             }
             MemorySegment hDevInfo = hDevInfoOpt.get();
-            try {
+            try (NativeHandle devInfoHandle = NativeHandle.of(hDevInfo, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
                 MemorySegment devInfoData = arena.allocate(SetupApiFFM.SP_DEVINFO_DATA_SIZE);
                 MemorySegment edidName = arena.allocateFrom("EDID", java.nio.charset.StandardCharsets.UTF_16LE);
 
@@ -72,42 +73,39 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                     if (key == null) {
                         continue;
                     }
-                    try {
-                        // First call to get size
-                        MemorySegment pType = arena.allocate(JAVA_INT);
-                        MemorySegment lpcbData = arena.allocate(JAVA_INT);
-                        MemorySegment dummyBuf = arena.allocate(1);
-                        lpcbData.set(JAVA_INT, 0, 1);
-
-                        int rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, dummyBuf, lpcbData);
-                        if (rc != ERROR_MORE_DATA) {
-                            LOG.debug("Sizing call for EDID data for monitor {}: rc={}", i, rc);
-                        } else {
-                            int size = lpcbData.get(JAVA_INT, 0);
-                            MemorySegment edidBuf = arena.allocate(size);
-                            lpcbData.set(JAVA_INT, 0, size);
-                            rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, edidBuf, lpcbData);
-                            if (rc == ERROR_SUCCESS) {
-                                byte[] edid = edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
-                                displays.add(new WindowsDisplayFFM(edid));
-                            } else {
-                                LOG.debug("Failed to read EDID data for monitor {}: rc={}", i, rc);
-                            }
-                        }
-                    } catch (Throwable t) {
-                        LOG.debug("Failed to read EDID from registry", t);
-                    } finally {
-                        try {
-                            Advapi32FFM.RegCloseKey(key);
-                        } catch (Throwable t) {
-                            LOG.debug("RegCloseKey failed", t);
+                    try (NativeHandle regKey = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
+                        byte[] edid = queryEdidFromKey(key, edidName, arena);
+                        if (edid != null) {
+                            displays.add(new WindowsDisplayFFM(edid));
                         }
                     }
                 }
-            } finally {
-                SetupApiFFM.SetupDiDestroyDeviceInfoList(hDevInfo);
             }
         }
         return displays;
+    }
+
+    private static byte[] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
+        try {
+            MemorySegment pType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+            MemorySegment dummyBuf = arena.allocate(1);
+            lpcbData.set(JAVA_INT, 0, 1);
+
+            int rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, dummyBuf, lpcbData);
+            if (rc != ERROR_MORE_DATA) {
+                return null;
+            }
+            int size = lpcbData.get(JAVA_INT, 0);
+            MemorySegment edidBuf = arena.allocate(size);
+            lpcbData.set(JAVA_INT, 0, size);
+            rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, edidBuf, lpcbData);
+            if (rc == ERROR_SUCCESS) {
+                return edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
+            }
+        } catch (Throwable t) {
+            LOG.debug("Failed to read EDID from registry: {}", t.getMessage());
+        }
+        return null;
     }
 }

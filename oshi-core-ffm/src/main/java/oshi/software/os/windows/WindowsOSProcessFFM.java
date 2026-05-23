@@ -124,24 +124,22 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
-            MemorySegment pHandle = pHandleOpt.get();
-            try (Arena arena = Arena.ofConfined()) {
+            try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
+                    Arena arena = Arena.ofConfined()) {
                 // Test for 32-bit process on 64-bit windows
                 if (IS_VISTA_OR_GREATER && getBitness() == 64) {
                     MemorySegment wow64 = arena.allocate(JAVA_INT);
-                    if (Kernel32FFM.IsWow64Process(pHandle, wow64) && wow64.get(JAVA_INT, 0) > 0) {
+                    if (Kernel32FFM.IsWow64Process(pHandle.get(), wow64) && wow64.get(JAVA_INT, 0) > 0) {
                         setBitness(32);
                     }
                 }
                 // EXECUTABLEPATH
                 if (IS_WINDOWS7_OR_GREATER) {
-                    Optional<String> pathOpt = Kernel32FFM.QueryFullProcessImageName(pHandle, 0, arena);
+                    Optional<String> pathOpt = Kernel32FFM.QueryFullProcessImageName(pHandle.get(), 0, arena);
                     if (pathOpt.isPresent()) {
                         setPath(pathOpt.get());
                     }
                 }
-            } finally {
-                Kernel32FFM.CloseHandle(pHandle);
             }
         }
 
@@ -192,13 +190,13 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         Pair<String, String> pair = null;
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
-            MemorySegment pHandle = pHandleOpt.get();
-            MemorySegment hToken = null;
-            try (Arena arena = Arena.ofConfined()) {
+            try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
+                    Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, TOKEN_QUERY, hTokenPtr)) {
-                    hToken = hTokenPtr.get(ADDRESS, 0);
-                    pair = getTokenAccountInfo(hToken, TokenUser, arena);
+                if (Advapi32FFM.OpenProcessToken(pHandle.get(), TOKEN_QUERY, hTokenPtr)) {
+                    try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
+                        pair = getTokenAccountInfo(hToken.get(), TokenUser, arena);
+                    }
                 } else {
                     int error = Kernel32FFM.GetLastError().orElse(0);
                     if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
@@ -208,11 +206,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             } catch (Throwable e) {
                 LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
                         e.getMessage());
-            } finally {
-                if (hToken != null && hToken.address() != 0) {
-                    Kernel32FFM.CloseHandle(hToken);
-                }
-                Kernel32FFM.CloseHandle(pHandle);
             }
         }
         return pair != null ? pair : defaultPair();
@@ -223,13 +216,13 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         Pair<String, String> pair = null;
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
-            MemorySegment pHandle = pHandleOpt.get();
-            MemorySegment hToken = null;
-            try (Arena arena = Arena.ofConfined()) {
+            try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
+                    Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle, TOKEN_QUERY, hTokenPtr)) {
-                    hToken = hTokenPtr.get(ADDRESS, 0);
-                    pair = getTokenAccountInfo(hToken, TokenPrimaryGroup, arena);
+                if (Advapi32FFM.OpenProcessToken(pHandle.get(), TOKEN_QUERY, hTokenPtr)) {
+                    try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
+                        pair = getTokenAccountInfo(hToken.get(), TokenPrimaryGroup, arena);
+                    }
                 } else {
                     int error = Kernel32FFM.GetLastError().orElse(0);
                     if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
@@ -239,11 +232,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             } catch (Throwable e) {
                 LOG.warn("Failed to query group info for process {} ({}): {}", getProcessID(), getName(),
                         e.getMessage());
-            } finally {
-                if (hToken != null && hToken.address() != 0) {
-                    Kernel32FFM.CloseHandle(hToken);
-                }
-                Kernel32FFM.CloseHandle(pHandle);
             }
         }
         return pair != null ? pair : defaultPair();
@@ -304,13 +292,13 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         Optional<MemorySegment> hOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false,
                 getProcessID());
         if (hOpt.isPresent()) {
-            MemorySegment h = hOpt.get();
-            try (Arena arena = Arena.ofConfined()) {
-                if (WindowsOperatingSystemFFM.isX86() == isWow(h, arena)) {
+            try (NativeHandle h = NativeHandle.of(hOpt.get(), Kernel32FFM::CloseHandle);
+                    Arena arena = Arena.ofConfined()) {
+                if (WindowsOperatingSystemFFM.isX86() == isWow(h.get(), arena)) {
                     MemorySegment pbi = arena.allocate(PROCESS_BASIC_INFORMATION_STRUCT);
                     MemorySegment nRead = arena.allocate(JAVA_INT);
 
-                    int ret = NtDllFFM.NtQueryInformationProcess(h, PROCESS_BASIC_INFORMATION, pbi,
+                    int ret = NtDllFFM.NtQueryInformationProcess(h.get(), PROCESS_BASIC_INFORMATION, pbi,
                             (int) PROCESS_BASIC_INFORMATION_STRUCT.byteSize(), nRead);
                     if (ret != 0) {
                         return defaultCwdCommandlineEnvironment();
@@ -323,7 +311,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
                     MemorySegment peb = arena.allocate(PEB);
                     MemorySegment bytesRead = arena.allocate(JAVA_LONG);
-                    if (!Kernel32FFM.ReadProcessMemory(h, pebAddress, peb, PEB.byteSize(), bytesRead)) {
+                    if (!Kernel32FFM.ReadProcessMemory(h.get(), pebAddress, peb, PEB.byteSize(), bytesRead)) {
                         return defaultCwdCommandlineEnvironment();
                     }
                     if (bytesRead.get(JAVA_LONG, 0) == 0) {
@@ -336,7 +324,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     }
 
                     MemorySegment upp = arena.allocate(RTL_USER_PROCESS_PARAMETERS);
-                    if (!Kernel32FFM.ReadProcessMemory(h, processParamsAddress, upp,
+                    if (!Kernel32FFM.ReadProcessMemory(h.get(), processParamsAddress, upp,
                             RTL_USER_PROCESS_PARAMETERS.byteSize(), bytesRead)) {
                         return defaultCwdCommandlineEnvironment();
                     }
@@ -346,18 +334,18 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
                     MemorySegment cwdUnicodeString = upp.asSlice(UPP_CURRENT_DIRECTORY_OFFSET,
                             UNICODE_STRING.byteSize());
-                    String cwd = readUnicodeString(h, cwdUnicodeString, arena);
+                    String cwd = readUnicodeString(h.get(), cwdUnicodeString, arena);
 
                     MemorySegment cmdLineUnicodeString = upp.asSlice(UPP_COMMAND_LINE_OFFSET,
                             UNICODE_STRING.byteSize());
-                    String cl = readUnicodeString(h, cmdLineUnicodeString, arena);
+                    String cl = readUnicodeString(h.get(), cmdLineUnicodeString, arena);
 
                     long envSize = upp.get(JAVA_LONG, UPP_ENVIRONMENT_SIZE_OFFSET);
                     if (envSize > 0 && envSize < Integer.MAX_VALUE) {
                         MemorySegment envAddress = upp.get(ADDRESS, UPP_ENVIRONMENT_OFFSET);
                         if (envAddress.address() != 0) {
                             MemorySegment envBuffer = arena.allocate((int) envSize);
-                            if (Kernel32FFM.ReadProcessMemory(h, envAddress, envBuffer, envSize, bytesRead)) {
+                            if (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)) {
                                 if (bytesRead.get(JAVA_LONG, 0) > 0) {
                                     char[] env = new char[(int) (envSize / 2)];
                                     for (int i = 0; i < env.length; i++) {
@@ -372,8 +360,6 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     }
                     return new Triplet<>(cwd, cl, Collections.emptyMap());
                 }
-            } finally {
-                Kernel32FFM.CloseHandle(h);
             }
         }
         return defaultCwdCommandlineEnvironment();

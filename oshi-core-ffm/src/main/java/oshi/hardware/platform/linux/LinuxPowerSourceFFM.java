@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.platform.linux.LinuxPowerSource;
@@ -56,9 +57,9 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
             if (MemorySegment.NULL.equals(udev)) {
                 return null;
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "power_supply", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     for (MemorySegment entry = UdevFunctions
@@ -76,7 +77,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try {
+                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             if (ParseUtil.parseIntOrDefault(
                                     UdevFunctions.getPropertyValue(device, Prop.POWER_SUPPLY_PRESENT.name(), arena),
                                     1) > 0) {
@@ -89,15 +90,9 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                                 }
                                 result.add(new LinuxPowerSourceFFM(buildPowerSource(name, props)));
                             }
-                        } finally {
-                            UdevFunctions.udev_device_unref(device);
                         }
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
             return result;
         }, LOG, WARN, "Error enumerating power sources via udev, falling back to sysfs", null);
