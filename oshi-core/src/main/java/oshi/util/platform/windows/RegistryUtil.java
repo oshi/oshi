@@ -33,24 +33,6 @@ public final class RegistryUtil {
     }
 
     /**
-     * Returns a registry value as a Long. (without access flag) Currently supports String and Integer
-     *
-     * @param root the registry root
-     * @param path the registry path
-     * @param key  the registry key
-     * @return the registry value as a long
-     */
-    public static long getLongValue(HKEY root, String path, String key) {
-        try {
-            Object val = Advapi32Util.registryGetValue(root, path, key);
-            return registryValueToLong(val);
-        } catch (Win32Exception e) {
-            LOG.trace("Unable to access " + path + ": " + e.getMessage());
-        }
-        return 0L;
-    }
-
-    /**
      * Returns a registry value as a Long. (with access flag) Currently supports String and Integer
      *
      * @param root       the registry root
@@ -85,7 +67,7 @@ public final class RegistryUtil {
             if (hKey != null) {
                 int rc = ADV.RegCloseKey(hKey);
                 if (rc != ERROR_SUCCESS) {
-                    throw new Win32Exception(rc);
+                    LOG.trace("Unable to close registry key " + path + ": " + rc);
                 }
             }
         }
@@ -124,24 +106,6 @@ public final class RegistryUtil {
             return epoch;
         }
         return 0L;
-    }
-
-    /**
-     * Returns a registry value as a String. (without access flag) Currently supports String and Binary
-     *
-     * @param root the registry root
-     * @param path the registry path
-     * @param key  the registry key
-     * @return the registry value as a string
-     */
-    public static String getStringValue(WinReg.HKEY root, String path, String key) {
-        try {
-            Object val = Advapi32Util.registryGetValue(root, path, key);
-            return registryValueToString(val);
-        } catch (Win32Exception e) {
-            LOG.trace("Unable to access " + path + ": " + e.getMessage());
-            return null;
-        }
     }
 
     /**

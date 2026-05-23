@@ -57,6 +57,12 @@ class ParseUtilTest {
         assertEquals("ABC", ParseUtil.decodeBinaryToString(bytes));
     }
 
+    @Test
+    void testDecodeNullOrEmptyBinary() {
+        assertThat(ParseUtil.decodeBinaryToString(null), is(nullValue()));
+        assertThat(ParseUtil.decodeBinaryToString(new byte[0]), is(nullValue()));
+    }
+
     /**
      * Verifies that Windows-1252 null-terminated binary data is decoded into a String.
      */
@@ -443,6 +449,14 @@ class ParseUtilTest {
 
         foo = String.format(Locale.ROOT, "NOLOG: Array too short %d %d %d %d", 123, 456, 789, now);
         result = ParseUtil.parseStringToLongArray(foo, indices, 2, ' ');
+        assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
+
+        foo = String.format(Locale.ROOT, "Invalid character %d %s %d %d", 123, "4v6", 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
+
+        foo = String.format(Locale.ROOT, "String too short %d %d %d %d", 123, 456, 789, now);
+        result = ParseUtil.parseStringToLongArray(foo, indices, 9, ' ');
         assertThat("result[1] index should be 0 using parseStringToLongArray on \"" + foo + "\"", result[1], is(0L));
 
         foo = String.format(Locale.ROOT, "%d %d %d %d", 123, 456, 789, now);
@@ -855,6 +869,16 @@ class ParseUtilTest {
         assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
 
         map.put("key", "value");
+        assertThat(ParseUtil.getValueOrUnknown(map, key), is("value"));
+    }
+
+    @Test
+    void testGetValueOrUnknownWithObjectKey() {
+        Object key = 1;
+        Map<Object, String> map = new HashMap<>();
+        assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
+
+        map.put(key, "value");
         assertThat(ParseUtil.getValueOrUnknown(map, key), is("value"));
     }
 

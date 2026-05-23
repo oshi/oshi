@@ -4,10 +4,14 @@
  */
 package oshi.util.platform.windows;
 
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.WARN;
+
 import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
 import com.sun.jna.platform.win32.Pdh;
@@ -61,16 +65,12 @@ public final class PerfDataUtil {
                 ret = IS_VISTA_OR_GREATER ? PDH.PdhCollectQueryDataWithTime(query.getValue(), pllTimeStamp)
                         : PDH.PdhCollectQueryData(query.getValue());
             }
-            if (ret != WinError.ERROR_SUCCESS) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to update counter. Error code: {}",
-                            String.format(Locale.ROOT, FormatUtil.formatError(ret)));
-                }
-                return 0L;
+            if (ret == WinError.ERROR_SUCCESS) {
+                // Perf Counter timestamp is in local time
+                return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)
+                        : System.currentTimeMillis();
             }
-            // Perf Counter timestamp is in local time
-            return IS_VISTA_OR_GREATER ? ParseUtil.filetimeToUtcMs(pllTimeStamp.getValue().longValue(), true)
-                    : System.currentTimeMillis();
+            return handleError(ret, WARN, "Failed to update counter.", 0L);
         }
     }
 
@@ -82,14 +82,10 @@ public final class PerfDataUtil {
      */
     public static boolean openQuery(HANDLEByReference q) {
         int ret = PDH.PdhOpenQuery(null, PZERO, q);
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to open PDH Query. Error code: {}",
-                        String.format(Locale.ROOT, FormatUtil.formatError(ret)));
-            }
-            return false;
+        if (ret == WinError.ERROR_SUCCESS) {
+            return true;
         }
-        return true;
+        return handleError(ret, ERROR, "Failed to open PDH Query.", false);
     }
 
     /**
@@ -111,14 +107,10 @@ public final class PerfDataUtil {
     public static long queryCounter(HANDLEByReference counter) {
         try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
             int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-            if (ret != WinError.ERROR_SUCCESS) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to get counter. Error code: {}",
-                            String.format(Locale.ROOT, FormatUtil.formatError(ret)));
-                }
-                return ret;
+            if (ret == WinError.ERROR_SUCCESS) {
+                return counterValue.FirstValue;
             }
-            return counterValue.FirstValue;
+            return handleError(ret, WARN, "Failed to get counter.", (long) ret);
         }
     }
 
@@ -131,14 +123,10 @@ public final class PerfDataUtil {
     public static long querySecondCounter(HANDLEByReference counter) {
         try (CloseablePdhRawCounter counterValue = new CloseablePdhRawCounter()) {
             int ret = PDH.PdhGetRawCounterValue(counter.getValue(), PDH_FMT_RAW, counterValue);
-            if (ret != WinError.ERROR_SUCCESS) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to get counter. Error code: {}",
-                            String.format(Locale.ROOT, FormatUtil.formatError(ret)));
-                }
-                return ret;
+            if (ret == WinError.ERROR_SUCCESS) {
+                return counterValue.SecondValue;
             }
-            return counterValue.SecondValue;
+            return handleError(ret, WARN, "Failed to get counter.", (long) ret);
         }
     }
 
@@ -154,14 +142,10 @@ public final class PerfDataUtil {
     public static boolean addCounter(HANDLEByReference query, String path, HANDLEByReference p) {
         int ret = IS_VISTA_OR_GREATER ? PDH.PdhAddEnglishCounter(query.getValue(), path, PZERO, p)
                 : PDH.PdhAddCounter(query.getValue(), path, PZERO, p);
-        if (ret != WinError.ERROR_SUCCESS) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to add PDH Counter: {}, Error code: {}", path,
-                        String.format(Locale.ROOT, FormatUtil.formatError(ret)));
-            }
-            return false;
+        if (ret == WinError.ERROR_SUCCESS) {
+            return true;
         }
-        return true;
+        return handleError(ret, WARN, "Failed to add PDH Counter: " + path + ",", false);
     }
 
     /**
@@ -172,5 +156,13 @@ public final class PerfDataUtil {
      */
     public static boolean removeCounter(HANDLEByReference p) {
         return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());
+    }
+
+    static <T> T handleError(int ret, Level level, String message, T defaultValue) {
+        if (LOG.isEnabledForLevel(level)) {
+            LOG.atLevel(level).log("{} Error code: {}", message,
+                    String.format(Locale.ROOT, FormatUtil.formatError(ret)));
+        }
+        return defaultValue;
     }
 }
