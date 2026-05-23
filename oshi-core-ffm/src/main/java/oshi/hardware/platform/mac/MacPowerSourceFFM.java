@@ -21,7 +21,7 @@ import oshi.ffm.mac.CoreFoundation.CFBooleanRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
-import oshi.ffm.mac.CoreFoundationFunctions;
+import oshi.ffm.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.mac.IOKit.IOService;
 import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
@@ -74,7 +74,7 @@ public final class MacPowerSourceFFM extends MacPowerSource {
 
         IOService smartBattery = IOKitUtilFFM.getMatchingService("AppleSmartBattery");
         if (smartBattery != null) {
-            try {
+            try (smartBattery) {
                 String s = smartBattery.getStringProperty("DeviceName");
                 if (s != null) {
                     psDeviceName = s;
@@ -145,8 +145,6 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                     psCharging = bool;
                 }
                 psDischarging = !psCharging && !psPowerOnLine;
-            } finally {
-                smartBattery.release();
             }
         }
 
@@ -170,84 +168,57 @@ public final class MacPowerSourceFFM extends MacPowerSource {
         final String fSerialNumber = psSerialNumber;
         final double fTemperature = psTemperature;
 
-        MemorySegment powerSourcesInfo = MemorySegment.NULL;
-        CFArrayRef cfList = null;
-        CFStringRef nameKey = null;
-        CFStringRef isPresentKey = null;
-        CFStringRef currentCapacityKey = null;
-        CFStringRef maxCapacityKey = null;
-        try {
-            powerSourcesInfo = IOPSCopyPowerSourcesInfo();
-            cfList = new CFArrayRef(IOPSCopyPowerSourcesList(powerSourcesInfo));
-            double psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
-            int powerSourcesCount = cfList.getCount();
+        CFStringRef nameKey = CFStringRef.createCFString("Name");
+        CFStringRef isPresentKey = CFStringRef.createCFString("Is Present");
+        CFStringRef currentCapacityKey = CFStringRef.createCFString("Current Capacity");
+        CFStringRef maxCapacityKey = CFStringRef.createCFString("Max Capacity");
+        try (nameKey; isPresentKey; currentCapacityKey; maxCapacityKey) {
+            MemorySegment powerSourcesInfo = IOPSCopyPowerSourcesInfo();
+            try (CFTypeRef infoRef = new CFTypeRef(powerSourcesInfo)) {
+                CFArrayRef cfList = new CFArrayRef(IOPSCopyPowerSourcesList(powerSourcesInfo));
+                try (cfList) {
+                    double psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
+                    int powerSourcesCount = cfList.getCount();
 
-            nameKey = CFStringRef.createCFString("Name");
-            isPresentKey = CFStringRef.createCFString("Is Present");
-            currentCapacityKey = CFStringRef.createCFString("Current Capacity");
-            maxCapacityKey = CFStringRef.createCFString("Max Capacity");
+                    List<PowerSource> psList = new ArrayList<>(powerSourcesCount);
+                    for (int ps = 0; ps < powerSourcesCount; ps++) {
+                        MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
+                        MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
+                        CFDictionaryRef dict = new CFDictionaryRef(dictionary);
 
-            List<PowerSource> psList = new ArrayList<>(powerSourcesCount);
-            for (int ps = 0; ps < powerSourcesCount; ps++) {
-                MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
-                MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
-                CFDictionaryRef dict = new CFDictionaryRef(dictionary);
+                        MemorySegment result = dict.getValue(isPresentKey);
+                        if (!result.equals(MemorySegment.NULL)) {
+                            CFBooleanRef isPresentRef = new CFBooleanRef(result);
+                            if (isPresentRef.booleanValue()) {
+                                result = dict.getValue(nameKey);
+                                String psName = CFUtilFFM.cfPointerToString(result);
 
-                MemorySegment result = dict.getValue(isPresentKey);
-                if (!result.equals(MemorySegment.NULL)) {
-                    CFBooleanRef isPresentRef = new CFBooleanRef(result);
-                    if (isPresentRef.booleanValue()) {
-                        result = dict.getValue(nameKey);
-                        String psName = CFUtilFFM.cfPointerToString(result);
+                                double currentCapacity = 0d;
+                                if (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
+                                    result = dict.getValue(currentCapacityKey);
+                                    currentCapacity = new CFNumberRef(result).intValue();
+                                }
+                                double maxCapacity = 1d;
+                                if (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
+                                    result = dict.getValue(maxCapacityKey);
+                                    maxCapacity = new CFNumberRef(result).intValue();
+                                }
+                                double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
+                                        : Math.min(1d, currentCapacity / maxCapacity);
 
-                        double currentCapacity = 0d;
-                        if (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
-                            result = dict.getValue(currentCapacityKey);
-                            currentCapacity = new CFNumberRef(result).intValue();
+                                psList.add(new MacPowerSourceFFM(psName, fDeviceName, psRemainingCapacityPercent,
+                                        psTimeRemainingEstimated, fTimeRemainingInstant, fPowerUsageRate, fVoltage,
+                                        fAmperage, fPowerOnLine, fCharging, fDischarging, fCapacityUnits,
+                                        fCurrentCapacity, fMaxCapacity, fDesignCapacity, fCycleCount, fChemistry,
+                                        fManufactureDate, fManufacturer, fSerialNumber, fTemperature));
+                            }
                         }
-                        double maxCapacity = 1d;
-                        if (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
-                            result = dict.getValue(maxCapacityKey);
-                            maxCapacity = new CFNumberRef(result).intValue();
-                        }
-                        double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
-                                : Math.min(1d, currentCapacity / maxCapacity);
-
-                        psList.add(new MacPowerSourceFFM(psName, fDeviceName, psRemainingCapacityPercent,
-                                psTimeRemainingEstimated, fTimeRemainingInstant, fPowerUsageRate, fVoltage, fAmperage,
-                                fPowerOnLine, fCharging, fDischarging, fCapacityUnits, fCurrentCapacity, fMaxCapacity,
-                                fDesignCapacity, fCycleCount, fChemistry, fManufactureDate, fManufacturer,
-                                fSerialNumber, fTemperature));
                     }
+                    return psList;
                 }
             }
-            return psList;
         } catch (Throwable e) {
             return new ArrayList<>();
-        } finally {
-            if (isPresentKey != null) {
-                isPresentKey.release();
-            }
-            if (nameKey != null) {
-                nameKey.release();
-            }
-            if (currentCapacityKey != null) {
-                currentCapacityKey.release();
-            }
-            if (maxCapacityKey != null) {
-                maxCapacityKey.release();
-            }
-            if (cfList != null) {
-                cfList.release();
-            }
-            if (!powerSourcesInfo.equals(MemorySegment.NULL)) {
-                // powerSourcesInfo owns powerSourcesList; release info last
-                try {
-                    CoreFoundationFunctions.CFRelease(powerSourcesInfo);
-                } catch (Throwable ignored) {
-                    // CFRelease declares throws Throwable; swallow to keep finally clean
-                }
-            }
         }
     }
 }
