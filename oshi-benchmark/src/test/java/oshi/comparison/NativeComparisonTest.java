@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -46,6 +45,7 @@ import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
 import oshi.util.PlatformEnum;
+import oshi.util.Util;
 
 /**
  * Compares JNA and FFM implementations of the OSHI API to detect regressions, missing implementations, or incorrect
@@ -245,7 +245,6 @@ class NativeComparisonTest {
     // ---- Hardware: Disks ----
 
     @Test
-    @DisabledIf("isLinux")
     void diskStores() {
         List<HWDiskStore> jna = jnaHal.getDiskStores();
         List<HWDiskStore> ffm = ffmHal.getDiskStores();
@@ -264,8 +263,12 @@ class NativeComparisonTest {
             assertThat(f.getReadBytes()).as("readBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
             assertThat(f.getWrites()).as("writes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWrites());
             assertThat(f.getWriteBytes()).as("writeBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWriteBytes());
-            // Partitions should match exactly
-            assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
+            // TODO: Remove isLinux() skip after upgrading JNA past 5.18.1.
+            // JNA's UdevDevice.getSysname() returns full syspath on Linux; fixed by
+            // https://github.com/java-native-access/jna/pull/1715
+            if (!isLinux()) {
+                assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
+            }
         }
     }
 
@@ -406,14 +409,173 @@ class NativeComparisonTest {
         OSProcess ffm = ffmOs.getProcess(pid);
         assertThat(jna).isNotNull();
         assertThat(ffm).isNotNull();
+        // Snapshot initial times
+        long jnaKernelBefore = jna.getKernelTime();
+        long jnaUserBefore = jna.getUserTime();
+        long ffmKernelBefore = ffm.getKernelTime();
+        long ffmUserBefore = ffm.getUserTime();
+        // Delay to accumulate CPU time
+        Util.sleep(100);
         // Call updateAttributes to refresh and verify it succeeds
-        assertThat(jna.updateAttributes()).as("JNA updateAttributes").isTrue();
-        assertThat(ffm.updateAttributes()).as("FFM updateAttributes").isTrue();
+        assertThat(jna.updateAttributes()).as("JNA process updateAttributes").isTrue();
+        assertThat(ffm.updateAttributes()).as("FFM process updateAttributes").isTrue();
         // After refresh, basic fields should still match
         assertThat(ffm.getName()).isEqualTo(jna.getName());
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         // Command line exercises Win32ProcessCached when batch mode is enabled
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+        // Kernel and user time are monotonically nondecreasing
+        assertThat(jna.getKernelTime()).as("JNA kernelTime").isGreaterThanOrEqualTo(jnaKernelBefore);
+        assertThat(jna.getUserTime()).as("JNA userTime").isGreaterThanOrEqualTo(jnaUserBefore);
+        assertThat(ffm.getKernelTime()).as("FFM kernelTime").isGreaterThanOrEqualTo(ffmKernelBefore);
+        assertThat(ffm.getUserTime()).as("FFM userTime").isGreaterThanOrEqualTo(ffmUserBefore);
+    }
+
+    @Test
+    void currentThreadUpdateAttributes() {
+        OSThread jnaThread = jnaOs.getCurrentThread();
+        OSThread ffmThread = ffmOs.getCurrentThread();
+        assertThat(jnaThread).isNotNull();
+        assertThat(ffmThread).isNotNull();
+        // Snapshot initial times
+        long jnaKernelBefore = jnaThread.getKernelTime();
+        long jnaUserBefore = jnaThread.getUserTime();
+        long ffmKernelBefore = ffmThread.getKernelTime();
+        long ffmUserBefore = ffmThread.getUserTime();
+        // Delay to accumulate CPU time
+        Util.sleep(100);
+        // Call updateAttributes; not implemented on macOS (returns false)
+        boolean jnaUpdated = jnaThread.updateAttributes();
+        boolean ffmUpdated = ffmThread.updateAttributes();
+        assertThat(ffmUpdated).as("JNA and FFM should agree").isEqualTo(jnaUpdated);
+        if (!jnaUpdated) {
+            return;
+        }
+        // Kernel and user time are monotonically nondecreasing
+        assertThat(jnaThread.getKernelTime()).as("JNA thread kernelTime").isGreaterThanOrEqualTo(jnaKernelBefore);
+        assertThat(jnaThread.getUserTime()).as("JNA thread userTime").isGreaterThanOrEqualTo(jnaUserBefore);
+        assertThat(ffmThread.getKernelTime()).as("FFM thread kernelTime").isGreaterThanOrEqualTo(ffmKernelBefore);
+        assertThat(ffmThread.getUserTime()).as("FFM thread userTime").isGreaterThanOrEqualTo(ffmUserBefore);
+    }
+
+    @Test
+    void diskStoreUpdateAttributes() {
+        List<HWDiskStore> jna = jnaHal.getDiskStores();
+        List<HWDiskStore> ffm = ffmHal.getDiskStores();
+        assertThat(ffm).isNotEmpty();
+        Map<String, HWDiskStore> ffmByName = ffm.stream()
+                .collect(Collectors.toMap(HWDiskStore::getName, Function.identity()));
+        int matched = 0;
+        for (HWDiskStore j : jna) {
+            HWDiskStore f = ffmByName.get(j.getName());
+            if (f == null) {
+                continue;
+            }
+            matched++;
+            // Snapshot before values
+            long jnaReadsBefore = j.getReads();
+            long jnaWritesBefore = j.getWrites();
+            long ffmReadsBefore = f.getReads();
+            long ffmWritesBefore = f.getWrites();
+            // Delay to allow I/O activity
+            Util.sleep(100);
+            // Refresh
+            assertThat(j.updateAttributes()).as("JNA disk %s updateAttributes", j.getName()).isTrue();
+            assertThat(f.updateAttributes()).as("FFM disk %s updateAttributes", f.getName()).isTrue();
+            // Reads and writes are monotonically nondecreasing
+            assertThat(j.getReads()).as("JNA reads(%s)", j.getName()).isGreaterThanOrEqualTo(jnaReadsBefore);
+            assertThat(j.getWrites()).as("JNA writes(%s)", j.getName()).isGreaterThanOrEqualTo(jnaWritesBefore);
+            assertThat(f.getReads()).as("FFM reads(%s)", f.getName()).isGreaterThanOrEqualTo(ffmReadsBefore);
+            assertThat(f.getWrites()).as("FFM writes(%s)", f.getName()).isGreaterThanOrEqualTo(ffmWritesBefore);
+        }
+        assertThat(matched).as("matched disk stores").isGreaterThan(0);
+    }
+
+    @Test
+    void networkIfUpdateAttributes() {
+        List<NetworkIF> jna = jnaHal.getNetworkIFs();
+        List<NetworkIF> ffm = ffmHal.getNetworkIFs();
+        assertThat(ffm).isNotEmpty();
+        Map<String, NetworkIF> ffmByName = ffm.stream()
+                .collect(Collectors.toMap(NetworkIF::getName, Function.identity()));
+        int matched = 0;
+        for (NetworkIF j : jna) {
+            NetworkIF f = ffmByName.get(j.getName());
+            if (f == null) {
+                continue;
+            }
+            matched++;
+            // Snapshot before values
+            long jnaBytesSentBefore = j.getBytesSent();
+            long jnaBytesRecvBefore = j.getBytesRecv();
+            long ffmBytesSentBefore = f.getBytesSent();
+            long ffmBytesRecvBefore = f.getBytesRecv();
+            // Delay to allow network activity
+            Util.sleep(100);
+            // Refresh
+            assertThat(j.updateAttributes()).as("JNA net %s updateAttributes", j.getName()).isTrue();
+            assertThat(f.updateAttributes()).as("FFM net %s updateAttributes", f.getName()).isTrue();
+            // Traffic counters are monotonically nondecreasing
+            assertThat(j.getBytesSent()).as("JNA bytesSent(%s)", j.getName())
+                    .isGreaterThanOrEqualTo(jnaBytesSentBefore);
+            assertThat(j.getBytesRecv()).as("JNA bytesRecv(%s)", j.getName())
+                    .isGreaterThanOrEqualTo(jnaBytesRecvBefore);
+            assertThat(f.getBytesSent()).as("FFM bytesSent(%s)", f.getName())
+                    .isGreaterThanOrEqualTo(ffmBytesSentBefore);
+            assertThat(f.getBytesRecv()).as("FFM bytesRecv(%s)", f.getName())
+                    .isGreaterThanOrEqualTo(ffmBytesRecvBefore);
+        }
+        assertThat(matched).as("matched network interfaces").isGreaterThan(0);
+    }
+
+    @Test
+    void fileStoreUpdateAttributes() {
+        List<OSFileStore> jnaStores = jnaOs.getFileSystem().getFileStores();
+        List<OSFileStore> ffmStores = ffmOs.getFileSystem().getFileStores();
+        assertThat(ffmStores).isNotEmpty();
+        Map<String, OSFileStore> ffmByMount = ffmStores.stream()
+                .collect(Collectors.toMap(OSFileStore::getMount, Function.identity(), (a, b) -> a));
+        int matched = 0;
+        for (OSFileStore j : jnaStores) {
+            OSFileStore f = ffmByMount.get(j.getMount());
+            if (f == null) {
+                continue;
+            }
+            matched++;
+            // Delay before refresh
+            Util.sleep(100);
+            // Refresh
+            assertThat(j.updateAttributes()).as("JNA fileStore %s updateAttributes", j.getMount()).isTrue();
+            assertThat(f.updateAttributes()).as("FFM fileStore %s updateAttributes", f.getMount()).isTrue();
+            // Space values should remain valid (non-negative, total unchanged)
+            assertThat(j.getTotalSpace()).as("JNA totalSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
+            assertThat(f.getTotalSpace()).as("FFM totalSpace(%s)", f.getMount()).isEqualTo(j.getTotalSpace());
+            assertThat(j.getUsableSpace()).as("JNA usableSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
+            assertThat(f.getUsableSpace()).as("FFM usableSpace(%s)", f.getMount()).isGreaterThanOrEqualTo(0L);
+        }
+        assertThat(matched).as("matched file stores").isGreaterThan(0);
+    }
+
+    @Test
+    void powerSourceUpdateAttributes() {
+        List<PowerSource> jna = jnaHal.getPowerSources();
+        List<PowerSource> ffm = ffmHal.getPowerSources();
+        if (jna.isEmpty()) {
+            assertThat(ffm).as("both JNA and FFM should be empty").isEmpty();
+            return;
+        }
+        assertThat(ffm).hasSameSizeAs(jna);
+        Map<String, PowerSource> ffmByName = ffm.stream()
+                .collect(Collectors.toMap(PowerSource::getName, Function.identity()));
+        // Delay before refresh
+        Util.sleep(100);
+        for (PowerSource j : jna) {
+            PowerSource f = ffmByName.get(j.getName());
+            assertThat(f).as("powerSource %s", j.getName()).isNotNull();
+            assertThat(j.updateAttributes()).as("JNA powerSource %s updateAttributes", j.getName()).isTrue();
+            assertThat(f.updateAttributes()).as("FFM powerSource %s updateAttributes", f.getName()).isTrue();
+            assertThat(f.getMaxCapacity()).as("FFM maxCapacity(%s)", f.getName()).isEqualTo(j.getMaxCapacity());
+        }
     }
 
     // ---- OS: FileSystem ----
