@@ -37,6 +37,13 @@ class PowerSourceTest {
                     "Power Source's estimated remaining time should be greater than zero or within error margin of -1 or within error margin of -2",
                     ps.getTimeRemainingEstimated(),
                     is(either(greaterThan(0d)).or(closeTo(-1d, epsilon)).or(closeTo(-2d, epsilon))));
+            // updateAttributes should succeed and static values should not change
+            int maxCapBefore = ps.getMaxCapacity();
+            assertThat("Power Source updateAttributes should succeed for " + ps.getName(), ps.updateAttributes(),
+                    is(true));
+            assertThat("Max capacity should not change after update", ps.getMaxCapacity(), is(maxCapBefore));
+            assertThat("Remaining capacity should still be valid after update", ps.getRemainingCapacityPercent(),
+                    is(greaterThanOrEqualTo(0d)));
         }
     }
 }

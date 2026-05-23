@@ -49,6 +49,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;
+import oshi.util.Util;
 
 /**
  * Test OS
@@ -172,6 +173,15 @@ class OperatingSystemTest {
                 is(greaterThanOrEqualTo(-1L)));
         assertThat("Hard open file limit for process should be -1 or higher", proc.getHardOpenFileLimit(),
                 is(greaterThanOrEqualTo(-1L)));
+        // updateAttributes should succeed and kernel/user time should be nondecreasing
+        long kernelBefore = proc.getKernelTime();
+        long userBefore = proc.getUserTime();
+        Util.sleep(500);
+        assertThat("Process updateAttributes should succeed", proc.updateAttributes(), is(true));
+        assertThat("Kernel time should be nondecreasing after update", proc.getKernelTime(),
+                is(greaterThanOrEqualTo(kernelBefore)));
+        assertThat("User time should be nondecreasing after update", proc.getUserTime(),
+                is(greaterThanOrEqualTo(userBefore)));
     }
 
     @Test
@@ -179,6 +189,17 @@ class OperatingSystemTest {
         List<OSThread> threads = proc.getThreadDetails();
         for (OSThread thread : threads) {
             assertThat("OS thread shouldn't be null", thread, is(notNullValue()));
+        }
+        // Test updateAttributes on current thread (not implemented on all platforms)
+        OSThread currentThread = os.getCurrentThread();
+        assertThat("Current thread shouldn't be null", currentThread, is(notNullValue()));
+        long preKernel = currentThread.getKernelTime();
+        long preUser = currentThread.getUserTime();
+        if (currentThread.updateAttributes()) {
+            assertThat("Thread kernel time should be nondecreasing after update", currentThread.getKernelTime(),
+                    is(greaterThanOrEqualTo(preKernel)));
+            assertThat("Thread user time should be nondecreasing after update", currentThread.getUserTime(),
+                    is(greaterThanOrEqualTo(preUser)));
         }
     }
 
