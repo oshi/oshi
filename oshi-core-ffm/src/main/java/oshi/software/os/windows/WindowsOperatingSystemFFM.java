@@ -49,6 +49,7 @@ import oshi.driver.windows.registry.SessionWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.ffm.util.platform.windows.Kernel32UtilFFM;
 import oshi.ffm.windows.Advapi32FFM;
@@ -85,8 +86,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     private static boolean enableDebugPrivilege() {
-
-        MemorySegment hToken = null;
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment hTokenPtr = arena.allocate(ADDRESS);
 
@@ -100,30 +99,26 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 LOG.error("OpenProcessToken failed, error: {}", GetLastError());
                 return false;
             }
-            hToken = hTokenPtr.get(ADDRESS, 0);
+            try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
+                MemorySegment luid = arena.allocate(WinNTFFM.LUID);
+                success = Advapi32FFM.LookupPrivilegeValue("SeDebugPrivilege", luid, arena);
+                if (!success) {
+                    LOG.error("LookupPrivilegeValue failed, error: {}", GetLastError());
+                    return false;
+                }
 
-            MemorySegment luid = arena.allocate(WinNTFFM.LUID);
-            success = Advapi32FFM.LookupPrivilegeValue("SeDebugPrivilege", luid, arena);
-            if (!success) {
-                LOG.error("LookupPrivilegeValue failed, error: {}", GetLastError());
-                return false;
+                MemorySegment tkp = setupTokenPrivileges(arena, luid);
+                success = Advapi32FFM.AdjustTokenPrivileges(hToken.get(), tkp);
+                if (!success) {
+                    LOG.error("AdjustTokenPrivileges failed, error: {}", GetLastError());
+                    return false;
+                }
+
+                return true;
             }
-
-            MemorySegment tkp = setupTokenPrivileges(arena, luid);
-            success = Advapi32FFM.AdjustTokenPrivileges(hToken, tkp);
-            if (!success) {
-                LOG.error("AdjustTokenPrivileges failed, error: {}", GetLastError());
-                return false;
-            }
-
-            return true;
         } catch (Throwable t) {
             LOG.error("enableDebugPrivilege exception: {}", t.getMessage());
             return false;
-        } finally {
-            if (hToken != null && hToken.address() != 0) {
-                Kernel32FFM.CloseHandle(hToken);
-            }
         }
     }
 
@@ -157,7 +152,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 LOG.error("Failed to open Service Control Manager");
                 return Collections.emptyList();
             }
-            try {
+            try (NativeHandle ignored = NativeHandle.of(hSCManager, Advapi32FFM::CloseServiceHandle)) {
                 // First call to get required buffer size
                 MemorySegment pcbBytesNeeded = arena.allocate(JAVA_INT);
                 MemorySegment lpServicesReturned = arena.allocate(JAVA_INT);
@@ -205,8 +200,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                     svcArray.add(new OSService(displayName, processId, state));
                 }
                 return svcArray;
-            } finally {
-                Advapi32FFM.CloseServiceHandle(hSCManager);
             }
         } catch (Throwable t) {
             LOG.error("Error enumerating services: {}", t.getMessage());
