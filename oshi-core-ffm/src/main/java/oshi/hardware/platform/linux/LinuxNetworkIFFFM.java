@@ -4,9 +4,10 @@
  */
 package oshi.hardware.platform.linux;
 
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
         if (!HAS_UDEV) {
             return queryIfModelFromSysfs(name);
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
                 return queryIfModelFromSysfs(name);
@@ -63,10 +64,8 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
             } finally {
                 UdevFunctions.udev_unref(udev);
             }
-        } catch (Throwable e) {
-            LOG.warn("Error querying network interface model for {}: {}", name, e.toString());
-        }
-        return name;
+            return name;
+        }, LOG, WARN, "Error querying network interface model for " + name, name);
     }
 
     /**

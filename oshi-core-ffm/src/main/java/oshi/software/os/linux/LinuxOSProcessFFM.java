@@ -5,9 +5,10 @@
 package oshi.software.os.linux;
 
 import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.runInArenaCatchingThrowable;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
@@ -72,29 +73,25 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
 
     @Override
     protected long queryRlimitSoft() {
-        try (Arena arena = Arena.ofConfined()) {
+        long limit = callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
             if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
                 return LinuxLibcFunctions.rlimitCur(rlim);
             }
-            return getProcessOpenFileLimit(getProcessID(), 1);
-        } catch (Throwable e) {
-            LOG.warn("FFM getrlimit failed: {}", e.toString());
-            return getProcessOpenFileLimit(getProcessID(), 1);
-        }
+            return -1L;
+        }, LOG, WARN, "FFM getrlimit failed", -1L);
+        return limit < 0L ? getProcessOpenFileLimit(getProcessID(), 1) : limit;
     }
 
     @Override
     protected long queryRlimitHard() {
-        try (Arena arena = Arena.ofConfined()) {
+        long limit = callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
             if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
                 return LinuxLibcFunctions.rlimitMax(rlim);
             }
-            return getProcessOpenFileLimit(getProcessID(), 2);
-        } catch (Throwable e) {
-            LOG.warn("FFM getrlimit failed: {}", e.toString());
-            return getProcessOpenFileLimit(getProcessID(), 2);
-        }
+            return -1L;
+        }, LOG, WARN, "FFM getrlimit failed", -1L);
+        return limit < 0L ? getProcessOpenFileLimit(getProcessID(), 2) : limit;
     }
 }

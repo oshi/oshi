@@ -5,9 +5,10 @@
 package oshi.hardware.platform.linux;
 
 import static java.util.Collections.emptyList;
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,15 +65,15 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
             LOG.warn("USB Device information requires libudev, which is not present.");
             return emptyList();
         }
-        List<String> usbControllers = new ArrayList<>();
-        Map<String, String> nameMap = new HashMap<>();
-        Map<String, String> vendorMap = new HashMap<>();
-        Map<String, String> vendorIdMap = new HashMap<>();
-        Map<String, String> productIdMap = new HashMap<>();
-        Map<String, String> serialMap = new HashMap<>();
-        Map<String, List<String>> hubMap = new HashMap<>();
+        return callInArenaOrDefault(arena -> {
+            List<String> usbControllers = new ArrayList<>();
+            Map<String, String> nameMap = new HashMap<>();
+            Map<String, String> vendorMap = new HashMap<>();
+            Map<String, String> vendorIdMap = new HashMap<>();
+            Map<String, String> productIdMap = new HashMap<>();
+            Map<String, String> serialMap = new HashMap<>();
+            Map<String, List<String>> hubMap = new HashMap<>();
 
-        try (Arena arena = Arena.ofConfined()) {
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
                 return emptyList();
@@ -142,16 +143,13 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
             } finally {
                 UdevFunctions.udev_unref(udev);
             }
-        } catch (Throwable e) {
-            LOG.warn("Error enumerating USB devices: {}", e.getMessage());
-            return emptyList();
-        }
 
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        return controllerDevices;
+            List<UsbDevice> controllerDevices = new ArrayList<>();
+            for (String controller : usbControllers) {
+                controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+                        productIdMap, serialMap, hubMap));
+            }
+            return controllerDevices;
+        }, LOG, WARN, "Error enumerating USB devices", emptyList());
     }
 }
