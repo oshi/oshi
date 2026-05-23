@@ -6,6 +6,8 @@ package oshi.software.os.windows;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static org.slf4j.event.Level.ERROR;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.windows.Kernel32FFM.GetLastError;
 import static oshi.ffm.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
@@ -263,7 +265,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     private int getPerformanceInfoField(String fieldName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaIntOrDefault(arena -> {
             MemorySegment perfInfo = arena.allocate(PERFORMANCE_INFORMATION);
             int size = (int) PERFORMANCE_INFORMATION.byteSize();
             perfInfo.set(JAVA_INT, PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement("cb")),
@@ -274,10 +276,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
             }
             return perfInfo.get(JAVA_INT,
                     PERFORMANCE_INFORMATION.byteOffset(MemoryLayout.PathElement.groupElement(fieldName)));
-        } catch (Throwable t) {
-            LOG.error("Exception getting {}", fieldName, t);
-            return 0;
-        }
+        }, LOG, ERROR, "Exception getting " + fieldName, 0);
     }
 
     @Override
