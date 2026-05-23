@@ -17,6 +17,10 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 
 /**
  * Base class providing utility methods for working with the Java Foreign Function and Memory (FFM) API.
@@ -25,6 +29,97 @@ import java.lang.invoke.VarHandle;
  * native memory segments.
  */
 public abstract class ForeignFunctions {
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and returns an object.
+     *
+     * @param <T> the return type
+     */
+    @FunctionalInterface
+    public interface ArenaCallable<T> {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @return the operation result
+         * @throws Throwable if the operation fails
+         */
+        T call(Arena arena) throws Throwable;
+    }
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and returns an {@code int}.
+     */
+    @FunctionalInterface
+    public interface ArenaIntCallable {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @return the operation result
+         * @throws Throwable if the operation fails
+         */
+        int call(Arena arena) throws Throwable;
+    }
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and returns a {@code long}.
+     */
+    @FunctionalInterface
+    public interface ArenaLongCallable {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @return the operation result
+         * @throws Throwable if the operation fails
+         */
+        long call(Arena arena) throws Throwable;
+    }
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and returns a {@code double}.
+     */
+    @FunctionalInterface
+    public interface ArenaDoubleCallable {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @return the operation result
+         * @throws Throwable if the operation fails
+         */
+        double call(Arena arena) throws Throwable;
+    }
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and returns a {@code boolean}.
+     */
+    @FunctionalInterface
+    public interface ArenaBooleanCallable {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @return the operation result
+         * @throws Throwable if the operation fails
+         */
+        boolean call(Arena arena) throws Throwable;
+    }
+
+    /**
+     * Represents an operation that uses a confined {@link Arena} and does not return a value.
+     */
+    @FunctionalInterface
+    public interface ArenaRunnable {
+        /**
+         * Executes this operation with the provided arena.
+         *
+         * @param arena the confined arena scoped to this operation
+         * @throws Throwable if the operation fails
+         */
+        void run(Arena arena) throws Throwable;
+    }
 
     /** The native linker for the current platform. */
     protected static final Linker LINKER = Linker.nativeLinker();
@@ -46,6 +141,153 @@ public abstract class ForeignFunctions {
 
     /** Not intended for instantiation. */
     protected ForeignFunctions() {
+    }
+
+    /**
+     * Executes an operation in a confined arena, returning a default value if the operation throws.
+     * <p>
+     * This helper centralizes the common FFM call pattern where temporary native memory is scoped to a confined arena
+     * and failures from method-handle invocation or native binding are logged at the caller's chosen level. The
+     * provided arena is closed before this method returns, so returned objects must not depend on memory allocated from
+     * it.
+     *
+     * @param <T>          the return type
+     * @param callable     the operation to execute
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log if the operation throws
+     * @param defaultValue the value to return if the operation throws
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, Logger logger, Level level, String message,
+            T defaultValue) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes an {@code int}-returning operation in a confined arena, returning a default value if the operation
+     * throws.
+     * <p>
+     * Use this primitive-specialized variant to avoid boxing when wrapping FFM calls whose result is an {@code int}.
+     * The provided arena is closed before this method returns.
+     *
+     * @param callable     the operation to execute
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log if the operation throws
+     * @param defaultValue the value to return if the operation throws
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static int callInArenaIntOrDefault(ArenaIntCallable callable, Logger logger, Level level, String message,
+            int defaultValue) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes a {@code long}-returning operation in a confined arena, returning a default value if the operation
+     * throws.
+     * <p>
+     * Use this primitive-specialized variant to avoid boxing when wrapping FFM calls whose result is a {@code long}.
+     * The provided arena is closed before this method returns.
+     *
+     * @param callable     the operation to execute
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log if the operation throws
+     * @param defaultValue the value to return if the operation throws
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static long callInArenaLongOrDefault(ArenaLongCallable callable, Logger logger, Level level, String message,
+            long defaultValue) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes a {@code double}-returning operation in a confined arena, returning a default value if the operation
+     * throws.
+     * <p>
+     * Use this primitive-specialized variant to avoid boxing when wrapping FFM calls whose result is a {@code double}.
+     * The provided arena is closed before this method returns.
+     *
+     * @param callable     the operation to execute
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log if the operation throws
+     * @param defaultValue the value to return if the operation throws
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static double callInArenaDoubleOrDefault(ArenaDoubleCallable callable, Logger logger, Level level,
+            String message, double defaultValue) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes a {@code boolean}-returning operation in a confined arena, returning a default value if the operation
+     * throws.
+     * <p>
+     * Use this primitive-specialized variant to avoid boxing when wrapping FFM calls whose result is a {@code boolean}.
+     * The provided arena is closed before this method returns.
+     *
+     * @param callable     the operation to execute
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log if the operation throws
+     * @param defaultValue the value to return if the operation throws
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static boolean callInArenaBooleanOrDefault(ArenaBooleanCallable callable, Logger logger, Level level,
+            String message, boolean defaultValue) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes an operation in a confined arena, logging and swallowing any thrown failure.
+     * <p>
+     * This helper is intended for FFM operations whose useful result is a side effect. The provided arena is closed
+     * before this method returns.
+     *
+     * @param runnable the operation to execute
+     * @param logger   the logger for the calling class
+     * @param level    the level at which to log thrown failures
+     * @param message  the message to log if the operation throws
+     */
+    public static void runInArenaCatchingThrowable(ArenaRunnable runnable, Logger logger, Level level, String message) {
+        Objects.requireNonNull(runnable, "runnable");
+        try (Arena arena = Arena.ofConfined()) {
+            runnable.run(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t);
+        }
     }
 
     /**
@@ -151,5 +393,11 @@ public abstract class ForeignFunctions {
      */
     public static int getErrno(MemorySegment callState) {
         return (int) ERRNO_HANDLE.get(callState, 0);
+    }
+
+    private static void logThrowable(Logger logger, Level level, String message, Throwable t) {
+        Objects.requireNonNull(logger, "logger");
+        Objects.requireNonNull(level, "level");
+        logger.atLevel(level).setCause(t).log(message + ": {}", t.getMessage());
     }
 }

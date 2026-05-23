@@ -4,9 +4,11 @@
  */
 package oshi.software.os.linux;
 
+import static org.slf4j.event.Level.ERROR;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.util.List;
@@ -164,15 +166,13 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaIntOrDefault(arena -> {
             MemorySegment info = arena.allocate(LinuxLibcFunctions.SYSINFO_LAYOUT);
             if (0 == LinuxLibcFunctions.sysinfo(info)) {
                 return LinuxLibcFunctions.sysinfoProcs(info);
             }
             LOG.error("FFM sysinfo failed");
-        } catch (Throwable e) {
-            LOG.error("FFM sysinfo error: {}", e.toString());
-        }
-        return 0;
+            return 0;
+        }, LOG, ERROR, "FFM sysinfo error", 0);
     }
 }

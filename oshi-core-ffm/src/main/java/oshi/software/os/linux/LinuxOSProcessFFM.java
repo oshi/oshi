@@ -4,6 +4,9 @@
  */
 package oshi.software.os.linux;
 
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.runInArenaCatchingThrowable;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -37,7 +40,7 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
         boolean result = super.updateAttributes();
         if (getProcessID() == getOs().getProcessId()) {
             this.rusagePopulated = false;
-            try (Arena arena = Arena.ofConfined()) {
+            runInArenaCatchingThrowable(arena -> {
                 MemorySegment rusage = arena.allocate(LinuxLibcFunctions.RUSAGE_SIZE);
                 if (0 == LinuxLibcFunctions.getrusage(LinuxLibcFunctions.RUSAGE_SELF, rusage)) {
                     this.cachedVoluntaryContextSwitches = rusage.get(ValueLayout.JAVA_LONG,
@@ -46,9 +49,7 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
                             LinuxLibcFunctions.RUSAGE_NIVCSW_OFFSET);
                     this.rusagePopulated = true;
                 }
-            } catch (Throwable e) {
-                LOG.debug("FFM getrusage failed: {}", e.toString());
-            }
+            }, LOG, DEBUG, "FFM getrusage failed");
         }
         return result;
     }
