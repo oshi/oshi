@@ -33,13 +33,14 @@ import static oshi.util.ExceptionUtil.getBooleanOrDefault;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
 import static oshi.util.ExceptionUtil.getLongOrDefault;
 import static oshi.util.ExceptionUtil.getOrDefault;
-import static oshi.util.ExceptionUtil.runSilently;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
+
+import oshi.ffm.mac.CoreFoundation.CFTypeRef;
 
 /**
  * The I/O Kit framework implements non-kernel access to I/O Kit objects (drivers and nubs) through the device-interface
@@ -258,15 +259,12 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
                         return getStringFromCFString(cfValue, arena);
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -276,9 +274,8 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -287,8 +284,6 @@ public interface IOKit {
                             return valuePtr.get(ValueLayout.JAVA_LONG, 0);
                         }
                         return null;
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -298,9 +293,8 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -309,8 +303,6 @@ public interface IOKit {
                             return valuePtr.get(ValueLayout.JAVA_INT, 0);
                         }
                         return null;
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -320,9 +312,8 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -331,8 +322,6 @@ public interface IOKit {
                             return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
                         }
                         return null;
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -342,17 +331,14 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
                         long length = CFDataGetLength(cfValue);
                         MemorySegment bytePtr = CFDataGetBytePtr(cfValue);
                         return getByteArrayFromNativePointer(bytePtr, length, arena);
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -362,15 +348,12 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
-                    MemorySegment cfValue = null;
-                    try {
-                        cfValue = createCFProperty(cfKey);
+                    MemorySegment cfValue = createCFProperty(cfKey);
+                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
                         return CFBooleanGetValue(cfValue) != 0;
-                    } finally {
-                        releaseCFObjects(cfKey, cfValue);
                     }
                 }
             }, null);
@@ -409,11 +392,4 @@ public interface IOKit {
         }
     }
 
-    private static void releaseCFObjects(MemorySegment... cfObjects) {
-        for (MemorySegment segment : cfObjects) {
-            if (segment != null && !segment.equals(MemorySegment.NULL)) {
-                runSilently(() -> CoreFoundationFunctions.CFRelease(segment));
-            }
-        }
-    }
 }

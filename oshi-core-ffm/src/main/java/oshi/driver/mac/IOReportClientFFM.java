@@ -16,6 +16,7 @@ import java.util.Map;
 import oshi.ffm.mac.CoreFoundation.CFArrayRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.mac.IOReportFunctions;
 import oshi.hardware.GpuTicks;
 
@@ -63,44 +64,35 @@ public final class IOReportClientFFM {
         }
         CFStringRef gpuGroup = CFStringRef.createCFString(GROUP_GPU_STATS);
         CFStringRef energyGroup = CFStringRef.createCFString(GROUP_ENERGY);
-        MemorySegment gpuChannels = MemorySegment.NULL;
-        MemorySegment energyChannels = MemorySegment.NULL;
-        try {
-            gpuChannels = IOReportFunctions.IOReportCopyChannelsInGroup(gpuGroup.segment(), MemorySegment.NULL, 0, 0,
-                    0);
+        try (gpuGroup; energyGroup) {
+            MemorySegment gpuChannels = IOReportFunctions.IOReportCopyChannelsInGroup(gpuGroup.segment(),
+                    MemorySegment.NULL, 0, 0, 0);
             if (gpuChannels.equals(MemorySegment.NULL)) {
                 return null;
             }
-            energyChannels = IOReportFunctions.IOReportCopyChannelsInGroup(energyGroup.segment(), MemorySegment.NULL, 0,
-                    0, 0);
-            if (!energyChannels.equals(MemorySegment.NULL)) {
-                IOReportFunctions.IOReportMergeChannels(gpuChannels, energyChannels, MemorySegment.NULL);
-            }
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment subRefOut = arena.allocate(ValueLayout.ADDRESS);
-                MemorySegment sub = IOReportFunctions.IOReportCreateSubscription(MemorySegment.NULL, gpuChannels,
-                        subRefOut, 0, MemorySegment.NULL);
-                if (sub.equals(MemorySegment.NULL)) {
-                    return null;
+            MemorySegment energyChannels = IOReportFunctions.IOReportCopyChannelsInGroup(energyGroup.segment(),
+                    MemorySegment.NULL, 0, 0, 0);
+            try (CFTypeRef gpuRef = new CFTypeRef(gpuChannels); CFTypeRef energyRef = new CFTypeRef(energyChannels)) {
+                if (!energyChannels.equals(MemorySegment.NULL)) {
+                    IOReportFunctions.IOReportMergeChannels(gpuChannels, energyChannels, MemorySegment.NULL);
                 }
-                MemorySegment subPtr = subRefOut.get(ValueLayout.ADDRESS, 0);
-                if (subPtr.equals(MemorySegment.NULL)) {
-                    cfRelease(sub);
-                    return null;
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment subRefOut = arena.allocate(ValueLayout.ADDRESS);
+                    MemorySegment sub = IOReportFunctions.IOReportCreateSubscription(MemorySegment.NULL, gpuChannels,
+                            subRefOut, 0, MemorySegment.NULL);
+                    if (sub.equals(MemorySegment.NULL)) {
+                        return null;
+                    }
+                    MemorySegment subPtr = subRefOut.get(ValueLayout.ADDRESS, 0);
+                    if (subPtr.equals(MemorySegment.NULL)) {
+                        cfRelease(sub);
+                        return null;
+                    }
+                    return new IOReportClientFFM(sub, subPtr);
                 }
-                return new IOReportClientFFM(sub, subPtr);
             }
         } catch (Throwable e) {
             return null;
-        } finally {
-            gpuGroup.release();
-            energyGroup.release();
-            if (!gpuChannels.equals(MemorySegment.NULL)) {
-                cfRelease(gpuChannels);
-            }
-            if (!energyChannels.equals(MemorySegment.NULL)) {
-                cfRelease(energyChannels);
-            }
         }
     }
 
@@ -113,25 +105,23 @@ public final class IOReportClientFFM {
         if (closed) {
             return new GpuTicks(0L, 0L);
         }
-        MemorySegment sample = MemorySegment.NULL;
         try {
-            sample = IOReportFunctions.IOReportCreateSamples(subscription, subscribedChannels, MemorySegment.NULL);
-            if (sample.equals(MemorySegment.NULL)) {
-                return new GpuTicks(0L, 0L);
+            MemorySegment sample = IOReportFunctions.IOReportCreateSamples(subscription, subscribedChannels,
+                    MemorySegment.NULL);
+            try (CFTypeRef sampleRef = new CFTypeRef(sample)) {
+                if (sample.equals(MemorySegment.NULL)) {
+                    return new GpuTicks(0L, 0L);
+                }
+                Map<String, Long> states = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (states.isEmpty()) {
+                    return new GpuTicks(0L, 0L);
+                }
+                long idle = states.getOrDefault(STATE_OFF, 0L);
+                long total = states.values().stream().mapToLong(Long::longValue).sum();
+                return new GpuTicks(total - idle, idle);
             }
-            Map<String, Long> states = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-            if (states.isEmpty()) {
-                return new GpuTicks(0L, 0L);
-            }
-            long idle = states.getOrDefault(STATE_OFF, 0L);
-            long total = states.values().stream().mapToLong(Long::longValue).sum();
-            return new GpuTicks(total - idle, idle);
         } catch (Throwable e) {
             return new GpuTicks(0L, 0L);
-        } finally {
-            if (!sample.equals(MemorySegment.NULL)) {
-                cfRelease(sample);
-            }
         }
     }
 

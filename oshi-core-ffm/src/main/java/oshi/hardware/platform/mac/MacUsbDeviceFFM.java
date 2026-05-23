@@ -79,7 +79,7 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
         if (iter != null) {
             CFStringRef locationIDKey = CFStringRef.createCFString("locationID");
             CFStringRef ioPropertyMatchKey = CFStringRef.createCFString("IOPropertyMatch");
-            try {
+            try (iter; locationIDKey; ioPropertyMatchKey) {
                 IORegistryEntry device = iter.next();
                 while (device != null) {
                     long id = 0L;
@@ -104,10 +104,6 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
                     device.release();
                     device = iter.next();
                 }
-            } finally {
-                locationIDKey.release();
-                ioPropertyMatchKey.release();
-                iter.release();
             }
         }
         root.release();

@@ -13,7 +13,6 @@ import static oshi.ffm.mac.MacSystem.ADDRINFO_CANONNAME;
 import static oshi.ffm.mac.MacSystem.AI_CANONNAME;
 import static oshi.ffm.mac.MacSystem.AI_FLAGS;
 import static oshi.ffm.mac.MacSystem.HOST_NAME_MAX;
-import static oshi.ffm.mac.MacSystemFunctions.freeaddrinfo;
 import static oshi.ffm.mac.MacSystemFunctions.gai_strerror;
 import static oshi.ffm.mac.MacSystemFunctions.getaddrinfo;
 import static oshi.ffm.mac.MacSystemFunctions.gethostname;
@@ -27,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.NativeHandle;
+import oshi.ffm.mac.MacSystemFunctions;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -69,16 +70,14 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
                 LOG.debug("Failed getaddrinfo(): {}", gai_strerror(res));
                 return "";
             }
-            try {
+            try (NativeHandle addrInfo = NativeHandle.of(resPtr.get(ADDRESS, 0), MacSystemFunctions::freeaddrinfo)) {
                 // resPtr holds a pointer to the first addrinfo struct
-                MemorySegment infoPtr = resPtr.get(ADDRESS, 0).reinterpret(ADDRINFO.byteSize(), arena, null);
+                MemorySegment infoPtr = addrInfo.get().reinterpret(ADDRINFO.byteSize(), arena, null);
                 MemorySegment canonPtr = infoPtr.get(ADDRESS, ADDRINFO.byteOffset(ADDRINFO_CANONNAME));
                 if (canonPtr.equals(MemorySegment.NULL)) {
                     return "";
                 }
                 return canonPtr.reinterpret(256, arena, null).getString(0).trim();
-            } finally {
-                freeaddrinfo(resPtr.get(ADDRESS, 0));
             }
         }, LOG, DEBUG, "Failed getDomainName()", "");
     }

@@ -47,38 +47,30 @@ final class MacDisplayFFM extends AbstractDisplay {
             return displays;
         }
         CFStringRef cfEdid = CFStringRef.createCFString(edidKeyName);
-        try {
+        try (serviceIterator; cfEdid) {
             IORegistryEntry sdService = serviceIterator.next();
             while (sdService != null) {
-                try {
-                    IORegistryEntry propertySource = childEntryName == null ? sdService
-                            : sdService.getChildEntry(childEntryName);
-                    if (propertySource != null) {
-                        try {
-                            MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
-                            if (edidRaw != null && !edidRaw.equals(MemorySegment.NULL)) {
-                                CFDataRef edid = new CFDataRef(edidRaw);
-                                try (edid) {
-                                    byte[] bytes = edid.getBytes();
-                                    if (bytes.length > 0) {
-                                        displays.add(new MacDisplayFFM(bytes));
-                                    }
+                try (IORegistryEntry current = sdService) {
+                    IORegistryEntry childEntry = childEntryName == null ? null : current.getChildEntry(childEntryName);
+                    IORegistryEntry propertySource = childEntry != null ? childEntry : current;
+                    try {
+                        MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
+                        if (edidRaw != null && !edidRaw.equals(MemorySegment.NULL)) {
+                            try (CFDataRef edid = new CFDataRef(edidRaw)) {
+                                byte[] bytes = edid.getBytes();
+                                if (bytes.length > 0) {
+                                    displays.add(new MacDisplayFFM(bytes));
                                 }
                             }
-                        } finally {
-                            if (childEntryName != null) {
-                                propertySource.release();
-                            }
+                        }
+                    } finally {
+                        if (childEntry != null) {
+                            childEntry.release();
                         }
                     }
-                } finally {
-                    sdService.release();
-                    sdService = serviceIterator.next();
                 }
+                sdService = serviceIterator.next();
             }
-        } finally {
-            serviceIterator.release();
-            cfEdid.release();
         }
         return displays;
     }
