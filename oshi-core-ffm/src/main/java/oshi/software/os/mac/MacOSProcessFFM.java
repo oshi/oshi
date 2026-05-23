@@ -115,18 +115,16 @@ public class MacOSProcessFFM extends AbstractOSProcess {
         if (iter != null) {
             IORegistryEntry cpu = iter.next();
             while (cpu != null) {
-                try {
-                    String s = cpu.getName().toLowerCase(Locale.ROOT);
+                try (IORegistryEntry current = cpu) {
+                    String s = current.getName().toLowerCase(Locale.ROOT);
                     if (s.startsWith("cpu") && s.length() > 3) {
                         // Frequency is typically only on lowest-numbered P-core
-                        byte[] data = cpu.getByteArrayProperty("timebase-frequency");
+                        byte[] data = current.getByteArrayProperty("timebase-frequency");
                         if (data != null) {
                             ticksPerSec = ParseUtil.byteArrayToLong(data, 4, false);
                             break;
                         }
                     }
-                } finally {
-                    cpu.release();
                 }
                 cpu = iter.next();
             }

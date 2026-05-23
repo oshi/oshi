@@ -259,7 +259,7 @@ public final class IOReportClientFFM {
 
     private long extractGpuEnergyMicrojoules(MemorySegment delta) throws Throwable {
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
-        try {
+        try (channelsKey) {
             MemorySegment arrSeg = new CFDictionaryRef(delta).getValue(channelsKey);
             if (arrSeg.equals(MemorySegment.NULL)) {
                 return -1L;
@@ -283,15 +283,13 @@ public final class IOReportClientFFM {
                 }
                 return IOReportFunctions.IOReportSimpleGetIntegerValue(entrySeg, 0);
             }
-        } finally {
-            channelsKey.release();
         }
         return -1L;
     }
 
     private Map<String, Long> extractChannelStates(MemorySegment dict, String group, String subgroup) throws Throwable {
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
-        try {
+        try (channelsKey) {
             MemorySegment arrSeg = new CFDictionaryRef(dict).getValue(channelsKey);
             if (arrSeg.equals(MemorySegment.NULL)) {
                 return Collections.emptyMap();
@@ -328,8 +326,6 @@ public final class IOReportClientFFM {
                 }
             }
             return result;
-        } finally {
-            channelsKey.release();
         }
     }
 

@@ -53,7 +53,7 @@ public interface IOKit {
     double kIOPSTimeRemainingUnlimited = -2.0;
     double kIOPSTimeRemainingUnknown = -1.0;
 
-    class IOObject {
+    class IOObject implements AutoCloseable {
         private final MemorySegment segment;
 
         public IOObject(MemorySegment segment) {
@@ -73,6 +73,11 @@ public interface IOKit {
                 return 0;
             }
             return getIntOrDefault(() -> IOObjectRelease(segment), -1);
+        }
+
+        @Override
+        public void close() {
+            release();
         }
 
         public boolean conformsTo(String className) {
