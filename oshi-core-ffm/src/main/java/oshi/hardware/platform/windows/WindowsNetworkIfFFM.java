@@ -4,7 +4,9 @@
  */
 package oshi.hardware.platform.windows;
 
-import java.lang.foreign.Arena;
+import static org.slf4j.event.Level.ERROR;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.net.NetworkInterface;
@@ -81,7 +83,7 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
     @Override
     public boolean updateAttributes() {
         // FFM targets JDK 25+ which requires Vista+; use GetIfEntry2 directly
-        try (Arena arena = Arena.ofConfined()) {
+        boolean success = callInArenaBooleanOrDefault(arena -> {
             MemorySegment ifRow = arena.allocate(IPHlpAPIFFM.MIB_IF_ROW2_SIZE);
             ifRow.fill((byte) 0);
             // Set InterfaceIndex at offset 8
@@ -109,13 +111,13 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
             this.ifAlias = readWideString(aliasSlice);
             int operStatus = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_OPER_STATUS);
             this.ifOperStatus = IfOperStatus.byValue(operStatus);
-        } catch (Throwable t) {
-            LOG.error("Failed to retrieve data for interface {}, {}: {}", queryNetworkInterface().getIndex(), getName(),
-                    t.getMessage());
-            return false;
+            return true;
+        }, LOG, ERROR, "Failed to retrieve data for interface " + queryNetworkInterface().getIndex() + ", " + getName(),
+                false);
+        if (success) {
+            setTimeStamp(System.currentTimeMillis());
         }
-        setTimeStamp(System.currentTimeMillis());
-        return true;
+        return success;
     }
 
     private static String readWideString(MemorySegment seg) {
