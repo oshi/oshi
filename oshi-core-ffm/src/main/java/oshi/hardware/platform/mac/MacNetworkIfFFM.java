@@ -46,7 +46,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                 return name;
             }
             CFArrayRef cfArray = new CFArrayRef(ifArray);
-            try {
+            try (cfArray) {
                 int count = cfArray.getCount();
                 for (int i = 0; i < count; i++) {
                     MemorySegment pNetIf = cfArray.getValueAtIndex(i);
@@ -61,8 +61,6 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                         }
                     }
                 }
-            } finally {
-                cfArray.release();
             }
         } catch (Throwable e) {
             LOG.debug("Failed to query SC network interface display name for {}", name);

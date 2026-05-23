@@ -88,7 +88,7 @@ public interface CoreFoundation {
     /**
      * Base class for all CoreFoundation objects
      */
-    class CFTypeRef {
+    class CFTypeRef implements AutoCloseable {
         private final MemorySegment segment;
 
         public CFTypeRef(MemorySegment segment) {
@@ -141,6 +141,11 @@ public interface CoreFoundation {
             if (!isNull()) {
                 runSilently(() -> CFRelease(segment()));
             }
+        }
+
+        @Override
+        public void close() {
+            release();
         }
 
         @Override

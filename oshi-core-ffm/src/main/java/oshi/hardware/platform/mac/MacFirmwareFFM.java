@@ -31,56 +31,52 @@ final class MacFirmwareFFM extends MacFirmware {
 
         IORegistryEntry platformExpert = IOKitUtilFFM.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
-            try {
+            try (platformExpert) {
                 IOIterator iter = platformExpert.getChildIterator("IODeviceTree");
                 if (iter != null) {
-                    try {
+                    try (iter) {
                         IORegistryEntry entry = iter.next();
                         while (entry != null) {
-                            try {
-                                String entryName = entry.getName();
+                            try (IORegistryEntry current = entry) {
+                                String entryName = current.getName();
                                 if (entryName != null) {
                                     switch (entryName) {
                                         case "rom":
-                                            byte[] data = entry.getByteArrayProperty("vendor");
+                                            byte[] data = current.getByteArrayProperty("vendor");
                                             if (data != null) {
                                                 manufacturer = toUtf8(data);
                                             }
-                                            data = entry.getByteArrayProperty("version");
+                                            data = current.getByteArrayProperty("version");
                                             if (data != null) {
                                                 version = toUtf8(data);
                                             }
-                                            data = entry.getByteArrayProperty("release-date");
+                                            data = current.getByteArrayProperty("release-date");
                                             if (data != null) {
                                                 releaseDate = toUtf8(data);
                                             }
                                             break;
                                         case "chosen":
-                                            data = entry.getByteArrayProperty("booter-name");
+                                            data = current.getByteArrayProperty("booter-name");
                                             if (data != null) {
                                                 name = toUtf8(data);
                                             }
                                             break;
                                         case "efi":
-                                            data = entry.getByteArrayProperty("firmware-abi");
+                                            data = current.getByteArrayProperty("firmware-abi");
                                             if (data != null) {
                                                 description = toUtf8(data);
                                             }
                                             break;
                                         default:
                                             if (Util.isBlank(name)) {
-                                                name = entry.getStringProperty("IONameMatch");
+                                                name = current.getStringProperty("IONameMatch");
                                             }
                                             break;
                                     }
                                 }
-                            } finally {
-                                entry.release();
                             }
                             entry = iter.next();
                         }
-                    } finally {
-                        iter.release();
                     }
                 }
                 if (Util.isBlank(manufacturer)) {
@@ -101,8 +97,6 @@ final class MacFirmwareFFM extends MacFirmware {
                         name = toUtf8(data);
                     }
                 }
-            } finally {
-                platformExpert.release();
             }
         }
         return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,

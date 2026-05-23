@@ -26,10 +26,8 @@ final class IOKitProviderFFM implements IOKitProvider {
     public <T> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor) {
         IORegistryEntry entry = IOKitUtilFFM.getMatchingService(serviceName);
         if (entry != null) {
-            try {
+            try (entry) {
                 return extractor.apply(new FfmRegistryEntry(entry));
-            } finally {
-                entry.release();
             }
         }
         return null;
@@ -47,20 +45,16 @@ final class IOKitProviderFFM implements IOKitProvider {
     public void forEachMatchingServiceUntil(String serviceName, Function<RegistryEntry, Boolean> visitor) {
         IOIterator iter = IOKitUtilFFM.getMatchingServices(serviceName);
         if (iter != null) {
-            try {
+            try (iter) {
                 IORegistryEntry entry = iter.next();
                 while (entry != null) {
-                    try {
-                        if (Boolean.TRUE.equals(visitor.apply(new FfmRegistryEntry(entry)))) {
+                    try (IORegistryEntry current = entry) {
+                        if (Boolean.TRUE.equals(visitor.apply(new FfmRegistryEntry(current)))) {
                             return;
                         }
-                    } finally {
-                        entry.release();
                     }
                     entry = iter.next();
                 }
-            } finally {
-                iter.release();
             }
         }
     }

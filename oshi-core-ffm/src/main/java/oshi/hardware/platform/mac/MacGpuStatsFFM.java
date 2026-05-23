@@ -103,27 +103,21 @@ final class MacGpuStatsFFM implements GpuStats {
         if (perfStats == null) {
             return -1d;
         }
-        try {
+        try (perfStats) {
             CFStringRef coreUtilKey = CFStringRef.createCFString(GPU_CORE_UTIL_KEY);
-            try {
+            try (coreUtilKey) {
                 MemorySegment result = perfStats.getValue(coreUtilKey);
                 if (!result.equals(MemorySegment.NULL)) {
                     return new CFNumberRef(result).longValue() / GPU_UTIL_DIVISOR * 100.0;
                 }
-            } finally {
-                coreUtilKey.release();
             }
             CFStringRef devUtilKey = CFStringRef.createCFString(DEVICE_UTIL_KEY);
-            try {
+            try (devUtilKey) {
                 MemorySegment result = perfStats.getValue(devUtilKey);
                 if (!result.equals(MemorySegment.NULL)) {
                     return new CFNumberRef(result).longValue();
                 }
-            } finally {
-                devUtilKey.release();
             }
-        } finally {
-            perfStats.release();
         }
         return -1d;
     }
@@ -135,29 +129,23 @@ final class MacGpuStatsFFM implements GpuStats {
         if (perfStats == null) {
             return -1L;
         }
-        try {
+        try (perfStats) {
             String primaryKey = isAppleSilicon ? VRAM_USED_KEY_AS : VRAM_USED_KEY;
             String fallbackKey = isAppleSilicon ? VRAM_USED_KEY : VRAM_USED_KEY_AS;
             CFStringRef key = CFStringRef.createCFString(primaryKey);
-            try {
+            try (key) {
                 MemorySegment result = perfStats.getValue(key);
                 if (!result.equals(MemorySegment.NULL)) {
                     return new CFNumberRef(result).longValue();
                 }
-            } finally {
-                key.release();
             }
             CFStringRef fallback = CFStringRef.createCFString(fallbackKey);
-            try {
+            try (fallback) {
                 MemorySegment result = perfStats.getValue(fallback);
                 if (!result.equals(MemorySegment.NULL)) {
                     return new CFNumberRef(result).longValue();
                 }
-            } finally {
-                fallback.release();
             }
-        } finally {
-            perfStats.release();
         }
         return -1L;
     }
@@ -188,9 +176,9 @@ final class MacGpuStatsFFM implements GpuStats {
         if (perfStats == null) {
             return -1d;
         }
-        try {
+        try (perfStats) {
             CFStringRef tempKey = CFStringRef.createCFString("Temperature(C)");
-            try {
+            try (tempKey) {
                 MemorySegment result = perfStats.getValue(tempKey);
                 if (!result.equals(MemorySegment.NULL)) {
                     long val = new CFNumberRef(result).longValue();
@@ -198,11 +186,7 @@ final class MacGpuStatsFFM implements GpuStats {
                         return val;
                     }
                 }
-            } finally {
-                tempKey.release();
             }
-        } finally {
-            perfStats.release();
         }
         return -1d;
     }
@@ -248,15 +232,15 @@ final class MacGpuStatsFFM implements GpuStats {
         }
         CFStringRef perfStatsKey = CFStringRef.createCFString(PERF_STATS_KEY);
         CFStringRef modelKey = CFStringRef.createCFString("model");
-        try {
+        try (iter; perfStatsKey; modelKey) {
             IORegistryEntry service = iter.next();
             while (service != null) {
                 CFMutableDictionaryRef result = null;
-                try {
-                    MemorySegment propsSeg = service.createCFProperties();
+                try (IORegistryEntry current = service) {
+                    MemorySegment propsSeg = current.createCFProperties();
                     if (!propsSeg.equals(MemorySegment.NULL)) {
                         CFDictionaryRef props = new CFDictionaryRef(propsSeg);
-                        try {
+                        try (props) {
                             MemorySegment modelSeg = props.getValue(modelKey);
                             if (!modelSeg.equals(MemorySegment.NULL)) {
                                 String model = new CFStringRef(modelSeg).stringValue();
@@ -272,22 +256,14 @@ final class MacGpuStatsFFM implements GpuStats {
                                     }
                                 }
                             }
-                        } finally {
-                            props.release();
                         }
                     }
-                } finally {
-                    service.release();
                 }
                 if (result != null) {
                     return result;
                 }
                 service = iter.next();
             }
-        } finally {
-            iter.release();
-            perfStatsKey.release();
-            modelKey.release();
         }
         return null;
     }

@@ -64,7 +64,7 @@ public final class WindowInfoFFM {
                 return windowList;
             }
             CFArrayRef windowInfo = new CFArrayRef(rawArray);
-            try {
+            try (windowInfo) {
                 int numWindows = windowInfo.getCount();
 
                 CFStringRef kCGWindowIsOnscreen = CFStringRef.createCFString("kCGWindowIsOnscreen");
@@ -74,7 +74,13 @@ public final class WindowInfoFFM {
                 CFStringRef kCGWindowBounds = CFStringRef.createCFString("kCGWindowBounds");
                 CFStringRef kCGWindowName = CFStringRef.createCFString("kCGWindowName");
                 CFStringRef kCGWindowOwnerName = CFStringRef.createCFString("kCGWindowOwnerName");
-                try {
+                try (kCGWindowIsOnscreen;
+                        kCGWindowNumber;
+                        kCGWindowOwnerPID;
+                        kCGWindowLayer;
+                        kCGWindowBounds;
+                        kCGWindowName;
+                        kCGWindowOwnerName) {
                     for (int i = 0; i < numWindows; i++) {
                         MemorySegment dictSeg = windowInfo.getValueAtIndex(i);
                         if (dictSeg.equals(MemorySegment.NULL)) {
@@ -121,17 +127,7 @@ public final class WindowInfoFFM {
                         windowList.add(new OSDesktopWindow(windowNumber, windowName, ownerName, windowBounds, ownerPID,
                                 windowLayer, visible));
                     }
-                } finally {
-                    kCGWindowIsOnscreen.release();
-                    kCGWindowNumber.release();
-                    kCGWindowOwnerPID.release();
-                    kCGWindowLayer.release();
-                    kCGWindowBounds.release();
-                    kCGWindowName.release();
-                    kCGWindowOwnerName.release();
                 }
-            } finally {
-                windowInfo.release();
             }
         } catch (Throwable e) {
             return windowList;

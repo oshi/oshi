@@ -58,13 +58,11 @@ final class MacDisplayFFM extends AbstractDisplay {
                             MemorySegment edidRaw = propertySource.createCFProperty(cfEdid.segment());
                             if (edidRaw != null && !edidRaw.equals(MemorySegment.NULL)) {
                                 CFDataRef edid = new CFDataRef(edidRaw);
-                                try {
+                                try (edid) {
                                     byte[] bytes = edid.getBytes();
                                     if (bytes.length > 0) {
                                         displays.add(new MacDisplayFFM(bytes));
                                     }
-                                } finally {
-                                    edid.release();
                                 }
                             }
                         } finally {

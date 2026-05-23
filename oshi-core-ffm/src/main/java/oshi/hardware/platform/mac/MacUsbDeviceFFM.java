@@ -145,7 +145,7 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
 
         IOIterator childIter = device.getChildIterator(IOUSB);
         if (childIter != null) {
-            try {
+            try (childIter) {
                 IORegistryEntry childDevice = childIter.next();
                 while (childDevice != null) {
                     addDeviceAndChildrenToMaps(childDevice, id, nameMap, vendorMap, vendorIdMap, productIdMap,
@@ -153,8 +153,6 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
                     childDevice.release();
                     childDevice = childIter.next();
                 }
-            } finally {
-                childIter.release();
             }
         }
     }
@@ -176,7 +174,7 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
 
             boolean found = false;
             if (serviceIterator != null) {
-                try {
+                try (serviceIterator) {
                     IORegistryEntry matchingService = serviceIterator.next();
                     while (matchingService != null && !found) {
                         IORegistryEntry parent = matchingService.getParentEntry(IOSERVICE);
@@ -196,8 +194,6 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
                         matchingService.release();
                         matchingService = serviceIterator.next();
                     }
-                } finally {
-                    serviceIterator.release();
                 }
             }
         }, LOG, "Failed to retrieve controller vendor/product IDs for id {}");
