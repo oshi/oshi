@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup;
@@ -50,9 +51,9 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
             if (MemorySegment.NULL.equals(udev)) {
                 return Collections.emptyList();
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, BLOCK, arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     for (MemorySegment entry = UdevFunctions
@@ -66,7 +67,7 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try {
+                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             String devnode = UdevFunctions.getString(UdevFunctions.udev_device_get_devnode(device),
                                     arena);
                             if (devnode != null && devnode.startsWith(DevPath.DM)) {
@@ -92,15 +93,9 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
                                     }
                                 }
                             }
-                        } finally {
-                            UdevFunctions.udev_device_unref(device);
                         }
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
             return logicalVolumesMap.entrySet().stream()
                     .map(e -> new LinuxLogicalVolumeGroupFFM(e.getKey(), e.getValue(),

@@ -18,6 +18,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxUsbDevice;
@@ -78,9 +79,9 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
             if (MemorySegment.NULL.equals(udev)) {
                 return emptyList();
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, SUBSYSTEM_USB, arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
 
@@ -96,7 +97,7 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try {
+                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             String devtype = UdevFunctions.getString(UdevFunctions.udev_device_get_devtype(device),
                                     arena);
                             if (!DEVTYPE_USB_DEVICE.equals(devtype)) {
@@ -133,15 +134,9 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
                                     hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(syspath);
                                 }
                             }
-                        } finally {
-                            UdevFunctions.udev_device_unref(device);
                         }
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
 
             List<UsbDevice> controllerDevices = new ArrayList<>();

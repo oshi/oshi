@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.BluetoothApisFFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
@@ -68,19 +69,16 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
                 return Collections.emptyList();
             }
 
-            try {
+            try (NativeHandle findRadioHandle = NativeHandle.of(hFindRadio,
+                    BluetoothApisFFM::BluetoothFindRadioClose)) {
                 do {
                     MemorySegment hRadio = phRadio.get(ADDRESS, 0);
-                    try {
+                    try (NativeHandle radioHandle = NativeHandle.of(hRadio, Kernel32FFM::CloseHandle)) {
                         String adapterName = getRadioName(arena, hRadio);
                         queryDevicesForRadio(arena, hRadio, adapterName, devices);
-                    } finally {
-                        Kernel32FFM.CloseHandle(hRadio);
                     }
                 } while (WindowsForeignFunctions
                         .isSuccess(BluetoothApisFFM.BluetoothFindNextRadio(hFindRadio, phRadio)));
-            } finally {
-                BluetoothApisFFM.BluetoothFindRadioClose(hFindRadio);
             }
         } catch (Throwable t) {
             LOG.warn("Error enumerating Bluetooth devices: {}", t.getMessage());
@@ -120,14 +118,12 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
             return;
         }
 
-        try {
+        try (NativeHandle findDevHandle = NativeHandle.of(hFind, BluetoothApisFFM::BluetoothFindDeviceClose)) {
             do {
                 devices.add(parseDeviceInfo(deviceInfo, adapterName));
                 deviceInfo = arena.allocate(BLUETOOTH_DEVICE_INFO_LAYOUT);
                 deviceInfo.set(JAVA_INT, 0, (int) BLUETOOTH_DEVICE_INFO_LAYOUT.byteSize());
             } while (WindowsForeignFunctions.isSuccess(BluetoothApisFFM.BluetoothFindNextDevice(hFind, deviceInfo)));
-        } finally {
-            BluetoothApisFFM.BluetoothFindDeviceClose(hFind);
         }
     }
 

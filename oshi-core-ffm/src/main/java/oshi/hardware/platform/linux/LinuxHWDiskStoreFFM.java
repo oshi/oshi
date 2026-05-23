@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.linux.UdevFunctions;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -69,9 +70,9 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                 }
                 return Collections.emptyList();
             }
-            try {
+            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try {
+                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, BLOCK, arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     for (MemorySegment entry = UdevFunctions
@@ -85,7 +86,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try {
+                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             String devnode = UdevFunctions.getString(UdevFunctions.udev_device_get_devnode(device),
                                     arena);
                             if (devnode != null && !devnode.startsWith(DevPath.LOOP)
@@ -172,15 +173,9 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                     }
                                 }
                             }
-                        } finally {
-                            UdevFunctions.udev_device_unref(device);
                         }
                     }
-                } finally {
-                    UdevFunctions.udev_enumerate_unref(enumerate);
                 }
-            } finally {
-                UdevFunctions.udev_unref(udev);
             }
         } catch (Throwable e) {
             if (storeToUpdate == null) {
