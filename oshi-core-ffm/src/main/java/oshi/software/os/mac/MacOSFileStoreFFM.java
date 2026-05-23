@@ -5,12 +5,13 @@
 package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.mac.MacSystem.F_FFREE;
 import static oshi.ffm.mac.MacSystem.F_FILES;
 import static oshi.ffm.mac.MacSystem.STATFS;
 
 import java.io.File;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class MacOSFileStoreFFM extends MacOSFileStore {
     @Override
     public boolean updateAttributes() {
         // Fast path: call statfs64 directly on the known mount point
-        try (Arena arena = Arena.ofConfined()) {
+        if (callInArenaBooleanOrDefault(arena -> {
             MemorySegment buf = arena.allocate(STATFS);
             MemorySegment pathSeg = arena.allocateFrom(getMount());
             if (MacSystemFunctions.statfs64(pathSeg, buf) == 0) {
@@ -49,8 +50,9 @@ public class MacOSFileStoreFFM extends MacOSFileStore {
                 updateSpaceAndInodes(f.getFreeSpace(), f.getUsableSpace(), f.getTotalSpace(), ffree, files);
                 return true;
             }
-        } catch (Throwable e) {
-            LOG.debug("statfs64 fast path failed for {}: {}", getMount(), e.getMessage());
+            return false;
+        }, LOG, DEBUG, "statfs64 fast path failed for " + getMount(), false)) {
+            return true;
         }
         // Fall back to full enumeration
         for (OSFileStore fileStore : MacFileSystemFFM.getFileStoreMatching(getName(), isLocal())) {
