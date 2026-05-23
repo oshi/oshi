@@ -9,6 +9,8 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.mac.MacSystem.GROUP;
 import static oshi.ffm.mac.MacSystem.MAXCOMLEN;
 import static oshi.ffm.mac.MacSystem.MAXPATHLEN;
@@ -400,16 +402,14 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            try (Arena arena = Arena.ofConfined()) {
+            return callInArenaLongOrDefault(arena -> {
                 MemorySegment buffer = arena.allocate(RLIMIT);
                 int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
                 if (result > 0) {
                     return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_CUR));
                 }
-            } catch (Throwable e) {
-                // Ignore, return 0 below
-            }
-            return 0;
+                return 0L;
+            }, LOG, DEBUG, "Failed to query soft open file limit", 0L);
         }
         return -1L; // not supported
     }
@@ -417,16 +417,14 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            try (Arena arena = Arena.ofConfined()) {
+            return callInArenaLongOrDefault(arena -> {
                 MemorySegment buffer = arena.allocate(RLIMIT);
                 int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
                 if (result > 0) {
                     return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_MAX));
                 }
-            } catch (Throwable e) {
-                // Ignore, return 0 below
-            }
-            return 0;
+                return 0L;
+            }, LOG, DEBUG, "Failed to query hard open file limit", 0L);
         }
         return -1L; // not supported
     }

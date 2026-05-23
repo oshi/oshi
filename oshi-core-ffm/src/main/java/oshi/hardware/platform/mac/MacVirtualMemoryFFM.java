@@ -6,11 +6,12 @@ package oshi.hardware.platform.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_TOTAL;
 import static oshi.ffm.mac.MacSystem.XSW_USAGE_USED;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
@@ -33,21 +34,20 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
 
     @Override
     protected Pair<Long, Long> querySwapUsage() {
-        long swapUsed = 0L;
-        long swapTotal = 0L;
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             var xswUsage = arena.allocate(MacSystem.XSW_USAGE);
             if (SysctlUtilFFM.sysctl("vm.swapusage", xswUsage)) {
-                swapUsed = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_USED));
-                swapTotal = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_TOTAL));
+                long swapUsed = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_USED));
+                long swapTotal = xswUsage.get(JAVA_LONG, MacSystem.XSW_USAGE.byteOffset(XSW_USAGE_TOTAL));
+                return new Pair<>(swapUsed, swapTotal);
             }
-        }
-        return new Pair<>(swapUsed, swapTotal);
+            return new Pair<>(0L, 0L);
+        }, LOG, DEBUG, "Failed to query swap usage", new Pair<>(0L, 0L));
     }
 
     @Override
     protected Pair<Long, Long> queryVmStat() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Allocate memory for VM statistics structure and count
             MemorySegment vmStats = arena.allocate(VM_STATISTICS);
             if (MacMemoryUtilFFM.callVmStat(arena, vmStats)) {
@@ -57,9 +57,7 @@ final class MacVirtualMemoryFFM extends MacVirtualMemory {
                         vmStats.get(JAVA_INT, MacSystem.VM_STATISTICS.byteOffset(MacSystem.VM_PAGEOUTS)));
                 return new Pair<>(swapPagesIn, swapPagesOut);
             }
-        } catch (Throwable e) {
-            // Ignored
-        }
-        return new Pair<>(0L, 0L);
+            return new Pair<>(0L, 0L);
+        }, LOG, DEBUG, "Failed to query VM statistics", new Pair<>(0L, 0L));
     }
 }

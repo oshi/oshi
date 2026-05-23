@@ -6,6 +6,9 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.mac.MacSystem.INT_SIZE;
 import static oshi.ffm.mac.MacSystem.PROC_ALL_PIDS;
 import static oshi.ffm.mac.MacSystem.PROC_PIDTASKINFO;
@@ -104,7 +107,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public List<OSProcess> queryAllProcesses() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Calculate size needed, add a small buffer
             int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
             MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
@@ -113,10 +116,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
             return Arrays.stream(pidSegment.asSlice(0, numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT))
                     .distinct().parallel().mapToObj(this::getProcess).filter(Objects::nonNull)
                     .filter(ProcessFiltering.VALID_PROCESS).toList();
-        } catch (Throwable e) {
-            LOG.warn("Failed to query processes", e.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, WARN, "Failed to query processes", Collections.emptyList());
     }
 
     @Override
@@ -138,7 +138,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaIntOrDefault(arena -> {
             int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
             MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
             numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, pidSegment, numberOfProcesses * INT_SIZE) / INT_SIZE;
@@ -151,10 +151,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
                 }
             }
             return numberOfThreads;
-        } catch (Throwable e) {
-            LOG.warn("Failed to query thread count: {}", e.getMessage(), e);
-            return 0;
-        }
+        }, LOG, WARN, "Failed to query thread count", 0);
     }
 
     @Override

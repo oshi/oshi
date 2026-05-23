@@ -6,6 +6,8 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static org.slf4j.event.Level.DEBUG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.mac.MacSystem.ADDRINFO;
 import static oshi.ffm.mac.MacSystem.ADDRINFO_CANONNAME;
 import static oshi.ffm.mac.MacSystem.AI_CANONNAME;
@@ -16,7 +18,6 @@ import static oshi.ffm.mac.MacSystemFunctions.gai_strerror;
 import static oshi.ffm.mac.MacSystemFunctions.getaddrinfo;
 import static oshi.ffm.mac.MacSystemFunctions.gethostname;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -43,7 +44,7 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        String hostname = "";
+        final String hostname;
         try {
             hostname = InetAddress.getLocalHost().getHostName();
             if (hostname == null || hostname.isEmpty()) {
@@ -54,7 +55,7 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
             LOG.debug("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Allocate hint struct with AI_CANONNAME flag
             MemorySegment hint = arena.allocate(ADDRINFO);
             hint.set(JAVA_INT, ADDRINFO.byteOffset(AI_FLAGS), AI_CANONNAME);
@@ -79,23 +80,19 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
             } finally {
                 freeaddrinfo(resPtr.get(ADDRESS, 0));
             }
-        } catch (Throwable e) {
-            LOG.debug("Failed getDomainName(): {}", e.getMessage());
-            return "";
-        }
+        }, LOG, DEBUG, "Failed getDomainName()", "");
     }
 
     @Override
     public String getHostName() {
-        try (Arena arena = Arena.ofConfined()) {
+        String hostname = callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (gethostname(buf, HOST_NAME_MAX + 1L) == 0) {
                 return buf.getString(0);
             }
-        } catch (Throwable e) {
-            LOG.debug("Failed gethostname(): {}", e.getMessage());
-        }
-        return super.getHostName();
+            return null;
+        }, LOG, DEBUG, "Failed gethostname()", null);
+        return hostname == null ? super.getHostName() : hostname;
     }
 
     @Override

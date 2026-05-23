@@ -4,7 +4,10 @@
  */
 package oshi.hardware.platform.mac;
 
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.util.ExceptionUtil.runOrLog;
 
@@ -40,8 +43,8 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
 
     @Override
     public long[] querySystemCpuLoadTicks() {
-        long[] ticks = new long[TickType.values().length];
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
+            long[] ticks = new long[TickType.values().length];
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             MemorySegment cpuLoadInfo = arena.allocate(MacSystem.HOST_CPU_LOAD_INFO_DATA);
             MemorySegment count = arena.allocateFrom(ValueLayout.JAVA_INT,
@@ -62,10 +65,8 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                     .toUnsignedLong((int) cpuTicksHandle.get(cpuLoadInfo, 0L, (long) MacSystem.CPU_STATE_SYSTEM));
             ticks[TickType.IDLE.getIndex()] = Integer
                     .toUnsignedLong((int) cpuTicksHandle.get(cpuLoadInfo, 0L, (long) MacSystem.CPU_STATE_IDLE));
-        } catch (Throwable e) {
-            LOG.error("Failed to get System CPU ticks", e);
-        }
-        return ticks;
+            return ticks;
+        }, LOG, ERROR, "Failed to get System CPU ticks", new long[TickType.values().length]);
     }
 
     @Override
@@ -73,8 +74,10 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        double[] average = new double[nelem];
-        try (Arena arena = Arena.ofConfined()) {
+        double[] defaultAverage = new double[nelem];
+        Arrays.fill(defaultAverage, -1d);
+        return callInArenaOrDefault(arena -> {
+            double[] average = new double[nelem];
             MemorySegment loadavgSeg = arena.allocate(ValueLayout.JAVA_DOUBLE, nelem);
             int retval = MacSystemFunctions.getloadavg(loadavgSeg, nelem);
             if (retval < nelem) {
@@ -84,10 +87,8 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                     average[i] = loadavgSeg.getAtIndex(ValueLayout.JAVA_DOUBLE, i);
                 }
             }
-        } catch (Throwable e) {
-            Arrays.fill(average, -1d);
-        }
-        return average;
+            return average;
+        }, LOG, DEBUG, "Failed to query system load average", defaultAverage);
     }
 
     @Override
