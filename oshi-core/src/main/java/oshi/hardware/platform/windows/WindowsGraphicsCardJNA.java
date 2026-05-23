@@ -165,14 +165,14 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
                     continue;
                 }
 
-                String name = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC);
+                String name = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_DESC, 0);
                 String deviceId = "VideoController" + index++;
-                String vendor = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR);
-                String versionInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION);
+                String vendor = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, VENDOR, 0);
+                String versionInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, DRIVER_VERSION, 0);
 
                 // Parse PCI vendor/device IDs from MatchingDeviceId (e.g. "pci\ven_8086&dev_56a0&...")
                 String matchingDeviceId = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
-                        MATCHING_DEVICE_ID);
+                        MATCHING_DEVICE_ID, 0);
                 Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(matchingDeviceId);
                 int pciVendorId = pciIds == null ? 0 : pciIds.getA();
                 int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
@@ -187,7 +187,7 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
                 int pciBusNumber = -1;
                 String pciBusId = "";
                 String locationInfo = RegistryUtil.getStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
-                        LOCATION_INFORMATION);
+                        LOCATION_INFORMATION, 0);
                 DxgiAdapterInfo dxgiMatch = DxgiUtilJNA.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
                 if (dxgiMatch != null) {
                     vram = dxgiMatch.getDedicatedVideoMemory();
