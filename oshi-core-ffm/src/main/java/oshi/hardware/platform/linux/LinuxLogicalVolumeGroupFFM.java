@@ -4,10 +4,11 @@
  */
 package oshi.hardware.platform.linux;
 
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.io.File;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,10 +43,9 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
             LOG.warn("Logical Volume Group information requires libudev, which is not present.");
             return Collections.emptyList();
         }
-        Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
-        Map<String, Set<String>> physicalVolumesMap = queryPhysicalVolumes();
-
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
+            Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
+            Map<String, Set<String>> physicalVolumesMap = queryPhysicalVolumes();
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
                 return Collections.emptyList();
@@ -102,13 +102,10 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
             } finally {
                 UdevFunctions.udev_unref(udev);
             }
-        } catch (Throwable e) {
-            LOG.warn("Error enumerating logical volume groups: {}", e.toString());
-            return Collections.emptyList();
-        }
-        return logicalVolumesMap.entrySet().stream()
-                .map(e -> new LinuxLogicalVolumeGroupFFM(e.getKey(), e.getValue(),
-                        physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
-                .collect(Collectors.toList());
+            return logicalVolumesMap.entrySet().stream()
+                    .map(e -> new LinuxLogicalVolumeGroupFFM(e.getKey(), e.getValue(),
+                            physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
+                    .collect(Collectors.toList());
+        }, LOG, WARN, "Error enumerating logical volume groups", Collections.emptyList());
     }
 }

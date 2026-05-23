@@ -4,7 +4,9 @@
  */
 package oshi.software.os.linux;
 
-import java.lang.foreign.Arena;
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.net.InetAddress;
@@ -27,15 +29,14 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
 
     @Override
     public String getHostName() {
-        try (Arena arena = Arena.ofConfined()) {
+        String hostname = callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 == LinuxLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return buf.getString(0);
             }
-        } catch (Throwable e) {
-            LOG.warn("FFM gethostname failed: {}", e.toString());
-        }
-        return super.getHostName();
+            return null;
+        }, LOG, WARN, "FFM gethostname failed", null);
+        return hostname == null ? super.getHostName() : hostname;
     }
 
     @Override
@@ -47,7 +48,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
             LOG.warn("Unknown host exception when getting address of local host: {}", e.getMessage());
             return "";
         }
-        try (Arena arena = Arena.ofConfined()) {
+        String domainName = callInArenaOrDefault(arena -> {
             // Build hints: ai_flags = AI_CANONNAME, rest zero
             MemorySegment hints = arena.allocate(LinuxLibcFunctions.ADDRINFO_LAYOUT);
             hints.set(ValueLayout.JAVA_INT, 0, LinuxLibcFunctions.AI_CANONNAME);
@@ -69,9 +70,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
             } finally {
                 LinuxLibcFunctions.freeaddrinfo(resPtr);
             }
-        } catch (Throwable e) {
-            LOG.warn("FFM getaddrinfo failed: {}", e.toString());
-        }
-        return super.getDomainName();
+        }, LOG, WARN, "FFM getaddrinfo failed", null);
+        return domainName == null ? super.getDomainName() : domainName;
     }
 }

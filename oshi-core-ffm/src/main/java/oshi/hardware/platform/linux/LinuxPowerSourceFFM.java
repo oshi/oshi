@@ -4,10 +4,11 @@
  */
 package oshi.hardware.platform.linux;
 
+import static org.slf4j.event.Level.WARN;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.io.File;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -49,11 +50,11 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
         if (!HAS_UDEV) {
             return LinuxPowerSource.getPowerSources();
         }
-        List<PowerSource> psList = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        List<PowerSource> psList = callInArenaOrDefault(arena -> {
+            List<PowerSource> result = new ArrayList<>();
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
-                return LinuxPowerSource.getPowerSources();
+                return null;
             }
             try {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
@@ -86,7 +87,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                                         props.put(p, val);
                                     }
                                 }
-                                psList.add(new LinuxPowerSourceFFM(buildPowerSource(name, props)));
+                                result.add(new LinuxPowerSourceFFM(buildPowerSource(name, props)));
                             }
                         } finally {
                             UdevFunctions.udev_device_unref(device);
@@ -98,8 +99,9 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
             } finally {
                 UdevFunctions.udev_unref(udev);
             }
-        } catch (Throwable e) {
-            LOG.warn("Error enumerating power sources via udev, falling back to sysfs: {}", e.toString());
+            return result;
+        }, LOG, WARN, "Error enumerating power sources via udev, falling back to sysfs", null);
+        if (psList == null) {
             return LinuxPowerSource.getPowerSources();
         }
         return psList;
