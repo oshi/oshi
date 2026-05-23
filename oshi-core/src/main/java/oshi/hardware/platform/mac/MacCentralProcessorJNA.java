@@ -45,10 +45,11 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
                 return ticks;
             }
 
-            ticks[TickType.USER.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER];
-            ticks[TickType.NICE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE];
-            ticks[TickType.SYSTEM.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM];
-            ticks[TickType.IDLE.getIndex()] = cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE];
+            ticks[TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER]);
+            ticks[TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE]);
+            ticks[TickType.SYSTEM.getIndex()] = FormatUtil
+                    .getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM]);
+            ticks[TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE]);
         }
         return ticks;
     }
