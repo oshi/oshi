@@ -31,6 +31,7 @@ import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
@@ -157,7 +158,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 return fs;
             }
             MemorySegment hVol = hVolOpt.get();
-            try {
+            try (NativeHandle ignored = NativeHandle.of(hVol, Kernel32FFM::FindVolumeClose)) {
                 do {
                     String volume = readWideString(volumeNameBuf);
                     if (volumeToMatch != null && !volume.equals(volumeToMatch)) {
@@ -225,8 +226,6 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     }
                 } while (Kernel32FFM.FindNextVolume(hVol, volumeNameBuf, BUFSIZE).orElse(0) != 0);
                 return fs;
-            } finally {
-                Kernel32FFM.FindVolumeClose(hVol);
             }
         }
     }

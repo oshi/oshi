@@ -49,6 +49,7 @@ import oshi.driver.windows.registry.ProcessWtsDataFFM;
 import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.NtDllFFM;
@@ -82,15 +83,13 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     public long getAffinityMask() {
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandleOpt.isPresent()) {
-            MemorySegment pHandle = pHandleOpt.get();
-            try (Arena arena = Arena.ofConfined()) {
+            try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
+                    Arena arena = Arena.ofConfined()) {
                 MemorySegment processAffinity = arena.allocate(JAVA_LONG);
                 MemorySegment systemAffinity = arena.allocate(JAVA_LONG);
-                if (Kernel32FFM.GetProcessAffinityMask(pHandle, processAffinity, systemAffinity)) {
+                if (Kernel32FFM.GetProcessAffinityMask(pHandle.get(), processAffinity, systemAffinity)) {
                     return processAffinity.get(JAVA_LONG, 0);
                 }
-            } finally {
-                Kernel32FFM.CloseHandle(pHandle);
             }
         }
         return 0L;

@@ -35,6 +35,7 @@ import oshi.driver.windows.perfmon.LoadAverageFFM;
 import oshi.driver.windows.perfmon.ProcessorInformationFFM;
 import oshi.driver.windows.perfmon.SystemInformationFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.NativeHandle;
 import oshi.ffm.windows.Advapi32FFM;
 import oshi.ffm.windows.Kernel32FFM;
 import oshi.ffm.windows.VersionHelpersFFM;
@@ -120,13 +121,12 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
             MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
             MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, cpuRegistryRoot);
             if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
-                MemorySegment openedKey = hKey.get(ValueLayout.ADDRESS, 0);
-                try {
+                try (NativeHandle key = NativeHandle.of(hKey.get(ValueLayout.ADDRESS, 0), Advapi32FFM::RegCloseKey)) {
                     // Get first subkey name
                     MemorySegment nameBuffer = arena.allocate(256 * 2L); // WCHAR[256]
                     MemorySegment nameLen = arena.allocate(ValueLayout.JAVA_INT);
                     nameLen.set(ValueLayout.JAVA_INT, 0, 256);
-                    if (Advapi32FFM.RegEnumKeyEx(openedKey, 0, nameBuffer, nameLen, MemorySegment.NULL,
+                    if (Advapi32FFM.RegEnumKeyEx(key.get(), 0, nameBuffer, nameLen, MemorySegment.NULL,
                             MemorySegment.NULL, MemorySegment.NULL, MemorySegment.NULL) == 0) {
                         String firstKey = WindowsForeignFunctions.readWideString(nameBuffer);
                         String cpuRegistryPath = cpuRegistryRoot + firstKey;
@@ -135,8 +135,6 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                         cpuIdentifier = registryGetString(arena, cpuRegistryPath, "Identifier");
                         cpuVendorFreq = registryGetDword(arena, cpuRegistryPath, "~MHz") * 1_000_000L;
                     }
-                } finally {
-                    Advapi32FFM.RegCloseKey(openedKey);
                 }
             }
         } catch (Throwable t) {
@@ -403,18 +401,15 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
             MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
             MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, path);
             if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
-                MemorySegment openedKey = hKey.get(ValueLayout.ADDRESS, 0);
-                try {
+                try (NativeHandle key = NativeHandle.of(hKey.get(ValueLayout.ADDRESS, 0), Advapi32FFM::RegCloseKey)) {
                     MemorySegment valueNameSeg = WindowsForeignFunctions.toWideString(arena, valueName);
                     MemorySegment dataSize = arena.allocate(ValueLayout.JAVA_INT);
                     dataSize.set(ValueLayout.JAVA_INT, 0, 512);
                     MemorySegment data = arena.allocate(512);
-                    if (Advapi32FFM.RegQueryValueEx(openedKey, valueNameSeg, 0, MemorySegment.NULL, data,
+                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, 0, MemorySegment.NULL, data,
                             dataSize) == 0) {
                         return WindowsForeignFunctions.readWideString(data);
                     }
-                } finally {
-                    Advapi32FFM.RegCloseKey(openedKey);
                 }
             }
         } catch (Throwable t) {
@@ -428,18 +423,15 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
             MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
             MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, path);
             if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
-                MemorySegment openedKey = hKey.get(ValueLayout.ADDRESS, 0);
-                try {
+                try (NativeHandle key = NativeHandle.of(hKey.get(ValueLayout.ADDRESS, 0), Advapi32FFM::RegCloseKey)) {
                     MemorySegment valueNameSeg = WindowsForeignFunctions.toWideString(arena, valueName);
                     MemorySegment dataSize = arena.allocate(ValueLayout.JAVA_INT);
                     dataSize.set(ValueLayout.JAVA_INT, 0, 4);
                     MemorySegment data = arena.allocate(4);
-                    if (Advapi32FFM.RegQueryValueEx(openedKey, valueNameSeg, 0, MemorySegment.NULL, data,
+                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, 0, MemorySegment.NULL, data,
                             dataSize) == 0) {
                         return Integer.toUnsignedLong(data.get(ValueLayout.JAVA_INT, 0));
                     }
-                } finally {
-                    Advapi32FFM.RegCloseKey(openedKey);
                 }
             }
         } catch (Throwable t) {
