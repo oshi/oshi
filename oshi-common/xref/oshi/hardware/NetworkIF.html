@@ -367,25 +367,27 @@
 <a class="jxr_linenumber" name="L359" href="#L359">359</a>         }
 <a class="jxr_linenumber" name="L360" href="#L360">360</a> 
 <a class="jxr_linenumber" name="L361" href="#L361">361</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">         * @return the integer value specified in RFC 2863 for this operational status.</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getValue() {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.value;
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         }
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">         * Find IfOperStatus by the integer value.</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">         * @param value Integer value specified in RFC 2863</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">         * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can be found</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IfOperStatus byValue(<strong class="jxr_keyword">int</strong> value) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>             <strong class="jxr_keyword">return</strong> Arrays.stream(IfOperStatus.values()).filter(st -&gt; st.getValue() == value).findFirst()
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                     .orElse(UNKNOWN);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         }
-<a class="jxr_linenumber" name="L378" href="#L378">378</a> 
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>     }
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">         * Gets the RFC 2863 integer value for this operational status.</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">         * @return the integer value specified in RFC 2863 for this operational status.</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getValue() {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.value;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         }
+<a class="jxr_linenumber" name="L369" href="#L369">369</a> 
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">         * Find IfOperStatus by the integer value.</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">         * @param value Integer value specified in RFC 2863</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">         * @return the matching IfOperStatu or UNKNOWN if no matching IfOperStatus can be found</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> IfOperStatus byValue(<strong class="jxr_keyword">int</strong> value) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             <strong class="jxr_keyword">return</strong> Arrays.stream(IfOperStatus.values()).filter(st -&gt; st.getValue() == value).findFirst()
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                     .orElse(UNKNOWN);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         }
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     }
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

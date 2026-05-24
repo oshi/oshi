@@ -12,77 +12,76 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.linux;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.ValueLayout;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.net.InetAddress;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.net.UnknownHostException;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.linux.LinuxNetworkParams;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * FFM-based Linux network parameters. Overrides {@code gethostname} and {@code getaddrinfo} calls to use FFM.</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxNetworkParamsFFM" href="../../../../oshi/software/os/linux/LinuxNetworkParamsFFM.html#LinuxNetworkParamsFFM">LinuxNetworkParamsFFM</a> <strong class="jxr_keyword">extends</strong> LinuxNetworkParams {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxNetworkParamsFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.slf4j.event.Level.WARN;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.ValueLayout;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.net.InetAddress;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.net.UnknownHostException;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.linux.LinuxNetworkParams;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * FFM-based Linux network parameters. Overrides {@code gethostname} and {@code getaddrinfo} calls to use FFM.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxNetworkParamsFFM" href="../../../../oshi/software/os/linux/LinuxNetworkParamsFFM.html#LinuxNetworkParamsFFM">LinuxNetworkParamsFFM</a> <strong class="jxr_keyword">extends</strong> LinuxNetworkParams {
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> HOST_NAME_MAX = 255;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxNetworkParamsFFM.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      @Override
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>              MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>              <strong class="jxr_keyword">if</strong> (0 == LinuxLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>                  <strong class="jxr_keyword">return</strong> buf.getString(0);
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>              }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              LOG.warn(<span class="jxr_string">"FFM gethostname failed: {}"</span>, e.toString());
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          }
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.getHostName();
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Override
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> String getDomainName() {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          String hostname;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              hostname = InetAddress.getLocalHost().getHostName();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              LOG.warn(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e.getMessage());
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <em class="jxr_comment">// Build hints: ai_flags = AI_CANONNAME, rest zero</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              MemorySegment hints = arena.allocate(LinuxLibcFunctions.ADDRINFO_LAYOUT);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              hints.set(ValueLayout.JAVA_INT, 0, LinuxLibcFunctions.AI_CANONNAME);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// Output pointer-to-pointer: one ADDRESS slot</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              MemorySegment resPP = arena.allocate(ValueLayout.ADDRESS);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              MemorySegment nodeSeg = arena.allocateFrom(hostname);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">int</strong> rc = LinuxLibcFunctions.getaddrinfo(nodeSeg, MemorySegment.NULL, hints, resPP);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (rc != 0) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  LOG.error(<span class="jxr_string">"Failed getaddrinfo(): {}"</span>, LinuxLibcFunctions.gaiStrerror(rc, arena));
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// resPP holds the pointer to the first addrinfo struct</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              MemorySegment resPtr = resPP.get(ValueLayout.ADDRESS, 0);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  String canonname = LinuxLibcFunctions.addrinfoCanoname(resPtr, arena);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">return</strong> canonname == <strong class="jxr_keyword">null</strong> ? hostname : canonname.trim();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  LinuxLibcFunctions.freeaddrinfo(resPtr);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              LOG.warn(<span class="jxr_string">"FFM getaddrinfo failed: {}"</span>, e.toString());
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.getDomainName();
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> HOST_NAME_MAX = 255;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      @Override
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          String hostname = callInArenaOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              <strong class="jxr_keyword">if</strong> (0 == LinuxLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                  <strong class="jxr_keyword">return</strong> buf.getString(0);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          }, LOG, WARN, <span class="jxr_string">"FFM gethostname failed"</span>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">return</strong> hostname == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">super</strong>.getHostName() : hostname;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Override
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> String getDomainName() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String hostname;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              hostname = InetAddress.getLocalHost().getHostName();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              LOG.warn(<span class="jxr_string">"Unknown host exception when getting address of local host: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          String domainName = callInArenaOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <em class="jxr_comment">// Build hints: ai_flags = AI_CANONNAME, rest zero</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              MemorySegment hints = arena.allocate(LinuxLibcFunctions.ADDRINFO_LAYOUT);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              hints.set(ValueLayout.JAVA_INT, 0, LinuxLibcFunctions.AI_CANONNAME);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <em class="jxr_comment">// Output pointer-to-pointer: one ADDRESS slot</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              MemorySegment resPP = arena.allocate(ValueLayout.ADDRESS);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              MemorySegment nodeSeg = arena.allocateFrom(hostname);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">int</strong> rc = LinuxLibcFunctions.getaddrinfo(nodeSeg, MemorySegment.NULL, hints, resPP);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">if</strong> (rc != 0) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  LOG.error(<span class="jxr_string">"Failed getaddrinfo(): {}"</span>, LinuxLibcFunctions.gaiStrerror(rc, arena));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// resPP holds the pointer to the first addrinfo struct</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              MemorySegment resPtr = resPP.get(ValueLayout.ADDRESS, 0);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  String canonname = LinuxLibcFunctions.addrinfoCanoname(resPtr, arena);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  <strong class="jxr_keyword">return</strong> canonname == <strong class="jxr_keyword">null</strong> ? hostname : canonname.trim();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  LinuxLibcFunctions.freeaddrinfo(resPtr);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }, LOG, WARN, <span class="jxr_string">"FFM getaddrinfo failed"</span>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> domainName == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">super</strong>.getDomainName() : domainName;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

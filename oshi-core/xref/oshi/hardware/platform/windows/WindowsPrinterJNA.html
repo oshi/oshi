@@ -15,59 +15,58 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Printer.PrinterProperty;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32PrinterJNA;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Printer;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.windows.WindowsPrinter;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiUtil;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * Printer data obtained from WMI</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @Immutable
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a> <strong class="jxr_keyword">extends</strong> WindowsPrinter {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a>(String name, String driverName, String description, PrinterStatus status, String statusReason,
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>              <strong class="jxr_keyword">boolean</strong> isDefault, <strong class="jxr_keyword">boolean</strong> isLocal, String portName) {
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">super</strong>(name, driverName, description, status, statusReason, isDefault, isLocal, portName);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * Gets printers from WMI Win32_Printer.</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @return A list of printers.</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Printer&gt; getPrinters() {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          List&lt;Printer&gt; printers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          WmiResult&lt;PrinterProperty&gt; result = Win32PrinterJNA.queryPrinters();
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              String name = WmiUtil.getString(result, PrinterProperty.NAME, i);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>              String driverName = WmiUtil.getString(result, PrinterProperty.DRIVERNAME, i);
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>              String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">int</strong> statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">int</strong> errorState = WmiUtil.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">boolean</strong> isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">boolean</strong> isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              printers.add(<strong class="jxr_keyword">new</strong> <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a>(name, driverName, description, parseStatus(statusCode, errorState),
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      parseErrorState(errorState), isDefault, isLocal, portName));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">return</strong> printers;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> getBooleanValue(WmiResult&lt;PrinterProperty&gt; result, PrinterProperty property, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          Object o = result.getValue(property, index);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">if</strong> (o instanceof Boolean) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">return</strong> (Boolean) o;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  }
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Printer data obtained from WMI</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  @Immutable
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a> <strong class="jxr_keyword">extends</strong> WindowsPrinter {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a>(String name, String driverName, String description, PrinterStatus status, String statusReason,
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>              <strong class="jxr_keyword">boolean</strong> isDefault, <strong class="jxr_keyword">boolean</strong> isLocal, String portName) {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">super</strong>(name, driverName, description, status, statusReason, isDefault, isLocal, portName);
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * Gets printers from WMI Win32_Printer.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @return A list of printers.</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Printer&gt; getPrinters() {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          List&lt;Printer&gt; printers = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          WmiResult&lt;PrinterProperty&gt; result = Win32PrinterJNA.queryPrinters();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              String name = WmiUtil.getString(result, PrinterProperty.NAME, i);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>              String driverName = WmiUtil.getString(result, PrinterProperty.DRIVERNAME, i);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">int</strong> statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">int</strong> errorState = WmiUtil.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">boolean</strong> isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">boolean</strong> isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              printers.add(<strong class="jxr_keyword">new</strong> <a name="WindowsPrinterJNA" href="../../../../oshi/hardware/platform/windows/WindowsPrinterJNA.html#WindowsPrinterJNA">WindowsPrinterJNA</a>(name, driverName, description, parseStatus(statusCode, errorState),
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                      parseErrorState(errorState), isDefault, isLocal, portName));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">return</strong> printers;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> getBooleanValue(WmiResult&lt;PrinterProperty&gt; result, PrinterProperty property, <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          Object o = result.getValue(property, index);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">if</strong> (o instanceof Boolean) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> (Boolean) o;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

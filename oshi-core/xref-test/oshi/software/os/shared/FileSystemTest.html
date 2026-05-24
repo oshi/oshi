@@ -71,9 +71,16 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                          <span class="jxr_string">"File store's usable space should be less than or equal to the total space on non-network drives"</span>,
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                          store.getUsableSpace() &lt;= store.getTotalSpace(), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">// updateAttributes should succeed and total space should not change</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">long</strong> totalBefore = store.getTotalSpace();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              assertThat(<span class="jxr_string">"File store updateAttributes should succeed for "</span> + store.getMount(), store.updateAttributes(),
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              assertThat(<span class="jxr_string">"File store total space should not change after update"</span>, store.getTotalSpace(), is(totalBefore));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              assertThat(<span class="jxr_string">"File store usable space should remain valid after update"</span>, store.getUsableSpace(),
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      greaterThanOrEqualTo(0L));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

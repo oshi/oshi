@@ -93,100 +93,93 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                                      <strong class="jxr_keyword">long</strong> devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                                              * SECTORSIZE;
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                                      <strong class="jxr_keyword">if</strong> (devnode.startsWith(DevPath.DM)) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                                          devModel = LOGICAL_VOLUME_GROUP;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                                          devSerial = device.getPropertyValue(DM_UUID);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                                          devSerial = device.getPropertyValue(DM_UUID);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                                          devModel = getModelForDmDevice(devSerial);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                                          store = <strong class="jxr_keyword">new</strong> <a name="LinuxHWDiskStoreJNA" href="../../../../oshi/hardware/platform/linux/LinuxHWDiskStoreJNA.html#LinuxHWDiskStoreJNA">LinuxHWDiskStoreJNA</a>(devnode, devModel,
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                                                  devSerial == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : devSerial, devSize, <span class="jxr_string">"Virtual"</span>);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                                          String vgName = device.getPropertyValue(DM_VG_NAME);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                                          String lvName = device.getPropertyValue(DM_LV_NAME);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                          <strong class="jxr_keyword">if</strong> (vgName != <strong class="jxr_keyword">null</strong> &amp;&amp; lvName != <strong class="jxr_keyword">null</strong> &amp;&amp; devSerial != <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                                  &amp;&amp; devSerial.startsWith(<span class="jxr_string">"LVM-"</span>)) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                              store.getMutablePartitionList().add(<strong class="jxr_keyword">new</strong> HWPartition(
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                                      getPartitionNameForDmDevice(vgName, lvName), device.getSysname(),
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                                                      device.getPropertyValue(ID_FS_TYPE) == <strong class="jxr_keyword">null</strong> ? PARTITION
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                                                              : device.getPropertyValue(ID_FS_TYPE),
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                                     device.getPropertyValue(ID_FS_UUID) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                                             : device.getPropertyValue(ID_FS_UUID),
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                                                     device.getPropertyValue(ID_FS_LABEL) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                                                             : device.getPropertyValue(ID_FS_LABEL),
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                                     ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                                             * SECTORSIZE,
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                                                     ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                                                     ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                                                     getMountPointOfDmDevice(vgName, lvName)));
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                                         }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                                         store = <strong class="jxr_keyword">new</strong> <a name="LinuxHWDiskStoreJNA" href="../../../../oshi/hardware/platform/linux/LinuxHWDiskStoreJNA.html#LinuxHWDiskStoreJNA">LinuxHWDiskStoreJNA</a>(devnode,
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                                                 devModel == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : devModel,
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                                                 devSerial == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : devSerial, devSize,
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                                                 detectDiskType(device));
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                                     }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                     <strong class="jxr_keyword">if</strong> (storeToUpdate == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                         computeDiskStats(store, device.getSysattrValue(STAT));
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                                         result.add(store);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (store.getName().equals(storeToUpdate.getName())
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                                             &amp;&amp; store.getModel().equals(storeToUpdate.getModel())
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                             &amp;&amp; store.getSerial().equals(storeToUpdate.getSerial())
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                             &amp;&amp; store.getSize() == storeToUpdate.getSize()) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                                         computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                                         result.add(storeToUpdate);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                                         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                                     }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (storeToUpdate == <strong class="jxr_keyword">null</strong> &amp;&amp; store != <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                         &amp;&amp; PARTITION.equals(device.getDevtype())) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                                     UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                                     <strong class="jxr_keyword">if</strong> (parent != <strong class="jxr_keyword">null</strong> &amp;&amp; store.getName().equals(parent.getDevnode())) {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                                         String name = device.getDevnode();
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                                         store.getMutablePartitionList().add(<strong class="jxr_keyword">new</strong> HWPartition(name, device.getSysname(),
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                                                 device.getPropertyValue(ID_FS_TYPE) == <strong class="jxr_keyword">null</strong> ? PARTITION
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                                                         : device.getPropertyValue(ID_FS_TYPE),
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                                                 device.getPropertyValue(ID_FS_UUID) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                                                         : device.getPropertyValue(ID_FS_UUID),
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                                                 device.getPropertyValue(ID_FS_LABEL) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                                                         : device.getPropertyValue(ID_FS_LABEL),
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                                                 ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                                                         * SECTORSIZE,
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                                                 mountsMap.getOrDefault(name,
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                                                         getDependentNamesFromHoldersDirectory(device.getSyspath()))));
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                                     }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>                                 }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                             }
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>                             device.unref();
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                         }
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                     }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 enumerate.unref();
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             }
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             udev.unref();
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         finalizePartitions(result);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     @Override
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> !getDisks(<strong class="jxr_keyword">this</strong>).isEmpty();
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String detectDiskType(UdevDevice device) {
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         String removable = device.getSysattrValue(<span class="jxr_string">"removable"</span>);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"1"</span>.equals(removable)) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable"</span>;
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         String rotational = device.getSysattrValue(<span class="jxr_string">"queue/rotational"</span>);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"0"</span>.equals(rotational)) {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"SSD"</span>;
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"1"</span>.equals(rotational)) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"HDD"</span>;
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         }
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown"</span>;
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                          addDeviceMapperPartition(store, mountsMap, devSerial, vgName, lvName,
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                                  device.getPropertyValue(DM_NAME), devnode, device.getSysname(),
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                                  device.getSyspath(), device.getPropertyValue(ID_FS_TYPE),
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                                  device.getPropertyValue(ID_FS_UUID),
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                                                  device.getPropertyValue(ID_FS_LABEL),
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                                                  ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                                         * SECTORSIZE,
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                         store = <strong class="jxr_keyword">new</strong> <a name="LinuxHWDiskStoreJNA" href="../../../../oshi/hardware/platform/linux/LinuxHWDiskStoreJNA.html#LinuxHWDiskStoreJNA">LinuxHWDiskStoreJNA</a>(devnode,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                                 devModel == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : devModel,
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                                                 devSerial == <strong class="jxr_keyword">null</strong> ? Constants.UNKNOWN : devSerial, devSize,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                                                 detectDiskType(device));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                                     }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                                     <strong class="jxr_keyword">if</strong> (storeToUpdate == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                                         computeDiskStats(store, device.getSysattrValue(STAT));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                                         result.add(store);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                                     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (store.getName().equals(storeToUpdate.getName())
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                                             &amp;&amp; store.getModel().equals(storeToUpdate.getModel())
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                                             &amp;&amp; store.getSerial().equals(storeToUpdate.getSerial())
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                                             &amp;&amp; store.getSize() == storeToUpdate.getSize()) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                         computeDiskStats(storeToUpdate, device.getSysattrValue(STAT));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                         result.add(storeToUpdate);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                                         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                     }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (storeToUpdate == <strong class="jxr_keyword">null</strong> &amp;&amp; store != <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                         &amp;&amp; PARTITION.equals(device.getDevtype())) {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                     UdevDevice parent = device.getParentWithSubsystemDevtype(BLOCK, DISK);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                                     <strong class="jxr_keyword">if</strong> (parent != <strong class="jxr_keyword">null</strong> &amp;&amp; store.getName().equals(parent.getDevnode())) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                                         String name = device.getDevnode();
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                                         store.getMutablePartitionList().add(<strong class="jxr_keyword">new</strong> HWPartition(name, device.getSysname(),
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                                                 device.getPropertyValue(ID_FS_TYPE) == <strong class="jxr_keyword">null</strong> ? PARTITION
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                                                         : device.getPropertyValue(ID_FS_TYPE),
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                                 device.getPropertyValue(ID_FS_UUID) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                                                         : device.getPropertyValue(ID_FS_UUID),
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                                                 device.getPropertyValue(ID_FS_LABEL) == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                                                         : device.getPropertyValue(ID_FS_LABEL),
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                                                 ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                                                         * SECTORSIZE,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                                                 mountsMap.getOrDefault(name,
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                                                         getDependentNamesFromHoldersDirectory(device.getSyspath()))));
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                                     }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                                 }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                             }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                             device.unref();
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                         }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 enumerate.unref();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             udev.unref();
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         finalizePartitions(result);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     @Override
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> !getDisks(<strong class="jxr_keyword">this</strong>).isEmpty();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String detectDiskType(UdevDevice device) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         String removable = device.getSysattrValue(<span class="jxr_string">"removable"</span>);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"1"</span>.equals(removable)) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Removable"</span>;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         String rotational = device.getSysattrValue(<span class="jxr_string">"queue/rotational"</span>);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"0"</span>.equals(rotational)) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"SSD"</span>;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"1"</span>.equals(rotational)) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"HDD"</span>;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown"</span>;
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

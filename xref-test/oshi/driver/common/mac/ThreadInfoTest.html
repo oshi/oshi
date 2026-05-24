@@ -17,34 +17,61 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess.State;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">class</strong> <a name="ThreadInfoTest" href="../../../../oshi/driver/common/mac/ThreadInfoTest.html#ThreadInfoTest">ThreadInfoTest</a> {
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>      @Test
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateMapping() {
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'S', 100L, 200L, 31).getState(), is(State.SLEEPING));
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'I', 100L, 200L, 31).getState(), is(State.SLEEPING));
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'R', 100L, 200L, 31).getState(), is(State.RUNNING));
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'U', 100L, 200L, 31).getState(), is(State.WAITING));
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'Z', 100L, 200L, 31).getState(), is(State.ZOMBIE));
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'T', 100L, 200L, 31).getState(), is(State.STOPPED));
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(<strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(0, 50.0, 'X', 100L, 200L, 31).getState(), is(State.OTHER));
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      }
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      @Test
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">void</strong> testThreadStatsGetters() {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <em class="jxr_comment">// upTime = (long) ((uTime + sTime) / (cpu / 100d + 0.0005))</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <em class="jxr_comment">// = (long) ((2000 + 1000) / (25.0 / 100.0 + 0.0005))</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <em class="jxr_comment">// = (long) (3000 / 0.2505) = 11976</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          ThreadInfo.ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadInfo.ThreadStats(5, 25.0, 'R', 1000L, 2000L, 20);
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(ts.getThreadId(), is(5));
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          assertThat(ts.getSystemTime(), is(1000L));
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(ts.getUserTime(), is(2000L));
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(ts.getUpTime(), is(11976L));
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(ts.getPriority(), is(20));
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  }
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.mac.ThreadInfo.ThreadStats;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSProcess.State;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">class</strong> <a name="ThreadInfoTest" href="../../../../oshi/driver/common/mac/ThreadInfoTest.html#ThreadInfoTest">ThreadInfoTest</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      @Test
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateSleeping() {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 1.0, 'S', 100L, 200L, 31);
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          assertThat(ts.getState(), is(State.SLEEPING));
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <em class="jxr_comment">// Also test 'I' (idle/sleeping)</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>          ThreadStats ti = <strong class="jxr_keyword">new</strong> ThreadStats(1, 0.5, 'I', 50L, 100L, 20);
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          assertThat(ti.getState(), is(State.SLEEPING));
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      @Test
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateRunning() {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 50.0, 'R', 1000L, 2000L, 31);
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(ts.getState(), is(State.RUNNING));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      @Test
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateWaiting() {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 0.1, 'U', 10L, 20L, 15);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(ts.getState(), is(State.WAITING));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      @Test
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateZombie() {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 0.0, 'Z', 0L, 0L, 0);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(ts.getState(), is(State.ZOMBIE));
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateStopped() {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 0.0, 'T', 500L, 1000L, 10);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(ts.getState(), is(State.STOPPED));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testThreadStatsStateOther() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(0, 0.0, 'X', 0L, 0L, 0);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(ts.getState(), is(State.OTHER));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Test
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">void</strong> testThreadStatsAccessors() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          ThreadStats ts = <strong class="jxr_keyword">new</strong> ThreadStats(5, 25.0, 'R', 3000L, 7000L, 47);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertThat(ts.getThreadId(), is(5));
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertThat(ts.getUserTime(), is(7000L));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(ts.getSystemTime(), is(3000L));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(ts.getPriority(), is(47));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// upTime = (user+system) / (cpu/100 + 0.0005) = 10000 / 0.2505 ≈ 39920</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertThat(ts.getUpTime(), is((<strong class="jxr_keyword">long</strong>) ((7000L + 3000L) / (25.0 / 100d + 0.0005))));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

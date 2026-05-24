@@ -45,19 +45,44 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_MANUFACTURE_NAME_LEVEL = 6;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> BATTERY_SERIAL_NUMBER_LEVEL = 8;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">protected</strong> <a name="WindowsPowerSource" href="../../../../../oshi/hardware/common/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * Constructor.</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @param psName                     the psName</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * @param psDeviceName               the psDeviceName</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * @param psRemainingCapacityPercent the psRemainingCapacityPercent</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * @param psTimeRemainingEstimated   the psTimeRemainingEstimated</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @param psTimeRemainingInstant     the psTimeRemainingInstant</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * @param psPowerUsageRate           the psPowerUsageRate</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * @param psVoltage                  the psVoltage</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * @param psAmperage                 the psAmperage</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * @param psPowerOnLine              the psPowerOnLine</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * @param psCharging                 the psCharging</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @param psDischarging              the psDischarging</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * @param psCapacityUnits            the psCapacityUnits</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param psCurrentCapacity          the psCurrentCapacity</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param psMaxCapacity              the psMaxCapacity</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @param psDesignCapacity           the psDesignCapacity</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param psCycleCount               the psCycleCount</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @param psChemistry                the psChemistry</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * @param psManufactureDate          the psManufactureDate</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     * @param psManufacturer             the psManufacturer</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * @param psSerialNumber             the psSerialNumber</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @param psTemperature              the psTemperature</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">protected</strong> <a name="WindowsPowerSource" href="../../../../../oshi/hardware/common/platform/windows/WindowsPowerSource.html#WindowsPowerSource">WindowsPowerSource</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

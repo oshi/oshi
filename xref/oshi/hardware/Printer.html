@@ -87,9 +87,18 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      @PublicApi
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      enum PrinterStatus {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          IDLE, PRINTING, ERROR, OFFLINE, UNKNOWN
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <em class="jxr_javadoccomment">/** Printer is idle. */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          IDLE,
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_javadoccomment">/** Printer is printing. */</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          PRINTING,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_javadoccomment">/** Printer has an error. */</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          ERROR,
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_javadoccomment">/** Printer is offline. */</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          OFFLINE,
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_javadoccomment">/** Printer status is unknown. */</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          UNKNOWN
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

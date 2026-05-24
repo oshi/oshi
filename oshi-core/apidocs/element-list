@@ -21,11 +21,13 @@ oshi.hardware.common.platform.linux
 oshi.hardware.common.platform.mac
 oshi.hardware.common.platform.unix
 oshi.hardware.common.platform.windows
+oshi.nativefree
 oshi.software.common
 oshi.software.common.os.linux
 oshi.software.common.os.mac
 oshi.software.common.os.windows
 oshi.software.os
+oshi.spi
 oshi.util
 oshi.util.driver.linux
 oshi.util.driver.linux.proc

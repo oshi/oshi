@@ -31,10 +31,10 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.MSFTStorageFFM;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiUtilFFM;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.MSFTStorageFFM;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.VersionHelpersFFM;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.FfmComException;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.LogicalVolumeGroup;
@@ -74,37 +74,37 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              WmiResult&lt;VirtualDiskProperty&gt; vds = MSFTStorageFFM.queryVirtualDisks(h);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              count = vds.getResultCount();
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String vdObjectId = WmiUtilFFM.getString(vds, VirtualDiskProperty.OBJECTID, i);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  Matcher m = VD_OBJECT_ID.matcher(vdObjectId);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                  <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                      vdObjectId = m.group(2) + <span class="jxr_string">" "</span> + m.group(1);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  vdMap.put(vdObjectId, WmiUtilFFM.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  vdMap.put(vdObjectId, WmiUtil.getString(vds, VirtualDiskProperty.FRIENDLYNAME, i));
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              Map&lt;String, Pair&lt;String, String&gt;&gt; pdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>              WmiResult&lt;PhysicalDiskProperty&gt; pds = MSFTStorageFFM.queryPhysicalDisks(h);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              count = pds.getResultCount();
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  String pdObjectId = WmiUtilFFM.getString(pds, PhysicalDiskProperty.OBJECTID, i);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                  Matcher m = PD_OBJECT_ID.matcher(pdObjectId);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                      pdObjectId = m.group(1);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  pdMap.put(pdObjectId, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(WmiUtilFFM.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                          WmiUtilFFM.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  pdMap.put(pdObjectId, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(WmiUtil.getString(pds, PhysicalDiskProperty.FRIENDLYNAME, i),
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                          WmiUtil.getString(pds, PhysicalDiskProperty.PHYSICALLOCATION, i)));
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>              }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>              Map&lt;String, String&gt; sppdMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; sppd = MSFTStorageFFM.queryStoragePoolPhysicalDisks(h);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              count = sppd.getResultCount();
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  String spObjectId = WmiUtilFFM.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  String spObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                  Matcher m = SP_OBJECT_ID.matcher(spObjectId);
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                      spObjectId = m.group(1);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                  }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  String pdObjectId = WmiUtilFFM.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  String pdObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>                 m = PD_OBJECT_ID.matcher(pdObjectId);
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>                     pdObjectId = m.group(1);
@@ -115,8 +115,8 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>             List&lt;LogicalVolumeGroup&gt; lvgList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             count = sp.getResultCount();
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 String name = WmiUtilFFM.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 String spObjectId = WmiUtilFFM.getString(sp, StoragePoolProperty.OBJECTID, i);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 String name = WmiUtil.getString(sp, StoragePoolProperty.FRIENDLYNAME, i);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 String spObjectId = WmiUtil.getString(sp, StoragePoolProperty.OBJECTID, i);
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>                 Matcher m = SP_OBJECT_ID.matcher(spObjectId);
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                     spObjectId = m.group(1);

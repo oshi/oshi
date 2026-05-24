@@ -43,9 +43,9 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.registry.WtsInfo;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ProcessFFM;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiUtilFFM;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ProcessFFM;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Kernel32FFM;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.VersionHelpersFFM;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Wtsapi32FFM;
@@ -126,15 +126,15 @@
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         Map&lt;Integer, WtsInfo&gt; wtsMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         WmiResult&lt;ProcessXPProperty&gt; processWmiResult = Win32ProcessFFM.queryProcesses(pids);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; processWmiResult.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>             wtsMap.put(WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), <strong class="jxr_keyword">new</strong> <a name="WtsInfo" href="../../../../oshi/driver/common/windows/registry/WtsInfo.html#WtsInfo">WtsInfo</a>(
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                     WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.NAME, i),
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                     WmiUtilFFM.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             wtsMap.put(WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PROCESSID, i), <strong class="jxr_keyword">new</strong> <a name="WtsInfo" href="../../../../oshi/driver/common/windows/registry/WtsInfo.html#WtsInfo">WtsInfo</a>(
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                     WmiUtil.getString(processWmiResult, ProcessXPProperty.NAME, i),
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                     WmiUtil.getString(processWmiResult, ProcessXPProperty.EXECUTABLEPATH, i),
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     WmiUtil.getUint32(processWmiResult, ProcessXPProperty.THREADCOUNT, i),
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                     <em class="jxr_comment">// WMI Pagefile usage is in KB</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                     1024 * (WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     WmiUtilFFM.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     WmiUtilFFM.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                     1024 * (WmiUtil.getUint32(processWmiResult, ProcessXPProperty.PAGEFILEUSAGE, i) &amp; 0xffff_ffffL),
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     WmiUtil.getUint64(processWmiResult, ProcessXPProperty.KERNELMODETIME, i) / 10_000L,
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     WmiUtil.getUint64(processWmiResult, ProcessXPProperty.USERMODETIME, i) / 10_000L,
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     WmiUtil.getUint32(processWmiResult, ProcessXPProperty.HANDLECOUNT, i)));
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> wtsMap;
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     }

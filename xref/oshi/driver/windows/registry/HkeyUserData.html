@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../../apidocs/oshi/driver/windows/registry/HkeyUserData.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.windows.registry;
@@ -59,38 +59,41 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                      String keyPath = sidKey + PATH_DELIMITER + VOLATILE_ENV_SUBKEY;
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                      <strong class="jxr_keyword">if</strong> (Advapi32Util.registryKeyExists(WinReg.HKEY_USERS, keyPath)) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                          HKEY hKey = Advapi32Util.registryGetKey(WinReg.HKEY_USERS, keyPath, WinNT.KEY_READ).getValue();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                          <em class="jxr_comment">// InfoKey write time is user login time</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                          InfoKey info = Advapi32Util.registryQueryInfoKey(hKey, 0);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                          loginTime = info.lpftLastWriteTime.toTime();
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                          <strong class="jxr_keyword">for</strong> (String subKey : Advapi32Util.registryGetKeys(hKey)) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                              String subKeyPath = keyPath + PATH_DELIMITER + subKey;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                              <em class="jxr_comment">// Check for session and client name</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                              <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, SESSIONNAME)) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                                  String session = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                                          SESSIONNAME);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                                  <strong class="jxr_keyword">if</strong> (!session.isEmpty()) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                                      device = session;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                                  }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                              }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                              <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, CLIENTNAME)) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                                  String client = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                                          CLIENTNAME);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                                  <strong class="jxr_keyword">if</strong> (!client.isEmpty() &amp;&amp; !DEFAULT_DEVICE.equals(client)) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                                      host = client;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                  }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                              }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          Advapi32Util.registryCloseKey(hKey);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                      sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(name, device, loginTime, host));
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  } <strong class="jxr_keyword">catch</strong> (Win32Exception ex) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      LOG.warn(<span class="jxr_string">"Error querying SID {} from registry: {}"</span>, sidKey, ex.getMessage());
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> sessions;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                              <em class="jxr_comment">// InfoKey write time is user login time</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                              InfoKey info = Advapi32Util.registryQueryInfoKey(hKey, 0);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                              loginTime = info.lpftLastWriteTime.toTime();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                              <strong class="jxr_keyword">for</strong> (String subKey : Advapi32Util.registryGetKeys(hKey)) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                                  String subKeyPath = keyPath + PATH_DELIMITER + subKey;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                                  <em class="jxr_comment">// Check for session and client name</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                                  <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, SESSIONNAME)) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                                      String session = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                                              SESSIONNAME);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                                      <strong class="jxr_keyword">if</strong> (!session.isEmpty()) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                                          device = session;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                                      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                                  }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                                  <strong class="jxr_keyword">if</strong> (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, CLIENTNAME)) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                                      String client = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                                              CLIENTNAME);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                                      <strong class="jxr_keyword">if</strong> (!client.isEmpty() &amp;&amp; !DEFAULT_DEVICE.equals(client)) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                          host = client;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                                      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                                  }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                              Advapi32Util.registryCloseKey(hKey);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(name, device, loginTime, host));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  } <strong class="jxr_keyword">catch</strong> (Win32Exception ex) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      LOG.warn(<span class="jxr_string">"Error querying SID {} from registry: {}"</span>, sidKey, ex.getMessage());
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> sessions;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

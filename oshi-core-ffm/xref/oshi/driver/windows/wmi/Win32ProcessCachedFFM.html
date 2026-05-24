@@ -22,8 +22,8 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.GuardedBy;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiUtilFFM;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
@@ -76,8 +76,8 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                  }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String result = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; commandLineAllProcs.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">int</strong> pid = WmiUtilFFM.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      String cl = WmiUtilFFM.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">int</strong> pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                      commandLineCache.put(pid, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(now, cl));
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">if</strong> (pid == processId) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                          result = cl;

@@ -12,6 +12,7 @@
         <div class="indexContainer">
             <ul>
                 <li><a href="oshi/hardware/common/AbstractBaseboard.html#AbstractBaseboard" target="classFrame">AbstractBaseboard</a></li>
+                <li><a href="oshi/hardware/common/AbstractBluetoothDevice.html#AbstractBluetoothDevice" target="classFrame">AbstractBluetoothDevice</a></li>
                 <li><a href="oshi/hardware/common/AbstractCentralProcessor.html#AbstractCentralProcessor" target="classFrame">AbstractCentralProcessor</a></li>
                 <li><a href="oshi/hardware/common/AbstractComputerSystem.html#AbstractComputerSystem" target="classFrame">AbstractComputerSystem</a></li>
                 <li><a href="oshi/hardware/common/AbstractDisplay.html#AbstractDisplay" target="classFrame">AbstractDisplay</a></li>
@@ -37,7 +38,9 @@
                 <li><a href="oshi/hardware/common/AbstractVirtualMemory.html#AbstractVirtualMemory" target="classFrame">AbstractVirtualMemory</a></li>
                 <li><a href="oshi/software/os/ApplicationInfo.html#ApplicationInfo" target="classFrame">ApplicationInfo</a></li>
                 <li><a href="oshi/util/driver/linux/proc/Auxv.html#Auxv" target="classFrame">Auxv</a></li>
+                <li><a href="oshi/util/driver/linux/proc/Auxv.html#Auxv.NativeLongReader" target="classFrame">Auxv.NativeLongReader</a></li>
                 <li><a href="oshi/hardware/Baseboard.html#Baseboard" target="classFrame">Baseboard</a></li>
+                <li><a href="oshi/hardware/BluetoothDevice.html#BluetoothDevice" target="classFrame">BluetoothDevice</a></li>
                 <li><a href="oshi/hardware/CentralProcessor.html#CentralProcessor" target="classFrame">CentralProcessor</a></li>
                 <li><a href="oshi/hardware/CentralProcessor.html#CentralProcessor.LogicalProcessor" target="classFrame">CentralProcessor.LogicalProcessor</a></li>
                 <li><a href="oshi/hardware/CentralProcessor.html#CentralProcessor.PhysicalProcessor" target="classFrame">CentralProcessor.PhysicalProcessor</a></li>
@@ -57,9 +60,17 @@
                 <li><a href="oshi/util/driver/linux/proc/DiskStats.html#DiskStats.IoStat" target="classFrame">DiskStats.IoStat</a></li>
                 <li><a href="oshi/hardware/Display.html#Display" target="classFrame">Display</a></li>
                 <li><a href="oshi/util/driver/linux/Dmidecode.html#Dmidecode" target="classFrame">Dmidecode</a></li>
+                <li><a href="oshi/util/driver/linux/DrmEdid.html#DrmEdid" target="classFrame">DrmEdid</a></li>
                 <li><a href="oshi/driver/common/windows/gpu/DxgiAdapterInfo.html#DxgiAdapterInfo" target="classFrame">DxgiAdapterInfo</a></li>
                 <li><a href="oshi/driver/common/windows/gpu/DxgiUtil.html#DxgiUtil" target="classFrame">DxgiUtil</a></li>
                 <li><a href="oshi/util/EdidUtil.html#EdidUtil" target="classFrame">EdidUtil</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil" target="classFrame">ExceptionUtil</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingBooleanSupplier" target="classFrame">ExceptionUtil.ThrowingBooleanSupplier</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingDoubleSupplier" target="classFrame">ExceptionUtil.ThrowingDoubleSupplier</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingIntSupplier" target="classFrame">ExceptionUtil.ThrowingIntSupplier</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingLongSupplier" target="classFrame">ExceptionUtil.ThrowingLongSupplier</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingRunnable" target="classFrame">ExceptionUtil.ThrowingRunnable</a></li>
+                <li><a href="oshi/util/ExceptionUtil.html#ExceptionUtil.ThrowingSupplier" target="classFrame">ExceptionUtil.ThrowingSupplier</a></li>
                 <li><a href="oshi/util/ExecutingCommand.html#ExecutingCommand" target="classFrame">ExecutingCommand</a></li>
                 <li><a href="oshi/software/os/FileSystem.html#FileSystem" target="classFrame">FileSystem</a></li>
                 <li><a href="oshi/util/FileSystemUtil.html#FileSystemUtil" target="classFrame">FileSystemUtil</a></li>
@@ -79,6 +90,8 @@
                 <li><a href="oshi/hardware/HWPartition.html#HWPartition" target="classFrame">HWPartition</a></li>
                 <li><a href="oshi/hardware/HardwareAbstractionLayer.html#HardwareAbstractionLayer" target="classFrame">HardwareAbstractionLayer</a></li>
                 <li><a href="oshi/driver/common/windows/registry/HkeyPerformanceDataUtil.html#HkeyPerformanceDataUtil" target="classFrame">HkeyPerformanceDataUtil</a></li>
+                <li><a href="oshi/hardware/common/platform/mac/IOKitProvider.html#IOKitProvider" target="classFrame">IOKitProvider</a></li>
+                <li><a href="oshi/hardware/common/platform/mac/IOKitProvider.html#IOKitProvider.RegistryEntry" target="classFrame">IOKitProvider.RegistryEntry</a></li>
                 <li><a href="oshi/annotation/concurrent/Immutable.html#Immutable" target="classFrame">Immutable</a></li>
                 <li><a href="oshi/software/os/InternetProtocolStats.html#InternetProtocolStats" target="classFrame">InternetProtocolStats</a></li>
                 <li><a href="oshi/software/os/InternetProtocolStats.html#InternetProtocolStats.IPConnection" target="classFrame">InternetProtocolStats.IPConnection</a></li>
@@ -89,37 +102,49 @@
                 <li><a href="oshi/driver/common/windows/wmi/LhmSensor.html#LhmSensor.LhmHardwareProperty" target="classFrame">LhmSensor.LhmHardwareProperty</a></li>
                 <li><a href="oshi/driver/common/windows/wmi/LhmSensor.html#LhmSensor.LhmSensorProperty" target="classFrame">LhmSensor.LhmSensorProperty</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxBaseboard.html#LinuxBaseboard" target="classFrame">LinuxBaseboard</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/LinuxBluetoothDevice.html#LinuxBluetoothDevice" target="classFrame">LinuxBluetoothDevice</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxCentralProcessor.html#LinuxCentralProcessor" target="classFrame">LinuxCentralProcessor</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxCentralProcessorNF.html#LinuxCentralProcessorNF" target="classFrame">LinuxCentralProcessorNF</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxCgroupInfo.html#LinuxCgroupInfo" target="classFrame">LinuxCgroupInfo</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxComputerSystem.html#LinuxComputerSystem" target="classFrame">LinuxComputerSystem</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxFileSystem.html#LinuxFileSystem" target="classFrame">LinuxFileSystem</a></li>
+                <li><a href="oshi/software/common/os/linux/nativefree/LinuxFileSystemNF.html#LinuxFileSystemNF" target="classFrame">LinuxFileSystemNF</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxFirmware.html#LinuxFirmware" target="classFrame">LinuxFirmware</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxFirmware.html#LinuxFirmware.VcGenCmdStrings" target="classFrame">LinuxFirmware.VcGenCmdStrings</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxGlobalMemory.html#LinuxGlobalMemory" target="classFrame">LinuxGlobalMemory</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxGpuStats.html#LinuxGpuStats" target="classFrame">LinuxGpuStats</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxGraphicsCard.html#LinuxGraphicsCard" target="classFrame">LinuxGraphicsCard</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxGraphicsCard.html#LinuxGraphicsCard.Attrs" target="classFrame">LinuxGraphicsCard.Attrs</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxGraphicsCardNF.html#LinuxGraphicsCardNF" target="classFrame">LinuxGraphicsCardNF</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxGraphicsCardNF.html#LinuxGraphicsCardNF.LinuxGpuStatsNF" target="classFrame">LinuxGraphicsCardNF.LinuxGpuStatsNF</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxHWDiskStore.html#LinuxHWDiskStore" target="classFrame">LinuxHWDiskStore</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxHWDiskStore.html#LinuxHWDiskStore.UdevStat" target="classFrame">LinuxHWDiskStore.UdevStat</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxHWDiskStoreNF.html#LinuxHWDiskStoreNF" target="classFrame">LinuxHWDiskStoreNF</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxHardwareAbstractionLayer.html#LinuxHardwareAbstractionLayer" target="classFrame">LinuxHardwareAbstractionLayer</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxHardwareAbstractionLayerNF.html#LinuxHardwareAbstractionLayerNF" target="classFrame">LinuxHardwareAbstractionLayerNF</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxInstalledApps.html#LinuxInstalledApps" target="classFrame">LinuxInstalledApps</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxInternetProtocolStats.html#LinuxInternetProtocolStats" target="classFrame">LinuxInternetProtocolStats</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxInternetProtocolStats.html#LinuxInternetProtocolStats.TcpStat" target="classFrame">LinuxInternetProtocolStats.TcpStat</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxInternetProtocolStats.html#LinuxInternetProtocolStats.UdpStat" target="classFrame">LinuxInternetProtocolStats.UdpStat</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxLogicalVolumeGroup.html#LinuxLogicalVolumeGroup" target="classFrame">LinuxLogicalVolumeGroup</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxNetworkIF.html#LinuxNetworkIF" target="classFrame">LinuxNetworkIF</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxNetworkIfNF.html#LinuxNetworkIfNF" target="classFrame">LinuxNetworkIfNF</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxNetworkParams.html#LinuxNetworkParams" target="classFrame">LinuxNetworkParams</a></li>
+                <li><a href="oshi/software/common/os/linux/nativefree/LinuxNetworkParamsNF.html#LinuxNetworkParamsNF" target="classFrame">LinuxNetworkParamsNF</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxOSFileStore.html#LinuxOSFileStore" target="classFrame">LinuxOSFileStore</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxOSProcess.html#LinuxOSProcess" target="classFrame">LinuxOSProcess</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxOSProcess.html#LinuxOSProcess.ProcPidStat" target="classFrame">LinuxOSProcess.ProcPidStat</a></li>
+                <li><a href="oshi/software/common/os/linux/nativefree/LinuxOSProcessNF.html#LinuxOSProcessNF" target="classFrame">LinuxOSProcessNF</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxOSThread.html#LinuxOSThread" target="classFrame">LinuxOSThread</a></li>
                 <li><a href="oshi/software/common/os/linux/LinuxOperatingSystem.html#LinuxOperatingSystem" target="classFrame">LinuxOperatingSystem</a></li>
+                <li><a href="oshi/software/common/os/linux/nativefree/LinuxOperatingSystemNF.html#LinuxOperatingSystemNF" target="classFrame">LinuxOperatingSystemNF</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxPowerSource.html#LinuxPowerSource" target="classFrame">LinuxPowerSource</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxPowerSource.html#LinuxPowerSource.Prop" target="classFrame">LinuxPowerSource.Prop</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxPowerSource.html#LinuxPowerSource.PropByName" target="classFrame">LinuxPowerSource.PropByName</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxSensors.html#LinuxSensors" target="classFrame">LinuxSensors</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxSoundCard.html#LinuxSoundCard" target="classFrame">LinuxSoundCard</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxUsbDevice.html#LinuxUsbDevice" target="classFrame">LinuxUsbDevice</a></li>
+                <li><a href="oshi/hardware/common/platform/linux/nativefree/LinuxUsbDeviceNF.html#LinuxUsbDeviceNF" target="classFrame">LinuxUsbDeviceNF</a></li>
                 <li><a href="oshi/hardware/common/platform/linux/LinuxVirtualMemory.html#LinuxVirtualMemory" target="classFrame">LinuxVirtualMemory</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/LoadAverage.html#LoadAverage" target="classFrame">LoadAverage</a></li>
                 <li><a href="oshi/hardware/LogicalVolumeGroup.html#LogicalVolumeGroup" target="classFrame">LogicalVolumeGroup</a></li>
@@ -134,6 +159,7 @@
                 <li><a href="oshi/driver/common/windows/wmi/MSFTStorage.html#MSFTStorage.StoragePoolToPhysicalDiskProperty" target="classFrame">MSFTStorage.StoragePoolToPhysicalDiskProperty</a></li>
                 <li><a href="oshi/driver/common/windows/wmi/MSFTStorage.html#MSFTStorage.VirtualDiskProperty" target="classFrame">MSFTStorage.VirtualDiskProperty</a></li>
                 <li><a href="oshi/hardware/common/platform/mac/MacBaseboard.html#MacBaseboard" target="classFrame">MacBaseboard</a></li>
+                <li><a href="oshi/hardware/common/platform/mac/MacBluetoothDevice.html#MacBluetoothDevice" target="classFrame">MacBluetoothDevice</a></li>
                 <li><a href="oshi/hardware/common/platform/mac/MacCentralProcessor.html#MacCentralProcessor" target="classFrame">MacCentralProcessor</a></li>
                 <li><a href="oshi/hardware/common/platform/mac/MacComputerSystem.html#MacComputerSystem" target="classFrame">MacComputerSystem</a></li>
                 <li><a href="oshi/software/common/os/mac/MacFileSystem.html#MacFileSystem" target="classFrame">MacFileSystem</a></li>
@@ -188,6 +214,7 @@
                 <li><a href="oshi/driver/common/windows/perfmon/PdhCounterProperty.html#PdhCounterProperty" target="classFrame">PdhCounterProperty</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/PdhCounterWildcardProperty.html#PdhCounterWildcardProperty" target="classFrame">PdhCounterWildcardProperty</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/PerfCounter.html#PerfCounter" target="classFrame">PerfCounter</a></li>
+                <li><a href="oshi/driver/common/windows/perfmon/PerfCounterQueryExecutor.html#PerfCounterQueryExecutor" target="classFrame">PerfCounterQueryExecutor</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/PerfmonConstants.html#PerfmonConstants" target="classFrame">PerfmonConstants</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/PhysicalDisk.html#PhysicalDisk" target="classFrame">PhysicalDisk</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/PhysicalDisk.html#PhysicalDisk.PhysicalDiskProperty" target="classFrame">PhysicalDisk.PhysicalDiskProperty</a></li>
@@ -222,8 +249,12 @@
                 <li><a href="oshi/hardware/Sensors.html#Sensors" target="classFrame">Sensors</a></li>
                 <li><a href="oshi/hardware/SoundCard.html#SoundCard" target="classFrame">SoundCard</a></li>
                 <li><a href="oshi/util/linux/SysPath.html#SysPath" target="classFrame">SysPath</a></li>
+                <li><a href="oshi/hardware/common/platform/mac/SysctlProvider.html#SysctlProvider" target="classFrame">SysctlProvider</a></li>
                 <li><a href="oshi/util/driver/linux/Sysfs.html#Sysfs" target="classFrame">Sysfs</a></li>
+                <li><a href="oshi/nativefree/SystemInfo.html#SystemInfo" target="classFrame">SystemInfo</a></li>
+                <li><a href="oshi/spi/SystemInfoFactory.html#SystemInfoFactory" target="classFrame">SystemInfoFactory</a></li>
                 <li><a href="oshi/util/SystemInfoHelper.html#SystemInfoHelper" target="classFrame">SystemInfoHelper</a></li>
+                <li><a href="oshi/spi/SystemInfoProvider.html#SystemInfoProvider" target="classFrame">SystemInfoProvider</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/SystemInformation.html#SystemInformation" target="classFrame">SystemInformation</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/SystemInformation.html#SystemInformation.ContextSwitchProperty" target="classFrame">SystemInformation.ContextSwitchProperty</a></li>
                 <li><a href="oshi/driver/common/windows/perfmon/SystemInformation.html#SystemInformation.ProcessorQueueLengthProperty" target="classFrame">SystemInformation.ProcessorQueueLengthProperty</a></li>
@@ -280,8 +311,12 @@
                 <li><a href="oshi/driver/common/windows/wmi/Win32Processor.html#Win32Processor.VoltProperty" target="classFrame">Win32Processor.VoltProperty</a></li>
                 <li><a href="oshi/driver/common/windows/wmi/Win32VideoController.html#Win32VideoController" target="classFrame">Win32VideoController</a></li>
                 <li><a href="oshi/driver/common/windows/wmi/Win32VideoController.html#Win32VideoController.VideoControllerProperty" target="classFrame">Win32VideoController.VideoControllerProperty</a></li>
+                <li><a href="oshi/hardware/common/platform/windows/WindowsBaseboard.html#WindowsBaseboard" target="classFrame">WindowsBaseboard</a></li>
                 <li><a href="oshi/hardware/common/platform/windows/WindowsCentralProcessor.html#WindowsCentralProcessor" target="classFrame">WindowsCentralProcessor</a></li>
+                <li><a href="oshi/hardware/common/platform/windows/WindowsComputerSystem.html#WindowsComputerSystem" target="classFrame">WindowsComputerSystem</a></li>
+                <li><a href="oshi/hardware/common/platform/windows/WindowsFirmware.html#WindowsFirmware" target="classFrame">WindowsFirmware</a></li>
                 <li><a href="oshi/hardware/common/platform/windows/WindowsGlobalMemory.html#WindowsGlobalMemory" target="classFrame">WindowsGlobalMemory</a></li>
+                <li><a href="oshi/hardware/common/platform/windows/WindowsGpuStats.html#WindowsGpuStats" target="classFrame">WindowsGpuStats</a></li>
                 <li><a href="oshi/hardware/common/platform/windows/WindowsHWDiskStore.html#WindowsHWDiskStore" target="classFrame">WindowsHWDiskStore</a></li>
                 <li><a href="oshi/software/common/os/windows/WindowsOSFileStore.html#WindowsOSFileStore" target="classFrame">WindowsOSFileStore</a></li>
                 <li><a href="oshi/software/common/os/windows/WindowsOSProcess.html#WindowsOSProcess" target="classFrame">WindowsOSProcess</a></li>
@@ -289,6 +324,11 @@
                 <li><a href="oshi/software/common/os/windows/WindowsOperatingSystem.html#WindowsOperatingSystem" target="classFrame">WindowsOperatingSystem</a></li>
                 <li><a href="oshi/hardware/common/platform/windows/WindowsPowerSource.html#WindowsPowerSource" target="classFrame">WindowsPowerSource</a></li>
                 <li><a href="oshi/hardware/common/platform/windows/WindowsPrinter.html#WindowsPrinter" target="classFrame">WindowsPrinter</a></li>
+                <li><a href="oshi/driver/common/windows/wmi/WmiConstants.html#WmiConstants" target="classFrame">WmiConstants</a></li>
+                <li><a href="oshi/driver/common/windows/wmi/WmiQuery.html#WmiQuery" target="classFrame">WmiQuery</a></li>
+                <li><a href="oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor" target="classFrame">WmiQueryExecutor</a></li>
+                <li><a href="oshi/driver/common/windows/wmi/WmiResult.html#WmiResult" target="classFrame">WmiResult</a></li>
+                <li><a href="oshi/driver/common/windows/wmi/WmiUtil.html#WmiUtil" target="classFrame">WmiUtil</a></li>
                 <li><a href="oshi/driver/common/windows/registry/WtsInfo.html#WtsInfo" target="classFrame">WtsInfo</a></li>
                 <li><a href="oshi/util/driver/unix/Xrandr.html#Xrandr" target="classFrame">Xrandr</a></li>
                 <li><a href="oshi/util/driver/unix/Xwininfo.html#Xwininfo" target="classFrame">Xwininfo</a></li>

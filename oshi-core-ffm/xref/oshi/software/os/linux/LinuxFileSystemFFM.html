@@ -12,40 +12,40 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.linux;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.slf4j.event.Level.DEBUG;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.linux.LinuxFileSystem;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * FFM-based Linux file system implementation. Implements {@code statvfs} via FFM.</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxFileSystemFFM" href="../../../../oshi/software/os/linux/LinuxFileSystemFFM.html#LinuxFileSystemFFM">LinuxFileSystemFFM</a> <strong class="jxr_keyword">extends</strong> LinuxFileSystem {
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxFileSystemFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.linux.LinuxFileSystem;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * FFM-based Linux file system implementation. Implements {@code statvfs} via FFM.</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxFileSystemFFM" href="../../../../oshi/software/os/linux/LinuxFileSystemFFM.html#LinuxFileSystemFFM">LinuxFileSystemFFM</a> <strong class="jxr_keyword">extends</strong> LinuxFileSystem {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      @Override
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[] queryStatvfs(String path) {
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>              MemorySegment pathSeg = arena.allocateFrom(path);
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>              MemorySegment buf = arena.allocate(LinuxLibcFunctions.STATVFS_LAYOUT);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>              <strong class="jxr_keyword">if</strong> (0 == LinuxLibcFunctions.statvfs(pathSeg, buf)) {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  <strong class="jxr_keyword">long</strong> frsize = LinuxLibcFunctions.statvfsFrsize(buf);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { LinuxLibcFunctions.statvfsFiles(buf), LinuxLibcFunctions.statvfsFfree(buf),
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>                          LinuxLibcFunctions.statvfsBlocks(buf) * frsize, LinuxLibcFunctions.statvfsBavail(buf) * frsize,
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>                          LinuxLibcFunctions.statvfsBfree(buf) * frsize };
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>              }
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              LOG.debug(<span class="jxr_string">"statvfs failed for path: {}"</span>, path);
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>              LOG.debug(<span class="jxr_string">"FFM statvfs error for path {}: {}"</span>, path, e.toString());
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxFileSystemFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      @Override
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[] queryStatvfs(String path) {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              MemorySegment pathSeg = arena.allocateFrom(path);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              MemorySegment buf = arena.allocate(LinuxLibcFunctions.STATVFS_LAYOUT);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              <strong class="jxr_keyword">if</strong> (0 == LinuxLibcFunctions.statvfs(pathSeg, buf)) {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                  <strong class="jxr_keyword">long</strong> frsize = LinuxLibcFunctions.statvfsFrsize(buf);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { LinuxLibcFunctions.statvfsFiles(buf), LinuxLibcFunctions.statvfsFfree(buf),
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                          LinuxLibcFunctions.statvfsBlocks(buf) * frsize, LinuxLibcFunctions.statvfsBavail(buf) * frsize,
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>                          LinuxLibcFunctions.statvfsBfree(buf) * frsize };
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              LOG.debug(<span class="jxr_string">"statvfs failed for path: {}"</span>, path);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          }, LOG, DEBUG, <span class="jxr_string">"FFM statvfs error for path "</span> + path, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  }
 </pre>

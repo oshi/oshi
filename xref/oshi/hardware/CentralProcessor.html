@@ -43,7 +43,7 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * non-blocking updates:</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;pre&gt;{@code</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * CentralProcessor cpu = new SystemInfo().getHardware().getProcessor();</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * CentralProcessor cpu = SystemInfoFactory.create().getHardware().getProcessor();</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> *</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * // Option 1: Convenience method (blocks for the specified delay)</em>
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * double cpuLoad = cpu.getSystemCpuLoad(1000L); // 1-second sample</em>
@@ -454,548 +454,618 @@
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>         }
 <a class="jxr_linenumber" name="L447" href="#L447">447</a> 
 <a class="jxr_linenumber" name="L448" href="#L448">448</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">         * @return The integer index of this ENUM in the processor tick arrays, which matches the output of Linux</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">         *         /proc/cpuinfo</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getIndex() {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">return</strong> index;
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     }
-<a class="jxr_linenumber" name="L456" href="#L456">456</a> 
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">     * A class representing a Logical Processor and its replationship to physical processors, physical packages, and</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">     * logical groupings such as NUMA Nodes and Processor groups, useful for identifying processor topology.</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     @PublicApi
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     @Immutable
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <strong class="jxr_keyword">class</strong> LogicalProcessor {
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> processorNumber;
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalProcessorNumber;
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalPackageNumber;
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numaNode;
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> processorGroup;
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> 
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber) {
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             <strong class="jxr_keyword">this</strong>(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         }
-<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
-<a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
-<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">         * @param numaNode                the NUMA node number</em>
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber,
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>                 <strong class="jxr_keyword">int</strong> numaNode) {
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>             <strong class="jxr_keyword">this</strong>(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         }
-<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">         * @param numaNode                the NUMA node number</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">         * @param processorGroup          the Processor Group number</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber,
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 <strong class="jxr_keyword">int</strong> numaNode, <strong class="jxr_keyword">int</strong> processorGroup) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>             <strong class="jxr_keyword">this</strong>.processorNumber = processorNumber;
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorNumber = physicalProcessorNumber;
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">this</strong>.physicalPackageNumber = physicalPackageNumber;
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>             <strong class="jxr_keyword">this</strong>.numaNode = numaNode;
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <strong class="jxr_keyword">this</strong>.processorGroup = processorGroup;
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">         * The Logical Processor number as seen by the Operating System. Used for assigning process affinity and</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a> <em class="jxr_javadoccomment">         * reporting CPU usage and other statistics.</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L510" href="#L510">510</a> <em class="jxr_javadoccomment">         * @return the processorNumber</em>
-<a class="jxr_linenumber" name="L511" href="#L511">511</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessorNumber() {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">return</strong> processorNumber;
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         }
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> 
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">         * The physical processor (core) id number assigned to this logical processor. Hyperthreaded logical processors</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">         * which share the same physical processor will have the same number.</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorNumber() {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>             <strong class="jxr_keyword">return</strong> physicalProcessorNumber;
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         }
-<a class="jxr_linenumber" name="L525" href="#L525">525</a> 
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">         * The physical package (socket) id number assigned to this logical processor. Multicore CPU packages may have</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">         * multiple physical processors which share the same number.</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">         * @return the physicalPackageNumber</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalPackageNumber() {
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>             <strong class="jxr_keyword">return</strong> physicalPackageNumber;
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>         }
-<a class="jxr_linenumber" name="L535" href="#L535">535</a> 
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">         * The NUMA node. If the operating system supports Non-Uniform Memory Access this identifies the node number.</em>
-<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">         * Set to 0 if the operating system does not support NUMA. Not supported on macOS or FreeBSD.</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">         * @return the NUMA Node number</em>
-<a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumaNode() {
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>             <strong class="jxr_keyword">return</strong> numaNode;
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>         }
-<a class="jxr_linenumber" name="L545" href="#L545">545</a> 
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">         * The Processor Group. Only applies to Windows systems with more than 64 logical processors. Set to 0 for other</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">         * operating systems or Windows systems with 64 or fewer logical processors.</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">         * @return the processorGroup</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessorGroup() {
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>             <strong class="jxr_keyword">return</strong> processorGroup;
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         }
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> 
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         @Override
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"LogicalProcessor [processorNumber="</span> + processorNumber + <span class="jxr_string">", coreNumber="</span> + physicalProcessorNumber
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>                     + <span class="jxr_string">", packageNumber="</span> + physicalPackageNumber + <span class="jxr_string">", numaNode="</span> + numaNode + <span class="jxr_string">", processorGroup="</span>
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>                     + processorGroup + <span class="jxr_string">"]"</span>;
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         }
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>     }
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">         * Gets the integer index of this tick type.</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">         * @return The integer index of this ENUM in the processor tick arrays, which matches the output of Linux</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">         *         /proc/cpuinfo</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getIndex() {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             <strong class="jxr_keyword">return</strong> index;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">     * A class representing a Logical Processor and its replationship to physical processors, physical packages, and</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">     * logical groupings such as NUMA Nodes and Processor groups, useful for identifying processor topology.</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     @PublicApi
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     @Immutable
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">class</strong> LogicalProcessor {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> processorNumber;
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalProcessorNumber;
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalPackageNumber;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> numaNode;
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> processorGroup;
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> 
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">         * Creates a LogicalProcessor with the given processor, core, and package numbers.</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber) {
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>             <strong class="jxr_keyword">this</strong>(processorNumber, physicalProcessorNumber, physicalPackageNumber, 0, 0);
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         }
+<a class="jxr_linenumber" name="L482" href="#L482">482</a> 
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">         * Creates a LogicalProcessor with the given processor, core, package, and NUMA node numbers.</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">         * @param numaNode                the NUMA node number</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber,
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 <strong class="jxr_keyword">int</strong> numaNode) {
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>             <strong class="jxr_keyword">this</strong>(processorNumber, physicalProcessorNumber, physicalPackageNumber, numaNode, 0);
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         }
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> 
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">         * Creates a LogicalProcessor with the given processor, core, package, NUMA node, and processor group numbers.</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">         * @param processorNumber         the Processor number</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">         * @param numaNode                the NUMA node number</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">         * @param processorGroup          the Processor Group number</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <strong class="jxr_keyword">public</strong> LogicalProcessor(<strong class="jxr_keyword">int</strong> processorNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> physicalPackageNumber,
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                 <strong class="jxr_keyword">int</strong> numaNode, <strong class="jxr_keyword">int</strong> processorGroup) {
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <strong class="jxr_keyword">this</strong>.processorNumber = processorNumber;
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorNumber = physicalProcessorNumber;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             <strong class="jxr_keyword">this</strong>.physicalPackageNumber = physicalPackageNumber;
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>             <strong class="jxr_keyword">this</strong>.numaNode = numaNode;
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             <strong class="jxr_keyword">this</strong>.processorGroup = processorGroup;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>         }
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">         * The Logical Processor number as seen by the Operating System. Used for assigning process affinity and</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">         * reporting CPU usage and other statistics.</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">         * @return the processorNumber</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessorNumber() {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">return</strong> processorNumber;
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         }
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">         * The physical processor (core) id number assigned to this logical processor. Hyperthreaded logical processors</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">         * which share the same physical processor will have the same number.</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorNumber() {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>             <strong class="jxr_keyword">return</strong> physicalProcessorNumber;
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         }
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> 
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">         * The physical package (socket) id number assigned to this logical processor. Multicore CPU packages may have</em>
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">         * multiple physical processors which share the same number.</em>
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">         * @return the physicalPackageNumber</em>
+<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalPackageNumber() {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">return</strong> physicalPackageNumber;
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         }
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">         * The NUMA node. If the operating system supports Non-Uniform Memory Access this identifies the node number.</em>
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">         * Set to 0 if the operating system does not support NUMA. Not supported on macOS or FreeBSD.</em>
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">         * @return the NUMA Node number</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getNumaNode() {
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>             <strong class="jxr_keyword">return</strong> numaNode;
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         }
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> 
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">         * The Processor Group. Only applies to Windows systems with more than 64 logical processors. Set to 0 for other</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">         * operating systems or Windows systems with 64 or fewer logical processors.</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">         * @return the processorGroup</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessorGroup() {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>             <strong class="jxr_keyword">return</strong> processorGroup;
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         }
 <a class="jxr_linenumber" name="L563" href="#L563">563</a> 
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     * A class representing a Physical Processor (a core) providing per-core statistics that may vary, particularly in</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * hybrid/modular processors.</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>     @PublicApi
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>     @Immutable
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>     <strong class="jxr_keyword">class</strong> PhysicalProcessor {
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalPackageNumber;
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalProcessorNumber;
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> efficiency;
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String idString;
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> 
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">public</strong> PhysicalProcessor(<strong class="jxr_keyword">int</strong> physicalPackageNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber) {
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>             <strong class="jxr_keyword">this</strong>(physicalPackageNumber, physicalProcessorNumber, 0, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         }
-<a class="jxr_linenumber" name="L579" href="#L579">579</a> 
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>         <strong class="jxr_keyword">public</strong> PhysicalProcessor(<strong class="jxr_keyword">int</strong> physicalPackageNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> efficiency,
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>                 String idString) {
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>             <strong class="jxr_keyword">this</strong>.physicalPackageNumber = physicalPackageNumber;
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorNumber = physicalProcessorNumber;
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>             <strong class="jxr_keyword">this</strong>.efficiency = efficiency;
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>             <strong class="jxr_keyword">this</strong>.idString = idString;
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>         }
-<a class="jxr_linenumber" name="L587" href="#L587">587</a> 
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">         * Gets the package id. This is also the physical package number which corresponds to</em>
-<a class="jxr_linenumber" name="L590" href="#L590">590</a> <em class="jxr_javadoccomment">         * {@link LogicalProcessor#getPhysicalPackageNumber()}.</em>
-<a class="jxr_linenumber" name="L591" href="#L591">591</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L592" href="#L592">592</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
-<a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalPackageNumber() {
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>             <strong class="jxr_keyword">return</strong> physicalPackageNumber;
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>         }
-<a class="jxr_linenumber" name="L597" href="#L597">597</a> 
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">         * Gets the core id. This is also the physical processor number which corresponds to</em>
-<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">         * {@link LogicalProcessor#getPhysicalProcessorNumber()}.</em>
-<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
-<a class="jxr_linenumber" name="L603" href="#L603">603</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorNumber() {
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>             <strong class="jxr_keyword">return</strong> physicalProcessorNumber;
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>         }
-<a class="jxr_linenumber" name="L607" href="#L607">607</a> 
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_javadoccomment">         * Gets a platform specific measure of processor performance vs. efficiency, useful for identifying cores in</em>
-<a class="jxr_linenumber" name="L610" href="#L610">610</a> <em class="jxr_javadoccomment">         * hybrid/System on Chip (SoC) processors such as ARM's big.LITTLE architecture, Apple's M1, and Intel's P-core</em>
-<a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_javadoccomment">         * and E-core hybrid technology. A core with a higher value for the efficiency class has intrinsically greater</em>
-<a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_javadoccomment">         * performance and less efficiency than a core with a lower value for the efficiency class.</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         @Override
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"LogicalProcessor [processorNumber="</span> + processorNumber + <span class="jxr_string">", coreNumber="</span> + physicalProcessorNumber
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>                     + <span class="jxr_string">", packageNumber="</span> + physicalPackageNumber + <span class="jxr_string">", numaNode="</span> + numaNode + <span class="jxr_string">", processorGroup="</span>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>                     + processorGroup + <span class="jxr_string">"]"</span>;
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>         }
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>     }
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> 
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     * A class representing a Physical Processor (a core) providing per-core statistics that may vary, particularly in</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">     * hybrid/modular processors.</em>
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     @PublicApi
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>     @Immutable
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>     <strong class="jxr_keyword">class</strong> PhysicalProcessor {
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalPackageNumber;
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> physicalProcessorNumber;
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> efficiency;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String idString;
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> 
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L585" href="#L585">585</a> <em class="jxr_javadoccomment">         * Creates a PhysicalProcessor with the given package and processor numbers.</em>
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
+<a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         <strong class="jxr_keyword">public</strong> PhysicalProcessor(<strong class="jxr_keyword">int</strong> physicalPackageNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber) {
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>             <strong class="jxr_keyword">this</strong>(physicalPackageNumber, physicalProcessorNumber, 0, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         }
+<a class="jxr_linenumber" name="L593" href="#L593">593</a> 
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L595" href="#L595">595</a> <em class="jxr_javadoccomment">         * Creates a PhysicalProcessor with the given package, processor, efficiency, and ID string.</em>
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">         * @param physicalPackageNumber   the package/socket number</em>
+<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">         * @param physicalProcessorNumber the core number</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">         * @param efficiency              the efficiency class of this core</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">         * @param idString                an identifier string for this core</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>         <strong class="jxr_keyword">public</strong> PhysicalProcessor(<strong class="jxr_keyword">int</strong> physicalPackageNumber, <strong class="jxr_keyword">int</strong> physicalProcessorNumber, <strong class="jxr_keyword">int</strong> efficiency,
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>                 String idString) {
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>             <strong class="jxr_keyword">this</strong>.physicalPackageNumber = physicalPackageNumber;
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>             <strong class="jxr_keyword">this</strong>.physicalProcessorNumber = physicalProcessorNumber;
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>             <strong class="jxr_keyword">this</strong>.efficiency = efficiency;
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>             <strong class="jxr_keyword">this</strong>.idString = idString;
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>         }
+<a class="jxr_linenumber" name="L609" href="#L609">609</a> 
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_javadoccomment">         * Gets the package id. This is also the physical package number which corresponds to</em>
+<a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_javadoccomment">         * {@link LogicalProcessor#getPhysicalPackageNumber()}.</em>
 <a class="jxr_linenumber" name="L613" href="#L613">613</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L614" href="#L614">614</a> <em class="jxr_javadoccomment">         * @return On Windows 10 and higher, returns the {@code EfficiencyClass} value from the</em>
-<a class="jxr_linenumber" name="L615" href="#L615">615</a> <em class="jxr_javadoccomment">         *         {@code PROCESSOR_RELATIONSHIP} structure.</em>
-<a class="jxr_linenumber" name="L616" href="#L616">616</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L617" href="#L617">617</a> <em class="jxr_javadoccomment">         *         On macOS with Apple Silicon, emulates the same relative efficiency class values as Windows.</em>
-<a class="jxr_linenumber" name="L618" href="#L618">618</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L619" href="#L619">619</a> <em class="jxr_javadoccomment">         *         On Linux, returns the {@code cpu_capacity} value from sysfs. This is an optional cpu node property</em>
-<a class="jxr_linenumber" name="L620" href="#L620">620</a> <em class="jxr_javadoccomment">         *         representing CPU capacity expressed in normalized DMIPS/MHz.</em>
-<a class="jxr_linenumber" name="L621" href="#L621">621</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L622" href="#L622">622</a> <em class="jxr_javadoccomment">         *         On OpenBSD, FreeBSD, and Solaris with ARM big.LITTLE processors, emulates the same relative</em>
-<a class="jxr_linenumber" name="L623" href="#L623">623</a> <em class="jxr_javadoccomment">         *         efficiency class values as Windows.</em>
-<a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">         *         For unimplemented operating systems or architectures, returns 0.</em>
-<a class="jxr_linenumber" name="L626" href="#L626">626</a> <em class="jxr_javadoccomment">         * @see &lt;a href=</em>
-<a class="jxr_linenumber" name="L627" href="#L627">627</a> <em class="jxr_javadoccomment">         *      "<a href="https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship" target="alexandria_uri">https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship</a>"&gt;PROCESSOR_RELATIONSHIP&lt;/a&gt;</em>
-<a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">         * @see &lt;a href=</em>
-<a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">         *      "<a href="https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt" target="alexandria_uri">https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt</a>"&gt;cpu-capacity&lt;/a&gt;</em>
-<a class="jxr_linenumber" name="L630" href="#L630">630</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L631" href="#L631">631</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEfficiency() {
-<a class="jxr_linenumber" name="L632" href="#L632">632</a>             <strong class="jxr_keyword">return</strong> efficiency;
-<a class="jxr_linenumber" name="L633" href="#L633">633</a>         }
-<a class="jxr_linenumber" name="L634" href="#L634">634</a> 
-<a class="jxr_linenumber" name="L635" href="#L635">635</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">         * Gets a platform specific identification string representing this core. This string requires user parsing to</em>
-<a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">         * obtain meaningful information. As this is an experimental feature, users should not rely on the format.</em>
-<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">         * @return On Windows, returns the per-core Processor ID (CPUID).</em>
+<a class="jxr_linenumber" name="L614" href="#L614">614</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
+<a class="jxr_linenumber" name="L615" href="#L615">615</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalPackageNumber() {
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>             <strong class="jxr_keyword">return</strong> physicalPackageNumber;
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>         }
+<a class="jxr_linenumber" name="L619" href="#L619">619</a> 
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L621" href="#L621">621</a> <em class="jxr_javadoccomment">         * Gets the core id. This is also the physical processor number which corresponds to</em>
+<a class="jxr_linenumber" name="L622" href="#L622">622</a> <em class="jxr_javadoccomment">         * {@link LogicalProcessor#getPhysicalProcessorNumber()}.</em>
+<a class="jxr_linenumber" name="L623" href="#L623">623</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L624" href="#L624">624</a> <em class="jxr_javadoccomment">         * @return the physicalProcessorNumber</em>
+<a class="jxr_linenumber" name="L625" href="#L625">625</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getPhysicalProcessorNumber() {
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>             <strong class="jxr_keyword">return</strong> physicalProcessorNumber;
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>         }
+<a class="jxr_linenumber" name="L629" href="#L629">629</a> 
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L631" href="#L631">631</a> <em class="jxr_javadoccomment">         * Gets a platform specific measure of processor performance vs. efficiency, useful for identifying cores in</em>
+<a class="jxr_linenumber" name="L632" href="#L632">632</a> <em class="jxr_javadoccomment">         * hybrid/System on Chip (SoC) processors such as ARM's big.LITTLE architecture, Apple's M1, and Intel's P-core</em>
+<a class="jxr_linenumber" name="L633" href="#L633">633</a> <em class="jxr_javadoccomment">         * and E-core hybrid technology. A core with a higher value for the efficiency class has intrinsically greater</em>
+<a class="jxr_linenumber" name="L634" href="#L634">634</a> <em class="jxr_javadoccomment">         * performance and less efficiency than a core with a lower value for the efficiency class.</em>
+<a class="jxr_linenumber" name="L635" href="#L635">635</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">         * @return On Windows 10 and higher, returns the {@code EfficiencyClass} value from the</em>
+<a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">         *         {@code PROCESSOR_RELATIONSHIP} structure.</em>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">         *         On macOS with Apple Silicon, emulates the same relative efficiency class values as Windows.</em>
 <a class="jxr_linenumber" name="L640" href="#L640">640</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">         *         On macOS, returns a compatibility string from the IO Registry identifying hybrid cores.</em>
-<a class="jxr_linenumber" name="L642" href="#L642">642</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L643" href="#L643">643</a> <em class="jxr_javadoccomment">         *         On Linux, returns the {@code MODALIAS} value for the core's driver.</em>
-<a class="jxr_linenumber" name="L644" href="#L644">644</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L645" href="#L645">645</a> <em class="jxr_javadoccomment">         *         On OpenBSD, FreeBSD, and Solaris, returns a per-core CPU identification string.</em>
+<a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">         *         On Linux, returns the {@code cpu_capacity} value from sysfs. This is an optional cpu node property</em>
+<a class="jxr_linenumber" name="L642" href="#L642">642</a> <em class="jxr_javadoccomment">         *         representing CPU capacity expressed in normalized DMIPS/MHz.</em>
+<a class="jxr_linenumber" name="L643" href="#L643">643</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L644" href="#L644">644</a> <em class="jxr_javadoccomment">         *         On OpenBSD, FreeBSD, and Solaris with ARM big.LITTLE processors, emulates the same relative</em>
+<a class="jxr_linenumber" name="L645" href="#L645">645</a> <em class="jxr_javadoccomment">         *         efficiency class values as Windows.</em>
 <a class="jxr_linenumber" name="L646" href="#L646">646</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L647" href="#L647">647</a> <em class="jxr_javadoccomment">         *         For unimplemented operating systems, returns an empty string.</em>
-<a class="jxr_linenumber" name="L648" href="#L648">648</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>         <strong class="jxr_keyword">public</strong> String getIdString() {
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>             <strong class="jxr_keyword">return</strong> idString;
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>         }
-<a class="jxr_linenumber" name="L652" href="#L652">652</a> 
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>         @Override
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"PhysicalProcessor [package/core="</span> + physicalPackageNumber + <span class="jxr_string">"/"</span> + physicalProcessorNumber
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>                     + <span class="jxr_string">", efficiency="</span> + efficiency + <span class="jxr_string">", idString="</span> + idString + <span class="jxr_string">"]"</span>;
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>         }
-<a class="jxr_linenumber" name="L658" href="#L658">658</a>     }
-<a class="jxr_linenumber" name="L659" href="#L659">659</a> 
-<a class="jxr_linenumber" name="L660" href="#L660">660</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">     * A class representing CPU Cache Memory.</em>
-<a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L663" href="#L663">663</a>     @PublicApi
-<a class="jxr_linenumber" name="L664" href="#L664">664</a>     @Immutable
-<a class="jxr_linenumber" name="L665" href="#L665">665</a>     <strong class="jxr_keyword">class</strong> ProcessorCache {
-<a class="jxr_linenumber" name="L666" href="#L666">666</a> 
-<a class="jxr_linenumber" name="L667" href="#L667">667</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L668" href="#L668">668</a> <em class="jxr_javadoccomment">         * The type of cache.</em>
-<a class="jxr_linenumber" name="L669" href="#L669">669</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L670" href="#L670">670</a>         @PublicApi
-<a class="jxr_linenumber" name="L671" href="#L671">671</a>         <strong class="jxr_keyword">public</strong> enum Type {
-<a class="jxr_linenumber" name="L672" href="#L672">672</a>             UNIFIED, INSTRUCTION, DATA, TRACE;
-<a class="jxr_linenumber" name="L673" href="#L673">673</a> 
-<a class="jxr_linenumber" name="L674" href="#L674">674</a>             @Override
-<a class="jxr_linenumber" name="L675" href="#L675">675</a>             <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L676" href="#L676">676</a>                 <strong class="jxr_keyword">return</strong> name().substring(0, 1) + name().substring(1).toLowerCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>             }
-<a class="jxr_linenumber" name="L678" href="#L678">678</a>         }
-<a class="jxr_linenumber" name="L679" href="#L679">679</a> 
-<a class="jxr_linenumber" name="L680" href="#L680">680</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte level;
-<a class="jxr_linenumber" name="L681" href="#L681">681</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte associativity;
-<a class="jxr_linenumber" name="L682" href="#L682">682</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">short</strong> lineSize;
-<a class="jxr_linenumber" name="L683" href="#L683">683</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> cacheSize;
-<a class="jxr_linenumber" name="L684" href="#L684">684</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Type type;
-<a class="jxr_linenumber" name="L685" href="#L685">685</a> 
-<a class="jxr_linenumber" name="L686" href="#L686">686</a>         <strong class="jxr_keyword">public</strong> ProcessorCache(byte level, byte associativity, <strong class="jxr_keyword">short</strong> lineSize, <strong class="jxr_keyword">int</strong> cacheSize, Type type) {
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>             <strong class="jxr_keyword">this</strong>.level = level;
-<a class="jxr_linenumber" name="L688" href="#L688">688</a>             <strong class="jxr_keyword">this</strong>.associativity = associativity;
-<a class="jxr_linenumber" name="L689" href="#L689">689</a>             <strong class="jxr_keyword">this</strong>.lineSize = lineSize;
-<a class="jxr_linenumber" name="L690" href="#L690">690</a>             <strong class="jxr_keyword">this</strong>.cacheSize = cacheSize;
-<a class="jxr_linenumber" name="L691" href="#L691">691</a>             <strong class="jxr_keyword">this</strong>.type = type;
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>         }
-<a class="jxr_linenumber" name="L693" href="#L693">693</a> 
-<a class="jxr_linenumber" name="L694" href="#L694">694</a>         <strong class="jxr_keyword">public</strong> ProcessorCache(<strong class="jxr_keyword">int</strong> level, <strong class="jxr_keyword">int</strong> associativity, <strong class="jxr_keyword">int</strong> lineSize, <strong class="jxr_keyword">long</strong> cacheSize, Type type) {
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>             <strong class="jxr_keyword">this</strong>((byte) level, (byte) associativity, (<strong class="jxr_keyword">short</strong>) lineSize, (<strong class="jxr_keyword">int</strong>) cacheSize, type);
-<a class="jxr_linenumber" name="L696" href="#L696">696</a>         }
-<a class="jxr_linenumber" name="L697" href="#L697">697</a> 
-<a class="jxr_linenumber" name="L698" href="#L698">698</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L699" href="#L699">699</a> <em class="jxr_javadoccomment">         * The cache level. This member can be 1 (L1), 2 (L2), 3 (L3), or 4 (L4).</em>
-<a class="jxr_linenumber" name="L700" href="#L700">700</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L701" href="#L701">701</a> <em class="jxr_javadoccomment">         * @return the level</em>
-<a class="jxr_linenumber" name="L702" href="#L702">702</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>         <strong class="jxr_keyword">public</strong> byte getLevel() {
-<a class="jxr_linenumber" name="L704" href="#L704">704</a>             <strong class="jxr_keyword">return</strong> level;
-<a class="jxr_linenumber" name="L705" href="#L705">705</a>         }
-<a class="jxr_linenumber" name="L706" href="#L706">706</a> 
-<a class="jxr_linenumber" name="L707" href="#L707">707</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L708" href="#L708">708</a> <em class="jxr_javadoccomment">         * The cache associativity. If this member is {@code 0xFF}, the cache is fully associative.</em>
-<a class="jxr_linenumber" name="L709" href="#L709">709</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L710" href="#L710">710</a> <em class="jxr_javadoccomment">         * @return the associativity</em>
-<a class="jxr_linenumber" name="L711" href="#L711">711</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L712" href="#L712">712</a>         <strong class="jxr_keyword">public</strong> byte getAssociativity() {
-<a class="jxr_linenumber" name="L713" href="#L713">713</a>             <strong class="jxr_keyword">return</strong> associativity;
-<a class="jxr_linenumber" name="L714" href="#L714">714</a>         }
-<a class="jxr_linenumber" name="L715" href="#L715">715</a> 
-<a class="jxr_linenumber" name="L716" href="#L716">716</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L717" href="#L717">717</a> <em class="jxr_javadoccomment">         * The cache line size, in bytes.</em>
-<a class="jxr_linenumber" name="L718" href="#L718">718</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L719" href="#L719">719</a> <em class="jxr_javadoccomment">         * @return the line size</em>
-<a class="jxr_linenumber" name="L720" href="#L720">720</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L721" href="#L721">721</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> getLineSize() {
-<a class="jxr_linenumber" name="L722" href="#L722">722</a>             <strong class="jxr_keyword">return</strong> lineSize;
-<a class="jxr_linenumber" name="L723" href="#L723">723</a>         }
-<a class="jxr_linenumber" name="L724" href="#L724">724</a> 
-<a class="jxr_linenumber" name="L725" href="#L725">725</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L726" href="#L726">726</a> <em class="jxr_javadoccomment">         * The cache size, in bytes.</em>
-<a class="jxr_linenumber" name="L727" href="#L727">727</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L728" href="#L728">728</a> <em class="jxr_javadoccomment">         * @return the cache size</em>
-<a class="jxr_linenumber" name="L729" href="#L729">729</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L730" href="#L730">730</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCacheSize() {
-<a class="jxr_linenumber" name="L731" href="#L731">731</a>             <strong class="jxr_keyword">return</strong> cacheSize;
-<a class="jxr_linenumber" name="L732" href="#L732">732</a>         }
-<a class="jxr_linenumber" name="L733" href="#L733">733</a> 
-<a class="jxr_linenumber" name="L734" href="#L734">734</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L735" href="#L735">735</a> <em class="jxr_javadoccomment">         * The cache type.</em>
-<a class="jxr_linenumber" name="L736" href="#L736">736</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L737" href="#L737">737</a> <em class="jxr_javadoccomment">         * @return the type</em>
-<a class="jxr_linenumber" name="L738" href="#L738">738</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>         <strong class="jxr_keyword">public</strong> Type getType() {
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>             <strong class="jxr_keyword">return</strong> type;
-<a class="jxr_linenumber" name="L741" href="#L741">741</a>         }
-<a class="jxr_linenumber" name="L742" href="#L742">742</a> 
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>         @Override
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L745" href="#L745">745</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"ProcessorCache [L"</span> + level + <span class="jxr_string">" "</span> + type + <span class="jxr_string">", cacheSize="</span> + cacheSize + <span class="jxr_string">", "</span>
-<a class="jxr_linenumber" name="L746" href="#L746">746</a>                     + (associativity &gt; 0 ? associativity + <span class="jxr_string">"-way"</span> : <span class="jxr_string">"unknown"</span>) + <span class="jxr_string">" associativity, lineSize="</span> + lineSize
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>                     + <span class="jxr_string">"]"</span>;
-<a class="jxr_linenumber" name="L748" href="#L748">748</a>         }
-<a class="jxr_linenumber" name="L749" href="#L749">749</a> 
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>         @Override
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object obj) {
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == obj) {
-<a class="jxr_linenumber" name="L753" href="#L753">753</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L754" href="#L754">754</a>             }
-<a class="jxr_linenumber" name="L755" href="#L755">755</a>             <strong class="jxr_keyword">if</strong> (obj == <strong class="jxr_keyword">null</strong> || !(obj instanceof ProcessorCache)) {
-<a class="jxr_linenumber" name="L756" href="#L756">756</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>             }
-<a class="jxr_linenumber" name="L758" href="#L758">758</a>             ProcessorCache other = (ProcessorCache) obj;
-<a class="jxr_linenumber" name="L759" href="#L759">759</a>             <strong class="jxr_keyword">return</strong> associativity == other.associativity &amp;&amp; cacheSize == other.cacheSize &amp;&amp; level == other.level
-<a class="jxr_linenumber" name="L760" href="#L760">760</a>                     &amp;&amp; lineSize == other.lineSize &amp;&amp; type == other.type;
+<a class="jxr_linenumber" name="L647" href="#L647">647</a> <em class="jxr_javadoccomment">         *         For unimplemented operating systems or architectures, returns 0.</em>
+<a class="jxr_linenumber" name="L648" href="#L648">648</a> <em class="jxr_javadoccomment">         * @see &lt;a href=</em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a> <em class="jxr_javadoccomment">         *      "<a href="https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship" target="alexandria_uri">https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-processor_relationship</a>"&gt;PROCESSOR_RELATIONSHIP&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L650" href="#L650">650</a> <em class="jxr_javadoccomment">         * @see &lt;a href=</em>
+<a class="jxr_linenumber" name="L651" href="#L651">651</a> <em class="jxr_javadoccomment">         *      "<a href="https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt" target="alexandria_uri">https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt</a>"&gt;cpu-capacity&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L652" href="#L652">652</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getEfficiency() {
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>             <strong class="jxr_keyword">return</strong> efficiency;
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>         }
+<a class="jxr_linenumber" name="L656" href="#L656">656</a> 
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L658" href="#L658">658</a> <em class="jxr_javadoccomment">         * Gets a platform specific identification string representing this core. This string requires user parsing to</em>
+<a class="jxr_linenumber" name="L659" href="#L659">659</a> <em class="jxr_javadoccomment">         * obtain meaningful information. As this is an experimental feature, users should not rely on the format.</em>
+<a class="jxr_linenumber" name="L660" href="#L660">660</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">         * @return On Windows, returns the per-core Processor ID (CPUID).</em>
+<a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">         *         On macOS, returns a compatibility string from the IO Registry identifying hybrid cores.</em>
+<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L665" href="#L665">665</a> <em class="jxr_javadoccomment">         *         On Linux, returns the {@code MODALIAS} value for the core's driver.</em>
+<a class="jxr_linenumber" name="L666" href="#L666">666</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L667" href="#L667">667</a> <em class="jxr_javadoccomment">         *         On OpenBSD, FreeBSD, and Solaris, returns a per-core CPU identification string.</em>
+<a class="jxr_linenumber" name="L668" href="#L668">668</a> <em class="jxr_javadoccomment">         *         &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L669" href="#L669">669</a> <em class="jxr_javadoccomment">         *         For unimplemented operating systems, returns an empty string.</em>
+<a class="jxr_linenumber" name="L670" href="#L670">670</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>         <strong class="jxr_keyword">public</strong> String getIdString() {
+<a class="jxr_linenumber" name="L672" href="#L672">672</a>             <strong class="jxr_keyword">return</strong> idString;
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>         }
+<a class="jxr_linenumber" name="L674" href="#L674">674</a> 
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>         @Override
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"PhysicalProcessor [package/core="</span> + physicalPackageNumber + <span class="jxr_string">"/"</span> + physicalProcessorNumber
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>                     + <span class="jxr_string">", efficiency="</span> + efficiency + <span class="jxr_string">", idString="</span> + idString + <span class="jxr_string">"]"</span>;
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>         }
+<a class="jxr_linenumber" name="L680" href="#L680">680</a>     }
+<a class="jxr_linenumber" name="L681" href="#L681">681</a> 
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L683" href="#L683">683</a> <em class="jxr_javadoccomment">     * A class representing CPU Cache Memory.</em>
+<a class="jxr_linenumber" name="L684" href="#L684">684</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L685" href="#L685">685</a>     @PublicApi
+<a class="jxr_linenumber" name="L686" href="#L686">686</a>     @Immutable
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>     <strong class="jxr_keyword">class</strong> ProcessorCache {
+<a class="jxr_linenumber" name="L688" href="#L688">688</a> 
+<a class="jxr_linenumber" name="L689" href="#L689">689</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L690" href="#L690">690</a> <em class="jxr_javadoccomment">         * The type of cache.</em>
+<a class="jxr_linenumber" name="L691" href="#L691">691</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>         @PublicApi
+<a class="jxr_linenumber" name="L693" href="#L693">693</a>         <strong class="jxr_keyword">public</strong> enum Type {
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>             <em class="jxr_javadoccomment">/** Unified cache (data and instructions). */</em>
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>             UNIFIED,
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>             <em class="jxr_javadoccomment">/** Instruction cache. */</em>
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>             INSTRUCTION,
+<a class="jxr_linenumber" name="L698" href="#L698">698</a>             <em class="jxr_javadoccomment">/** Data cache. */</em>
+<a class="jxr_linenumber" name="L699" href="#L699">699</a>             DATA,
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>             <em class="jxr_javadoccomment">/** Trace cache. */</em>
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>             TRACE;
+<a class="jxr_linenumber" name="L702" href="#L702">702</a> 
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>             @Override
+<a class="jxr_linenumber" name="L704" href="#L704">704</a>             <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L705" href="#L705">705</a>                 <strong class="jxr_keyword">return</strong> name().substring(0, 1) + name().substring(1).toLowerCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L706" href="#L706">706</a>             }
+<a class="jxr_linenumber" name="L707" href="#L707">707</a>         }
+<a class="jxr_linenumber" name="L708" href="#L708">708</a> 
+<a class="jxr_linenumber" name="L709" href="#L709">709</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte level;
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte associativity;
+<a class="jxr_linenumber" name="L711" href="#L711">711</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">short</strong> lineSize;
+<a class="jxr_linenumber" name="L712" href="#L712">712</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> cacheSize;
+<a class="jxr_linenumber" name="L713" href="#L713">713</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Type type;
+<a class="jxr_linenumber" name="L714" href="#L714">714</a> 
+<a class="jxr_linenumber" name="L715" href="#L715">715</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L716" href="#L716">716</a> <em class="jxr_javadoccomment">         * Creates a ProcessorCache with the given parameters.</em>
+<a class="jxr_linenumber" name="L717" href="#L717">717</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L718" href="#L718">718</a> <em class="jxr_javadoccomment">         * @param level         the cache level (1, 2, 3, or 4)</em>
+<a class="jxr_linenumber" name="L719" href="#L719">719</a> <em class="jxr_javadoccomment">         * @param associativity the cache associativity</em>
+<a class="jxr_linenumber" name="L720" href="#L720">720</a> <em class="jxr_javadoccomment">         * @param lineSize      the cache line size in bytes</em>
+<a class="jxr_linenumber" name="L721" href="#L721">721</a> <em class="jxr_javadoccomment">         * @param cacheSize     the cache size in bytes</em>
+<a class="jxr_linenumber" name="L722" href="#L722">722</a> <em class="jxr_javadoccomment">         * @param type          the cache type</em>
+<a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L724" href="#L724">724</a>         <strong class="jxr_keyword">public</strong> ProcessorCache(byte level, byte associativity, <strong class="jxr_keyword">short</strong> lineSize, <strong class="jxr_keyword">int</strong> cacheSize, Type type) {
+<a class="jxr_linenumber" name="L725" href="#L725">725</a>             <strong class="jxr_keyword">this</strong>.level = level;
+<a class="jxr_linenumber" name="L726" href="#L726">726</a>             <strong class="jxr_keyword">this</strong>.associativity = associativity;
+<a class="jxr_linenumber" name="L727" href="#L727">727</a>             <strong class="jxr_keyword">this</strong>.lineSize = lineSize;
+<a class="jxr_linenumber" name="L728" href="#L728">728</a>             <strong class="jxr_keyword">this</strong>.cacheSize = cacheSize;
+<a class="jxr_linenumber" name="L729" href="#L729">729</a>             <strong class="jxr_keyword">this</strong>.type = type;
+<a class="jxr_linenumber" name="L730" href="#L730">730</a>         }
+<a class="jxr_linenumber" name="L731" href="#L731">731</a> 
+<a class="jxr_linenumber" name="L732" href="#L732">732</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">         * Creates a ProcessorCache with the given parameters, casting to appropriate types.</em>
+<a class="jxr_linenumber" name="L734" href="#L734">734</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L735" href="#L735">735</a> <em class="jxr_javadoccomment">         * @param level         the cache level (1, 2, 3, or 4)</em>
+<a class="jxr_linenumber" name="L736" href="#L736">736</a> <em class="jxr_javadoccomment">         * @param associativity the cache associativity</em>
+<a class="jxr_linenumber" name="L737" href="#L737">737</a> <em class="jxr_javadoccomment">         * @param lineSize      the cache line size in bytes</em>
+<a class="jxr_linenumber" name="L738" href="#L738">738</a> <em class="jxr_javadoccomment">         * @param cacheSize     the cache size in bytes</em>
+<a class="jxr_linenumber" name="L739" href="#L739">739</a> <em class="jxr_javadoccomment">         * @param type          the cache type</em>
+<a class="jxr_linenumber" name="L740" href="#L740">740</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L741" href="#L741">741</a>         <strong class="jxr_keyword">public</strong> ProcessorCache(<strong class="jxr_keyword">int</strong> level, <strong class="jxr_keyword">int</strong> associativity, <strong class="jxr_keyword">int</strong> lineSize, <strong class="jxr_keyword">long</strong> cacheSize, Type type) {
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>             <strong class="jxr_keyword">this</strong>((byte) level, (byte) associativity, (<strong class="jxr_keyword">short</strong>) lineSize, (<strong class="jxr_keyword">int</strong>) cacheSize, type);
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>         }
+<a class="jxr_linenumber" name="L744" href="#L744">744</a> 
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L746" href="#L746">746</a> <em class="jxr_javadoccomment">         * The cache level. This member can be 1 (L1), 2 (L2), 3 (L3), or 4 (L4).</em>
+<a class="jxr_linenumber" name="L747" href="#L747">747</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L748" href="#L748">748</a> <em class="jxr_javadoccomment">         * @return the level</em>
+<a class="jxr_linenumber" name="L749" href="#L749">749</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>         <strong class="jxr_keyword">public</strong> byte getLevel() {
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>             <strong class="jxr_keyword">return</strong> level;
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>         }
+<a class="jxr_linenumber" name="L753" href="#L753">753</a> 
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L755" href="#L755">755</a> <em class="jxr_javadoccomment">         * The cache associativity. If this member is {@code 0xFF}, the cache is fully associative.</em>
+<a class="jxr_linenumber" name="L756" href="#L756">756</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L757" href="#L757">757</a> <em class="jxr_javadoccomment">         * @return the associativity</em>
+<a class="jxr_linenumber" name="L758" href="#L758">758</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L759" href="#L759">759</a>         <strong class="jxr_keyword">public</strong> byte getAssociativity() {
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>             <strong class="jxr_keyword">return</strong> associativity;
 <a class="jxr_linenumber" name="L761" href="#L761">761</a>         }
 <a class="jxr_linenumber" name="L762" href="#L762">762</a> 
-<a class="jxr_linenumber" name="L763" href="#L763">763</a>         @Override
-<a class="jxr_linenumber" name="L764" href="#L764">764</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
-<a class="jxr_linenumber" name="L765" href="#L765">765</a>             <strong class="jxr_keyword">return</strong> Objects.hash(associativity, cacheSize, level, lineSize, type);
-<a class="jxr_linenumber" name="L766" href="#L766">766</a>         }
-<a class="jxr_linenumber" name="L767" href="#L767">767</a>     }
-<a class="jxr_linenumber" name="L768" href="#L768">768</a> 
-<a class="jxr_linenumber" name="L769" href="#L769">769</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L770" href="#L770">770</a> <em class="jxr_javadoccomment">     * A class encapsulating ghe CPU's identifier strings ,including name, vendor, stepping, model, and family</em>
-<a class="jxr_linenumber" name="L771" href="#L771">771</a> <em class="jxr_javadoccomment">     * information (also called the signature of a CPU)</em>
-<a class="jxr_linenumber" name="L772" href="#L772">772</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L773" href="#L773">773</a>     @PublicApi
-<a class="jxr_linenumber" name="L774" href="#L774">774</a>     @Immutable
-<a class="jxr_linenumber" name="L775" href="#L775">775</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> ProcessorIdentifier {
-<a class="jxr_linenumber" name="L776" href="#L776">776</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_ARCHITECTURE_PROPERTIES = <span class="jxr_string">"oshi.architecture.properties"</span>;
-<a class="jxr_linenumber" name="L777" href="#L777">777</a> 
-<a class="jxr_linenumber" name="L778" href="#L778">778</a>         <em class="jxr_comment">// Provided in constructor</em>
-<a class="jxr_linenumber" name="L779" href="#L779">779</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuVendor;
-<a class="jxr_linenumber" name="L780" href="#L780">780</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuName;
-<a class="jxr_linenumber" name="L781" href="#L781">781</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuFamily;
-<a class="jxr_linenumber" name="L782" href="#L782">782</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuModel;
-<a class="jxr_linenumber" name="L783" href="#L783">783</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuStepping;
-<a class="jxr_linenumber" name="L784" href="#L784">784</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String processorID;
-<a class="jxr_linenumber" name="L785" href="#L785">785</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuIdentifier;
-<a class="jxr_linenumber" name="L786" href="#L786">786</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> cpu64bit;
-<a class="jxr_linenumber" name="L787" href="#L787">787</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> cpuVendorFreq;
-<a class="jxr_linenumber" name="L788" href="#L788">788</a> 
-<a class="jxr_linenumber" name="L789" href="#L789">789</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;String&gt; microArchictecture = memoize(<strong class="jxr_keyword">this</strong>::queryMicroarchitecture);
-<a class="jxr_linenumber" name="L790" href="#L790">790</a> 
-<a class="jxr_linenumber" name="L791" href="#L791">791</a>         <strong class="jxr_keyword">public</strong> ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-<a class="jxr_linenumber" name="L792" href="#L792">792</a>                 String cpuStepping, String processorID, <strong class="jxr_keyword">boolean</strong> cpu64bit) {
-<a class="jxr_linenumber" name="L793" href="#L793">793</a>             <strong class="jxr_keyword">this</strong>(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, -1L);
-<a class="jxr_linenumber" name="L794" href="#L794">794</a>         }
-<a class="jxr_linenumber" name="L795" href="#L795">795</a> 
-<a class="jxr_linenumber" name="L796" href="#L796">796</a>         <strong class="jxr_keyword">public</strong> ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-<a class="jxr_linenumber" name="L797" href="#L797">797</a>                 String cpuStepping, String processorID, <strong class="jxr_keyword">boolean</strong> cpu64bit, <strong class="jxr_keyword">long</strong> vendorFreq) {
-<a class="jxr_linenumber" name="L798" href="#L798">798</a>             <strong class="jxr_keyword">this</strong>.cpuVendor = cpuVendor.startsWith(<span class="jxr_string">"0x"</span>) ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
-<a class="jxr_linenumber" name="L799" href="#L799">799</a>             <strong class="jxr_keyword">this</strong>.cpuName = cpuName;
-<a class="jxr_linenumber" name="L800" href="#L800">800</a>             <strong class="jxr_keyword">this</strong>.cpuFamily = cpuFamily;
-<a class="jxr_linenumber" name="L801" href="#L801">801</a>             <strong class="jxr_keyword">this</strong>.cpuModel = cpuModel;
-<a class="jxr_linenumber" name="L802" href="#L802">802</a>             <strong class="jxr_keyword">this</strong>.cpuStepping = cpuStepping;
-<a class="jxr_linenumber" name="L803" href="#L803">803</a>             <strong class="jxr_keyword">this</strong>.processorID = processorID;
-<a class="jxr_linenumber" name="L804" href="#L804">804</a>             <strong class="jxr_keyword">this</strong>.cpu64bit = cpu64bit;
-<a class="jxr_linenumber" name="L805" href="#L805">805</a> 
-<a class="jxr_linenumber" name="L806" href="#L806">806</a>             <em class="jxr_comment">// Build Identifier</em>
-<a class="jxr_linenumber" name="L807" href="#L807">807</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L808" href="#L808">808</a>             <strong class="jxr_keyword">if</strong> (cpuVendor.contentEquals(<span class="jxr_string">"GenuineIntel"</span>)) {
-<a class="jxr_linenumber" name="L809" href="#L809">809</a>                 sb.append(cpu64bit ? <span class="jxr_string">"Intel64"</span> : <span class="jxr_string">"x86"</span>);
-<a class="jxr_linenumber" name="L810" href="#L810">810</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L811" href="#L811">811</a>                 sb.append(cpuVendor);
-<a class="jxr_linenumber" name="L812" href="#L812">812</a>             }
-<a class="jxr_linenumber" name="L813" href="#L813">813</a>             sb.append(<span class="jxr_string">" Family "</span>).append(cpuFamily);
-<a class="jxr_linenumber" name="L814" href="#L814">814</a>             sb.append(<span class="jxr_string">" Model "</span>).append(cpuModel);
-<a class="jxr_linenumber" name="L815" href="#L815">815</a>             sb.append(<span class="jxr_string">" Stepping "</span>).append(cpuStepping);
-<a class="jxr_linenumber" name="L816" href="#L816">816</a>             <strong class="jxr_keyword">this</strong>.cpuIdentifier = sb.toString();
-<a class="jxr_linenumber" name="L817" href="#L817">817</a> 
-<a class="jxr_linenumber" name="L818" href="#L818">818</a>             <strong class="jxr_keyword">if</strong> (vendorFreq &gt; 0) {
-<a class="jxr_linenumber" name="L819" href="#L819">819</a>                 <strong class="jxr_keyword">this</strong>.cpuVendorFreq = vendorFreq;
-<a class="jxr_linenumber" name="L820" href="#L820">820</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L821" href="#L821">821</a>                 <em class="jxr_comment">// Parse Freq from name string</em>
-<a class="jxr_linenumber" name="L822" href="#L822">822</a>                 Pattern pattern = Pattern.compile(<span class="jxr_string">"@ (.*)$"</span>);
-<a class="jxr_linenumber" name="L823" href="#L823">823</a>                 Matcher matcher = pattern.matcher(cpuName);
-<a class="jxr_linenumber" name="L824" href="#L824">824</a>                 <strong class="jxr_keyword">if</strong> (matcher.find()) {
-<a class="jxr_linenumber" name="L825" href="#L825">825</a>                     String unit = matcher.group(1);
-<a class="jxr_linenumber" name="L826" href="#L826">826</a>                     <strong class="jxr_keyword">this</strong>.cpuVendorFreq = ParseUtil.parseHertz(unit);
-<a class="jxr_linenumber" name="L827" href="#L827">827</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L828" href="#L828">828</a>                     <strong class="jxr_keyword">this</strong>.cpuVendorFreq = -1L;
-<a class="jxr_linenumber" name="L829" href="#L829">829</a>                 }
-<a class="jxr_linenumber" name="L830" href="#L830">830</a>             }
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>         }
-<a class="jxr_linenumber" name="L832" href="#L832">832</a> 
-<a class="jxr_linenumber" name="L833" href="#L833">833</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L834" href="#L834">834</a> <em class="jxr_javadoccomment">         * Processor vendor.</em>
-<a class="jxr_linenumber" name="L835" href="#L835">835</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L836" href="#L836">836</a> <em class="jxr_javadoccomment">         * @return vendor string.</em>
-<a class="jxr_linenumber" name="L837" href="#L837">837</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L838" href="#L838">838</a>         <strong class="jxr_keyword">public</strong> String getVendor() {
-<a class="jxr_linenumber" name="L839" href="#L839">839</a>             <strong class="jxr_keyword">return</strong> cpuVendor;
-<a class="jxr_linenumber" name="L840" href="#L840">840</a>         }
-<a class="jxr_linenumber" name="L841" href="#L841">841</a> 
-<a class="jxr_linenumber" name="L842" href="#L842">842</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L843" href="#L843">843</a> <em class="jxr_javadoccomment">         * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz</em>
-<a class="jxr_linenumber" name="L844" href="#L844">844</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L845" href="#L845">845</a> <em class="jxr_javadoccomment">         * @return Processor name.</em>
-<a class="jxr_linenumber" name="L846" href="#L846">846</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L847" href="#L847">847</a>         <strong class="jxr_keyword">public</strong> String getName() {
-<a class="jxr_linenumber" name="L848" href="#L848">848</a>             <strong class="jxr_keyword">return</strong> cpuName;
-<a class="jxr_linenumber" name="L849" href="#L849">849</a>         }
-<a class="jxr_linenumber" name="L850" href="#L850">850</a> 
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L852" href="#L852">852</a> <em class="jxr_javadoccomment">         * Gets the family. For non-Intel/AMD processors, returns the comparable value, such as the Architecture.</em>
-<a class="jxr_linenumber" name="L853" href="#L853">853</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L854" href="#L854">854</a> <em class="jxr_javadoccomment">         * @return the family</em>
-<a class="jxr_linenumber" name="L855" href="#L855">855</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L856" href="#L856">856</a>         <strong class="jxr_keyword">public</strong> String getFamily() {
-<a class="jxr_linenumber" name="L857" href="#L857">857</a>             <strong class="jxr_keyword">return</strong> cpuFamily;
-<a class="jxr_linenumber" name="L858" href="#L858">858</a>         }
-<a class="jxr_linenumber" name="L859" href="#L859">859</a> 
-<a class="jxr_linenumber" name="L860" href="#L860">860</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L861" href="#L861">861</a> <em class="jxr_javadoccomment">         * Gets the model. For non-Intel/AMD processors, returns the comparable value, such as the Partnum.</em>
-<a class="jxr_linenumber" name="L862" href="#L862">862</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L863" href="#L863">863</a> <em class="jxr_javadoccomment">         * @return the model</em>
-<a class="jxr_linenumber" name="L864" href="#L864">864</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L865" href="#L865">865</a>         <strong class="jxr_keyword">public</strong> String getModel() {
-<a class="jxr_linenumber" name="L866" href="#L866">866</a>             <strong class="jxr_keyword">return</strong> cpuModel;
-<a class="jxr_linenumber" name="L867" href="#L867">867</a>         }
-<a class="jxr_linenumber" name="L868" href="#L868">868</a> 
-<a class="jxr_linenumber" name="L869" href="#L869">869</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L870" href="#L870">870</a> <em class="jxr_javadoccomment">         * Gets the stepping. For non-Intel/AMD processors, returns the comparable value, such as the rnpn composite of</em>
-<a class="jxr_linenumber" name="L871" href="#L871">871</a> <em class="jxr_javadoccomment">         * Variant and Revision.</em>
-<a class="jxr_linenumber" name="L872" href="#L872">872</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L873" href="#L873">873</a> <em class="jxr_javadoccomment">         * @return the stepping</em>
-<a class="jxr_linenumber" name="L874" href="#L874">874</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L875" href="#L875">875</a>         <strong class="jxr_keyword">public</strong> String getStepping() {
-<a class="jxr_linenumber" name="L876" href="#L876">876</a>             <strong class="jxr_keyword">return</strong> cpuStepping;
-<a class="jxr_linenumber" name="L877" href="#L877">877</a>         }
-<a class="jxr_linenumber" name="L878" href="#L878">878</a> 
-<a class="jxr_linenumber" name="L879" href="#L879">879</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L880" href="#L880">880</a> <em class="jxr_javadoccomment">         * Gets the Processor ID. This is a hexidecimal string representing an 8-byte value, normally obtained using the</em>
-<a class="jxr_linenumber" name="L881" href="#L881">881</a> <em class="jxr_javadoccomment">         * CPUID opcode with the EAX register set to 1. The first four bytes are the resulting contents of the EAX</em>
-<a class="jxr_linenumber" name="L882" href="#L882">882</a> <em class="jxr_javadoccomment">         * register, which is the Processor signature, represented in human-readable form by {@link #getIdentifier()} .</em>
-<a class="jxr_linenumber" name="L883" href="#L883">883</a> <em class="jxr_javadoccomment">         * The remaining four bytes are the contents of the EDX register, containing feature flags.</em>
-<a class="jxr_linenumber" name="L884" href="#L884">884</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L885" href="#L885">885</a> <em class="jxr_javadoccomment">         * For processors that do not support the CPUID opcode this field is populated with a comparable hex string. For</em>
-<a class="jxr_linenumber" name="L886" href="#L886">886</a> <em class="jxr_javadoccomment">         * example, ARM Processors will fill the first 32 bytes with the MIDR. AIX PowerPC Processors will return the</em>
-<a class="jxr_linenumber" name="L887" href="#L887">887</a> <em class="jxr_javadoccomment">         * machine ID.</em>
-<a class="jxr_linenumber" name="L888" href="#L888">888</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L889" href="#L889">889</a> <em class="jxr_javadoccomment">         * NOTE: The order of returned bytes is platform and software dependent. Values may be in either Big Endian or</em>
-<a class="jxr_linenumber" name="L890" href="#L890">890</a> <em class="jxr_javadoccomment">         * Little Endian order.</em>
-<a class="jxr_linenumber" name="L891" href="#L891">891</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L892" href="#L892">892</a> <em class="jxr_javadoccomment">         * NOTE: If OSHI is unable to determine the ProcessorID from native sources, it will attempt to reconstruct one</em>
-<a class="jxr_linenumber" name="L893" href="#L893">893</a> <em class="jxr_javadoccomment">         * from available information in the processor identifier.</em>
-<a class="jxr_linenumber" name="L894" href="#L894">894</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L895" href="#L895">895</a> <em class="jxr_javadoccomment">         * @return A string representing the Processor ID</em>
-<a class="jxr_linenumber" name="L896" href="#L896">896</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L897" href="#L897">897</a>         <strong class="jxr_keyword">public</strong> String getProcessorID() {
-<a class="jxr_linenumber" name="L898" href="#L898">898</a>             <strong class="jxr_keyword">return</strong> processorID;
-<a class="jxr_linenumber" name="L899" href="#L899">899</a>         }
-<a class="jxr_linenumber" name="L900" href="#L900">900</a> 
-<a class="jxr_linenumber" name="L901" href="#L901">901</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L902" href="#L902">902</a> <em class="jxr_javadoccomment">         * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD processors, this string is populated</em>
-<a class="jxr_linenumber" name="L903" href="#L903">903</a> <em class="jxr_javadoccomment">         * with comparable values.</em>
-<a class="jxr_linenumber" name="L904" href="#L904">904</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L905" href="#L905">905</a> <em class="jxr_javadoccomment">         * @return Processor identifier.</em>
-<a class="jxr_linenumber" name="L906" href="#L906">906</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L907" href="#L907">907</a>         <strong class="jxr_keyword">public</strong> String getIdentifier() {
-<a class="jxr_linenumber" name="L908" href="#L908">908</a>             <strong class="jxr_keyword">return</strong> cpuIdentifier;
-<a class="jxr_linenumber" name="L909" href="#L909">909</a>         }
-<a class="jxr_linenumber" name="L910" href="#L910">910</a> 
-<a class="jxr_linenumber" name="L911" href="#L911">911</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L912" href="#L912">912</a> <em class="jxr_javadoccomment">         * Is CPU 64bit?</em>
-<a class="jxr_linenumber" name="L913" href="#L913">913</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L914" href="#L914">914</a> <em class="jxr_javadoccomment">         * @return True if cpu is 64bit.</em>
-<a class="jxr_linenumber" name="L915" href="#L915">915</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L916" href="#L916">916</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isCpu64bit() {
-<a class="jxr_linenumber" name="L917" href="#L917">917</a>             <strong class="jxr_keyword">return</strong> cpu64bit;
-<a class="jxr_linenumber" name="L918" href="#L918">918</a>         }
-<a class="jxr_linenumber" name="L919" href="#L919">919</a> 
-<a class="jxr_linenumber" name="L920" href="#L920">920</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L921" href="#L921">921</a> <em class="jxr_javadoccomment">         * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz the vendor</em>
-<a class="jxr_linenumber" name="L922" href="#L922">922</a> <em class="jxr_javadoccomment">         * frequency is 2000000000.</em>
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L764" href="#L764">764</a> <em class="jxr_javadoccomment">         * The cache line size, in bytes.</em>
+<a class="jxr_linenumber" name="L765" href="#L765">765</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L766" href="#L766">766</a> <em class="jxr_javadoccomment">         * @return the line size</em>
+<a class="jxr_linenumber" name="L767" href="#L767">767</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L768" href="#L768">768</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">short</strong> getLineSize() {
+<a class="jxr_linenumber" name="L769" href="#L769">769</a>             <strong class="jxr_keyword">return</strong> lineSize;
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>         }
+<a class="jxr_linenumber" name="L771" href="#L771">771</a> 
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L773" href="#L773">773</a> <em class="jxr_javadoccomment">         * The cache size, in bytes.</em>
+<a class="jxr_linenumber" name="L774" href="#L774">774</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L775" href="#L775">775</a> <em class="jxr_javadoccomment">         * @return the cache size</em>
+<a class="jxr_linenumber" name="L776" href="#L776">776</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L777" href="#L777">777</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCacheSize() {
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>             <strong class="jxr_keyword">return</strong> cacheSize;
+<a class="jxr_linenumber" name="L779" href="#L779">779</a>         }
+<a class="jxr_linenumber" name="L780" href="#L780">780</a> 
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L782" href="#L782">782</a> <em class="jxr_javadoccomment">         * The cache type.</em>
+<a class="jxr_linenumber" name="L783" href="#L783">783</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L784" href="#L784">784</a> <em class="jxr_javadoccomment">         * @return the type</em>
+<a class="jxr_linenumber" name="L785" href="#L785">785</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>         <strong class="jxr_keyword">public</strong> Type getType() {
+<a class="jxr_linenumber" name="L787" href="#L787">787</a>             <strong class="jxr_keyword">return</strong> type;
+<a class="jxr_linenumber" name="L788" href="#L788">788</a>         }
+<a class="jxr_linenumber" name="L789" href="#L789">789</a> 
+<a class="jxr_linenumber" name="L790" href="#L790">790</a>         @Override
+<a class="jxr_linenumber" name="L791" href="#L791">791</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L792" href="#L792">792</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"ProcessorCache [L"</span> + level + <span class="jxr_string">" "</span> + type + <span class="jxr_string">", cacheSize="</span> + cacheSize + <span class="jxr_string">", "</span>
+<a class="jxr_linenumber" name="L793" href="#L793">793</a>                     + (associativity &gt; 0 ? associativity + <span class="jxr_string">"-way"</span> : <span class="jxr_string">"unknown"</span>) + <span class="jxr_string">" associativity, lineSize="</span> + lineSize
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>                     + <span class="jxr_string">"]"</span>;
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>         }
+<a class="jxr_linenumber" name="L796" href="#L796">796</a> 
+<a class="jxr_linenumber" name="L797" href="#L797">797</a>         @Override
+<a class="jxr_linenumber" name="L798" href="#L798">798</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> equals(Object obj) {
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong> == obj) {
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L801" href="#L801">801</a>             }
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>             <strong class="jxr_keyword">if</strong> (obj == <strong class="jxr_keyword">null</strong> || !(obj instanceof ProcessorCache)) {
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>             }
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>             ProcessorCache other = (ProcessorCache) obj;
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>             <strong class="jxr_keyword">return</strong> associativity == other.associativity &amp;&amp; cacheSize == other.cacheSize &amp;&amp; level == other.level
+<a class="jxr_linenumber" name="L807" href="#L807">807</a>                     &amp;&amp; lineSize == other.lineSize &amp;&amp; type == other.type;
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>         }
+<a class="jxr_linenumber" name="L809" href="#L809">809</a> 
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>         @Override
+<a class="jxr_linenumber" name="L811" href="#L811">811</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> hashCode() {
+<a class="jxr_linenumber" name="L812" href="#L812">812</a>             <strong class="jxr_keyword">return</strong> Objects.hash(associativity, cacheSize, level, lineSize, type);
+<a class="jxr_linenumber" name="L813" href="#L813">813</a>         }
+<a class="jxr_linenumber" name="L814" href="#L814">814</a>     }
+<a class="jxr_linenumber" name="L815" href="#L815">815</a> 
+<a class="jxr_linenumber" name="L816" href="#L816">816</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L817" href="#L817">817</a> <em class="jxr_javadoccomment">     * A class encapsulating ghe CPU's identifier strings ,including name, vendor, stepping, model, and family</em>
+<a class="jxr_linenumber" name="L818" href="#L818">818</a> <em class="jxr_javadoccomment">     * information (also called the signature of a CPU)</em>
+<a class="jxr_linenumber" name="L819" href="#L819">819</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L820" href="#L820">820</a>     @PublicApi
+<a class="jxr_linenumber" name="L821" href="#L821">821</a>     @Immutable
+<a class="jxr_linenumber" name="L822" href="#L822">822</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> ProcessorIdentifier {
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String OSHI_ARCHITECTURE_PROPERTIES = <span class="jxr_string">"oshi.architecture.properties"</span>;
+<a class="jxr_linenumber" name="L824" href="#L824">824</a> 
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>         <em class="jxr_comment">// Provided in constructor</em>
+<a class="jxr_linenumber" name="L826" href="#L826">826</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuVendor;
+<a class="jxr_linenumber" name="L827" href="#L827">827</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuName;
+<a class="jxr_linenumber" name="L828" href="#L828">828</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuFamily;
+<a class="jxr_linenumber" name="L829" href="#L829">829</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuModel;
+<a class="jxr_linenumber" name="L830" href="#L830">830</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuStepping;
+<a class="jxr_linenumber" name="L831" href="#L831">831</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String processorID;
+<a class="jxr_linenumber" name="L832" href="#L832">832</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String cpuIdentifier;
+<a class="jxr_linenumber" name="L833" href="#L833">833</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> cpu64bit;
+<a class="jxr_linenumber" name="L834" href="#L834">834</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> cpuVendorFreq;
+<a class="jxr_linenumber" name="L835" href="#L835">835</a> 
+<a class="jxr_linenumber" name="L836" href="#L836">836</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;String&gt; microArchictecture = memoize(<strong class="jxr_keyword">this</strong>::queryMicroarchitecture);
+<a class="jxr_linenumber" name="L837" href="#L837">837</a> 
+<a class="jxr_linenumber" name="L838" href="#L838">838</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L839" href="#L839">839</a> <em class="jxr_javadoccomment">         * Creates a ProcessorIdentifier with the given parameters and unknown vendor frequency.</em>
+<a class="jxr_linenumber" name="L840" href="#L840">840</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L841" href="#L841">841</a> <em class="jxr_javadoccomment">         * @param cpuVendor   the CPU vendor</em>
+<a class="jxr_linenumber" name="L842" href="#L842">842</a> <em class="jxr_javadoccomment">         * @param cpuName     the CPU name</em>
+<a class="jxr_linenumber" name="L843" href="#L843">843</a> <em class="jxr_javadoccomment">         * @param cpuFamily   the CPU family</em>
+<a class="jxr_linenumber" name="L844" href="#L844">844</a> <em class="jxr_javadoccomment">         * @param cpuModel    the CPU model</em>
+<a class="jxr_linenumber" name="L845" href="#L845">845</a> <em class="jxr_javadoccomment">         * @param cpuStepping the CPU stepping</em>
+<a class="jxr_linenumber" name="L846" href="#L846">846</a> <em class="jxr_javadoccomment">         * @param processorID the processor ID</em>
+<a class="jxr_linenumber" name="L847" href="#L847">847</a> <em class="jxr_javadoccomment">         * @param cpu64bit    whether the CPU is 64-bit</em>
+<a class="jxr_linenumber" name="L848" href="#L848">848</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>         <strong class="jxr_keyword">public</strong> ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+<a class="jxr_linenumber" name="L850" href="#L850">850</a>                 String cpuStepping, String processorID, <strong class="jxr_keyword">boolean</strong> cpu64bit) {
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>             <strong class="jxr_keyword">this</strong>(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, -1L);
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>         }
+<a class="jxr_linenumber" name="L853" href="#L853">853</a> 
+<a class="jxr_linenumber" name="L854" href="#L854">854</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L855" href="#L855">855</a> <em class="jxr_javadoccomment">         * Creates a ProcessorIdentifier with the given parameters.</em>
+<a class="jxr_linenumber" name="L856" href="#L856">856</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L857" href="#L857">857</a> <em class="jxr_javadoccomment">         * @param cpuVendor   the CPU vendor</em>
+<a class="jxr_linenumber" name="L858" href="#L858">858</a> <em class="jxr_javadoccomment">         * @param cpuName     the CPU name</em>
+<a class="jxr_linenumber" name="L859" href="#L859">859</a> <em class="jxr_javadoccomment">         * @param cpuFamily   the CPU family</em>
+<a class="jxr_linenumber" name="L860" href="#L860">860</a> <em class="jxr_javadoccomment">         * @param cpuModel    the CPU model</em>
+<a class="jxr_linenumber" name="L861" href="#L861">861</a> <em class="jxr_javadoccomment">         * @param cpuStepping the CPU stepping</em>
+<a class="jxr_linenumber" name="L862" href="#L862">862</a> <em class="jxr_javadoccomment">         * @param processorID the processor ID</em>
+<a class="jxr_linenumber" name="L863" href="#L863">863</a> <em class="jxr_javadoccomment">         * @param cpu64bit    whether the CPU is 64-bit</em>
+<a class="jxr_linenumber" name="L864" href="#L864">864</a> <em class="jxr_javadoccomment">         * @param vendorFreq  the vendor-advertised frequency in Hz, or -1 if unknown</em>
+<a class="jxr_linenumber" name="L865" href="#L865">865</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L866" href="#L866">866</a>         <strong class="jxr_keyword">public</strong> ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>                 String cpuStepping, String processorID, <strong class="jxr_keyword">boolean</strong> cpu64bit, <strong class="jxr_keyword">long</strong> vendorFreq) {
+<a class="jxr_linenumber" name="L868" href="#L868">868</a>             <strong class="jxr_keyword">this</strong>.cpuVendor = cpuVendor.startsWith(<span class="jxr_string">"0x"</span>) ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
+<a class="jxr_linenumber" name="L869" href="#L869">869</a>             <strong class="jxr_keyword">this</strong>.cpuName = cpuName;
+<a class="jxr_linenumber" name="L870" href="#L870">870</a>             <strong class="jxr_keyword">this</strong>.cpuFamily = cpuFamily;
+<a class="jxr_linenumber" name="L871" href="#L871">871</a>             <strong class="jxr_keyword">this</strong>.cpuModel = cpuModel;
+<a class="jxr_linenumber" name="L872" href="#L872">872</a>             <strong class="jxr_keyword">this</strong>.cpuStepping = cpuStepping;
+<a class="jxr_linenumber" name="L873" href="#L873">873</a>             <strong class="jxr_keyword">this</strong>.processorID = processorID;
+<a class="jxr_linenumber" name="L874" href="#L874">874</a>             <strong class="jxr_keyword">this</strong>.cpu64bit = cpu64bit;
+<a class="jxr_linenumber" name="L875" href="#L875">875</a> 
+<a class="jxr_linenumber" name="L876" href="#L876">876</a>             <em class="jxr_comment">// Build Identifier</em>
+<a class="jxr_linenumber" name="L877" href="#L877">877</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L878" href="#L878">878</a>             <strong class="jxr_keyword">if</strong> (cpuVendor.contentEquals(<span class="jxr_string">"GenuineIntel"</span>)) {
+<a class="jxr_linenumber" name="L879" href="#L879">879</a>                 sb.append(cpu64bit ? <span class="jxr_string">"Intel64"</span> : <span class="jxr_string">"x86"</span>);
+<a class="jxr_linenumber" name="L880" href="#L880">880</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L881" href="#L881">881</a>                 sb.append(cpuVendor);
+<a class="jxr_linenumber" name="L882" href="#L882">882</a>             }
+<a class="jxr_linenumber" name="L883" href="#L883">883</a>             sb.append(<span class="jxr_string">" Family "</span>).append(cpuFamily);
+<a class="jxr_linenumber" name="L884" href="#L884">884</a>             sb.append(<span class="jxr_string">" Model "</span>).append(cpuModel);
+<a class="jxr_linenumber" name="L885" href="#L885">885</a>             sb.append(<span class="jxr_string">" Stepping "</span>).append(cpuStepping);
+<a class="jxr_linenumber" name="L886" href="#L886">886</a>             <strong class="jxr_keyword">this</strong>.cpuIdentifier = sb.toString();
+<a class="jxr_linenumber" name="L887" href="#L887">887</a> 
+<a class="jxr_linenumber" name="L888" href="#L888">888</a>             <strong class="jxr_keyword">if</strong> (vendorFreq &gt; 0) {
+<a class="jxr_linenumber" name="L889" href="#L889">889</a>                 <strong class="jxr_keyword">this</strong>.cpuVendorFreq = vendorFreq;
+<a class="jxr_linenumber" name="L890" href="#L890">890</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L891" href="#L891">891</a>                 <em class="jxr_comment">// Parse Freq from name string</em>
+<a class="jxr_linenumber" name="L892" href="#L892">892</a>                 Pattern pattern = Pattern.compile(<span class="jxr_string">"@ (.*)$"</span>);
+<a class="jxr_linenumber" name="L893" href="#L893">893</a>                 Matcher matcher = pattern.matcher(cpuName);
+<a class="jxr_linenumber" name="L894" href="#L894">894</a>                 <strong class="jxr_keyword">if</strong> (matcher.find()) {
+<a class="jxr_linenumber" name="L895" href="#L895">895</a>                     String unit = matcher.group(1);
+<a class="jxr_linenumber" name="L896" href="#L896">896</a>                     <strong class="jxr_keyword">this</strong>.cpuVendorFreq = ParseUtil.parseHertz(unit);
+<a class="jxr_linenumber" name="L897" href="#L897">897</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L898" href="#L898">898</a>                     <strong class="jxr_keyword">this</strong>.cpuVendorFreq = -1L;
+<a class="jxr_linenumber" name="L899" href="#L899">899</a>                 }
+<a class="jxr_linenumber" name="L900" href="#L900">900</a>             }
+<a class="jxr_linenumber" name="L901" href="#L901">901</a>         }
+<a class="jxr_linenumber" name="L902" href="#L902">902</a> 
+<a class="jxr_linenumber" name="L903" href="#L903">903</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L904" href="#L904">904</a> <em class="jxr_javadoccomment">         * Processor vendor.</em>
+<a class="jxr_linenumber" name="L905" href="#L905">905</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L906" href="#L906">906</a> <em class="jxr_javadoccomment">         * @return vendor string.</em>
+<a class="jxr_linenumber" name="L907" href="#L907">907</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L908" href="#L908">908</a>         <strong class="jxr_keyword">public</strong> String getVendor() {
+<a class="jxr_linenumber" name="L909" href="#L909">909</a>             <strong class="jxr_keyword">return</strong> cpuVendor;
+<a class="jxr_linenumber" name="L910" href="#L910">910</a>         }
+<a class="jxr_linenumber" name="L911" href="#L911">911</a> 
+<a class="jxr_linenumber" name="L912" href="#L912">912</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L913" href="#L913">913</a> <em class="jxr_javadoccomment">         * Name, eg. Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz</em>
+<a class="jxr_linenumber" name="L914" href="#L914">914</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L915" href="#L915">915</a> <em class="jxr_javadoccomment">         * @return Processor name.</em>
+<a class="jxr_linenumber" name="L916" href="#L916">916</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L917" href="#L917">917</a>         <strong class="jxr_keyword">public</strong> String getName() {
+<a class="jxr_linenumber" name="L918" href="#L918">918</a>             <strong class="jxr_keyword">return</strong> cpuName;
+<a class="jxr_linenumber" name="L919" href="#L919">919</a>         }
+<a class="jxr_linenumber" name="L920" href="#L920">920</a> 
+<a class="jxr_linenumber" name="L921" href="#L921">921</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L922" href="#L922">922</a> <em class="jxr_javadoccomment">         * Gets the family. For non-Intel/AMD processors, returns the comparable value, such as the Architecture.</em>
 <a class="jxr_linenumber" name="L923" href="#L923">923</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L924" href="#L924">924</a> <em class="jxr_javadoccomment">         * @return Processor frequency or -1 if unknown.</em>
+<a class="jxr_linenumber" name="L924" href="#L924">924</a> <em class="jxr_javadoccomment">         * @return the family</em>
 <a class="jxr_linenumber" name="L925" href="#L925">925</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L926" href="#L926">926</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVendorFreq() {
-<a class="jxr_linenumber" name="L927" href="#L927">927</a>             <strong class="jxr_keyword">return</strong> cpuVendorFreq;
+<a class="jxr_linenumber" name="L926" href="#L926">926</a>         <strong class="jxr_keyword">public</strong> String getFamily() {
+<a class="jxr_linenumber" name="L927" href="#L927">927</a>             <strong class="jxr_keyword">return</strong> cpuFamily;
 <a class="jxr_linenumber" name="L928" href="#L928">928</a>         }
 <a class="jxr_linenumber" name="L929" href="#L929">929</a> 
 <a class="jxr_linenumber" name="L930" href="#L930">930</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L931" href="#L931">931</a> <em class="jxr_javadoccomment">         * Returns the processor's microarchitecture, if known.</em>
+<a class="jxr_linenumber" name="L931" href="#L931">931</a> <em class="jxr_javadoccomment">         * Gets the model. For non-Intel/AMD processors, returns the comparable value, such as the Partnum.</em>
 <a class="jxr_linenumber" name="L932" href="#L932">932</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L933" href="#L933">933</a> <em class="jxr_javadoccomment">         * @return A string containing the microarchitecture if known. {@link Constants#UNKNOWN} otherwise.</em>
+<a class="jxr_linenumber" name="L933" href="#L933">933</a> <em class="jxr_javadoccomment">         * @return the model</em>
 <a class="jxr_linenumber" name="L934" href="#L934">934</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L935" href="#L935">935</a>         <strong class="jxr_keyword">public</strong> String getMicroarchitecture() {
-<a class="jxr_linenumber" name="L936" href="#L936">936</a>             <strong class="jxr_keyword">return</strong> microArchictecture.get();
+<a class="jxr_linenumber" name="L935" href="#L935">935</a>         <strong class="jxr_keyword">public</strong> String getModel() {
+<a class="jxr_linenumber" name="L936" href="#L936">936</a>             <strong class="jxr_keyword">return</strong> cpuModel;
 <a class="jxr_linenumber" name="L937" href="#L937">937</a>         }
 <a class="jxr_linenumber" name="L938" href="#L938">938</a> 
-<a class="jxr_linenumber" name="L939" href="#L939">939</a>         <strong class="jxr_keyword">private</strong> String queryMicroarchitecture() {
-<a class="jxr_linenumber" name="L940" href="#L940">940</a>             String arch = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L941" href="#L941">941</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
-<a class="jxr_linenumber" name="L942" href="#L942">942</a>             <em class="jxr_comment">// Intel is default, no prefix</em>
-<a class="jxr_linenumber" name="L943" href="#L943">943</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L944" href="#L944">944</a>             <em class="jxr_comment">// AMD and ARM properties have prefix</em>
-<a class="jxr_linenumber" name="L945" href="#L945">945</a>             String ucVendor = <strong class="jxr_keyword">this</strong>.cpuVendor.toUpperCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L946" href="#L946">946</a>             <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"AMD"</span>)) {
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>                 sb.append(<span class="jxr_string">"amd."</span>);
-<a class="jxr_linenumber" name="L948" href="#L948">948</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"ARM"</span>)) {
-<a class="jxr_linenumber" name="L949" href="#L949">949</a>                 sb.append(<span class="jxr_string">"arm."</span>);
-<a class="jxr_linenumber" name="L950" href="#L950">950</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"IBM"</span>)) {
-<a class="jxr_linenumber" name="L951" href="#L951">951</a>                 <em class="jxr_comment">// Directly parse the name to POWER#</em>
-<a class="jxr_linenumber" name="L952" href="#L952">952</a>                 <strong class="jxr_keyword">int</strong> powerIdx = <strong class="jxr_keyword">this</strong>.cpuName.indexOf(<span class="jxr_string">"_POWER"</span>);
-<a class="jxr_linenumber" name="L953" href="#L953">953</a>                 <strong class="jxr_keyword">if</strong> (powerIdx &gt; 0) {
-<a class="jxr_linenumber" name="L954" href="#L954">954</a>                     arch = <strong class="jxr_keyword">this</strong>.cpuName.substring(powerIdx + 1);
-<a class="jxr_linenumber" name="L955" href="#L955">955</a>                 }
-<a class="jxr_linenumber" name="L956" href="#L956">956</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"APPLE"</span>)) {
-<a class="jxr_linenumber" name="L957" href="#L957">957</a>                 sb.append(<span class="jxr_string">"apple."</span>);
-<a class="jxr_linenumber" name="L958" href="#L958">958</a>             }
-<a class="jxr_linenumber" name="L959" href="#L959">959</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch) &amp;&amp; !sb.toString().equals(<span class="jxr_string">"arm."</span>)) {
-<a class="jxr_linenumber" name="L960" href="#L960">960</a>                 <em class="jxr_comment">// Append family</em>
-<a class="jxr_linenumber" name="L961" href="#L961">961</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuFamily);
-<a class="jxr_linenumber" name="L962" href="#L962">962</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L963" href="#L963">963</a>             }
-<a class="jxr_linenumber" name="L964" href="#L964">964</a> 
-<a class="jxr_linenumber" name="L965" href="#L965">965</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
-<a class="jxr_linenumber" name="L966" href="#L966">966</a>                 <em class="jxr_comment">// Append model</em>
-<a class="jxr_linenumber" name="L967" href="#L967">967</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuModel);
-<a class="jxr_linenumber" name="L968" href="#L968">968</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L969" href="#L969">969</a>             }
+<a class="jxr_linenumber" name="L939" href="#L939">939</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L940" href="#L940">940</a> <em class="jxr_javadoccomment">         * Gets the stepping. For non-Intel/AMD processors, returns the comparable value, such as the rnpn composite of</em>
+<a class="jxr_linenumber" name="L941" href="#L941">941</a> <em class="jxr_javadoccomment">         * Variant and Revision.</em>
+<a class="jxr_linenumber" name="L942" href="#L942">942</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L943" href="#L943">943</a> <em class="jxr_javadoccomment">         * @return the stepping</em>
+<a class="jxr_linenumber" name="L944" href="#L944">944</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L945" href="#L945">945</a>         <strong class="jxr_keyword">public</strong> String getStepping() {
+<a class="jxr_linenumber" name="L946" href="#L946">946</a>             <strong class="jxr_keyword">return</strong> cpuStepping;
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>         }
+<a class="jxr_linenumber" name="L948" href="#L948">948</a> 
+<a class="jxr_linenumber" name="L949" href="#L949">949</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L950" href="#L950">950</a> <em class="jxr_javadoccomment">         * Gets the Processor ID. This is a hexidecimal string representing an 8-byte value, normally obtained using the</em>
+<a class="jxr_linenumber" name="L951" href="#L951">951</a> <em class="jxr_javadoccomment">         * CPUID opcode with the EAX register set to 1. The first four bytes are the resulting contents of the EAX</em>
+<a class="jxr_linenumber" name="L952" href="#L952">952</a> <em class="jxr_javadoccomment">         * register, which is the Processor signature, represented in human-readable form by {@link #getIdentifier()} .</em>
+<a class="jxr_linenumber" name="L953" href="#L953">953</a> <em class="jxr_javadoccomment">         * The remaining four bytes are the contents of the EDX register, containing feature flags.</em>
+<a class="jxr_linenumber" name="L954" href="#L954">954</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L955" href="#L955">955</a> <em class="jxr_javadoccomment">         * For processors that do not support the CPUID opcode this field is populated with a comparable hex string. For</em>
+<a class="jxr_linenumber" name="L956" href="#L956">956</a> <em class="jxr_javadoccomment">         * example, ARM Processors will fill the first 32 bytes with the MIDR. AIX PowerPC Processors will return the</em>
+<a class="jxr_linenumber" name="L957" href="#L957">957</a> <em class="jxr_javadoccomment">         * machine ID.</em>
+<a class="jxr_linenumber" name="L958" href="#L958">958</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L959" href="#L959">959</a> <em class="jxr_javadoccomment">         * NOTE: The order of returned bytes is platform and software dependent. Values may be in either Big Endian or</em>
+<a class="jxr_linenumber" name="L960" href="#L960">960</a> <em class="jxr_javadoccomment">         * Little Endian order.</em>
+<a class="jxr_linenumber" name="L961" href="#L961">961</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L962" href="#L962">962</a> <em class="jxr_javadoccomment">         * NOTE: If OSHI is unable to determine the ProcessorID from native sources, it will attempt to reconstruct one</em>
+<a class="jxr_linenumber" name="L963" href="#L963">963</a> <em class="jxr_javadoccomment">         * from available information in the processor identifier.</em>
+<a class="jxr_linenumber" name="L964" href="#L964">964</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L965" href="#L965">965</a> <em class="jxr_javadoccomment">         * @return A string representing the Processor ID</em>
+<a class="jxr_linenumber" name="L966" href="#L966">966</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L967" href="#L967">967</a>         <strong class="jxr_keyword">public</strong> String getProcessorID() {
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>             <strong class="jxr_keyword">return</strong> processorID;
+<a class="jxr_linenumber" name="L969" href="#L969">969</a>         }
 <a class="jxr_linenumber" name="L970" href="#L970">970</a> 
-<a class="jxr_linenumber" name="L971" href="#L971">971</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
-<a class="jxr_linenumber" name="L972" href="#L972">972</a>                 <em class="jxr_comment">// Append stepping</em>
-<a class="jxr_linenumber" name="L973" href="#L973">973</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuStepping);
-<a class="jxr_linenumber" name="L974" href="#L974">974</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L975" href="#L975">975</a>             }
-<a class="jxr_linenumber" name="L976" href="#L976">976</a> 
-<a class="jxr_linenumber" name="L977" href="#L977">977</a>             <strong class="jxr_keyword">return</strong> Util.isBlank(arch) ? Constants.UNKNOWN : arch;
-<a class="jxr_linenumber" name="L978" href="#L978">978</a>         }
-<a class="jxr_linenumber" name="L979" href="#L979">979</a> 
-<a class="jxr_linenumber" name="L980" href="#L980">980</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
-<a class="jxr_linenumber" name="L981" href="#L981">981</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
-<a class="jxr_linenumber" name="L982" href="#L982">982</a>             <strong class="jxr_keyword">return</strong> archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + cpuVendor, cpuVendor);
-<a class="jxr_linenumber" name="L983" href="#L983">983</a>         }
-<a class="jxr_linenumber" name="L984" href="#L984">984</a> 
-<a class="jxr_linenumber" name="L985" href="#L985">985</a>         @Override
-<a class="jxr_linenumber" name="L986" href="#L986">986</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L987" href="#L987">987</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L972" href="#L972">972</a> <em class="jxr_javadoccomment">         * Identifier, eg. x86 Family 6 Model 15 Stepping 10. For non-Intel/AMD processors, this string is populated</em>
+<a class="jxr_linenumber" name="L973" href="#L973">973</a> <em class="jxr_javadoccomment">         * with comparable values.</em>
+<a class="jxr_linenumber" name="L974" href="#L974">974</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L975" href="#L975">975</a> <em class="jxr_javadoccomment">         * @return Processor identifier.</em>
+<a class="jxr_linenumber" name="L976" href="#L976">976</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>         <strong class="jxr_keyword">public</strong> String getIdentifier() {
+<a class="jxr_linenumber" name="L978" href="#L978">978</a>             <strong class="jxr_keyword">return</strong> cpuIdentifier;
+<a class="jxr_linenumber" name="L979" href="#L979">979</a>         }
+<a class="jxr_linenumber" name="L980" href="#L980">980</a> 
+<a class="jxr_linenumber" name="L981" href="#L981">981</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L982" href="#L982">982</a> <em class="jxr_javadoccomment">         * Is CPU 64bit?</em>
+<a class="jxr_linenumber" name="L983" href="#L983">983</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L984" href="#L984">984</a> <em class="jxr_javadoccomment">         * @return True if cpu is 64bit.</em>
+<a class="jxr_linenumber" name="L985" href="#L985">985</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L986" href="#L986">986</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> isCpu64bit() {
+<a class="jxr_linenumber" name="L987" href="#L987">987</a>             <strong class="jxr_keyword">return</strong> cpu64bit;
 <a class="jxr_linenumber" name="L988" href="#L988">988</a>         }
-<a class="jxr_linenumber" name="L989" href="#L989">989</a>     }
-<a class="jxr_linenumber" name="L990" href="#L990">990</a> }
+<a class="jxr_linenumber" name="L989" href="#L989">989</a> 
+<a class="jxr_linenumber" name="L990" href="#L990">990</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L991" href="#L991">991</a> <em class="jxr_javadoccomment">         * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz the vendor</em>
+<a class="jxr_linenumber" name="L992" href="#L992">992</a> <em class="jxr_javadoccomment">         * frequency is 2000000000.</em>
+<a class="jxr_linenumber" name="L993" href="#L993">993</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L994" href="#L994">994</a> <em class="jxr_javadoccomment">         * @return Processor frequency or -1 if unknown.</em>
+<a class="jxr_linenumber" name="L995" href="#L995">995</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVendorFreq() {
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>             <strong class="jxr_keyword">return</strong> cpuVendorFreq;
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>         }
+<a class="jxr_linenumber" name="L999" href="#L999">999</a> 
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a> <em class="jxr_javadoccomment">         * Returns the processor's microarchitecture, if known.</em>
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a> <em class="jxr_javadoccomment">         * @return A string containing the microarchitecture if known. {@link Constants#UNKNOWN} otherwise.</em>
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>         <strong class="jxr_keyword">public</strong> String getMicroarchitecture() {
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>             <strong class="jxr_keyword">return</strong> microArchictecture.get();
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>         }
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a> 
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         <strong class="jxr_keyword">private</strong> String queryMicroarchitecture() {
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>             String arch = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>             <em class="jxr_comment">// Intel is default, no prefix</em>
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>             <em class="jxr_comment">// AMD and ARM properties have prefix</em>
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>             String ucVendor = <strong class="jxr_keyword">this</strong>.cpuVendor.toUpperCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>             <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"AMD"</span>)) {
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>                 sb.append(<span class="jxr_string">"amd."</span>);
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"ARM"</span>)) {
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>                 sb.append(<span class="jxr_string">"arm."</span>);
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"IBM"</span>)) {
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>                 <em class="jxr_comment">// Directly parse the name to POWER#</em>
+<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>                 <strong class="jxr_keyword">int</strong> powerIdx = <strong class="jxr_keyword">this</strong>.cpuName.indexOf(<span class="jxr_string">"_POWER"</span>);
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>                 <strong class="jxr_keyword">if</strong> (powerIdx &gt; 0) {
+<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>                     arch = <strong class="jxr_keyword">this</strong>.cpuName.substring(powerIdx + 1);
+<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>                 }
+<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"APPLE"</span>)) {
+<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>                 sb.append(<span class="jxr_string">"apple."</span>);
+<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a>             }
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch) &amp;&amp; !sb.toString().equals(<span class="jxr_string">"arm."</span>)) {
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>                 <em class="jxr_comment">// Append family</em>
+<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuFamily);
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>             }
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a> 
+<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>                 <em class="jxr_comment">// Append model</em>
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuModel);
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>             }
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a> 
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>                 <em class="jxr_comment">// Append stepping</em>
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuStepping);
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>             }
+<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a> 
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>             <strong class="jxr_keyword">return</strong> Util.isBlank(arch) ? Constants.UNKNOWN : arch;
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>         }
+<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a> 
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>             <strong class="jxr_keyword">return</strong> archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + cpuVendor, cpuVendor);
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>         }
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a> 
+<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>         @Override
+<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
+<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>         }
+<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>     }
+<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

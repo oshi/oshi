@@ -229,7 +229,46 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> roundToInt(<strong class="jxr_keyword">double</strong> x) {
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) Math.round(x);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> }
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">     * Formats a 6-byte MAC address stored in the lower 48 bits of a long to colon-separated uppercase hex (e.g.,</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">     * {@code AA:BB:CC:DD:EE:FF}).</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * @param addr the MAC address as a long (lower 48 bits)</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * @return the formatted MAC address string</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String formatMacAddress(<strong class="jxr_keyword">long</strong> addr) {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%02X:%02X:%02X:%02X:%02X:%02X"</span>, (addr &gt;&gt; 40) &amp; 0xFF, (addr &gt;&gt; 32) &amp; 0xFF,
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                 (addr &gt;&gt; 24) &amp; 0xFF, (addr &gt;&gt; 16) &amp; 0xFF, (addr &gt;&gt; 8) &amp; 0xFF, addr &amp; 0xFF);
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * Normalizes a MAC address string (which may use dashes, colons, or no separators) to colon-separated uppercase hex</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * (e.g., {@code AA:BB:CC:DD:EE:FF}).</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * @param raw the raw MAC address string</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * @return the normalized MAC address, or the original string uppercased if it cannot be parsed as 6 bytes</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String formatMacAddress(String raw) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         String cleaned = raw.replace(<span class="jxr_string">"-"</span>, <span class="jxr_string">""</span>).replace(<span class="jxr_string">":"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">if</strong> (cleaned.length() == 12 &amp;&amp; isHex(cleaned)) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%s:%s:%s:%s:%s:%s"</span>, cleaned.substring(0, 2), cleaned.substring(2, 4),
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                     cleaned.substring(4, 6), cleaned.substring(6, 8), cleaned.substring(8, 10),
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                     cleaned.substring(10, 12)).toUpperCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">return</strong> raw.toUpperCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isHex(String s) {
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; s.length(); i++) {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">char</strong> c = s.charAt(i);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>             <strong class="jxr_keyword">if</strong> (!((c &gt;= '0' &amp;&amp; c &lt;= '9') || (c &gt;= 'a' &amp;&amp; c &lt;= 'f') || (c &gt;= 'A' &amp;&amp; c &lt;= 'F'))) {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             }
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         }
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

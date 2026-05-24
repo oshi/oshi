@@ -17,30 +17,18 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32BaseBoard;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * Utility to query WMI class {@code Win32_BaseBoard} using FFM.</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32BaseBoardFFM" href="../../../../oshi/driver/windows/wmi/Win32BaseBoardFFM.html#Win32BaseBoardFFM">Win32BaseBoardFFM</a> <strong class="jxr_keyword">extends</strong> Win32BaseBoard {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <a name="Win32BaseBoardFFM" href="../../../../oshi/driver/windows/wmi/Win32BaseBoardFFM.html#Win32BaseBoardFFM">Win32BaseBoardFFM</a>() {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      }
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * Queries the Baseboard description.</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @return Baseboard manufacturer, model, and related fields.</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;BaseBoardProperty&gt; queryBaseboardInfo() {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          WmiQuery&lt;BaseBoardProperty&gt; baseboardQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(WIN32_BASEBOARD, BaseBoardProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> Objects.requireNonNull(WmiQueryHandlerFFM.createInstance(),
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>                  <span class="jxr_string">"WmiQueryHandlerFFM.createInstance() returned null"</span>).queryWMI(baseboardQuery);
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  }
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryExecutorFFM;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32BaseBoardFFM" href="../../../../oshi/driver/windows/wmi/Win32BaseBoardFFM.html#Win32BaseBoardFFM">Win32BaseBoardFFM</a> <strong class="jxr_keyword">extends</strong> Win32BaseBoard {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">private</strong> <a name="Win32BaseBoardFFM" href="../../../../oshi/driver/windows/wmi/Win32BaseBoardFFM.html#Win32BaseBoardFFM">Win32BaseBoardFFM</a>() {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      }
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;BaseBoardProperty&gt; queryBaseboardInfo() {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">return</strong> Win32BaseBoard.queryBaseboardInfo(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()));
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

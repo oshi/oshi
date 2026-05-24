@@ -23,18 +23,43 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="MacPowerSource" href="../../../../../oshi/hardware/common/platform/mac/MacPowerSource.html#MacPowerSource">MacPowerSource</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractPowerSource" href="../../../../../oshi/hardware/common/AbstractPowerSource.html#AbstractPowerSource">AbstractPowerSource</a> {
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">public</strong> <a name="MacPowerSource" href="../../../../../oshi/hardware/common/platform/mac/MacPowerSource.html#MacPowerSource">MacPowerSource</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  }
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">     * Creates a MacPowerSource.</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">     * @param psName                     power source name</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * @param psDeviceName               device name</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * @param psRemainingCapacityPercent remaining capacity percentage</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * @param psTimeRemainingEstimated   estimated time remaining</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * @param psTimeRemainingInstant     instant time remaining</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @param psPowerUsageRate           power usage rate</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * @param psVoltage                  voltage</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @param psAmperage                 amperage</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @param psPowerOnLine              whether on AC power</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @param psCharging                 whether charging</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @param psDischarging              whether discharging</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param psCapacityUnits            capacity units</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @param psCurrentCapacity          current capacity</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param psMaxCapacity              max capacity</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param psDesignCapacity           design capacity</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param psCycleCount               cycle count</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @param psChemistry                chemistry</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @param psManufactureDate          manufacture date</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @param psManufacturer             manufacturer</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @param psSerialNumber             serial number</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @param psTemperature              temperature</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <a name="MacPowerSource" href="../../../../../oshi/hardware/common/platform/mac/MacPowerSource.html#MacPowerSource">MacPowerSource</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

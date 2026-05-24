@@ -34,12 +34,28 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * Current temperature property.</em>
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">public</strong> enum TemperatureProperty {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          CURRENTTEMPERATURE;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">protected</strong> <a name="MSAcpiThermalZoneTemperature" href="../../../../../oshi/driver/common/windows/wmi/MSAcpiThermalZoneTemperature.html#MSAcpiThermalZoneTemperature">MSAcpiThermalZoneTemperature</a>() {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <em class="jxr_javadoccomment">/** Current temperature in tenths of degrees Kelvin. */</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          CURRENTTEMPERATURE;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * Default constructor.</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">protected</strong> <a name="MSAcpiThermalZoneTemperature" href="../../../../../oshi/driver/common/windows/wmi/MSAcpiThermalZoneTemperature.html#MSAcpiThermalZoneTemperature">MSAcpiThermalZoneTemperature</a>() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * Queries current temperature from thermal zone.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}.</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @return Temperature information.</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;TemperatureProperty&gt; queryCurrentTemperature(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          WmiQuery&lt;TemperatureProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(WMI_NAMESPACE, MS_ACPI_THERMAL_ZONE_TEMPERATURE,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  TemperatureProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">return</strong> h.queryWMI(query);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

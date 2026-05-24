@@ -7,7 +7,7 @@
 <body>
 <div id="overview"><a href="../../../../apidocs/oshi/demo/gui/UsbPanel.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2022 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2020-2026 The OSHI Project Contributors</em>
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.demo.gui;
@@ -34,43 +34,48 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String USB_DEVICES = <span class="jxr_string">"USB Devices"</span>;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> <a name="UsbPanel" href="../../../oshi/demo/gui/UsbPanel.html#UsbPanel">UsbPanel</a>(SystemInfo si) {
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">super</strong>();
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          init(si.getHardware());
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init(HardwareAbstractionLayer hal) {
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          JLabel usb = <strong class="jxr_keyword">new</strong> JLabel(USB_DEVICES);
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          add(usb, BorderLayout.NORTH);
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          JTextArea usbArea = <strong class="jxr_keyword">new</strong> JTextArea(60, 20);
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          JScrollPane scrollV = <strong class="jxr_keyword">new</strong> JScrollPane(usbArea);
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          DefaultCaret caret = (DefaultCaret) usbArea.getCaret();
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          usbArea.setText(getUsbString(hal));
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          add(scrollV, BorderLayout.CENTER);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          Timer timer = <strong class="jxr_keyword">new</strong> Timer(Config.REFRESH_SLOW, e -&gt; usbArea.setText(getUsbString(hal)));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          timer.start();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getUsbString(HardwareAbstractionLayer hal) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : hal.getUsbDevices(<strong class="jxr_keyword">true</strong>)) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">if</strong> (first) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  first = false;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  sb.append('\n');
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              sb.append(String.valueOf(usbDevice));
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  }
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * Creates this panel.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param si the SystemInfo instance</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <a name="UsbPanel" href="../../../oshi/demo/gui/UsbPanel.html#UsbPanel">UsbPanel</a>(SystemInfo si) {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">super</strong>();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          init(si.getHardware());
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> init(HardwareAbstractionLayer hal) {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          JLabel usb = <strong class="jxr_keyword">new</strong> JLabel(USB_DEVICES);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          add(usb, BorderLayout.NORTH);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          JTextArea usbArea = <strong class="jxr_keyword">new</strong> JTextArea(60, 20);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          JScrollPane scrollV = <strong class="jxr_keyword">new</strong> JScrollPane(usbArea);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          scrollV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          DefaultCaret caret = (DefaultCaret) usbArea.getCaret();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          usbArea.setText(getUsbString(hal));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          add(scrollV, BorderLayout.CENTER);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          Timer timer = <strong class="jxr_keyword">new</strong> Timer(Config.REFRESH_SLOW, e -&gt; usbArea.setText(getUsbString(hal)));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          timer.start();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getUsbString(HardwareAbstractionLayer hal) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">for</strong> (UsbDevice usbDevice : hal.getUsbDevices(<strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (first) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  first = false;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  sb.append('\n');
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              sb.append(String.valueOf(usbDevice));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

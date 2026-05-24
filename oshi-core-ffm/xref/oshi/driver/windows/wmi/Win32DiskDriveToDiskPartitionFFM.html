@@ -14,31 +14,19 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiQuery;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WbemcliUtilFFM.WmiResult;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiQueryExecutor;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * Utility to query WMI class {@code Win32_DiskDriveToDiskPartition} using FFM.</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32DiskDriveToDiskPartitionFFM" href="../../../../oshi/driver/windows/wmi/Win32DiskDriveToDiskPartitionFFM.html#Win32DiskDriveToDiskPartitionFFM">Win32DiskDriveToDiskPartitionFFM</a> <strong class="jxr_keyword">extends</strong> Win32DiskDriveToDiskPartition {
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">private</strong> <a name="Win32DiskDriveToDiskPartitionFFM" href="../../../../oshi/driver/windows/wmi/Win32DiskDriveToDiskPartitionFFM.html#Win32DiskDriveToDiskPartitionFFM">Win32DiskDriveToDiskPartitionFFM</a>() {
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32DiskDriveToDiskPartitionFFM" href="../../../../oshi/driver/windows/wmi/Win32DiskDriveToDiskPartitionFFM.html#Win32DiskDriveToDiskPartitionFFM">Win32DiskDriveToDiskPartitionFFM</a> <strong class="jxr_keyword">extends</strong> Win32DiskDriveToDiskPartition {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>      <strong class="jxr_keyword">private</strong> <a name="Win32DiskDriveToDiskPartitionFFM" href="../../../../oshi/driver/windows/wmi/Win32DiskDriveToDiskPartitionFFM.html#Win32DiskDriveToDiskPartitionFFM">Win32DiskDriveToDiskPartitionFFM</a>() {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      }
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;DriveToPartitionProperty&gt; queryDriveToPartition(WmiQueryExecutor h) {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          <strong class="jxr_keyword">return</strong> Win32DiskDriveToDiskPartition.queryDriveToPartition(h);
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      }
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * Queries the association between disk drive and partition.</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryHandlerFFM}. User should have already initialized COM.</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @return Antecedent-dependent pairs of disk and partition.</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;DriveToPartitionProperty&gt; queryDriveToPartition(<a name="WmiQueryHandlerFFM" href="../../../../oshi/ffm/util/platform/windows/WmiQueryHandlerFFM.html#WmiQueryHandlerFFM">WmiQueryHandlerFFM</a> h) {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          WmiQuery&lt;DriveToPartitionProperty&gt; driveToPartitionQuery = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(WIN32_DISK_DRIVE_TO_DISK_PARTITION,
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>                  DriveToPartitionProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">return</strong> h.queryWMI(driveToPartitionQuery, false);
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -39,47 +39,56 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">static</strong> List&lt;LogicalVolumeGroup&gt; getLogicalVolumeGroups() {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">return</strong> parseDiskutilCsList(ExecutingCommand.runNative(DISKUTIL_CS_LIST));
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      }
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          String currentVolumeGroup = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">boolean</strong> lookForVGName = false;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">boolean</strong> lookForPVName = false;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">int</strong> indexOf;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <em class="jxr_comment">// Parse `diskutil cs list` to populate logical volume map</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">for</strong> (String line : ExecutingCommand.runNative(DISKUTIL_CS_LIST)) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">if</strong> (line.contains(LOGICAL_VOLUME_GROUP)) {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  <em class="jxr_comment">// Disks that follow should be attached to this VG</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  lookForVGName = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (lookForVGName) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  indexOf = line.indexOf(<span class="jxr_string">"Name:"</span>);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <strong class="jxr_keyword">if</strong> (indexOf &gt;= 0) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                      currentVolumeGroup = line.substring(indexOf + 5).trim();
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      lookForVGName = false;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(PHYSICAL_VOLUME)) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  lookForPVName = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(LOGICAL_VOLUME)) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  lookForPVName = false;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  indexOf = line.indexOf(<span class="jxr_string">"Disk:"</span>);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  <strong class="jxr_keyword">if</strong> (indexOf &gt;= 0) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      <strong class="jxr_keyword">if</strong> (lookForPVName) {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                          physicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;())
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                                  .add(line.substring(indexOf + 5).trim());
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                          logicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;())
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                                  .put(line.substring(indexOf + 5).trim(), Collections.emptySet());
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> logicalVolumesMap.entrySet().stream()
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  .map(e -&gt; <strong class="jxr_keyword">new</strong> <a name="MacLogicalVolumeGroup" href="../../../../../oshi/hardware/common/platform/mac/MacLogicalVolumeGroup.html#MacLogicalVolumeGroup">MacLogicalVolumeGroup</a>(e.getKey(), e.getValue(),
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  .collect(Collectors.toList());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * Parses the output of {@code diskutil cs list} into logical volume groups.</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @param lines the output lines from diskutil cs list</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @return a list of logical volume groups</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">static</strong> List&lt;LogicalVolumeGroup&gt; parseDiskutilCsList(List&lt;String&gt; lines) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          Map&lt;String, Map&lt;String, Set&lt;String&gt;&gt;&gt; logicalVolumesMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          Map&lt;String, Set&lt;String&gt;&gt; physicalVolumesMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          String currentVolumeGroup = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">boolean</strong> lookForVGName = false;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">boolean</strong> lookForPVName = false;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">int</strong> indexOf;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (line.contains(LOGICAL_VOLUME_GROUP)) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  <em class="jxr_comment">// Disks that follow should be attached to this VG</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  lookForVGName = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (lookForVGName) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  indexOf = line.indexOf(<span class="jxr_string">"Name:"</span>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  <strong class="jxr_keyword">if</strong> (indexOf &gt;= 0) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                      currentVolumeGroup = line.substring(indexOf + 5).trim();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      lookForVGName = false;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(PHYSICAL_VOLUME)) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  lookForPVName = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(LOGICAL_VOLUME)) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  lookForPVName = false;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  indexOf = line.indexOf(<span class="jxr_string">"Disk:"</span>);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">if</strong> (indexOf &gt;= 0) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">if</strong> (lookForPVName) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          physicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;())
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                                  .add(line.substring(indexOf + 5).trim());
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                          logicalVolumesMap.computeIfAbsent(currentVolumeGroup, k -&gt; <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;())
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                                  .put(line.substring(indexOf + 5).trim(), Collections.emptySet());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> logicalVolumesMap.entrySet().stream()
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  .map(e -&gt; <strong class="jxr_keyword">new</strong> <a name="MacLogicalVolumeGroup" href="../../../../../oshi/hardware/common/platform/mac/MacLogicalVolumeGroup.html#MacLogicalVolumeGroup">MacLogicalVolumeGroup</a>(e.getKey(), e.getValue(),
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          physicalVolumesMap.getOrDefault(e.getKey(), Collections.emptySet())))
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

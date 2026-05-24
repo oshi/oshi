@@ -165,7 +165,22 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(<span class="jxr_string">"Improper rounding 1"</span>, FormatUtil.roundToInt(1d), is(1));
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> 
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     @Test
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">void</strong> testFormatMacAddressFromLong() {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(FormatUtil.formatMacAddress(0xAABBCCDDEEFFL), is(<span class="jxr_string">"AA:BB:CC:DD:EE:FF"</span>));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         assertThat(FormatUtil.formatMacAddress(0x000000000000L), is(<span class="jxr_string">"00:00:00:00:00:00"</span>));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(FormatUtil.formatMacAddress(0x112233445566L), is(<span class="jxr_string">"11:22:33:44:55:66"</span>));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     @Test
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">void</strong> testFormatMacAddressFromString() {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertThat(FormatUtil.formatMacAddress(<span class="jxr_string">"aa-bb-cc-dd-ee-ff"</span>), is(<span class="jxr_string">"AA:BB:CC:DD:EE:FF"</span>));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         assertThat(FormatUtil.formatMacAddress(<span class="jxr_string">"11:22:33:44:55:66"</span>), is(<span class="jxr_string">"11:22:33:44:55:66"</span>));
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         assertThat(FormatUtil.formatMacAddress(<span class="jxr_string">"aabbccddeeff"</span>), is(<span class="jxr_string">"AA:BB:CC:DD:EE:FF"</span>));
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         assertThat(FormatUtil.formatMacAddress(<span class="jxr_string">"abcd"</span>), is(<span class="jxr_string">"ABCD"</span>));
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

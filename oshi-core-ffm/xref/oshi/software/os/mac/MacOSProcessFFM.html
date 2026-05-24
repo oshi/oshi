@@ -17,122 +17,122 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_BYTE;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.GROUP;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.MAXCOMLEN;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.MAXPATHLEN;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PASSWD;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_COMM;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_FLAGS;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_GID;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_NFILES;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_PPID;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_START_TVSEC;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_START_TVUSEC;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_STATUS;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_UID;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBSD;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_BSD_INFO;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDPATHINFO_MAXSIZE;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDTASKALLINFO;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDVNODEPATHINFO;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_TASK_ALL_INFO;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_TASK_INFO;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTINFO;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_CSW;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_FAULTS;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_PAGEINS;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_PRIORITY;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_RESIDENT_SIZE;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_THREADNUM;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_TOTAL_SYSTEM;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_TOTAL_USER;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_VIRTUAL_SIZE;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PVI_CDIR;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESREAD;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESWRITTEN;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_PHYS_FOOTPRINT;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIMIT;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIM_CUR;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIM_MAX;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RUSAGEINFOV2;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RUSAGE_INFO_V2;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VIP_PATH;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VNODE_INFO_PATH;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VNODE_PATH_INFO;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getgrgid;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getpwuid;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getrlimit;
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pid_rusage;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pidpath;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.util.platform.mac.SysctlUtilFFM.sysctl;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.INVALID;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.NEW;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.OTHER;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.RUNNING;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.SLEEPING;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.STOPPED;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.WAITING;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.ZOMBIE;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.mac.ThreadInfo;
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.IOKit.IOIterator;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.IOKit.IORegistryEntry;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.MacSystemFunctions;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.IOKitUtilFFM;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.mac.MacOSThread;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <strong class="jxr_keyword">import</strong> oshi.util.GlobalConfig;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment"> * OSProcess implementation</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> @ThreadSafe
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacOSProcessFFM" href="../../../../oshi/software/os/mac/MacOSProcessFFM.html#MacOSProcessFFM">MacOSProcessFFM</a> <strong class="jxr_keyword">extends</strong> AbstractOSProcess {
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MacOSProcessFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.slf4j.event.Level.DEBUG;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.GROUP;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.MAXCOMLEN;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.MAXPATHLEN;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PASSWD;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_COMM;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_FLAGS;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_GID;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_NFILES;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_PPID;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_START_TVSEC;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_START_TVUSEC;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_STATUS;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBI_UID;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PBSD;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_BSD_INFO;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDPATHINFO_MAXSIZE;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDTASKALLINFO;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDVNODEPATHINFO;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_TASK_ALL_INFO;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_TASK_INFO;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTINFO;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_CSW;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_FAULTS;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_PAGEINS;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_PRIORITY;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_RESIDENT_SIZE;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_THREADNUM;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_TOTAL_SYSTEM;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_TOTAL_USER;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_VIRTUAL_SIZE;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PVI_CDIR;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESREAD;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_DISKIO_BYTESWRITTEN;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RI_PHYS_FOOTPRINT;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIMIT;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIM_CUR;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RLIM_MAX;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RUSAGEINFOV2;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.RUSAGE_INFO_V2;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VIP_PATH;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VNODE_INFO_PATH;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.VNODE_PATH_INFO;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getgrgid;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getpwuid;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getrlimit;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pid_rusage;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pidpath;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.util.platform.mac.SysctlUtilFFM.sysctl;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.INVALID;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.NEW;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.OTHER;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.RUNNING;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.SLEEPING;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.STOPPED;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.WAITING;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.OSProcess.State.ZOMBIE;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashMap;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.mac.ThreadInfo;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.IOKit.IOIterator;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.IOKit.IORegistryEntry;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.mac.MacSystemFunctions;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.IOKitUtilFFM;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.AbstractOSProcess;
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.mac.MacOSThread;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSThread;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <strong class="jxr_keyword">import</strong> oshi.util.GlobalConfig;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment"> * OSProcess implementation</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> @ThreadSafe
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="MacOSProcessFFM" href="../../../../oshi/software/os/mac/MacOSProcessFFM.html#MacOSProcessFFM">MacOSProcessFFM</a> <strong class="jxr_keyword">extends</strong> AbstractOSProcess {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ARGMAX = sysctl(<span class="jxr_string">"kern.argmax"</span>, 0);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> TICKS_PER_MS;
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// default to 1 tick per nanosecond</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">long</strong> ticksPerSec = 1_000_000_000L;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         IOIterator iter = IOKitUtilFFM.getMatchingServices(<span class="jxr_string">"IOPlatformDevice"</span>);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             IORegistryEntry cpu = iter.next();
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">while</strong> (cpu != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                     String s = cpu.getName().toLowerCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                     <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"cpu"</span>) &amp;&amp; s.length() &gt; 3) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>                         <em class="jxr_comment">// Frequency is typically only on lowest-numbered P-core</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                         byte[] data = cpu.getByteArrayProperty(<span class="jxr_string">"timebase-frequency"</span>);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                         <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                             ticksPerSec = ParseUtil.byteArrayToLong(data, 4, false);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                         }
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                     }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     cpu.release();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MacOSProcessFFM.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ARGMAX = sysctl(<span class="jxr_string">"kern.argmax"</span>, 0);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> TICKS_PER_MS;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// default to 1 tick per nanosecond</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">long</strong> ticksPerSec = 1_000_000_000L;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         IOIterator iter = IOKitUtilFFM.getMatchingServices(<span class="jxr_string">"IOPlatformDevice"</span>);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">if</strong> (iter != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             IORegistryEntry cpu = iter.next();
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">while</strong> (cpu != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 <strong class="jxr_keyword">try</strong> (IORegistryEntry current = cpu) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                     String s = current.getName().toLowerCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                     <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"cpu"</span>) &amp;&amp; s.length() &gt; 3) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                         <em class="jxr_comment">// Frequency is typically only on lowest-numbered P-core</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                         byte[] data = current.getByteArrayProperty(<span class="jxr_string">"timebase-frequency"</span>);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                         <strong class="jxr_keyword">if</strong> (data != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                             ticksPerSec = ParseUtil.byteArrayToLong(data, 4, false);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                         }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                     }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 }
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                 cpu = iter.next();
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             }
@@ -408,214 +408,210 @@
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>     @Override
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSoftOpenFileLimit() {
 <a class="jxr_linenumber" name="L402" href="#L402">402</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>             <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>             <strong class="jxr_keyword">return</strong> callInArenaLongOrDefault(arena -&gt; {
 <a class="jxr_linenumber" name="L404" href="#L404">404</a>                 MemorySegment buffer = arena.allocate(RLIMIT);
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>                 <strong class="jxr_keyword">int</strong> result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 <strong class="jxr_keyword">if</strong> (result &gt; 0) {
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 <strong class="jxr_keyword">if</strong> (result == 0) {
 <a class="jxr_linenumber" name="L407" href="#L407">407</a>                     <strong class="jxr_keyword">return</strong> buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_CUR));
 <a class="jxr_linenumber" name="L408" href="#L408">408</a>                 }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>             } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 <em class="jxr_comment">// Ignore, return 0 below</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>             }
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         }
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>         <strong class="jxr_keyword">return</strong> -1L; <em class="jxr_comment">// not supported</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     }
-<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     @Override
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getHardOpenFileLimit() {
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>             <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 MemorySegment buffer = arena.allocate(RLIMIT);
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>                 <strong class="jxr_keyword">int</strong> result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>                 <strong class="jxr_keyword">if</strong> (result &gt; 0) {
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>                     <strong class="jxr_keyword">return</strong> buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_MAX));
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>                 }
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>                 <em class="jxr_comment">// Ignore, return 0 below</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             }
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         }
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">return</strong> -1L; <em class="jxr_comment">// not supported</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>     }
-<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>     @Override
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBitness() {
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bitness;
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     }
-<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>     @Override
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <em class="jxr_comment">// macOS doesn't do affinity. Return a bitmask of the current processors.</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         <strong class="jxr_keyword">int</strong> logicalProcessorCount = sysctl(<span class="jxr_string">"hw.logicalcpu"</span>, 1);
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">return</strong> logicalProcessorCount &lt; 64 ? (1L &lt;&lt; logicalProcessorCount) - 1 : -1L;
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     @Override
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMinorFaults() {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.minorFaults;
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>     }
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> 
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     @Override
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMajorFaults() {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.majorFaults;
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>     }
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     @Override
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.contextSwitches;
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>     }
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     @Override
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVoluntaryContextSwitches() {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches;
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     }
-<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>     @Override
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInvoluntaryContextSwitches() {
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches;
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>     }
-<a class="jxr_linenumber" name="L470" href="#L470">470</a> 
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>     @Override
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">int</strong> pid = getProcessID();
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             MemorySegment taskAllInfo = arena.allocate(PROC_TASK_ALL_INFO);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>             <strong class="jxr_keyword">int</strong> infoResult = proc_pidinfo(pid, PROC_PIDTASKALLINFO, 0L, taskAllInfo,
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>                     (<strong class="jxr_keyword">int</strong>) PROC_TASK_ALL_INFO.byteSize());
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>             <strong class="jxr_keyword">if</strong> (infoResult &lt;= 0) {
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>                 <strong class="jxr_keyword">this</strong>.state = INVALID;
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>             }
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>             MemorySegment ptinfo = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PTINFO),
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>                     PROC_TASK_INFO.byteSize());
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>             <strong class="jxr_keyword">if</strong> (ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM)) &lt; 1) {
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>                 <strong class="jxr_keyword">this</strong>.state = INVALID;
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>             }
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>             MemorySegment pbsd = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PBSD), PROC_BSD_INFO.byteSize());
-<a class="jxr_linenumber" name="L490" href="#L490">490</a> 
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>             <em class="jxr_comment">// Get process path</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>             MemorySegment pathBuf = arena.allocate(PROC_PIDPATHINFO_MAXSIZE);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>             <strong class="jxr_keyword">if</strong> (proc_pidpath(pid, pathBuf, PROC_PIDPATHINFO_MAXSIZE) &gt; 0) {
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 <strong class="jxr_keyword">this</strong>.path = pathBuf.getString(0).trim();
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>                 <em class="jxr_comment">// Overwrite name with last part of path</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>                 String[] pathSplit = <strong class="jxr_keyword">this</strong>.path.split(<span class="jxr_string">"/"</span>);
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 <strong class="jxr_keyword">if</strong> (pathSplit.length &gt; 0) {
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                     <strong class="jxr_keyword">this</strong>.name = pathSplit[pathSplit.length - 1];
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>             }, LOG, DEBUG, <span class="jxr_string">"Failed to query soft open file limit"</span>, 0L);
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         }
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">return</strong> -1L; <em class="jxr_comment">// not supported</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     @Override
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getHardOpenFileLimit() {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>             <strong class="jxr_keyword">return</strong> callInArenaLongOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>                 MemorySegment buffer = arena.allocate(RLIMIT);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                 <strong class="jxr_keyword">int</strong> result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 <strong class="jxr_keyword">if</strong> (result == 0) {
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                     <strong class="jxr_keyword">return</strong> buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_MAX));
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                 }
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                 <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>             }, LOG, DEBUG, <span class="jxr_string">"Failed to query hard open file limit"</span>, 0L);
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         }
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">return</strong> -1L; <em class="jxr_comment">// not supported</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     }
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     @Override
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getBitness() {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.bitness;
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     }
+<a class="jxr_linenumber" name="L434" href="#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     @Override
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <em class="jxr_comment">// macOS doesn't do affinity. Return a bitmask of the current processors.</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">int</strong> logicalProcessorCount = sysctl(<span class="jxr_string">"hw.logicalcpu"</span>, 1);
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">return</strong> logicalProcessorCount &lt; 64 ? (1L &lt;&lt; logicalProcessorCount) - 1 : -1L;
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     }
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> 
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     @Override
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMinorFaults() {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.minorFaults;
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     @Override
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMajorFaults() {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.majorFaults;
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     @Override
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getContextSwitches() {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.contextSwitches;
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>     }
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> 
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     @Override
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getVoluntaryContextSwitches() {
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches;
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     }
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> 
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     @Override
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getInvoluntaryContextSwitches() {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     @Override
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">int</strong> pid = getProcessID();
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>             MemorySegment taskAllInfo = arena.allocate(PROC_TASK_ALL_INFO);
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <strong class="jxr_keyword">int</strong> infoResult = proc_pidinfo(pid, PROC_PIDTASKALLINFO, 0L, taskAllInfo,
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                     (<strong class="jxr_keyword">int</strong>) PROC_TASK_ALL_INFO.byteSize());
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <strong class="jxr_keyword">if</strong> (infoResult &lt;= 0) {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>                 <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>             }
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>             MemorySegment ptinfo = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PTINFO),
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>                     PROC_TASK_INFO.byteSize());
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>             <strong class="jxr_keyword">if</strong> (ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM)) &lt; 1) {
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>                 <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>             }
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>             MemorySegment pbsd = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PBSD), PROC_BSD_INFO.byteSize());
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>             <em class="jxr_comment">// Get process path</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>             MemorySegment pathBuf = arena.allocate(PROC_PIDPATHINFO_MAXSIZE);
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>             <strong class="jxr_keyword">if</strong> (proc_pidpath(pid, pathBuf, PROC_PIDPATHINFO_MAXSIZE) &gt; 0) {
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                 <strong class="jxr_keyword">this</strong>.path = pathBuf.getString(0).trim();
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                 <em class="jxr_comment">// Overwrite name with last part of path</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 String[] pathSplit = <strong class="jxr_keyword">this</strong>.path.split(<span class="jxr_string">"/"</span>);
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                 <strong class="jxr_keyword">if</strong> (pathSplit.length &gt; 0) {
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>                     <strong class="jxr_keyword">this</strong>.name = pathSplit[pathSplit.length - 1];
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>                 }
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             }
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.name.isEmpty()) {
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 <em class="jxr_comment">// pbi_comm contains first 16 characters of name</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 <strong class="jxr_keyword">this</strong>.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM), MAXCOMLEN).getString(0);
 <a class="jxr_linenumber" name="L500" href="#L500">500</a>             }
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.name.isEmpty()) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 <em class="jxr_comment">// pbi_comm contains first 16 characters of name</em>
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                 <strong class="jxr_keyword">this</strong>.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM), MAXCOMLEN).getString(0);
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>             }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <em class="jxr_comment">// Get Process state based on status</em>
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <strong class="jxr_keyword">int</strong> status = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_STATUS));
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">this</strong>.state = <strong class="jxr_keyword">switch</strong> (status) {
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>                 <strong class="jxr_keyword">case</strong> SSLEEP -&gt; SLEEPING;
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>                 <strong class="jxr_keyword">case</strong> SWAIT -&gt; WAITING;
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>                 <strong class="jxr_keyword">case</strong> SRUN -&gt; RUNNING;
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>                 <strong class="jxr_keyword">case</strong> SIDL -&gt; NEW;
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>                 <strong class="jxr_keyword">case</strong> SZOMB -&gt; ZOMBIE;
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>                 <strong class="jxr_keyword">case</strong> SSTOP -&gt; STOPPED;
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>                 <strong class="jxr_keyword">default</strong> -&gt; OTHER;
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>             };
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> 
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>             <em class="jxr_comment">// User and group info</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">this</strong>.parentProcessID = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_PPID));
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>             <strong class="jxr_keyword">int</strong> uid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_UID));
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">this</strong>.userID = Integer.toString(uid);
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>             MemorySegment pwuid = getpwuid(uid);
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>             <strong class="jxr_keyword">if</strong> (pwuid != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>                 MemorySegment passwdStruct = ForeignFunctions.getStructFromNativePointer(pwuid, PASSWD, arena);
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>                 MemorySegment nameAddress = passwdStruct.get(ADDRESS, PASSWD.byteOffset(groupElement(<span class="jxr_string">"pw_name"</span>)));
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>                 <strong class="jxr_keyword">this</strong>.user = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>                 <strong class="jxr_keyword">this</strong>.user = <strong class="jxr_keyword">this</strong>.userID;
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>             }
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> 
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>             <strong class="jxr_keyword">int</strong> gid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_GID));
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>             <strong class="jxr_keyword">this</strong>.groupID = Integer.toString(gid);
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>             MemorySegment grgid = getgrgid(gid);
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>             <strong class="jxr_keyword">if</strong> (grgid != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>                 MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(grgid, GROUP, arena);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>                 MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement(<span class="jxr_string">"gr_name"</span>)));
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>                 <strong class="jxr_keyword">this</strong>.group = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>                 <strong class="jxr_keyword">this</strong>.group = <strong class="jxr_keyword">this</strong>.groupID;
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>             }
-<a class="jxr_linenumber" name="L541" href="#L541">541</a> 
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>             <em class="jxr_comment">// Process metrics</em>
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>             <strong class="jxr_keyword">this</strong>.threadCount = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <strong class="jxr_keyword">this</strong>.priority = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PRIORITY));
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>             <strong class="jxr_keyword">this</strong>.virtualSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_VIRTUAL_SIZE));
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_RESIDENT_SIZE));
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>             <em class="jxr_comment">// Default/fallback: RSS. Will be overwritten by phys_footprint when available.</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>             <strong class="jxr_keyword">this</strong>.memoryFootprint = <strong class="jxr_keyword">this</strong>.residentSetSize;
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>             <strong class="jxr_keyword">this</strong>.kernelTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_SYSTEM)) / TICKS_PER_MS;
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>             <strong class="jxr_keyword">this</strong>.userTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_USER)) / TICKS_PER_MS;
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> 
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>             <strong class="jxr_keyword">long</strong> startSec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVSEC));
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>             <strong class="jxr_keyword">long</strong> startUsec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVUSEC));
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>             <strong class="jxr_keyword">this</strong>.startTime = startSec * 1000L + startUsec / 1000L;
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>             <strong class="jxr_keyword">this</strong>.upTime = now - <strong class="jxr_keyword">this</strong>.startTime;
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>             <em class="jxr_comment">// Get Process state based on status</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <strong class="jxr_keyword">int</strong> status = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_STATUS));
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             <strong class="jxr_keyword">this</strong>.state = <strong class="jxr_keyword">switch</strong> (status) {
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 <strong class="jxr_keyword">case</strong> SSLEEP -&gt; SLEEPING;
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                 <strong class="jxr_keyword">case</strong> SWAIT -&gt; WAITING;
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                 <strong class="jxr_keyword">case</strong> SRUN -&gt; RUNNING;
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                 <strong class="jxr_keyword">case</strong> SIDL -&gt; NEW;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                 <strong class="jxr_keyword">case</strong> SZOMB -&gt; ZOMBIE;
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                 <strong class="jxr_keyword">case</strong> SSTOP -&gt; STOPPED;
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>                 <strong class="jxr_keyword">default</strong> -&gt; OTHER;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             };
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>             <em class="jxr_comment">// User and group info</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>             <strong class="jxr_keyword">this</strong>.parentProcessID = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_PPID));
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             <strong class="jxr_keyword">int</strong> uid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_UID));
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">this</strong>.userID = Integer.toString(uid);
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>             MemorySegment pwuid = getpwuid(uid);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">if</strong> (pwuid != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                 MemorySegment passwdStruct = ForeignFunctions.getStructFromNativePointer(pwuid, PASSWD, arena);
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>                 MemorySegment nameAddress = passwdStruct.get(ADDRESS, PASSWD.byteOffset(groupElement(<span class="jxr_string">"pw_name"</span>)));
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>                 <strong class="jxr_keyword">this</strong>.user = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>                 <strong class="jxr_keyword">this</strong>.user = <strong class="jxr_keyword">this</strong>.userID;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>             }
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> 
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>             <strong class="jxr_keyword">int</strong> gid = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_GID));
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>             <strong class="jxr_keyword">this</strong>.groupID = Integer.toString(gid);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>             MemorySegment grgid = getgrgid(gid);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>             <strong class="jxr_keyword">if</strong> (grgid != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>                 MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(grgid, GROUP, arena);
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>                 MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement(<span class="jxr_string">"gr_name"</span>)));
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>                 <strong class="jxr_keyword">this</strong>.group = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>                 <strong class="jxr_keyword">this</strong>.group = <strong class="jxr_keyword">this</strong>.groupID;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>             <em class="jxr_comment">// Process metrics</em>
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>             <strong class="jxr_keyword">this</strong>.threadCount = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM));
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>             <strong class="jxr_keyword">this</strong>.priority = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PRIORITY));
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">this</strong>.virtualSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_VIRTUAL_SIZE));
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_RESIDENT_SIZE));
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>             <em class="jxr_comment">// Default/fallback: RSS. Will be overwritten by phys_footprint when available.</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <strong class="jxr_keyword">this</strong>.memoryFootprint = <strong class="jxr_keyword">this</strong>.residentSetSize;
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>             <strong class="jxr_keyword">this</strong>.kernelTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_SYSTEM)) / TICKS_PER_MS;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>             <strong class="jxr_keyword">this</strong>.userTime = ptinfo.get(JAVA_LONG, PROC_TASK_INFO.byteOffset(PTI_TOTAL_USER)) / TICKS_PER_MS;
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>             <strong class="jxr_keyword">long</strong> startSec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVSEC));
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>             <strong class="jxr_keyword">long</strong> startUsec = pbsd.get(JAVA_LONG, PROC_BSD_INFO.byteOffset(PBI_START_TVUSEC));
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>             <strong class="jxr_keyword">this</strong>.startTime = startSec * 1000L + startUsec / 1000L;
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>             <strong class="jxr_keyword">this</strong>.upTime = now - <strong class="jxr_keyword">this</strong>.startTime;
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> 
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>             <strong class="jxr_keyword">this</strong>.openFiles = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_NFILES));
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>             <strong class="jxr_keyword">int</strong> flags = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_FLAGS));
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>             <strong class="jxr_keyword">this</strong>.bitness = (flags &amp; P_LP64) == 0 ? 32 : 64;
 <a class="jxr_linenumber" name="L556" href="#L556">556</a> 
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>             <strong class="jxr_keyword">this</strong>.openFiles = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_NFILES));
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>             <strong class="jxr_keyword">int</strong> flags = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_FLAGS));
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>             <strong class="jxr_keyword">this</strong>.bitness = (flags &amp; P_LP64) == 0 ? 32 : 64;
-<a class="jxr_linenumber" name="L560" href="#L560">560</a> 
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>             <strong class="jxr_keyword">this</strong>.majorFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PAGEINS));
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>             <strong class="jxr_keyword">int</strong> totalFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_FAULTS));
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>             <em class="jxr_comment">// testing using getrusage confirms pti_faults includes both major and minor</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>             <strong class="jxr_keyword">this</strong>.minorFaults = totalFaults - <strong class="jxr_keyword">this</strong>.majorFaults;
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>             <strong class="jxr_keyword">this</strong>.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>             <em class="jxr_comment">// getrusage(RUSAGE_SELF) aggregates across all threads for current process</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>             <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>                     MemorySegment rusageSegment = arena.allocate(MacSystemFunctions.RUSAGE_SIZE);
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>                     <strong class="jxr_keyword">if</strong> (0 == MacSystemFunctions.getrusage(MacSystemFunctions.RUSAGE_SELF, rusageSegment)) {
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>                         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = rusageSegment.get(JAVA_LONG,
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>                                 MacSystemFunctions.RUSAGE_NVCSW_OFFSET);
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>                         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = rusageSegment.get(JAVA_LONG,
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>                                 MacSystemFunctions.RUSAGE_NIVCSW_OFFSET);
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>                         <strong class="jxr_keyword">this</strong>.contextSwitches = <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches + <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>                         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = 0L;
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>                         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = 0L;
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>                     }
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>                 } <strong class="jxr_keyword">catch</strong> (Throwable t) {
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>                     LOG.debug(<span class="jxr_string">"FFM getrusage failed: {}"</span>, t.toString());
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>                     <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = 0L;
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>                     <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = 0L;
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>                 }
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>             }
-<a class="jxr_linenumber" name="L586" href="#L586">586</a> 
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>             <em class="jxr_comment">// Get rusage info for newer OS versions</em>
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.majorVersion &gt; 10 || (<strong class="jxr_keyword">this</strong>.majorVersion == 10 &amp;&amp; <strong class="jxr_keyword">this</strong>.minorVersion &gt;= 9)) {
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>                 MemorySegment rusage = arena.allocate(RUSAGEINFOV2);
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>                 <strong class="jxr_keyword">if</strong> (0 == proc_pid_rusage(pid, RUSAGE_INFO_V2, rusage)) {
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>                     <strong class="jxr_keyword">this</strong>.bytesRead = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESREAD));
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>                     <strong class="jxr_keyword">this</strong>.bytesWritten = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESWRITTEN));
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>                     <strong class="jxr_keyword">this</strong>.memoryFootprint = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_PHYS_FOOTPRINT));
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>                 }
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>             }
-<a class="jxr_linenumber" name="L596" href="#L596">596</a> 
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>             <em class="jxr_comment">// Get working directory info</em>
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>             MemorySegment vnodeInfo = arena.allocate(VNODE_PATH_INFO);
-<a class="jxr_linenumber" name="L599" href="#L599">599</a>             <strong class="jxr_keyword">if</strong> (proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0L, vnodeInfo, (<strong class="jxr_keyword">int</strong>) VNODE_PATH_INFO.byteSize()) &gt; 0) {
-<a class="jxr_linenumber" name="L600" href="#L600">600</a>                 <em class="jxr_comment">// Get the current directory path using nested path elements</em>
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>                 <strong class="jxr_keyword">this</strong>.currentWorkingDirectory = vnodeInfo.asSlice(VNODE_PATH_INFO.byteOffset(PVI_CDIR))
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>                         .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH), MAXPATHLEN).getString(0);
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>             }
-<a class="jxr_linenumber" name="L604" href="#L604">604</a>         } <strong class="jxr_keyword">catch</strong> (Throwable e) {
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>         }
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>     }
-<a class="jxr_linenumber" name="L610" href="#L610">610</a> }
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>             <strong class="jxr_keyword">this</strong>.majorFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_PAGEINS));
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>             <strong class="jxr_keyword">int</strong> totalFaults = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_FAULTS));
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>             <em class="jxr_comment">// testing using getrusage confirms pti_faults includes both major and minor</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>             <strong class="jxr_keyword">this</strong>.minorFaults = totalFaults - <strong class="jxr_keyword">this</strong>.majorFaults;
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>             <strong class="jxr_keyword">this</strong>.contextSwitches = ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_CSW));
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>             <em class="jxr_comment">// getrusage(RUSAGE_SELF) aggregates across all threads for current process</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>             <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>                     MemorySegment rusageSegment = arena.allocate(MacSystemFunctions.RUSAGE_SIZE);
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>                     <strong class="jxr_keyword">if</strong> (0 == MacSystemFunctions.getrusage(MacSystemFunctions.RUSAGE_SELF, rusageSegment)) {
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>                         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = rusageSegment.get(JAVA_LONG,
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>                                 MacSystemFunctions.RUSAGE_NVCSW_OFFSET);
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>                         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = rusageSegment.get(JAVA_LONG,
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>                                 MacSystemFunctions.RUSAGE_NIVCSW_OFFSET);
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>                         <strong class="jxr_keyword">this</strong>.contextSwitches = <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches + <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches;
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>                         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = 0L;
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>                         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = 0L;
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>                     }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>                 } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>                     LOG.debug(<span class="jxr_string">"FFM getrusage failed: {}"</span>, t.toString());
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>                     <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = 0L;
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>                     <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = 0L;
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>                 }
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>             }
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> 
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>             <em class="jxr_comment">// Get rusage info for newer OS versions</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.majorVersion &gt; 10 || (<strong class="jxr_keyword">this</strong>.majorVersion == 10 &amp;&amp; <strong class="jxr_keyword">this</strong>.minorVersion &gt;= 9)) {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>                 MemorySegment rusage = arena.allocate(RUSAGEINFOV2);
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>                 <strong class="jxr_keyword">if</strong> (0 == proc_pid_rusage(pid, RUSAGE_INFO_V2, rusage)) {
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>                     <strong class="jxr_keyword">this</strong>.bytesRead = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESREAD));
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>                     <strong class="jxr_keyword">this</strong>.bytesWritten = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_DISKIO_BYTESWRITTEN));
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>                     <strong class="jxr_keyword">this</strong>.memoryFootprint = rusage.get(JAVA_LONG, RUSAGEINFOV2.byteOffset(RI_PHYS_FOOTPRINT));
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>                 }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>             }
+<a class="jxr_linenumber" name="L592" href="#L592">592</a> 
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>             <em class="jxr_comment">// Get working directory info</em>
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>             MemorySegment vnodeInfo = arena.allocate(VNODE_PATH_INFO);
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>             <strong class="jxr_keyword">if</strong> (proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0L, vnodeInfo, (<strong class="jxr_keyword">int</strong>) VNODE_PATH_INFO.byteSize()) &gt; 0) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>                 <em class="jxr_comment">// Get the current directory path using nested path elements</em>
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>                 <strong class="jxr_keyword">this</strong>.currentWorkingDirectory = vnodeInfo.asSlice(VNODE_PATH_INFO.byteOffset(PVI_CDIR))
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>                         .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH), MAXPATHLEN).getString(0);
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>             }
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         } <strong class="jxr_keyword">catch</strong> (Throwable e) {
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>         }
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     }
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
