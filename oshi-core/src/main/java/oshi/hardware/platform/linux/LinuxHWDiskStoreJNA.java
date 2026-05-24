@@ -85,28 +85,21 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                     long devSize = ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
                                             * SECTORSIZE;
                                     if (devnode.startsWith(DevPath.DM)) {
-                                        devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = device.getPropertyValue(DM_UUID);
+                                        devModel = getModelForDmDevice(devSerial);
                                         store = new LinuxHWDiskStoreJNA(devnode, devModel,
                                                 devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
-                                        if (vgName != null && lvName != null && devSerial != null
-                                                && devSerial.startsWith("LVM-")) {
-                                            store.getMutablePartitionList().add(new HWPartition(
-                                                    getPartitionNameForDmDevice(vgName, lvName), device.getSysname(),
-                                                    device.getPropertyValue(ID_FS_TYPE) == null ? PARTITION
-                                                            : device.getPropertyValue(ID_FS_TYPE),
-                                                    device.getPropertyValue(ID_FS_UUID) == null ? ""
-                                                            : device.getPropertyValue(ID_FS_UUID),
-                                                    device.getPropertyValue(ID_FS_LABEL) == null ? ""
-                                                            : device.getPropertyValue(ID_FS_LABEL),
-                                                    ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
-                                                            * SECTORSIZE,
-                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
-                                                    ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0),
-                                                    getMountPointOfDmDevice(vgName, lvName)));
-                                        }
+                                        addDeviceMapperPartition(store, mountsMap, devSerial, vgName, lvName,
+                                                device.getPropertyValue(DM_NAME), devnode, device.getSysname(),
+                                                device.getSyspath(), device.getPropertyValue(ID_FS_TYPE),
+                                                device.getPropertyValue(ID_FS_UUID),
+                                                device.getPropertyValue(ID_FS_LABEL),
+                                                ParseUtil.parseLongOrDefault(device.getSysattrValue(SIZE), 0L)
+                                                        * SECTORSIZE,
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MAJOR), 0),
+                                                ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0));
                                     } else {
                                         store = new LinuxHWDiskStoreJNA(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,

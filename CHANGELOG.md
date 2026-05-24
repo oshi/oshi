@@ -14,6 +14,7 @@
   [#3280](https://github.com/oshi/oshi/pull/3280): Add `SystemInfoProvider` convenience overloads to `OshiMetrics` constructor, `bindTo`, and `builder` methods - [@dbwiddis](https://github.com/dbwiddis).
 * [#3281](https://github.com/oshi/oshi/pull/3281): Fix AIX processor count detection to use LPAR vcpu and SMT configuration instead of frame-level physical processor count - [@dbwiddis](https://github.com/dbwiddis).
 * [#3283](https://github.com/oshi/oshi/pull/3283): Fix macOS JNA system CPU ticks overflowing to negative values after long uptimes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3299](https://github.com/oshi/oshi/pull/3299): Handle Linux LUKS device-mapper disks without LVM volume names and avoid synthetic `null` paths - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 

@@ -19,6 +19,7 @@ import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.ProcPath;
 
@@ -57,12 +58,18 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
 
     /** Device-mapper UUID property. */
     protected static final String DM_UUID = "DM_UUID";
+    /** Device-mapper name property. */
+    protected static final String DM_NAME = "DM_NAME";
     /** Device-mapper volume group name property. */
     protected static final String DM_VG_NAME = "DM_VG_NAME";
     /** Device-mapper logical volume name property. */
     protected static final String DM_LV_NAME = "DM_LV_NAME";
     /** Logical volume group description string. */
     protected static final String LOGICAL_VOLUME_GROUP = "Logical Volume Group";
+    /** Encrypted volume description string. */
+    protected static final String ENCRYPTED_VOLUME = "Encrypted Volume";
+    /** Device-mapper description string. */
+    protected static final String DEVICE_MAPPER = "Device Mapper";
 
     /** Sector size in bytes. */
     protected static final int SECTORSIZE = 512;
@@ -175,6 +182,112 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      */
     protected static String getMountPointOfDmDevice(String vgName, String lvName) {
         return DevPath.MAPPER + vgName + '-' + lvName;
+    }
+
+    /**
+     * Gets the model description for a device-mapper device.
+     *
+     * @param dmUuid the device-mapper UUID
+     * @return the model description
+     */
+    protected static String getModelForDmDevice(String dmUuid) {
+        if (isLogicalVolume(dmUuid)) {
+            return LOGICAL_VOLUME_GROUP;
+        } else if (isEncryptedVolume(dmUuid)) {
+            return ENCRYPTED_VOLUME;
+        }
+        return DEVICE_MAPPER;
+    }
+
+    /**
+     * Checks whether a device-mapper UUID identifies an LVM logical volume.
+     *
+     * @param dmUuid the device-mapper UUID
+     * @return whether the UUID identifies an LVM logical volume
+     */
+    protected static boolean isLogicalVolume(String dmUuid) {
+        return dmUuid != null && dmUuid.startsWith("LVM-");
+    }
+
+    /**
+     * Checks whether a device-mapper UUID identifies an encrypted volume.
+     *
+     * @param dmUuid the device-mapper UUID
+     * @return whether the UUID identifies an encrypted volume
+     */
+    protected static boolean isEncryptedVolume(String dmUuid) {
+        return dmUuid != null && dmUuid.startsWith("CRYPT-");
+    }
+
+    /**
+     * Gets the preferred path for a device-mapper device.
+     *
+     * @param dmName  the device-mapper name
+     * @param devnode the device node path
+     * @return the device path
+     */
+    protected static String getDmDevicePath(String dmName, String devnode) {
+        return Util.isBlank(dmName) ? devnode : DevPath.MAPPER + dmName;
+    }
+
+    /**
+     * Gets the mount point for a device-mapper device.
+     *
+     * @param mountsMap the map of device paths to mount points
+     * @param dmName    the device-mapper name
+     * @param devnode   the device node path
+     * @param sysPath   the sysfs path for the device
+     * @return the mount point or dependent device names
+     */
+    protected static String getMountPointForDmDevice(Map<String, String> mountsMap, String dmName, String devnode,
+            String sysPath) {
+        String devicePath = getDmDevicePath(dmName, devnode);
+        String mountPoint = mountsMap.get(devicePath);
+        if (mountPoint != null) {
+            return mountPoint;
+        }
+        if (!devicePath.equals(devnode)) {
+            mountPoint = mountsMap.get(devnode);
+            if (mountPoint != null) {
+                return mountPoint;
+            }
+        }
+        return getDependentNamesFromHoldersDirectory(sysPath);
+    }
+
+    /**
+     * Adds a partition entry for a supported device-mapper device.
+     *
+     * @param store     the disk store to update
+     * @param mountsMap the map of device paths to mount points
+     * @param dmUuid    the device-mapper UUID
+     * @param vgName    the LVM volume group name
+     * @param lvName    the LVM logical volume name
+     * @param dmName    the device-mapper name
+     * @param devnode   the device node path
+     * @param sysname   the sysfs device name
+     * @param sysPath   the sysfs path for the device
+     * @param fsType    the filesystem type
+     * @param fsUuid    the filesystem UUID
+     * @param fsLabel   the filesystem label
+     * @param size      the partition size in bytes
+     * @param major     the major device ID
+     * @param minor     the minor device ID
+     */
+    protected static void addDeviceMapperPartition(LinuxHWDiskStore store, Map<String, String> mountsMap, String dmUuid,
+            String vgName, String lvName, String dmName, String devnode, String sysname, String sysPath, String fsType,
+            String fsUuid, String fsLabel, long size, int major, int minor) {
+        if (isLogicalVolume(dmUuid) && !Util.isBlank(vgName) && !Util.isBlank(lvName)) {
+            store.getMutablePartitionList().add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName), sysname,
+                    fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid, fsLabel == null ? "" : fsLabel,
+                    size, major, minor, getMountPointOfDmDevice(vgName, lvName)));
+        } else if (isEncryptedVolume(dmUuid)) {
+            String name = getDmDevicePath(dmName, devnode);
+            store.getMutablePartitionList()
+                    .add(new HWPartition(name, sysname, fsType == null ? PARTITION : fsType,
+                            fsUuid == null ? "" : fsUuid, fsLabel == null ? "" : fsLabel, size, major, minor,
+                            getMountPointForDmDevice(mountsMap, dmName, devnode, sysPath)));
+        }
     }
 
     /**

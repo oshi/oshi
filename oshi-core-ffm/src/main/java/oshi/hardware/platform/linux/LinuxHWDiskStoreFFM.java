@@ -99,31 +99,26 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                     long devSize = ParseUtil.parseLongOrDefault(
                                             UdevFunctions.getSysattrValue(device, SIZE, arena), 0L) * SECTORSIZE;
                                     if (devnode.startsWith(DevPath.DM)) {
-                                        devModel = LOGICAL_VOLUME_GROUP;
                                         devSerial = UdevFunctions.getPropertyValue(device, DM_UUID, arena);
+                                        devModel = getModelForDmDevice(devSerial);
                                         store = new LinuxHWDiskStoreFFM(devnode, devModel,
                                                 devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
-                                        if (devSerial != null && devSerial.startsWith("LVM-")) {
-                                            String vgName = UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena);
-                                            String lvName = UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena);
-                                            String fsType = UdevFunctions.getPropertyValue(device, ID_FS_TYPE, arena);
-                                            String fsUuid = UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena);
-                                            String fsLabel = UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena);
-                                            String sysname = UdevFunctions
-                                                    .getString(UdevFunctions.udev_device_get_sysname(device), arena);
-                                            store.getMutablePartitionList().add(new HWPartition(
-                                                    getPartitionNameForDmDevice(vgName, lvName), sysname,
-                                                    fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid,
-                                                    fsLabel == null ? "" : fsLabel,
-                                                    ParseUtil.parseLongOrDefault(
-                                                            UdevFunctions.getSysattrValue(device, SIZE, arena), 0L)
-                                                            * SECTORSIZE,
-                                                    ParseUtil.parseIntOrDefault(
-                                                            UdevFunctions.getPropertyValue(device, MAJOR, arena), 0),
-                                                    ParseUtil.parseIntOrDefault(
-                                                            UdevFunctions.getPropertyValue(device, MINOR, arena), 0),
-                                                    getMountPointOfDmDevice(vgName, lvName)));
-                                        }
+                                        addDeviceMapperPartition(store, mountsMap, devSerial,
+                                                UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena),
+                                                UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena),
+                                                UdevFunctions.getPropertyValue(device, DM_NAME, arena), devnode,
+                                                UdevFunctions.getString(UdevFunctions.udev_device_get_sysname(device),
+                                                        arena),
+                                                syspath, UdevFunctions.getPropertyValue(device, ID_FS_TYPE, arena),
+                                                UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena),
+                                                UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena),
+                                                ParseUtil.parseLongOrDefault(
+                                                        UdevFunctions.getSysattrValue(device, SIZE, arena), 0L)
+                                                        * SECTORSIZE,
+                                                ParseUtil.parseIntOrDefault(
+                                                        UdevFunctions.getPropertyValue(device, MAJOR, arena), 0),
+                                                ParseUtil.parseIntOrDefault(
+                                                        UdevFunctions.getPropertyValue(device, MINOR, arena), 0));
                                     } else {
                                         store = new LinuxHWDiskStoreFFM(devnode,
                                                 devModel == null ? Constants.UNKNOWN : devModel,
