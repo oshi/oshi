@@ -142,11 +142,13 @@ public class MacFileSystemJNA extends MacFileSystem {
                                 // getMatchingServices releases matchingDict
                                 // Should only match one logical drive
                                 IORegistryEntry fsEntry = fsIter.next();
-                                if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
-                                    // Now get the UUID
-                                    uuid = fsEntry.getStringProperty("UUID");
-                                    if (uuid != null) {
-                                        uuid = uuid.toLowerCase(Locale.ROOT);
+                                if (fsEntry != null) {
+                                    if (fsEntry.conformsTo("IOMedia")) {
+                                        // Now get the UUID
+                                        uuid = fsEntry.getStringProperty("UUID");
+                                        if (uuid != null) {
+                                            uuid = uuid.toLowerCase(Locale.ROOT);
+                                        }
                                     }
                                     fsEntry.release();
                                 }
