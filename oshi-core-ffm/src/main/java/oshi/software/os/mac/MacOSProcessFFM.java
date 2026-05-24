@@ -403,7 +403,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             return callInArenaLongOrDefault(arena -> {
                 MemorySegment buffer = arena.allocate(RLIMIT);
                 int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
-                if (result > 0) {
+                if (result == 0) {
                     return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_CUR));
                 }
                 return 0L;
@@ -418,7 +418,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             return callInArenaLongOrDefault(arena -> {
                 MemorySegment buffer = arena.allocate(RLIMIT);
                 int result = getrlimit(MAC_RLIMIT_NOFILE, buffer);
-                if (result > 0) {
+                if (result == 0) {
                     return buffer.get(JAVA_LONG, RLIMIT.byteOffset(RLIM_MAX));
                 }
                 return 0L;

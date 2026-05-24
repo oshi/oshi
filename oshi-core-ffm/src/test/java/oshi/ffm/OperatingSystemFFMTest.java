@@ -7,6 +7,7 @@ package oshi.ffm;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 
@@ -35,6 +37,18 @@ public class OperatingSystemFFMTest {
         assertThat("OS should have 1 or more currently running processes", os.getProcessCount(), is(greaterThan(0)));
         assertThat("OS should have at least 1 currently running process", os.getProcesses(null, null, 0),
                 is(not(empty())));
+    }
+
+    @Test
+    void testCurrentProcessOpenFileLimits() {
+        OperatingSystem os = new SystemInfo().getOperatingSystem();
+        OSProcess process = os.getProcess(os.getProcessId());
+        assertThat("Current process shouldn't be null", process, is(notNullValue()));
+        long softLimit = process.getSoftOpenFileLimit();
+        long hardLimit = process.getHardOpenFileLimit();
+        assertThat("Soft open file limit for current process should be positive", softLimit, is(greaterThan(0L)));
+        assertThat("Hard open file limit for current process should be at least the soft limit", hardLimit,
+                is(greaterThanOrEqualTo(softLimit)));
     }
 
     @EnabledOnOs(OS.MAC)

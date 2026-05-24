@@ -394,6 +394,8 @@ class NativeComparisonTest {
                 .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
         assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+        assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
+        assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
         // Context switches: both use getrusage, snapshots taken at different times
         assertWithinRatio(ffm.getContextSwitches(), jna.getContextSwitches(), 0.2, "process.contextSwitches");
         assertWithinRatio(ffm.getVoluntaryContextSwitches(), jna.getVoluntaryContextSwitches(), 0.2,

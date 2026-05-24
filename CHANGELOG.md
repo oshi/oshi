@@ -15,6 +15,7 @@
 * [#3281](https://github.com/oshi/oshi/pull/3281): Fix AIX processor count detection to use LPAR vcpu and SMT configuration instead of frame-level physical processor count - [@dbwiddis](https://github.com/dbwiddis).
 * [#3283](https://github.com/oshi/oshi/pull/3283): Fix macOS JNA system CPU ticks overflowing to negative values after long uptimes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3299](https://github.com/oshi/oshi/pull/3299): Handle Linux LUKS device-mapper disks without LVM volume names and avoid synthetic `null` paths - [@dbwiddis](https://github.com/dbwiddis).
+* [#3300](https://github.com/oshi/oshi/pull/3300): Fix macOS FFM open file limits and strengthen current-process limit coverage - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 
