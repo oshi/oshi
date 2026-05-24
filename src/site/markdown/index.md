@@ -16,7 +16,7 @@ Supported Platforms
 - Windows
 - macOS
 - Linux (Android)
-- UNIX (AIX, FreeBSD, OpenBSD, Solaris) — JNA only
+- UNIX (AIX, FreeBSD, OpenBSD, Solaris)
 
 Supported Features
 ------------------
@@ -47,12 +47,12 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.1.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.1.0)
-  * FFM: [oshi-core-ffm-7.1.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.1.0)
+  * JNA: [oshi-core-7.2.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.2.0)
+  * FFM: [oshi-core-ffm-7.2.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.2.0)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.2.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.2.0-SNAPSHOT)
-  * FFM: [oshi-core-ffm-7.2.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.2.0-SNAPSHOT/)
+  * JNA: [oshi-core-7.2.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.2.1-SNAPSHOT)
+  * FFM: [oshi-core-ffm-7.2.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.2.1-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -65,7 +65,7 @@ Usage
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
-2. Create a new instance of `SystemInfo` using `SystemInfoFactory.create()`:
+2. Create a new instance of `SystemInfo` (implementing `SystemInfoProvider`):
 
 ```java
 // Automatically selects the best available implementation based on your classpath and runtime.

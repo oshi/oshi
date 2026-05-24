@@ -1,4 +1,8 @@
-# 7.2.0 (in progress)
+# 7.2.1 (in progress)
+
+* Your contribution here!
+
+# 7.2.0 (2026-05-24)
 
 ##### New Features
 
@@ -8,8 +12,8 @@
 
 ##### Bug Fixes and Improvements
 
-* [#3249](https://github.com/oshi/oshi/pull/3249): Read EDID from `/sys/class/drm` on Linux, fixing display detection on Wayland - [@dbwiddis](https://github.com/dbwiddis).
 * [#3245](https://github.com/oshi/oshi/pull/3245): Fix `MacGlobalMemory.getPhysicalMemory()` returning empty data on Apple Silicon Macs - [@dbwiddis](https://github.com/dbwiddis).
+* [#3249](https://github.com/oshi/oshi/pull/3249): Read EDID from `/sys/class/drm` on Linux, fixing display detection on Wayland - [@dbwiddis](https://github.com/dbwiddis).
 * [#3278](https://github.com/oshi/oshi/pull/3278),
   [#3280](https://github.com/oshi/oshi/pull/3280): Add `SystemInfoProvider` convenience overloads to `OshiMetrics` constructor, `bindTo`, and `builder` methods - [@dbwiddis](https://github.com/dbwiddis).
 * [#3281](https://github.com/oshi/oshi/pull/3281): Fix AIX processor count detection to use LPAR vcpu and SMT configuration instead of frame-level physical processor count - [@dbwiddis](https://github.com/dbwiddis).
