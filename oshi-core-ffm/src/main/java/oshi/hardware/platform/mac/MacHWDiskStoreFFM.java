@@ -65,13 +65,15 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                 LOG.error("Unable to open session to DiskArbitration framework.");
                 return false;
             }
-            Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
-            try {
+            Map<CFKey, CFStringRef> cfKeyMap = null;
+            try (session) {
+                cfKeyMap = mapCFKeys();
                 return updateDiskStats(session, FsstatFFM.queryPartitionToMountMap(), cfKeyMap);
             } finally {
-                session.release();
-                for (CFStringRef value : cfKeyMap.values()) {
-                    value.release();
+                if (cfKeyMap != null) {
+                    for (CFStringRef value : cfKeyMap.values()) {
+                        value.release();
+                    }
                 }
             }
         } catch (Throwable e) {
@@ -90,12 +92,12 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
         if (driveListIter == null) {
             return false;
         }
-        try {
+        try (driveListIter) {
             IORegistryEntry drive = driveListIter.next();
             if (drive == null) {
                 return false;
             }
-            try {
+            try (drive) {
                 if (!drive.conformsTo("IOMedia")) {
                     LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                     return false;
@@ -106,8 +108,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             || parent.conformsTo("AppleAPFSContainerScheme"))) {
                         MemorySegment propertiesSeg = parent.createCFProperties();
                         if (!propertiesSeg.equals(MemorySegment.NULL)) {
-                            CFDictionaryRef properties = new CFDictionaryRef(propertiesSeg);
-                            try {
+                            try (CFDictionaryRef properties = new CFDictionaryRef(propertiesSeg)) {
                                 MemorySegment result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                                 if (!result.equals(MemorySegment.NULL)) {
                                     CFDictionaryRef statistics = new CFDictionaryRef(result);
@@ -139,8 +140,6 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                         setTransferTime(xferTime / 1_000_000L);
                                     }
                                 }
-                            } finally {
-                                properties.release();
                             }
                         }
                     } else {
@@ -151,10 +150,8 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     List<HWPartition> partitions = new ArrayList<>();
                     MemorySegment drivePropsSeg = drive.createCFProperties();
                     if (!drivePropsSeg.equals(MemorySegment.NULL)) {
-                        CFDictionaryRef driveProps = new CFDictionaryRef(drivePropsSeg);
-                        try {
+                        try (CFDictionaryRef driveProps = new CFDictionaryRef(drivePropsSeg)) {
                             MemorySegment bsdUnitSeg = driveProps.getValue(cfKeyMap.get(CFKey.BSD_UNIT));
-                            // cfFalse is the value stored under LEAF key for whole disks
                             MemorySegment cfFalseSeg = driveProps.getValue(cfKeyMap.get(CFKey.LEAF));
 
                             try {
@@ -180,54 +177,53 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                 propertyDict.release();
 
                                 if (serviceIterator != null) {
-                                    try {
+                                    try (serviceIterator) {
                                         IORegistryEntry sdService = serviceIterator.next();
                                         while (sdService != null) {
-                                            String partBsdName = sdService.getStringProperty("BSD Name");
-                                            String name = partBsdName;
-                                            String type = "";
-                                            String label = "";
+                                            try (IORegistryEntry current = sdService) {
+                                                String partBsdName = current.getStringProperty("BSD Name");
+                                                String name = partBsdName;
+                                                String type = "";
+                                                String label = "";
 
-                                            DADiskRef disk = DADiskRef.createFromBSDName(alloc, session, partBsdName);
-                                            if (!disk.isNull()) {
-                                                CFDictionaryRef diskInfo = disk.copyDescription();
-                                                if (!diskInfo.isNull()) {
-                                                    MemorySegment r = diskInfo
-                                                            .getValue(cfKeyMap.get(CFKey.DA_MEDIA_NAME));
-                                                    type = CFUtilFFM.cfPointerToString(r);
-                                                    r = diskInfo.getValue(cfKeyMap.get(CFKey.DA_VOLUME_NAME));
-                                                    if (r.equals(MemorySegment.NULL)) {
-                                                        name = type;
-                                                    } else {
-                                                        String volumeName = CFUtilFFM.cfPointerToString(r);
-                                                        name = volumeName;
-                                                        label = volumeName;
+                                                try (DADiskRef disk = DADiskRef.createFromBSDName(alloc, session,
+                                                        partBsdName)) {
+                                                    if (!disk.isNull()) {
+                                                        try (CFDictionaryRef diskInfo = disk.copyDescription()) {
+                                                            if (!diskInfo.isNull()) {
+                                                                MemorySegment r = diskInfo
+                                                                        .getValue(cfKeyMap.get(CFKey.DA_MEDIA_NAME));
+                                                                type = CFUtilFFM.cfPointerToString(r);
+                                                                r = diskInfo
+                                                                        .getValue(cfKeyMap.get(CFKey.DA_VOLUME_NAME));
+                                                                if (r.equals(MemorySegment.NULL)) {
+                                                                    name = type;
+                                                                } else {
+                                                                    String volumeName = CFUtilFFM.cfPointerToString(r);
+                                                                    name = volumeName;
+                                                                    label = volumeName;
+                                                                }
+                                                            }
+                                                        }
                                                     }
-                                                    diskInfo.release();
                                                 }
-                                                disk.release();
+                                                String mountPoint = mountPointMap.getOrDefault(partBsdName, "");
+                                                Long size = current.getLongProperty("Size");
+                                                Integer bsdMajor = current.getIntegerProperty("BSD Major");
+                                                Integer bsdMinor = current.getIntegerProperty("BSD Minor");
+                                                String uuid = current.getStringProperty("UUID");
+                                                partitions.add(new HWPartition(partBsdName, name, type,
+                                                        uuid == null ? Constants.UNKNOWN : uuid, label,
+                                                        size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
+                                                        bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                             }
-                                            String mountPoint = mountPointMap.getOrDefault(partBsdName, "");
-                                            Long size = sdService.getLongProperty("Size");
-                                            Integer bsdMajor = sdService.getIntegerProperty("BSD Major");
-                                            Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
-                                            String uuid = sdService.getStringProperty("UUID");
-                                            partitions.add(new HWPartition(partBsdName, name, type,
-                                                    uuid == null ? Constants.UNKNOWN : uuid, label,
-                                                    size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
-                                                    bsdMinor == null ? 0 : bsdMinor, mountPoint));
-                                            sdService.release();
                                             sdService = serviceIterator.next();
                                         }
-                                    } finally {
-                                        serviceIterator.release();
                                     }
                                 }
                             } catch (Throwable e) {
                                 LOG.debug("Error building partition list for {}", bsdName, e);
                             }
-                        } finally {
-                            driveProps.release();
                         }
                     }
                     setPartitionList(Collections.unmodifiableList(partitions.stream()
@@ -237,11 +233,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                         parent.release();
                     }
                 }
-            } finally {
-                drive.release();
             }
-        } finally {
-            driveListIter.release();
         }
         return true;
     }
@@ -258,29 +250,28 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                 LOG.error("Unable to open session to DiskArbitration framework.");
                 return Collections.emptyList();
             }
-            try {
+            try (session) {
                 List<String> bsdNames = new ArrayList<>();
                 IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMedia");
                 if (iter != null) {
-                    try {
+                    try (iter) {
                         IORegistryEntry media = iter.next();
                         while (media != null) {
-                            Boolean whole = media.getBooleanProperty("Whole");
-                            if (Boolean.TRUE.equals(whole)) {
-                                DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, media);
-                                if (!disk.isNull()) {
-                                    String bsdName = disk.getBSDName();
-                                    if (bsdName != null) {
-                                        bsdNames.add(bsdName);
+                            try (IORegistryEntry current = media) {
+                                Boolean whole = current.getBooleanProperty("Whole");
+                                if (Boolean.TRUE.equals(whole)) {
+                                    try (DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, current)) {
+                                        if (!disk.isNull()) {
+                                            String bsdName = disk.getBSDName();
+                                            if (bsdName != null) {
+                                                bsdNames.add(bsdName);
+                                            }
+                                        }
                                     }
-                                    disk.release();
                                 }
                             }
-                            media.release();
                             media = iter.next();
                         }
-                    } finally {
-                        iter.release();
                     }
                 }
 
@@ -294,10 +285,9 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     if (disk.isNull()) {
                         continue;
                     }
-                    try {
-                        CFDictionaryRef diskInfo = disk.copyDescription();
-                        if (!diskInfo.isNull()) {
-                            try {
+                    try (disk) {
+                        try (CFDictionaryRef diskInfo = disk.copyDescription()) {
+                            if (!diskInfo.isNull()) {
                                 MemorySegment result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
                                 model = CFUtilFFM.cfPointerToString(result);
                                 result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
@@ -306,8 +296,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                 }
 
                                 if (!"Disk Image".equals(model)) {
-                                    CFStringRef modelNameRef = CFStringRef.createCFString(model);
-                                    try {
+                                    try (CFStringRef modelNameRef = CFStringRef.createCFString(model)) {
                                         CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
                                                 CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                         MemorySegment.NULL, MemorySegment.NULL));
@@ -322,33 +311,26 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                         propertyDict.release();
 
                                         if (serviceIterator != null) {
-                                            try {
+                                            try (serviceIterator) {
                                                 IORegistryEntry sdService = serviceIterator.next();
                                                 while (sdService != null) {
-                                                    serial = sdService.getStringProperty("Serial Number");
-                                                    sdService.release();
+                                                    try (IORegistryEntry current = sdService) {
+                                                        serial = current.getStringProperty("Serial Number");
+                                                    }
                                                     if (serial != null) {
                                                         break;
                                                     }
                                                     sdService = serviceIterator.next();
                                                 }
-                                            } finally {
-                                                serviceIterator.release();
                                             }
                                         }
-                                    } finally {
-                                        modelNameRef.release();
                                     }
                                     if (serial == null) {
                                         serial = "";
                                     }
                                 }
-                            } finally {
-                                diskInfo.release();
                             }
                         }
-                    } finally {
-                        disk.release();
                     }
 
                     if (size <= 0) {
@@ -357,14 +339,13 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size,
                             detectDiskType(bsdName), session, mountPointMap, cfKeyMap));
                 }
-            } finally {
-                session.release();
-                for (CFStringRef value : cfKeyMap.values()) {
-                    value.release();
-                }
             }
         } catch (Throwable e) {
             LOG.error("Error enumerating disks", e);
+        } finally {
+            for (CFStringRef value : cfKeyMap.values()) {
+                value.release();
+            }
         }
         return diskList;
     }
@@ -393,12 +374,12 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
         if (iter == null) {
             return "Unknown";
         }
-        try {
+        try (iter) {
             IORegistryEntry media = iter.next();
             if (media == null) {
                 return "Unknown";
             }
-            try {
+            try (media) {
                 // Check removable at the IOMedia level
                 Boolean removable = media.getBooleanProperty("Removable");
                 if (removable != null && removable) {
@@ -407,48 +388,41 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                 // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
                 IORegistryEntry driver = media.getParentEntry("IOService");
                 if (driver != null) {
-                    try {
+                    try (driver) {
                         IORegistryEntry device = driver.getParentEntry("IOService");
                         if (device != null) {
-                            try {
+                            try (device) {
                                 MemorySegment propsSeg = device.createCFProperties();
                                 if (!propsSeg.equals(MemorySegment.NULL)) {
-                                    CFDictionaryRef props = new CFDictionaryRef(propsSeg);
-                                    try {
-                                        MemorySegment charSeg = props
-                                                .getValue(CFStringRef.createCFString("Device Characteristics"));
-                                        if (!charSeg.equals(MemorySegment.NULL)) {
-                                            CFDictionaryRef chars = new CFDictionaryRef(charSeg);
-                                            MemorySegment typeSeg = chars
-                                                    .getValue(CFStringRef.createCFString("Medium Type"));
-                                            if (!typeSeg.equals(MemorySegment.NULL)) {
-                                                String type = new CFStringRef(typeSeg).stringValue();
-                                                if (type != null) {
-                                                    if (type.contains("Solid State") || type.contains("SSD")) {
-                                                        return "SSD";
-                                                    } else if (type.contains("Rotational")) {
-                                                        return "HDD";
+                                    try (CFDictionaryRef props = new CFDictionaryRef(propsSeg)) {
+                                        try (CFStringRef devCharKey = CFStringRef
+                                                .createCFString("Device Characteristics")) {
+                                            MemorySegment charSeg = props.getValue(devCharKey);
+                                            if (!charSeg.equals(MemorySegment.NULL)) {
+                                                CFDictionaryRef chars = new CFDictionaryRef(charSeg);
+                                                try (CFStringRef medTypeKey = CFStringRef
+                                                        .createCFString("Medium Type")) {
+                                                    MemorySegment typeSeg = chars.getValue(medTypeKey);
+                                                    if (!typeSeg.equals(MemorySegment.NULL)) {
+                                                        String type = new CFStringRef(typeSeg).stringValue();
+                                                        if (type != null) {
+                                                            if (type.contains("Solid State") || type.contains("SSD")) {
+                                                                return "SSD";
+                                                            } else if (type.contains("Rotational")) {
+                                                                return "HDD";
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    } finally {
-                                        props.release();
                                     }
                                 }
-                            } finally {
-                                device.release();
                             }
                         }
-                    } finally {
-                        driver.release();
                     }
                 }
-            } finally {
-                media.release();
             }
-        } finally {
-            iter.release();
         }
         return "Unknown";
     }

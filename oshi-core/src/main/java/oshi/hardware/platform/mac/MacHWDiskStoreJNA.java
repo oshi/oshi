@@ -240,107 +240,115 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
 
         List<HWDiskStore> diskList = new ArrayList<>();
 
-        // Open a DiskArbitration session
-        DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
-        if (session == null) {
-            LOG.error("Unable to open session to DiskArbitration framework.");
-            return Collections.emptyList();
-        }
-
-        // Get IOMedia objects representing whole drives
-        List<String> bsdNames = new ArrayList<>();
-        IOIterator iter = IOKitUtil.getMatchingServices("IOMedia");
-        if (iter != null) {
-            IORegistryEntry media = iter.next();
-            while (media != null) {
-                Boolean whole = media.getBooleanProperty("Whole");
-                if (whole != null && whole) {
-                    DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
-                    bsdNames.add(DA.DADiskGetBSDName(disk));
-                    disk.release();
-                }
-                media.release();
-                media = iter.next();
+        try {
+            // Open a DiskArbitration session
+            DASessionRef session = DA.DASessionCreate(CF.CFAllocatorGetDefault());
+            if (session == null) {
+                LOG.error("Unable to open session to DiskArbitration framework.");
+                return Collections.emptyList();
             }
-            iter.release();
-        }
+            try {
 
-        // Now iterate the bsdNames
-        for (String bsdName : bsdNames) {
-            String model = "";
-            String serial = "";
-            long size = 0L;
-
-            // Get a reference to the disk - only matching /dev/disk*
-            String path = "/dev/" + bsdName;
-
-            // Get the DiskArbitration dictionary for this disk, which has model
-            // and size (capacity)
-            DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session, path);
-            if (disk != null) {
-                CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
-                if (diskInfo != null) {
-                    // Parse out model and size from their respective keys
-                    Pointer result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
-                    model = CFUtil.cfPointerToString(result);
-                    result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
-                    CFNumberRef sizePtr = new CFNumberRef(result);
-                    size = sizePtr.longValue();
-                    diskInfo.release();
-
-                    // Use the model as a key to get serial from IOKit
-                    if (!"Disk Image".equals(model)) {
-                        CFStringRef modelNameRef = CFStringRef.createCFString(model);
-                        CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
-                                new CFIndex(0), null, null);
-                        propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
-                        CFMutableDictionaryRef matchingDict = CF.CFDictionaryCreateMutable(CF.CFAllocatorGetDefault(),
-                                new CFIndex(0), null, null);
-                        matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
-
-                        // search for all IOservices that match the model
-                        IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
-                        // getMatchingServices releases matchingDict
-                        modelNameRef.release();
-                        propertyDict.release();
-
-                        if (serviceIterator != null) {
-                            IORegistryEntry sdService = serviceIterator.next();
-                            while (sdService != null) {
-                                // look up the serial number
-                                serial = sdService.getStringProperty("Serial Number");
-                                sdService.release();
-                                if (serial != null) {
-                                    break;
+                // Get IOMedia objects representing whole drives
+                List<String> bsdNames = new ArrayList<>();
+                IOIterator iter = IOKitUtil.getMatchingServices("IOMedia");
+                if (iter != null) {
+                    IORegistryEntry media = iter.next();
+                    while (media != null) {
+                        Boolean whole = media.getBooleanProperty("Whole");
+                        if (whole != null && whole) {
+                            DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
+                            if (disk != null) {
+                                String bsdName = DA.DADiskGetBSDName(disk);
+                                if (bsdName != null) {
+                                    bsdNames.add(bsdName);
                                 }
-                                // iterate
-                                sdService.release();
-                                sdService = serviceIterator.next();
+                                disk.release();
                             }
-                            serviceIterator.release();
                         }
-                        if (serial == null) {
-                            serial = "";
+                        media.release();
+                        media = iter.next();
+                    }
+                    iter.release();
+                }
+
+                // Now iterate the bsdNames
+                for (String bsdName : bsdNames) {
+                    String model = "";
+                    String serial = "";
+                    long size = 0L;
+
+                    // Get a reference to the disk - only matching /dev/disk*
+                    String path = "/dev/" + bsdName;
+
+                    // Get the DiskArbitration dictionary for this disk, which has model
+                    // and size (capacity)
+                    DADiskRef disk = DA.DADiskCreateFromBSDName(CF.CFAllocatorGetDefault(), session, path);
+                    if (disk != null) {
+                        CFDictionaryRef diskInfo = DA.DADiskCopyDescription(disk);
+                        if (diskInfo != null) {
+                            // Parse out model and size from their respective keys
+                            Pointer result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
+                            model = CFUtil.cfPointerToString(result);
+                            result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
+                            CFNumberRef sizePtr = new CFNumberRef(result);
+                            size = sizePtr.longValue();
+                            diskInfo.release();
+
+                            // Use the model as a key to get serial from IOKit
+                            if (!"Disk Image".equals(model)) {
+                                CFStringRef modelNameRef = CFStringRef.createCFString(model);
+                                CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(
+                                        CF.CFAllocatorGetDefault(), new CFIndex(0), null, null);
+                                propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
+                                CFMutableDictionaryRef matchingDict = CF.CFDictionaryCreateMutable(
+                                        CF.CFAllocatorGetDefault(), new CFIndex(0), null, null);
+                                matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
+
+                                // search for all IOservices that match the model
+                                IOIterator serviceIterator = IOKitUtil.getMatchingServices(matchingDict);
+                                // getMatchingServices releases matchingDict
+                                modelNameRef.release();
+                                propertyDict.release();
+
+                                if (serviceIterator != null) {
+                                    IORegistryEntry sdService = serviceIterator.next();
+                                    while (sdService != null) {
+                                        // look up the serial number
+                                        serial = sdService.getStringProperty("Serial Number");
+                                        sdService.release();
+                                        if (serial != null) {
+                                            break;
+                                        }
+                                        sdService = serviceIterator.next();
+                                    }
+                                    serviceIterator.release();
+                                }
+                                if (serial == null) {
+                                    serial = "";
+                                }
+                            }
                         }
+                        disk.release();
+
+                        // If empty, ignore
+                        if (size <= 0) {
+                            continue;
+                        }
+                        HWDiskStore diskStore = new MacHWDiskStoreJNA(bsdName, model.trim(), serial.trim(), size,
+                                detectDiskType(bsdName), session, mountPointMap, cfKeyMap);
+                        diskList.add(diskStore);
                     }
                 }
-                disk.release();
-
-                // If empty, ignore
-                if (size <= 0) {
-                    continue;
-                }
-                HWDiskStore diskStore = new MacHWDiskStoreJNA(bsdName, model.trim(), serial.trim(), size,
-                        detectDiskType(bsdName), session, mountPointMap, cfKeyMap);
-                diskList.add(diskStore);
+                return diskList;
+            } finally {
+                session.release();
+            }
+        } finally {
+            for (CFTypeRef value : cfKeyMap.values()) {
+                value.release();
             }
         }
-        // Close DA session
-        session.release();
-        for (CFTypeRef value : cfKeyMap.values()) {
-            value.release();
-        }
-        return diskList;
     }
 
     /**
