@@ -65,16 +65,19 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
             LOG.error("Unable to open session to DiskArbitration framework.");
             return false;
         }
-        Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
-        // Execute the update
-        boolean diskFound = updateDiskStats(session, Fsstat.queryPartitionToMountMap(), cfKeyMap);
-        // Release the session and CFStrings
-        session.release();
-        for (CFTypeRef value : cfKeyMap.values()) {
-            value.release();
+        try {
+            Map<CFKey, CFStringRef> cfKeyMap = mapCFKeys();
+            try {
+                // Execute the update
+                return updateDiskStats(session, Fsstat.queryPartitionToMountMap(), cfKeyMap);
+            } finally {
+                for (CFTypeRef value : cfKeyMap.values()) {
+                    value.release();
+                }
+            }
+        } finally {
+            session.release();
         }
-
-        return diskFound;
     }
 
     private boolean updateDiskStats(DASessionRef session, Map<String, String> mountPointMap,

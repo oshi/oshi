@@ -67,23 +67,28 @@ final class WindowsDisplayJNA extends AbstractDisplay {
                 for (int memberIndex = 0; SU.SetupDiEnumDeviceInfo(hDevInfo, memberIndex, info); memberIndex++) {
                     HKEY key = SU.SetupDiOpenDevRegKey(hDevInfo, info, SetupApi.DICS_FLAG_GLOBAL, 0, SetupApi.DIREG_DEV,
                             WinNT.KEY_QUERY_VALUE);
+                    try {
+                        byte[] edid = new byte[1];
 
-                    byte[] edid = new byte[1];
-
-                    try (CloseableIntByReference pType = new CloseableIntByReference();
-                            CloseableIntByReference lpcbData = new CloseableIntByReference()) {
-                        if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_MORE_DATA) {
-                            edid = new byte[lpcbData.getValue()];
-                            if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid, lpcbData) == WinError.ERROR_SUCCESS) {
-                                Display display = new WindowsDisplayJNA(edid);
-                                displays.add(display);
+                        try (CloseableIntByReference pType = new CloseableIntByReference();
+                                CloseableIntByReference lpcbData = new CloseableIntByReference()) {
+                            if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid,
+                                    lpcbData) == WinError.ERROR_MORE_DATA) {
+                                edid = new byte[lpcbData.getValue()];
+                                if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid,
+                                        lpcbData) == WinError.ERROR_SUCCESS) {
+                                    Display display = new WindowsDisplayJNA(edid);
+                                    displays.add(display);
+                                }
                             }
                         }
+                    } finally {
+                        Advapi32.INSTANCE.RegCloseKey(key);
                     }
-                    Advapi32.INSTANCE.RegCloseKey(key);
                 }
+            } finally {
+                SU.SetupDiDestroyDeviceInfoList(hDevInfo);
             }
-            SU.SetupDiDestroyDeviceInfoList(hDevInfo);
         }
         return displays;
     }

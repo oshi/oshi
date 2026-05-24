@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -56,57 +56,89 @@ public final class SessionWtsData {
                     CloseableIntByReference pBytes = new CloseableIntByReference()) {
                 if (WTS.WTSEnumerateSessions(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, 0, 1, ppSessionInfo, pCount)) {
                     Pointer pSessionInfo = ppSessionInfo.getValue();
-                    if (pCount.getValue() > 0) {
-                        WTS_SESSION_INFO sessionInfoRef = new WTS_SESSION_INFO(pSessionInfo);
-                        WTS_SESSION_INFO[] sessionInfo = (WTS_SESSION_INFO[]) sessionInfoRef.toArray(pCount.getValue());
-                        for (WTS_SESSION_INFO session : sessionInfo) {
-                            if (session.State == WTS_ACTIVE) {
-                                // Use session id to fetch additional session information
-                                WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE, session.SessionId,
-                                        WTS_CLIENTPROTOCOLTYPE, ppBuffer, pBytes);
-                                Pointer pBuffer = ppBuffer.getValue(); // pointer to USHORT
-                                short protocolType = pBuffer.getShort(0); // 0 = console, 2 = RDP
-                                WTS.WTSFreeMemory(pBuffer);
-                                // We've already got console from registry, only test RDP
-                                if (protocolType > 0) {
-                                    // DEVICE
-                                    String device = session.pWinStationName;
-                                    // USER and LOGIN TIME
-                                    WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
-                                            session.SessionId, WTS_SESSIONINFO, ppBuffer, pBytes);
-                                    pBuffer = ppBuffer.getValue(); // returns WTSINFO
-                                    WTSINFO wtsInfo = new WTSINFO(pBuffer);
-                                    // Temporary due to broken LARGE_INTEGER, remove in JNA 5.6.0
-                                    long logonTime = new WinBase.FILETIME(
-                                            new WinNT.LARGE_INTEGER(wtsInfo.LogonTime.getValue())).toTime();
-                                    String userName = wtsInfo.getUserName();
-                                    WTS.WTSFreeMemory(pBuffer);
-                                    // HOST
-                                    WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
-                                            session.SessionId, WTS_CLIENTADDRESS, ppBuffer, pBytes);
-                                    pBuffer = ppBuffer.getValue(); // returns WTS_CLIENT_ADDRESS
-                                    WTS_CLIENT_ADDRESS addr = new WTS_CLIENT_ADDRESS(pBuffer);
-                                    WTS.WTSFreeMemory(pBuffer);
-                                    String host = "::";
-                                    if (addr.AddressFamily == IPHlpAPI.AF_INET) {
-                                        try {
-                                            host = InetAddress.getByAddress(Arrays.copyOfRange(addr.Address, 2, 6))
-                                                    .getHostAddress();
-                                        } catch (UnknownHostException e) {
-                                            // If array is not length of 4, shouldn't happen
-                                            host = "Illegal length IP Array";
-                                        }
-                                    } else if (addr.AddressFamily == IPHlpAPI.AF_INET6) {
-                                        // Get ints for address parsing
-                                        int[] ipArray = convertBytesToInts(addr.Address);
-                                        host = ParseUtil.parseUtAddrV6toIP(ipArray);
+                    try {
+                        if (pCount.getValue() > 0) {
+                            WTS_SESSION_INFO sessionInfoRef = new WTS_SESSION_INFO(pSessionInfo);
+                            WTS_SESSION_INFO[] sessionInfo = (WTS_SESSION_INFO[]) sessionInfoRef
+                                    .toArray(pCount.getValue());
+                            for (WTS_SESSION_INFO session : sessionInfo) {
+                                if (session.State == WTS_ACTIVE) {
+                                    // Use session id to fetch additional session information
+                                    if (!WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+                                            session.SessionId, WTS_CLIENTPROTOCOLTYPE, ppBuffer, pBytes)) {
+                                        continue;
                                     }
-                                    sessions.add(new OSSession(userName, device, logonTime, host));
+                                    Pointer pBuffer = ppBuffer.getValue();
+                                    if (pBuffer == null) {
+                                        continue;
+                                    }
+                                    short protocolType;
+                                    try {
+                                        protocolType = pBuffer.getShort(0); // 0 = console, 2 = RDP
+                                    } finally {
+                                        WTS.WTSFreeMemory(pBuffer);
+                                    }
+                                    // We've already got console from registry, only test RDP
+                                    if (protocolType > 0) {
+                                        // DEVICE
+                                        String device = session.pWinStationName;
+                                        // USER and LOGIN TIME
+                                        if (!WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+                                                session.SessionId, WTS_SESSIONINFO, ppBuffer, pBytes)) {
+                                            continue;
+                                        }
+                                        pBuffer = ppBuffer.getValue();
+                                        if (pBuffer == null) {
+                                            continue;
+                                        }
+                                        String userName;
+                                        long logonTime;
+                                        try {
+                                            WTSINFO wtsInfo = new WTSINFO(pBuffer);
+                                            // Temporary due to broken LARGE_INTEGER, remove in JNA 5.6.0
+                                            logonTime = new WinBase.FILETIME(
+                                                    new WinNT.LARGE_INTEGER(wtsInfo.LogonTime.getValue())).toTime();
+                                            userName = wtsInfo.getUserName();
+                                        } finally {
+                                            WTS.WTSFreeMemory(pBuffer);
+                                        }
+                                        // HOST
+                                        if (!WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
+                                                session.SessionId, WTS_CLIENTADDRESS, ppBuffer, pBytes)) {
+                                            continue;
+                                        }
+                                        pBuffer = ppBuffer.getValue();
+                                        if (pBuffer == null) {
+                                            continue;
+                                        }
+                                        WTS_CLIENT_ADDRESS addr;
+                                        try {
+                                            addr = new WTS_CLIENT_ADDRESS(pBuffer);
+                                        } finally {
+                                            WTS.WTSFreeMemory(pBuffer);
+                                        }
+                                        String host = "::";
+                                        if (addr.AddressFamily == IPHlpAPI.AF_INET) {
+                                            try {
+                                                host = InetAddress.getByAddress(Arrays.copyOfRange(addr.Address, 2, 6))
+                                                        .getHostAddress();
+                                            } catch (UnknownHostException e) {
+                                                // If array is not length of 4, shouldn't happen
+                                                host = "Illegal length IP Array";
+                                            }
+                                        } else if (addr.AddressFamily == IPHlpAPI.AF_INET6) {
+                                            // Get ints for address parsing
+                                            int[] ipArray = convertBytesToInts(addr.Address);
+                                            host = ParseUtil.parseUtAddrV6toIP(ipArray);
+                                        }
+                                        sessions.add(new OSSession(userName, device, logonTime, host));
+                                    }
                                 }
                             }
                         }
+                    } finally {
+                        WTS.WTSFreeMemory(pSessionInfo);
                     }
-                    WTS.WTSFreeMemory(pSessionInfo);
                 }
             }
         }

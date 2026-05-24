@@ -69,20 +69,23 @@ public final class ProcessWtsData {
             }
             // extract the pointed-to pointer and create array
             Pointer pProcessInfo = ppProcessInfo.getValue();
-            final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
-            WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
-            for (WTS_PROCESS_INFO_EX info : processInfo) {
-                if (pids == null || pids.contains(info.ProcessId)) {
-                    wtsMap.put(info.ProcessId,
-                            new WtsInfo(info.pProcessName, "", info.NumberOfThreads, info.PagefileUsage & 0xffff_ffffL,
-                                    info.KernelTime.getValue() / 10_000L, info.UserTime.getValue() / 10_000,
-                                    info.HandleCount));
+            try {
+                final WTS_PROCESS_INFO_EX processInfoRef = new WTS_PROCESS_INFO_EX(pProcessInfo);
+                WTS_PROCESS_INFO_EX[] processInfo = (WTS_PROCESS_INFO_EX[]) processInfoRef.toArray(pCount.getValue());
+                for (WTS_PROCESS_INFO_EX info : processInfo) {
+                    if (pids == null || pids.contains(info.ProcessId)) {
+                        wtsMap.put(info.ProcessId,
+                                new WtsInfo(info.pProcessName, "", info.NumberOfThreads,
+                                        info.PagefileUsage & 0xffff_ffffL, info.KernelTime.getValue() / 10_000L,
+                                        info.UserTime.getValue() / 10_000, info.HandleCount));
+                    }
                 }
-            }
-            // Clean up memory
-            if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
-                    pCount.getValue())) {
-                LOG.warn("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            } finally {
+                // Clean up memory
+                if (!Wtsapi32.INSTANCE.WTSFreeMemoryEx(Wtsapi32.WTS_PROCESS_INFO_LEVEL_1, pProcessInfo,
+                        pCount.getValue())) {
+                    LOG.warn("Failed to Free Memory for Processes. Error code: {}", Kernel32.INSTANCE.GetLastError());
+                }
             }
         }
         return wtsMap;

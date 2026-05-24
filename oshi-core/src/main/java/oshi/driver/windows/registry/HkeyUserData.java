@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -51,28 +51,31 @@ public final class HkeyUserData {
                     String keyPath = sidKey + PATH_DELIMITER + VOLATILE_ENV_SUBKEY;
                     if (Advapi32Util.registryKeyExists(WinReg.HKEY_USERS, keyPath)) {
                         HKEY hKey = Advapi32Util.registryGetKey(WinReg.HKEY_USERS, keyPath, WinNT.KEY_READ).getValue();
-                        // InfoKey write time is user login time
-                        InfoKey info = Advapi32Util.registryQueryInfoKey(hKey, 0);
-                        loginTime = info.lpftLastWriteTime.toTime();
-                        for (String subKey : Advapi32Util.registryGetKeys(hKey)) {
-                            String subKeyPath = keyPath + PATH_DELIMITER + subKey;
-                            // Check for session and client name
-                            if (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, SESSIONNAME)) {
-                                String session = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
-                                        SESSIONNAME);
-                                if (!session.isEmpty()) {
-                                    device = session;
+                        try {
+                            // InfoKey write time is user login time
+                            InfoKey info = Advapi32Util.registryQueryInfoKey(hKey, 0);
+                            loginTime = info.lpftLastWriteTime.toTime();
+                            for (String subKey : Advapi32Util.registryGetKeys(hKey)) {
+                                String subKeyPath = keyPath + PATH_DELIMITER + subKey;
+                                // Check for session and client name
+                                if (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, SESSIONNAME)) {
+                                    String session = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
+                                            SESSIONNAME);
+                                    if (!session.isEmpty()) {
+                                        device = session;
+                                    }
+                                }
+                                if (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, CLIENTNAME)) {
+                                    String client = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
+                                            CLIENTNAME);
+                                    if (!client.isEmpty() && !DEFAULT_DEVICE.equals(client)) {
+                                        host = client;
+                                    }
                                 }
                             }
-                            if (Advapi32Util.registryValueExists(WinReg.HKEY_USERS, subKeyPath, CLIENTNAME)) {
-                                String client = Advapi32Util.registryGetStringValue(WinReg.HKEY_USERS, subKeyPath,
-                                        CLIENTNAME);
-                                if (!client.isEmpty() && !DEFAULT_DEVICE.equals(client)) {
-                                    host = client;
-                                }
-                            }
+                        } finally {
+                            Advapi32Util.registryCloseKey(hKey);
                         }
-                        Advapi32Util.registryCloseKey(hKey);
                     }
                     sessions.add(new OSSession(name, device, loginTime, host));
                 } catch (Win32Exception ex) {
