@@ -81,14 +81,13 @@ public class MacFileSystemFFM extends MacFileSystem {
 
             // Open a DiskArbitration session to get VolumeName of file systems
             // with bsd names
+            @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
             CFAllocatorRef allocator = new CFAllocatorRef(CFAllocatorGetDefault());
-            DASessionRef session = new DASessionRef(DASessionCreate(allocator.segment()));
-            if (session.segment() == null) {
-                LOG.error("Unable to open session to DiskArbitration framework.");
-                return fsList;
-            }
-
-            try (session) {
+            try (DASessionRef session = new DASessionRef(DASessionCreate(allocator.segment()))) {
+                if (session.segment() == null) {
+                    LOG.error("Unable to open session to DiskArbitration framework.");
+                    return fsList;
+                }
                 CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
                 try (daVolumeNameKey) {
                     for (int f = 0; f < numfs; f++) {

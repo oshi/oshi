@@ -213,6 +213,27 @@ public interface CoreFoundation {
         }
 
         /**
+         * Extract a long value from a borrowed CFNumber segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFNumber
+         * @return The long value, or 0 if null
+         */
+        public static long longValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getLongOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
+                    if (CFNumberGetValue(segment, kCFNumberLongLongType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+                    }
+                    return 0L;
+                }
+            }, 0);
+        }
+
+        /**
          * Convert this CFNumber to an int
          *
          * @return The int value
@@ -225,6 +246,27 @@ public interface CoreFoundation {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
                     if (CFNumberGetValue(segment(), kCFNumberIntType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_INT, 0);
+                    }
+                    return 0;
+                }
+            }, 0);
+        }
+
+        /**
+         * Extract an int value from a borrowed CFNumber segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFNumber
+         * @return The int value, or 0 if null
+         */
+        public static int intValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getIntOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
+                    if (CFNumberGetValue(segment, kCFNumberIntType, valuePtr)) {
                         return valuePtr.get(ValueLayout.JAVA_INT, 0);
                     }
                     return 0;
@@ -335,6 +377,19 @@ public interface CoreFoundation {
             }
             return getBooleanOrDefault(() -> CFBooleanGetValue(segment()) != 0, false);
         }
+
+        /**
+         * Extract a boolean value from a borrowed CFBoolean segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFBoolean
+         * @return The boolean value, or false if null
+         */
+        public static boolean booleanValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return false;
+            }
+            return getBooleanOrDefault(() -> CFBooleanGetValue(segment) != 0, false);
+        }
     }
 
     /**
@@ -361,6 +416,19 @@ public interface CoreFoundation {
         }
 
         /**
+         * Get the count of items from a borrowed CFArray segment without creating an AutoCloseable instance.
+         *
+         * @param array The memory segment pointing to a CFArray
+         * @return Number of items, or 0 if null
+         */
+        public static int getCount(MemorySegment array) {
+            if (array == null || array.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getIntOrDefault(() -> (int) CFArrayGetCount(array), 0);
+        }
+
+        /**
          * Get a value at the specified index
          *
          * @param idx The index
@@ -371,6 +439,21 @@ public interface CoreFoundation {
                 return MemorySegment.NULL;
             }
             return getOrDefault(() -> CFArrayGetValueAtIndex(segment(), idx), MemorySegment.NULL);
+        }
+
+        /**
+         * Get a value at the specified index from a borrowed CFArray segment without creating an AutoCloseable
+         * instance.
+         *
+         * @param array The memory segment pointing to a CFArray
+         * @param idx   The index
+         * @return The value at that index, or NULL if null
+         */
+        public static MemorySegment getValueAtIndex(MemorySegment array, int idx) {
+            if (array == null || array.equals(MemorySegment.NULL)) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFArrayGetValueAtIndex(array, idx), MemorySegment.NULL);
         }
     }
 
@@ -450,6 +533,20 @@ public interface CoreFoundation {
                 return MemorySegment.NULL;
             }
             return getOrDefault(() -> CFDictionaryGetValue(segment(), key.segment()), MemorySegment.NULL);
+        }
+
+        /**
+         * Get a value from a borrowed CFDictionary segment without creating an AutoCloseable instance.
+         *
+         * @param dict The memory segment pointing to a CFDictionary
+         * @param key  The key
+         * @return The value associated with the key, or NULL if not found
+         */
+        public static MemorySegment getValue(MemorySegment dict, CFTypeRef key) {
+            if (dict == null || dict.equals(MemorySegment.NULL) || key == null || key.isNull()) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFDictionaryGetValue(dict, key.segment()), MemorySegment.NULL);
         }
 
         /**
@@ -559,6 +656,39 @@ public interface CoreFoundation {
                     MemorySegment buf = arena.allocate(maxSize + 1);
 
                     if (CFStringGetCString(segment(), buf, maxSize + 1, kCFStringEncodingUTF8)) {
+                        return buf.getString(0);
+                    }
+
+                    throw new IllegalArgumentException("CFString conversion failed or buffer too small.");
+                }
+            }, "");
+        }
+
+        /**
+         * Extract a String value from a borrowed CFString segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFString
+         * @return The String value, or empty string if null
+         */
+        public static String stringValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return "";
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    long length = CFStringGetLength(segment);
+                    if (length == 0) {
+                        return "";
+                    }
+
+                    long maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+                    if (maxSize == CoreFoundation.kCFNotFound) {
+                        throw new StringIndexOutOfBoundsException("CFString maximum number of bytes exceeds LONG_MAX.");
+                    }
+
+                    MemorySegment buf = arena.allocate(maxSize + 1);
+
+                    if (CFStringGetCString(segment, buf, maxSize + 1, kCFStringEncodingUTF8)) {
                         return buf.getString(0);
                     }
 

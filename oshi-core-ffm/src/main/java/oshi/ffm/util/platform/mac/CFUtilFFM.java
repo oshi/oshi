@@ -39,11 +39,7 @@ public final class CFUtilFFM {
     public static String cfPointerToString(MemorySegment segment, boolean returnUnknown) {
         String s = "";
         if (segment != null && !segment.equals(MemorySegment.NULL)) {
-            CFStringRef cfString = null;
-            cfString = new CFStringRef(segment);
-            s = cfString.stringValue();
-            // No need to release the string since we didn't create it,
-            // just accessed an existing one
+            s = CFStringRef.stringValue(segment);
         }
         if (returnUnknown && s.isEmpty()) {
             return Constants.UNKNOWN;

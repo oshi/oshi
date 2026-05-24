@@ -184,24 +184,24 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                     for (int ps = 0; ps < powerSourcesCount; ps++) {
                         MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
                         MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
+                        @SuppressWarnings("resource") // borrowed ref from IOPSGetPowerSourceDescription
                         CFDictionaryRef dict = new CFDictionaryRef(dictionary);
 
                         MemorySegment result = dict.getValue(isPresentKey);
                         if (!result.equals(MemorySegment.NULL)) {
-                            CFBooleanRef isPresentRef = new CFBooleanRef(result);
-                            if (isPresentRef.booleanValue()) {
+                            if (CFBooleanRef.booleanValue(result)) {
                                 result = dict.getValue(nameKey);
                                 String psName = CFUtilFFM.cfPointerToString(result);
 
                                 double currentCapacity = 0d;
                                 if (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
                                     result = dict.getValue(currentCapacityKey);
-                                    currentCapacity = new CFNumberRef(result).intValue();
+                                    currentCapacity = CFNumberRef.intValue(result);
                                 }
                                 double maxCapacity = 1d;
                                 if (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
                                     result = dict.getValue(maxCapacityKey);
-                                    maxCapacity = new CFNumberRef(result).intValue();
+                                    maxCapacity = CFNumberRef.intValue(result);
                                 }
                                 double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
                                         : Math.min(1d, currentCapacity / maxCapacity);
