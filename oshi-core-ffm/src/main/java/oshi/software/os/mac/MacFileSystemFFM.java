@@ -88,9 +88,9 @@ public class MacFileSystemFFM extends MacFileSystem {
                 return fsList;
             }
 
-            try {
+            try (session) {
                 CFStringRef daVolumeNameKey = CFStringRef.createCFString("DAVolumeName");
-                try {
+                try (daVolumeNameKey) {
                     for (int f = 0; f < numfs; f++) {
                         MemorySegment statfs = statfsBuffer.asSlice(f * statfsSize, statfsSize);
                         // Mount on name will match mounted path, e.g. /Volumes/foo
@@ -138,46 +138,37 @@ public class MacFileSystemFFM extends MacFileSystem {
                         String bsdName = volume.replace("/dev/disk", "disk");
                         if (bsdName.startsWith("disk")) {
                             // Get the DiskArbitration dictionary for this disk
-                            DADiskRef disk = null;
-                            CFDictionaryRef diskInfo = null;
-                            try {
-                                disk = DADiskRef.createFromBSDName(allocator, session, volume);
+                            try (DADiskRef disk = DADiskRef.createFromBSDName(allocator, session, volume)) {
                                 if (!disk.isNull()) {
-                                    diskInfo = disk.copyDescription();
-                                    if (!diskInfo.isNull()) {
-                                        // Get volume name
-                                        MemorySegment result = diskInfo.getValue(daVolumeNameKey);
-                                        if (!result.equals(MemorySegment.NULL)) {
-                                            name = CFUtilFFM.cfPointerToString(result);
+                                    try (CFDictionaryRef diskInfo = disk.copyDescription()) {
+                                        if (!diskInfo.isNull()) {
+                                            // Get volume name
+                                            MemorySegment result = diskInfo.getValue(daVolumeNameKey);
+                                            if (!result.equals(MemorySegment.NULL)) {
+                                                name = CFUtilFFM.cfPointerToString(result);
+                                            }
                                         }
                                     }
-                                }
-                            } finally {
-                                if (diskInfo != null) {
-                                    diskInfo.release();
-                                }
-                                if (disk != null) {
-                                    disk.release();
                                 }
                             }
                             // Search for bsd name in IOKit registry for UUID
                             MemorySegment matchingDict = IOKitUtilFFM.getBSDNameMatchingDict(bsdName);
                             if (matchingDict != null) {
                                 // search for all IOservices that match the bsd name
-                                IOIterator fsIter = IOKitUtilFFM.getMatchingServices(matchingDict);
-                                if (fsIter != null) {
-                                    // getMatchingServices releases matchingDict
-                                    // Should only match one logical drive
-                                    IORegistryEntry fsEntry = fsIter.next();
-                                    if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
-                                        // Now get the UUID
-                                        uuid = fsEntry.getStringProperty("UUID");
-                                        if (uuid != null) {
-                                            uuid = uuid.toLowerCase(Locale.ROOT);
+                                try (IOIterator fsIter = IOKitUtilFFM.getMatchingServices(matchingDict)) {
+                                    if (fsIter != null) {
+                                        // getMatchingServices releases matchingDict
+                                        // Should only match one logical drive
+                                        try (IORegistryEntry fsEntry = fsIter.next()) {
+                                            if (fsEntry != null && fsEntry.conformsTo("IOMedia")) {
+                                                // Now get the UUID
+                                                uuid = fsEntry.getStringProperty("UUID");
+                                                if (uuid != null) {
+                                                    uuid = uuid.toLowerCase(Locale.ROOT);
+                                                }
+                                            }
                                         }
-                                        fsEntry.release();
                                     }
-                                    fsIter.release();
                                 }
                             }
                         }
@@ -190,11 +181,7 @@ public class MacFileSystemFFM extends MacFileSystem {
                                 uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
                                 file.getUsableSpace(), file.getTotalSpace(), ffree, files));
                     }
-                } finally {
-                    daVolumeNameKey.release();
                 }
-            } finally {
-                session.release();
             }
         } catch (Throwable e) {
             LOG.warn("Failed to query file systems: {}", e.getMessage(), e);
