@@ -59,20 +59,22 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
     @Override
     public boolean updateAttributes() {
         try {
+            @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
             CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
-            DASessionRef session = DASessionRef.create(alloc);
-            if (session.isNull()) {
-                LOG.error("Unable to open session to DiskArbitration framework.");
-                return false;
-            }
-            Map<CFKey, CFStringRef> cfKeyMap = null;
-            try (session) {
-                cfKeyMap = mapCFKeys();
-                return updateDiskStats(session, FsstatFFM.queryPartitionToMountMap(), cfKeyMap);
-            } finally {
-                if (cfKeyMap != null) {
-                    for (CFStringRef value : cfKeyMap.values()) {
-                        value.release();
+            try (DASessionRef session = DASessionRef.create(alloc)) {
+                if (session.isNull()) {
+                    LOG.error("Unable to open session to DiskArbitration framework.");
+                    return false;
+                }
+                Map<CFKey, CFStringRef> cfKeyMap = null;
+                try {
+                    cfKeyMap = mapCFKeys();
+                    return updateDiskStats(session, FsstatFFM.queryPartitionToMountMap(), cfKeyMap);
+                } finally {
+                    if (cfKeyMap != null) {
+                        for (CFStringRef value : cfKeyMap.values()) {
+                            value.release();
+                        }
                     }
                 }
             }
@@ -111,32 +113,34 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             try (CFDictionaryRef properties = new CFDictionaryRef(propertiesSeg)) {
                                 MemorySegment result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                                 if (!result.equals(MemorySegment.NULL)) {
-                                    CFDictionaryRef statistics = new CFDictionaryRef(result);
+                                    MemorySegment statsSeg = result;
                                     setTimeStamp(System.currentTimeMillis());
 
-                                    result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
+                                    result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.READ_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setReads(new CFNumberRef(result).longValue());
+                                        setReads(CFNumberRef.longValue(result));
                                     }
-                                    result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
+                                    result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.READ_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setReadBytes(new CFNumberRef(result).longValue());
+                                        setReadBytes(CFNumberRef.longValue(result));
                                     }
-                                    result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
+                                    result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.WRITE_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setWrites(new CFNumberRef(result).longValue());
+                                        setWrites(CFNumberRef.longValue(result));
                                     }
-                                    result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
+                                    result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.WRITE_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setWriteBytes(new CFNumberRef(result).longValue());
+                                        setWriteBytes(CFNumberRef.longValue(result));
                                     }
 
-                                    MemorySegment readTimeResult = statistics.getValue(cfKeyMap.get(CFKey.READ_TIME));
-                                    MemorySegment writeTimeResult = statistics.getValue(cfKeyMap.get(CFKey.WRITE_TIME));
+                                    MemorySegment readTimeResult = CFDictionaryRef.getValue(statsSeg,
+                                            cfKeyMap.get(CFKey.READ_TIME));
+                                    MemorySegment writeTimeResult = CFDictionaryRef.getValue(statsSeg,
+                                            cfKeyMap.get(CFKey.WRITE_TIME));
                                     if (!readTimeResult.equals(MemorySegment.NULL)
                                             && !writeTimeResult.equals(MemorySegment.NULL)) {
-                                        long xferTime = new CFNumberRef(readTimeResult).longValue();
-                                        xferTime += new CFNumberRef(writeTimeResult).longValue();
+                                        long xferTime = CFNumberRef.longValue(readTimeResult);
+                                        xferTime += CFNumberRef.longValue(writeTimeResult);
                                         setTransferTime(xferTime / 1_000_000L);
                                     }
                                 }
@@ -155,8 +159,10 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             MemorySegment cfFalseSeg = driveProps.getValue(cfKeyMap.get(CFKey.LEAF));
 
                             try {
+                                @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
                                 CFAllocatorRef alloc = new CFAllocatorRef(
                                         CoreFoundationFunctions.CFAllocatorGetDefault());
+                                @SuppressWarnings("resource") // propertyDict is consumed by partMatchingDict
                                 CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
                                         CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                 MemorySegment.NULL, MemorySegment.NULL));
@@ -167,6 +173,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                     propertyDict.setValue(cfKeyMap.get(CFKey.WHOLE), new CFTypeRef(cfFalseSeg));
                                 }
 
+                                @SuppressWarnings("resource") // partMatchingDict is consumed by getMatchingServices
                                 CFMutableDictionaryRef partMatchingDict = new CFMutableDictionaryRef(
                                         CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                 MemorySegment.NULL, MemorySegment.NULL));
@@ -244,13 +251,13 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
         List<HWDiskStore> diskList = new ArrayList<>();
 
         try {
+            @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
             CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
-            DASessionRef session = DASessionRef.create(alloc);
-            if (session.isNull()) {
-                LOG.error("Unable to open session to DiskArbitration framework.");
-                return Collections.emptyList();
-            }
-            try (session) {
+            try (DASessionRef session = DASessionRef.create(alloc)) {
+                if (session.isNull()) {
+                    LOG.error("Unable to open session to DiskArbitration framework.");
+                    return Collections.emptyList();
+                }
                 List<String> bsdNames = new ArrayList<>();
                 IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMedia");
                 if (iter != null) {
@@ -281,26 +288,27 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     long size = 0L;
 
                     String path = "/dev/" + bsdName;
-                    DADiskRef disk = DADiskRef.createFromBSDName(alloc, session, path);
-                    if (disk.isNull()) {
-                        continue;
-                    }
-                    try (disk) {
+                    try (DADiskRef disk = DADiskRef.createFromBSDName(alloc, session, path)) {
+                        if (disk.isNull()) {
+                            continue;
+                        }
                         try (CFDictionaryRef diskInfo = disk.copyDescription()) {
                             if (!diskInfo.isNull()) {
                                 MemorySegment result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
                                 model = CFUtilFFM.cfPointerToString(result);
                                 result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
                                 if (!result.equals(MemorySegment.NULL)) {
-                                    size = new CFNumberRef(result).longValue();
+                                    size = CFNumberRef.longValue(result);
                                 }
 
                                 if (!"Disk Image".equals(model)) {
                                     try (CFStringRef modelNameRef = CFStringRef.createCFString(model)) {
+                                        @SuppressWarnings("resource") // consumed by matchingDict
                                         CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
                                                 CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                         MemorySegment.NULL, MemorySegment.NULL));
                                         propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
+                                        @SuppressWarnings("resource") // consumed by getMatchingServices
                                         CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(
                                                 CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
                                                         MemorySegment.NULL, MemorySegment.NULL));
@@ -399,12 +407,12 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                                 .createCFString("Device Characteristics")) {
                                             MemorySegment charSeg = props.getValue(devCharKey);
                                             if (!charSeg.equals(MemorySegment.NULL)) {
-                                                CFDictionaryRef chars = new CFDictionaryRef(charSeg);
                                                 try (CFStringRef medTypeKey = CFStringRef
                                                         .createCFString("Medium Type")) {
-                                                    MemorySegment typeSeg = chars.getValue(medTypeKey);
+                                                    MemorySegment typeSeg = CFDictionaryRef.getValue(charSeg,
+                                                            medTypeKey);
                                                     if (!typeSeg.equals(MemorySegment.NULL)) {
-                                                        String type = new CFStringRef(typeSeg).stringValue();
+                                                        String type = CFStringRef.stringValue(typeSeg);
                                                         if (type != null) {
                                                             if (type.contains("Solid State") || type.contains("SSD")) {
                                                                 return "SSD";

@@ -86,22 +86,21 @@ public final class WindowInfoFFM {
                         if (dictSeg.equals(MemorySegment.NULL)) {
                             continue;
                         }
-                        CFDictionaryRef windowRef = new CFDictionaryRef(dictSeg);
 
                         // kCGWindowIsOnscreen is optional — absent means visible
-                        MemorySegment onscreenSeg = windowRef.getValue(kCGWindowIsOnscreen);
+                        MemorySegment onscreenSeg = CFDictionaryRef.getValue(dictSeg, kCGWindowIsOnscreen);
                         boolean visible = onscreenSeg.equals(MemorySegment.NULL)
-                                || new CFBooleanRef(onscreenSeg).booleanValue();
+                                || CFBooleanRef.booleanValue(onscreenSeg);
                         if (visibleOnly && !visible) {
                             continue;
                         }
 
-                        long windowNumber = new CFNumberRef(windowRef.getValue(kCGWindowNumber)).longValue();
-                        long ownerPID = new CFNumberRef(windowRef.getValue(kCGWindowOwnerPID)).longValue();
-                        int windowLayer = new CFNumberRef(windowRef.getValue(kCGWindowLayer)).intValue();
+                        long windowNumber = CFNumberRef.longValue(CFDictionaryRef.getValue(dictSeg, kCGWindowNumber));
+                        long ownerPID = CFNumberRef.longValue(CFDictionaryRef.getValue(dictSeg, kCGWindowOwnerPID));
+                        int windowLayer = CFNumberRef.intValue(CFDictionaryRef.getValue(dictSeg, kCGWindowLayer));
 
                         // Parse CGRect from the bounds dictionary
-                        MemorySegment boundsSeg = windowRef.getValue(kCGWindowBounds);
+                        MemorySegment boundsSeg = CFDictionaryRef.getValue(dictSeg, kCGWindowBounds);
                         MemorySegment rectBuf = arena.allocate(CG_RECT);
                         Rectangle windowBounds = new Rectangle();
                         if (!boundsSeg.equals(MemorySegment.NULL)
@@ -116,8 +115,10 @@ public final class WindowInfoFFM {
                                     FormatUtil.roundToInt(w), FormatUtil.roundToInt(h));
                         }
 
-                        String windowName = CFUtilFFM.cfPointerToString(windowRef.getValue(kCGWindowName), false);
-                        String ownerName = CFUtilFFM.cfPointerToString(windowRef.getValue(kCGWindowOwnerName), false);
+                        String windowName = CFUtilFFM
+                                .cfPointerToString(CFDictionaryRef.getValue(dictSeg, kCGWindowName), false);
+                        String ownerName = CFUtilFFM
+                                .cfPointerToString(CFDictionaryRef.getValue(dictSeg, kCGWindowOwnerName), false);
                         if (windowName.isEmpty()) {
                             windowName = ownerName;
                         } else {

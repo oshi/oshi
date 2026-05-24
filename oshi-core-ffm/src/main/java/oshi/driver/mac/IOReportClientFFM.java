@@ -250,25 +250,23 @@ public final class IOReportClientFFM {
     private long extractGpuEnergyMicrojoules(MemorySegment delta) throws Throwable {
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try (channelsKey) {
-            MemorySegment arrSeg = new CFDictionaryRef(delta).getValue(channelsKey);
+            MemorySegment arrSeg = CFDictionaryRef.getValue(delta, channelsKey);
             if (arrSeg.equals(MemorySegment.NULL)) {
                 return -1L;
             }
-            CFArrayRef arr = new CFArrayRef(arrSeg);
-            int count = arr.getCount();
+            int count = CFArrayRef.getCount(arrSeg);
             for (int i = 0; i < count; i++) {
-                MemorySegment entrySeg = arr.getValueAtIndex(i);
+                MemorySegment entrySeg = CFArrayRef.getValueAtIndex(arrSeg, i);
                 if (entrySeg.equals(MemorySegment.NULL)) {
                     continue;
                 }
                 MemorySegment groupSeg = IOReportFunctions.IOReportChannelGetGroup(entrySeg);
-                if (groupSeg.equals(MemorySegment.NULL)
-                        || !GROUP_ENERGY.equals(new CFStringRef(groupSeg).stringValue())) {
+                if (groupSeg.equals(MemorySegment.NULL) || !GROUP_ENERGY.equals(CFStringRef.stringValue(groupSeg))) {
                     continue;
                 }
                 MemorySegment nameSeg = IOReportFunctions.IOReportChannelGetChannelName(entrySeg);
                 if (nameSeg.equals(MemorySegment.NULL)
-                        || !CHANNEL_GPU_ENERGY.equals(new CFStringRef(nameSeg).stringValue())) {
+                        || !CHANNEL_GPU_ENERGY.equals(CFStringRef.stringValue(nameSeg))) {
                     continue;
                 }
                 return IOReportFunctions.IOReportSimpleGetIntegerValue(entrySeg, 0);
@@ -280,25 +278,24 @@ public final class IOReportClientFFM {
     private Map<String, Long> extractChannelStates(MemorySegment dict, String group, String subgroup) throws Throwable {
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try (channelsKey) {
-            MemorySegment arrSeg = new CFDictionaryRef(dict).getValue(channelsKey);
+            MemorySegment arrSeg = CFDictionaryRef.getValue(dict, channelsKey);
             if (arrSeg.equals(MemorySegment.NULL)) {
                 return Collections.emptyMap();
             }
-            CFArrayRef arr = new CFArrayRef(arrSeg);
-            int count = arr.getCount();
+            int count = CFArrayRef.getCount(arrSeg);
             Map<String, Long> result = new HashMap<>();
             for (int i = 0; i < count; i++) {
-                MemorySegment entrySeg = arr.getValueAtIndex(i);
+                MemorySegment entrySeg = CFArrayRef.getValueAtIndex(arrSeg, i);
                 if (entrySeg.equals(MemorySegment.NULL)) {
                     continue;
                 }
                 MemorySegment groupSeg = IOReportFunctions.IOReportChannelGetGroup(entrySeg);
-                if (groupSeg.equals(MemorySegment.NULL) || !group.equals(new CFStringRef(groupSeg).stringValue())) {
+                if (groupSeg.equals(MemorySegment.NULL) || !group.equals(CFStringRef.stringValue(groupSeg))) {
                     continue;
                 }
                 if (subgroup != null) {
                     MemorySegment subSeg = IOReportFunctions.IOReportChannelGetSubGroup(entrySeg);
-                    if (subSeg.equals(MemorySegment.NULL) || !subgroup.equals(new CFStringRef(subSeg).stringValue())) {
+                    if (subSeg.equals(MemorySegment.NULL) || !subgroup.equals(CFStringRef.stringValue(subSeg))) {
                         continue;
                     }
                 }
@@ -308,7 +305,7 @@ public final class IOReportClientFFM {
                     if (nameSeg.equals(MemorySegment.NULL)) {
                         continue;
                     }
-                    String stateName = new CFStringRef(nameSeg).stringValue();
+                    String stateName = CFStringRef.stringValue(nameSeg);
                     long ticks = IOReportFunctions.IOReportStateGetResidency(entrySeg, s);
                     if (!stateName.isEmpty()) {
                         result.merge(stateName, ticks, Long::sum);
