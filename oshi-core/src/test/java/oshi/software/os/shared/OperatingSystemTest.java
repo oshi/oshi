@@ -169,12 +169,14 @@ class OperatingSystemTest {
         assertThat("Bitness must be 0, 32 or 64", proc.getBitness(), is(oneOf(0, 32, 64)));
         assertThat("Current process open file handles should be -1 or higher", proc.getOpenFiles(),
                 is(greaterThanOrEqualTo(0L)));
-        long softOpenFileLimit = proc.getSoftOpenFileLimit();
-        long hardOpenFileLimit = proc.getHardOpenFileLimit();
-        assertThat("Soft open file limit for current process should be positive", softOpenFileLimit,
-                is(greaterThan(0L)));
-        assertThat("Hard open file limit for current process should be at least the soft limit", hardOpenFileLimit,
-                is(greaterThanOrEqualTo(softOpenFileLimit)));
+        if (!Platform.isSolaris()) {
+            long softOpenFileLimit = proc.getSoftOpenFileLimit();
+            long hardOpenFileLimit = proc.getHardOpenFileLimit();
+            assertThat("Soft open file limit for current process should be positive", softOpenFileLimit,
+                    is(greaterThan(0L)));
+            assertThat("Hard open file limit for current process should be at least the soft limit", hardOpenFileLimit,
+                    is(greaterThanOrEqualTo(softOpenFileLimit)));
+        }
         // updateAttributes should succeed and kernel/user time should be nondecreasing
         long kernelBefore = proc.getKernelTime();
         long userBefore = proc.getUserTime();

@@ -11,6 +11,8 @@
 --add-opens
   com.github.oshi.ffm/oshi.driver.windows.perfmon=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.driver.windows.wmi=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.driver.mac=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.driver.mac.disk=org.junit.platform.commons

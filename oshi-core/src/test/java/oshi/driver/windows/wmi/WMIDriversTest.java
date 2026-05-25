@@ -22,6 +22,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import com.sun.jna.platform.win32.VersionHelpers;
 
+import oshi.SystemInfo;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
@@ -126,8 +127,12 @@ class WMIDriversTest {
                 is(both(greaterThan(0)).and(lessThanOrEqualTo(clset.size()))));
 
         Win32ProcessCachedJNA cache = Win32ProcessCachedJNA.getInstance();
-        assertThat("Failed Win32ProcessCached.getCommandLine",
-                cache.getCommandLine(WmiUtil.getUint32(cl, CommandLineProperty.PROCESSID, 0), 0L), is(notNullValue()));
+        int processId = new SystemInfo().getOperatingSystem().getProcessId();
+        assertThat("Failed Win32Process.queryCommandLines for current process", clset.contains(processId), is(true));
+        String commandLine = cache.getCommandLine(processId, 0L);
+        assertThat("Failed Win32ProcessCached.getCommandLine", commandLine, is(notNullValue()));
+        assertThat("Failed Win32ProcessCached.getCommandLine cached lookup", cache.getCommandLine(processId, 0L),
+                is(commandLine));
 
         assertThat("Failed Win32Processor.queryBitness", Win32ProcessorJNA.queryBitness().getResultCount(),
                 is(greaterThan(0)));
