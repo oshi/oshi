@@ -158,8 +158,7 @@ The maintainers of OSHI and thousands of other packages are working with Tidelif
 
 Security Contact Information
 ----------------------------
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security).
-Tidelift will coordinate the fix and disclosure.
+Please see [SECURITY.md](SECURITY.md).
 
 Continuous Integration Test Status
 ----------------------------------
