@@ -1,8 +1,8 @@
-# 7.2.1 (in progress)
+# 7.2.2 (in progress)
 
 * Your contribution here!
 
-# 7.2.0 (2026-05-24)
+# 7.2.0 (2026-05-24), 7.2.1 (2026-05-25)
 
 ##### New Features
 
@@ -20,6 +20,7 @@
 * [#3283](https://github.com/oshi/oshi/pull/3283): Fix macOS JNA system CPU ticks overflowing to negative values after long uptimes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3299](https://github.com/oshi/oshi/pull/3299): Handle Linux LUKS device-mapper disks without LVM volume names and avoid synthetic `null` paths - [@dbwiddis](https://github.com/dbwiddis).
 * [#3300](https://github.com/oshi/oshi/pull/3300): Fix macOS FFM open file limits and strengthen current-process limit coverage - [@dbwiddis](https://github.com/dbwiddis).
+* [#3302](https://github.com/oshi/oshi/pull/3302): Fix WrongMethodTypeException for void invokeExact in expression lambdas - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.1.0 (2026-05-06)
 
