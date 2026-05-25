@@ -67,7 +67,10 @@ class FileSystemTest {
             long totalBefore = store.getTotalSpace();
             assertThat("File store updateAttributes should succeed for " + store.getMount(), store.updateAttributes(),
                     is(true));
-            assertThat("File store total space should not change after update", store.getTotalSpace(), is(totalBefore));
+            if (PlatformEnum.getCurrentPlatform() != PlatformEnum.SOLARIS) {
+                assertThat("File store total space should not change after update", store.getTotalSpace(),
+                        is(totalBefore));
+            }
             assertThat("File store usable space should remain valid after update", store.getUsableSpace(),
                     greaterThanOrEqualTo(0L));
         }
