@@ -91,7 +91,7 @@ public final class ProcessWtsData {
         return wtsMap;
     }
 
-    private static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(Collection<Integer> pids) {
+    static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         WmiResult<ProcessXPProperty> processWmiResult = Win32Process
                 .queryProcesses(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()), pids);

@@ -114,7 +114,7 @@ public final class ProcessWtsDataFFM {
         return wtsMap;
     }
 
-    private static Map<Integer, WtsInfo> queryProcessWtsMapFromWMI(Collection<Integer> pids) {
+    static Map<Integer, WtsInfo> queryProcessWtsMapFromWMI(Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         WmiResult<ProcessXPProperty> processWmiResult = Win32ProcessFFM.queryProcesses(pids);
         for (int i = 0; i < processWmiResult.getResultCount(); i++) {
