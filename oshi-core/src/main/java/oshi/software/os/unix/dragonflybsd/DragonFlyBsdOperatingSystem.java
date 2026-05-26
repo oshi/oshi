@@ -56,8 +56,11 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
      * Package-private for use by DragonFlyBsdOSProcess
      */
     enum PsKeywords {
-        STATE, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIMES, SYSTIME, TIME, COMM, MAJFLT, MINFLT,
-        NVCSW, NIVCSW, ARGS; // ARGS must always be last
+        STATE, PID, PPID, USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND; // COMMAND
+                                                                                                                     // must
+                                                                                                                     // always
+                                                                                                                     // be
+                                                                                                                     // last
     }
 
     static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
@@ -136,12 +139,13 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
             psCommand += " -p " + pid;
         }
 
-        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
+        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.COMMAND);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
                 .map(psMap -> new DragonFlyBsdOSProcess(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
-                .filter(VALID_PROCESS).collect(Collectors.toList());
+                // DragonFlyBSD kernel threads report PID -1; filter them out
+                .filter(proc -> proc.getProcessID() > 0).filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
     @Override
@@ -195,14 +199,11 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
     private static long querySystemBootTime() {
         Timeval tv = new Timeval();
         if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
+            // Fall back to text parsing: "{ sec = 1779823319, nsec = 0 } ..."
             return ParseUtil.parseLongOrDefault(
                     ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
                     System.currentTimeMillis() / 1000);
         }
-        // tv now points to a 128-bit timeval structure for boot time.
-        // First 8 bytes are seconds, second 8 bytes are microseconds (we ignore)
         return tv.tv_sec;
     }
 

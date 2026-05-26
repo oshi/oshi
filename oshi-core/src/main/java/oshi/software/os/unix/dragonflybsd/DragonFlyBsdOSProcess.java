@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.Resource;
 
@@ -43,7 +42,6 @@ import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem.PsKeywords
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.dragonflybsd.BsdSysctlUtil;
 import oshi.util.platform.unix.dragonflybsd.ProcstatUtil;
 
 /**
@@ -54,15 +52,13 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcess.class);
 
-    private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
-
     private final DragonFlyBsdOperatingSystem os;
 
     /*
      * Package-private for use by DragonFlyBsdOSThread
      */
     enum PsThreadColumns {
-        TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
+        TID, STATE, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, PRI;
     }
 
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
@@ -129,26 +125,10 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        if (ARGMAX > 0) {
-            // Get arguments via sysctl(3)
-            int[] mib = new int[4];
-            mib[0] = 1; // CTL_KERN
-            mib[1] = 14; // KERN_PROC
-            mib[2] = 7; // KERN_PROC_ARGS
-            mib[3] = getProcessID();
-            // Allocate memory for arguments
-            try (Memory m = new Memory(ARGMAX);
-                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
-                // Fetch arguments
-                if (DragonFlyBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                    return Collections.unmodifiableList(
-                            ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
-                } else {
-                    LOG.warn(
-                            "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
-                            getProcessID(), Native.getLastError());
-                }
-            }
+        // DragonFlyBSD provides command line via /proc filesystem
+        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
+        if (cmdBytes != null && cmdBytes.length > 0) {
+            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
         }
         return Collections.emptyList();
     }
@@ -159,10 +139,10 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        // DragonFlyBSD provides environment via /proc filesystem
-        byte[] envBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/environ", false);
-        if (envBytes != null && envBytes.length > 0) {
-            return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(envBytes));
+        // DragonFlyBSD's /proc does not expose environ for other processes.
+        // For the current process, use Java's System.getenv().
+        if (getProcessID() == DragonFlyBsdLibc.INSTANCE.getpid()) {
+            return System.getenv();
         }
         return Collections.emptyMap();
     }
@@ -369,7 +349,7 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
             // skip header row
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
             // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
+            if (psMap.containsKey(PsKeywords.COMMAND)) {
                 return updateAttributes(psMap);
             }
         }
@@ -405,29 +385,44 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
         this.user = psMap.get(PsKeywords.USER);
         this.userID = psMap.get(PsKeywords.UID);
-        this.group = psMap.get(PsKeywords.GROUP);
-        this.groupID = psMap.get(PsKeywords.GID);
+        this.group = this.user; // DragonFly ps lacks group keyword
+        this.groupID = psMap.get(PsKeywords.RGID);
         this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);
         this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
         this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
         this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
-        // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIMES), 0L);
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.SYSTIME), 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L) - this.kernelTime;
-        this.path = psMap.get(PsKeywords.COMM);
+        // Get start time from /proc/<pid>/status (field 8: sec,usec)
+        this.startTime = queryStartTimeFromProc(getProcessID());
+        this.upTime = now - this.startTime;
+        if (this.upTime < 1L) {
+            this.upTime = 1L;
+        }
+        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
+        this.path = psMap.get(PsKeywords.UCOMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
-        this.voluntaryContextSwitches = voluntaryContextSwitches;
-        this.involuntaryContextSwitches = nonVoluntaryContextSwitches;
-        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
+        this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
+        this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
+        this.commandLineBackup = psMap.get(PsKeywords.COMMAND);
         return true;
+    }
+
+    private static long queryStartTimeFromProc(int pid) {
+        List<String> status = FileUtil.readFile("/proc/" + pid + "/status", false);
+        if (!status.isEmpty()) {
+            // Format: name pid ... startSec,startUsec ...
+            String[] split = ParseUtil.whitespaces.split(status.get(0).trim());
+            if (split.length >= 8) {
+                String[] timeParts = split[7].split(",");
+                long seconds = ParseUtil.parseLongOrDefault(timeParts[0], 0L);
+                if (seconds > 0) {
+                    return seconds * 1000L;
+                }
+            }
+        }
+        return System.currentTimeMillis();
     }
 
     private long getProcessOpenFileLimit(long processId, int index) {

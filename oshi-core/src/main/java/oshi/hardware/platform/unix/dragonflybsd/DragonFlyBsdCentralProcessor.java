@@ -337,7 +337,7 @@ final class DragonFlyBsdCentralProcessor extends AbstractCentralProcessor {
             String name = "kern.cp_times";
             // Fetch
             if (0 != DragonFlyBsdLibc.INSTANCE.sysctlbyname(name, p, oldlenp, null, size_t.ZERO)) {
-                LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
+                LOG.debug("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
                 return ticks;
             }
             // p now points to the data; need to copy each element

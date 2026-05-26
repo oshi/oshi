@@ -121,7 +121,7 @@ public class DragonFlyBsdOSThread extends AbstractOSThread {
         for (String psOutput : threadList) {
             Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
                     ' ');
-            if (threadMap.containsKey(PsThreadColumns.PRI) && lwpStr.equals(threadMap.get(PsThreadColumns.LWP))) {
+            if (threadMap.containsKey(PsThreadColumns.PRI) && lwpStr.equals(threadMap.get(PsThreadColumns.TID))) {
                 return updateAttributes(threadMap);
             }
         }
@@ -130,8 +130,7 @@ public class DragonFlyBsdOSThread extends AbstractOSThread {
     }
 
     private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
-        this.name = threadMap.get(PsThreadColumns.TDNAME);
-        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.LWP), 0);
+        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
         switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
             case 'R':
                 this.state = RUNNING;
@@ -155,19 +154,15 @@ public class DragonFlyBsdOSThread extends AbstractOSThread {
                 this.state = OTHER;
                 break;
         }
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIMES), 0L);
-        // Avoid divide by zero for processes up less than a second
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         long now = System.currentTimeMillis();
-        this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.SYSTIME), 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.TIME), 0L) - this.kernelTime;
-        this.startMemoryAddress = ParseUtil.hexStringToLong(threadMap.get(PsThreadColumns.TDADDR), 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
+        this.startTime = now;
+        this.upTime = 1L;
+        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.TIME), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);
         this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);
+        long nvcsw = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
+        long nivcsw = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
+        this.contextSwitches = nvcsw + nivcsw;
         this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
         return true;
     }

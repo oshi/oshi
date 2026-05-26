@@ -75,10 +75,13 @@ public final class DragonFlyBsdFileSystem extends AbstractFileSystem {
             if (line.startsWith("/")) {
                 String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 7) {
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                    // total is used + free
-                    inodeTotalMap.put(split[0],
-                            inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
+                    long iused = ParseUtil.parseLongOrDefault(split[5], 0L);
+                    long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
+                    if (iused + ifree > 0) {
+                        inodeFreeMap.put(split[0], ifree);
+                        inodeTotalMap.put(split[0], iused + ifree);
+                    }
+                    // If both are 0 (e.g., HAMMER2), omit from map; will default to 0/0
                 }
             }
         }

@@ -127,6 +127,10 @@ class OperatingSystemTest {
         if (Platform.isAIX()) {
             assertThat("Current running process priority should be between -20 and 255", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(1)).and(lessThanOrEqualTo(255))));
+        } else if (Platform.isDragonFlyBSD()) {
+            // DragonFly uses LWKT scheduling with a wider priority range than traditional Unix
+            assertThat("Current running process priority should be non-negative for user processes", proc.getPriority(),
+                    is(greaterThanOrEqualTo(0)));
         } else {
             assertThat("Current running process priority should be between -20 and 128", proc.getPriority(),
                     is(both(greaterThanOrEqualTo(-20)).and(lessThanOrEqualTo(128))));
@@ -415,8 +419,11 @@ class OperatingSystemTest {
             }
         }
 
-        assertThat("Processes with non-empty environment should be 1 or higher", processesWithNonEmptyEnvironment,
-                is(greaterThan(0)));
+        if (!Platform.isDragonFlyBSD()) {
+            // DragonFlyBSD does not expose process environment variables
+            assertThat("Processes with non-empty environment should be 1 or higher", processesWithNonEmptyEnvironment,
+                    is(greaterThan(0)));
+        }
     }
 
     /**
