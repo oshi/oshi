@@ -163,6 +163,7 @@ class CentralProcessorTest {
                             is(greaterThanOrEqualTo(0)));
                     break;
                 case FREEBSD:
+                case DRAGONFLYBSD:
                 case AIX:
                     assertThat("Processor group should be 0 for FreeBSD or AIX systems",
                             p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));

@@ -13,6 +13,7 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
@@ -21,6 +22,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
+import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
@@ -123,6 +125,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new AixOperatingSystem();
             case OPENBSD:
                 return new OpenBsdOperatingSystem();
+            case DRAGONFLYBSD:
+                return new DragonFlyBsdOperatingSystem();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
@@ -154,6 +158,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new AixHardwareAbstractionLayer();
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayer();
+            case DRAGONFLYBSD:
+                return new DragonFlyBsdHardwareAbstractionLayer();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
