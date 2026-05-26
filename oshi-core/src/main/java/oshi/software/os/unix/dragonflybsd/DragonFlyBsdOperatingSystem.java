@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.ptr.NativeLongByReference;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.dragonflybsd.Who;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
@@ -163,11 +161,8 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadId() {
-        NativeLongByReference pTid = new NativeLongByReference();
-        if (DragonFlyBsdLibc.INSTANCE.thr_self(pTid) < 0) {
-            return 0;
-        }
-        return pTid.getValue().intValue();
+        int tid = DragonFlyBsdLibc.INSTANCE.lwp_gettid();
+        return tid < 0 ? 0 : tid;
     }
 
     @Override

@@ -159,26 +159,10 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        if (ARGMAX > 0) {
-            // Get environment variables via sysctl(3)
-            int[] mib = new int[4];
-            mib[0] = 1; // CTL_KERN
-            mib[1] = 14; // KERN_PROC
-            mib[2] = 35; // KERN_PROC_ENV
-            mib[3] = getProcessID();
-            // Allocate memory for environment variables
-            try (Memory m = new Memory(ARGMAX);
-                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
-                // Fetch environment variables
-                if (DragonFlyBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                    return Collections.unmodifiableMap(
-                            ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
-                } else {
-                    LOG.warn(
-                            "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
-                            getProcessID(), Native.getLastError());
-                }
-            }
+        // DragonFlyBSD provides environment via /proc filesystem
+        byte[] envBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/environ", false);
+        if (envBytes != null && envBytes.length > 0) {
+            return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(envBytes));
         }
         return Collections.emptyMap();
     }
