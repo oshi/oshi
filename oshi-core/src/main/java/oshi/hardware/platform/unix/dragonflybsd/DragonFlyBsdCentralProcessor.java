@@ -111,9 +111,9 @@ final class DragonFlyBsdCentralProcessor extends AbstractCentralProcessor {
         }
         Map<Integer, String> dmesg = new HashMap<>();
         // cpu0: <Open Firmware CPU> on cpulist0
-        Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
+        Pattern normal = Pattern.compile("cpu(\\d+): (.+) on .*");
         // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
-        Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        Pattern hybrid = Pattern.compile("CPU\\s*(\\d+): (.+) affinity:.*");
         List<String> featureFlags = new ArrayList<>();
         boolean readingFlags = false;
         for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {

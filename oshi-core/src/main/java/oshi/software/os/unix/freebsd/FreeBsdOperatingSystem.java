@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -238,7 +238,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         } else {
-            LOG.error("Directory: /etc/init does not exist");
+            LOG.error("Directory: /etc/rc.d does not exist");
         }
         return services;
     }

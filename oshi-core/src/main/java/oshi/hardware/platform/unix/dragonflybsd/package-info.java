@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 /**
- * Provides information about hardware such as Memory, Power Sources, and Processor on FreeBSD systems
+ * Provides information about hardware such as Memory, Power Sources, and Processor on DragonFly BSD systems
  */
 package oshi.hardware.platform.unix.dragonflybsd;

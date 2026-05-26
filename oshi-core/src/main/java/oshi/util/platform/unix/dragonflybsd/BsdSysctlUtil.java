@@ -17,7 +17,7 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 
 /**
- * Provides access to sysctl calls on FreeBSD
+ * Provides access to sysctl calls on DragonFly BSD
  */
 @ThreadSafe
 public final class BsdSysctlUtil {

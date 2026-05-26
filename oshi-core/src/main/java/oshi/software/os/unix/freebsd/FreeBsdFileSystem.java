@@ -74,11 +74,12 @@ public final class FreeBsdFileSystem extends AbstractFileSystem {
             */
             if (line.startsWith("/")) {
                 String[] split = ParseUtil.whitespaces.split(line);
-                if (split.length > 7) {
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                    // total is used + free
-                    inodeTotalMap.put(split[0],
-                            inodeFreeMap.get(split[0]) + ParseUtil.parseLongOrDefault(split[5], 0L));
+                if (split.length > 8) {
+                    long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
+                    long iused = ParseUtil.parseLongOrDefault(split[5], 0L);
+                    // Key by mount point (last column) to match later lookup
+                    inodeFreeMap.put(split[8], ifree);
+                    inodeTotalMap.put(split[8], iused + ifree);
                 }
             }
         }

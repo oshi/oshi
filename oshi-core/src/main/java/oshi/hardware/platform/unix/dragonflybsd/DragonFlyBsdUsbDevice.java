@@ -8,6 +8,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -122,7 +123,7 @@ public class DragonFlyBsdUsbDevice extends AbstractUsbDevice {
             // Skip the usbuses: make their parents the controllers and replace
             // parents' children with the buses' children
             String parent = parentMap.get(usbus);
-            hubMap.put(parent, hubMap.get(usbus));
+            hubMap.put(parent, new ArrayList<>(hubMap.getOrDefault(usbus, Collections.emptyList())));
             controllerDevices.add(getDeviceAndChildren(parent, "0000", "0000", nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap));
         }

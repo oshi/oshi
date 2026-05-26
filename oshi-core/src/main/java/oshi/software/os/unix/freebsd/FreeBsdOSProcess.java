@@ -460,6 +460,9 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
         // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
         final String[] split = maxOpenFilesLine.get().split("\\D+");
+        if (split.length <= index) {
+            return -1;
+        }
         return ParseUtil.parseLongOrDefault(split[index], -1);
     }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -65,8 +66,9 @@ final class DragonFlyBsdSoundCard extends AbstractSoundCard {
         }
         List<SoundCard> soundCards = new ArrayList<>();
         for (String s : sounds) {
-            soundCards.add(new DragonFlyBsdSoundCard(productMap.get(s), vendorMap.get(s) + " " + productMap.get(s),
-                    productMap.get(s)));
+            String product = productMap.getOrDefault(s, Constants.UNKNOWN);
+            String vendor = vendorMap.getOrDefault(s, "");
+            soundCards.add(new DragonFlyBsdSoundCard(product, vendor + " " + product, product));
         }
         return soundCards;
     }

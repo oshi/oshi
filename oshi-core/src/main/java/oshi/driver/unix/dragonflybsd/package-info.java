@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 /**
- * Provides functions to query FreeBSD information
+ * Provides functions to query DragonFly BSD information
  */
 package oshi.driver.unix.dragonflybsd;

@@ -40,10 +40,8 @@ import oshi.util.platform.unix.dragonflybsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * FreeBSD is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
- * which was based on Research Unix. The first version of FreeBSD was released in 1993. In 2005, FreeBSD was the most
- * popular open-source BSD operating system, accounting for more than three-quarters of all installed simply,
- * permissively licensed BSD systems.
+ * DragonFly BSD is a free and open-source Unix-like operating system forked from FreeBSD 4.8 in 2003. It features the
+ * HAMMER2 filesystem and a unique approach to SMP with its lightweight kernel threads (LWKT) subsystem.
  */
 @ThreadSafe
 public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
@@ -73,7 +71,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
+        String family = BsdSysctlUtil.sysctl("kern.ostype", "DragonFly");
 
         String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
@@ -234,7 +232,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         } else {
-            LOG.error("Directory: /etc/init does not exist");
+            LOG.error("Directory: /etc/rc.d does not exist");
         }
         return services;
     }

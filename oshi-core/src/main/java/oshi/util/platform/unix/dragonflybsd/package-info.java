@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 /**
- * Provides utilities for FreeBSD
+ * Provides utilities for DragonFly BSD
  */
 package oshi.util.platform.unix.dragonflybsd;
