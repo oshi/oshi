@@ -1,5 +1,9 @@
 # 7.2.2 (in progress)
 
+##### New Features
+
+* [#3303](https://github.com/oshi/oshi/pull/3303): Add DragonFly BSD platform support - [@dbwiddis](https://github.com/dbwiddis).
+
 * Your contribution here!
 
 # 7.2.0 (2026-05-24), 7.2.1 (2026-05-25)
