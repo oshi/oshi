@@ -2,7 +2,7 @@
  * JNA-based native implementation of the OSHI API for JDK 8+.
  * <p>
  * This module uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports all OSHI
- * platforms (Windows, macOS, Linux, Android, FreeBSD, OpenBSD, Solaris, AIX).
+ * platforms (Windows, macOS, Linux, Android, DragonFly BSD, FreeBSD, OpenBSD, Solaris, AIX).
  * <p>
  * Usage:
  *

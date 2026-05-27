@@ -23,7 +23,7 @@ import oshi.util.ExecutingCommand;
  * FreeBsdNetworkParams class.
  */
 @ThreadSafe
-final class FreeBsdNetworkParams extends AbstractNetworkParams {
+public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
 

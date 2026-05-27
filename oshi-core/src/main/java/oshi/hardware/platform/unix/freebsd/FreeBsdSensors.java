@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -18,7 +18,7 @@ import oshi.jna.platform.unix.FreeBsdLibc;
  * Sensors from coretemp
  */
 @ThreadSafe
-final class FreeBsdSensors extends AbstractSensors {
+public class FreeBsdSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.dragonflybsd;
@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.dragonflybsd.Who;
+import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
-import oshi.jna.platform.unix.DragonFlyBsdLibc.Timeval;
+import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -34,9 +34,12 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
+import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStats;
+import oshi.software.os.unix.freebsd.FreeBsdNetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.dragonflybsd.BsdSysctlUtil;
+import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -90,12 +93,12 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new DragonFlyBsdFileSystem();
+        return new FreeBsdFileSystem();
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new DragonFlyBsdInternetProtocolStats();
+        return new FreeBsdInternetProtocolStats();
     }
 
     @Override
@@ -195,7 +198,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        Timeval tv = new Timeval();
+        FreeBsdLibc.Timeval tv = new FreeBsdLibc.Timeval();
         if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
             // Fall back to text parsing: "{ sec = 1779823319, nsec = 0 } ..."
             return ParseUtil.parseLongOrDefault(
@@ -207,7 +210,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new DragonFlyBsdNetworkParams();
+        return new FreeBsdNetworkParams();
     }
 
     @Override

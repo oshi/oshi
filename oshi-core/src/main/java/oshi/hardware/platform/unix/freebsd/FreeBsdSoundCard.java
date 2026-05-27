@@ -20,7 +20,7 @@ import oshi.util.ParseUtil;
  * FreeBSD soundcard.
  */
 @Immutable
-final class FreeBsdSoundCard extends AbstractSoundCard {
+public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
 

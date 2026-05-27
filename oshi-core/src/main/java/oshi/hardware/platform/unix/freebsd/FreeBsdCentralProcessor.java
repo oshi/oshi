@@ -37,7 +37,7 @@ import oshi.util.tuples.Quartet;
  * A CPU
  */
 @ThreadSafe
-final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
+public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 

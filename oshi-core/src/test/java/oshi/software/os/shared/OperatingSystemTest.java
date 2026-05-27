@@ -84,8 +84,11 @@ class OperatingSystemTest {
         assertThat("OS version info shouldn't be null", versionInfo, is(notNullValue()));
 
         assertThat("OS uptime in seconds should be greater than 0", os.getSystemUptime(), is(greaterThan(0L)));
-        assertThat("OS boot time in seconds since Unix epoch should be greater than 0", os.getSystemBootTime(),
-                is(greaterThan(0L)));
+        if (!(Platform.isDragonFlyBSD() && "true".equals(System.getenv("CI")))) {
+            // DragonFly BSD VM has a known clock bug: https://bugs.dragonflybsd.org/issues/3299
+            assertThat("OS boot time in seconds since Unix epoch should be greater than 0", os.getSystemBootTime(),
+                    is(greaterThan(0L)));
+        }
         assertThat("OS boot time in seconds since Unix epoch should be before the current time", os.getSystemBootTime(),
                 is(lessThan(System.currentTimeMillis() / 1000L)));
 

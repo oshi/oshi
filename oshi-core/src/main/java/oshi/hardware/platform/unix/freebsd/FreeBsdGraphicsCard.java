@@ -19,7 +19,7 @@ import oshi.util.ParseUtil;
  * Graphics Card info obtained from pciconf
  */
 @Immutable
-final class FreeBsdGraphicsCard extends AbstractGraphicsCard {
+public class FreeBsdGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "0x03";
 

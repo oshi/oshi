@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.dragonflybsd;
@@ -23,21 +23,29 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
+import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystem;
+import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory;
+import oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard;
+import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStore;
+import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
+import oshi.hardware.platform.unix.freebsd.FreeBsdSensors;
+import oshi.hardware.platform.unix.freebsd.FreeBsdSoundCard;
+import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
 /**
- * DragonFlyBsdHardwareAbstractionLayer class.
+ * DragonFlyBsdHardwareAbstractionLayer class. Uses FreeBSD implementations where behavior is identical.
  */
 @ThreadSafe
 public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new DragonFlyBsdComputerSystem();
+        return new FreeBsdComputerSystem();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new DragonFlyBsdGlobalMemory();
+        return new FreeBsdGlobalMemory();
     }
 
     @Override
@@ -47,17 +55,17 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public Sensors createSensors() {
-        return new DragonFlyBsdSensors();
+        return new FreeBsdSensors();
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return DragonFlyBsdPowerSource.getPowerSources();
+        return FreeBsdPowerSource.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return DragonFlyBsdHWDiskStore.getDisks();
+        return FreeBsdHWDiskStore.getDisks();
     }
 
     @Override
@@ -72,17 +80,17 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return DragonFlyBsdUsbDevice.getUsbDevices(tree);
+        return FreeBsdUsbDevice.getUsbDevices(tree);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return DragonFlyBsdSoundCard.getSoundCards();
+        return FreeBsdSoundCard.getSoundCards();
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return DragonFlyBsdGraphicsCard.getGraphicsCards();
+        return FreeBsdGraphicsCard.getGraphicsCards();
     }
 
     @Override

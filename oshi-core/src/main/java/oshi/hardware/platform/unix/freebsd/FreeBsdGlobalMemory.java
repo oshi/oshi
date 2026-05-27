@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -20,7 +20,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * Memory obtained by sysctl vm.stats
  */
 @ThreadSafe
-final class FreeBsdGlobalMemory extends AbstractGlobalMemory {
+public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 

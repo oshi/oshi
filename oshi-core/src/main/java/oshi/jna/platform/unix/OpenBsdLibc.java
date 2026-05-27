@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.unix;
@@ -14,7 +14,7 @@ import com.sun.jna.Structure.FieldOrder;
  * project.
  */
 public interface OpenBsdLibc extends CLibrary {
-    OpenBsdLibc INSTANCE = Native.load(null, OpenBsdLibc.class);
+    OpenBsdLibc INSTANCE = BsdLibcLoader.loadLibc(OpenBsdLibc.class);
 
     int CTL_KERN = 1; // "high kernel": proc, limits
     int CTL_VM = 1; // "high kernel": proc, limits

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.dragonflybsd;
@@ -278,7 +278,7 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
             String[] bits = split[1].split(",");
             for (String bit : bits) {
                 int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
-                if (bitToSet >= 0) {
+                if (bitToSet >= 0 && bitToSet < Long.SIZE) {
                     bitMask |= 1L << bitToSet;
                 }
             }

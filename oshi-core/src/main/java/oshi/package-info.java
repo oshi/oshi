@@ -32,7 +32,7 @@
  * utilities. This module contains <i>no native code</i> and requires no native access permissions.</li>
  * <li><b>{@code oshi-core}</b> (this module) - Full OSHI implementation using
  * <a href="https://github.com/java-native-access/jna">JNA</a> for native access. Supports all platforms (Windows,
- * macOS, Linux, FreeBSD, OpenBSD, Solaris, AIX). Entry point: {@link oshi.SystemInfo}.</li>
+ * macOS, Linux, DragonFly BSD, FreeBSD, OpenBSD, Solaris, AIX). Entry point: {@link oshi.SystemInfo}.</li>
  * <li><b>{@code oshi-core-ffm}</b> - Alternative implementation using the Foreign Function and Memory (FFM) API (JDK
  * 25+). Currently supports Windows, macOS, and Linux. Entry point: {@code oshi.ffm.SystemInfo}.</li>
  * </ul>
