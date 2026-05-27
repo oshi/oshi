@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 The OSHI Project Contributors
+ * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -12,6 +12,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -19,7 +20,7 @@ import oshi.util.ParseUtil;
  * FreeBSD soundcard.
  */
 @Immutable
-final class FreeBsdSoundCard extends AbstractSoundCard {
+public class FreeBsdSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
 
@@ -65,8 +66,9 @@ final class FreeBsdSoundCard extends AbstractSoundCard {
         }
         List<SoundCard> soundCards = new ArrayList<>();
         for (String s : sounds) {
-            soundCards.add(new FreeBsdSoundCard(productMap.get(s), vendorMap.get(s) + " " + productMap.get(s),
-                    productMap.get(s)));
+            String product = productMap.getOrDefault(s, Constants.UNKNOWN);
+            String vendor = vendorMap.getOrDefault(s, "");
+            soundCards.add(new FreeBsdSoundCard(product, vendor + " " + product, product));
         }
         return soundCards;
     }

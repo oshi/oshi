@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -24,7 +24,7 @@ import oshi.util.tuples.Quintet;
  * Hardware data obtained from dmidecode.
  */
 @Immutable
-final class FreeBsdComputerSystem extends AbstractComputerSystem {
+public class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
             FreeBsdComputerSystem::readDmiDecode);

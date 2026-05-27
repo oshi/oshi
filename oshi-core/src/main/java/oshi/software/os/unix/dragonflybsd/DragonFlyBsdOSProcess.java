@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.freebsd;
+package oshi.software.os.unix.dragonflybsd;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -30,39 +30,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
-import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.PsKeywords;
+import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-import oshi.util.platform.unix.freebsd.ProcstatUtil;
+import oshi.util.platform.unix.dragonflybsd.ProcstatUtil;
 
 /**
  * OSProcess implementation
  */
 @ThreadSafe
-public class FreeBsdOSProcess extends AbstractOSProcess {
+public class DragonFlyBsdOSProcess extends AbstractOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcess.class);
 
-    private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
-
-    private final FreeBsdOperatingSystem os;
+    private final DragonFlyBsdOperatingSystem os;
 
     /*
-     * Package-private for use by FreeBsdOSThread
+     * Package-private for use by DragonFlyBsdOSThread
      */
     enum PsThreadColumns {
-        TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
+        TID, STATE, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, PRI;
     }
 
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
@@ -97,7 +93,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long involuntaryContextSwitches;
     private String commandLineBackup;
 
-    public FreeBsdOSProcess(int pid, Map<PsKeywords, String> psMap, FreeBsdOperatingSystem os) {
+    public DragonFlyBsdOSProcess(int pid, Map<PsKeywords, String> psMap, DragonFlyBsdOperatingSystem os) {
         super(pid);
         this.os = os;
         updateAttributes(psMap);
@@ -129,26 +125,10 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private List<String> queryArguments() {
-        if (ARGMAX > 0) {
-            // Get arguments via sysctl(3)
-            int[] mib = new int[4];
-            mib[0] = 1; // CTL_KERN
-            mib[1] = 14; // KERN_PROC
-            mib[2] = 7; // KERN_PROC_ARGS
-            mib[3] = getProcessID();
-            // Allocate memory for arguments
-            try (Memory m = new Memory(ARGMAX);
-                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
-                // Fetch arguments
-                if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                    return Collections.unmodifiableList(
-                            ParseUtil.parseByteArrayToStrings(m.getByteArray(0, size.getValue().intValue())));
-                } else {
-                    LOG.warn(
-                            "Failed sysctl call for process arguments (kern.proc.args), process {} may not exist. Error code: {}",
-                            getProcessID(), Native.getLastError());
-                }
-            }
+        // DragonFlyBSD provides command line via /proc filesystem
+        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
+        if (cmdBytes != null && cmdBytes.length > 0) {
+            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
         }
         return Collections.emptyList();
     }
@@ -159,26 +139,10 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     }
 
     private Map<String, String> queryEnvironmentVariables() {
-        if (ARGMAX > 0) {
-            // Get environment variables via sysctl(3)
-            int[] mib = new int[4];
-            mib[0] = 1; // CTL_KERN
-            mib[1] = 14; // KERN_PROC
-            mib[2] = 35; // KERN_PROC_ENV
-            mib[3] = getProcessID();
-            // Allocate memory for environment variables
-            try (Memory m = new Memory(ARGMAX);
-                    CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
-                // Fetch environment variables
-                if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                    return Collections.unmodifiableMap(
-                            ParseUtil.parseByteArrayToStringMap(m.getByteArray(0, size.getValue().intValue())));
-                } else {
-                    LOG.warn(
-                            "Failed sysctl call for process environment variables (kern.proc.env), process {} may not exist. Error code: {}",
-                            getProcessID(), Native.getLastError());
-                }
-            }
+        // DragonFlyBSD's /proc does not expose environ for other processes.
+        // For the current process, use Java's System.getenv().
+        if (getProcessID() == DragonFlyBsdLibc.INSTANCE.getpid()) {
+            return System.getenv();
         }
         return Collections.emptyMap();
     }
@@ -277,7 +241,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+            DragonFlyBsdLibc.INSTANCE.getrlimit(DragonFlyBsdLibc.RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_cur;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 1);
@@ -288,7 +252,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            FreeBsdLibc.INSTANCE.getrlimit(FreeBsdLibc.RLIMIT_NOFILE, rlimit);
+            DragonFlyBsdLibc.INSTANCE.getrlimit(DragonFlyBsdLibc.RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_max;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 2);
@@ -332,7 +296,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         // Allocate memory for arguments
         try (Memory abi = new Memory(32); CloseableSizeTByReference size = new CloseableSizeTByReference(32)) {
             // Fetch abi vector
-            if (0 == FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
+            if (0 == DragonFlyBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
                 String elf = abi.getString(0);
                 if (elf.contains("ELF32")) {
                     return 32;
@@ -353,7 +317,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         Predicate<Map<PsThreadColumns, String>> hasColumnsPri = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-                .filter(hasColumnsPri).map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap))
+                .filter(hasColumnsPri).map(threadMap -> new DragonFlyBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
@@ -379,13 +343,13 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo " + FreeBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
+        String psCommand = "ps -awwxo " + DragonFlyBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
             // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
+            if (psMap.containsKey(PsKeywords.COMMAND)) {
                 return updateAttributes(psMap);
             }
         }
@@ -421,29 +385,44 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
         this.user = psMap.get(PsKeywords.USER);
         this.userID = psMap.get(PsKeywords.UID);
-        this.group = psMap.get(PsKeywords.GROUP);
-        this.groupID = psMap.get(PsKeywords.GID);
+        this.group = this.user; // DragonFly ps lacks group keyword
+        this.groupID = psMap.get(PsKeywords.RGID);
         this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.NLWP), 0);
         this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
         // These are in KB, multiply
         this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
         this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
-        // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIMES), 0L);
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.startTime = now - this.upTime;
-        this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.SYSTIME), 0L);
-        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L) - this.kernelTime;
-        this.path = psMap.get(PsKeywords.COMM);
+        // Get start time from /proc/<pid>/status (field 8: sec,usec)
+        this.startTime = queryStartTimeFromProc(getProcessID());
+        this.upTime = now - this.startTime;
+        if (this.upTime < 1L) {
+            this.upTime = 1L;
+        }
+        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.TIME), 0L);
+        this.path = psMap.get(PsKeywords.UCOMM);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
-        this.voluntaryContextSwitches = voluntaryContextSwitches;
-        this.involuntaryContextSwitches = nonVoluntaryContextSwitches;
-        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
+        this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
+        this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
+        this.commandLineBackup = psMap.get(PsKeywords.COMMAND);
         return true;
+    }
+
+    private static long queryStartTimeFromProc(int pid) {
+        List<String> status = FileUtil.readFile("/proc/" + pid + "/status", false);
+        if (!status.isEmpty()) {
+            // Format: name pid ... startSec,startUsec ...
+            String[] split = ParseUtil.whitespaces.split(status.get(0).trim());
+            if (split.length >= 8) {
+                String[] timeParts = split[7].split(",");
+                long seconds = ParseUtil.parseLongOrDefault(timeParts[0], 0L);
+                if (seconds > 0) {
+                    return seconds * 1000L;
+                }
+            }
+        }
+        return System.currentTimeMillis();
     }
 
     private long getProcessOpenFileLimit(long processId, int index) {

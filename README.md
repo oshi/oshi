@@ -16,7 +16,7 @@ Supported Platforms
 - Windows
 - macOS
 - Linux (Android)
-- UNIX (AIX, FreeBSD, OpenBSD, Solaris)
+- UNIX (AIX, DragonFly BSD, FreeBSD, OpenBSD, Solaris)
 
 Supported Features
 ------------------

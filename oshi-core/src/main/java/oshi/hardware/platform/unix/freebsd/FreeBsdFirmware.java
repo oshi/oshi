@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -20,7 +20,7 @@ import oshi.util.tuples.Triplet;
  * Firmware information from dmidecode
  */
 @Immutable
-final class FreeBsdFirmware extends AbstractFirmware {
+public class FreeBsdFirmware extends AbstractFirmware {
 
     private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(FreeBsdFirmware::readDmiDecode);
 

@@ -37,8 +37,9 @@ public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats 
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),
                 ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                ParseUtil.unsignedIntToLong(
-                        tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
+                ParseUtil.unsignedIntToLong(tcp.tcps_rcvbadsum) + ParseUtil.unsignedIntToLong(tcp.tcps_rcvbadoff)
+                        + ParseUtil.unsignedIntToLong(tcp.tcps_rcvmemdrop)
+                        + ParseUtil.unsignedIntToLong(tcp.tcps_rcvshort),
                 0L);
     }
 
@@ -47,7 +48,8 @@ public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats 
         BsdUdpstat stat = udpstat.get();
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
                 ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
-                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
+                ParseUtil.unsignedIntToLong(stat.udps_hdrops) + ParseUtil.unsignedIntToLong(stat.udps_badsum)
+                        + ParseUtil.unsignedIntToLong(stat.udps_badlen));
     }
 
     @Override

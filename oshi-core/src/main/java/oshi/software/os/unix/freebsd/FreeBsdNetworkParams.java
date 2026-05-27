@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2025 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -23,7 +23,7 @@ import oshi.util.ExecutingCommand;
  * FreeBsdNetworkParams class.
  */
 @ThreadSafe
-final class FreeBsdNetworkParams extends AbstractNetworkParams {
+public class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
 
@@ -44,7 +44,7 @@ final class FreeBsdNetworkParams extends AbstractNetworkParams {
                     return "";
                 }
                 try (Addrinfo info = new Addrinfo(ptr.getValue())) { // NOSONAR
-                    String canonname = info.ai_canonname.trim();
+                    String canonname = info.ai_canonname == null ? "" : info.ai_canonname.trim();
                     LIBC.freeaddrinfo(ptr.getValue());
                     return canonname;
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.jna.platform.unix;
@@ -16,7 +16,7 @@ import com.sun.jna.ptr.NativeLongByReference;
  * project.
  */
 public interface FreeBsdLibc extends CLibrary {
-    FreeBsdLibc INSTANCE = Native.load("libc", FreeBsdLibc.class);
+    FreeBsdLibc INSTANCE = BsdLibcLoader.loadLibc(FreeBsdLibc.class);
 
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;

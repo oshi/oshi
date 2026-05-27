@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -37,7 +37,7 @@ import oshi.util.tuples.Quartet;
  * A CPU
  */
 @ThreadSafe
-final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
+public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
 
@@ -111,9 +111,9 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         }
         Map<Integer, String> dmesg = new HashMap<>();
         // cpu0: <Open Firmware CPU> on cpulist0
-        Pattern normal = Pattern.compile("cpu(\\\\d+): (.+) on .*");
+        Pattern normal = Pattern.compile("cpu(\\d+): (.+) on .*");
         // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
-        Pattern hybrid = Pattern.compile("CPU\\\\s*(\\\\d+): (.+) affinity:.*");
+        Pattern hybrid = Pattern.compile("CPU\\s*(\\d+): (.+) affinity:.*");
         List<String> featureFlags = new ArrayList<>();
         boolean readingFlags = false;
         for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
@@ -220,17 +220,17 @@ final class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     // NumberFormatException
                     long parsedVal = ParseUtil.hexStringToLong(firstVal, 0);
                     switch (groupLevel) {
-                    case 1:
-                        group1 = parsedVal;
-                        break;
-                    case 2:
-                        group2.add(parsedVal);
-                        break;
-                    case 3:
-                        group3.add(parsedVal);
-                        break;
-                    default:
-                        break;
+                        case 1:
+                            group1 = parsedVal;
+                            break;
+                        case 2:
+                            group2.add(parsedVal);
+                            break;
+                        case 3:
+                            group3.add(parsedVal);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
