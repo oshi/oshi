@@ -288,6 +288,29 @@ class FileUtilTest {
     }
 
     @Test
+    void testReadAllBytesReportError(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("bytes.bin");
+        byte[] expected = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+        Files.write(file, expected);
+
+        byte[] actual = FileUtil.readAllBytes(file.toString(), true);
+        assertArrayEquals(expected, actual, "readAllBytes should return file content");
+
+        // Non-existent file with reportError=true
+        String missing = tempDir.resolve("missing.bin").toString();
+        byte[] result = FileUtil.readAllBytes(missing, true);
+        assertThat("Missing file should return empty array", result.length, is(0));
+    }
+
+    @Test
+    void testReadAllBytesAsBufferEmpty(@TempDir Path tempDir) {
+        // Non-existent file should return an empty buffer
+        String missing = tempDir.resolve("nofile.bin").toString();
+        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(missing);
+        assertThat("Buffer from missing file should have 0 limit", buff.limit(), is(0));
+    }
+
+    @Test
     void testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) throws IOException {
         Path file = Files.createFile(tempDir.resolve("regular.txt"));
         assertThat(FileUtil.readSymlinkTarget(file.toFile()), is(nullValue()));

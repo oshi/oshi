@@ -41,7 +41,11 @@
 --add-opens
   com.github.oshi.common/oshi.util.driver.unix=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.software.common.os.windows=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.driver.common.windows.wmi=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.driver.common.windows.gpu=org.junit.platform.commons
 
 --add-modules
   org.hamcrest,org.slf4j.simple

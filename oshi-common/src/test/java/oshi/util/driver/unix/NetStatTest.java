@@ -55,6 +55,35 @@ class NetStatTest {
     private static final List<String> UDP_STATS_LINUX = Arrays.asList("Udp:", "    12345 packets received",
             "    67 packets to unknown port received", "    0 packet receive errors", "    8901 packets sent");
 
+    // Fixture: netstat -s -p tcp output (OpenBSD/FreeBSD style)
+    private static final List<String> TCP_STATS_BSD = Arrays.asList("tcp:", "    100 packet sent",
+            "    200 packet received", "    5 bad connection attempts",
+            "    15 connection established (including accepts)", "    7 dropped due to RST",
+            "    42 retransmitted 3 data packet", "    2 discarded for bad checksum",
+            "    3 discarded for bad header offset field", "    10 resets sent");
+
+    // Fixture: netstat -s -p udp output (OpenBSD/FreeBSD style)
+    private static final List<String> UDP_STATS_BSD = Arrays.asList("udp:", "    5000 datagram output",
+            "    3000 datagram received", "    50 dropped due to no socket",
+            "    10 broadcast/multicast datagram dropped due to no socket", "    2 with incomplete header",
+            "    1 with bad data length field", "    3 with bad checksum", "    4 with no checksum");
+
+    // Fixture: netstat -n with SYN_RCVD state (should map to SYN_RECV)
+    private static final List<String> NETSTAT_SYN_RCVD = Arrays.asList("Active Internet connections",
+            "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)",
+            "tcp4       0      0  10.0.0.1.8080          10.0.0.2.54321         SYN_RCVD");
+
+    // Fixture: netstat -n with short lines (fewer than 5 elements) that should be ignored
+    private static final List<String> NETSTAT_SHORT_LINES = Arrays.asList(
+            "tcp4       0      0  192.168.1.5.55362      93.184.216.34.443      ESTABLISHED", "tcp4 short",
+            "tcp4    0    0", "tcp4       0      0  192.168.1.5.55365      10.0.0.1.80            TIME_WAIT");
+
+    // Fixture: netstat -n with IPv6 addresses
+    private static final List<String> NETSTAT_IPV6 = Arrays.asList(
+            "tcp6       0      0  2001:db8::1.443        2001:db8::2.54321      ESTABLISHED",
+            "tcp6       0      0  fe80::1:.8080          fe80::2:.9090          TIME_WAIT",
+            "tcp6       0      0  ::1.55364              ::1.8080               ESTABLISHED");
+
     @Test
     void testQueryTcpnetstat() {
         Pair<Long, Long> result = NetStat.queryTcpnetstat(TCP_NETSTAT);
@@ -127,6 +156,80 @@ class NetStatTest {
         assertThat(stats.getDatagramsReceived(), is(0L));
         assertThat(stats.getDatagramsNoPort(), is(0L));
         assertThat(stats.getDatagramsReceivedErrors(), is(0L));
+    }
+
+    @Test
+    void testQueryTcpStatsBsd() {
+        TcpStats stats = NetStat.queryTcpStats(TCP_STATS_BSD);
+        assertThat(stats.getConnectionsEstablished(), is(15L));
+        assertThat(stats.getConnectionFailures(), is(5L));
+        assertThat(stats.getConnectionsReset(), is(7L));
+        assertThat(stats.getSegmentsSent(), is(100L));
+        assertThat(stats.getSegmentsReceived(), is(200L));
+        // "42 retransmitted 3 data packet" matches the special-case pattern
+        assertThat(stats.getSegmentsRetransmitted(), is(42L));
+        // 2 bad checksum + 3 bad header offset field
+        assertThat(stats.getInErrors(), is(5L));
+        assertThat(stats.getOutResets(), is(10L));
+    }
+
+    @Test
+    void testQueryTcpStatsRetransmitSpecialCase() {
+        // Test the "N retransmitted M data packet" pattern in isolation (BSD format)
+        List<String> retransmitLines = Arrays.asList("tcp:", "    99 retransmitted 5 data packet");
+        TcpStats stats = NetStat.queryTcpStats(retransmitLines);
+        // The special-case pattern uses += on segmentsRetransmitted
+        assertThat(stats.getSegmentsRetransmitted(), is(99L));
+    }
+
+    @Test
+    void testQueryUdpStatsBsd() {
+        UdpStats stats = NetStat.queryUdpStats(UDP_STATS_BSD);
+        assertThat(stats.getDatagramsSent(), is(5000L));
+        assertThat(stats.getDatagramsReceived(), is(3000L));
+        // 50 "dropped due to no socket" + 10 "broadcast/multicast datagram dropped due to no socket"
+        assertThat(stats.getDatagramsNoPort(), is(60L));
+        // 2 "with incomplete header" + 1 "with bad data length field" + 3 "with bad checksum" + 4 "with no checksum"
+        assertThat(stats.getDatagramsReceivedErrors(), is(10L));
+    }
+
+    @Test
+    void testQueryNetstatSynRcvdSubstitution() {
+        List<IPConnection> connections = NetStat.queryNetstat(NETSTAT_SYN_RCVD);
+        assertThat(connections, hasSize(1));
+        assertThat(connections.get(0).getState(), is(TcpState.SYN_RECV));
+        assertThat(connections.get(0).getLocalPort(), is(8080));
+        assertThat(connections.get(0).getForeignPort(), is(54321));
+    }
+
+    @Test
+    void testQueryNetstatShortLinesIgnored() {
+        List<IPConnection> connections = NetStat.queryNetstat(NETSTAT_SHORT_LINES);
+        // Only lines with 5+ split elements should produce connections
+        assertThat(connections, hasSize(2));
+        assertThat(connections.get(0).getState(), is(TcpState.ESTABLISHED));
+        assertThat(connections.get(1).getState(), is(TcpState.TIME_WAIT));
+    }
+
+    @Test
+    void testQueryNetstatIpv6Addresses() {
+        List<IPConnection> connections = NetStat.queryNetstat(NETSTAT_IPV6);
+        assertThat(connections, hasSize(3));
+        // First: 2001:db8::1 port 443
+        assertThat(connections.get(0).getType(), is("tcp6"));
+        assertThat(connections.get(0).getLocalPort(), is(443));
+        assertThat(connections.get(0).getForeignPort(), is(54321));
+        assertThat(connections.get(0).getState(), is(TcpState.ESTABLISHED));
+        // Second: fe80::1: port 8080 (trailing colon in IP, tests parseIP fallback)
+        assertThat(connections.get(1).getType(), is("tcp6"));
+        assertThat(connections.get(1).getLocalPort(), is(8080));
+        assertThat(connections.get(1).getForeignPort(), is(9090));
+        assertThat(connections.get(1).getState(), is(TcpState.TIME_WAIT));
+        // Third: ::1 port 55364
+        assertThat(connections.get(2).getType(), is("tcp6"));
+        assertThat(connections.get(2).getLocalPort(), is(55364));
+        assertThat(connections.get(2).getForeignPort(), is(8080));
+        assertThat(connections.get(2).getState(), is(TcpState.ESTABLISHED));
     }
 
     @Nested

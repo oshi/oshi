@@ -78,7 +78,7 @@ public final class LinuxInstalledApps {
         return !result.isEmpty();
     }
 
-    private static List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
+    static List<ApplicationInfo> parseLinuxAppInfo(List<String> output) {
         Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 
         for (String line : output) {

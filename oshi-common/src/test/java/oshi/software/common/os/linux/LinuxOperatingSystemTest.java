@@ -13,13 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
-@EnabledOnOs(OS.LINUX)
 class LinuxOperatingSystemTest {
 
     // Fixture: /etc/os-release from Ubuntu 22.04
@@ -219,5 +216,71 @@ class LinuxOperatingSystemTest {
     void testFilenameToFamilyUnknown() {
         // Unknown name gets capitalized
         assertThat(LinuxOperatingSystem.filenameToFamily("mylinux"), is("Mylinux"));
+    }
+
+    // -------------------------------------------------------------------------
+    // readOsRelease — additional branch coverage
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testReadOsReleaseCommaSeparator() {
+        // VERSION uses ", " separator instead of parentheses
+        List<String> lines = Arrays.asList("NAME=\"Ubuntu\"", "VERSION=\"22.04, Jammy\"", "VERSION_ID=\"22.04\"");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertThat(result.getA(), is("Ubuntu"));
+        assertThat(result.getB(), is("22.04"));
+        assertThat(result.getC(), is("Jammy"));
+    }
+
+    @Test
+    void testReadOsReleaseVersionIdFallback() {
+        // No VERSION= line, falls back to VERSION_ID=
+        List<String> lines = Arrays.asList("NAME=\"Alpine Linux\"", "VERSION_ID=\"3.18.4\"");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertThat(result.getA(), is("Alpine Linux"));
+        assertThat(result.getB(), is("3.18.4"));
+        assertThat(result.getC(), is(Constants.UNKNOWN));
+    }
+
+    @Test
+    void testReadOsReleaseNameAfterVersion() {
+        // NAME= appears after VERSION= to verify order independence
+        List<String> lines = Arrays.asList("VERSION=\"20.04.6 LTS (Focal Fossa)\"", "VERSION_ID=\"20.04\"",
+                "NAME=\"Ubuntu\"");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertThat(result.getA(), is("Ubuntu"));
+        assertThat(result.getB(), is("20.04.6 LTS"));
+        assertThat(result.getC(), is("Focal Fossa"));
+    }
+
+    // -------------------------------------------------------------------------
+    // execLsbRelease — Description with " release " plus explicit Release/Codename
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testExecLsbReleaseDescriptionWithExplicitReleaseCodename() {
+        // When Release:/Codename: lines appear before Description:, the explicit
+        // values are set first. Description's parsed version/codename do not override
+        // because the code only sets them when versionId/codeName are still UNKNOWN.
+        List<String> lines = Arrays.asList("Distributor ID:\tFedora", "Release:\t39", "Codename:\tThirtyNine",
+                "Description:\tFedora release 38 (Thirty Eight)");
+        Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
+        assertThat(result.getA(), is("Fedora"));
+        assertThat(result.getB(), is("39"));
+        assertThat(result.getC(), is("ThirtyNine"));
+    }
+
+    // -------------------------------------------------------------------------
+    // readDistribRelease — " VERSION " delimiter
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testReadDistribReleaseVersionWithCodename() {
+        // " VERSION " delimiter with a codename in parentheses
+        List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15 (SP3)");
+        Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
+        assertThat(result.getB(), is("15"));
+        assertThat(result.getC(), is("SP3"));
     }
 }

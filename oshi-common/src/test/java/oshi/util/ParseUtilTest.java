@@ -320,6 +320,9 @@ class ParseUtilTest {
         assertThat("parse 4000L", ParseUtil.parseDHMSOrDefault("04", 0L), is(4000L));
         assertThat("parse 0L", ParseUtil.parseDHMSOrDefault("04:05-06", 0L), is(0L));
         assertThat("parse null", ParseUtil.parseDHMSOrDefault(null, 0L), is(0L));
+        // DD-hh:mm:ss.ddd format with multi-digit days and 3-digit fractional seconds
+        // 10*86400000 + 5*3600000 + 30*60000 + 45*1000 + 123 = 864000000 + 18000000 + 1800000 + 45000 + 123
+        assertThat("parse 10-05:30:45.123", ParseUtil.parseDHMSOrDefault("10-05:30:45.123", 0L), is(883845123L));
     }
 
     /**
@@ -475,6 +478,52 @@ class ParseUtilTest {
         indices = new int[] { 0 };
         result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
         assertThat("result[0] should be 123 using parseStringToLongArray on \"" + foo + "\"", result[0], is(123L));
+
+        // countStringToLongArray with empty string
+        assertThat("countStringToLongArray should return 1 for empty string", ParseUtil.countStringToLongArray("", ' '),
+                is(1));
+
+        // countStringToLongArray with single number (no delimiter)
+        assertThat("countStringToLongArray should return 1 for single number",
+                ParseUtil.countStringToLongArray("42", ' '), is(1));
+
+        // countStringToLongArray with UUID-like field at end (multiple dashes = non-numeric)
+        foo = "123 456 789 a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertThat("countStringToLongArray should return 3 for string with UUID at end", count, is(3));
+
+        // countStringToLongArray with leading + signs
+        foo = "+100 +200 +300";
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertThat("countStringToLongArray should return 3 for string with leading + signs", count, is(3));
+
+        // countStringToLongArray with negative numbers (single dash is a sign, not UUID)
+        foo = "-100 200 -300";
+        count = ParseUtil.countStringToLongArray(foo, ' ');
+        assertThat("countStringToLongArray should return 3 for string with negative numbers", count, is(3));
+
+        // parseStringToLongArray with negative numbers
+        foo = "10 -20 30 -40";
+        indices = new int[] { 0, 1, 2, 3 };
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertThat("result[0] should be 10", result[0], is(10L));
+        assertThat("result[1] should be -20", result[1], is(-20L));
+        assertThat("result[2] should be 30", result[2], is(30L));
+        assertThat("result[3] should be -40", result[3], is(-40L));
+
+        // parseStringToLongArray with Long.MAX_VALUE overflow (power > 18)
+        foo = "1 12345678901234567890 3 4";
+        indices = new int[] { 1 };
+        result = ParseUtil.parseStringToLongArray(foo, indices, 4, ' ');
+        assertThat("result[0] should be Long.MAX_VALUE for overflow", result[0], is(Long.MAX_VALUE));
+
+        // parseStringToLongArray with UUID-like non-numeric fields at end being ignored
+        foo = "100 200 300 a1b2-c3d4-e5f6";
+        indices = new int[] { 0, 1, 2 };
+        result = ParseUtil.parseStringToLongArray(foo, indices, 3, ' ');
+        assertThat("result[0] should be 100 with trailing UUID ignored", result[0], is(100L));
+        assertThat("result[1] should be 200 with trailing UUID ignored", result[1], is(200L));
+        assertThat("result[2] should be 300 with trailing UUID ignored", result[2], is(300L));
     }
 
     @Test
@@ -493,6 +542,9 @@ class ParseUtilTest {
         before = "foo";
         after = "qux";
         assertThat(ParseUtil.getTextBetweenStrings(text, before, after), is(emptyString()));
+
+        // Both before and after markers absent
+        assertThat(ParseUtil.getTextBetweenStrings(text, "xyz", "abc"), is(emptyString()));
     }
 
     @Test
@@ -541,6 +593,10 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseDecimalMemorySizeToBinary("1T"), is(1_099_511_627_776L));
         // Bare "B" suffix should not multiply
         assertThat(ParseUtil.parseDecimalMemorySizeToBinary("32B"), is(32L));
+        // T suffix without space (multi-char suffix via regex path)
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("2TB"), is(2_199_023_255_552L));
+        // Multi-digit number without space
+        assertThat(ParseUtil.parseDecimalMemorySizeToBinary("4096MB"), is(4_294_967_296L));
     }
 
     @Test
@@ -747,6 +803,11 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseMultipliedToLongs("1073M"), is(1073000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("1073 G"), is(1073000000000L));
         assertThat(ParseUtil.parseMultipliedToLongs("12K"), is(12000L));
+        // T multiplier without space
+        assertThat(ParseUtil.parseMultipliedToLongs("2T"), is(2_000_000_000_000L));
+        // k (lowercase) multiplier
+        assertThat(ParseUtil.parseMultipliedToLongs("5k"), is(5_000L));
+        assertThat(ParseUtil.parseMultipliedToLongs("5 k"), is(5_000L));
     }
 
     @Test

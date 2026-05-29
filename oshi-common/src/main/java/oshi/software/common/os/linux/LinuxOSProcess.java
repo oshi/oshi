@@ -469,13 +469,13 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      * @param status status map to fill.
      * @param stat   string to read from.
      */
-    private static void getMissingDetails(Map<String, String> status, String stat) {
+    static void getMissingDetails(Map<String, String> status, String stat) {
         if (status == null || stat == null) {
             return;
         }
 
         int nameStart = stat.indexOf('(');
-        int nameEnd = stat.indexOf(')');
+        int nameEnd = stat.lastIndexOf(')');
         if (Util.isBlank(status.get("Name")) && nameStart > 0 && nameStart < nameEnd) {
             // remove leading and trailing parentheses
             String statName = stat.substring(nameStart + 1, nameEnd);
