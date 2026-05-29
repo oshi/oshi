@@ -1,0 +1,87 @@
+# CI on NetBSD
+name: NetBSD CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - netbsd-port
+
+jobs:
+  test-netbsd:
+    name: Test JDK 11, NetBSD
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test in NetBSD
+        id: test-netbsd
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: "10.1"
+          usesh: true
+          prepare: |
+            pkg_add curl
+            pkg_add openjdk11
+            pkg_add java-jna
+          run: |
+            set -ex
+            export JAVA_HOME=/usr/pkg/java/openjdk11
+            export PATH=$JAVA_HOME/bin:$PATH
+            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
+            java -version
+
+            echo "=== DEBUG: KERN_PROC_ARGS investigation ==="
+
+            echo "--- sysctl kern.proc2 entries ---"
+            sysctl -a 2>&1 | grep "kern.proc2" | head -10 || echo "no kern.proc2"
+
+            echo "--- Write C test program ---"
+            echo '#include <stdio.h>' > /tmp/test_args.c
+            echo '#include <stdlib.h>' >> /tmp/test_args.c
+            echo '#include <string.h>' >> /tmp/test_args.c
+            echo '#include <sys/types.h>' >> /tmp/test_args.c
+            echo '#include <sys/sysctl.h>' >> /tmp/test_args.c
+            echo '#include <unistd.h>' >> /tmp/test_args.c
+            echo 'int main() {' >> /tmp/test_args.c
+            echo '    int mib[4];' >> /tmp/test_args.c
+            echo '    size_t size;' >> /tmp/test_args.c
+            echo '    char *buf;' >> /tmp/test_args.c
+            echo '    int pid = getpid();' >> /tmp/test_args.c
+            echo '    mib[0] = CTL_KERN;' >> /tmp/test_args.c
+            echo '    mib[1] = KERN_PROC_ARGS;' >> /tmp/test_args.c
+            echo '    mib[2] = pid;' >> /tmp/test_args.c
+            echo '    mib[3] = 0;' >> /tmp/test_args.c
+            echo '    size = 0;' >> /tmp/test_args.c
+            echo '    if (sysctl(mib, 4, NULL, &size, NULL, 0) == -1) {' >> /tmp/test_args.c
+            echo '        perror("sysctl size query failed");' >> /tmp/test_args.c
+            echo '        printf("CTL_KERN=%d KERN_PROC_ARGS=%d\\n", CTL_KERN, KERN_PROC_ARGS);' >> /tmp/test_args.c
+            echo '    } else {' >> /tmp/test_args.c
+            echo '        printf("KERN_PROC_ARGS size: %zu\\n", size);' >> /tmp/test_args.c
+            echo '        buf = malloc(size + 1);' >> /tmp/test_args.c
+            echo '        if (sysctl(mib, 4, buf, &size, NULL, 0) == -1) {' >> /tmp/test_args.c
+            echo '            perror("sysctl data failed");' >> /tmp/test_args.c
+            echo '        } else {' >> /tmp/test_args.c
+            echo '            size_t off = 0; int count = 0;' >> /tmp/test_args.c
+            echo '            while (off < size && count < 10) {' >> /tmp/test_args.c
+            echo '                if (buf[off] == 0) { off++; continue; }' >> /tmp/test_args.c
+            echo '                printf("  arg[%d]: [%s]\\n", count, buf+off);' >> /tmp/test_args.c
+            echo '                off += strlen(buf+off) + 1; count++;' >> /tmp/test_args.c
+            echo '            }' >> /tmp/test_args.c
+            echo '        }' >> /tmp/test_args.c
+            echo '        free(buf);' >> /tmp/test_args.c
+            echo '    }' >> /tmp/test_args.c
+            echo '    printf("Constants: CTL_KERN=%d KERN_PROC_ARGS=%d\\n", CTL_KERN, KERN_PROC_ARGS);' >> /tmp/test_args.c
+            echo '    return 0;' >> /tmp/test_args.c
+            echo '}' >> /tmp/test_args.c
+
+            cc -o /tmp/test_args /tmp/test_args.c && /tmp/test_args myarg1 myarg2 "my arg3"
+
+            echo "--- Check /proc ---"
+            mount | grep proc || echo "procfs not mounted"
+            mount -t procfs procfs /proc 2>/dev/null || echo "procfs mount failed/already"
+            ls /proc/$$ 2>&1 | head -5 || echo "/proc/PID not available"
+            cat /proc/$$/cmdline 2>&1 | tr '\0' '|' || echo "no cmdline"
+
+            echo "=== END DEBUG ==="
+
+            ./mvnw clean test -B -Djacoco.skip=true || true

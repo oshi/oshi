@@ -2,7 +2,7 @@
  * JNA-based native implementation of the OSHI API for JDK 8+.
  * <p>
  * This module uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports all OSHI
- * platforms (Windows, macOS, Linux, Android, DragonFly BSD, FreeBSD, OpenBSD, Solaris, AIX).
+ * platforms (Windows, macOS, Linux, Android, DragonFly BSD, FreeBSD, NetBSD, OpenBSD, Solaris, AIX).
  * <p>
  * Usage:
  *
@@ -24,6 +24,7 @@ module com.github.oshi {
     exports oshi.util.platform.mac;
     exports oshi.util.platform.unix.freebsd;
     exports oshi.util.platform.unix.dragonflybsd;
+    exports oshi.util.platform.unix.netbsd;
     exports oshi.util.platform.unix.openbsd;
     exports oshi.util.platform.unix.solaris;
     exports oshi.util.platform.windows;

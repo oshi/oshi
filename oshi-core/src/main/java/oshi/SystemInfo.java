@@ -15,6 +15,7 @@ import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
@@ -24,6 +25,7 @@ import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
+import oshi.software.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
@@ -127,6 +129,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new OpenBsdOperatingSystem();
             case DRAGONFLYBSD:
                 return new DragonFlyBsdOperatingSystem();
+            case NETBSD:
+                return new NetBsdOperatingSystem();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
@@ -160,6 +164,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new OpenBsdHardwareAbstractionLayer();
             case DRAGONFLYBSD:
                 return new DragonFlyBsdHardwareAbstractionLayer();
+            case NETBSD:
+                return new NetBsdHardwareAbstractionLayer();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
