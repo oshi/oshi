@@ -13,10 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
+@EnabledOnOs(OS.LINUX)
 class LinuxOperatingSystemTest {
 
     // Fixture: /etc/os-release from Ubuntu 22.04
