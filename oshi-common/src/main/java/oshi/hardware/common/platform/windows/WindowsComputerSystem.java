@@ -29,6 +29,10 @@ import oshi.util.tuples.Pair;
 @Immutable
 public abstract class WindowsComputerSystem extends AbstractComputerSystem {
 
+    /** Default constructor. */
+    protected WindowsComputerSystem() {
+    }
+
     private final Supplier<Pair<String, String>> manufacturerModel = memoize(this::queryManufacturerModel);
     private final Supplier<Pair<String, String>> serialNumberUUID = memoize(this::querySystemSerialNumberUUID);
 

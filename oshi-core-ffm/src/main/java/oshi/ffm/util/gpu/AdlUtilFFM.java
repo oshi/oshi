@@ -248,10 +248,21 @@ public final class AdlUtilFFM {
     // Public API
     // -------------------------------------------------------------------------
 
+    /**
+     * Checks whether the ADL library is available.
+     *
+     * @return true if ADL was successfully loaded
+     */
     public static boolean isAvailable() {
         return AVAILABLE;
     }
 
+    /**
+     * Finds the ADL adapter index for a given PCI bus number.
+     *
+     * @param pciBusNumber the PCI bus number
+     * @return the adapter index, or -1 if not found
+     */
     public static int findAdapterIndex(int pciBusNumber) {
         if (!AVAILABLE) {
             return -1;
@@ -270,6 +281,12 @@ public final class AdlUtilFFM {
         }
     }
 
+    /**
+     * Gets the GPU edge temperature in degrees Celsius.
+     *
+     * @param adapterIndex the adapter index
+     * @return the temperature, or -1 on failure
+     */
     public static double getTemperature(int adapterIndex) {
         if (adapterIndex < 0) {
             return -1d;
@@ -297,6 +314,12 @@ public final class AdlUtilFFM {
         return -1d;
     }
 
+    /**
+     * Gets the GPU core clock frequency in MHz.
+     *
+     * @param adapterIndex the adapter index
+     * @return the core clock in MHz, or -1 on failure
+     */
     public static long getCoreClockMhz(int adapterIndex) {
         if (adapterIndex < 0) {
             return -1L;
@@ -323,6 +346,12 @@ public final class AdlUtilFFM {
         return -1L;
     }
 
+    /**
+     * Gets the GPU memory clock frequency in MHz.
+     *
+     * @param adapterIndex the adapter index
+     * @return the memory clock in MHz, or -1 on failure
+     */
     public static long getMemoryClockMhz(int adapterIndex) {
         if (adapterIndex < 0) {
             return -1L;
@@ -349,6 +378,12 @@ public final class AdlUtilFFM {
         return -1L;
     }
 
+    /**
+     * Gets the GPU power draw in watts.
+     *
+     * @param adapterIndex the adapter index
+     * @return the power draw in watts, or -1 on failure
+     */
     public static double getPowerDraw(int adapterIndex) {
         if (adapterIndex < 0) {
             return -1d;
@@ -375,6 +410,12 @@ public final class AdlUtilFFM {
         return -1d;
     }
 
+    /**
+     * Gets the GPU fan speed as a percentage.
+     *
+     * @param adapterIndex the adapter index
+     * @return the fan speed percentage, or -1 on failure
+     */
     public static double getFanSpeedPercent(int adapterIndex) {
         if (adapterIndex < 0) {
             return -1d;

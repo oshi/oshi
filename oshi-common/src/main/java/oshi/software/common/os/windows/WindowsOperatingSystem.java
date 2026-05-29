@@ -23,6 +23,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
     protected WindowsOperatingSystem() {
     }
 
+    /** Whether to check thread states to determine if a process is suspended. */
     protected static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 

@@ -31,6 +31,7 @@ public class Win32Processor {
      * Processor ID property.
      */
     public enum ProcessorIdProperty {
+        /** The processor ID string. */
         PROCESSORID;
     }
 
@@ -38,6 +39,7 @@ public class Win32Processor {
      * Processor bitness property.
      */
     public enum BitnessProperty {
+        /** The processor address width in bits. */
         ADDRESSWIDTH;
     }
 

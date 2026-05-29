@@ -61,17 +61,27 @@ public final class SmcUtilFFM {
     private static final long KEY_INFO_DATA_TYPE_OFFSET = SMC_KEY_DATA.byteOffset(SMC_KEY_INFO, SMC_DATA_TYPE);
     private static final long KEY_INFO_DATA_ATTR_OFFSET = SMC_KEY_DATA.byteOffset(SMC_KEY_INFO, SMC_DATA_ATTRIBUTES);
 
+    /** SMC key for the number of fans. */
     public static final String SMC_KEY_FAN_NUM = "FNum";
+    /** SMC key format for fan speed (use with String.format). */
     public static final String SMC_KEY_FAN_SPEED = "F%dAc";
+    /** SMC key for CPU proximity temperature. */
     public static final String SMC_KEY_CPU_TEMP = "TC0P";
+    /** SMC key for CPU voltage. */
     public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
 
+    /** SMC keys for Apple Silicon CPU temperature sensors. */
     public static final String[] SMC_KEYS_CPU_TEMP_AS = { "Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D" };
+    /** SMC keys for Apple Silicon GPU temperature sensors. */
     public static final String[] SMC_KEYS_GPU_TEMP_AS = { "Tg05", "Tg0D", "Tg0f", "Tg0j" };
+    /** SMC key for Apple Silicon CPU voltage. */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
+    /** SMC command to read bytes. */
     public static final byte SMC_CMD_READ_BYTES = 5;
+    /** SMC command to read key info. */
     public static final byte SMC_CMD_READ_KEYINFO = 9;
+    /** Kernel index for SMC. */
     public static final int KERNEL_INDEX_SMC = 2;
 
     private SmcUtilFFM() {

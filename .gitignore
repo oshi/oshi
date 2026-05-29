@@ -17,4 +17,5 @@ release.properties
 bin/
 META-INF/
 AGENTS.md
+CLAUDE.md
 .kiro/

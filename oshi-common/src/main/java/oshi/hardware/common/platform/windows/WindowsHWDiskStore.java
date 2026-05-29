@@ -31,10 +31,14 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStore.class);
 
+    /** The prefix for physical drive paths. */
     protected static final String PHYSICALDRIVE_PREFIX = "\\\\.\\PHYSICALDRIVE";
+    /** Pattern to extract DeviceID from WMI association strings. */
     protected static final Pattern DEVICE_ID = Pattern.compile(".*\\.DeviceID=\"(.*)\"");
 
+    /** Buffer size for volume GUID paths. */
     protected static final int GUID_BUFSIZE = 100;
+    /** Buffer size for volume labels. */
     protected static final int LABEL_BUFSIZE = 33;
 
     /**
@@ -224,37 +228,78 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         private final Map<String, Long> diskTimeMap = new HashMap<>();
         private long timeStamp;
 
+        /** Creates an empty DiskStats instance. */
         public DiskStats() {
         }
 
+        /**
+         * Gets the read count map.
+         *
+         * @return map of disk index to read count
+         */
         public Map<String, Long> getReadMap() {
             return readMap;
         }
 
+        /**
+         * Gets the read bytes map.
+         *
+         * @return map of disk index to read bytes
+         */
         public Map<String, Long> getReadByteMap() {
             return readByteMap;
         }
 
+        /**
+         * Gets the write count map.
+         *
+         * @return map of disk index to write count
+         */
         public Map<String, Long> getWriteMap() {
             return writeMap;
         }
 
+        /**
+         * Gets the write bytes map.
+         *
+         * @return map of disk index to write bytes
+         */
         public Map<String, Long> getWriteByteMap() {
             return writeByteMap;
         }
 
+        /**
+         * Gets the queue length map.
+         *
+         * @return map of disk index to queue length
+         */
         public Map<String, Long> getQueueLengthMap() {
             return queueLengthMap;
         }
 
+        /**
+         * Gets the disk time map.
+         *
+         * @return map of disk index to disk time in milliseconds
+         */
         public Map<String, Long> getDiskTimeMap() {
             return diskTimeMap;
         }
 
+        /**
+         * Gets the timestamp when stats were collected.
+         *
+         * @return the timestamp in milliseconds
+         */
         public long getTimeStamp() {
             return timeStamp;
         }
 
+        /**
+         * Sets the timestamp.
+         *
+         * @param timeStamp the timestamp in milliseconds
+         */
         public void setTimeStamp(long timeStamp) {
             this.timeStamp = timeStamp;
         }
@@ -268,17 +313,33 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
         private final Map<String, List<Pair<String, Long>>> partitionToLogicalDriveMap = new HashMap<>();
         private final Map<String, List<HWPartition>> partitionMap = new HashMap<>();
 
+        /** Creates an empty PartitionMaps instance. */
         public PartitionMaps() {
         }
 
+        /**
+         * Gets the drive-to-partition map.
+         *
+         * @return map of drive name to its partition identifiers
+         */
         public Map<String, List<String>> getDriveToPartitionMap() {
             return driveToPartitionMap;
         }
 
+        /**
+         * Gets the partition-to-logical-drive map.
+         *
+         * @return map of partition to logical drive letter and size pairs
+         */
         public Map<String, List<Pair<String, Long>>> getPartitionToLogicalDriveMap() {
             return partitionToLogicalDriveMap;
         }
 
+        /**
+         * Gets the partition map.
+         *
+         * @return map of partition identifier to HWPartition objects
+         */
         public Map<String, List<HWPartition>> getPartitionMap() {
             return partitionMap;
         }

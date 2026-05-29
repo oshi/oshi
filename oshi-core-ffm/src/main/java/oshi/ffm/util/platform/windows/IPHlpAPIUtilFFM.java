@@ -59,6 +59,9 @@ import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
 import oshi.util.ParseUtil;
 
+/**
+ * FFM-based utility for Windows IP Helper API operations.
+ */
 public final class IPHlpAPIUtilFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(IPHlpAPIUtilFFM.class);
@@ -66,6 +69,11 @@ public final class IPHlpAPIUtilFFM {
     private IPHlpAPIUtilFFM() {
     }
 
+    /**
+     * Retrieves the list of DNS server addresses configured on the system.
+     *
+     * @return an array of DNS server IP address strings, or an empty array on failure
+     */
     public static String[] getDnsServers() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
@@ -113,6 +121,12 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Gets TCP statistics for the specified address family.
+     *
+     * @param family the address family (AF_INET or AF_INET6)
+     * @return TCP statistics, or null on failure
+     */
     public static TcpStats getTcpStats(int family) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment stats = arena.allocate(MIB_TCPSTATS_LAYOUT);
@@ -149,6 +163,12 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Gets UDP statistics for the specified address family.
+     *
+     * @param family the address family (AF_INET or AF_INET6)
+     * @return UDP statistics, or null on failure
+     */
     public static UdpStats getUdpStats(int family) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment stats = arena.allocate(MIB_UDPSTATS_LAYOUT);
@@ -172,6 +192,11 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Queries active TCP IPv4 connections with owning process IDs.
+     *
+     * @return list of TCP IPv4 connections
+     */
     public static List<IPConnection> queryTCPv4Connections() {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
@@ -222,6 +247,11 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Queries active TCP IPv6 connections with owning process IDs.
+     *
+     * @return list of TCP IPv6 connections
+     */
     public static List<IPConnection> queryTCPv6Connections() {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
@@ -279,6 +309,11 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Queries active UDP IPv4 connections with owning process IDs.
+     *
+     * @return list of UDP IPv4 connections
+     */
     public static List<IPConnection> queryUDPv4Connections() {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
@@ -321,6 +356,11 @@ public final class IPHlpAPIUtilFFM {
         }
     }
 
+    /**
+     * Queries active UDP IPv6 connections with owning process IDs.
+     *
+     * @return list of UDP IPv6 connections
+     */
     public static List<IPConnection> queryUDPv6Connections() {
         List<IPConnection> conns = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {

@@ -13,6 +13,10 @@ import oshi.hardware.common.AbstractGlobalMemory;
 @ThreadSafe
 public abstract class WindowsGlobalMemory extends AbstractGlobalMemory {
 
+    /** Default constructor. */
+    protected WindowsGlobalMemory() {
+    }
+
     /**
      * memoryType.
      *

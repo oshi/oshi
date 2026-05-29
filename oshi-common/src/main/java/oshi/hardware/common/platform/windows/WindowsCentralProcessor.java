@@ -22,17 +22,21 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
 
+    /** Default constructor. */
+    protected WindowsCentralProcessor() {
+    }
+
     // populated by initProcessorCounts called by the parent constructor
     private Map<String, Integer> numaNodeProcToLogicalProcMap;
 
-    // Whether to use Processor counters rather than sum up Processor Information counters
+    /** Whether to use legacy Processor counters rather than Processor Information counters. */
     protected static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_LEGACY_SYSTEM_COUNTERS, false);
 
-    // Whether to start a daemon thread to calculate load average
+    /** Whether to start a daemon thread to calculate load average. */
     protected static final boolean USE_LOAD_AVERAGE = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LOADAVERAGE, false);
 
-    // Whether to match task manager using Processor Utility ticks
+    /** Whether to match task manager using Processor Utility ticks. */
     protected static final boolean USE_CPU_UTILITY = isWindows8OrGreater()
             && GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_CPU_UTILITY, false);
 

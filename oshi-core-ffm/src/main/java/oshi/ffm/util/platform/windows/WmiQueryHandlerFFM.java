@@ -62,6 +62,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandlerFFM> customClass = null;
 
+    /**
+     * Creates a new WmiQueryHandlerFFM instance.
+     */
     protected WmiQueryHandlerFFM() {
     }
 
@@ -364,6 +367,13 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      */
     @FunctionalInterface
     public interface TriConsumer<A, B, C> {
+        /**
+         * Performs an operation on the given arguments.
+         *
+         * @param a the first argument
+         * @param b the second argument
+         * @param c the third argument
+         */
         void accept(A a, B b, C c);
     }
 

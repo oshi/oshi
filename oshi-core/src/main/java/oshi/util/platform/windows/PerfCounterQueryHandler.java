@@ -25,6 +25,10 @@ import oshi.util.FormatUtil;
 @NotThreadSafe
 public final class PerfCounterQueryHandler implements AutoCloseable {
 
+    /** Default constructor. */
+    public PerfCounterQueryHandler() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
     // Map of counter handles

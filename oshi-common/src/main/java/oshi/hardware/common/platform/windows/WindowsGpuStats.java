@@ -87,6 +87,8 @@ public abstract class WindowsGpuStats implements GpuStats {
     protected abstract WmiResult<LhmSensorProperty> queryLhmSensors(String parent, String sensorType);
 
     /**
+     * Checks whether the NVML library is available.
+     *
      * @return whether NVML is available
      */
     protected abstract boolean isNvmlAvailable();
@@ -108,36 +110,48 @@ public abstract class WindowsGpuStats implements GpuStats {
     protected abstract String nvmlFindDeviceByName(String gpuName);
 
     /**
+     * Gets the GPU temperature via NVML.
+     *
      * @param device the NVML device handle
      * @return temperature in degrees C, or negative if unavailable
      */
     protected abstract double nvmlGetTemperature(String device);
 
     /**
+     * Gets the GPU power draw via NVML.
+     *
      * @param device the NVML device handle
      * @return power draw in watts, or negative if unavailable
      */
     protected abstract double nvmlGetPowerDraw(String device);
 
     /**
+     * Gets the GPU core clock via NVML.
+     *
      * @param device the NVML device handle
      * @return core clock in MHz, or negative if unavailable
      */
     protected abstract long nvmlGetCoreClockMhz(String device);
 
     /**
+     * Gets the GPU memory clock via NVML.
+     *
      * @param device the NVML device handle
      * @return memory clock in MHz, or negative if unavailable
      */
     protected abstract long nvmlGetMemoryClockMhz(String device);
 
     /**
+     * Gets the GPU fan speed via NVML.
+     *
      * @param device the NVML device handle
      * @return fan speed percent, or negative if unavailable
      */
     protected abstract double nvmlGetFanSpeedPercent(String device);
 
     /**
+     * Checks whether the ADL library is available.
+     *
      * @return whether ADL is available
      */
     protected abstract boolean isAdlAvailable();
@@ -151,30 +165,40 @@ public abstract class WindowsGpuStats implements GpuStats {
     protected abstract int adlFindAdapterIndex(int pciBusNumber);
 
     /**
+     * Gets the GPU temperature via ADL.
+     *
      * @param adapterIndex the ADL adapter index
      * @return temperature in degrees C, or negative if unavailable
      */
     protected abstract double adlGetTemperature(int adapterIndex);
 
     /**
+     * Gets the GPU power draw via ADL.
+     *
      * @param adapterIndex the ADL adapter index
      * @return power draw in watts, or negative if unavailable
      */
     protected abstract double adlGetPowerDraw(int adapterIndex);
 
     /**
+     * Gets the GPU core clock via ADL.
+     *
      * @param adapterIndex the ADL adapter index
      * @return core clock in MHz, or negative if unavailable
      */
     protected abstract long adlGetCoreClockMhz(int adapterIndex);
 
     /**
+     * Gets the GPU memory clock via ADL.
+     *
      * @param adapterIndex the ADL adapter index
      * @return memory clock in MHz, or negative if unavailable
      */
     protected abstract long adlGetMemoryClockMhz(int adapterIndex);
 
     /**
+     * Gets the GPU fan speed via ADL.
+     *
      * @param adapterIndex the ADL adapter index
      * @return fan speed percent, or negative if unavailable
      */

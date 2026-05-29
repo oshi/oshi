@@ -21,6 +21,9 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 
 import oshi.util.ParseUtil;
 
+/**
+ * Utility for reading values from the Windows Registry.
+ */
 public final class RegistryUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistryUtil.class);

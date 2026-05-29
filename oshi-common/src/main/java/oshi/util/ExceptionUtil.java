@@ -29,6 +29,12 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingSupplier<T> {
+        /**
+         * Gets a result.
+         *
+         * @return a result
+         * @throws Throwable if unable to compute
+         */
         T get() throws Throwable;
     }
 
@@ -37,6 +43,12 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingIntSupplier {
+        /**
+         * Gets an int result.
+         *
+         * @return an int result
+         * @throws Throwable if unable to compute
+         */
         int getAsInt() throws Throwable;
     }
 
@@ -45,6 +57,12 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingLongSupplier {
+        /**
+         * Gets a long result.
+         *
+         * @return a long result
+         * @throws Throwable if unable to compute
+         */
         long getAsLong() throws Throwable;
     }
 
@@ -53,6 +71,12 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingBooleanSupplier {
+        /**
+         * Gets a boolean result.
+         *
+         * @return a boolean result
+         * @throws Throwable if unable to compute
+         */
         boolean getAsBoolean() throws Throwable;
     }
 
@@ -61,6 +85,12 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingDoubleSupplier {
+        /**
+         * Gets a double result.
+         *
+         * @return a double result
+         * @throws Throwable if unable to compute
+         */
         double getAsDouble() throws Throwable;
     }
 
@@ -69,6 +99,11 @@ public final class ExceptionUtil {
      */
     @FunctionalInterface
     public interface ThrowingRunnable {
+        /**
+         * Performs the operation.
+         *
+         * @throws Throwable if unable to perform
+         */
         void run() throws Throwable;
     }
 

@@ -23,6 +23,11 @@ public final class Xrandr {
     private Xrandr() {
     }
 
+    /**
+     * Gets EDID byte arrays from the running X server via xrandr.
+     *
+     * @return a list of EDID byte arrays
+     */
     public static List<byte[]> getEdidArrays() {
         // Special handling for X commands, don't use LC_ALL
         return getEdidArrays(ExecutingCommand.runNative(XRANDR_VERBOSE, null));

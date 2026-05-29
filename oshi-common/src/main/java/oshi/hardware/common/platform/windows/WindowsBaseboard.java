@@ -25,6 +25,10 @@ import oshi.util.tuples.Quartet;
 @Immutable
 public abstract class WindowsBaseboard extends AbstractBaseboard {
 
+    /** Default constructor. */
+    protected WindowsBaseboard() {
+    }
+
     private final Supplier<Quartet<String, String, String, String>> manufModelVersSerial = memoize(
             this::queryManufModelVersSerial);
 

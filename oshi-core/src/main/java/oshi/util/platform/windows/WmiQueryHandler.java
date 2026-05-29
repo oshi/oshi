@@ -58,8 +58,8 @@ public class WmiQueryHandler implements WmiQueryExecutor {
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandler> customClass = null;
 
+    /** Creates the WMI query handler. Subclasses may override via {@link #setInstanceClass(Class)}. */
     protected WmiQueryHandler() {
-        // Allow subclassing but not instantiation
     }
 
     /**

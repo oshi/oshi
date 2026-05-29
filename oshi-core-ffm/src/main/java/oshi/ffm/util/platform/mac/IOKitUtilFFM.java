@@ -24,6 +24,9 @@ import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
 import oshi.ffm.mac.IOKit.IOService;
 
+/**
+ * FFM-based utility for macOS IOKit registry and service operations.
+ */
 public final class IOKitUtilFFM {
 
     private IOKitUtilFFM() {

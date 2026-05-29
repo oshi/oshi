@@ -45,6 +45,9 @@ import oshi.ffm.windows.Win32Exception;
 import oshi.ffm.windows.WinNTFFM;
 import oshi.util.GlobalConfig;
 
+/**
+ * FFM-based utility for Windows Advapi32 registry and security operations.
+ */
 public final class Advapi32UtilFFM {
 
     private Advapi32UtilFFM() {
@@ -54,6 +57,11 @@ public final class Advapi32UtilFFM {
 
     private static Supplier<String> systemLog = memoize(Advapi32UtilFFM::querySystemLog, TimeUnit.HOURS.toNanos(1));
 
+    /**
+     * Checks whether the current process is running with elevated privileges.
+     *
+     * @return true if the process is elevated, false otherwise
+     */
     public static boolean isCurrentProcessElevated() {
         try (Arena arena = Arena.ofConfined()) {
 
@@ -95,6 +103,13 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Enumerates the subkey names under an open registry key.
+     *
+     * @param hKey handle to an open registry key
+     * @return array of subkey names
+     * @throws Throwable if the native call fails
+     */
     public static String[] registryGetKeys(MemorySegment hKey) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment lpcSubKeys = arena.allocate(JAVA_INT);
@@ -128,6 +143,15 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Opens a registry key and enumerates its subkey names.
+     *
+     * @param rootKey         the root key handle (e.g., HKEY_LOCAL_MACHINE)
+     * @param keyPath         the registry key path
+     * @param samDesiredExtra additional access flags to combine with KEY_READ
+     * @return array of subkey names
+     * @throws Throwable if the native call fails
+     */
     public static String[] registryGetKeys(MemorySegment rootKey, String keyPath, int samDesiredExtra)
             throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
@@ -149,6 +173,14 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Reads a REG_DWORD value from an open registry key.
+     *
+     * @param hKey      handle to an open registry key
+     * @param valueName the value name to read
+     * @return the DWORD value
+     * @throws Throwable if the native call fails
+     */
     public static int registryGetDword(MemorySegment hKey, String valueName) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment pData = arena.allocate(JAVA_INT);
@@ -162,6 +194,15 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Reads a REG_SZ string value from an open registry key.
+     *
+     * @param hKey      handle to an open registry key
+     * @param valueName the value name to read
+     * @param size      the buffer size in bytes
+     * @return the string value
+     * @throws Throwable if the native call fails
+     */
     public static String registryGetString(MemorySegment hKey, String valueName, int size) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment data = arena.allocate(size + 2);
@@ -175,6 +216,14 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Reads a registry value of any supported type from an open registry key.
+     *
+     * @param hKey      handle to an open registry key
+     * @param valueName the value name to read
+     * @return the value (Integer for REG_DWORD, String for REG_SZ/REG_EXPAND_SZ), or null if unsupported
+     * @throws Throwable if the native call fails
+     */
     public static Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment lpType = arena.allocate(JAVA_INT);
@@ -332,6 +381,11 @@ public final class Advapi32UtilFFM {
         }
     }
 
+    /**
+     * Queries the system boot time from the Windows Event Log.
+     *
+     * @return the boot time as a Unix epoch timestamp in seconds
+     */
     public static long querySystemBootTime() {
         String eventLog = systemLog.get();
         try (Arena arena = Arena.ofConfined()) {
@@ -396,6 +450,11 @@ public final class Advapi32UtilFFM {
         return System.currentTimeMillis() / 1000L - Kernel32UtilFFM.querySystemUptime();
     }
 
+    /**
+     * Queries and validates the configured system event log name.
+     *
+     * @return the event log name, or null if unavailable
+     */
     public static String querySystemLog() {
         String systemLog = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_EVENTLOG, "System");
         if (systemLog.isEmpty()) {

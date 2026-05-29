@@ -88,18 +88,38 @@ public final class WbemcliUtilFFM {
             this.propertyEnum = propertyEnum;
         }
 
+        /**
+         * Gets the property enum class.
+         *
+         * @return the property enum class
+         */
         public Class<T> getPropertyEnum() {
             return propertyEnum;
         }
 
+        /**
+         * Gets the WMI namespace.
+         *
+         * @return the namespace
+         */
         public String getNameSpace() {
             return nameSpace;
         }
 
+        /**
+         * Sets the WMI namespace.
+         *
+         * @param nameSpace the namespace to set
+         */
         public void setNameSpace(String nameSpace) {
             this.nameSpace = nameSpace;
         }
 
+        /**
+         * Gets the WMI class name.
+         *
+         * @return the WMI class name
+         */
         public String getWmiClassName() {
             return wmiClassName;
         }
@@ -117,6 +137,11 @@ public final class WbemcliUtilFFM {
         private final Map<T, Integer> cimTypeMap;
         private int resultCount;
 
+        /**
+         * Instantiate a WmiResult for the given property enum.
+         *
+         * @param propertyEnum the enum class defining WMI properties
+         */
         public WmiResult(Class<T> propertyEnum) {
             propertyMap = new EnumMap<>(propertyEnum);
             vtTypeMap = new EnumMap<>(propertyEnum);
@@ -128,18 +153,42 @@ public final class WbemcliUtilFFM {
             }
         }
 
+        /**
+         * Gets the value for a property at the specified row index.
+         *
+         * @param property the property enum constant
+         * @param index    the row index
+         * @return the value object
+         */
         public Object getValue(T property, int index) {
             return propertyMap.get(property).get(index);
         }
 
+        /**
+         * Gets the VARIANT type for a property.
+         *
+         * @param property the property enum constant
+         * @return the VT type code
+         */
         public int getVtType(T property) {
             return vtTypeMap.get(property);
         }
 
+        /**
+         * Gets the CIM type for a property.
+         *
+         * @param property the property enum constant
+         * @return the CIM type code
+         */
         public int getCIMType(T property) {
             return cimTypeMap.get(property);
         }
 
+        /**
+         * Gets the number of result rows.
+         *
+         * @return the result count
+         */
         public int getResultCount() {
             return resultCount;
         }

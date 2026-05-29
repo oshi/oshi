@@ -35,7 +35,7 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public abstract class WindowsOSProcess extends AbstractOSProcess {
 
-    // See https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
+    /** Maximum number of handles per process, accounting for 32-bit vs 64-bit Windows. */
     protected static final long MAX_WINDOWS_HANDLES;
     static {
         if (System.getenv("ProgramFiles(x86)") == null) {
@@ -45,9 +45,11 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         }
     }
 
+    /** Whether to use batch WMI queries for command line retrieval. */
     protected static final boolean USE_BATCH_COMMANDLINE = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_COMMANDLINE_BATCH, false);
 
+    /** Whether to check thread states to determine if a process is suspended. */
     protected static final boolean USE_PROCSTATE_SUSPENDED = GlobalConfig
             .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
 
@@ -433,10 +435,20 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      */
     protected abstract Triplet<String, String, Map<String, String>> queryCwdCommandlineEnvironment();
 
+    /**
+     * Returns a default empty triplet for cwd, command line, and environment.
+     *
+     * @return a triplet of empty string, empty string, and empty map
+     */
     protected static Triplet<String, String, Map<String, String>> defaultCwdCommandlineEnvironment() {
         return new Triplet<>("", "", Collections.emptyMap());
     }
 
+    /**
+     * Returns a default pair of unknown values.
+     *
+     * @return a pair of {@link Constants#UNKNOWN} strings
+     */
     protected static Pair<String, String> defaultPair() {
         return new Pair<>(Constants.UNKNOWN, Constants.UNKNOWN);
     }

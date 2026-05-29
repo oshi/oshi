@@ -15,26 +15,39 @@ import oshi.hardware.common.AbstractPowerSource;
 @ThreadSafe
 public abstract class WindowsPowerSource extends AbstractPowerSource {
 
-    // IOCTL codes
+    /** IOCTL code to query battery tag. */
     protected static final int IOCTL_BATTERY_QUERY_TAG = 0x294040;
+    /** IOCTL code to query battery information. */
     protected static final int IOCTL_BATTERY_QUERY_INFORMATION = 0x294044;
+    /** IOCTL code to query battery status. */
     protected static final int IOCTL_BATTERY_QUERY_STATUS = 0x29404c;
 
-    // Capability flags (BATTERY_INFORMATION.Capabilities / BATTERY_STATUS.PowerState)
+    /** Battery capability flag: system battery. */
     protected static final int BATTERY_SYSTEM_BATTERY = 0x80000000;
+    /** Battery capability flag: short-term (UPS). */
     protected static final int BATTERY_IS_SHORT_TERM = 0x20000000;
+    /** Battery capability flag: capacity is relative (percent). */
     protected static final int BATTERY_CAPACITY_RELATIVE = 0x40000000;
+    /** Battery power state flag: AC power online. */
     protected static final int BATTERY_POWER_ON_LINE = 0x00000001;
+    /** Battery power state flag: discharging. */
     protected static final int BATTERY_DISCHARGING = 0x00000002;
+    /** Battery power state flag: charging. */
     protected static final int BATTERY_CHARGING = 0x00000004;
 
-    // BATTERY_QUERY_INFORMATION_LEVEL ordinals
+    /** Query information level: battery information. */
     protected static final int BATTERY_INFORMATION_LEVEL = 0;
+    /** Query information level: temperature. */
     protected static final int BATTERY_TEMPERATURE_LEVEL = 2;
+    /** Query information level: estimated time remaining. */
     protected static final int BATTERY_ESTIMATED_TIME_LEVEL = 3;
+    /** Query information level: device name. */
     protected static final int BATTERY_DEVICE_NAME_LEVEL = 4;
+    /** Query information level: manufacture date. */
     protected static final int BATTERY_MANUFACTURE_DATE_LEVEL = 5;
+    /** Query information level: manufacturer name. */
     protected static final int BATTERY_MANUFACTURE_NAME_LEVEL = 6;
+    /** Query information level: serial number. */
     protected static final int BATTERY_SERIAL_NUMBER_LEVEL = 8;
 
     /**

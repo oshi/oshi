@@ -51,18 +51,27 @@ public final class SmcUtil {
     private static final byte[] DATATYPE_FPE2 = ParseUtil.asciiStringToByteArray("fpe2", 5);
     private static final byte[] DATATYPE_FLT = ParseUtil.asciiStringToByteArray("flt ", 5);
 
+    /** SMC key for the number of fans. */
     public static final String SMC_KEY_FAN_NUM = "FNum";
+    /** SMC key format string for fan speed (use with fan index). */
     public static final String SMC_KEY_FAN_SPEED = "F%dAc";
+    /** SMC key for CPU temperature (Intel). */
     public static final String SMC_KEY_CPU_TEMP = "TC0P";
+    /** SMC key for CPU voltage (Intel). */
     public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
 
-    /** Apple Silicon keys, tried in order until one returns a positive value. */
+    /** Apple Silicon CPU temperature keys, tried in order until one returns a positive value. */
     public static final String[] SMC_KEYS_CPU_TEMP_AS = { "Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D" };
+    /** Apple Silicon GPU temperature keys, tried in order until one returns a positive value. */
     public static final String[] SMC_KEYS_GPU_TEMP_AS = { "Tg05", "Tg0D", "Tg0f", "Tg0j" };
+    /** SMC key for CPU voltage (Apple Silicon). */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
+    /** SMC command to read bytes. */
     public static final byte SMC_CMD_READ_BYTES = 5;
+    /** SMC command to read key info. */
     public static final byte SMC_CMD_READ_KEYINFO = 9;
+    /** Kernel index for SMC calls. */
     public static final int KERNEL_INDEX_SMC = 2;
 
     private SmcUtil() {

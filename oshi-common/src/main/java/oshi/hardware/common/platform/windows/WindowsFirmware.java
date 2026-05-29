@@ -25,6 +25,10 @@ import oshi.util.tuples.Quintet;
 @Immutable
 public abstract class WindowsFirmware extends AbstractFirmware {
 
+    /** Default constructor. */
+    protected WindowsFirmware() {
+    }
+
     private final Supplier<Quintet<String, String, String, String, String>> manufNameDescVersRelease = memoize(
             this::queryManufNameDescVersRelease);
 
