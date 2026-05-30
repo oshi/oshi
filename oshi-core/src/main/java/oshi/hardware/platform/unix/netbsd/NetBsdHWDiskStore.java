@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.netbsd;
@@ -29,7 +29,7 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(NetBsdHWDiskStore::querySystatIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
 
     private NetBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -42,16 +42,14 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks() {
         List<HWDiskStore> diskList = new ArrayList<>();
-        List<String> dmesg = null; // Lazily fetch in loop if needed
+        List<String> dmesg = null;
 
         // Get list of disks from sysctl
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
         String[] devices = NetBsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+");
         NetBsdHWDiskStore store;
-        String diskName;
-        for (String device : devices) {
-            diskName = device;
-            // get partitions using disklabel command (requires root)
+        for (String diskName : devices) {
+            // Try disklabel first (works for physical disks, not wedges)
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
             String model = diskdata.getA();
             long size = diskdata.getC();
@@ -59,32 +57,32 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
                 if (dmesg == null) {
                     dmesg = ExecutingCommand.runNative("dmesg");
                 }
-                Pattern diskAt = Pattern.compile(diskName + " at .*<(.+)>.*");
-                Pattern diskMB = Pattern
-                        .compile(diskName + ":.* (\\d+)MB, (?:(\\d+) bytes\\/sector, )?(?:(\\d+) sectors).*");
+                // NetBSD dmesg format for physical disks:
+                // ld0: 200 GB, 16383 cyl, 16 head, 63 sec, 512 bytes/sect x 419430400 sectors
+                Pattern diskGeom = Pattern.compile(diskName + ": .* (\\d+) bytes/sect x (\\d+) sectors");
+                // NetBSD dmesg format for wedge devices (dk*):
+                // dk0 at ld0: "uuid", 406845440 blocks at 2048, type: ffs
+                Pattern wedgeBlocks = Pattern.compile(diskName + " at (\\w+): .*, (\\d+) blocks at .*");
+                // Model from "device at bus targ N lun N: <Vendor, Model, Rev>"
+                // but NOT from "features: 0x...<FLAGS>" lines
+                Pattern diskAt = Pattern.compile(".*" + diskName + " at .* lun \\d+: <(.+)>.*");
                 for (String line : dmesg) {
-                    Matcher m = diskAt.matcher(line);
-                    if (m.matches()) {
-                        model = m.group(1);
-                    }
-                    m = diskMB.matcher(line);
-                    if (m.matches()) {
-                        // Group 3 is sectors
-                        long sectors = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                        // Group 2 is optional capture of bytes per sector
-                        long bytesPerSector = ParseUtil.parseLongOrDefault(m.group(2), 0L);
-                        if (bytesPerSector == 0 && sectors > 0) {
-                            // if we don't have bytes per sector guess at it based on total size and number
-                            // of sectors
-                            // Group 1 is size in MB, which may round
-                            size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
-                            // Estimate bytes per sector. Should be "near" a power of 2
-                            bytesPerSector = size / sectors;
-                            // Multiply by 1.5 and round down to nearest power of 2:
-                            bytesPerSector = Long.highestOneBit(bytesPerSector + (bytesPerSector >> 1));
-                        }
+                    Matcher m = diskGeom.matcher(line);
+                    if (m.find()) {
+                        long bytesPerSector = ParseUtil.parseLongOrDefault(m.group(1), 512L);
+                        long sectors = ParseUtil.parseLongOrDefault(m.group(2), 0L);
                         size = bytesPerSector * sectors;
                         break;
+                    }
+                    m = wedgeBlocks.matcher(line);
+                    if (m.find()) {
+                        long blocks = ParseUtil.parseLongOrDefault(m.group(2), 0L);
+                        size = blocks * 512L;
+                        break;
+                    }
+                    m = diskAt.matcher(line);
+                    if (m.matches()) {
+                        model = m.group(1);
                     }
                 }
             }
@@ -102,24 +100,31 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : iostat.get()) {
-            String[] split = ParseUtil.whitespaces.split(line);
-            // NetBSD iostat -I -x output: device r/s w/s Kr/s Kw/s ... (header varies)
-            // Simple iostat -d -I: KB/t xfrs MB (cumulative)
-            if (split.length >= 4 && split[0].equals(getName())) {
+            String[] split = ParseUtil.whitespaces.split(line.trim());
+            // iostat -x -I output (cumulative totals, 9 fields):
+            // device read KB/t xfr time MB write KB/t xfr time MB
+            // ld0 27.74 38896 14.03 1356 36.19 0 0.00 0.000
+            // [0] [1] [2] [3] [4] [5] [6] [7] [8]
+            if (split.length >= 9 && split[0].equals(getName())) {
                 diskFound = true;
-                // Fields from iostat -d -I: name KB/t xfrs MB
-                setReads(ParseUtil.parseLongOrDefault(split[1], 0L));
-                setWrites(ParseUtil.parseLongOrDefault(split[2], 0L));
-                long mbTransferred = ParseUtil.parseLongOrDefault(split[3], 0L);
-                setReadBytes(mbTransferred * 1024L * 1024L / 2);
-                setWriteBytes(mbTransferred * 1024L * 1024L / 2);
+                long reads = ParseUtil.parseLongOrDefault(split[2], 0L);
+                long writes = ParseUtil.parseLongOrDefault(split[6], 0L);
+                double readKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[1], 0d);
+                double writeKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[5], 0d);
+                setReads(reads);
+                setWrites(writes);
+                setReadBytes((long) (readKBPerTransfer * reads * 1024));
+                setWriteBytes((long) (writeKBPerTransfer * writes * 1024));
+                setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1000)
+                        + (long) (ParseUtil.parseDoubleOrDefault(split[7], 0d) * 1000));
                 setTimeStamp(now);
+                break;
             }
         }
         return diskFound;
     }
 
-    private static List<String> querySystatIostat() {
-        return ExecutingCommand.runNative("iostat -d -I");
+    private static List<String> queryIostat() {
+        return ExecutingCommand.runNative("iostat -x -I");
     }
 }

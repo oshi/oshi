@@ -42,6 +42,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.netbsd.FstatUtil;
+import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * OSProcess implementation
@@ -316,24 +317,9 @@ public class NetBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getAffinityMask() {
-        long bitMask = 0L;
-        // Would prefer to use native cpuset_getaffinity call but variable sizing is
-        // kernel-dependent and requires C macros, so we use commandline instead.
-        String cpuset = ExecutingCommand.getFirstAnswer("cpuset -gp " + getProcessID());
-        // Sample output:
-        // pid 8 mask: 0, 1
-        // cpuset: getaffinity: No such process
-        String[] split = cpuset.split(":");
-        if (split.length > 1) {
-            String[] bits = split[1].split(",");
-            for (String bit : bits) {
-                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-        }
-        return bitMask;
+        // NetBSD does not have cpuset; all processes can run on all CPUs
+        int ncpu = NetBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
+        return ncpu < 64 ? (1L << ncpu) - 1 : -1L;
     }
 
     @Override
