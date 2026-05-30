@@ -52,7 +52,8 @@ public class NetBsdFirmware extends AbstractFirmware {
             if (line.startsWith("bios0: vendor")) {
                 version = ParseUtil.getStringBetween(line, '"');
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));
-                vendor = line.split("vendor")[1].trim();
+                String afterVendor = line.split("vendor")[1].trim();
+                vendor = afterVendor.split("\\s+")[0];
             }
         }
         return new Triplet<>(Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,

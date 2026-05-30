@@ -82,7 +82,7 @@ public final class NetBsdPowerSource extends AbstractPowerSource {
         for (String line : ExecutingCommand.runNative("systat -ab sensors")) {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length > 1 && split[0].startsWith(name)) {
-                if (split[0].contains("volt0") || split[0].contains("volt") && line.contains("current")) {
+                if (split[0].contains("volt0") || (split[0].contains("volt") && line.contains("current"))) {
                     psVoltage = ParseUtil.parseDoubleOrDefault(split[1], -1d);
                 } else if (split[0].contains("current0")) {
                     psAmperage = ParseUtil.parseDoubleOrDefault(split[1], 0d);

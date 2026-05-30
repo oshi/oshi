@@ -20,7 +20,7 @@ import oshi.util.ParseUtil;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
- * The FreeBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
+ * The NetBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
  * volume, concrete file system or other implementation specific means of file storage.
  */
 @ThreadSafe
@@ -71,25 +71,24 @@ public class NetBsdFileSystem extends AbstractFileSystem {
         }
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
             /*-
              Sample Output:
-             /dev/wd0a (d1c342b6965d372c.a) on / type ffs (rw, local, ctime=Sun Jan  3 18:03:00 2021)
-             /dev/wd0e (d1c342b6965d372c.e) on /home type ffs (rw, local, nodevl, nosuid, ctime=Sun Jan  3 18:02:56 2021)
-             /dev/wd0d (d1c342b6965d372c.d) on /usr type ffs (rw, local, nodev, wxallowed, ctime=Sun Jan  3 18:02:56 2021)
+             /dev/dk0 on / type ffs (local)
+             tmpfs on /tmp type tmpfs (local)
+             kernfs on /kern type kernfs (local)
              */
-            String[] split = ParseUtil.whitespaces.split(fs, 7);
-            if (split.length == 7) {
-                // 1st field is volume name [0-index] + partition letter
-                // 2nd field is disklabel UUID (DUID) + partition letter after the dot
-                // 4th field is mount point
-                // 6rd field is fs type
-                // 7th field is options
+            String[] split = ParseUtil.whitespaces.split(fs, 6);
+            if (split.length >= 6) {
+                // 1st field is volume name
+                // 3rd field is mount point
+                // 5th field is fs type
+                // 6th field is options
                 String volume = split[0];
-                String uuid = split[1];
-                String path = split[3];
-                String type = split[5];
-                String options = split[6];
+                String path = split[2];
+                String type = split[4];
+                String options = split[5];
+                String uuid = "";
 
                 // Skip non-local drives if requested, and exclude pseudo file systems
                 boolean isLocal = !NETWORK_FS_TYPES.contains(type);

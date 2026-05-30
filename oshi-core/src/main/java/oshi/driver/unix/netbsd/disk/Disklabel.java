@@ -67,7 +67,7 @@ public final class Disklabel {
             // boundend: 15693824
             // drivedata: 0
             if (line.contains(totalMarker)) {
-                totalSectors = ParseUtil.getFirstIntValue(line);
+                totalSectors = ParseUtil.parseLongOrDefault(line.split(totalMarker)[1].trim(), 1L);
             } else if (line.contains(bpsMarker)) {
                 bytesPerSector = ParseUtil.getFirstIntValue(line);
             } else if (line.contains(labelMarker)) {

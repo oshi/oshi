@@ -20,6 +20,6 @@ public class NetBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+        return searchGateway(ExecutingCommand.runNative("route -n get -inet6 default"));
     }
 }

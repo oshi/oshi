@@ -165,6 +165,9 @@ public class NetBsdOSProcess extends AbstractOSProcess {
             return System.getenv();
         }
         // For other processes, try sysctl KERN_PROC_ARGS with KERN_PROC_ENV
+        if (ARGMAX <= 0) {
+            return Collections.emptyMap();
+        }
         int[] mib = new int[4];
         mib[0] = 1; // CTL_KERN
         mib[1] = 48; // KERN_PROC_ARGS
@@ -440,10 +443,10 @@ public class NetBsdOSProcess extends AbstractOSProcess {
 
     private void updateThreadCount() {
         List<String> threadList = ExecutingCommand.runNative("ps -axLwwo lid -p " + getProcessID());
-        if (!threadList.isEmpty()) {
-            // Subtract 1 for header
+        if (threadList.size() > 1) {
             this.threadCount = threadList.size() - 1;
+        } else {
+            this.threadCount = 1;
         }
-        this.threadCount = 1;
     }
 }

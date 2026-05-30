@@ -148,7 +148,7 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
         // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
         // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
-        Pattern p = Pattern.compile("cpu(\\\\d+).*: ((ARM|AMD|Intel|Apple).+)");
+        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
 
         Set<ProcessorCache> caches = new HashSet<>();
         // cpu0: 48KB 64b/line 12-way D-cache, 32KB 64b/line 8-way I-cache,
@@ -177,7 +177,7 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
         // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
         // cpu4: 1024KB 64b/line 16-way L2 cache
-        Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
+        Pattern q = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
         Set<String> featureFlags = new LinkedHashSet<>();
         for (String s : ExecutingCommand.runNative("dmesg")) {
             Matcher m = p.matcher(s);
@@ -252,10 +252,10 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
         long interrupts = 0L;
         List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
         for (String line : vmstat) {
-            if (line.endsWith("cpu context switches")) {
-                contextSwitches = ParseUtil.getFirstIntValue(line);
-            } else if (line.endsWith("interrupts")) {
-                interrupts = ParseUtil.getFirstIntValue(line);
+            if (line.endsWith("CPU context switches")) {
+                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);
+            } else if (line.endsWith("device interrupts")) {
+                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);
             }
         }
         return new Pair<>(contextSwitches, interrupts);

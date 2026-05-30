@@ -52,12 +52,12 @@ final class NetBsdVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getSwapPagesIn() {
-        return swapInfo.get().getC() * global.getPageSize();
+        return swapInfo.get().getC();
     }
 
     @Override
     public long getSwapPagesOut() {
-        return swapInfo.get().getD() * global.getPageSize();
+        return swapInfo.get().getD();
     }
 
     private static Quartet<Integer, Integer, Integer, Integer> queryVmstat() {
