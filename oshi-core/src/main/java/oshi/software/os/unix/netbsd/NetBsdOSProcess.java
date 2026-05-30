@@ -317,14 +317,31 @@ public class NetBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public long getAffinityMask() {
-        // NetBSD does not have cpuset; all processes can run on all CPUs
+        long bitMask = 0L;
+        // schedctl -p <pid> shows affinity; -A cpus would set it
+        List<String> schedctl = ExecutingCommand.runNative("schedctl -p " + getProcessID());
+        for (String line : schedctl) {
+            // Output includes "Affinity: <list>" when bound
+            if (line.contains("Affinity:")) {
+                String[] parts = line.split("Affinity:")[1].trim().split("[,\\s]+");
+                for (String part : parts) {
+                    int bitToSet = ParseUtil.parseIntOrDefault(part.trim(), -1);
+                    if (bitToSet >= 0) {
+                        bitMask |= 1L << bitToSet;
+                    }
+                }
+                return bitMask;
+            }
+        }
+        // Not bound — return all CPUs
         int ncpu = NetBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
         return ncpu < 64 ? (1L << ncpu) - 1 : -1L;
     }
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -aLwwxo " + PS_THREAD_COLUMNS;
+        // NetBSD ps shows per-LWP rows when lid is in the format specifier
+        String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
@@ -428,9 +445,10 @@ public class NetBsdOSProcess extends AbstractOSProcess {
     }
 
     private void updateThreadCount() {
-        List<String> threadList = ExecutingCommand.runNative("ps -axLwwo lid -p " + getProcessID());
-        if (threadList.size() > 1) {
-            this.threadCount = threadList.size() - 1;
+        // Use nlwp keyword to get LWP count for this process
+        List<String> nlwpList = ExecutingCommand.runNative("ps -o nlwp -p " + getProcessID());
+        if (nlwpList.size() > 1) {
+            this.threadCount = ParseUtil.parseIntOrDefault(nlwpList.get(1).trim(), 1);
         } else {
             this.threadCount = 1;
         }

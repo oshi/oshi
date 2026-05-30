@@ -183,13 +183,13 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        // -L shows LWPs (threads), lid is the LWP ID keyword
-        List<String> threadList = ExecutingCommand.runNative("ps -axLwwo lid");
-        if (!threadList.isEmpty()) {
-            // Subtract 1 for header
-            return threadList.size() - 1;
+        int threads = 0;
+        // Sum nlwp (number of LWPs) across all processes
+        List<String> nlwpList = ExecutingCommand.runNative("ps -axo nlwp");
+        for (String line : nlwpList) {
+            threads += ParseUtil.parseIntOrDefault(line.trim(), 0);
         }
-        return 0;
+        return threads;
     }
 
     @Override

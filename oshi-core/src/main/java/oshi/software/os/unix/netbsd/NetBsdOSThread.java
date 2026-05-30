@@ -114,7 +114,7 @@ public class NetBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -aLwwxo " + NetBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
+        String psCommand = "ps -awwxo " + NetBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
         String tidStr = Integer.toString(this.threadId);
