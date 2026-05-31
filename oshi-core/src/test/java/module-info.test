@@ -29,9 +29,13 @@
 --add-opens
   com.github.oshi/oshi.driver.unix.freebsd.disk=org.junit.platform.commons
 --add-opens
+  com.github.oshi/oshi.driver.unix.netbsd.disk=org.junit.platform.commons
+--add-opens
   com.github.oshi/oshi.driver.unix.openbsd.disk=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util.platform.unix.freebsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi/oshi.util.platform.unix.netbsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util.platform.unix.openbsd=org.junit.platform.commons
 --add-opens
