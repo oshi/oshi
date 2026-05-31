@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
       - name: Set up JDK 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: 25
           distribution: 'zulu'
@@ -51,9 +51,9 @@ jobs:
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
@@ -66,7 +66,7 @@ jobs:
         run: ./mvnw test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always() && contains(matrix.java, '25')
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
@@ -81,9 +81,9 @@ jobs:
       fail-fast: false
     name: JMH Benchmarks, ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Set up JDK 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: 25
           distribution: 'zulu'

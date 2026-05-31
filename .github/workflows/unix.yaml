@@ -19,10 +19,10 @@ jobs:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test in FreeBSD
         id: test-freebsd
-        uses: vmactions/freebsd-vm@v1
+        uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
         with:
           usesh: true
           prepare: |
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 11, OpenBSD vm
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test on OpenBSD
         id: test-openbsd
-        uses: vmactions/openbsd-vm@v1
+        uses: vmactions/openbsd-vm@6fac4962055fe9952d29930942445739e509fecd # v1
         with:
           release: "7.7"
           usesh: false
@@ -59,10 +59,10 @@ jobs:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test on Solaris
         id: test-solaris
-        uses: vmactions/solaris-vm@v1
+        uses: vmactions/solaris-vm@3702ccf20b84c7f7c0a9bb68894aba7623f8301d # v1
         with:
           run: |
             wget https://download.bell-sw.com/java/11.0.15.1+2/bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz -nv
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Test in Solaris SPARC
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       with:
         host: gcc211.fsffrance.org
         username: oshi
@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Test in AIX
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       with:
         host: gcc119.fsffrance.org
         username: oshi
@@ -148,10 +148,10 @@ jobs:
     name: Test JDK 11, DragonFly BSD
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test in DragonFly BSD
         id: test-dragonflybsd
-        uses: vmactions/dragonflybsd-vm@v1
+        uses: vmactions/dragonflybsd-vm@b4468429bb9ab60b14600c6eeeb6464427f29391 # v1
         with:
           release: "6.4.2"
           usesh: true
@@ -169,10 +169,10 @@ jobs:
     name: Test JDK 11, NetBSD (VM)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test in NetBSD
         id: test-netbsd
-        uses: vmactions/netbsd-vm@v1
+        uses: vmactions/netbsd-vm@ad31081832386a0ba569aee243e6edf9524f3f80 # v1
         with:
           release: "10.1"
           usesh: true
@@ -193,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Test in NetBSD
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       with:
         host: gcc70.fsffrance.org
         username: oshi
