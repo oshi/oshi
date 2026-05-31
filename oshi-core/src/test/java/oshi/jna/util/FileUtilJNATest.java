@@ -11,12 +11,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import com.sun.jna.Native;
 
 /**
  * Tests JNA-specific buffer read methods in {@link FileUtilJNA}.
  */
+@DisabledIfSystemProperty(named = "os.name", matches = "(?i)netbsd")
 class FileUtilJNATest {
 
     @Test

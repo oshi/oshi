@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - master
-      - netbsd-port
     paths-ignore:
       - '**.md'
       - '**.yml'
@@ -165,9 +164,9 @@ jobs:
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
 
-  # Runs on NetBSD 10.1 x86 VM
+  # Runs on NetBSD 10.1 x86 VM without JNA native library
   testnetbsd:
-    name: Test JDK 11, NetBSD
+    name: Test JDK 11, NetBSD (VM)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -180,10 +179,32 @@ jobs:
           prepare: |
             pkg_add curl
             pkg_add openjdk11
-            pkg_add java-jna
           run: |
             export JAVA_HOME=/usr/pkg/java/openjdk11
             export PATH=$JAVA_HOME/bin:$PATH
-            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
+
+  # SSH into NetBSD server on GCC Compile Farm and run tests
+  testnetbsd-gcc70:
+    name: Test JDK 11, NetBSD (GCC farm)
+    concurrency: netbsd_gcc70
+    if: github.repository_owner == 'oshi'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test in NetBSD
+      uses: appleboy/ssh-action@master
+      with:
+        host: gcc70.fsffrance.org
+        username: oshi
+        key: ${{ secrets.AIX_OSHI_KEY }}
+        port: 22
+        command_timeout: 15m
+        script: |
+          set -e
+          cd ~/oshi
+          git reset --hard
+          git checkout master
+          git reset --hard HEAD~2
+          git pull
+          ./mvnw clean test -B -Djacoco.skip=true

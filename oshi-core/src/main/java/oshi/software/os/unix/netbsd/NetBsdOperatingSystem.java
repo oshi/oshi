@@ -4,10 +4,6 @@
  */
 package oshi.software.os.unix.netbsd;
 
-import static oshi.jna.platform.unix.NetBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.NetBsdLibc.KERN_OSRELEASE;
-import static oshi.jna.platform.unix.NetBsdLibc.KERN_OSTYPE;
-import static oshi.jna.platform.unix.NetBsdLibc.KERN_VERSION;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
@@ -25,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -67,14 +62,9 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        int[] mib = new int[2];
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_OSTYPE;
-        String family = NetBsdSysctlUtil.sysctl(mib, "NetBSD");
-        mib[1] = KERN_OSRELEASE;
-        String version = NetBsdSysctlUtil.sysctl(mib, "");
-        mib[1] = KERN_VERSION;
-        String versionInfo = NetBsdSysctlUtil.sysctl(mib, "");
+        String family = NetBsdSysctlUtil.sysctl("kern.ostype", "NetBSD");
+        String version = NetBsdSysctlUtil.sysctl("kern.osrelease", "");
+        String versionInfo = NetBsdSysctlUtil.sysctl("kern.version", "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
         return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
@@ -155,7 +145,9 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return NetBsdLibc.INSTANCE.getpid();
+        // RuntimeMXBean name format is "pid@hostname"
+        String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+        return ParseUtil.parseIntOrDefault(name.split("@")[0], -1);
     }
 
     @Override
@@ -170,7 +162,7 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadId() {
-        return NetBsdLibc.INSTANCE._lwp_self();
+        return (int) Thread.currentThread().getId();
     }
 
     @Override

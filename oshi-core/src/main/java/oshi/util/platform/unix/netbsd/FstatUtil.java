@@ -24,10 +24,17 @@ public final class FstatUtil {
      * @return the current working directory for that process.
      */
     public static String getCwd(int pid) {
-        // NetBSD: use sysctl or /proc if mounted
+        // NetBSD: try /proc if mounted
         List<String> ls = ExecutingCommand.runNative("readlink /proc/" + pid + "/cwd");
         if (!ls.isEmpty() && !ls.get(0).isEmpty()) {
             return ls.get(0);
+        }
+        // Fallback: parse from fstat output (field after 'wd')
+        for (String line : ExecutingCommand.runNative("fstat -p " + pid)) {
+            String[] split = line.trim().split("\\s+");
+            if (split.length > 4 && "wd".equals(split[3])) {
+                return split[4];
+            }
         }
         return "";
     }
