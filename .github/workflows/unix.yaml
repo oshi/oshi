@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - master
+      - netbsd-port
     paths-ignore:
       - '**.md'
       - '**.yml'
@@ -105,7 +106,7 @@ jobs:
   # To test on a PR, log into the aix server and create a new branch
   # Retries up to 3 times due to flaky library loading in OpenJ9
   testaix:
-    name: Test JDK 17, aix
+    name: Test JDK 17, AIX
     concurrency: aix_gcc119
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
@@ -161,5 +162,28 @@ jobs:
           run: |
             export JAVA_HOME=/usr/local/openjdk11
             export PATH=$JAVA_HOME/bin:$PATH
+            mount -t procfs procfs /proc 2>/dev/null || true
+            ./mvnw clean test -B -Djacoco.skip=true
+
+  # Runs on NetBSD 10.1 x86 VM
+  testnetbsd:
+    name: Test JDK 11, NetBSD
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test in NetBSD
+        id: test-netbsd
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: "10.1"
+          usesh: true
+          prepare: |
+            pkg_add curl
+            pkg_add openjdk11
+            pkg_add java-jna
+          run: |
+            export JAVA_HOME=/usr/pkg/java/openjdk11
+            export PATH=$JAVA_HOME/bin:$PATH
+            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true

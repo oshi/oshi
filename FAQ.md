@@ -93,6 +93,7 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
 * FreeBSD 10
+* NetBSD 10.1
 * OpenBSD 6.8
 * Solaris 11 (SunOS 5.11)
 * AIX 7.1 (POWER4)
