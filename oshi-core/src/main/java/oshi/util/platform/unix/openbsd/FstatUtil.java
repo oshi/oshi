@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.unix.openbsd;
@@ -39,9 +39,19 @@ public final class FstatUtil {
      * @return the number of open files.
      */
     public static long getOpenFiles(int pid) {
+        return parseOpenFiles(ExecutingCommand.runNative("fstat -sp " + pid));
+    }
+
+    /**
+     * Counts open file descriptor rows in {@code fstat -sp <pid>} output (OpenBSD format), excluding rows whose fifth
+     * column matches {@code pipe} or {@code unix}, and subtracting the header row.
+     *
+     * @param fstatLines lines returned by {@code fstat -sp <pid>}
+     * @return the number of open files (counted rows minus 1 for the header)
+     */
+    public static long parseOpenFiles(List<String> fstatLines) {
         long fd = 0L;
-        List<String> fstat = ExecutingCommand.runNative("fstat -sp " + pid);
-        for (String line : fstat) {
+        for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim(), 11);
             if (split.length == 11 && !"pipe".contains(split[4]) && !"unix".contains(split[4])) {
                 fd++;

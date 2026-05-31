@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.netbsd.disk.Disklabel;
+import oshi.driver.unix.bsd.disk.Disklabel;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
