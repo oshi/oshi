@@ -16,7 +16,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,14 +26,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.LibCAPI.size_t;
-import com.sun.jna.platform.unix.Resource;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.ByRef.CloseableSizeTByReference;
-import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.netbsd.NetBsdOperatingSystem.PsKeywords;
@@ -62,23 +54,7 @@ public class NetBsdOSProcess extends AbstractOSProcess {
     static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
-    private static final int ARGMAX;
-
-    static {
-        int[] mib = new int[2];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 8; // KERN_ARGMAX
-        try (Memory m = new Memory(Integer.BYTES);
-                CloseableSizeTByReference size = new CloseableSizeTByReference(Integer.BYTES)) {
-            if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                ARGMAX = m.getInt(0);
-            } else {
-                LOG.warn("Failed sysctl call for process arguments max size (kern.argmax). Error code: {}",
-                        Native.getLastError());
-                ARGMAX = 0;
-            }
-        }
-    }
+    private static final int ARGMAX = NetBsdSysctlUtil.sysctl("kern.argmax", 0);
 
     private final NetBsdOperatingSystem os;
 
@@ -116,7 +92,7 @@ public class NetBsdOSProcess extends AbstractOSProcess {
         this.os = os;
         // NetBSD does not maintain a compatibility layer.
         // Process bitness is OS bitness
-        this.bitness = Native.LONG_SIZE * 8;
+        this.bitness = System.getProperty("os.arch", "").contains("64") ? 64 : 32;
         updateThreadCount();
         updateAttributes(psMap);
     }
@@ -165,36 +141,7 @@ public class NetBsdOSProcess extends AbstractOSProcess {
         if (getProcessID() == this.os.getProcessId()) {
             return System.getenv();
         }
-        // For other processes, try sysctl KERN_PROC_ARGS with KERN_PROC_ENV
-        if (ARGMAX <= 0) {
-            return Collections.emptyMap();
-        }
-        int[] mib = new int[4];
-        mib[0] = 1; // CTL_KERN
-        mib[1] = 48; // KERN_PROC_ARGS
-        mib[2] = getProcessID();
-        mib[3] = 3; // KERN_PROC_ENV
-        try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
-            if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                Map<String, String> env = new LinkedHashMap<>();
-                long bytesReturned = size.getValue().longValue();
-                long offset = 0;
-                while (offset < bytesReturned) {
-                    String envStr = m.getString(offset);
-                    if (envStr.isEmpty()) {
-                        break;
-                    }
-                    int idx = envStr.indexOf('=');
-                    if (idx > 0) {
-                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
-                    }
-                    offset += envStr.length() + 1;
-                }
-                if (!env.isEmpty()) {
-                    return Collections.unmodifiableMap(env);
-                }
-            }
-        }
+        // Environment of other processes is not accessible without JNA on NetBSD
         return Collections.emptyMap();
     }
 
@@ -291,23 +238,22 @@ public class NetBsdOSProcess extends AbstractOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            NetBsdLibc.INSTANCE.getrlimit(NetBsdLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return -1L; // not supported
+            long limit = NetBsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
+            if (limit <= 0) {
+                limit = NetBsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            }
+            return limit > 0 ? limit : -1L;
         }
+        return -1L;
     }
 
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            NetBsdLibc.INSTANCE.getrlimit(NetBsdLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return -1L; // not supported
+            long limit = NetBsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            return limit > 0 ? limit : -1L;
         }
+        return -1L;
     }
 
     @Override

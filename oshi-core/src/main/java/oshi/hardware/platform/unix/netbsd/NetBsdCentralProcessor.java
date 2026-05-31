@@ -4,17 +4,6 @@
  */
 package oshi.hardware.platform.unix.netbsd;
 
-import static oshi.jna.platform.unix.NetBsdLibc.CPUSTATES;
-import static oshi.jna.platform.unix.NetBsdLibc.CP_IDLE;
-import static oshi.jna.platform.unix.NetBsdLibc.CP_INTR;
-import static oshi.jna.platform.unix.NetBsdLibc.CP_NICE;
-import static oshi.jna.platform.unix.NetBsdLibc.CP_SYS;
-import static oshi.jna.platform.unix.NetBsdLibc.CP_USER;
-import static oshi.jna.platform.unix.NetBsdLibc.CTL_HW;
-import static oshi.jna.platform.unix.NetBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.NetBsdLibc.HW_MACHINE;
-import static oshi.jna.platform.unix.NetBsdLibc.HW_MODEL;
-import static oshi.jna.platform.unix.NetBsdLibc.KERN_CP_TIME;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -30,12 +19,9 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.Memory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
@@ -47,6 +33,14 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 public class NetBsdCentralProcessor extends AbstractCentralProcessor {
+
+    private static final int CPUSTATES = 5;
+    private static final int CP_USER = 0;
+    private static final int CP_NICE = 1;
+    private static final int CP_SYS = 2;
+    private static final int CP_INTR = 3;
+    private static final int CP_IDLE = 4;
+
     private final Supplier<Pair<Long, Long>> vmStats = memoize(NetBsdCentralProcessor::queryVmStats,
             defaultExpiration());
     private static final Pattern DMESG_CPU = Pattern.compile("cpu(\\d+): smt (\\d+), core (\\d+), package (\\d+)");
@@ -59,10 +53,7 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
         }
         String cpuName = NetBsdSysctlUtil.sysctl("machdep.cpu_brand", "");
         if (cpuName.isEmpty()) {
-            int[] mib = new int[2];
-            mib[0] = CTL_HW;
-            mib[1] = HW_MODEL;
-            cpuName = NetBsdSysctlUtil.sysctl(mib, "");
+            cpuName = NetBsdSysctlUtil.sysctl("hw.model", "");
         }
         // NetBSD provides family/model/stepping via dmesg
         // e.g., "cpu0: Intel(R) ... 06-7a-01" or from machdep
@@ -94,10 +85,7 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq = queryMaxFreq();
             }
         }
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_MACHINE;
-        String machine = NetBsdSysctlUtil.sysctl(mib, "");
+        String machine = NetBsdSysctlUtil.sysctl("hw.machine", "");
         boolean cpu64bit = machine != null && machine.contains("64")
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
 
@@ -269,20 +257,14 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        int[] mib = new int[2];
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_CP_TIME;
-        try (Memory m = NetBsdSysctlUtil.sysctl(mib)) {
-            if (m != null) {
-                long[] cpuTicks = cpTimeToTicks(m);
-                if (cpuTicks.length >= CPUSTATES) {
-                    ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
-                    ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-                    ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-                    ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
-                    ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
-                }
-            }
+        // Parse "kern.cp_time: user = N, nice = N, sys = N, intr = N, idle = N"
+        long[] cpuTicks = parseCpTime(ExecutingCommand.getFirstAnswer("sysctl kern.cp_time"));
+        if (cpuTicks.length >= CPUSTATES) {
+            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
+            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
+            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
         }
         return ticks;
     }
@@ -295,37 +277,65 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        // On NetBSD, kern.cp_time with a third MIB element gives per-CPU data
-        int[] mib = new int[3];
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_CP_TIME;
         for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-            mib[2] = cpu;
-            try (Memory m = NetBsdSysctlUtil.sysctl(mib)) {
-                if (m != null) {
-                    long[] cpuTicks = cpTimeToTicks(m);
-                    if (cpuTicks.length >= CPUSTATES) {
-                        ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
-                        ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-                        ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-                        ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
-                        ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
-                    }
-                }
+            // Per-CPU: "kern.cp_time.N: user = ..., nice = ..., sys = ..., intr = ..., idle = ..."
+            long[] cpuTicks = parseCpTime(ExecutingCommand.getFirstAnswer("sysctl kern.cp_time." + cpu));
+            if (cpuTicks.length >= CPUSTATES) {
+                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
+                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
+                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
+                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
+                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
             }
         }
         return ticks;
     }
 
     /**
-     * Parse memory buffer returned from sysctl kern.cp_time to an array of longs representing CPU states.
+     * Parse sysctl kern.cp_time output to an array of tick values.
+     * <p>
+     * Input format: "kern.cp_time: user = 2930, nice = 42, sys = 1334, intr = 1877, idle = 46354"
      *
-     * @param m A buffer containing the array of 64-bit values.
-     * @return The array
+     * @param cpTimeStr the sysctl output string
+     * @return array of [user, nice, sys, intr, idle] tick values
      */
-    private static long[] cpTimeToTicks(Memory m) {
-        int arraySize = (int) (m.size() / 8L);
-        return m.getLongArray(0, arraySize);
+    private static long[] parseCpTime(String cpTimeStr) {
+        long[] ticks = new long[CPUSTATES];
+        if (cpTimeStr == null || cpTimeStr.isEmpty()) {
+            return ticks;
+        }
+        // Extract the values after the colon
+        int colonIdx = cpTimeStr.indexOf(':');
+        if (colonIdx < 0) {
+            return ticks;
+        }
+        String[] pairs = cpTimeStr.substring(colonIdx + 1).split(",");
+        for (String pair : pairs) {
+            String[] kv = pair.trim().split("\\s*=\\s*");
+            if (kv.length == 2) {
+                long val = ParseUtil.parseLongOrDefault(kv[1].trim(), 0L);
+                switch (kv[0].trim()) {
+                    case "user":
+                        ticks[CP_USER] = val;
+                        break;
+                    case "nice":
+                        ticks[CP_NICE] = val;
+                        break;
+                    case "sys":
+                        ticks[CP_SYS] = val;
+                        break;
+                    case "intr":
+                        ticks[CP_INTR] = val;
+                        break;
+                    case "idle":
+                        ticks[CP_IDLE] = val;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return ticks;
     }
 
     /**
@@ -349,9 +359,14 @@ public class NetBsdCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        int retval = NetBsdLibc.INSTANCE.getloadavg(average, nelem);
-        if (retval < nelem) {
-            Arrays.fill(average, -1d);
+        Arrays.fill(average, -1d);
+        // Parse "vm.loadavg: 1.59 0.47 0.18"
+        String loadavg = ExecutingCommand.getFirstAnswer("sysctl -n vm.loadavg");
+        if (!loadavg.isEmpty()) {
+            String[] loads = ParseUtil.whitespaces.split(loadavg.trim());
+            for (int i = 0; i < nelem && i < loads.length; i++) {
+                average[i] = ParseUtil.parseDoubleOrDefault(loads[i], -1d);
+            }
         }
         return average;
     }
