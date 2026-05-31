@@ -46,16 +46,19 @@ public final class OpenBsdPowerSource extends AbstractPowerSource {
      * @return An array of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
+        // Run `systat -ab sensors` once and reuse its output for every battery; previously this method invoked the
+        // command N+1 times (one for the name set and one per battery).
+        List<String> sensorLines = Systat.querySensorLines();
         List<PowerSource> psList = new ArrayList<>();
-        for (String name : Systat.queryPowerSourceNames()) {
-            psList.add(getPowerSource(name));
+        for (String name : Systat.parsePowerSourceNames(sensorLines)) {
+            psList.add(getPowerSource(name, sensorLines));
         }
         return psList;
     }
 
-    private static OpenBsdPowerSource getPowerSource(String name) {
+    private static OpenBsdPowerSource getPowerSource(String name, List<String> sensorLines) {
         String psName = name.startsWith("acpi") ? name.substring(4) : name;
-        BatteryFields b = Systat.queryBatteryFields(name);
+        BatteryFields b = Systat.parseBatteryFields(name, sensorLines);
         double psVoltage = b.getVoltage();
         double psAmperage = b.getAmperage();
         double psTemperature = b.getTemperature();

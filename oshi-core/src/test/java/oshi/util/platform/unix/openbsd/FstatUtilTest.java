@@ -52,9 +52,8 @@ class FstatUtilTest {
 
     @Test
     void testParseOpenFilesEmpty() {
-        // Empty input: 0 counted - 1 for header subtraction = -1. This documents the existing behaviour: callers must
-        // either always pass real `fstat` output that includes a header, or treat negative results as zero.
-        assertThat(FstatUtil.parseOpenFiles(Collections.<String>emptyList()), is(-1L));
+        // Empty input returns 0 (the header-subtraction is guarded so callers never see a negative count).
+        assertThat(FstatUtil.parseOpenFiles(Collections.<String>emptyList()), is(0L));
     }
 
     @Test

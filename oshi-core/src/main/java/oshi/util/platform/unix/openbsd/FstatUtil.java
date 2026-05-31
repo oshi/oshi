@@ -47,7 +47,7 @@ public final class FstatUtil {
      * column matches {@code pipe} or {@code unix}, and subtracting the header row.
      *
      * @param fstatLines lines returned by {@code fstat -sp <pid>}
-     * @return the number of open files (counted rows minus 1 for the header)
+     * @return the number of open files (counted rows minus 1 for the header); {@code 0} for empty or header-only input
      */
     public static long parseOpenFiles(List<String> fstatLines) {
         long fd = 0L;
@@ -57,7 +57,7 @@ public final class FstatUtil {
                 fd++;
             }
         }
-        // subtract 1 for header row
-        return fd - 1;
+        // Subtract 1 for the header row, but never return a negative count.
+        return fd > 0 ? fd - 1 : 0;
     }
 }

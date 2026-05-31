@@ -41,10 +41,15 @@ public final class Disklabel {
     public static Quartet<String, String, Long, List<HWPartition>> getDiskParams(String diskName) {
         Quartet<String, String, Long, List<HWPartition>> result = parseDiskParams(diskName,
                 ExecutingCommand.runNative("disklabel -n " + diskName), Disklabel::getMajorMinor);
-        if (result.getD().isEmpty()) {
-            return parseDfFallback(diskName, ExecutingCommand.runNative("df"), Disklabel::getMajorMinor);
+        if (!result.getD().isEmpty()) {
+            return result;
         }
-        return result;
+        // No partitions came back from disklabel. Fall back to df for the partition list, but keep whatever
+        // header metadata (label / DUID / size) disklabel already produced — replacing only the empty partition
+        // list rather than the entire Quartet.
+        Quartet<String, String, Long, List<HWPartition>> fallback = parseDfFallback(diskName,
+                ExecutingCommand.runNative("df"), Disklabel::getMajorMinor);
+        return new Quartet<>(result.getA(), result.getB(), result.getC(), fallback.getD());
     }
 
     /**
@@ -82,9 +87,9 @@ public final class Disklabel {
                 // Partition rows have a single letter followed by a colon:
                 // a: 2097152 1024 4.2BSD 2048 16384 12958 # /
                 String[] split = ParseUtil.whitespaces.split(line.trim(), 9);
-                String name = split[0].substring(0, 1);
-                Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
                 if (split.length > 4) {
+                    String name = split[0].substring(0, 1);
+                    Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
                     partitions.add(new HWPartition(diskName + name, name, split[3], duid + "." + name,
                             ParseUtil.parseLongOrDefault(split[1], 0L) * bytesPerSector, majorMinor.getA(),
                             majorMinor.getB(), split.length > 5 ? split[split.length - 1] : ""));
@@ -102,7 +107,8 @@ public final class Disklabel {
      * @param dfLines          raw output from {@code df}
      * @param majorMinorLookup function that resolves a (disk, partition-letter) pair to a (major, minor) device number
      *                         pair
-     * @return A quartet of UNKNOWN label/DUID, 0 size, and partitions discovered from {@code df}.
+     * @return A quartet of UNKNOWN label/DUID, 0 size, and partitions discovered from {@code df}. Callers that already
+     *         have disklabel header metadata should combine it with the partition list from this result.
      */
     public static Quartet<String, String, Long, List<HWPartition>> parseDfFallback(String diskName,
             List<String> dfLines, BiFunction<String, String, Pair<Integer, Integer>> majorMinorLookup) {
@@ -110,9 +116,9 @@ public final class Disklabel {
         for (String line : dfLines) {
             if (line.startsWith("/dev/" + diskName)) {
                 String[] split = ParseUtil.whitespaces.split(line);
-                String name = split[0].substring(5 + diskName.length());
-                Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
                 if (split.length > 5) {
+                    String name = split[0].substring(5 + diskName.length());
+                    Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
                     long partSize = ParseUtil.parseLongOrDefault(split[1], 1L) * 512L;
                     partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN,
                             Constants.UNKNOWN, partSize, majorMinor.getA(), majorMinor.getB(), split[5]));

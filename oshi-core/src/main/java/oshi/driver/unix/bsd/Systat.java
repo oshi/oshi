@@ -28,12 +28,23 @@ public final class Systat {
     }
 
     /**
+     * Runs {@code systat -ab sensors} and returns its raw output. Callers that need multiple parsed views of the same
+     * snapshot (e.g. power-source names plus battery fields for several batteries) should invoke this once and pass the
+     * result to the {@code parse*} methods to avoid spawning the command repeatedly.
+     *
+     * @return the raw lines returned by {@code systat -ab sensors}
+     */
+    public static List<String> querySensorLines() {
+        return ExecutingCommand.runNative(SYSTAT_AB_SENSORS);
+    }
+
+    /**
      * Runs {@code systat -ab sensors} and returns CPU temperature, fan speeds, and CPU voltage.
      *
      * @return a Triplet of (cpu temperature in °C, fan RPMs, cpu voltage in V).
      */
     public static Triplet<Double, int[], Double> querySensors() {
-        return parseSensors(ExecutingCommand.runNative(SYSTAT_AB_SENSORS));
+        return parseSensors(querySensorLines());
     }
 
     /**
@@ -80,7 +91,7 @@ public final class Systat {
      * @return a Set of power-source device names (e.g. {@code "acpibat0"}).
      */
     public static Set<String> queryPowerSourceNames() {
-        return parsePowerSourceNames(ExecutingCommand.runNative(SYSTAT_AB_SENSORS));
+        return parsePowerSourceNames(querySensorLines());
     }
 
     /**
@@ -107,7 +118,7 @@ public final class Systat {
      * @return parsed battery fields with sentinel defaults for any sensor not present.
      */
     public static BatteryFields queryBatteryFields(String name) {
-        return parseBatteryFields(name, ExecutingCommand.runNative(SYSTAT_AB_SENSORS));
+        return parseBatteryFields(name, querySensorLines());
     }
 
     /**
