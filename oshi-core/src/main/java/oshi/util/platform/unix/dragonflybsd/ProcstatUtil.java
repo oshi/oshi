@@ -61,8 +61,18 @@ public final class ProcstatUtil {
             // fall through to fstat
         }
         // Fallback to fstat
-        List<String> fstat = ExecutingCommand.runNative("fstat -p " + pid);
-        for (String line : fstat) {
+        return parseCwdFromFstat(ExecutingCommand.runNative("fstat -p " + pid));
+    }
+
+    /**
+     * Parses {@code fstat -p <pid>} output (DragonFlyBSD format) to find the {@code wd} row and return the path column
+     * (the last whitespace-separated token of that row).
+     *
+     * @param fstatLines lines returned by {@code fstat -p <pid>}
+     * @return the working directory string, or empty if no {@code wd} row is found
+     */
+    public static String parseCwdFromFstat(List<String> fstatLines) {
+        for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim());
             if (split.length >= 8 && "wd".equals(split[4])) {
                 return split[split.length - 1];
@@ -88,9 +98,19 @@ public final class ProcstatUtil {
             }
         }
         // Fallback to fstat
+        return parseOpenFiles(ExecutingCommand.runNative("fstat -p " + pid));
+    }
+
+    /**
+     * Counts open file descriptor rows in {@code fstat -p <pid>} output (DragonFlyBSD format), excluding {@code wd},
+     * {@code root}, and {@code text} rows and the header line.
+     *
+     * @param fstatLines lines returned by {@code fstat -p <pid>}
+     * @return the number of open files (counted rows minus 1 header), or 0 if none counted
+     */
+    public static long parseOpenFiles(List<String> fstatLines) {
         long fd = 0L;
-        List<String> fstat = ExecutingCommand.runNative("fstat -p " + pid);
-        for (String line : fstat) {
+        for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim());
             if (split.length >= 8 && !"wd".equals(split[4]) && !"root".equals(split[4]) && !"text".equals(split[4])) {
                 fd++;

@@ -30,7 +30,17 @@ public final class FstatUtil {
             return ls.get(0);
         }
         // Fallback: parse from fstat output (field after 'wd')
-        for (String line : ExecutingCommand.runNative("fstat -p " + pid)) {
+        return parseCwdFromFstat(ExecutingCommand.runNative("fstat -p " + pid));
+    }
+
+    /**
+     * Parses {@code fstat -p <pid>} output to find the {@code wd} row and return the path column.
+     *
+     * @param fstatLines lines returned by {@code fstat -p <pid>}
+     * @return the working directory string, or empty if no {@code wd} row is found
+     */
+    public static String parseCwdFromFstat(List<String> fstatLines) {
+        for (String line : fstatLines) {
             String[] split = line.trim().split("\\s+");
             if (split.length > 4 && "wd".equals(split[3])) {
                 return split[4];
@@ -47,10 +57,19 @@ public final class FstatUtil {
      */
     public static long getOpenFiles(int pid) {
         // NetBSD fstat output: USER CMD PID FD MOUNT INUM MODE SZ|DV R/W
-        List<String> fstat = ExecutingCommand.runNative("fstat -p " + pid);
-        if (fstat.size() > 1) {
+        return parseOpenFiles(ExecutingCommand.runNative("fstat -p " + pid));
+    }
+
+    /**
+     * Counts open file descriptor rows in {@code fstat -p <pid>} output (ignoring the header).
+     *
+     * @param fstatLines lines returned by {@code fstat -p <pid>}
+     * @return the number of open files (rows minus 1 for the header), or 0 if header alone or empty
+     */
+    public static long parseOpenFiles(List<String> fstatLines) {
+        if (fstatLines.size() > 1) {
             // subtract 1 for header row
-            return fstat.size() - 1L;
+            return fstatLines.size() - 1L;
         }
         return 0L;
     }

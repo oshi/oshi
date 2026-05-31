@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -7,14 +7,11 @@ package oshi.hardware.platform.unix.openbsd;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.bsd.Systat;
 import oshi.hardware.common.AbstractSensors;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -23,7 +20,7 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 final class OpenBsdSensors extends AbstractSensors {
 
-    private final Supplier<Triplet<Double, int[], Double>> tempFanVolts = memoize(OpenBsdSensors::querySensors,
+    private final Supplier<Triplet<Double, int[], Double>> tempFanVolts = memoize(Systat::querySensors,
             defaultExpiration());
 
     @Override
@@ -39,48 +36,5 @@ final class OpenBsdSensors extends AbstractSensors {
     @Override
     public double queryCpuVoltage() {
         return tempFanVolts.get().getC();
-    }
-
-    private static Triplet<Double, int[], Double> querySensors() {
-        double volts = 0d;
-        List<Double> cpuTemps = new ArrayList<>();
-        List<Double> allTemps = new ArrayList<>();
-        List<Integer> fanRPMs = new ArrayList<>();
-        for (String line : ExecutingCommand.runNative("systat -ab sensors")) {
-            String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length > 1) {
-                if (split[0].contains("cpu")) {
-                    if (split[0].contains("temp0")) {
-                        cpuTemps.add(ParseUtil.parseDoubleOrDefault(split[1], Double.NaN));
-                    } else if (split[0].contains("volt0")) {
-                        volts = ParseUtil.parseDoubleOrDefault(split[1], 0d);
-                    }
-                } else if (split[0].contains("temp0")) {
-                    allTemps.add(ParseUtil.parseDoubleOrDefault(split[1], Double.NaN));
-                } else if (split[0].contains("fan")) {
-                    fanRPMs.add(ParseUtil.parseIntOrDefault(split[1], 0));
-                }
-            }
-        }
-        // Prefer cpu temps
-        double temp = cpuTemps.isEmpty() ? listAverage(allTemps) : listAverage(cpuTemps);
-        // Collect all fans
-        int[] fans = new int[fanRPMs.size()];
-        for (int i = 0; i < fans.length; i++) {
-            fans[i] = fanRPMs.get(i);
-        }
-        return new Triplet<>(temp, fans, volts);
-    }
-
-    private static double listAverage(List<Double> doubles) {
-        double sum = 0d;
-        int count = 0;
-        for (Double d : doubles) {
-            if (!d.isNaN()) {
-                sum += d;
-                count++;
-            }
-        }
-        return count > 0 ? sum / count : 0d;
     }
 }
