@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * Tests for {@link ForeignFunctions} helper methods.
  */
 @EnabledForJreRange(min = JRE.JAVA_25)
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
 class ForeignFunctionsTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForeignFunctionsTest.class);

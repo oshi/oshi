@@ -12,11 +12,9 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs current branch on FreeBSD 10.0.1 in a VM
-  # Cirrus CI tests 11.4, 12.3 and 13.0
+  # Runs current branch on FreeBSD in a VM
   testfreebsd:
-    name: Test JDK 11, FreeBSD
-    if: github.repository_owner == 'oshi'
+    name: Test JDK 25, FreeBSD
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -27,14 +25,16 @@ jobs:
           usesh: true
           prepare: |
             pkg install -y curl
-            pkg install -y openjdk11
+            pkg install -y openjdk25
           run: |
+            export JAVA_HOME=/usr/local/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
             ./mvnw clean test -B -Djacoco.skip=true
 
   # Runs on OpenBSD 7.7 x86 VM
   testopenbsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 11, OpenBSD vm
+    name: Test JDK 21, OpenBSD
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test on OpenBSD
@@ -44,42 +44,37 @@ jobs:
           release: "7.7"
           usesh: false
           mem: 2048
-          # note default jdk for maven is 8, but some maven plugins no longer work
-          # there is no meta package like eg. "jdk-11" but we can search by branch
           prepare: |
             pkg_add curl
-            pkg_add jdk%11
+            pkg_add jdk%21
             pkg_add maven
           run: |
             mvn clean test -B -Djacoco.skip=true
 
-  # Runs on Solaris 11.4 x86 VM
-  testsolaris:
-    name: Test JDK 11, Solaris VM
-    if: github.repository_owner == 'oshi'
+  # Runs on OpenIndiana (illumos/Solaris) x86 VM
+  testopenindiana:
+    name: Test JDK 21, OpenIndiana
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Test on Solaris
-        id: test-solaris
-        uses: vmactions/solaris-vm@3702ccf20b84c7f7c0a9bb68894aba7623f8301d # v1
+      - name: Test on OpenIndiana
+        id: test-openindiana
+        uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
         with:
+          prepare: |
+            pkg install openjdk21
           run: |
-            wget https://download.bell-sw.com/java/11.0.15.1+2/bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz -nv
-            gunzip bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar.gz
-            tar xf bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar
-            rm bellsoft-jdk11.0.15.1+2-solaris-x64-lite.tar
-            mv jdk-11.0.15.1-lite /var/tmp
-            export JAVA_HOME=/var/tmp/jdk-11.0.15.1-lite
-            export PATH=$JAVA_HOME:$PATH
+            export JAVA_HOME=/usr/jdk/openjdk21
+            export PATH=$JAVA_HOME/bin:$PATH
+            java -version
             ./mvnw clean test -B -Djacoco.skip=true -Dmaven.gitcommitid.skip=true
 
   # Runs current branch on Solaris 11.3 on SPARC
+  # JDK 17 not compatible with this OS version (linker errors)
   # Retries flaky test once, possible junit-platform-maven-test issue
   testsolaris_sparc:
     name: Test JDK 11, Solaris SPARC
     concurrency: solaris_gcc211
-    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     steps:
     - name: Test in Solaris SPARC
@@ -87,7 +82,7 @@ jobs:
       with:
         host: gcc211.fsffrance.org
         username: oshi
-        key: ${{ secrets.AIX_OSHI_KEY }}
+        key: ${{ secrets.GCC_CI_KEY }}
         port: 22
         command_timeout: 25m
         script: |
@@ -107,7 +102,6 @@ jobs:
   testaix:
     name: Test JDK 17, AIX
     concurrency: aix_gcc119
-    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     steps:
     - name: Test in AIX
@@ -115,7 +109,7 @@ jobs:
       with:
         host: gcc119.fsffrance.org
         username: oshi
-        key: ${{ secrets.AIX_OSHI_KEY }}
+        key: ${{ secrets.GCC_CI_KEY }}
         port: 22
         command_timeout: 15m
         script: |
@@ -145,7 +139,7 @@ jobs:
 
   # Runs on DragonFly BSD 6.4 x86 VM
   testdragonflybsd:
-    name: Test JDK 11, DragonFly BSD
+    name: Test JDK 21, DragonFly BSD
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -157,16 +151,16 @@ jobs:
           usesh: true
           prepare: |
             pkg install -y curl
-            pkg install -y openjdk11
+            pkg install -y openjdk21
           run: |
-            export JAVA_HOME=/usr/local/openjdk11
+            export JAVA_HOME=/usr/local/openjdk21
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
 
   # Runs on NetBSD 10.1 x86 VM without JNA native library
   testnetbsd:
-    name: Test JDK 11, NetBSD (VM)
+    name: Test JDK 21, NetBSD (VM)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -178,18 +172,17 @@ jobs:
           usesh: true
           prepare: |
             pkg_add curl
-            pkg_add openjdk11
+            pkg_add openjdk21
           run: |
-            export JAVA_HOME=/usr/pkg/java/openjdk11
+            export JAVA_HOME=/usr/pkg/java/openjdk21
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
 
   # SSH into NetBSD server on GCC Compile Farm and run tests
   testnetbsd-gcc70:
-    name: Test JDK 11, NetBSD (GCC farm)
+    name: Test JDK 21, NetBSD (GCC farm)
     concurrency: netbsd_gcc70
-    if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
     steps:
     - name: Test in NetBSD
@@ -197,7 +190,7 @@ jobs:
       with:
         host: gcc70.fsffrance.org
         username: oshi
-        key: ${{ secrets.AIX_OSHI_KEY }}
+        key: ${{ secrets.GCC_CI_KEY }}
         port: 22
         command_timeout: 15m
         script: |

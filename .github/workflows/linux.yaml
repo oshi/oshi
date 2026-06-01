@@ -43,10 +43,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [11, 21, 25]
+        java: [21, 25, 26]
         os: [ubuntu-latest]
         include:
-          - java: 17
+          - java: 21
             os: 'ubuntu-24.04-arm'
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
@@ -82,10 +82,10 @@ jobs:
     name: Container Cgroup Test
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
-          java-version: 17
+          java-version: 21
           distribution: 'zulu'
           cache: 'maven'
       - name: Build oshi-common
@@ -100,7 +100,7 @@ jobs:
             -v "${{ github.workspace }}":/workspace \
             -v "$HOME/.m2":/root/.m2 \
             -w /workspace \
-            eclipse-temurin:17-jdk \
+            eclipse-temurin:21-jdk \
             ./mvnw test -pl oshi-common -am -B
 
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
