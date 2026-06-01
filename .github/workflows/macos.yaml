@@ -17,11 +17,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Baseline support, Current LTS, Current GA, Current EA
-        java: [11, 21, 25]
+        # Previous LTS, Current LTS, Current release
+        java: [21, 25, 26]
         os: [macos-14, macos-15, macos-26]
         include:
-          - java: 17
+          - java: 21
             os: 'macos-26-intel'
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}

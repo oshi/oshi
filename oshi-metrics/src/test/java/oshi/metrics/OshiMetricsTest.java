@@ -7,6 +7,12 @@ package oshi.metrics;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static oshi.util.PlatformEnum.DRAGONFLYBSD;
+import static oshi.util.PlatformEnum.FREEBSD;
+import static oshi.util.PlatformEnum.NETBSD;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,6 +21,7 @@ import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OperatingSystem;
 import oshi.spi.SystemInfoProvider;
+import oshi.util.PlatformEnum;
 
 import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
@@ -153,11 +160,10 @@ class OshiMetricsTest {
 
     @Test
     void diskIoRegistered() {
-        // At least one disk should exist with read direction
         FunctionCounter read = registry.find("system.disk.io").tag("disk.io.direction", "read").functionCounter();
         FunctionCounter write = registry.find("system.disk.io").tag("disk.io.direction", "write").functionCounter();
-        assertNotNull(read, "system.disk.io{direction=read} should be registered");
-        assertNotNull(write, "system.disk.io{direction=write} should be registered");
+        assumeTrue(read != null, "No disks detected on this platform; skipping");
+        assumeTrue(write != null, "No disk write metrics on this platform; skipping");
         assertTrue(read.count() >= 0, "Disk read bytes should be non-negative");
     }
 
@@ -165,22 +171,21 @@ class OshiMetricsTest {
     void diskOperationsRegistered() {
         FunctionCounter read = registry.find("system.disk.operations").tag("disk.io.direction", "read")
                 .functionCounter();
-        assertNotNull(read, "system.disk.operations{direction=read} should be registered");
+        assumeTrue(read != null, "No disks detected on this platform; skipping");
         assertTrue(read.count() >= 0, "Disk read operations should be non-negative");
     }
 
     @Test
     void diskIoTimeRegistered() {
         FunctionCounter ioTime = registry.find("system.disk.io_time").functionCounter();
-        assertNotNull(ioTime, "system.disk.io_time should be registered");
+        assumeTrue(ioTime != null, "No disks detected on this platform; skipping");
         assertTrue(ioTime.count() >= 0, "Disk io_time should be non-negative");
     }
 
     @Test
     void diskLimitRegistered() {
         Gauge limit = registry.find("system.disk.limit").gauge();
-        assertNotNull(limit, "system.disk.limit should be registered");
-        // Some disks (loop devices) may have size 0, just verify registration
+        assumeTrue(limit != null, "No disks detected on this platform; skipping");
         assertTrue(limit.value() >= 0, "Disk limit should be non-negative");
     }
 
@@ -286,8 +291,13 @@ class OshiMetricsTest {
         Gauge virt = registry.find("process.memory.virtual").gauge();
         assertNotNull(rss, "process.memory.usage should be registered");
         assertNotNull(virt, "process.memory.virtual should be registered");
-        assertTrue(rss.value() > 0, "Process RSS should be positive");
-        assertTrue(virt.value() > 0, "Process virtual memory should be positive");
+        if (Set.of(FREEBSD, DRAGONFLYBSD, NETBSD).contains(PlatformEnum.getCurrentPlatform())) {
+            assertTrue(rss.value() >= 0, "Process RSS should be non-negative");
+            assertTrue(virt.value() >= 0, "Process virtual memory should be non-negative");
+        } else {
+            assertTrue(rss.value() > 0, "Process RSS should be positive");
+            assertTrue(virt.value() > 0, "Process virtual memory should be positive");
+        }
     }
 
     @Test

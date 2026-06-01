@@ -20,12 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.PhysicalMemory;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
 @TestInstance(Lifecycle.PER_CLASS)
 public class GlobalMemoryFFMTest {
 

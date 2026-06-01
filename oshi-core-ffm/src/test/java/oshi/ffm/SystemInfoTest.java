@@ -37,7 +37,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
@@ -49,6 +51,7 @@ import oshi.util.PlatformEnum;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(min = JRE.JAVA_25)
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
 public class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
