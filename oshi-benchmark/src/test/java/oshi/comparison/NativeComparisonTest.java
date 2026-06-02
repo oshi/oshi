@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -54,6 +56,7 @@ import oshi.util.Util;
  * <p>
  * Activate with: {@code mvn test -pl oshi-benchmark -Pnative-comparison}
  */
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
 class NativeComparisonTest {
 
     // Snapshot all values once; JNA first (baseline), then FFM
