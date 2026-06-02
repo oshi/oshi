@@ -67,8 +67,15 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     // Pure command-line: swapinfo -k. Used bytes is column index 2, KB → bytes via << 10.
     private static long querySwapUsed() {
-        String swapInfo = ExecutingCommand.getAnswerAt("swapinfo -k", 1);
-        String[] split = ParseUtil.whitespaces.split(swapInfo);
+        return parseSwapUsed(ExecutingCommand.getAnswerAt("swapinfo -k", 1));
+    }
+
+    /**
+     * Extracts the "Used" column (index 2) from a single {@code swapinfo -k} data row and converts the KB value to
+     * bytes. Returns 0 when the line is too short to be valid (fewer than 5 whitespace-separated columns).
+     */
+    static long parseSwapUsed(String swapInfoRow) {
+        String[] split = ParseUtil.whitespaces.split(swapInfoRow);
         if (split.length < 5) {
             return 0L;
         }
