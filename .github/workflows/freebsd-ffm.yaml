@@ -15,18 +15,21 @@ on:
       - freebsd-ffm
 
 jobs:
-  # Exercises the FFM module path under JDK 25 on FreeBSD. This is the path
-  # under active development; failures here are the signal we care about most.
-  testfreebsd-ffm:
-    name: Test JDK 25, FreeBSD (FFM modules)
+  # Runs the full reactor under JDK 25 on FreeBSD with the aggregate-coverage
+  # profile so JaCoCo data flows to Codecov for FreeBSD-specific classes —
+  # which the standard PR workflow cannot exercise. Mirrors the pattern used
+  # by macos.yaml / linux.yaml / pr.yaml.
+  testfreebsd:
+    name: Test JDK 25, FreeBSD (aggregate coverage)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Test FFM modules in FreeBSD
-        id: test-freebsd-ffm
+      - name: Test in FreeBSD with aggregate coverage
+        id: test-freebsd
         uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
         with:
           usesh: true
+          copyback: true
           prepare: |
             pkg install -y curl
             pkg install -y openjdk25
@@ -34,25 +37,11 @@ jobs:
             export JAVA_HOME=/usr/local/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
             java -version
-            ./mvnw -pl oshi-common,oshi-core-ffm -am clean test -B -Djacoco.skip=true
-
-  # Regression guard: makes sure the existing JNA path on oshi-core still
-  # passes on FreeBSD while we hoist code into oshi-common during the port.
-  testfreebsd-jna:
-    name: Test JDK 25, FreeBSD (oshi-core regression)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Test oshi-core in FreeBSD
-        id: test-freebsd-jna
-        uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
+            ./mvnw clean test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         with:
-          usesh: true
-          prepare: |
-            pkg install -y curl
-            pkg install -y openjdk25
-          run: |
-            export JAVA_HOME=/usr/local/openjdk25
-            export PATH=$JAVA_HOME/bin:$PATH
-            java -version
-            ./mvnw -pl oshi-core -am clean test -B -Djacoco.skip=true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: freebsd

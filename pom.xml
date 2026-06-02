@@ -818,14 +818,12 @@
                         <exclude>**/ffm/**</exclude>
                         <exclude>**/jna/**</exclude>
                         <exclude>**/unix/aix/**</exclude>
-                        <exclude>**/unix/freebsd/**</exclude>
                         <exclude>**/unix/dragonflybsd/**</exclude>
                         <exclude>**/unix/netbsd/**</exclude>
                         <exclude>**/unix/openbsd/**</exclude>
                         <exclude>**/unix/solaris/**</exclude>
                         <exclude>**/unix/*Aix*</exclude>
                         <exclude>**/unix/*Bsd*</exclude>
-                        <exclude>**/unix/*FreeBsd*</exclude>
                         <exclude>**/unix/*DragonFlyBsd*</exclude>
                         <exclude>**/unix/*NetBsd*</exclude>
                         <exclude>**/unix/*OpenBsd*</exclude>
