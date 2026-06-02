@@ -53,8 +53,8 @@ public abstract class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     /** Constructs the matching FreeBsdVirtualMemory concrete (JNA or FFM) for this instance. */
     protected abstract VirtualMemory createVirtualMemory();
 
-    // sysctl hw.pagesize doesn't work on FreeBSD 13; fall back to sysconf(3).
+    // sysctl hw.pagesize doesn't work on FreeBSD 13; fall back to getconf(1).
     private static long queryPageSize() {
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("sysconf PAGESIZE"), 4096L);
+        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGESIZE"), 4096L);
     }
 }

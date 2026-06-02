@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.unix.freebsd;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.hardware.common.AbstractVirtualMemory;
@@ -67,7 +68,29 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     // Pure command-line: swapinfo -k. Used bytes is column index 2, KB → bytes via << 10.
     private static long querySwapUsed() {
-        return parseSwapUsed(ExecutingCommand.getAnswerAt("swapinfo -k", 1));
+        return sumSwapUsed(ExecutingCommand.runNative("swapinfo -k"));
+    }
+
+    /**
+     * Aggregates the "Used" column across every {@code swapinfo -k} device row. If a "Total" summary row is present
+     * (e.g. when invoked with {@code -h} or {@code -T}) its value takes precedence; otherwise per-device rows are
+     * summed. The header row and blank lines are skipped.
+     */
+    static long sumSwapUsed(List<String> swapInfoLines) {
+        long sum = 0L;
+        long totalRow = -1L;
+        for (String line : swapInfoLines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty() || trimmed.startsWith("Device")) {
+                continue;
+            }
+            if (trimmed.startsWith("Total")) {
+                totalRow = parseSwapUsed(line);
+                continue;
+            }
+            sum += parseSwapUsed(line);
+        }
+        return totalRow >= 0L ? totalRow : sum;
     }
 
     /**

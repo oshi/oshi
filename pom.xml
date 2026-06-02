@@ -822,8 +822,11 @@
                         <exclude>**/unix/netbsd/**</exclude>
                         <exclude>**/unix/openbsd/**</exclude>
                         <exclude>**/unix/solaris/**</exclude>
+                        <!-- Narrow these `**/unix/<Name>*` patterns — JaCoCo agent globs let `*`
+                             cross path separators, so `**/unix/*Bsd*` etc. would also exclude
+                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. -->
                         <exclude>**/unix/*Aix*</exclude>
-                        <exclude>**/unix/*Bsd*</exclude>
+                        <exclude>**/unix/BsdNetworkIF*</exclude>
                         <exclude>**/unix/*DragonFlyBsd*</exclude>
                         <exclude>**/unix/*NetBsd*</exclude>
                         <exclude>**/unix/*OpenBsd*</exclude>
