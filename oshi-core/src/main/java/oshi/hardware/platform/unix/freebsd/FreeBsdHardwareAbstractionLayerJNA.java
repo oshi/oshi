@@ -21,6 +21,9 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdGraphicsCard;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdSoundCard;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdUsbDevice;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 

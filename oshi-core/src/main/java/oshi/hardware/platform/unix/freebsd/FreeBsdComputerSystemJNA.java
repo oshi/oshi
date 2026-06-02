@@ -12,6 +12,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdComputerSystem;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdFirmware;
 import oshi.hardware.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;

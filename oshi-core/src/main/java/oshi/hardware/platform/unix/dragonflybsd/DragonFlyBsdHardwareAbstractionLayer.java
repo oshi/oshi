@@ -21,16 +21,16 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdGraphicsCard;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdSoundCard;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdUsbDevice;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystemJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemoryJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStoreJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSourceJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdSensorsJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSoundCard;
-import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
 /**
  * DragonFlyBsdHardwareAbstractionLayer class. Uses FreeBSD implementations where behavior is identical.

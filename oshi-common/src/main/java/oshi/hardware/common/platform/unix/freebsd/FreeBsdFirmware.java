@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.freebsd;
+package oshi.hardware.common.platform.unix.freebsd;
 
 import static oshi.util.Memoizer.memoize;
 

@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.freebsd;
+package oshi.hardware.common.platform.unix.freebsd;
 
 import java.util.ArrayList;
 import java.util.Collections;
