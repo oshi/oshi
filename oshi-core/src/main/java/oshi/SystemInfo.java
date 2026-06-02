@@ -14,7 +14,7 @@ import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
-import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
@@ -24,7 +24,7 @@ import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
-import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem;
+import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
 import oshi.software.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
@@ -122,7 +122,7 @@ public class SystemInfo implements SystemInfoProvider {
             case SOLARIS:
                 return new SolarisOperatingSystem();
             case FREEBSD:
-                return new FreeBsdOperatingSystem();
+                return new FreeBsdOperatingSystemJNA();
             case AIX:
                 return new AixOperatingSystem();
             case OPENBSD:
@@ -157,7 +157,7 @@ public class SystemInfo implements SystemInfoProvider {
             case SOLARIS:
                 return new SolarisHardwareAbstractionLayer();
             case FREEBSD:
-                return new FreeBsdHardwareAbstractionLayer();
+                return new FreeBsdHardwareAbstractionLayerJNA();
             case AIX:
                 return new AixHardwareAbstractionLayer();
             case OPENBSD:

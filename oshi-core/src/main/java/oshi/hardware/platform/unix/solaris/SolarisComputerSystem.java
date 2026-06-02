@@ -1,12 +1,12 @@
 /*
- * Copyright 2016-2023 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
 
+import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
 import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BIOS;
 import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_SYSTEM;
-import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
@@ -19,7 +19,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.hardware.platform.unix.UnixBaseboard;
+import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;

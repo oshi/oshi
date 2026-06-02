@@ -1,8 +1,8 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.dragonflybsd;
+package oshi.hardware.platform.unix.freebsd;
 
 import java.util.List;
 
@@ -26,17 +26,12 @@ import oshi.hardware.common.platform.unix.freebsd.FreeBsdSoundCard;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdUsbDevice;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystemJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemoryJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStoreJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSourceJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSensorsJNA;
 
 /**
- * DragonFlyBsdHardwareAbstractionLayer class. Uses FreeBSD implementations where behavior is identical.
+ * FreeBsdHardwareAbstractionLayerJNA class.
  */
 @ThreadSafe
-public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class FreeBsdHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -50,7 +45,7 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public CentralProcessor createProcessor() {
-        return new DragonFlyBsdCentralProcessor();
+        return new FreeBsdCentralProcessorJNA();
     }
 
     @Override

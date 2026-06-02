@@ -31,8 +31,6 @@
 --add-opens
   com.github.oshi/oshi.driver.unix.freebsd=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.driver.unix.freebsd.disk=org.junit.platform.commons
---add-opens
   com.github.oshi/oshi.util.platform.unix.dragonflybsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util.platform.unix.freebsd=org.junit.platform.commons

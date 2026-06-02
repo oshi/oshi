@@ -12,7 +12,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.hardware.CentralProcessor;
-import oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessor;
+import oshi.hardware.platform.unix.freebsd.FreeBsdCentralProcessorJNA;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc;
@@ -21,7 +21,7 @@ import oshi.jna.platform.unix.FreeBsdLibc;
  * DragonFly BSD Central Processor. Overrides CPU tick retrieval to use DragonFly's kern.cputime sysctl via
  * {@link DragonFlyBsdLibc#INSTANCE}.
  */
-public class DragonFlyBsdCentralProcessor extends FreeBsdCentralProcessor {
+public class DragonFlyBsdCentralProcessor extends FreeBsdCentralProcessorJNA {
 
     private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdCentralProcessor.class);
 

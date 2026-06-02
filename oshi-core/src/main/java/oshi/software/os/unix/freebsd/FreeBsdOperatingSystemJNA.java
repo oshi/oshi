@@ -1,8 +1,8 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.dragonflybsd;
+package oshi.software.os.unix.freebsd;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
@@ -22,11 +22,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.ptr.NativeLongByReference;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.Who;
-import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -34,34 +37,30 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.freebsd.FreeBsdFileSystemJNA;
-import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsJNA;
-import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsJNA;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * DragonFly BSD is a free and open-source Unix-like operating system forked from FreeBSD 4.8 in 2003. It features the
- * HAMMER2 filesystem and a unique approach to SMP with its lightweight kernel threads (LWKT) subsystem.
+ * FreeBSD is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
+ * which was based on Research Unix. The first version of FreeBSD was released in 1993. In 2005, FreeBSD was the most
+ * popular open-source BSD operating system, accounting for more than three-quarters of all installed simply,
+ * permissively licensed BSD systems.
  */
 @ThreadSafe
-public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
+public class FreeBsdOperatingSystemJNA extends AbstractOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOperatingSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Package-private for use by DragonFlyBsdOSProcess
+     * Package-private for use by FreeBsdOSProcessJNA
      */
     enum PsKeywords {
-        STATE, PID, PPID, USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND; // COMMAND
-                                                                                                                     // must
-                                                                                                                     // always
-                                                                                                                     // be
-                                                                                                                     // last
+        STATE, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIMES, SYSTIME, TIME, COMM, MAJFLT, MINFLT,
+        NVCSW, NIVCSW, ARGS; // ARGS must always be last
     }
 
     static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
@@ -74,7 +73,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = BsdSysctlUtil.sysctl("kern.ostype", "DragonFly");
+        String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
 
         String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
@@ -140,18 +139,17 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
             psCommand += " -p " + pid;
         }
 
-        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.COMMAND);
+        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
-                .map(psMap -> new DragonFlyBsdOSProcess(
+                .map(psMap -> new FreeBsdOSProcessJNA(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
-                // DragonFlyBSD kernel threads report PID -1; filter them out
-                .filter(proc -> proc.getProcessID() > 0).filter(VALID_PROCESS).collect(Collectors.toList());
+                .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 
     @Override
     public int getProcessId() {
-        return DragonFlyBsdLibc.INSTANCE.getpid();
+        return FreeBsdLibc.INSTANCE.getpid();
     }
 
     @Override
@@ -166,8 +164,11 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public int getThreadId() {
-        int tid = DragonFlyBsdLibc.INSTANCE.lwp_gettid();
-        return tid < 0 ? 0 : tid;
+        NativeLongByReference pTid = new NativeLongByReference();
+        if (FreeBsdLibc.INSTANCE.thr_self(pTid) < 0) {
+            return 0;
+        }
+        return pTid.getValue().intValue();
     }
 
     @Override
@@ -175,7 +176,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
         OSProcess proc = getCurrentProcess();
         final int tid = getThreadId();
         return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
-                .orElse(new DragonFlyBsdOSThread(proc.getProcessID(), tid));
+                .orElse(new FreeBsdOSThread(proc.getProcessID(), tid));
     }
 
     @Override
@@ -198,13 +199,16 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        FreeBsdLibc.Timeval tv = new FreeBsdLibc.Timeval();
+        Timeval tv = new Timeval();
         if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Fall back to text parsing: "{ sec = 1779823319, nsec = 0 } ..."
+            // Usually this works. If it doesn't, fall back to text parsing.
+            // Boot time will be the first consecutive string of digits.
             return ParseUtil.parseLongOrDefault(
                     ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
                     System.currentTimeMillis() / 1000);
         }
+        // tv now points to a 128-bit timeval structure for boot time.
+        // First 8 bytes are seconds, second 8 bytes are microseconds (we ignore)
         return tv.tv_sec;
     }
 

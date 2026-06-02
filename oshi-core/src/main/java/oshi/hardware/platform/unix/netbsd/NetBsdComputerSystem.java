@@ -12,7 +12,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.hardware.platform.unix.UnixBaseboard;
+import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 

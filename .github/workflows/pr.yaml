@@ -72,6 +72,36 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: ${{ matrix.coverage-flag }}
 
+  # FreeBSD VM, JDK 25. Separate from the main matrix because vmactions/freebsd-vm
+  # runs inside a nested VM on ubuntu-latest. Aggregate coverage is uploaded to
+  # Codecov under the `freebsd` flag — this is the only PR job that exercises
+  # the FreeBSD-specific classes.
+  testfreebsd:
+    runs-on: ubuntu-24.04
+    name: Test JDK 25, FreeBSD (+ JNA==FFM)
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Test in FreeBSD with aggregate coverage
+        id: test-freebsd
+        uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
+        with:
+          usesh: true
+          copyback: true
+          prepare: |
+            pkg install -y curl
+            pkg install -y openjdk25
+          run: |
+            export JAVA_HOME=/usr/local/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            ./mvnw test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: freebsd
+
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
     runs-on: ${{ matrix.os }}

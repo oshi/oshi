@@ -12,7 +12,9 @@ on:
       - '**.yaml'
 
 jobs:
-  # Runs current branch on FreeBSD in a VM
+  # Runs current branch on FreeBSD in a VM, with aggregate-coverage uploaded
+  # to Codecov under the `freebsd` flag (no other CI job exercises the
+  # FreeBSD-specific classes).
   testfreebsd:
     name: Test JDK 25, FreeBSD
     runs-on: ubuntu-24.04
@@ -23,13 +25,21 @@ jobs:
         uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
         with:
           usesh: true
+          copyback: true
           prepare: |
             pkg install -y curl
             pkg install -y openjdk25
           run: |
             export JAVA_HOME=/usr/local/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            ./mvnw clean test -B -Djacoco.skip=true
+            ./mvnw clean test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: freebsd
 
   # Runs on OpenBSD 7.7 x86 VM
   testopenbsd:
