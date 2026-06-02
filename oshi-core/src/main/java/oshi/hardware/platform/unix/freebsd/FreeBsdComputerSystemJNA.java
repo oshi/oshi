@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
-import oshi.hardware.common.AbstractComputerSystem;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdComputerSystem;
 import oshi.hardware.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -24,10 +24,10 @@ import oshi.util.tuples.Quintet;
  * Hardware data obtained from dmidecode.
  */
 @Immutable
-public class FreeBsdComputerSystem extends AbstractComputerSystem {
+public class FreeBsdComputerSystemJNA extends FreeBsdComputerSystem {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
-            FreeBsdComputerSystem::readDmiDecode);
+            FreeBsdComputerSystemJNA::readDmiDecode);
 
     @Override
     public String getManufacturer() {

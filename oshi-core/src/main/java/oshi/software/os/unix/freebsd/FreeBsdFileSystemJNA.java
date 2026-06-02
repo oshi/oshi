@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.os.unix.freebsd.FreeBsdFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
@@ -24,7 +24,7 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * volume, concrete file system or other implementation specific means of file storage.
  */
 @ThreadSafe
-public final class FreeBsdFileSystem extends AbstractFileSystem {
+public final class FreeBsdFileSystemJNA extends FreeBsdFileSystem {
 
     public static final String OSHI_FREEBSD_FS_PATH_EXCLUDES = "oshi.os.freebsd.filesystem.path.excludes";
     public static final String OSHI_FREEBSD_FS_PATH_INCLUDES = "oshi.os.freebsd.filesystem.path.includes";

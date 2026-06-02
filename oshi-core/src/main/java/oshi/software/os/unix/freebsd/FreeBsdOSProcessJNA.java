@@ -37,9 +37,9 @@ import com.sun.jna.platform.unix.Resource;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
-import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSProcess;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.freebsd.FreeBsdOperatingSystem.PsKeywords;
+import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -50,13 +50,13 @@ import oshi.util.platform.unix.freebsd.ProcstatUtil;
  * OSProcess implementation
  */
 @ThreadSafe
-public class FreeBsdOSProcess extends AbstractOSProcess {
+public class FreeBsdOSProcessJNA extends FreeBsdOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOSProcessJNA.class);
 
     private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
 
-    private final FreeBsdOperatingSystem os;
+    private final FreeBsdOperatingSystemJNA os;
 
     /*
      * Package-private for use by FreeBsdOSThread
@@ -97,7 +97,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
     private long involuntaryContextSwitches;
     private String commandLineBackup;
 
-    public FreeBsdOSProcess(int pid, Map<PsKeywords, String> psMap, FreeBsdOperatingSystem os) {
+    public FreeBsdOSProcessJNA(int pid, Map<PsKeywords, String> psMap, FreeBsdOperatingSystemJNA os) {
         super(pid);
         this.os = os;
         updateAttributes(psMap);
@@ -379,7 +379,7 @@ public class FreeBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo " + FreeBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
+        String psCommand = "ps -awwxo " + FreeBsdOperatingSystemJNA.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row

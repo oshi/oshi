@@ -10,7 +10,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.common.AbstractSensors;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdSensors;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 
@@ -18,7 +18,7 @@ import oshi.jna.platform.unix.FreeBsdLibc;
  * Sensors from coretemp
  */
 @ThreadSafe
-public class FreeBsdSensors extends AbstractSensors {
+public class FreeBsdSensorsJNA extends FreeBsdSensors {
 
     @Override
     public double queryCpuTemperature() {

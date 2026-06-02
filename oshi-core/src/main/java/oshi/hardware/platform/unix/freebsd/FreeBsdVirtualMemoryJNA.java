@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -10,7 +10,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -19,19 +19,19 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * Memory obtained by swapinfo
  */
 @ThreadSafe
-final class FreeBsdVirtualMemory extends AbstractVirtualMemory {
+final class FreeBsdVirtualMemoryJNA extends FreeBsdVirtualMemory {
 
-    private final FreeBsdGlobalMemory global;
+    private final FreeBsdGlobalMemoryJNA global;
 
-    private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
+    private final Supplier<Long> used = memoize(FreeBsdVirtualMemoryJNA::querySwapUsed, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(FreeBsdVirtualMemory::querySwapTotal, defaultExpiration());
+    private final Supplier<Long> total = memoize(FreeBsdVirtualMemoryJNA::querySwapTotal, defaultExpiration());
 
-    private final Supplier<Long> pagesIn = memoize(FreeBsdVirtualMemory::queryPagesIn, defaultExpiration());
+    private final Supplier<Long> pagesIn = memoize(FreeBsdVirtualMemoryJNA::queryPagesIn, defaultExpiration());
 
-    private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemory::queryPagesOut, defaultExpiration());
+    private final Supplier<Long> pagesOut = memoize(FreeBsdVirtualMemoryJNA::queryPagesOut, defaultExpiration());
 
-    FreeBsdVirtualMemory(FreeBsdGlobalMemory freeBsdGlobalMemory) {
+    FreeBsdVirtualMemoryJNA(FreeBsdGlobalMemoryJNA freeBsdGlobalMemory) {
         this.global = freeBsdGlobalMemory;
     }
 

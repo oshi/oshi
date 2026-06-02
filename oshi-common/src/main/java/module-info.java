@@ -30,11 +30,13 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.linux;
     exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
+    exports oshi.hardware.common.platform.unix.freebsd;
     exports oshi.hardware.common.platform.windows;
     exports oshi.nativefree;
     exports oshi.software.common;
     exports oshi.software.common.os.linux;
     exports oshi.software.common.os.mac;
+    exports oshi.software.common.os.unix.freebsd;
     exports oshi.software.common.os.windows;
     exports oshi.software.os;
     exports oshi.spi;

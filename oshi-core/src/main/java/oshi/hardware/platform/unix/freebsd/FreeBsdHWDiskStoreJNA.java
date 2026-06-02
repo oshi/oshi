@@ -17,7 +17,7 @@ import oshi.driver.unix.freebsd.disk.GeomDiskList;
 import oshi.driver.unix.freebsd.disk.GeomPartList;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
-import oshi.hardware.common.AbstractHWDiskStore;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -28,9 +28,9 @@ import oshi.util.tuples.Triplet;
  * FreeBSD hard disk implementation.
  */
 @ThreadSafe
-public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
+public final class FreeBsdHWDiskStoreJNA extends FreeBsdHWDiskStore {
 
-    private FreeBsdHWDiskStore(String name, String model, String serial, long size) {
+    private FreeBsdHWDiskStoreJNA(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
@@ -84,9 +84,9 @@ public final class FreeBsdHWDiskStore extends AbstractHWDiskStore {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length > 6 && devices.contains(split[0])) {
                 Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
-                FreeBsdHWDiskStore store = (storeInfo == null)
-                        ? new FreeBsdHWDiskStore(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
-                        : new FreeBsdHWDiskStore(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
+                FreeBsdHWDiskStoreJNA store = (storeInfo == null)
+                        ? new FreeBsdHWDiskStoreJNA(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
+                        : new FreeBsdHWDiskStoreJNA(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
                 store.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
                 store.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
                 // In KB

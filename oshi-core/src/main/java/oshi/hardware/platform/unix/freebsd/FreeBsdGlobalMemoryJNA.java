@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
-import oshi.hardware.common.AbstractGlobalMemory;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -20,13 +20,13 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * Memory obtained by sysctl vm.stats
  */
 @ThreadSafe
-public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
+public class FreeBsdGlobalMemoryJNA extends FreeBsdGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());
 
-    private final Supplier<Long> total = memoize(FreeBsdGlobalMemory::queryPhysMem);
+    private final Supplier<Long> total = memoize(FreeBsdGlobalMemoryJNA::queryPhysMem);
 
-    private final Supplier<Long> pageSize = memoize(FreeBsdGlobalMemory::queryPageSize);
+    private final Supplier<Long> pageSize = memoize(FreeBsdGlobalMemoryJNA::queryPageSize);
 
     private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
 
@@ -67,6 +67,6 @@ public class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private VirtualMemory createVirtualMemory() {
-        return new FreeBsdVirtualMemory(this);
+        return new FreeBsdVirtualMemoryJNA(this);
     }
 }

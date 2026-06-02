@@ -34,9 +34,9 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.freebsd.FreeBsdFileSystem;
-import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStats;
-import oshi.software.os.unix.freebsd.FreeBsdNetworkParams;
+import oshi.software.os.unix.freebsd.FreeBsdFileSystemJNA;
+import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsJNA;
+import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsJNA;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -93,12 +93,12 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new FreeBsdFileSystem();
+        return new FreeBsdFileSystemJNA();
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new FreeBsdInternetProtocolStats();
+        return new FreeBsdInternetProtocolStatsJNA();
     }
 
     @Override
@@ -210,7 +210,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new FreeBsdNetworkParams();
+        return new FreeBsdNetworkParamsJNA();
     }
 
     @Override

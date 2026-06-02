@@ -23,7 +23,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
-import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdCentralProcessor;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc.CpTime;
@@ -37,9 +37,9 @@ import oshi.util.tuples.Quartet;
  * A CPU
  */
 @ThreadSafe
-public class FreeBsdCentralProcessor extends AbstractCentralProcessor {
+public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessorJNA.class);
 
     // Capture the CSV of hex values as group(1), clients should split on ','
     private static final Pattern CPUMASK = Pattern

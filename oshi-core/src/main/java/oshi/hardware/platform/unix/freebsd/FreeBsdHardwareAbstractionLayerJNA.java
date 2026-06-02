@@ -25,39 +25,39 @@ import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
- * FreeBsdHardwareAbstractionLayer class.
+ * FreeBsdHardwareAbstractionLayerJNA class.
  */
 @ThreadSafe
-public final class FreeBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class FreeBsdHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new FreeBsdComputerSystem();
+        return new FreeBsdComputerSystemJNA();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new FreeBsdGlobalMemory();
+        return new FreeBsdGlobalMemoryJNA();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new FreeBsdCentralProcessor();
+        return new FreeBsdCentralProcessorJNA();
     }
 
     @Override
     public Sensors createSensors() {
-        return new FreeBsdSensors();
+        return new FreeBsdSensorsJNA();
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return FreeBsdPowerSource.getPowerSources();
+        return FreeBsdPowerSourceJNA.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return FreeBsdHWDiskStore.getDisks();
+        return FreeBsdHWDiskStoreJNA.getDisks();
     }
 
     @Override

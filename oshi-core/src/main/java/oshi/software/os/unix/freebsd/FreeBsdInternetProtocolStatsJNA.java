@@ -14,7 +14,7 @@ import com.sun.jna.Memory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
 import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.common.os.unix.freebsd.FreeBsdInternetProtocolStats;
 import oshi.util.ParseUtil;
 import oshi.util.driver.unix.NetStat;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
@@ -24,11 +24,11 @@ import oshi.util.tuples.Pair;
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-public class FreeBsdInternetProtocolStats extends AbstractInternetProtocolStats {
+public class FreeBsdInternetProtocolStatsJNA extends FreeBsdInternetProtocolStats {
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
-    private Supplier<BsdTcpstat> tcpstat = memoize(FreeBsdInternetProtocolStats::queryTcpstat, defaultExpiration());
-    private Supplier<BsdUdpstat> udpstat = memoize(FreeBsdInternetProtocolStats::queryUdpstat, defaultExpiration());
+    private Supplier<BsdTcpstat> tcpstat = memoize(FreeBsdInternetProtocolStatsJNA::queryTcpstat, defaultExpiration());
+    private Supplier<BsdUdpstat> udpstat = memoize(FreeBsdInternetProtocolStatsJNA::queryUdpstat, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {

@@ -16,16 +16,16 @@ import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.jna.platform.unix.FreeBsdLibc;
-import oshi.software.common.AbstractNetworkParams;
+import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
 import oshi.util.ExecutingCommand;
 
 /**
- * FreeBsdNetworkParams class.
+ * FreeBsdNetworkParamsJNA class.
  */
 @ThreadSafe
-public class FreeBsdNetworkParams extends AbstractNetworkParams {
+public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParams.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParamsJNA.class);
 
     private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.freebsd;
@@ -18,7 +18,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.freebsd.FreeBsdOSProcess.PsThreadColumns;
+import oshi.software.os.unix.freebsd.FreeBsdOSProcessJNA.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -115,7 +115,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
     @Override
     public boolean updateAttributes() {
         List<String> threadList = ExecutingCommand
-                .runNative("ps -awwxo " + FreeBsdOSProcess.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
+                .runNative("ps -awwxo " + FreeBsdOSProcessJNA.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
         // there is no switch for thread in ps command, hence filtering.
         String lwpStr = Integer.toString(this.threadId);
         for (String psOutput : threadList) {
@@ -133,27 +133,27 @@ public class FreeBsdOSThread extends AbstractOSThread {
         this.name = threadMap.get(PsThreadColumns.TDNAME);
         this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.LWP), 0);
         switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
-        case 'R':
-            this.state = RUNNING;
-            break;
-        case 'I':
-        case 'S':
-            this.state = SLEEPING;
-            break;
-        case 'D':
-        case 'L':
-        case 'U':
-            this.state = WAITING;
-            break;
-        case 'Z':
-            this.state = ZOMBIE;
-            break;
-        case 'T':
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
+            case 'R':
+                this.state = RUNNING;
+                break;
+            case 'I':
+            case 'S':
+                this.state = SLEEPING;
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                this.state = WAITING;
+                break;
+            case 'Z':
+                this.state = ZOMBIE;
+                break;
+            case 'T':
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
         }
         long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIMES), 0L);
         // Avoid divide by zero for processes up less than a second

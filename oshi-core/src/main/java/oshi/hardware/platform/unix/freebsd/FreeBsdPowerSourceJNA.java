@@ -13,7 +13,7 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
-import oshi.hardware.common.AbstractPowerSource;
+import oshi.hardware.common.platform.unix.freebsd.FreeBsdPowerSource;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -23,9 +23,9 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
  * A Power Source
  */
 @ThreadSafe
-public final class FreeBsdPowerSource extends AbstractPowerSource {
+public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
 
-    public FreeBsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+    public FreeBsdPowerSourceJNA(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
@@ -51,7 +51,7 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
         return Arrays.asList(getPowerSource("BAT0"));
     }
 
-    private static FreeBsdPowerSource getPowerSource(String name) {
+    private static FreeBsdPowerSourceJNA getPowerSource(String name) {
         String psName = name;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
@@ -139,7 +139,7 @@ public final class FreeBsdPowerSource extends AbstractPowerSource {
             }
         }
 
-        return new FreeBsdPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+        return new FreeBsdPowerSourceJNA(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);

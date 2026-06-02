@@ -48,14 +48,14 @@ import oshi.util.tuples.Pair;
  * permissively licensed BSD systems.
  */
 @ThreadSafe
-public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
+public class FreeBsdOperatingSystemJNA extends AbstractOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Package-private for use by FreeBsdOSProcess
+     * Package-private for use by FreeBsdOSProcessJNA
      */
     enum PsKeywords {
         STATE, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIMES, SYSTIME, TIME, COMM, MAJFLT, MINFLT,
@@ -91,12 +91,12 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new FreeBsdFileSystem();
+        return new FreeBsdFileSystemJNA();
     }
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new FreeBsdInternetProtocolStats();
+        return new FreeBsdInternetProtocolStatsJNA();
     }
 
     @Override
@@ -141,7 +141,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
         Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
-                .map(psMap -> new FreeBsdOSProcess(
+                .map(psMap -> new FreeBsdOSProcessJNA(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
@@ -213,7 +213,7 @@ public class FreeBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new FreeBsdNetworkParams();
+        return new FreeBsdNetworkParamsJNA();
     }
 
     @Override

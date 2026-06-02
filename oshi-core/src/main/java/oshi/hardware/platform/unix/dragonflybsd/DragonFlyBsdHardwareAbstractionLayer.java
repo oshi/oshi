@@ -23,12 +23,12 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.platform.unix.BsdNetworkIF;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystem;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemory;
+import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystemJNA;
+import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemoryJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdGraphicsCard;
-import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStore;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSource;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSensors;
+import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStoreJNA;
+import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSourceJNA;
+import oshi.hardware.platform.unix.freebsd.FreeBsdSensorsJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdSoundCard;
 import oshi.hardware.platform.unix.freebsd.FreeBsdUsbDevice;
 
@@ -40,12 +40,12 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new FreeBsdComputerSystem();
+        return new FreeBsdComputerSystemJNA();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new FreeBsdGlobalMemory();
+        return new FreeBsdGlobalMemoryJNA();
     }
 
     @Override
@@ -55,17 +55,17 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public Sensors createSensors() {
-        return new FreeBsdSensors();
+        return new FreeBsdSensorsJNA();
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return FreeBsdPowerSource.getPowerSources();
+        return FreeBsdPowerSourceJNA.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return FreeBsdHWDiskStore.getDisks();
+        return FreeBsdHWDiskStoreJNA.getDisks();
     }
 
     @Override

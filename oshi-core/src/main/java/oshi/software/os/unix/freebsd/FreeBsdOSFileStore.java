@@ -23,7 +23,7 @@ public class FreeBsdOSFileStore extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : new FreeBsdFileSystem().getFileStores(isLocal())) {
+        for (OSFileStore fileStore : new FreeBsdFileSystemJNA().getFileStores(isLocal())) {
             if (getName().equals(fileStore.getName()) && getVolume().equals(fileStore.getVolume())
                     && getMount().equals(fileStore.getMount())) {
                 updateFrom(fileStore);
