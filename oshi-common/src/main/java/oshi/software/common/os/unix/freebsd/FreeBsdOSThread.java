@@ -2,8 +2,9 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.freebsd;
+package oshi.software.common.os.unix.freebsd;
 
+import static oshi.software.common.os.unix.freebsd.FreeBsdOSProcess.PS_THREAD_COLUMNS;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -17,8 +18,8 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSProcess.PsThreadColumns;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.freebsd.FreeBsdOSProcessJNA.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -115,7 +116,7 @@ public class FreeBsdOSThread extends AbstractOSThread {
     @Override
     public boolean updateAttributes() {
         List<String> threadList = ExecutingCommand
-                .runNative("ps -awwxo " + FreeBsdOSProcessJNA.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
+                .runNative("ps -awwxo " + PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
         // there is no switch for thread in ps command, hence filtering.
         String lwpStr = Integer.toString(this.threadId);
         for (String psOutput : threadList) {

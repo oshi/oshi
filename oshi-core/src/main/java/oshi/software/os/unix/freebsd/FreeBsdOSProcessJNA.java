@@ -16,7 +16,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +37,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.os.unix.freebsd.FreeBsdOSProcess;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSThread;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA.PsKeywords;
 import oshi.util.ExecutingCommand;
@@ -57,16 +57,6 @@ public class FreeBsdOSProcessJNA extends FreeBsdOSProcess {
     private static final int ARGMAX = BsdSysctlUtil.sysctl("kern.argmax", 0);
 
     private final FreeBsdOperatingSystemJNA os;
-
-    /*
-     * Package-private for use by FreeBsdOSThread
-     */
-    enum PsThreadColumns {
-        TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
-    }
-
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);

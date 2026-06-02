@@ -29,6 +29,7 @@ import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
