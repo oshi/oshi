@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix;
+package oshi.hardware.common.platform.unix;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;

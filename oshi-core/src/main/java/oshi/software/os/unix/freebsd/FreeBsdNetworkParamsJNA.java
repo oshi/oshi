@@ -17,10 +17,10 @@ import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
-import oshi.util.ExecutingCommand;
 
 /**
- * FreeBsdNetworkParamsJNA class.
+ * JNA-backed FreeBSD network params. Command-line gateway lookup and the {@code getHostName} fallback live on
+ * {@link FreeBsdNetworkParams}; only the libc bindings ({@code getaddrinfo}, {@code gethostname}) are JNA-specific.
  */
 @ThreadSafe
 public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
@@ -30,7 +30,7 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
     private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;
 
     @Override
-    public String getDomainName() {
+    protected String queryDomainName() {
         try (Addrinfo hint = new Addrinfo()) {
             hint.ai_flags = CLibrary.AI_CANONNAME;
             String hostname = getHostName();
@@ -53,21 +53,11 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
     }
 
     @Override
-    public String getHostName() {
+    protected String queryHostName() {
         byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
         if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {
-            return super.getHostName();
+            return null;
         }
         return Native.toString(hostnameBuffer);
-    }
-
-    @Override
-    public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -4 get default"));
-    }
-
-    @Override
-    public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -6 get default"));
     }
 }
