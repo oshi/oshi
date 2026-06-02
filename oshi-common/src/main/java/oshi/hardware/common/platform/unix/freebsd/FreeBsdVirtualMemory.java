@@ -57,13 +57,25 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
         return pagesOut.get();
     }
 
-    /** Reads {@code vm.swap_total} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code vm.swap_total} via the subclass's sysctl mechanism.
+     *
+     * @return the total swap size in bytes
+     */
     protected abstract long querySwapTotal();
 
-    /** Reads {@code vm.stats.vm.v_swappgsin} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code vm.stats.vm.v_swappgsin} via the subclass's sysctl mechanism.
+     *
+     * @return the cumulative pages-in count
+     */
     protected abstract long queryPagesIn();
 
-    /** Reads {@code vm.stats.vm.v_swappgsout} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code vm.stats.vm.v_swappgsout} via the subclass's sysctl mechanism.
+     *
+     * @return the cumulative pages-out count
+     */
     protected abstract long queryPagesOut();
 
     // Pure command-line: swapinfo -k. Used bytes is column index 2, KB → bytes via << 10.
@@ -75,6 +87,9 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      * Aggregates the "Used" column across every {@code swapinfo -k} device row. If a "Total" summary row is present
      * (e.g. when invoked with {@code -h} or {@code -T}) its value takes precedence; otherwise per-device rows are
      * summed. The header row and blank lines are skipped.
+     *
+     * @param swapInfoLines all lines from {@code swapinfo -k}, including the header
+     * @return the total bytes of swap currently in use
      */
     static long sumSwapUsed(List<String> swapInfoLines) {
         long sum = 0L;
@@ -85,10 +100,10 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
                 continue;
             }
             if (trimmed.startsWith("Total")) {
-                totalRow = parseSwapUsed(line);
+                totalRow = parseSwapUsed(trimmed);
                 continue;
             }
-            sum += parseSwapUsed(line);
+            sum += parseSwapUsed(trimmed);
         }
         return totalRow >= 0L ? totalRow : sum;
     }
@@ -96,6 +111,9 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
     /**
      * Extracts the "Used" column (index 2) from a single {@code swapinfo -k} data row and converts the KB value to
      * bytes. Returns 0 when the line is too short to be valid (fewer than 5 whitespace-separated columns).
+     *
+     * @param swapInfoRow a single data row from {@code swapinfo -k} (caller should trim leading whitespace)
+     * @return the bytes used on this swap device
      */
     static long parseSwapUsed(String swapInfoRow) {
         String[] split = ParseUtil.whitespaces.split(swapInfoRow);

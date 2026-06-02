@@ -59,6 +59,8 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
     /**
      * Reads {@code kern.hostuuid} via the subclass's sysctl mechanism. Used as a fallback when {@code dmidecode} does
      * not yield a UUID (commonly the case without root).
+     *
+     * @return the host UUID, or {@link oshi.util.Constants#UNKNOWN} if the sysctl read fails
      */
     protected abstract String queryHostUuid();
 

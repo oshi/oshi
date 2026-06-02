@@ -44,13 +44,23 @@ public abstract class FreeBsdGlobalMemory extends AbstractGlobalMemory {
     /**
      * Computes available memory from FreeBSD's vm.stats.vm.v_inactive_count + v_free_count, multiplied by page size.
      * Subclasses provide the sysctl read mechanism (JNA via BsdSysctlUtil, FFM via direct sysctlbyname binding).
+     *
+     * @return available memory in bytes
      */
     protected abstract long queryVmStats();
 
-    /** Reads {@code hw.physmem} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code hw.physmem} via the subclass's sysctl mechanism.
+     *
+     * @return total installed physical memory in bytes
+     */
     protected abstract long queryPhysMem();
 
-    /** Constructs the matching FreeBsdVirtualMemory concrete (JNA or FFM) for this instance. */
+    /**
+     * Constructs the matching FreeBsdVirtualMemory concrete (JNA or FFM) for this instance.
+     *
+     * @return the VirtualMemory paired with this GlobalMemory implementation
+     */
     protected abstract VirtualMemory createVirtualMemory();
 
     // sysctl hw.pagesize doesn't work on FreeBSD 13; fall back to getconf(1).

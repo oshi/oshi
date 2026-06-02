@@ -148,9 +148,17 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
         return getMaxFileDescriptors();
     }
 
-    /** Reads {@code kern.openfiles} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code kern.openfiles} via the subclass's sysctl mechanism.
+     *
+     * @return the current count of open file descriptors system-wide
+     */
     protected abstract long queryOpenFiles();
 
-    /** Reads {@code kern.maxfiles} via the subclass's sysctl mechanism. */
+    /**
+     * Reads {@code kern.maxfiles} via the subclass's sysctl mechanism.
+     *
+     * @return the system-wide limit on open file descriptors
+     */
     protected abstract long queryMaxFiles();
 }

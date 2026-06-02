@@ -33,12 +33,16 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
     /**
      * Resolves the domain name via the subclass's getaddrinfo binding. Subclasses return an empty string on failure
      * (matching the prior JNA behavior).
+     *
+     * @return the resolved canonical domain name, or {@code ""} on failure
      */
     protected abstract String queryDomainName();
 
     /**
      * Returns the hostname via the subclass's gethostname binding, or {@code null} to fall back to the InetAddress
      * lookup inherited from {@link AbstractNetworkParams#getHostName()}.
+     *
+     * @return the native hostname, or {@code null} to fall back to the InetAddress lookup
      */
     protected abstract String queryHostName();
 }
