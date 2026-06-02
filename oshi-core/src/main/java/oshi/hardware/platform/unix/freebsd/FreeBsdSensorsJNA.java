@@ -15,7 +15,9 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.FreeBsdLibc;
 
 /**
- * Sensors from coretemp
+ * JNA-backed FreeBSD sensors. The only native read is the per-CPU temperature from the {@code coretemp} kld module
+ * via {@code sysctlbyname("dev.cpu.%d.temperature")}. Fan speeds and CPU voltage have no FreeBSD-supported source
+ * and return the empty/zero defaults inherited from {@link FreeBsdSensors}.
  */
 @ThreadSafe
 public class FreeBsdSensorsJNA extends FreeBsdSensors {
@@ -44,17 +46,5 @@ public class FreeBsdSensorsJNA extends FreeBsdSensors {
             }
             return cpu > 0 ? sumTemp / cpu : Double.NaN;
         }
-    }
-
-    @Override
-    public int[] queryFanSpeeds() {
-        // Nothing known on FreeBSD for this.
-        return new int[0];
-    }
-
-    @Override
-    public double queryCpuVoltage() {
-        // Nothing known on FreeBSD for this.
-        return 0d;
     }
 }
