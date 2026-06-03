@@ -23,6 +23,7 @@ module com.github.oshi.ffm {
     exports oshi.ffm.util;
     exports oshi.ffm.util.gpu;
     exports oshi.ffm.util.platform.mac;
+    exports oshi.ffm.util.platform.unix.freebsd;
     exports oshi.ffm.util.platform.windows;
 
     provides oshi.spi.SystemInfoProvider with oshi.ffm.SystemInfo;
