@@ -18,9 +18,11 @@ public class FreeBsdGlobalMemoryFFM extends FreeBsdGlobalMemory {
 
     @Override
     protected long queryVmStats() {
-        // cached removed in FreeBSD 12 but was always set to 0
-        int inactive = BsdSysctlUtilFFM.sysctl("vm.stats.vm.v_inactive_count", 0);
-        int free = BsdSysctlUtilFFM.sysctl("vm.stats.vm.v_free_count", 0);
+        // cached removed in FreeBSD 12 but was always set to 0.
+        // Counters are uint32 from the kernel; widen to long before adding so the sum and the page-size multiply
+        // don't truncate or sign-extend if either counter exceeds 2^31.
+        long inactive = Integer.toUnsignedLong(BsdSysctlUtilFFM.sysctl("vm.stats.vm.v_inactive_count", 0));
+        long free = Integer.toUnsignedLong(BsdSysctlUtilFFM.sysctl("vm.stats.vm.v_free_count", 0));
         return (inactive + free) * getPageSize();
     }
 
