@@ -12,13 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.unix.Cups;
+import com.sun.jna.platform.unix.Cups.CupsDest;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.unix.CupsPrinter;
-import oshi.jna.platform.unix.Cups;
-import oshi.jna.platform.unix.Cups.CupsDest;
 import oshi.util.ParseUtil;
 
 /**

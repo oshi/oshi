@@ -1,13 +1,13 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac;
 
-import static oshi.jna.platform.mac.CoreGraphics.kCGNullWindowID;
-import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListExcludeDesktopElements;
-import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListOptionAll;
-import static oshi.jna.platform.mac.CoreGraphics.kCGWindowListOptionOnScreenOnly;
+import static com.sun.jna.platform.mac.CoreGraphics.kCGNullWindowID;
+import static com.sun.jna.platform.mac.CoreGraphics.kCGWindowListExcludeDesktopElements;
+import static com.sun.jna.platform.mac.CoreGraphics.kCGWindowListOptionAll;
+import static com.sun.jna.platform.mac.CoreGraphics.kCGWindowListOptionOnScreenOnly;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -19,10 +19,10 @@ import com.sun.jna.platform.mac.CoreFoundation.CFBooleanRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.platform.mac.CoreGraphics;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.mac.CoreGraphics;
-import oshi.jna.platform.mac.CoreGraphics.CGRect;
+import oshi.jna.Struct.CloseableCGRect;
 import oshi.software.os.OSDesktopWindow;
 import oshi.util.FormatUtil;
 import oshi.util.platform.mac.CFUtil;
@@ -78,7 +78,7 @@ public final class WindowInfo {
                     int windowLayer = new CFNumberRef(result).intValue();
 
                     result = windowRef.getValue(kCGWindowBounds);
-                    try (CGRect rect = new CGRect()) {
+                    try (CloseableCGRect rect = new CloseableCGRect()) {
                         CoreGraphics.INSTANCE.CGRectMakeWithDictionaryRepresentation(new CFDictionaryRef(result), rect);
                         Rectangle windowBounds = new Rectangle(FormatUtil.roundToInt(rect.origin.x),
                                 FormatUtil.roundToInt(rect.origin.y), FormatUtil.roundToInt(rect.size.width),

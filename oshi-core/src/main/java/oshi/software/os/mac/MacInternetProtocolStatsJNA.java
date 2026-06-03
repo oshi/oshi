@@ -4,15 +4,15 @@
  */
 package oshi.software.os.mac;
 
+import static com.sun.jna.platform.mac.SystemB.AF_INET;
+import static com.sun.jna.platform.mac.SystemB.AF_INET6;
 import static com.sun.jna.platform.mac.SystemB.INT_SIZE;
 import static com.sun.jna.platform.mac.SystemB.PROC_ALL_PIDS;
-import static oshi.jna.platform.mac.SystemB.AF_INET;
-import static oshi.jna.platform.mac.SystemB.AF_INET6;
-import static oshi.jna.platform.mac.SystemB.PROC_PIDFDSOCKETINFO;
-import static oshi.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
-import static oshi.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
-import static oshi.jna.platform.mac.SystemB.SOCKINFO_IN;
-import static oshi.jna.platform.mac.SystemB.SOCKINFO_TCP;
+import static com.sun.jna.platform.mac.SystemB.PROC_PIDFDSOCKETINFO;
+import static com.sun.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
+import static com.sun.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
+import static com.sun.jna.platform.mac.SystemB.SOCKINFO_IN;
+import static com.sun.jna.platform.mac.SystemB.SOCKINFO_TCP;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
@@ -34,12 +34,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.sun.jna.Memory;
+import com.sun.jna.platform.mac.SystemB.InSockInfo;
+import com.sun.jna.platform.mac.SystemB.ProcFdInfo;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.Struct.CloseableSocketFdInfo;
 import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.mac.SystemB.InSockInfo;
-import oshi.jna.platform.mac.SystemB.ProcFdInfo;
-import oshi.jna.platform.mac.SystemB.SocketFdInfo;
 import oshi.jna.platform.unix.CLibrary.BsdIp6stat;
 import oshi.jna.platform.unix.CLibrary.BsdIpstat;
 import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
@@ -159,7 +159,7 @@ public class MacInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
     }
 
     private static IPConnection queryIPConnection(int pid, int fd) {
-        try (SocketFdInfo si = new SocketFdInfo()) {
+        try (CloseableSocketFdInfo si = new CloseableSocketFdInfo()) {
             int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
             if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
                 InSockInfo ini;
@@ -184,16 +184,16 @@ public class MacInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
                 byte[] laddr;
                 byte[] faddr;
                 if (ini.insi_vflag == 1) {
-                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
-                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr.ina_46.i46a_addr4);
+                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr.ina_46.i46a_addr4);
                     type += "4";
                 } else if (ini.insi_vflag == 2) {
-                    laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
-                    faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
+                    laddr = ini.insi_laddr.ina_6.__u6_addr;
+                    faddr = ini.insi_faddr.ina_6.__u6_addr;
                     type += "6";
                 } else if (ini.insi_vflag == 3) {
-                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
-                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+                    laddr = ParseUtil.parseIntToIP(ini.insi_laddr.ina_46.i46a_addr4);
+                    faddr = ParseUtil.parseIntToIP(ini.insi_faddr.ina_46.i46a_addr4);
                     type += "46";
                 } else {
                     return null;

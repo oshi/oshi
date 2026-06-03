@@ -9,10 +9,10 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.platform.mac.SystemB;
 import com.sun.jna.platform.mac.SystemB.Statfs;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.platform.mac.SystemB;
 import oshi.software.common.os.mac.MacOSFileStore;
 import oshi.software.os.OSFileStore;
 
