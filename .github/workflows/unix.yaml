@@ -41,7 +41,7 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: freebsd
 
-  # Runs on OpenBSD 7.7 x86 VM
+  # Runs on OpenBSD 7.9 x86 VM
   testopenbsd:
     runs-on: ubuntu-24.04
     name: Test JDK 21, OpenBSD
