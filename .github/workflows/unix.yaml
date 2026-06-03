@@ -44,7 +44,7 @@ jobs:
   # Runs on OpenBSD 7.9 x86 VM
   testopenbsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 21, OpenBSD
+    name: Test JDK 25, OpenBSD
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Test on OpenBSD
@@ -56,7 +56,7 @@ jobs:
           mem: 2048
           prepare: |
             pkg_add curl
-            pkg_add jdk%21
+            pkg_add jdk%25
             pkg_add maven
           run: |
             mvn clean test -B -Djacoco.skip=true
@@ -79,18 +79,17 @@ jobs:
             java -version
             ./mvnw clean test -B -Djacoco.skip=true -Dmaven.gitcommitid.skip=true
 
-  # Runs current branch on Solaris 11.3 on SPARC
-  # JDK 17 not compatible with this OS version (linker errors)
+  # Runs current branch on Solaris 11.4 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue
   testsolaris_sparc:
-    name: Test JDK 11, Solaris SPARC
-    concurrency: solaris_gcc211
+    name: Test JDK 17, Solaris SPARC
+    concurrency: solaris_cfarm216
     runs-on: ubuntu-latest
     steps:
     - name: Test in Solaris SPARC
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       with:
-        host: gcc211.fsffrance.org
+        host: cfarm216.cfarm.net
         username: oshi
         key: ${{ secrets.GCC_CI_KEY }}
         port: 22
@@ -98,12 +97,12 @@ jobs:
         script: |
           set -e
           source .profile
-          cd ~/git/oshi
+          cd ~/oshi
           git reset --hard
           git checkout master
           git reset --hard HEAD~2
           git pull
-          for i in {1..2}; do ./mvnw clean test -B -Djacoco.skip=true -Dlicense.skip=true && break || sleep 15; done
+          for i in {1..2}; do ./mvnw clean test -pl oshi-common,oshi-core -B -Djacoco.skip=true -Doshi.os.solaris.allowkstat2=false && break || sleep 15; done
 
   # SSH into AIX server and run test on AIX 7.2
   # Configured to pull latest from oshi master branch

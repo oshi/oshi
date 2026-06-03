@@ -392,7 +392,7 @@ public final class SystemInfoHelper {
         lines.add("File System:");
         lines.add(String.format(Locale.ROOT, " File Descriptors: %d/%d", fileSystem.getOpenFileDescriptors(),
                 fileSystem.getMaxFileDescriptors()));
-        for (OSFileStore fs : fileSystem.getFileStores()) {
+        for (OSFileStore fs : fileSystem.getFileStores(true)) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             lines.add(String.format(Locale.ROOT,
