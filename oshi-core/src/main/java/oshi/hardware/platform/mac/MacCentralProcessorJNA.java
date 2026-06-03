@@ -101,7 +101,7 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
                 }
             } finally {
                 try {
-                    oshi.jna.platform.mac.SystemB.INSTANCE.vm_deallocate(SystemB.INSTANCE.mach_task_self(),
+                    SystemB.INSTANCE.vm_deallocate(SystemB.INSTANCE.mach_task_self(),
                             com.sun.jna.Pointer.nativeValue(procCpuLoadInfo.getValue()),
                             (long) procInfoCount.getValue() * SystemB.INT_SIZE);
                 } catch (Exception e) {

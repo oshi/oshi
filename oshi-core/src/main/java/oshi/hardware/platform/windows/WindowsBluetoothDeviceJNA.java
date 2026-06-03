@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.sun.jna.platform.win32.BluetoothApis;
+import com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_DEVICE_INFO;
+import com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_DEVICE_SEARCH_PARAMS;
+import com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_FIND_RADIO_PARAMS;
+import com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_RADIO_INFO;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.BluetoothDevice;
 import oshi.hardware.common.AbstractBluetoothDevice;
-import oshi.jna.platform.windows.BluetoothApis;
-import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_INFO;
-import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_SEARCH_PARAMS;
-import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_FIND_RADIO_PARAMS;
-import oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_RADIO_INFO;
 import oshi.util.FormatUtil;
 
 /**
@@ -47,7 +47,7 @@ public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
         }
         List<BluetoothDevice> devices = new ArrayList<>();
         BLUETOOTH_FIND_RADIO_PARAMS radioParams = new BLUETOOTH_FIND_RADIO_PARAMS();
-        PointerByReference phRadio = new PointerByReference();
+        HANDLEByReference phRadio = new HANDLEByReference();
 
         HANDLE hFindRadio = BluetoothApis.INSTANCE.BluetoothFindFirstRadio(radioParams, phRadio);
         if (hFindRadio == null) {
@@ -56,7 +56,7 @@ public final class WindowsBluetoothDeviceJNA extends AbstractBluetoothDevice {
 
         try {
             do {
-                HANDLE hRadio = new HANDLE(phRadio.getValue());
+                HANDLE hRadio = phRadio.getValue();
                 try {
                     String adapterName = getRadioName(hRadio);
                     queryDevicesForRadio(hRadio, adapterName, devices);

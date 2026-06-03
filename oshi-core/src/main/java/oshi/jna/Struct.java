@@ -5,10 +5,12 @@
 package oshi.jna;
 
 import com.sun.jna.platform.linux.LibC.Sysinfo;
+import com.sun.jna.platform.mac.CoreGraphics.CGRect;
 import com.sun.jna.platform.mac.SystemB.HostCpuLoadInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskAllInfo;
 import com.sun.jna.platform.mac.SystemB.ProcTaskInfo;
 import com.sun.jna.platform.mac.SystemB.RUsageInfoV2;
+import com.sun.jna.platform.mac.SystemB.SocketFdInfo;
 import com.sun.jna.platform.mac.SystemB.Timeval;
 import com.sun.jna.platform.mac.SystemB.VMStatistics;
 import com.sun.jna.platform.mac.SystemB.VnodePathInfo;
@@ -43,6 +45,13 @@ public interface Struct {
     /*
      * macOS
      */
+
+    class CloseableCGRect extends CGRect implements AutoCloseable {
+        @Override
+        public void close() {
+            FileUtilJNA.freeMemory(getPointer());
+        }
+    }
 
     class CloseableHostCpuLoadInfo extends HostCpuLoadInfo implements AutoCloseable {
         @Override
@@ -94,6 +103,13 @@ public interface Struct {
     }
 
     class CloseableXswUsage extends XswUsage implements AutoCloseable {
+        @Override
+        public void close() {
+            FileUtilJNA.freeMemory(getPointer());
+        }
+    }
+
+    class CloseableSocketFdInfo extends SocketFdInfo implements AutoCloseable {
         @Override
         public void close() {
             FileUtilJNA.freeMemory(getPointer());

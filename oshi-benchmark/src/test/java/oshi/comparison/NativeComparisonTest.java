@@ -266,12 +266,7 @@ class NativeComparisonTest {
             assertThat(f.getReadBytes()).as("readBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
             assertThat(f.getWrites()).as("writes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWrites());
             assertThat(f.getWriteBytes()).as("writeBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWriteBytes());
-            // TODO: Remove isLinux() skip after upgrading JNA past 5.18.1.
-            // JNA's UdevDevice.getSysname() returns full syspath on Linux; fixed by
-            // https://github.com/java-native-access/jna/pull/1715
-            if (!isLinux()) {
-                assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
-            }
+            assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
         }
     }
 
