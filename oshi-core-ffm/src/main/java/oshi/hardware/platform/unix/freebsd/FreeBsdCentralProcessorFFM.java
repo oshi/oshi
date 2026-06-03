@@ -1,9 +1,15 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,41 +22,39 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.LibCAPI.size_t;
+import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdCentralProcessor;
-import oshi.jna.ByRef.CloseableSizeTByReference;
-import oshi.jna.platform.unix.FreeBsdLibc;
-import oshi.jna.platform.unix.FreeBsdLibc.CpTime;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 import oshi.util.tuples.Quartet;
 
 /**
- * A CPU
+ * FFM-backed FreeBSD central processor.
  */
 @ThreadSafe
-public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
+public class FreeBsdCentralProcessorFFM extends FreeBsdCentralProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessorJNA.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FreeBsdCentralProcessorFFM.class);
 
     // Capture the CSV of hex values as group(1), clients should split on ','
     private static final Pattern CPUMASK = Pattern
             .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
-    private static final long CPTIME_SIZE;
-    static {
-        try (CpTime cpTime = new CpTime()) {
-            CPTIME_SIZE = cpTime.size();
-        }
-    }
+    // FreeBSD CPU state indices into kern.cp_time / kern.cp_times arrays
+    private static final int CP_USER = 0;
+    private static final int CP_NICE = 1;
+    private static final int CP_SYS = 2;
+    private static final int CP_INTR = 3;
+    private static final int CP_IDLE = 4;
+    private static final int CPUSTATES = 5;
+    private static final long UINT64_SIZE = Long.BYTES;
+    private static final long CPTIME_SIZE = CPUSTATES * UINT64_SIZE;
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
@@ -59,12 +63,12 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
         final Pattern featuresPattern = Pattern.compile("Features=(\\S+)<.*");
 
         String cpuVendor = "";
-        String cpuName = BsdSysctlUtil.sysctl("hw.model", "");
+        String cpuName = BsdSysctlUtilFFM.sysctl("hw.model", "");
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
         String processorID;
-        long cpuFreq = BsdSysctlUtil.sysctl("hw.clockrate", 0L) * 1_000_000L;
+        long cpuFreq = BsdSysctlUtilFFM.sysctl("hw.clockrate", 0L) * 1_000_000L;
 
         boolean cpu64bit;
 
@@ -166,38 +170,8 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
     }
 
     private static List<LogicalProcessor> parseTopology() {
-        String[] topology = BsdSysctlUtil.sysctl("kern.sched.topology_spec", "").split("[\\n\\r]");
-        /*-
-         * Sample output:
-         *
-        <groups>
-        <group level="1" cache-level="0">
-         <cpu count="24" mask="ffffff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23</cpu>
-         <children>
-          <group level="2" cache-level="2">
-           <cpu count="12" mask="fff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</cpu>
-           <children>
-            <group level="3" cache-level="1">
-             <cpu count="2" mask="3">0, 1</cpu>
-             <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
-            </group>
-            ...
-        * On FreeBSD 13.1, the output may contain a csv value for the mask:
-        <groups>
-         <group level="1" cache-level="3">
-          <cpu count="8" mask="ff,0,0,0">0, 1, 2, 3, 4, 5, 6, 7</cpu>
-          <children>
-           <group level="2" cache-level="2">
-            <cpu count="2" mask="3,0,0,0">0, 1</cpu>
-            ...
-        *
-        * Opens with <groups>
-        * <group> level 1 identifies all the processors via bitmask, should only be one
-        * <group> level 2 separates by physical package
-        * <group> level 3 puts hyperthreads together: if THREAD or SMT or HTT all the CPUs are one physical
-        * If there is no level 3, then all logical processors are physical
-        */
-        // Create lists of the group bitmasks
+        String[] topology = BsdSysctlUtilFFM.sysctl("kern.sched.topology_spec", "").split("[\\n\\r]");
+        // See FreeBsdCentralProcessorJNA for sample output and the layered <group> semantics.
         long group1 = 1L;
         List<Long> group2 = new ArrayList<>();
         List<Long> group3 = new ArrayList<>();
@@ -208,16 +182,11 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
             } else if (topo.contains("</group>")) {
                 groupLevel--;
             } else if (topo.contains("<cpu")) {
-                // Find <cpu> tag and extract bits
                 Matcher m = CPUMASK.matcher(topo);
                 if (m.matches()) {
-                    // If csv of hex values like "f,0,0,0", parse the first value
                     String csvMatch = m.group(1);
                     String[] csvTokens = csvMatch.split(",");
                     String firstVal = csvTokens[0];
-
-                    // Regex guarantees parsing digits so we won't get a
-                    // NumberFormatException
                     long parsedVal = ParseUtil.hexStringToLong(firstVal, 0);
                     switch (groupLevel) {
                         case 1:
@@ -240,10 +209,8 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
 
     private static List<LogicalProcessor> matchBitmasks(long group1, List<Long> group2, List<Long> group3) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-        // Lowest and Highest set bits, indexing from 0
         int lowBit = Long.numberOfTrailingZeros(group1);
         int hiBit = 63 - Long.numberOfLeadingZeros(group1);
-        // Create logical processors for this core
         for (int i = lowBit; i <= hiBit; i++) {
             if ((group1 & (1L << i)) > 0) {
                 int numaNode = 0;
@@ -267,13 +234,15 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        try (CpTime cpTime = new CpTime()) {
-            BsdSysctlUtil.sysctl("kern.cp_time", cpTime);
-            ticks[TickType.USER.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_USER];
-            ticks[TickType.NICE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_NICE];
-            ticks[TickType.SYSTEM.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_SYS];
-            ticks[TickType.IRQ.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_INTR];
-            ticks[TickType.IDLE.getIndex()] = cpTime.cpu_ticks[FreeBsdLibc.CP_IDLE];
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment cpTime = arena.allocate(CPTIME_SIZE);
+            if (BsdSysctlUtilFFM.sysctl("kern.cp_time", cpTime)) {
+                ticks[TickType.USER.getIndex()] = cpTime.getAtIndex(JAVA_LONG, CP_USER);
+                ticks[TickType.NICE.getIndex()] = cpTime.getAtIndex(JAVA_LONG, CP_NICE);
+                ticks[TickType.SYSTEM.getIndex()] = cpTime.getAtIndex(JAVA_LONG, CP_SYS);
+                ticks[TickType.IRQ.getIndex()] = cpTime.getAtIndex(JAVA_LONG, CP_INTR);
+                ticks[TickType.IDLE.getIndex()] = cpTime.getAtIndex(JAVA_LONG, CP_IDLE);
+            }
         }
         return ticks;
     }
@@ -281,12 +250,12 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         long[] freq = new long[1];
-        freq[0] = BsdSysctlUtil.sysctl("dev.cpu.0.freq", -1L);
+        freq[0] = BsdSysctlUtilFFM.sysctl("dev.cpu.0.freq", -1L);
         if (freq[0] > 0) {
             // If success, value is in MHz
             freq[0] *= 1_000_000L;
         } else {
-            freq[0] = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
+            freq[0] = BsdSysctlUtilFFM.sysctl("machdep.tsc_freq", -1L);
         }
         return freq;
     }
@@ -294,7 +263,7 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
     @Override
     public long queryMaxFreq() {
         long max = -1L;
-        String freqLevels = BsdSysctlUtil.sysctl("dev.cpu.0.freq_levels", "");
+        String freqLevels = BsdSysctlUtilFFM.sysctl("dev.cpu.0.freq_levels", "");
         // MHz/Watts pairs like: 2501/32000 2187/27125 2000/24000
         for (String s : ParseUtil.whitespaces.split(freqLevels)) {
             long freq = ParseUtil.parseLongOrDefault(s.split("/")[0], -1L);
@@ -306,7 +275,7 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
             // If success, value is in MHz
             max *= 1_000_000;
         } else {
-            max = BsdSysctlUtil.sysctl("machdep.tsc_freq", -1L);
+            max = BsdSysctlUtilFFM.sysctl("machdep.tsc_freq", -1L);
         }
         return max;
     }
@@ -316,43 +285,41 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
-        double[] average = new double[nelem];
-        int retval = FreeBsdLibc.INSTANCE.getloadavg(average, nelem);
-        if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
+        final int n = nelem;
+        return callInArenaOrDefault(arena -> {
+            MemorySegment avg = arena.allocate(JAVA_DOUBLE, n);
+            int retval = FreeBsdLibcFunctions.getloadavg(avg, n);
+            double[] result = new double[n];
+            for (int i = 0; i < n; i++) {
+                result[i] = (i < retval) ? avg.getAtIndex(JAVA_DOUBLE, i) : -1d;
             }
+            return result;
+        }, LOG, Level.WARN, "Failed to read load average", fillNegative(nelem));
+    }
+
+    private static double[] fillNegative(int nelem) {
+        double[] arr = new double[nelem];
+        for (int i = 0; i < nelem; i++) {
+            arr[i] = -1d;
         }
-        return average;
+        return arr;
     }
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-
-        // Allocate memory for array of CPTime
-        long arraySize = CPTIME_SIZE * getLogicalProcessorCount();
-        try (Memory p = new Memory(arraySize);
-                CloseableSizeTByReference oldlenp = new CloseableSizeTByReference(arraySize)) {
-            String name = "kern.cp_times";
-            // Fetch
-            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, oldlenp, null, size_t.ZERO)) {
-                LOG.error("Failed sysctl call: {}, Error code: {}", name, Native.getLastError());
-                return ticks;
-            }
-            // p now points to the data; need to copy each element
-            for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-                ticks[cpu][TickType.USER.getIndex()] = p
-                        .getLong(CPTIME_SIZE * cpu + FreeBsdLibc.CP_USER * FreeBsdLibc.UINT64_SIZE); // lgtm
-                ticks[cpu][TickType.NICE.getIndex()] = p
-                        .getLong(CPTIME_SIZE * cpu + FreeBsdLibc.CP_NICE * FreeBsdLibc.UINT64_SIZE); // lgtm
-                ticks[cpu][TickType.SYSTEM.getIndex()] = p
-                        .getLong(CPTIME_SIZE * cpu + FreeBsdLibc.CP_SYS * FreeBsdLibc.UINT64_SIZE); // lgtm
-                ticks[cpu][TickType.IRQ.getIndex()] = p
-                        .getLong(CPTIME_SIZE * cpu + FreeBsdLibc.CP_INTR * FreeBsdLibc.UINT64_SIZE); // lgtm
-                ticks[cpu][TickType.IDLE.getIndex()] = p
-                        .getLong(CPTIME_SIZE * cpu + FreeBsdLibc.CP_IDLE * FreeBsdLibc.UINT64_SIZE); // lgtm
-            }
+        int cpus = getLogicalProcessorCount();
+        long[][] ticks = new long[cpus][TickType.values().length];
+        MemorySegment buf = BsdSysctlUtilFFM.sysctl("kern.cp_times");
+        if (buf == null) {
+            return ticks;
+        }
+        for (int cpu = 0; cpu < cpus; cpu++) {
+            long base = CPTIME_SIZE * cpu;
+            ticks[cpu][TickType.USER.getIndex()] = buf.get(JAVA_LONG, base + CP_USER * UINT64_SIZE);
+            ticks[cpu][TickType.NICE.getIndex()] = buf.get(JAVA_LONG, base + CP_NICE * UINT64_SIZE);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = buf.get(JAVA_LONG, base + CP_SYS * UINT64_SIZE);
+            ticks[cpu][TickType.IRQ.getIndex()] = buf.get(JAVA_LONG, base + CP_INTR * UINT64_SIZE);
+            ticks[cpu][TickType.IDLE.getIndex()] = buf.get(JAVA_LONG, base + CP_IDLE * UINT64_SIZE);
         }
         return ticks;
     }
@@ -381,25 +348,11 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        String name = "vm.stats.sys.v_swtch";
-        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        try (Memory p = new Memory(size.longValue())) {
-            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                return 0L;
-            }
-            return ParseUtil.unsignedIntToLong(p.getInt(0));
-        }
+        return ParseUtil.unsignedIntToLong(BsdSysctlUtilFFM.sysctl("vm.stats.sys.v_swtch", 0));
     }
 
     @Override
     public long queryInterrupts() {
-        String name = "vm.stats.sys.v_intr";
-        size_t.ByReference size = new size_t.ByReference(new size_t(FreeBsdLibc.INT_SIZE));
-        try (Memory p = new Memory(size.longValue())) {
-            if (0 != FreeBsdLibc.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                return 0L;
-            }
-            return ParseUtil.unsignedIntToLong(p.getInt(0));
-        }
+        return ParseUtil.unsignedIntToLong(BsdSysctlUtilFFM.sysctl("vm.stats.sys.v_intr", 0));
     }
 }
