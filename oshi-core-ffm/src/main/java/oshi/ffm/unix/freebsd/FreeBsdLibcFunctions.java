@@ -25,10 +25,10 @@ import oshi.ffm.ForeignFunctions;
 /**
  * FFM bindings for FreeBSD libc functions used by OSHI.
  * <p>
- * Phase 3 scope covers {@code sysctlbyname}, {@code getloadavg}, and the {@code utmpx} family
- * ({@code setutxent}/{@code getutxent}/{@code endutxent}) plus the matching {@link #UTMPX_LAYOUT} so a session driver
- * can walk the database. Additional libc bindings ({@code sysctl} with int MIB, {@code getpid}, {@code thr_self},
- * {@code getrlimit}) are added in later phases alongside their first FFM consumer.
+ * Covers {@code sysctlbyname}, {@code getloadavg}, the {@code utmpx} family, and the
+ * {@code gethostname}/{@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror} surface used by network params.
+ * Additional libc bindings ({@code sysctl} with int MIB, {@code getpid}, {@code thr_self}, {@code getrlimit}) are added
+ * in later phases alongside their first FFM consumer.
  */
 public final class FreeBsdLibcFunctions extends ForeignFunctions {
 
@@ -37,6 +37,36 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
 
     /** Layout of the C {@code size_t} type on FreeBSD (8 bytes on all supported 64-bit archs). */
     public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
+
+    /** {@code getaddrinfo} hint flag: return the canonical name in {@code ai_canonname}. */
+    public static final int AI_CANONNAME = 2;
+
+    /** POSIX maximum length of a host name, excluding the null terminator. Buffers should be allocated as +1. */
+    public static final int HOST_NAME_MAX = 255;
+
+    /**
+     * Layout of FreeBSD's {@code struct addrinfo} ({@code <netdb.h>}).
+     *
+     * <pre>
+     *   int    ai_flags      (4) @ 0
+     *   int    ai_family     (4) @ 4
+     *   int    ai_socktype   (4) @ 8
+     *   int    ai_protocol   (4) @ 12
+     *   int    ai_addrlen    (4) @ 16   -- socklen_t (uint32_t on FreeBSD)
+     *   pad                  (4) @ 20
+     *   ptr    ai_canonname  (8) @ 24   -- note: canonname BEFORE addr, unlike Linux glibc
+     *   ptr    ai_addr       (8) @ 32
+     *   ptr    ai_next       (8) @ 40
+     *   total = 48 bytes
+     * </pre>
+     */
+    public static final StructLayout ADDRINFO_LAYOUT = MemoryLayout.structLayout(JAVA_INT.withName("ai_flags"),
+            JAVA_INT.withName("ai_family"), JAVA_INT.withName("ai_socktype"), JAVA_INT.withName("ai_protocol"),
+            JAVA_INT.withName("ai_addrlen"), MemoryLayout.paddingLayout(4), ADDRESS.withName("ai_canonname"),
+            ADDRESS.withName("ai_addr"), ADDRESS.withName("ai_next"));
+
+    private static final VarHandle ADDRINFO_CANONNAME = ADDRINFO_LAYOUT
+            .varHandle(PathElement.groupElement("ai_canonname"));
 
     // ---- utmpx constants (FreeBSD <utmpx.h>) ----
 
@@ -208,5 +238,88 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
         long tvSec = (long) UTMPX_TV_SEC.get(ut, 0L);
         long tvUsec = (long) UTMPX_TV_USEC.get(ut, 0L);
         return tvSec * 1000L + tvUsec / 1000L;
+    }
+
+    // int gethostname(char *name, size_t namelen);
+    private static final MethodHandle gethostname = LINKER.downcallHandle(LIBC.findOrThrow("gethostname"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, SIZE_T));
+
+    /**
+     * Calls {@code gethostname(name, namelen)}.
+     *
+     * @param buf segment of at least {@code len} bytes
+     * @param len buffer length
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int gethostname(MemorySegment buf, long len) throws Throwable {
+        return (int) gethostname.invokeExact(buf, len);
+    }
+
+    // int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
+    private static final MethodHandle getaddrinfo = LINKER.downcallHandle(LIBC.findOrThrow("getaddrinfo"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
+
+    /**
+     * Calls {@code getaddrinfo(node, service, hints, res)}.
+     *
+     * @param node    hostname segment (null-terminated UTF-8)
+     * @param service NULL segment or service name
+     * @param hints   segment allocated with {@link #ADDRINFO_LAYOUT}, or NULL
+     * @param res     pointer-to-pointer output segment (ADDRESS-sized)
+     * @return 0 on success, non-zero error code on failure
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getaddrinfo(MemorySegment node, MemorySegment service, MemorySegment hints, MemorySegment res)
+            throws Throwable {
+        return (int) getaddrinfo.invokeExact(node, service, hints, res);
+    }
+
+    // void freeaddrinfo(struct addrinfo *res);
+    private static final MethodHandle freeaddrinfo = LINKER.downcallHandle(LIBC.findOrThrow("freeaddrinfo"),
+            FunctionDescriptor.ofVoid(ADDRESS));
+
+    /**
+     * Calls {@code freeaddrinfo(res)}.
+     *
+     * @param res the addrinfo pointer returned by {@link #getaddrinfo}
+     * @throws Throwable on FFM invocation error
+     */
+    public static void freeaddrinfo(MemorySegment res) throws Throwable {
+        freeaddrinfo.invokeExact(res);
+    }
+
+    // const char *gai_strerror(int ecode);
+    private static final MethodHandle gai_strerror = LINKER.downcallHandle(LIBC.findOrThrow("gai_strerror"),
+            FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    /**
+     * Calls {@code gai_strerror(ecode)} and returns the error string.
+     *
+     * @param errcode error code from {@link #getaddrinfo}
+     * @param arena   arena to scope the string reinterpret
+     * @return human-readable error string
+     * @throws Throwable on FFM invocation error
+     */
+    public static String gaiStrerror(int errcode, java.lang.foreign.Arena arena) throws Throwable {
+        MemorySegment ptr = (MemorySegment) gai_strerror.invokeExact(errcode);
+        return getStringFromNativePointer(ptr, arena);
+    }
+
+    /**
+     * Reads {@code ai_canonname} from the first addrinfo result pointer.
+     *
+     * @param resPtr the raw pointer value stored in the output segment after {@link #getaddrinfo}
+     * @param arena  arena to scope the reinterpret
+     * @return the canonical name string, or {@code null} if the pointer is NULL
+     */
+    public static String addrinfoCanonname(MemorySegment resPtr, java.lang.foreign.Arena arena) {
+        if (resPtr == null || MemorySegment.NULL.equals(resPtr)) {
+            return null;
+        }
+        MemorySegment addrinfo = MemorySegment.ofAddress(resPtr.address()).reinterpret(ADDRINFO_LAYOUT.byteSize(),
+                arena, null);
+        MemorySegment canonPtr = (MemorySegment) ADDRINFO_CANONNAME.get(addrinfo, 0L);
+        return getStringFromNativePointer(canonPtr, arena);
     }
 }
