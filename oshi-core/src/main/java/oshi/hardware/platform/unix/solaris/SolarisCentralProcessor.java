@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.jna.platform.unix.SolarisLibc;
@@ -32,6 +35,8 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 final class SolarisCentralProcessor extends AbstractCentralProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessor.class);
 
     private static final String KSTAT_SYSTEM_CPU = "kstat:/system/cpu/";
     private static final String INFO = "/info";
@@ -102,18 +107,22 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
             logProcs = new ArrayList<>();
             try (KstatChain kc = KstatUtil.openChain()) {
                 List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
+                LOG.warn("[SPARC-DEBUG] kstat lookupAll cpu_info returned {} entries", kstats.size());
 
                 for (Kstat ksp : kstats) {
                     if (ksp != null && kc.read(ksp)) {
                         int procId = logProcs.size(); // 0-indexed
                         String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
                         String coreId = KstatUtil.dataLookupString(ksp, "core_id");
+                        LOG.warn("[SPARC-DEBUG] Found cpu_info instance {}: chip_id={}, core_id={}", ksp.ks_instance, chipId,
+                                coreId);
                         LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
                                 ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
                         logProcs.add(logProc);
                     }
                 }
             }
+            LOG.warn("[SPARC-DEBUG] Total logical processors found: {}", logProcs.size());
         }
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
@@ -290,7 +299,10 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         int cpu = -1;
         try (KstatChain kc = KstatUtil.openChain()) {
-            for (Kstat ksp : kc.lookupAll("cpu", -1, "sys")) {
+            List<Kstat> kstats = kc.lookupAll("cpu", -1, "sys");
+            LOG.warn("[SPARC-DEBUG] kstat lookupAll cpu/-1/sys returned {} entries for {} logical processors", kstats.size(),
+                    getLogicalProcessorCount());
+            for (Kstat ksp : kstats) {
                 // This is a new CPU
                 if (++cpu >= ticks.length) {
                     // Shouldn't happen
@@ -303,6 +315,8 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
+        LOG.warn("[SPARC-DEBUG] Read ticks for {} CPUs, first idle={}", cpu + 1,
+                ticks.length > 0 ? ticks[0][TickType.IDLE.getIndex()] : -1);
         return ticks;
     }
 

@@ -1,0 +1,41 @@
+name: Solaris SPARC Debug
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - solaris-sparc-debug
+
+jobs:
+  debug:
+    name: Debug cfarm216 (Solaris 11.4 SPARC)
+    concurrency: solaris_cfarm216
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test on cfarm216
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      with:
+        host: cfarm216.cfarm.net
+        username: oshi
+        key: ${{ secrets.GCC_CI_KEY }}
+        port: 22
+        command_timeout: 30m
+        script: |
+          set -e
+          source .profile
+          echo "=== kstat debug ==="
+          kstat -p cpu_info | wc -l
+          kstat -p cpu_info | head -5
+          kstat -p cpu_info:::chip_id | head -10
+          kstat -p cpu::sys:cpu_ticks_idle | head -5
+          echo "=== df -l vs df ==="
+          echo "Local mounts:"
+          df -l 2>/dev/null | wc -l || echo "df -l not supported"
+          echo "All mounts:"
+          df 2>/dev/null | wc -l
+          echo "=== run tests ==="
+          cd ~/oshi
+          git fetch origin
+          git checkout master
+          git reset --hard origin/master
+          ./mvnw clean test -pl oshi-common,oshi-core -B -Djacoco.skip=true -Doshi.os.solaris.allowkstat2=false

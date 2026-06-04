@@ -10,6 +10,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
 import oshi.software.os.FileSystem;
@@ -20,6 +22,8 @@ import oshi.util.PlatformEnum;
  * Test File System
  */
 class FileSystemTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FileSystemTest.class);
 
     /**
      * Test file system.
@@ -36,7 +40,12 @@ class FileSystemTest {
         assertThat("File system max open file descriptors per process should be 0 or higher",
                 filesystem.getMaxFileDescriptorsPerProcess(), greaterThanOrEqualTo(0L));
         filesystem.getMaxFileDescriptorsPerProcess();
-        for (OSFileStore store : filesystem.getFileStores()) {
+        long t = System.currentTimeMillis();
+        java.util.List<OSFileStore> stores = filesystem.getFileStores();
+        LOG.warn("[TIMING] getFileStores() returned {} stores in {}ms", stores.size(),
+                System.currentTimeMillis() - t);
+        t = System.currentTimeMillis();
+        for (OSFileStore store : stores) {
             assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
             assertThat("File store volume shouldn't be null", store.getVolume(), is(notNullValue()));
             assertThat("File store label shouldn't be null", store.getLabel(), is(notNullValue()));
@@ -74,5 +83,7 @@ class FileSystemTest {
             assertThat("File store usable space should remain valid after update", store.getUsableSpace(),
                     greaterThanOrEqualTo(0L));
         }
+        LOG.warn("[TIMING] FileStore iteration+updateAttributes on {} stores: {}ms", stores.size(),
+                System.currentTimeMillis() - t);
     }
 }
