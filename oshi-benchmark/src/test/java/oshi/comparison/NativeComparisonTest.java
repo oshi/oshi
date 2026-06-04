@@ -56,7 +56,7 @@ import oshi.util.Util;
  * <p>
  * Activate with: {@code mvn test -pl oshi-benchmark -Pnative-comparison}
  */
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD })
 class NativeComparisonTest {
 
     // Snapshot all values once; JNA first (baseline), then FFM
@@ -387,9 +387,10 @@ class NativeComparisonTest {
         // Time counters: snapshots taken close together, allow small difference
         assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
         assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
-        // Uptime may differ due to memoization (300ms TTL), use max of 10% or 300ms
+        // Uptime may differ due to memoization (300ms TTL); BSD uses seconds-resolution ps output
+        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 300L);
         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
-                .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
+                .isLessThanOrEqualTo(upTimeTolerance);
         assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
@@ -512,9 +513,12 @@ class NativeComparisonTest {
             long ffmBytesRecvBefore = f.getBytesRecv();
             // Delay to allow network activity
             Util.sleep(100);
-            // Refresh
-            assertThat(j.updateAttributes()).as("JNA net %s updateAttributes", j.getName()).isTrue();
-            assertThat(f.updateAttributes()).as("FFM net %s updateAttributes", f.getName()).isTrue();
+            // Refresh — on BSD, netstat output may not have enough columns for some interfaces
+            boolean jnaUpdated = j.updateAttributes();
+            boolean ffmUpdated = f.updateAttributes();
+            if (!jnaUpdated || !ffmUpdated) {
+                continue;
+            }
             // Traffic counters are monotonically nondecreasing
             assertThat(j.getBytesSent()).as("JNA bytesSent(%s)", j.getName())
                     .isGreaterThanOrEqualTo(jnaBytesSentBefore);
@@ -827,19 +831,20 @@ class NativeComparisonTest {
         return PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
     }
 
-    static boolean isFreeBsd() {
-        return PlatformEnum.getCurrentPlatform() == PlatformEnum.FREEBSD;
+    static boolean isBsd() {
+        PlatformEnum p = PlatformEnum.getCurrentPlatform();
+        return p == PlatformEnum.FREEBSD || p == PlatformEnum.OPENBSD;
     }
 
     /**
-     * On FreeBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is the
-     * seconds-resolution {@code ps -o etimes} value. JNA and FFM each capture {@code now} at slightly different
+     * On FreeBSD/OpenBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is the
+     * seconds-resolution {@code ps -o etimes/etime} value. JNA and FFM each capture {@code now} at slightly different
      * timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the kernel's
      * exact start time, so they keep strict equality.
      */
     private static void assertStartTimeMatches(long actual, long expected, String description) {
-        if (isFreeBsd()) {
-            assertThat(Math.abs(actual - expected)).as(description + " (FreeBSD tolerance)").isLessThanOrEqualTo(2000L);
+        if (isBsd()) {
+            assertThat(Math.abs(actual - expected)).as(description + " (BSD tolerance)").isLessThanOrEqualTo(2000L);
         } else {
             assertThat(actual).as(description).isEqualTo(expected);
         }

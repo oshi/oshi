@@ -72,7 +72,7 @@ public final class OpenBsdHWDiskStoreFFM extends AbstractHWDiskStore {
                         if (bytesPerSector == 0 && sectors > 0) {
                             size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
                             bytesPerSector = size / sectors;
-                            bytesPerSector = Long.highestOneBit(bytesPerSector + bytesPerSector >> 1);
+                            bytesPerSector = Long.highestOneBit(bytesPerSector + (bytesPerSector >> 1));
                         }
                         size = bytesPerSector * sectors;
                         break;
@@ -94,7 +94,7 @@ public final class OpenBsdHWDiskStoreFFM extends AbstractHWDiskStore {
         boolean diskFound = false;
         for (String line : iostat.get()) {
             String[] split = ParseUtil.whitespaces.split(line);
-            if (split.length < 7 && split[0].equals(getName())) {
+            if (split.length >= 6 && split[0].equals(getName())) {
                 diskFound = true;
                 setReadBytes(ParseUtil.parseMultipliedToLongs(split[1]));
                 setWriteBytes(ParseUtil.parseMultipliedToLongs(split[2]));

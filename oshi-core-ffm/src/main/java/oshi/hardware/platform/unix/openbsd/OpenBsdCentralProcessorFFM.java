@@ -97,7 +97,7 @@ public class OpenBsdCentralProcessorFFM extends AbstractCentralProcessor {
     protected long[] queryCurrentFreq() {
         long[] freq = new long[1];
         int[] mib = { CTL_HW, HW_CPUSPEED };
-        freq[0] = OpenBsdSysctlUtilFFM.sysctl(mib, 0L) * 1_000_000L;
+        freq[0] = OpenBsdSysctlUtilFFM.sysctl(mib, 0) * 1_000_000L;
         return freq;
     }
 
@@ -155,7 +155,7 @@ public class OpenBsdCentralProcessorFFM extends AbstractCentralProcessor {
     }
 
     private ProcessorCache parseCacheStr(String cacheStr) {
-        String[] split = ParseUtil.whitespaces.split(cacheStr);
+        String[] split = ParseUtil.whitespaces.split(cacheStr.trim());
         if (split.length > 3) {
             switch (split[split.length - 1]) {
                 case "I-cache":

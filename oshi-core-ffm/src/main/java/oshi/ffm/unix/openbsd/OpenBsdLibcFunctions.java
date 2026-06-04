@@ -85,6 +85,20 @@ public final class OpenBsdLibcFunctions extends ForeignFunctions {
         return (int) getthrid.invokeExact();
     }
 
+    // pid_t getpid(void);
+    private static final MethodHandle getpid = LINKER.downcallHandle(LIBC.findOrThrow("getpid"),
+            FunctionDescriptor.of(JAVA_INT));
+
+    /**
+     * Calls {@code getpid()}.
+     *
+     * @return the process ID of the calling process
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getpid() throws Throwable {
+        return (int) getpid.invokeExact();
+    }
+
     // int getrlimit(int resource, struct rlimit *rlim);
     private static final MethodHandle getrlimit = LINKER.downcallHandle(LIBC.findOrThrow("getrlimit"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));

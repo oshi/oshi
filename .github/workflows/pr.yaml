@@ -102,6 +102,34 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: freebsd
 
+  # OpenBSD VM, JDK 25. Same pattern as FreeBSD above.
+  testopenbsd:
+    runs-on: ubuntu-24.04
+    name: Test JDK 25, OpenBSD (+ JNA==FFM)
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Test on OpenBSD with aggregate coverage
+        id: test-openbsd
+        uses: vmactions/openbsd-vm@fcf799d7ce9c305ad89eabef1fb2fa5c1c42d0ee # v1
+        with:
+          release: "7.9"
+          usesh: false
+          mem: 2048
+          copyback: true
+          prepare: |
+            pkg_add curl
+            pkg_add jdk%25
+            pkg_add maven
+          run: |
+            mvn test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: openbsd
+
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
     runs-on: ${{ matrix.os }}

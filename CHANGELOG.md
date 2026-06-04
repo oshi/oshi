@@ -9,6 +9,9 @@
   [#3322](https://github.com/oshi/oshi/pull/3322),
   [#3328](https://github.com/oshi/oshi/pull/3328),
   [#3330](https://github.com/oshi/oshi/pull/3330): Add FreeBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#3333](https://github.com/oshi/oshi/pull/3333),
+  [#3334](https://github.com/oshi/oshi/pull/3334),
+  [#3335](https://github.com/oshi/oshi/pull/3335): Add OpenBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

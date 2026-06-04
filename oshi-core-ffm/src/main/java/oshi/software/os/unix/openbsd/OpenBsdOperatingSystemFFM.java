@@ -130,9 +130,14 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.size() < 2) {
+            return new ArrayList<>();
+        }
+        procList.remove(0);
         Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
         List<OSProcess> procs = new ArrayList<>();
-        for (String proc : ExecutingCommand.runNative(psCommand)) {
+        for (String proc : procList) {
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
             if (hasKeywordArgs.test(psMap)) {
                 procs.add(new OpenBsdOSProcessFFM(
@@ -144,7 +149,7 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getthrid(), LOG, Level.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getpid(), LOG, Level.WARN,
                 "getpid failed", 0);
     }
 
@@ -173,11 +178,11 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
 
     @Override
     public int getThreadCount() {
-        int threads = 0;
-        for (String proc : ExecutingCommand.runNative("ps -axHo tid")) {
-            threads += ParseUtil.parseIntOrDefault(proc.trim(), 0);
+        List<String> threadList = ExecutingCommand.runNative("ps -axHo tid");
+        if (!threadList.isEmpty()) {
+            return threadList.size() - 1;
         }
-        return threads;
+        return 0;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -58,11 +58,8 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected ProcessorIdentifier queryProcessorId() {
         String cpuVendor = OpenBsdSysctlUtil.sysctl("machdep.cpuvendor", "");
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_MODEL;
+        int[] mib = { CTL_HW, HW_MODEL };
         String cpuName = OpenBsdSysctlUtil.sysctl(mib, "");
-        // CPUID: first 32 bits is cpufeature, last 32 bits is cpuid
         int cpuid = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpuid", ""), 0);
         int cpufeature = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpufeature", ""), 0);
         Triplet<Integer, Integer, Integer> cpu = cpuidToFamilyModelStepping(cpuid);
@@ -73,7 +70,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         if (cpuFreq < 0) {
             cpuFreq = queryMaxFreq();
         }
-        mib[1] = HW_MACHINE;
+        mib = new int[] { CTL_HW, HW_MACHINE };
         String machine = OpenBsdSysctlUtil.sysctl(mib, "");
         boolean cpu64bit = machine != null && machine.contains("64")
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
@@ -96,10 +93,8 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected long[] queryCurrentFreq() {
         long[] freq = new long[1];
-        int[] mib = new int[2];
-        mib[0] = CTL_HW;
-        mib[1] = HW_CPUSPEED;
-        freq[0] = OpenBsdSysctlUtil.sysctl(mib, 0L) * 1_000_000L;
+        int[] mib = { CTL_HW, HW_CPUSPEED };
+        freq[0] = OpenBsdSysctlUtil.sysctl(mib, 0) * 1_000_000L;
         return freq;
     }
 
@@ -134,7 +129,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
         // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
         // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
-        Pattern p = Pattern.compile("cpu(\\\\d+).*: ((ARM|AMD|Intel|Apple).+)");
+        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
 
         Set<ProcessorCache> caches = new HashSet<>();
         // cpu0: 48KB 64b/line 12-way D-cache, 32KB 64b/line 8-way I-cache,
@@ -163,7 +158,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
         // cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
         // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
         // cpu4: 1024KB 64b/line 16-way L2 cache
-        Pattern q = Pattern.compile("cpu(\\\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
+        Pattern q = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
         Set<String> featureFlags = new LinkedHashSet<>();
         for (String s : ExecutingCommand.runNative("dmesg")) {
             Matcher m = p.matcher(s);
@@ -173,7 +168,7 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
             } else {
                 Matcher n = q.matcher(s);
                 if (n.matches()) {
-                    for (String cacheStr : n.group(1).split(",")) {
+                    for (String cacheStr : n.group(2).split(",")) {
                         ProcessorCache cache = parseCacheStr(cacheStr);
                         if (cache != null) {
                             caches.add(cache);
@@ -193,19 +188,21 @@ public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     private ProcessorCache parseCacheStr(String cacheStr) {
-        String[] split = ParseUtil.whitespaces.split(cacheStr);
+        String[] split = ParseUtil.whitespaces.split(cacheStr.trim());
         if (split.length > 3) {
             switch (split[split.length - 1]) {
-            case "I-cache":
-                return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.INSTRUCTION);
-            case "D-cache":
-                return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                        ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.DATA);
-            default:
-                return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]), ParseUtil.getFirstIntValue(split[2]),
-                        ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
-                        Type.UNIFIED);
+                case "I-cache":
+                    return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
+                            ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
+                            Type.INSTRUCTION);
+                case "D-cache":
+                    return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
+                            ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
+                            Type.DATA);
+                default:
+                    return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]),
+                            ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
+                            ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
             }
         }
         return null;

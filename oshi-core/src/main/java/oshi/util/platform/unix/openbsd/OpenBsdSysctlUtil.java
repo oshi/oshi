@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.unix.openbsd;
@@ -78,13 +78,13 @@ public final class OpenBsdSysctlUtil {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(int[] name, String def) {
-        // Call first time with null pointer to get value of size
+        // First call with null oldp to query the needed size
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {
                 LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
                 return def;
             }
-            // Add 1 to size for null terminated string
+            // Add 1 to buffer for null terminated string; size passed to kernel is unchanged
             try (Memory p = new Memory(size.longValue() + 1L)) {
                 if (0 != OpenBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
                     LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
