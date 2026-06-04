@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -7,6 +7,7 @@ package oshi.hardware.platform.unix.openbsd;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -27,27 +28,23 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdPowerSource;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSensors;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSoundCard;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdUsbDevice;
-import oshi.hardware.platform.unix.CupsPrinterJNA;
 
-/**
- * OpenBsdHardwareAbstractionLayer class.
- */
 @ThreadSafe
-public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class OpenBsdHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new OpenBsdComputerSystem();
+        return new OpenBsdComputerSystemFFM();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new OpenBsdGlobalMemory();
+        return new OpenBsdGlobalMemoryFFM();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new OpenBsdCentralProcessor();
+        return new OpenBsdCentralProcessorFFM();
     }
 
     @Override
@@ -62,7 +59,7 @@ public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return OpenBsdHWDiskStore.getDisks();
+        return OpenBsdHWDiskStoreFFM.getDisks();
     }
 
     @Override
@@ -92,6 +89,6 @@ public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinterJNA.getPrinters();
+        return CupsPrinterFFM.getPrinters();
     }
 }
