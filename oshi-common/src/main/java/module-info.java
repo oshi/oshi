@@ -42,6 +42,7 @@ module com.github.oshi.common {
     exports oshi.software.os;
     exports oshi.spi;
     exports oshi.util;
+    exports oshi.util.common.platform.unix.freebsd;
     exports oshi.util.driver.linux;
     exports oshi.util.driver.linux.proc;
     exports oshi.util.driver.unix;

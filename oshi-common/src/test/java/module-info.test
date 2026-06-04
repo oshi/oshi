@@ -50,8 +50,10 @@
   com.github.oshi.common/oshi.driver.unix.freebsd.disk=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.hardware.common.platform.unix.freebsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi.common/oshi.util.common.platform.unix.freebsd=org.junit.platform.commons
 
 --add-modules
   org.hamcrest,org.slf4j.simple
 --add-reads
-  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest,java.desktop
+  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest,java.desktop,java.management

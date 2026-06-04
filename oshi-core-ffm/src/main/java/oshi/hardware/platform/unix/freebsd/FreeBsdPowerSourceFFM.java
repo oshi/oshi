@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.freebsd;
@@ -12,20 +12,22 @@ import java.util.Locale;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdPowerSource;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
- * A Power Source
+ * FFM-backed FreeBSD power source. ACPI battery state/time/life come from {@code hw.acpi.battery.*} sysctls via
+ * {@link BsdSysctlUtilFFM}; richer device fields are scraped from {@code acpiconf -i 0} output, same as the JNA
+ * sibling.
  */
 @ThreadSafe
-public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
+public final class FreeBsdPowerSourceFFM extends FreeBsdPowerSource {
 
-    public FreeBsdPowerSourceJNA(String psName, String psDeviceName, double psRemainingCapacityPercent,
+    public FreeBsdPowerSourceFFM(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
@@ -51,7 +53,7 @@ public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
         return Arrays.asList(getPowerSource("BAT0"));
     }
 
-    private static FreeBsdPowerSourceJNA getPowerSource(String name) {
+    private static FreeBsdPowerSourceFFM getPowerSource(String name) {
         String psName = name;
         double psRemainingCapacityPercent = 1d;
         double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
@@ -71,11 +73,11 @@ public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
         double psTemperature = 0d;
 
         // state 0=full, 1=discharging, 2=charging
-        int state = BsdSysctlUtil.sysctl("hw.acpi.battery.state", 0);
+        int state = BsdSysctlUtilFFM.sysctl("hw.acpi.battery.state", 0);
         if (state == 2) {
             psCharging = true;
         } else {
-            int time = BsdSysctlUtil.sysctl("hw.acpi.battery.time", -1);
+            int time = BsdSysctlUtilFFM.sysctl("hw.acpi.battery.time", -1);
             // time is in minutes
             psTimeRemainingEstimated = time < 0 ? -1d : 60d * time;
             if (state == 1) {
@@ -84,7 +86,7 @@ public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
         }
         // life is in percent; -1 sentinel from sysctl failure means "unknown" (keep default 1.0), but a real 0 means
         // the battery is flat and should drive the percent to 0.0 — hence ">= 0" rather than "> 0".
-        int life = BsdSysctlUtil.sysctl("hw.acpi.battery.life", -1);
+        int life = BsdSysctlUtilFFM.sysctl("hw.acpi.battery.life", -1);
         if (life >= 0) {
             psRemainingCapacityPercent = life / 100d;
         }
@@ -140,7 +142,7 @@ public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
             }
         }
 
-        return new FreeBsdPowerSourceJNA(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+        return new FreeBsdPowerSourceFFM(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
