@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix.openbsd;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -19,7 +19,7 @@ import oshi.util.tuples.Triplet;
  * Memory info on OpenBSD
  */
 @ThreadSafe
-final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
+public class OpenBsdVirtualMemory extends AbstractVirtualMemory {
 
     private final OpenBsdGlobalMemory global;
 
@@ -27,8 +27,8 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
             OpenBsdVirtualMemory::queryVmstat, defaultExpiration());
     private final Supplier<Integer> pgout = memoize(OpenBsdVirtualMemory::queryUvm, defaultExpiration());
 
-    OpenBsdVirtualMemory(OpenBsdGlobalMemory freeBsdGlobalMemory) {
-        this.global = freeBsdGlobalMemory;
+    public OpenBsdVirtualMemory(OpenBsdGlobalMemory global) {
+        this.global = global;
     }
 
     @Override
@@ -80,7 +80,6 @@ final class OpenBsdVirtualMemory extends AbstractVirtualMemory {
     private static int queryUvm() {
         for (String line : ExecutingCommand.runNative("systat -ab uvm")) {
             if (line.contains("pdpageouts")) {
-                // First column is non-numeric "Constants" header
                 return ParseUtil.getFirstIntValue(line);
             }
         }

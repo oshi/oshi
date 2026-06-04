@@ -1,9 +1,10 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.openbsd;
+package oshi.software.common.os.unix.openbsd;
 
+import static oshi.software.common.os.unix.openbsd.OpenBsdOSProcess.PS_THREAD_COLUMNS;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -17,8 +18,8 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess.PsThreadColumns;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.openbsd.OpenBsdOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -114,7 +115,7 @@ public class OpenBsdOSThread extends AbstractOSThread {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -aHwwxo " + OpenBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
+        String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
         // there is no switch for thread in ps command, hence filtering.
         List<String> threadList = ExecutingCommand.runNative(psCommand);
         String tidStr = Integer.toString(this.threadId);

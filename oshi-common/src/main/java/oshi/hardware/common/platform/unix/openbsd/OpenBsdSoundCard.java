@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix.openbsd;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,33 +23,23 @@ import oshi.util.ExecutingCommand;
  * OpenBSD soundcard.
  */
 @Immutable
-final class OpenBsdSoundCard extends AbstractSoundCard {
+public class OpenBsdSoundCard extends AbstractSoundCard {
 
     private static final Pattern AUDIO_AT = Pattern.compile("audio\\d+ at (.+)");
     private static final Pattern PCI_AT = Pattern
             .compile("(.+) at pci\\d+ dev \\d+ function \\d+ \"(.*)\" (rev .+):.*");
 
-    /**
-     * Constructor for OpenBsdSoundCard.
-     *
-     * @param kernelVersion The version
-     * @param name          The name
-     * @param codec         The codec
-     */
-    OpenBsdSoundCard(String kernelVersion, String name, String codec) {
+    public OpenBsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * <p>
-     * getSoundCards.
-     * </p>
+     * Gets sound cards.
      *
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
         List<String> dmesg = ExecutingCommand.runNative("dmesg");
-        // Iterate dmesg once to collect location of audioN
         Set<String> names = new HashSet<>();
         for (String line : dmesg) {
             Matcher m = AUDIO_AT.matcher(line);
@@ -57,7 +47,6 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
                 names.add(m.group(1));
             }
         }
-        // Iterate again and add cards when they match the name
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> codecMap = new HashMap<>();
         Map<String, String> versionMap = new HashMap<>();
@@ -69,13 +58,11 @@ final class OpenBsdSoundCard extends AbstractSoundCard {
                 nameMap.put(key, m.group(2));
                 versionMap.put(key, m.group(3));
             } else if (!key.isEmpty()) {
-                // Codec is on the next line
                 int idx = line.indexOf("codec");
                 if (idx >= 0) {
                     idx = line.indexOf(':');
                     codecMap.put(key, line.substring(idx + 1).trim());
                 }
-                // clear key so we don't keep looking
                 key = "";
             }
         }

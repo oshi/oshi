@@ -15,11 +15,9 @@ import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -37,30 +35,20 @@ import com.sun.jna.platform.unix.Resource;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
-import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
 import oshi.software.os.OSThread;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.openbsd.FstatUtil;
+import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 /**
  * OSProcess implementation
  */
 @ThreadSafe
-public class OpenBsdOSProcess extends AbstractOSProcess {
+public class OpenBsdOSProcess extends oshi.software.common.os.unix.openbsd.OpenBsdOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);
-
-    /*
-     * Package-private for use by OpenBsdOSThread
-     */
-    enum PsThreadColumns {
-        TID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
-    }
-
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     private static final int ARGMAX;
 

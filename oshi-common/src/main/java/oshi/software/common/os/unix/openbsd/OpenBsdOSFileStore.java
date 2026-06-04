@@ -2,28 +2,33 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.openbsd;
+package oshi.software.common.os.unix.openbsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSFileStore;
 import oshi.software.os.OSFileStore;
 
 /**
- * OSFileStore implementation
+ * OSFileStore implementation. The owning {@link OpenBsdFileSystem} is captured at construction so
+ * {@link #updateAttributes()} can re-query against whichever JNA/FFM concrete produced this instance, rather than
+ * baking a specific subclass into oshi-common.
  */
 @ThreadSafe
 public class OpenBsdOSFileStore extends AbstractOSFileStore {
 
-    public OpenBsdOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
-            boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
-            long totalSpace, long freeInodes, long totalInodes) {
+    private final OpenBsdFileSystem fileSystem;
+
+    public OpenBsdOSFileStore(OpenBsdFileSystem fileSystem, String name, String volume, String label, String mount,
+            String options, String uuid, boolean local, String logicalVolume, String description, String fsType,
+            long freeSpace, long usableSpace, long totalSpace, long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
                 usableSpace, totalSpace, freeInodes, totalInodes);
+        this.fileSystem = fileSystem;
     }
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : OpenBsdFileSystem.getFileStoreMatching(getName(), isLocal())) {
+        for (OSFileStore fileStore : fileSystem.getFileStores(isLocal())) {
             if (getName().equals(fileStore.getName()) && getVolume().equals(fileStore.getVolume())
                     && getMount().equals(fileStore.getMount())) {
                 updateFrom(fileStore);
