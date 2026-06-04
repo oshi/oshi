@@ -188,25 +188,4 @@ jobs:
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
 
-  # SSH into NetBSD server on GCC Compile Farm and run tests
-  testnetbsd-gcc70:
-    name: Test JDK 21, NetBSD (GCC farm)
-    concurrency: netbsd_gcc70
-    runs-on: ubuntu-latest
-    steps:
-    - name: Test in NetBSD
-      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
-      with:
-        host: gcc70.fsffrance.org
-        username: oshi
-        key: ${{ secrets.GCC_CI_KEY }}
-        port: 22
-        command_timeout: 15m
-        script: |
-          set -e
-          cd ~/oshi
-          git reset --hard
-          git checkout master
-          git reset --hard HEAD~2
-          git pull
-          ./mvnw clean test -B -Djacoco.skip=true
+
