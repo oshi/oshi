@@ -187,5 +187,3 @@ jobs:
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
-
-
