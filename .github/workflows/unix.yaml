@@ -19,7 +19,7 @@ jobs:
     name: Test JDK 25, FreeBSD
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Test in FreeBSD
         id: test-freebsd
         uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenBSD
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Test on OpenBSD
         id: test-openbsd
         uses: vmactions/openbsd-vm@6fac4962055fe9952d29930942445739e509fecd # v1
@@ -66,7 +66,7 @@ jobs:
     name: Test JDK 21, OpenIndiana
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Test on OpenIndiana
         id: test-openindiana
         uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
@@ -151,7 +151,7 @@ jobs:
     name: Test JDK 21, DragonFly BSD
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Test in DragonFly BSD
         id: test-dragonflybsd
         uses: vmactions/dragonflybsd-vm@b4468429bb9ab60b14600c6eeeb6464427f29391 # v1
@@ -172,7 +172,7 @@ jobs:
     name: Test JDK 21, NetBSD (VM)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Test in NetBSD
         id: test-netbsd
         uses: vmactions/netbsd-vm@ad31081832386a0ba569aee243e6edf9524f3f80 # v1
