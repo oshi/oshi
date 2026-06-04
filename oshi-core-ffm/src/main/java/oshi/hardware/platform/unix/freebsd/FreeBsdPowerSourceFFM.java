@@ -84,9 +84,10 @@ public final class FreeBsdPowerSourceFFM extends FreeBsdPowerSource {
                 psDischarging = true;
             }
         }
-        // life is in percent
+        // life is in percent; -1 sentinel from sysctl failure means "unknown" (keep default 1.0), but a real 0 means
+        // the battery is flat and should drive the percent to 0.0 — hence ">= 0" rather than "> 0".
         int life = BsdSysctlUtilFFM.sysctl("hw.acpi.battery.life", -1);
-        if (life > 0) {
+        if (life >= 0) {
             psRemainingCapacityPercent = life / 100d;
         }
         List<String> acpiconf = ExecutingCommand.runNative("acpiconf -i 0");
