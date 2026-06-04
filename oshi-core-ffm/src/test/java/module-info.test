@@ -9,6 +9,8 @@
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.ffm.util.platform.unix.openbsd=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.ffm.windows.com=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.driver.windows.perfmon=org.junit.platform.commons
