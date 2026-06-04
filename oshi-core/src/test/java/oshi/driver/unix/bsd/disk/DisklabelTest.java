@@ -172,7 +172,7 @@ class DisklabelTest {
             if (elevated) {
                 assertThat("Disk label is not null", diskdata.getA(), is(not(nullValue())));
                 assertThat("Disk duid is not null", diskdata.getB(), is(not(nullValue())));
-                assertThat("Disk size is nonnegative", diskdata.getC().longValue(), is(greaterThanOrEqualTo(0L)));
+                assertThat("Disk size is nonnegative", diskdata.getC(), is(greaterThanOrEqualTo(0L)));
                 for (HWPartition part : diskdata.getD()) {
                     assertTrue(part.getIdentification().startsWith(diskName), "Partition ID starts with disk");
                 }
@@ -191,7 +191,7 @@ class DisklabelTest {
             if (elevated) {
                 assertThat("Disk label is not null", diskdata.getA(), is(not(nullValue())));
                 assertThat("Disk duid is not null", diskdata.getB(), is(not(nullValue())));
-                assertThat("Disk size is nonnegative", diskdata.getC().longValue(), is(greaterThanOrEqualTo(0L)));
+                assertThat("Disk size is nonnegative", diskdata.getC(), is(greaterThanOrEqualTo(0L)));
             }
         }
     }

@@ -61,7 +61,7 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
     @Override
     protected String queryHostName() {
         return callInArenaOrDefault(arena -> {
-            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1);
+            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 != FreeBsdLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return null;
             }
