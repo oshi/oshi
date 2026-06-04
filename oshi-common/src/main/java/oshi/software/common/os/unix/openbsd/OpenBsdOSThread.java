@@ -133,27 +133,27 @@ public class OpenBsdOSThread extends AbstractOSThread {
     private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
         this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
         switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
-        case 'R':
-            this.state = RUNNING;
-            break;
-        case 'I':
-        case 'S':
-            this.state = SLEEPING;
-            break;
-        case 'D':
-        case 'L':
-        case 'U':
-            this.state = WAITING;
-            break;
-        case 'Z':
-            this.state = ZOMBIE;
-            break;
-        case 'T':
-            this.state = STOPPED;
-            break;
-        default:
-            this.state = OTHER;
-            break;
+            case 'R':
+                this.state = RUNNING;
+                break;
+            case 'I':
+            case 'S':
+                this.state = SLEEPING;
+                break;
+            case 'D':
+            case 'L':
+            case 'U':
+                this.state = WAITING;
+                break;
+            case 'Z':
+                this.state = ZOMBIE;
+                break;
+            case 'T':
+                this.state = STOPPED;
+                break;
+            default:
+                this.state = OTHER;
+                break;
         }
         // Avoid divide by zero for processes up less than a second
         long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIME), 0L);
