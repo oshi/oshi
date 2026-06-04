@@ -56,4 +56,4 @@
 --add-modules
   org.hamcrest,org.slf4j.simple
 --add-reads
-  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest,java.desktop
+  com.github.oshi.common=org.junit.jupiter.api,org.hamcrest,java.desktop,java.management
