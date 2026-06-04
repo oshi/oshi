@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix.openbsd;
 
 import static oshi.util.Memoizer.memoize;
 
@@ -46,9 +46,6 @@ public class OpenBsdFirmware extends AbstractFirmware {
 
         List<String> dmesg = ExecutingCommand.runNative("dmesg");
         for (String line : dmesg) {
-            // bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)
-            // bios0: vendor LENOVO version "GLET90WW (2.44 )" date 09/13/2017
-            // bios0: LENOVO 20AWA08J00
             if (line.startsWith("bios0: vendor")) {
                 version = ParseUtil.getStringBetween(line, '"');
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));

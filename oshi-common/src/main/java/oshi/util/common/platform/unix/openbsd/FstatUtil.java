@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.openbsd;
+package oshi.util.common.platform.unix.openbsd;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public final class FstatUtil {
         long fd = 0L;
         for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim(), 11);
-            if (split.length == 11 && !"pipe".contains(split[4]) && !"unix".contains(split[4])) {
+            if (split.length == 11 && !"pipe".equals(split[4]) && !"unix".equals(split[4])) {
                 fd++;
             }
         }

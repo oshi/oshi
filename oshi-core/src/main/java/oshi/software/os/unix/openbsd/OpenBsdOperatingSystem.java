@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.openbsd;
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.openbsd.OpenBsdInternetProtocolStats;
+import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;

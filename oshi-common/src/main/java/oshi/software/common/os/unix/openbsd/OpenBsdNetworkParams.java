@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.openbsd;
+package oshi.software.common.os.unix.openbsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
