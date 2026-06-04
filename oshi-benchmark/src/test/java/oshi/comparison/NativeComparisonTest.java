@@ -56,7 +56,7 @@ import oshi.util.Util;
  * <p>
  * Activate with: {@code mvn test -pl oshi-benchmark -Pnative-comparison}
  */
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD })
 class NativeComparisonTest {
 
     // Snapshot all values once; JNA first (baseline), then FFM
@@ -390,7 +390,7 @@ class NativeComparisonTest {
         // Uptime may differ due to memoization (300ms TTL), use max of 10% or 300ms
         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
                 .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
-        assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
+        assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
         assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
@@ -549,7 +549,10 @@ class NativeComparisonTest {
             assertThat(f.updateAttributes()).as("FFM fileStore %s updateAttributes", f.getMount()).isTrue();
             // Space values should remain valid (non-negative, total unchanged)
             assertThat(j.getTotalSpace()).as("JNA totalSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
-            assertThat(f.getTotalSpace()).as("FFM totalSpace(%s)", f.getMount()).isEqualTo(j.getTotalSpace());
+            // Total space can drift by a handful of blocks between back-to-back snapshots on live filesystems
+            // (block-allocation churn while the test itself is writing); allow a tight 0.1% tolerance instead of
+            // demanding strict equality.
+            assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.001, "totalSpace(" + j.getMount() + ")");
             assertThat(j.getUsableSpace()).as("JNA usableSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
             assertThat(f.getUsableSpace()).as("FFM usableSpace(%s)", f.getMount()).isGreaterThanOrEqualTo(0L);
         }
@@ -799,7 +802,8 @@ class NativeComparisonTest {
                 if (!j.getName().startsWith("kworker/")) {
                     assertThat(f.getName()).as("process[%d].name", j.getProcessID()).isEqualTo(j.getName());
                 }
-                assertThat(f.getStartTime()).as("process[%d].startTime", j.getProcessID()).isEqualTo(j.getStartTime());
+                assertStartTimeMatches(f.getStartTime(), j.getStartTime(),
+                        "process[" + j.getProcessID() + "].startTime");
             }
         }
     }
@@ -821,6 +825,24 @@ class NativeComparisonTest {
 
     static boolean isLinux() {
         return PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
+    }
+
+    static boolean isFreeBsd() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.FREEBSD;
+    }
+
+    /**
+     * On FreeBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is the
+     * seconds-resolution {@code ps -o etimes} value. JNA and FFM each capture {@code now} at slightly different
+     * timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the kernel's
+     * exact start time, so they keep strict equality.
+     */
+    private static void assertStartTimeMatches(long actual, long expected, String description) {
+        if (isFreeBsd()) {
+            assertThat(Math.abs(actual - expected)).as(description + " (FreeBSD tolerance)").isLessThanOrEqualTo(2000L);
+        } else {
+            assertThat(actual).as(description).isEqualTo(expected);
+        }
     }
 
     // ---- Helpers ----

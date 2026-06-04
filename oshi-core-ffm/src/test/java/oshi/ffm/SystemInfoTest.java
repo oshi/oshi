@@ -51,7 +51,7 @@ import oshi.util.PlatformEnum;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD })
 public class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
