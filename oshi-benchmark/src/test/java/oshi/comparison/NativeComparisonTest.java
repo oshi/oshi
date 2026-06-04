@@ -390,7 +390,7 @@ class NativeComparisonTest {
         // Uptime may differ due to memoization (300ms TTL), use max of 10% or 300ms
         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
                 .isLessThanOrEqualTo(Math.max(jna.getUpTime() / 10, 300L));
-        assertThat(ffm.getStartTime()).isEqualTo(jna.getStartTime());
+        assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
         assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
@@ -799,7 +799,8 @@ class NativeComparisonTest {
                 if (!j.getName().startsWith("kworker/")) {
                     assertThat(f.getName()).as("process[%d].name", j.getProcessID()).isEqualTo(j.getName());
                 }
-                assertThat(f.getStartTime()).as("process[%d].startTime", j.getProcessID()).isEqualTo(j.getStartTime());
+                assertStartTimeMatches(f.getStartTime(), j.getStartTime(),
+                        "process[" + j.getProcessID() + "].startTime");
             }
         }
     }
@@ -821,6 +822,24 @@ class NativeComparisonTest {
 
     static boolean isLinux() {
         return PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
+    }
+
+    static boolean isFreeBsd() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.FREEBSD;
+    }
+
+    /**
+     * On FreeBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is the
+     * seconds-resolution {@code ps -o etimes} value. JNA and FFM each capture {@code now} at slightly different
+     * timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the kernel's
+     * exact start time, so they keep strict equality.
+     */
+    private static void assertStartTimeMatches(long actual, long expected, String description) {
+        if (isFreeBsd()) {
+            assertThat(Math.abs(actual - expected)).as(description + " (FreeBSD tolerance)").isLessThanOrEqualTo(2000L);
+        } else {
+            assertThat(actual).as(description).isEqualTo(expected);
+        }
     }
 
     // ---- Helpers ----

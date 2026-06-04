@@ -35,6 +35,12 @@ final class ComparisonAssertions {
      * @param description a label for assertion failure messages
      */
     static void assertWithinRatio(double actual, double expected, double ratio, String description) {
+        // Sensors that aren't available on a platform return NaN from both implementations (e.g. CPU temperature on a
+        // FreeBSD VM without the coretemp kld module). Treat that as "equal: both are 'no data'" since NaN arithmetic
+        // would otherwise make the ratio comparison fail.
+        if (Double.isNaN(actual) && Double.isNaN(expected)) {
+            return;
+        }
         if (expected == 0 && actual == 0) {
             return;
         }
