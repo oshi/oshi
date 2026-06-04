@@ -549,7 +549,10 @@ class NativeComparisonTest {
             assertThat(f.updateAttributes()).as("FFM fileStore %s updateAttributes", f.getMount()).isTrue();
             // Space values should remain valid (non-negative, total unchanged)
             assertThat(j.getTotalSpace()).as("JNA totalSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
-            assertThat(f.getTotalSpace()).as("FFM totalSpace(%s)", f.getMount()).isEqualTo(j.getTotalSpace());
+            // Total space can drift by a handful of blocks between back-to-back snapshots on live filesystems
+            // (block-allocation churn while the test itself is writing); allow a tight 0.1% tolerance instead of
+            // demanding strict equality.
+            assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.001, "totalSpace(" + j.getMount() + ")");
             assertThat(j.getUsableSpace()).as("JNA usableSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
             assertThat(f.getUsableSpace()).as("FFM usableSpace(%s)", f.getMount()).isGreaterThanOrEqualTo(0L);
         }

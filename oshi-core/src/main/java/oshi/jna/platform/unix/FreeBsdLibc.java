@@ -18,6 +18,15 @@ import com.sun.jna.ptr.NativeLongByReference;
 public interface FreeBsdLibc extends CLibrary {
     FreeBsdLibc INSTANCE = BsdLibcLoader.loadLibc(FreeBsdLibc.class);
 
+    /**
+     * FreeBSD's {@code RLIMIT_NOFILE} ({@code <sys/resource.h>}) is 8, not 7 like Linux. The inherited
+     * {@code Resource.RLIMIT_NOFILE} from JNA's platform module is the Linux value, so calling
+     * {@code getrlimit(Resource.RLIMIT_NOFILE, …)} on FreeBSD returns {@code RLIMIT_NPROC} (max processes) instead of
+     * the open-files limit. This constant shadows the inherited Linux value so FreeBSD callers query the right
+     * resource.
+     */
+    int RLIMIT_NOFILE = 8;
+
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;
     int UTX_IDSIZE = 8;
