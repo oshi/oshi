@@ -53,7 +53,7 @@ public final class FstatUtil {
         long fd = 0L;
         for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim(), 11);
-            if (split.length == 11 && !"pipe".contains(split[4]) && !"unix".contains(split[4])) {
+            if (split.length == 11 && !"pipe".equals(split[4]) && !"unix".equals(split[4])) {
                 fd++;
             }
         }
