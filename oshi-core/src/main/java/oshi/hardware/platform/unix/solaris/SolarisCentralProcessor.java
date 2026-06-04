@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -76,8 +76,9 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static ProcessorIdentifier queryProcessorId2(boolean cpu64bit) {
-        Object[] results = KstatUtil.queryKstat2(KSTAT_SYSTEM_CPU + "0" + INFO, "vendor_id", "brand", "family", "model",
+        List<Object[]> list = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "vendor_id", "brand", "family", "model",
                 "stepping", "clock_MHz");
+        Object[] results = list.isEmpty() ? new Object[6] : list.get(0);
 
         String cpuVendor = results[0] == null ? "" : (String) results[0];
         String cpuName = results[1] == null ? "" : (String) results[1];
@@ -290,7 +291,8 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         int cpu = -1;
         try (KstatChain kc = KstatUtil.openChain()) {
-            for (Kstat ksp : kc.lookupAll("cpu", -1, "sys")) {
+            List<Kstat> kstats = kc.lookupAll("cpu", -1, "sys");
+            for (Kstat ksp : kstats) {
                 // This is a new CPU
                 if (++cpu >= ticks.length) {
                     // Shouldn't happen
