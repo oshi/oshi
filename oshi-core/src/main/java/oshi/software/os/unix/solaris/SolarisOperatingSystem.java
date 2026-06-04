@@ -17,6 +17,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.sun.jna.platform.unix.solaris.Kstat2;
+import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2Handle;
+import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2Map;
+import com.sun.jna.platform.unix.solaris.Kstat2StatusException;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -58,19 +61,32 @@ public class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static final boolean ALLOW_KSTAT2 = GlobalConfig.get(GlobalConfig.OSHI_OS_SOLARIS_ALLOWKSTAT2, true);
 
     /**
-     * This static field identifies if the kstat2 library (available in Solaris 11.4 or greater) can be loaded.
+     * This static field identifies if the kstat2 library (available in Solaris 11.4 or greater) can be loaded and
+     * returns valid data.
      */
     public static final boolean HAS_KSTAT2;
     static {
-        Kstat2 lib = null;
+        boolean kstat2Available = false;
         try {
             if (ALLOW_KSTAT2) {
-                lib = Kstat2.INSTANCE;
+                Kstat2 lib = Kstat2.INSTANCE;
+                if (lib != null) {
+                    // Validate kstat2 returns data with a universal kstat path
+                    Kstat2Handle handle = new Kstat2Handle();
+                    try {
+                        Kstat2Map map = handle.lookupMap("kstat:/pages/unix/system_pages");
+                        kstat2Available = map != null && map.getValue("physmem") != null;
+                    } catch (Kstat2StatusException e) {
+                        // kstat2 loaded but can't read data (e.g., LDOM restrictions)
+                    } finally {
+                        handle.close();
+                    }
+                }
             }
-        } catch (UnsatisfiedLinkError e) {
+        } catch (UnsatisfiedLinkError | Kstat2StatusException e) {
             // 11.3 or earlier, no kstat2
         }
-        HAS_KSTAT2 = lib != null;
+        HAS_KSTAT2 = kstat2Available;
     }
 
     private static final Supplier<Pair<Long, Long>> BOOT_UPTIME = Memoizer

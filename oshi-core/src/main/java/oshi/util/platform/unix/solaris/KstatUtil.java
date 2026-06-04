@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.unix.solaris;
@@ -192,21 +192,21 @@ public final class KstatUtil {
         }
         KstatNamed data = new KstatNamed(p);
         switch (data.data_type) {
-        case LibKstat.KSTAT_DATA_CHAR:
-            return Native.toString(data.value.charc, StandardCharsets.UTF_8);
-        case LibKstat.KSTAT_DATA_INT32:
-            return Integer.toString(data.value.i32);
-        case LibKstat.KSTAT_DATA_UINT32:
-            return FormatUtil.toUnsignedString(data.value.ui32);
-        case LibKstat.KSTAT_DATA_INT64:
-            return Long.toString(data.value.i64);
-        case LibKstat.KSTAT_DATA_UINT64:
-            return FormatUtil.toUnsignedString(data.value.ui64);
-        case LibKstat.KSTAT_DATA_STRING:
-            return data.value.str.addr.getString(0);
-        default:
-            LOG.error("Unimplemented kstat data type {}", data.data_type);
-            return "";
+            case LibKstat.KSTAT_DATA_CHAR:
+                return Native.toString(data.value.charc, StandardCharsets.UTF_8);
+            case LibKstat.KSTAT_DATA_INT32:
+                return Integer.toString(data.value.i32);
+            case LibKstat.KSTAT_DATA_UINT32:
+                return FormatUtil.toUnsignedString(data.value.ui32);
+            case LibKstat.KSTAT_DATA_INT64:
+                return Long.toString(data.value.i64);
+            case LibKstat.KSTAT_DATA_UINT64:
+                return FormatUtil.toUnsignedString(data.value.ui64);
+            case LibKstat.KSTAT_DATA_STRING:
+                return data.value.str.addr.getString(0);
+            default:
+                LOG.error("Unimplemented kstat data type {}", data.data_type);
+                return "";
         }
     }
 
@@ -234,17 +234,17 @@ public final class KstatUtil {
         }
         KstatNamed data = new KstatNamed(p);
         switch (data.data_type) {
-        case LibKstat.KSTAT_DATA_INT32:
-            return data.value.i32;
-        case LibKstat.KSTAT_DATA_UINT32:
-            return FormatUtil.getUnsignedInt(data.value.ui32);
-        case LibKstat.KSTAT_DATA_INT64:
-            return data.value.i64;
-        case LibKstat.KSTAT_DATA_UINT64:
-            return data.value.ui64;
-        default:
-            LOG.error("Unimplemented or non-numeric kstat data type {}", data.data_type);
-            return 0L;
+            case LibKstat.KSTAT_DATA_INT32:
+                return data.value.i32;
+            case LibKstat.KSTAT_DATA_UINT32:
+                return FormatUtil.getUnsignedInt(data.value.ui32);
+            case LibKstat.KSTAT_DATA_INT64:
+                return data.value.i64;
+            case LibKstat.KSTAT_DATA_UINT64:
+                return data.value.ui64;
+            default:
+                LOG.error("Unimplemented or non-numeric kstat data type {}", data.data_type);
+                return 0L;
         }
     }
 
@@ -298,27 +298,31 @@ public final class KstatUtil {
         }
         List<Object[]> results = new ArrayList<>();
         int s = 0;
+        int consecutiveMisses = 0;
         Kstat2MatcherList matchers = new Kstat2MatcherList();
         KstatUtil.CHAIN.lock();
         try {
             matchers.addMatcher(Kstat2.KSTAT2_M_GLOB, beforeStr + "*" + afterStr);
             Kstat2Handle handle = new Kstat2Handle();
             try {
-                for (s = 0; s < Integer.MAX_VALUE; s++) {
-                    Object[] result = new Object[names.length];
-                    Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
-                    for (int i = 0; i < names.length; i++) {
-                        result[i] = map.getValue(names[i]);
+                for (s = 0; consecutiveMisses < 256; s++) {
+                    try {
+                        Object[] result = new Object[names.length];
+                        Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
+                        for (int i = 0; i < names.length; i++) {
+                            result[i] = map.getValue(names[i]);
+                        }
+                        results.add(result);
+                        consecutiveMisses = 0;
+                    } catch (Kstat2StatusException e) {
+                        consecutiveMisses++;
                     }
-                    results.add(result);
                 }
             } finally {
                 handle.close();
             }
         } catch (Kstat2StatusException e) {
-            // Expected to end iteration
-            LOG.debug("Failed to get stats on {}{}{} for names {}: {}", beforeStr, s, afterStr, Arrays.toString(names),
-                    e.getMessage());
+            LOG.debug("Failed to initialize kstat2 handle for {}: {}", beforeStr + "*" + afterStr, e.getMessage());
         } finally {
             KstatUtil.CHAIN.unlock();
             matchers.free();

@@ -75,7 +75,6 @@ public class SystemInfoTest { // NOSONAR squid:S5786
         logger.info("Using JNA");
         logger.info("------------------------------------------------------------------------");
         logger.info("Initializing System...");
-        long t = System.currentTimeMillis();
         SystemInfo si = new SystemInfo();
 
         HardwareAbstractionLayer hal = si.getHardware();
@@ -85,112 +84,68 @@ public class SystemInfoTest { // NOSONAR squid:S5786
 
         printOperatingSystem(lines, os);
 
-        logger.warn("[TIMING] Init: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Installed Apps...");
         printInstalledApps(lines, os.getInstalledApplications());
 
-        logger.warn("[TIMING] Installed Apps: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking computer system...");
         printComputerSystem(lines, hal.getComputerSystem());
 
-        logger.warn("[TIMING] Computer System: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Processor...");
         printProcessor(lines, hal.getProcessor());
 
-        logger.warn("[TIMING] Processor: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Memory...");
         printMemory(lines, hal.getMemory());
 
-        logger.warn("[TIMING] Memory: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking CPU...");
         printCpu(lines, hal.getProcessor());
 
-        logger.warn("[TIMING] CPU: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Processes...");
         printProcesses(lines, os, hal.getMemory());
 
-        logger.warn("[TIMING] Processes: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Services...");
         printServices(lines, os);
 
-        logger.warn("[TIMING] Services: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Sensors...");
         printSensors(lines, hal.getSensors());
 
-        logger.warn("[TIMING] Sensors: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Power sources...");
         printPowerSources(lines, hal.getPowerSources());
 
-        logger.warn("[TIMING] Power Sources: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Disks...");
         printDisks(lines, hal.getDiskStores());
 
-        logger.warn("[TIMING] Disks: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Logical Volume Groups ...");
         printLVgroups(lines, hal.getLogicalVolumeGroups());
 
-        logger.warn("[TIMING] LV Groups: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking File System...");
         printFileSystem(lines, os.getFileSystem());
 
-        logger.warn("[TIMING] File System: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Network interfaces...");
         printNetworkInterfaces(lines, hal.getNetworkIFs());
 
-        logger.warn("[TIMING] Network IFs: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Network parameters...");
         printNetworkParameters(lines, os.getNetworkParams());
 
-        logger.warn("[TIMING] Network Params: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking IP statistics...");
         printInternetProtocolStats(lines, os.getInternetProtocolStats());
 
-        logger.warn("[TIMING] IP Stats: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Displays...");
         printDisplays(lines, hal.getDisplays());
 
-        logger.warn("[TIMING] Displays: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking USB Devices...");
         printUsbDevices(lines, hal.getUsbDevices(true));
 
-        logger.warn("[TIMING] USB Devices: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Bluetooth Devices...");
         printBluetoothDevices(lines, hal.getBluetoothDevices());
 
-        logger.warn("[TIMING] Bluetooth: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Sound Cards...");
         printSoundCards(lines, hal.getSoundCards());
 
-        logger.warn("[TIMING] Sound Cards: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Graphics Cards...");
         printGraphicsCards(lines, hal.getGraphicsCards());
 
-        logger.warn("[TIMING] Graphics Cards: {}ms", System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
         logger.info("Checking Printers...");
         printPrinters(lines, hal.getPrinters());
-
-        logger.warn("[TIMING] Printers: {}ms", System.currentTimeMillis() - t);
 
         StringBuilder output = new StringBuilder();
         for (String line : lines) {

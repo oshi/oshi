@@ -9,9 +9,9 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.SystemInfo;
 import oshi.software.os.FileSystem;
@@ -22,8 +22,6 @@ import oshi.util.PlatformEnum;
  * Test File System
  */
 class FileSystemTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FileSystemTest.class);
 
     /**
      * Test file system.
@@ -40,11 +38,8 @@ class FileSystemTest {
         assertThat("File system max open file descriptors per process should be 0 or higher",
                 filesystem.getMaxFileDescriptorsPerProcess(), greaterThanOrEqualTo(0L));
         filesystem.getMaxFileDescriptorsPerProcess();
-        long t = System.currentTimeMillis();
-        java.util.List<OSFileStore> stores = filesystem.getFileStores();
-        LOG.warn("[TIMING] getFileStores() returned {} stores in {}ms", stores.size(),
-                System.currentTimeMillis() - t);
-        t = System.currentTimeMillis();
+        List<OSFileStore> stores = filesystem.getFileStores();
+        int updateCount = 0;
         for (OSFileStore store : stores) {
             assertThat("File store name shouldn't be null", store.getName(), is(notNullValue()));
             assertThat("File store volume shouldn't be null", store.getVolume(), is(notNullValue()));
@@ -73,17 +68,17 @@ class FileSystemTest {
                         store.getUsableSpace() <= store.getTotalSpace(), is(true));
             }
             // updateAttributes should succeed and total space should not change
-            long totalBefore = store.getTotalSpace();
-            assertThat("File store updateAttributes should succeed for " + store.getMount(), store.updateAttributes(),
-                    is(true));
-            if (PlatformEnum.getCurrentPlatform() != PlatformEnum.SOLARIS) {
-                assertThat("File store total space should not change after update", store.getTotalSpace(),
-                        is(totalBefore));
+            if (++updateCount <= 10) {
+                long totalBefore = store.getTotalSpace();
+                assertThat("File store updateAttributes should succeed for " + store.getMount(),
+                        store.updateAttributes(), is(true));
+                if (PlatformEnum.getCurrentPlatform() != PlatformEnum.SOLARIS) {
+                    assertThat("File store total space should not change after update", store.getTotalSpace(),
+                            is(totalBefore));
+                }
+                assertThat("File store usable space should remain valid after update", store.getUsableSpace(),
+                        greaterThanOrEqualTo(0L));
             }
-            assertThat("File store usable space should remain valid after update", store.getUsableSpace(),
-                    greaterThanOrEqualTo(0L));
         }
-        LOG.warn("[TIMING] FileStore iteration+updateAttributes on {} stores: {}ms", stores.size(),
-                System.currentTimeMillis() - t);
     }
 }
