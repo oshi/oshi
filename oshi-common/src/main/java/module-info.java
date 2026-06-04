@@ -25,6 +25,7 @@ module com.github.oshi.common {
     exports oshi.driver.common.windows.registry;
     exports oshi.driver.common.windows.gpu;
     exports oshi.driver.common.windows.wmi;
+    exports oshi.driver.unix.bsd.disk;
     exports oshi.driver.unix.freebsd.disk;
     exports oshi.hardware;
     exports oshi.hardware.common;
