@@ -34,7 +34,7 @@
  * <a href="https://github.com/java-native-access/jna">JNA</a> for native access. Supports all platforms (Windows,
  * macOS, Linux, DragonFly BSD, FreeBSD, OpenBSD, Solaris, AIX). Entry point: {@link oshi.SystemInfo}.</li>
  * <li><b>{@code oshi-core-ffm}</b> - Alternative implementation using the Foreign Function and Memory (FFM) API (JDK
- * 25+). Currently supports Windows, macOS, and Linux. Entry point: {@code oshi.ffm.SystemInfo}.</li>
+ * 25+). Currently supports Windows, macOS, Linux, and FreeBSD. Entry point: {@code oshi.ffm.SystemInfo}.</li>
  * </ul>
  *
  * <h2>Native Access and JEP 472</h2>

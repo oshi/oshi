@@ -4,6 +4,11 @@
 
 * [#3303](https://github.com/oshi/oshi/pull/3303): Add DragonFly BSD platform support - [@dbwiddis](https://github.com/dbwiddis).
 * [#3307](https://github.com/oshi/oshi/pull/3307): Add NetBSD platform support - [@dbwiddis](https://github.com/dbwiddis).
+* [#3316](https://github.com/oshi/oshi/pull/3316),
+  [#3319](https://github.com/oshi/oshi/pull/3319),
+  [#3322](https://github.com/oshi/oshi/pull/3322),
+  [#3328](https://github.com/oshi/oshi/pull/3328),
+  [#3330](https://github.com/oshi/oshi/pull/3330): Add FreeBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

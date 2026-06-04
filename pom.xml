@@ -824,14 +824,14 @@
                         <exclude>**/unix/solaris/**</exclude>
                         <!-- Narrow these `**/unix/<Name>*` patterns — JaCoCo agent globs let `*`
                              cross path separators, so `**/unix/*Bsd*` etc. would also exclude
-                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. -->
+                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. BsdNetworkIF and UnixBaseboard
+                             are no longer excluded: they're now exercised on the permanent FreeBSD
+                             CI job that landed with the FreeBSD FFM port. -->
                         <exclude>**/unix/*Aix*</exclude>
-                        <exclude>**/unix/BsdNetworkIF*</exclude>
                         <exclude>**/unix/*DragonFlyBsd*</exclude>
                         <exclude>**/unix/*NetBsd*</exclude>
                         <exclude>**/unix/*OpenBsd*</exclude>
                         <exclude>**/unix/*Solaris*</exclude>
-                        <exclude>**/unix/UnixBaseboard*</exclude>
                         <!-- Hardware-dependent: no GPU/sensors/battery on CI runners -->
                         <exclude>**/gpu/NvmlUtil*</exclude>
                         <exclude>**/gpu/AdlUtil*</exclude>
@@ -846,6 +846,7 @@
                         <exclude>**/MacPowerSource*</exclude>
                         <exclude>**/WindowsPowerSource*</exclude>
                         <exclude>**/LinuxPowerSource*</exclude>
+                        <exclude>**/FreeBsdPowerSource*</exclude>
                         <!-- Systemd/utmp fallback paths: CI always succeeds on first path -->
                         <exclude>**/driver/linux/WhoJNA*</exclude>
                         <exclude>**/driver/linux/WhoFFM*</exclude>
