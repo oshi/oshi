@@ -38,6 +38,18 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
     /** Layout of the C {@code size_t} type on FreeBSD (8 bytes on all supported 64-bit archs). */
     public static final ValueLayout.OfLong SIZE_T = ValueLayout.JAVA_LONG;
 
+    /** {@code getrlimit} resource: maximum number of open file descriptors. FreeBSD-specific value (8). */
+    public static final int RLIMIT_NOFILE = 8;
+
+    /**
+     * Layout of FreeBSD's {@code struct rlimit}: two {@code rlim_t} (LP64 long) fields.
+     */
+    public static final StructLayout RLIMIT_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("rlim_cur"),
+            JAVA_LONG.withName("rlim_max"));
+
+    private static final VarHandle RLIMIT_CUR = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_cur"));
+    private static final VarHandle RLIMIT_MAX = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_max"));
+
     /** {@code getaddrinfo} hint flag: return the canonical name in {@code ai_canonname}. */
     public static final int AI_CANONNAME = 2;
 
@@ -321,5 +333,93 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
                 arena, null);
         MemorySegment canonPtr = (MemorySegment) ADDRINFO_CANONNAME.get(addrinfo, 0L);
         return getStringFromNativePointer(canonPtr, arena);
+    }
+
+    // pid_t getpid(void);
+    private static final MethodHandle getpid = LINKER.downcallHandle(LIBC.findOrThrow("getpid"),
+            FunctionDescriptor.of(JAVA_INT));
+
+    /**
+     * Calls {@code getpid()}.
+     *
+     * @return the process ID of the calling process
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getpid() throws Throwable {
+        return (int) getpid.invokeExact();
+    }
+
+    // int thr_self(long *id);
+    private static final MethodHandle thr_self = LINKER.downcallHandle(LIBC.findOrThrow("thr_self"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS));
+
+    /**
+     * Calls {@code thr_self(long *id)} — writes the kernel thread ID into the pointed-to long.
+     *
+     * @param idPtr segment of size {@link ValueLayout#JAVA_LONG} that receives the thread id on success
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int thr_self(MemorySegment idPtr) throws Throwable {
+        return (int) thr_self.invokeExact(idPtr);
+    }
+
+    // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+    private static final MethodHandle sysctl = LINKER.downcallHandle(LIBC.findOrThrow("sysctl"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T), CAPTURE_CALL_STATE);
+
+    /**
+     * Calls {@code sysctl(name, namelen, oldp, oldlenp, newp, newlen)} with errno capture. The int-MIB form is needed
+     * for {@code kern.proc.*} queries where the leaf is a per-process index.
+     *
+     * @param callState segment allocated with {@link ForeignFunctions#CAPTURED_STATE_LAYOUT} for errno capture
+     * @param name      MIB array segment (sequence of ints)
+     * @param namelen   number of ints in {@code name}
+     * @param oldp      output buffer for the current value, or {@link MemorySegment#NULL} to query size only
+     * @param oldlenp   pointer to a {@code size_t}: on input, the size of {@code oldp}; on output, the bytes written
+     * @param newp      new value buffer, or {@link MemorySegment#NULL} when reading
+     * @param newlen    size of {@code newp} in bytes, or 0 when reading
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int sysctl(MemorySegment callState, MemorySegment name, int namelen, MemorySegment oldp,
+            MemorySegment oldlenp, MemorySegment newp, long newlen) throws Throwable {
+        return (int) sysctl.invokeExact(callState, name, namelen, oldp, oldlenp, newp, newlen);
+    }
+
+    // int getrlimit(int resource, struct rlimit *rlim);
+    private static final MethodHandle getrlimit = LINKER.downcallHandle(LIBC.findOrThrow("getrlimit"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
+
+    /**
+     * Calls {@code getrlimit(resource, rlim)}.
+     *
+     * @param resource resource constant (e.g. {@link #RLIMIT_NOFILE})
+     * @param rlim     segment allocated with {@link #RLIMIT_LAYOUT}
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getrlimit(int resource, MemorySegment rlim) throws Throwable {
+        return (int) getrlimit.invokeExact(resource, rlim);
+    }
+
+    /**
+     * Reads {@code rlim_cur} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
+     *
+     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
+     * @return the soft resource limit
+     */
+    public static long rlimitCur(MemorySegment rlim) {
+        return (long) RLIMIT_CUR.get(rlim, 0L);
+    }
+
+    /**
+     * Reads {@code rlim_max} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
+     *
+     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
+     * @return the hard resource limit
+     */
+    public static long rlimitMax(MemorySegment rlim) {
+        return (long) RLIMIT_MAX.get(rlim, 0L);
     }
 }

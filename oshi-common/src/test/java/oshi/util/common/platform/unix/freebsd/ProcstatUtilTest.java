@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.freebsd;
+package oshi.util.common.platform.unix.freebsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.SystemInfo;
+import oshi.util.ParseUtil;
 import oshi.util.PlatformEnum;
 
 /**
@@ -88,7 +89,9 @@ class ProcstatUtilTest {
     @Test
     void testProcstatLive() {
         if (PlatformEnum.getCurrentPlatform().equals(PlatformEnum.FREEBSD)) {
-            int pid = new SystemInfo().getOperatingSystem().getProcessId();
+            // RuntimeMXBean's "pid@host" format gives us the current PID without pulling oshi.SystemInfo (JNA-only)
+            // or requiring JDK 9+ ProcessHandle (oshi-common targets JDK 8 bytecode).
+            int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], 0);
             assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
             assertThat("CwdMap should have at least one element", ProcstatUtil.getCwdMap(-1), is(not(anEmptyMap())));
             assertThat("CwdMap with pid should have at least one element", ProcstatUtil.getCwdMap(pid),

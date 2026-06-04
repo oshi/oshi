@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.freebsd;
+package oshi.util.common.platform.unix.freebsd;
 
 import java.util.HashMap;
 import java.util.List;
