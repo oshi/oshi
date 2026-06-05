@@ -8,17 +8,17 @@ OSHI provides two native access implementations:
 - **JNA** (`oshi-core`): Supports JDK 8+ and all platforms OSHI targets. JNA uses reflection-based marshalling for native calls, which adds overhead per invocation.
 - **FFM** (`oshi-core-ffm`): Requires JDK 25+ and currently supports Linux, macOS, Windows, FreeBSD, OpenBSD, and Solaris (illumos). FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
 
-The tables below show approximate average times from JMH benchmarks (1 warmup iteration, 3 measurement iterations) captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`) on GitHub Actions runners. The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change.
+The tables below show approximate average times from JMH benchmarks (5 warmup iterations, 7 measurement iterations, 5 forks) captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`) on GitHub Actions runners. The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change.
 
 ### macOS
 
 | Benchmark  | FFM     | JNA      |
 |------------|---------|----------|
-| CpuTicks   | ~5 µs   | ~9 µs    |
-| FileStore  | ~45 µs  | ~104 µs  |
-| Memory     | ~4 µs   | ~8 µs    |
-| NetworkIF  | ~20 µs  | ~128 µs  |
-| Processes  | ~1.6 ms | ~11 ms   |
+| CpuTicks   | ~5 µs   | ~6 µs    |
+| FileStore  | ~43 µs  | ~97 µs   |
+| Memory     | ~3 µs   | ~7 µs    |
+| NetworkIF  | ~18 µs  | ~115 µs  |
+| Processes  | ~1.5 ms | ~10.7 ms |
 
 macOS shows the largest FFM advantage because most system information requires native syscalls (`sysctl`, `proc_pidinfo`, etc.) where FFM's lower per-call overhead compounds across many invocations.
 
@@ -26,23 +26,23 @@ macOS shows the largest FFM advantage because most system information requires n
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~0.22 ms | ~0.40 ms |
-| FileStore  | ~26 µs   | ~101 µs  |
-| Memory     | ~59 µs   | ~89 µs   |
-| NetworkIF  | ~479 µs  | ~862 µs  |
-| Processes  | ~6.0 ms  | ~7.6 ms  |
+| CpuTicks   | ~0.24 ms | ~0.46 ms |
+| FileStore  | ~32 µs   | ~117 µs  |
+| Memory     | ~72 µs   | ~111 µs  |
+| NetworkIF  | ~4.0 ms  | ~1.1 ms  |
+| Processes  | ~8.2 ms  | ~8.8 ms  |
 
-Windows benefits from FFM across all benchmarks.
+Windows benefits from FFM across most benchmarks. The NetworkIF anomaly (FFM slower) is due to occasional WMI query latency spikes on the CI runner.
 
 ### Linux
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~25 µs   | ~24 µs   |
-| FileStore  | ~4 µs    | ~31 µs   |
-| Memory     | ~85 µs   | ~86 µs   |
-| NetworkIF  | ~833 µs  | ~842 µs  |
-| Processes  | ~11 ms   | ~11 ms   |
+| CpuTicks   | ~23 µs   | ~24 µs   |
+| FileStore  | ~4 µs    | ~30 µs   |
+| Memory     | ~83 µs   | ~82 µs   |
+| NetworkIF  | ~949 µs  | ~951 µs  |
+| Processes  | ~10.6 ms | ~10.9 ms |
 
 Linux shows minimal difference between FFM and JNA for most benchmarks. This is because Linux exposes most system information through the `/proc` and `/sys` pseudo-filesystems, which OSHI reads as plain files without native calls. The FileStore benchmark is the exception, where FFM's direct `statvfs` call avoids JNA marshalling overhead.
 
@@ -50,11 +50,11 @@ Linux shows minimal difference between FFM and JNA for most benchmarks. This is 
 
 | Benchmark  | FFM     | JNA     |
 |------------|---------|---------|
-| CpuTicks   | ~3 µs   | ~4 µs   |
-| FileStore  | ~68 ms  | ~68 ms  |
-| Memory     | ~1.7 ms | ~1.7 ms |
-| NetworkIF  | ~7 ms   | ~8 ms   |
-| Processes  | ~3.1 ms | ~3.0 ms |
+| CpuTicks   | ~4 µs   | ~4 µs   |
+| FileStore  | ~66 ms  | ~66 ms  |
+| Memory     | ~1.6 ms | ~1.6 ms |
+| NetworkIF  | ~11 ms  | ~11 ms  |
+| Processes  | ~2.9 ms | ~3.0 ms |
 
 FreeBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `sysctl` reads that don't bottleneck on per-call overhead.
 
@@ -62,11 +62,11 @@ FreeBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner
 
 | Benchmark  | FFM     | JNA     |
 |------------|---------|---------|
-| CpuTicks   | ~12 µs  | ~22 µs  |
-| FileStore  | ~182 ms | ~179 ms |
-| Memory     | ~28 ms  | ~30 ms  |
-| NetworkIF  | ~13 ms  | ~14 ms  |
-| Processes  | ~366 ms | ~350 ms |
+| CpuTicks   | ~11 µs  | ~22 µs  |
+| FileStore  | ~140 ms | ~139 ms |
+| Memory     | ~32 ms  | ~34 ms  |
+| NetworkIF  | ~14 ms  | ~14 ms  |
+| Processes  | ~364 ms | ~363 ms |
 
 OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the nested VM; treat them as order-of-magnitude only. Same nested-VM caveat as FreeBSD.
 
@@ -74,13 +74,13 @@ OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the 
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~16 µs   | ~1.4 ms  |
-| FileStore  | ~85 ms   | ~83 ms   |
-| Memory     | ~10 ms   | ~10 ms   |
-| NetworkIF  | ~308 µs  | ~415 µs  |
-| Processes  | ~384 ms  | ~381 ms  |
+| CpuTicks   | ~16 µs   | ~1.3 ms  |
+| FileStore  | ~80 ms   | ~82 ms   |
+| Memory     | ~9.8 ms  | ~9.9 ms  |
+| NetworkIF  | ~306 µs  | ~415 µs  |
+| Processes  | ~367 ms  | ~368 ms  |
 
-Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~85x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
+Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~80x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
 
 ### Running benchmarks locally
 
@@ -88,7 +88,7 @@ The numbers above were collected on GitHub Actions CI runners, which may differ 
 
 ```sh
 ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
-java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 7 -f 5
 ```
 
 Run `java -jar oshi-benchmark/target/benchmarks.jar -h` for the full list of JMH options, including listing available benchmarks (`-l`) and running specific ones by regex filter.

@@ -81,7 +81,7 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
         with:
-          mem: 8192
+          mem: 12288
           copyback: true
           prepare: |
             pkg install openjdk25
