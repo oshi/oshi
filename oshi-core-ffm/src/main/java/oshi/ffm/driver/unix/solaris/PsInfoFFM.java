@@ -76,46 +76,46 @@ public final class PsInfoFFM {
         public LwpsInfo pr_lwp = new LwpsInfo();
 
         private PsInfo(ByteBuffer buff) {
-            this.pr_flag = buff.getInt();
-            this.pr_nlwp = buff.getInt();
-            this.pr_pid = buff.getInt();
-            this.pr_ppid = buff.getInt();
-            this.pr_pgid = buff.getInt();
-            this.pr_sid = buff.getInt();
-            this.pr_uid = buff.getInt();
-            this.pr_euid = buff.getInt();
-            this.pr_gid = buff.getInt();
-            this.pr_egid = buff.getInt();
-            this.pr_addr = buff.getLong();
-            this.pr_size = buff.getLong();
-            this.pr_rssize = buff.getLong();
-            this.pr_rssizepriv = buff.getLong();
-            this.pr_ttydev = buff.getLong();
-            this.pr_pctcpu = buff.getShort();
-            this.pr_pctmem = buff.getShort();
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_nlwp = FileUtil.readIntFromBuffer(buff);
+            this.pr_pid = FileUtil.readIntFromBuffer(buff);
+            this.pr_ppid = FileUtil.readIntFromBuffer(buff);
+            this.pr_pgid = FileUtil.readIntFromBuffer(buff);
+            this.pr_sid = FileUtil.readIntFromBuffer(buff);
+            this.pr_uid = FileUtil.readIntFromBuffer(buff);
+            this.pr_euid = FileUtil.readIntFromBuffer(buff);
+            this.pr_gid = FileUtil.readIntFromBuffer(buff);
+            this.pr_egid = FileUtil.readIntFromBuffer(buff);
+            this.pr_addr = FileUtil.readLongFromBuffer(buff);
+            this.pr_size = FileUtil.readLongFromBuffer(buff);
+            this.pr_rssize = FileUtil.readLongFromBuffer(buff);
+            this.pr_rssizepriv = FileUtil.readLongFromBuffer(buff);
+            this.pr_ttydev = FileUtil.readLongFromBuffer(buff);
+            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
+            this.pr_pctmem = FileUtil.readShortFromBuffer(buff);
             // Align to 8 bytes for following Timestrucs (pad 4 bytes after the two shorts)
-            buff.getInt();
+            FileUtil.readIntFromBuffer(buff);
             this.pr_start.readFrom(buff);
             this.pr_time.readFrom(buff);
             this.pr_ctime.readFrom(buff);
-            buff.get(this.pr_fname);
-            buff.get(this.pr_psargs);
-            this.pr_wstat = buff.getInt();
-            this.pr_argc = buff.getInt();
-            this.pr_argv = buff.getLong();
-            this.pr_envp = buff.getLong();
-            this.pr_dmodel = buff.get();
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_fname);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_psargs);
+            this.pr_wstat = FileUtil.readIntFromBuffer(buff);
+            this.pr_argc = FileUtil.readIntFromBuffer(buff);
+            this.pr_argv = FileUtil.readLongFromBuffer(buff);
+            this.pr_envp = FileUtil.readLongFromBuffer(buff);
+            this.pr_dmodel = FileUtil.readByteFromBuffer(buff);
             // 3-byte pad (pr_pad2)
-            buff.get();
-            buff.get();
-            buff.get();
-            this.pr_taskid = buff.getInt();
-            this.pr_projid = buff.getInt();
-            this.pr_nzomb = buff.getInt();
-            this.pr_poolid = buff.getInt();
-            this.pr_zoneid = buff.getInt();
-            this.pr_contract = buff.getInt();
-            buff.getInt(); // pr_filler
+            FileUtil.readByteFromBuffer(buff);
+            FileUtil.readByteFromBuffer(buff);
+            FileUtil.readByteFromBuffer(buff);
+            this.pr_taskid = FileUtil.readIntFromBuffer(buff);
+            this.pr_projid = FileUtil.readIntFromBuffer(buff);
+            this.pr_nzomb = FileUtil.readIntFromBuffer(buff);
+            this.pr_poolid = FileUtil.readIntFromBuffer(buff);
+            this.pr_zoneid = FileUtil.readIntFromBuffer(buff);
+            this.pr_contract = FileUtil.readIntFromBuffer(buff);
+            FileUtil.readIntFromBuffer(buff); // pr_filler
             this.pr_lwp.readFrom(buff);
         }
     }
@@ -154,30 +154,30 @@ public final class PsInfoFFM {
         }
 
         void readFrom(ByteBuffer buff) {
-            this.pr_flag = buff.getInt();
-            this.pr_lwpid = buff.getInt();
-            this.pr_addr = buff.getLong();
-            this.pr_wchan = buff.getLong();
-            this.pr_stype = buff.get();
-            this.pr_state = buff.get();
-            this.pr_sname = buff.get();
-            this.pr_nice = buff.get();
-            this.pr_syscall = buff.getShort();
-            this.pr_oldpri = buff.get();
-            this.pr_cpu = buff.get();
-            this.pr_pri = buff.getInt();
-            this.pr_pctcpu = buff.getShort();
-            buff.getShort(); // pad
+            this.pr_flag = FileUtil.readIntFromBuffer(buff);
+            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
+            this.pr_addr = FileUtil.readLongFromBuffer(buff);
+            this.pr_wchan = FileUtil.readLongFromBuffer(buff);
+            this.pr_stype = FileUtil.readByteFromBuffer(buff);
+            this.pr_state = FileUtil.readByteFromBuffer(buff);
+            this.pr_sname = FileUtil.readByteFromBuffer(buff);
+            this.pr_nice = FileUtil.readByteFromBuffer(buff);
+            this.pr_syscall = FileUtil.readShortFromBuffer(buff);
+            this.pr_oldpri = FileUtil.readByteFromBuffer(buff);
+            this.pr_cpu = FileUtil.readByteFromBuffer(buff);
+            this.pr_pri = FileUtil.readIntFromBuffer(buff);
+            this.pr_pctcpu = FileUtil.readShortFromBuffer(buff);
+            FileUtil.readShortFromBuffer(buff); // pad
             this.pr_start.readFrom(buff);
             this.pr_time.readFrom(buff);
-            buff.get(this.pr_clname);
-            buff.get(this.pr_oldname);
-            this.pr_onpro = buff.getInt();
-            this.pr_bindpro = buff.getInt();
-            this.pr_bindpset = buff.getInt();
-            this.pr_lgrp = buff.getInt();
-            this.pr_last_onproc = buff.getLong();
-            buff.get(this.pr_name);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_clname);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_oldname);
+            this.pr_onpro = FileUtil.readIntFromBuffer(buff);
+            this.pr_bindpro = FileUtil.readIntFromBuffer(buff);
+            this.pr_bindpset = FileUtil.readIntFromBuffer(buff);
+            this.pr_lgrp = FileUtil.readIntFromBuffer(buff);
+            this.pr_last_onproc = FileUtil.readLongFromBuffer(buff);
+            FileUtil.readByteArrayFromBuffer(buff, this.pr_name);
         }
     }
 
@@ -205,8 +205,8 @@ public final class PsInfoFFM {
         public long pr_ictx;
 
         private PrUsage(ByteBuffer buff) {
-            this.pr_lwpid = buff.getInt();
-            this.pr_count = buff.getInt();
+            this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
+            this.pr_count = FileUtil.readIntFromBuffer(buff);
             this.pr_tstamp.readFrom(buff);
             this.pr_create.readFrom(buff);
             this.pr_term.readFrom(buff);
@@ -223,19 +223,19 @@ public final class PsInfoFFM {
             this.pr_stoptime.readFrom(buff);
             // 6 filler Timestrucs (96 bytes)
             for (int i = 0; i < 6; i++) {
-                buff.getLong();
-                buff.getLong();
+                FileUtil.readLongFromBuffer(buff);
+                FileUtil.readLongFromBuffer(buff);
             }
-            this.pr_minf = buff.getLong();
-            this.pr_majf = buff.getLong();
-            buff.getLong(); // pr_nswap
-            buff.getLong(); // pr_inblk
-            buff.getLong(); // pr_oublk
-            buff.getLong(); // pr_msnd
-            buff.getLong(); // pr_mrcv
-            buff.getLong(); // pr_sigs
-            this.pr_vctx = buff.getLong();
-            this.pr_ictx = buff.getLong();
+            this.pr_minf = FileUtil.readLongFromBuffer(buff);
+            this.pr_majf = FileUtil.readLongFromBuffer(buff);
+            FileUtil.readLongFromBuffer(buff); // pr_nswap
+            FileUtil.readLongFromBuffer(buff); // pr_inblk
+            FileUtil.readLongFromBuffer(buff); // pr_oublk
+            FileUtil.readLongFromBuffer(buff); // pr_msnd
+            FileUtil.readLongFromBuffer(buff); // pr_mrcv
+            FileUtil.readLongFromBuffer(buff); // pr_sigs
+            this.pr_vctx = FileUtil.readLongFromBuffer(buff);
+            this.pr_ictx = FileUtil.readLongFromBuffer(buff);
             // pr_sysc, pr_ioch, 10 fillers — ignored
         }
     }
@@ -246,8 +246,8 @@ public final class PsInfoFFM {
         public long tv_nsec;
 
         void readFrom(ByteBuffer buff) {
-            this.tv_sec = buff.getLong();
-            this.tv_nsec = buff.getLong();
+            this.tv_sec = FileUtil.readLongFromBuffer(buff);
+            this.tv_nsec = FileUtil.readLongFromBuffer(buff);
         }
 
         /** Returns this timestamp converted to milliseconds since the epoch. */
