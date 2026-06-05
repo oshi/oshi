@@ -263,14 +263,17 @@ public final class PsInfoFFM {
      * @return populated {@link PsInfo}, or {@code null} if the file isn't readable
      */
     public static PsInfo queryPsInfo(int pid) {
-        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/psinfo", pid));
+        String path = String.format(Locale.ROOT, "/proc/%d/psinfo", pid);
+        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(path);
         if (buff == null || buff.remaining() == 0) {
+            LOG.warn("psinfo file empty or unreadable for pid {} ({})", pid, path);
             return null;
         }
+        int sz = buff.remaining();
         try {
             return new PsInfo(buff);
         } catch (Throwable t) {
-            LOG.debug("Failed to parse psinfo for pid {}", pid, t);
+            LOG.warn("Failed to parse psinfo for pid {} (file size {} bytes)", pid, sz, t);
             return null;
         }
     }

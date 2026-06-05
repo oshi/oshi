@@ -222,7 +222,9 @@ final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
     @Override
     public long queryContextSwitches() {
         long swtch = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\|inv_swtch/");
+        // Shell-escaped pipe: Java \\\\| → shell \\| → kstat regex \| → matches literal pipe.
+        // Matches the JNA SolarisCentralProcessor invocation exactly.
+        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
         for (String s : kstat) {
             swtch += ParseUtil.parseLastLong(s, 0L);
         }
