@@ -14,23 +14,23 @@ The tables below show approximate average times from JMH benchmarks (1 warmup it
 
 | Benchmark  | FFM     | JNA      |
 |------------|---------|----------|
-| CpuTicks   | ~6 µs   | ~7 µs    |
-| FileStore  | ~42 µs  | ~99 µs   |
+| CpuTicks   | ~5 µs   | ~9 µs    |
+| FileStore  | ~45 µs  | ~104 µs  |
 | Memory     | ~4 µs   | ~8 µs    |
-| NetworkIF  | ~20 µs  | ~127 µs  |
-| Processes  | ~1.4 ms | ~9.6 ms  |
+| NetworkIF  | ~20 µs  | ~128 µs  |
+| Processes  | ~1.6 ms | ~11 ms   |
 
 macOS shows the largest FFM advantage because most system information requires native syscalls (`sysctl`, `proc_pidinfo`, etc.) where FFM's lower per-call overhead compounds across many invocations.
 
 ### Windows
 
-| Benchmark  | FFM      | JNA       |
-|------------|----------|-----------|
-| CpuTicks   | ~0.25 ms | ~0.43 ms  |
-| FileStore  | ~35 µs   | ~136 µs   |
-| Memory     | ~77 µs   | ~113 µs   |
-| NetworkIF  | ~613 µs  | ~1238 µs  |
-| Processes  | ~2.9 ms  | ~9.9 ms   |
+| Benchmark  | FFM      | JNA      |
+|------------|----------|----------|
+| CpuTicks   | ~0.22 ms | ~0.40 ms |
+| FileStore  | ~26 µs   | ~101 µs  |
+| Memory     | ~59 µs   | ~89 µs   |
+| NetworkIF  | ~479 µs  | ~862 µs  |
+| Processes  | ~6.0 ms  | ~7.6 ms  |
 
 Windows benefits from FFM across all benchmarks.
 
@@ -38,11 +38,11 @@ Windows benefits from FFM across all benchmarks.
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~24 µs   | ~24 µs   |
+| CpuTicks   | ~25 µs   | ~24 µs   |
 | FileStore  | ~4 µs    | ~31 µs   |
-| Memory     | ~81 µs   | ~81 µs   |
-| NetworkIF  | ~820 µs  | ~805 µs  |
-| Processes  | ~9.7 ms  | ~9.7 ms  |
+| Memory     | ~85 µs   | ~86 µs   |
+| NetworkIF  | ~833 µs  | ~842 µs  |
+| Processes  | ~11 ms   | ~11 ms   |
 
 Linux shows minimal difference between FFM and JNA for most benchmarks. This is because Linux exposes most system information through the `/proc` and `/sys` pseudo-filesystems, which OSHI reads as plain files without native calls. The FileStore benchmark is the exception, where FFM's direct `statvfs` call avoids JNA marshalling overhead.
 
@@ -50,29 +50,37 @@ Linux shows minimal difference between FFM and JNA for most benchmarks. This is 
 
 | Benchmark  | FFM     | JNA     |
 |------------|---------|---------|
-| CpuTicks   | ~3 µs   | ~3 µs   |
-| FileStore  | ~52 ms  | ~51 ms  |
-| Memory     | ~1.3 ms | ~1.3 ms |
-| NetworkIF  | ~8 ms   | ~9 ms   |
-| Processes  | ~2.3 ms | ~2.3 ms |
+| CpuTicks   | ~3 µs   | ~4 µs   |
+| FileStore  | ~68 ms  | ~68 ms  |
+| Memory     | ~1.7 ms | ~1.7 ms |
+| NetworkIF  | ~7 ms   | ~8 ms   |
+| Processes  | ~3.1 ms | ~3.0 ms |
 
-FreeBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `/proc`-style or `sysctl` reads that don't bottleneck on per-call overhead.
+FreeBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `sysctl` reads that don't bottleneck on per-call overhead.
 
 ### OpenBSD
 
-_TODO: populate from a future `Benchmarks (manual)` run — OpenBSD failed in the first capture pass (`java` not on PATH after `pkg_add jdk%25`)._
+| Benchmark  | FFM     | JNA     |
+|------------|---------|---------|
+| CpuTicks   | ~12 µs  | ~22 µs  |
+| FileStore  | ~182 ms | ~179 ms |
+| Memory     | ~28 ms  | ~30 ms  |
+| NetworkIF  | ~13 ms  | ~14 ms  |
+| Processes  | ~366 ms | ~350 ms |
+
+OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the nested VM; treat them as order-of-magnitude only. Same nested-VM caveat as FreeBSD.
 
 ### Solaris (illumos)
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
 | CpuTicks   | ~16 µs   | ~1.4 ms  |
-| FileStore  | ~89 ms   | ~91 ms   |
-| Memory     | ~9.9 ms  | ~10 ms   |
-| NetworkIF  | ~317 µs  | ~427 µs  |
-| Processes  | ~376 ms  | ~378 ms  |
+| FileStore  | ~85 ms   | ~83 ms   |
+| Memory     | ~10 ms   | ~10 ms   |
+| NetworkIF  | ~308 µs  | ~415 µs  |
+| Processes  | ~384 ms  | ~381 ms  |
 
-Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~85x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD applies.
+Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~85x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
 
 ### Running benchmarks locally
 

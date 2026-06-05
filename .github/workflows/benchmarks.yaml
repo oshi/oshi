@@ -13,11 +13,6 @@ name: Benchmarks (manual)
 
 on:
   workflow_dispatch:
-  # Temporary: trigger on push to this branch so the numbers can be captured
-  # before the branch is merged. Remove this `push:` block before opening the PR.
-  push:
-    branches:
-      - docs-and-audit-pass
 
 jobs:
   benchlinux:
