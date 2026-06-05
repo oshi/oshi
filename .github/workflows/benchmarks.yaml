@@ -1,13 +1,15 @@
-# One-shot JMH benchmark capture for FreeBSD / OpenBSD / OpenIndiana.
+# Manual JMH benchmark capture across every platform OSHI runs JMH on.
 #
 # Runs only on workflow_dispatch so it doesn't burn CI time on every push/PR.
 # Intended for occasional re-capture of the numbers reported in PERFORMANCE.md
 # (e.g. when adding a new platform or making a perf-relevant change).
 #
-# Numbers are noisier than the native-runner platforms (macOS/Windows/Linux)
-# because these all run inside a nested VM on an Ubuntu GitHub Actions runner;
-# only the relative JNA-vs-FFM comparison within a single run is meaningful.
-name: Unix Benchmarks (manual)
+# Native runners (Linux/macOS/Windows) produce stable numbers; FreeBSD,
+# OpenBSD and OpenIndiana all run inside a nested QEMU VM on an Ubuntu runner,
+# so absolute numbers are noisier and only the relative JNA-vs-FFM comparison
+# within a single run is meaningful. illumos is especially fragile under
+# back-to-back JMH JVM forks (native malloc pool), so its VM mem is bumped.
+name: Benchmarks (manual)
 
 on:
   workflow_dispatch:
@@ -18,6 +20,54 @@ on:
       - docs-and-audit-pass
 
 jobs:
+  benchlinux:
+    name: JMH benchmarks, Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: 25
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build benchmark jar
+        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+      - name: Run JMH benchmarks
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  benchmacos:
+    name: JMH benchmarks, macOS
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: 25
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build benchmark jar
+        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+      - name: Run JMH benchmarks
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  benchwindows:
+    name: JMH benchmarks, Windows
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: 25
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build benchmark jar
+        run: ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
+      - name: Run JMH benchmarks
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
   benchfreebsd:
     name: JMH benchmarks, FreeBSD
     runs-on: ubuntu-24.04
@@ -52,6 +102,10 @@ jobs:
             pkg_add jdk%25
             pkg_add maven
           run: |
+            # `pkg_add maven` wraps mvn with its own JAVA_HOME shim, but a bare
+            # `java` invocation needs PATH/JAVA_HOME set explicitly.
+            export JAVA_HOME=/usr/local/jdk-25
+            export PATH=$JAVA_HOME/bin:$PATH
             mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
 
