@@ -4,6 +4,7 @@
  */
 package oshi.ffm.util.platform.unix.solaris;
 
+import java.io.File;
 import java.lang.foreign.Arena;
 import java.lang.foreign.SymbolLookup;
 
@@ -31,16 +32,38 @@ public final class Kstat2Functions {
 
     static {
         boolean available = false;
-        try {
-            SymbolLookup.libraryLookup("libkstat2.so.1", Arena.global());
-            available = true;
-        } catch (Throwable t) {
-            // illumos and Solaris < 11.4 have no libkstat2; this is the expected path on OpenIndiana CI.
-            LOG.debug("libkstat2.so.1 not available; falling back to legacy libkstat", t);
+        // Check the library file's existence on disk before letting SymbolLookup.libraryLookup
+        // attempt a dlopen — on illumos / Solaris < 11.4 the file simply doesn't exist, and
+        // avoiding the failed native load sidesteps a SIGSEGV pattern seen in JNA's
+        // Native.load on the same library / same JDK 25 + illumos combination.
+        if (libkstat2Present()) {
+            try {
+                SymbolLookup.libraryLookup("libkstat2.so.1", Arena.global());
+                available = true;
+            } catch (Throwable t) {
+                LOG.debug("libkstat2.so.1 present on disk but not loadable", t);
+            }
         }
         HAS_KSTAT2 = available;
     }
 
     private Kstat2Functions() {
+    }
+
+    /**
+     * Returns {@code true} if any {@code libkstat2.so*} file is present on the standard Solaris/illumos library search
+     * paths. Solaris 11.4+ ships it (currently as {@code libkstat2.so.1}); illumos and Solaris &lt; 11.4 do not.
+     * Matches any suffix to survive future SONAME bumps.
+     *
+     * @return whether a libkstat2 shared object exists on disk
+     */
+    private static boolean libkstat2Present() {
+        for (String dir : new String[] { "/lib/64", "/usr/lib/64", "/lib", "/usr/lib" }) {
+            String[] hits = new File(dir).list((d, name) -> name.startsWith("libkstat2.so"));
+            if (hits != null && hits.length > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
