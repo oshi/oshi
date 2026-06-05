@@ -92,10 +92,11 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * Windows 7 and higher.  (Nearly all features work on Vista and most work on Windows XP.)
 * macOS version 10.6 (Snow Leopard) and higher.
 * Linux (Most major distributions) Kernel 2.6 and higher
+* DragonFly BSD 6.4
 * FreeBSD 10
 * NetBSD 10.1
 * OpenBSD 6.8
-* Solaris 11 (SunOS 5.11)
+* Solaris 11 / illumos (SunOS 5.11)
 * AIX 7.1 (POWER4)
 * Android 7.0 and higher
 

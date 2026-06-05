@@ -26,7 +26,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS })
 @TestInstance(Lifecycle.PER_CLASS)
 public class OperatingSystemFFMTest {
 

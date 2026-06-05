@@ -128,13 +128,16 @@ public final class SolarisPowerSource extends AbstractPowerSource {
                     if (powerNow == 0xFFFFFFFF) {
                         powerNow = 0L;
                     }
+                    psPowerUsageRate = powerNow;
                     // Battery State:
                     // bit 0 = discharging
                     // bit 1 = charging
                     // bit 2 = critical energy state
-                    boolean isCharging = (KstatUtil.dataLookupLong(ksp, "bst_state") & 0x10) > 0;
+                    long bstState = KstatUtil.dataLookupLong(ksp, "bst_state");
+                    psDischarging = (bstState & 0x1) > 0;
+                    psCharging = (bstState & 0x2) > 0;
 
-                    if (!isCharging) {
+                    if (psDischarging) {
                         psTimeRemainingEstimated = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
                     }
 

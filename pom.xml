@@ -842,6 +842,8 @@
                         <exclude>**/WindowsPowerSource*</exclude>
                         <exclude>**/LinuxPowerSource*</exclude>
                         <exclude>**/FreeBsdPowerSource*</exclude>
+                        <exclude>**/OpenBsdPowerSource*</exclude>
+                        <exclude>**/SolarisPowerSource*</exclude>
                         <!-- Systemd/utmp fallback paths: CI always succeeds on first path -->
                         <exclude>**/driver/linux/WhoJNA*</exclude>
                         <exclude>**/driver/linux/WhoFFM*</exclude>

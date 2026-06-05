@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Tests for {@link ForeignFunctions} helper methods.
  */
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS })
 class ForeignFunctionsTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForeignFunctionsTest.class);
