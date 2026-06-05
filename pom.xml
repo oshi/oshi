@@ -815,7 +815,6 @@
                         <exclude>**/annotation/**</exclude>
                         <exclude>**/benchmark/**</exclude>
                         <exclude>**/demo/**</exclude>
-                        <exclude>**/ffm/**</exclude>
                         <exclude>**/jna/**</exclude>
                         <exclude>**/unix/aix/**</exclude>
                         <exclude>**/unix/dragonflybsd/**</exclude>
@@ -861,6 +860,8 @@
                         <exclude>**/MacUsbDeviceFFM*</exclude>
                         <!-- CUPS: requires print service -->
                         <exclude>**/CupsPrinterJNA*</exclude>
+                        <exclude>**/CupsPrinterFFM*</exclude>
+                        <exclude>**/CupsFunctions*</exclude>
                         <!-- Windows WMI infrastructure: tested indirectly -->
                         <exclude>**/WmiUtil*</exclude>
                         <exclude>**/WmiQueryHandler*</exclude>

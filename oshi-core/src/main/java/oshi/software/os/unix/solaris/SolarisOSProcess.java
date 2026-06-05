@@ -141,7 +141,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-            String cwdLink = "/proc" + getProcessID() + "/cwd";
+            String cwdLink = "/proc/" + getProcessID() + "/cwd";
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 return cwd;
@@ -383,7 +383,8 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;
         // 80 character truncation but enough for path and name (usually)
         this.commandLineBackup = Native.toString(info.pr_psargs);
-        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
+        String[] parts = ParseUtil.whitespaces.split(commandLineBackup);
+        this.path = parts.length > 0 ? parts[0] : "";
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (usage != null) {
             this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;

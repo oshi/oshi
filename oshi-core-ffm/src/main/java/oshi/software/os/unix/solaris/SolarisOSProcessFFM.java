@@ -135,7 +135,7 @@ public class SolarisOSProcessFFM extends AbstractOSProcess {
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-            String cwdLink = "/proc" + getProcessID() + "/cwd";
+            String cwdLink = "/proc/" + getProcessID() + "/cwd";
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 return cwd;
@@ -379,7 +379,8 @@ public class SolarisOSProcessFFM extends AbstractOSProcess {
         this.kernelTime = 0L;
         this.userTime = info.pr_time.toMillis();
         this.commandLineBackup = PsInfoFFM.bytesToString(info.pr_psargs);
-        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
+        String[] parts = ParseUtil.whitespaces.split(commandLineBackup);
+        this.path = parts.length > 0 ? parts[0] : "";
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (usage != null) {
             this.userTime = usage.pr_utime.toMillis();

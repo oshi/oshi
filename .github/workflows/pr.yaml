@@ -130,6 +130,36 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: openbsd
 
+  # OpenIndiana (illumos/Solaris) VM, JDK 25. Same pattern as FreeBSD/OpenBSD above.
+  # Bumped VM RAM and capped JVM heap so back-to-back module test runs (JNA + FFM)
+  # don't exhaust illumos's native-memory pool.
+  testopenindiana:
+    runs-on: ubuntu-24.04
+    name: Test JDK 25, OpenIndiana (+ JNA==FFM)
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Test on OpenIndiana with aggregate coverage
+        id: test-openindiana
+        uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
+        with:
+          mem: 8192
+          copyback: true
+          prepare: |
+            pkg install openjdk25
+          run: |
+            export JAVA_HOME=/usr/jdk/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            export MAVEN_OPTS="-Xmx1g"
+            export _JAVA_OPTIONS="-Xmx1g"
+            ./mvnw test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: solaris
+
   # JMH performance benchmarks — separate job to avoid slowing down test+coverage
   benchmarks:
     runs-on: ${{ matrix.os }}

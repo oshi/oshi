@@ -41,7 +41,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FormatUtil;
 
 /**
- * FFM equivalent of {@link oshi.util.platform.unix.solaris.KstatUtil}: thread-safe access to kstat data via
+ * FFM equivalent of {@code oshi.util.platform.unix.solaris.KstatUtil}: thread-safe access to kstat data via
  * {@link LibKstatFunctions}. Mirrors the JNA wrapper's API surface (chain lookup, named-data accessors). Kstat2 methods
  * are intentionally not implemented here yet — see {@code Kstat2Functions} for the gated probe.
  */
@@ -85,6 +85,14 @@ public final class KstatUtilFFM {
                 int retry = 0;
                 while (LibKstatFunctions.kstat_read(ctl, ksp, MemorySegment.NULL) == -1) {
                     if (++retry >= 5) {
+                        return false;
+                    }
+                    // Exponential backoff mirroring the JNA KstatUtil (16/32/64/128/256 ms).
+                    // Avoids busy-spinning on transient EAGAINs while still bounded.
+                    try {
+                        Thread.sleep(8L << retry);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
                         return false;
                     }
                 }

@@ -30,6 +30,12 @@
     <suppress checks="LocalVariableName" files=".*FFM\.java"/>
     <suppress checks="LocalFinalVariableName" files=".*FFM\.java"/>
 
+    <!-- Solaris /proc struct mirror: pr_* fields and public visibility match the kernel struct layout
+         (psinfo_t / lwpsinfo_t / prusage_t in <sys/procfs.h>), same convention as the JNA SolarisLibc
+         inner classes. -->
+    <suppress checks="MemberName" files="PsInfoFFM\.java"/>
+    <suppress checks="VisibilityModifier" files="PsInfoFFM\.java"/>
+
     <!-- Apple naming convention for CoreGraphics constants (kCG prefix) -->
     <suppress checks="ConstantName" files="WindowInfoFFM\.java"/>
 

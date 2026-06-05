@@ -107,45 +107,84 @@ public final class LibKstatFunctions extends ForeignFunctions {
     private static final VarHandle KSTAT_IO_WCNT = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("wcnt"));
     private static final VarHandle KSTAT_IO_RCNT = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("rcnt"));
 
-    /** Returns {@code ks_snaptime} from a kstat header. */
     private static final VarHandle KSTAT_SNAPTIME = KSTAT_LAYOUT.varHandle(PathElement.groupElement("ks_snaptime"));
 
-    /** Reads {@code ks_snaptime} (nanoseconds). */
+    /**
+     * Reads {@code ks_snaptime} from a kstat header.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the snapshot time, in nanoseconds since boot
+     */
     public static long kstatSnaptime(MemorySegment ksp) {
         return (long) KSTAT_SNAPTIME.get(ksp, 0L);
     }
 
-    /** Reads {@code nread} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code nread} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the number of bytes read
+     */
     public static long kstatIoNread(MemorySegment io) {
         return (long) KSTAT_IO_NREAD.get(io, 0L);
     }
 
-    /** Reads {@code nwritten} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code nwritten} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the number of bytes written
+     */
     public static long kstatIoNwritten(MemorySegment io) {
         return (long) KSTAT_IO_NWRITTEN.get(io, 0L);
     }
 
-    /** Reads {@code reads} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code reads} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the number of read operations
+     */
     public static int kstatIoReads(MemorySegment io) {
         return (int) KSTAT_IO_READS.get(io, 0L);
     }
 
-    /** Reads {@code writes} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code writes} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the number of write operations
+     */
     public static int kstatIoWrites(MemorySegment io) {
         return (int) KSTAT_IO_WRITES.get(io, 0L);
     }
 
-    /** Reads {@code rtime} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code rtime} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return cumulative run (service) time, in nanoseconds
+     */
     public static long kstatIoRtime(MemorySegment io) {
         return (long) KSTAT_IO_RTIME.get(io, 0L);
     }
 
-    /** Reads {@code wcnt} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code wcnt} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the count of elements in the wait queue
+     */
     public static int kstatIoWcnt(MemorySegment io) {
         return (int) KSTAT_IO_WCNT.get(io, 0L);
     }
 
-    /** Reads {@code rcnt} from a {@code kstat_io_t} segment. */
+    /**
+     * Reads {@code rcnt} from a {@code kstat_io_t} segment.
+     *
+     * @param io segment reinterpreted to {@link #KSTAT_IO_LAYOUT}
+     * @return the count of elements in the run queue
+     */
     public static int kstatIoRcnt(MemorySegment io) {
         return (int) KSTAT_IO_RCNT.get(io, 0L);
     }
@@ -274,12 +313,22 @@ public final class LibKstatFunctions extends ForeignFunctions {
         return next.reinterpret(KSTAT_LAYOUT.byteSize());
     }
 
-    /** Returns {@code ks_instance} from a kstat header. */
+    /**
+     * Returns {@code ks_instance} from a kstat header.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the module instance number
+     */
     public static int kstatInstance(MemorySegment ksp) {
         return (int) KSTAT_INSTANCE.get(ksp, 0L);
     }
 
-    /** Returns {@code ks_type} from a kstat header. */
+    /**
+     * Returns {@code ks_type} from a kstat header.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the kstat data type (e.g. {@link #KSTAT_TYPE_NAMED})
+     */
     public static byte kstatType(MemorySegment ksp) {
         return (byte) KSTAT_TYPE.get(ksp, 0L);
     }
@@ -294,44 +343,84 @@ public final class LibKstatFunctions extends ForeignFunctions {
         return (MemorySegment) KSTAT_DATA.get(ksp, 0L);
     }
 
-    /** Returns {@code ks_ndata} from a kstat header. */
+    /**
+     * Returns {@code ks_ndata} from a kstat header.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the number of data records
+     */
     public static int kstatNdata(MemorySegment ksp) {
         return (int) KSTAT_NDATA.get(ksp, 0L);
     }
 
-    /** Reads {@code ks_module} as a NUL-terminated string. */
+    /**
+     * Reads {@code ks_module} as a NUL-terminated string.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the module name
+     */
     public static String kstatModule(MemorySegment ksp) {
         return ksp.getString(KSTAT_MODULE_OFFSET);
     }
 
-    /** Reads {@code ks_name} as a NUL-terminated string. */
+    /**
+     * Reads {@code ks_name} as a NUL-terminated string.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the kstat name
+     */
     public static String kstatName(MemorySegment ksp) {
         return ksp.getString(KSTAT_NAME_OFFSET);
     }
 
-    /** Reads {@code ks_class} as a NUL-terminated string. */
+    /**
+     * Reads {@code ks_class} as a NUL-terminated string.
+     *
+     * @param ksp segment reinterpreted to {@link #KSTAT_LAYOUT}
+     * @return the kstat class
+     */
     public static String kstatClass(MemorySegment ksp) {
         return ksp.getString(KSTAT_CLASS_OFFSET);
     }
 
     // ---- Field accessors (kstat_named) ----
 
-    /** Returns the {@code data_type} tag of a {@code kstat_named_t} record. */
+    /**
+     * Returns the {@code data_type} tag of a {@code kstat_named_t} record.
+     *
+     * @param named segment reinterpreted to {@link #KSTAT_NAMED_LAYOUT}
+     * @return the data-type tag (one of the {@code KSTAT_DATA_*} constants)
+     */
     public static byte namedDataType(MemorySegment named) {
         return (byte) KSTAT_NAMED_DATA_TYPE.get(named, 0L);
     }
 
-    /** Reads the {@code name} field as a NUL-terminated string. */
+    /**
+     * Reads the {@code name} field of a {@code kstat_named_t} record as a NUL-terminated string.
+     *
+     * @param named segment reinterpreted to {@link #KSTAT_NAMED_LAYOUT}
+     * @return the record name
+     */
     public static String namedName(MemorySegment named) {
         return named.getString(KSTAT_NAMED_NAME_OFFSET);
     }
 
-    /** Reads the union as {@code int32}. */
+    /**
+     * Reads the union of a {@code kstat_named_t} record as {@code int32}.
+     *
+     * @param named segment reinterpreted to {@link #KSTAT_NAMED_LAYOUT}
+     * @return the value as a 32-bit signed integer
+     */
     public static int namedValueInt32(MemorySegment named) {
         return named.get(JAVA_INT, KSTAT_NAMED_VALUE_OFFSET);
     }
 
-    /** Reads the union as {@code int64}. */
+    /**
+     * Reads the union of a {@code kstat_named_t} record as {@code int64}.
+     *
+     * @param named segment reinterpreted to {@link #KSTAT_NAMED_LAYOUT}
+     * @return the value as a 64-bit signed integer
+     */
     public static long namedValueInt64(MemorySegment named) {
         return named.get(JAVA_LONG, KSTAT_NAMED_VALUE_OFFSET);
     }
@@ -367,9 +456,10 @@ public final class LibKstatFunctions extends ForeignFunctions {
     }
 
     /**
-     * Returns {@code true} if {@code libkstat.so.1} loaded successfully. (Effectively always {@code true} on Solaris
-     * and illumos systems where this module is exercised; included for symmetry with
-     * {@code Kstat2Functions.HAS_KSTAT2}.)
+     * Returns {@code true} if {@code libkstat.so.1} loaded successfully. Effectively always {@code true} on Solaris and
+     * illumos systems where this module is exercised; included for symmetry with {@code Kstat2Functions.HAS_KSTAT2}.
+     *
+     * @return whether {@code libkstat.so.1} was loadable at class-init time
      */
     public static boolean isLibKstatLoaded() {
         return true;

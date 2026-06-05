@@ -7,13 +7,12 @@ package oshi.ffm.driver.unix.solaris.kstat;
 import java.lang.foreign.MemorySegment;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.util.platform.unix.solaris.Kstat2Functions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
 import oshi.util.tuples.Pair;
 
 /**
- * FFM equivalent of {@link oshi.driver.unix.solaris.kstat.SystemPages}. On illumos (where {@code HAS_KSTAT2} is
+ * FFM equivalent of {@code oshi.driver.unix.solaris.kstat.SystemPages}. On illumos (where {@code HAS_KSTAT2} is
  * {@code false}), this only exercises the legacy {@link KstatUtilFFM} path.
  */
 @ThreadSafe
@@ -28,10 +27,9 @@ public final class SystemPagesFFM {
      * @return a pair (available, total) in pages; multiply by page size for bytes.
      */
     public static Pair<Long, Long> queryAvailableTotal() {
-        if (Kstat2Functions.HAS_KSTAT2) {
-            // Kstat2 binding is a stub today; fall through to libkstat. SolarisOperatingSystem's
-            // JNA path uses kstat2 here; we accept lower fidelity until Kstat2Functions is fleshed out.
-        }
+        // The JNA SolarisOperatingSystem prefers Kstat2 on Solaris 11.4+; the FFM Kstat2 binding is a
+        // stub today, so this method always falls through to LibKstat regardless of HAS_KSTAT2. Lower
+        // fidelity is acceptable until a downstream consumer needs Solaris 11.4-specific kstat2 data.
         long memAvailable = 0L;
         long memTotal = 0L;
         try (KstatChain kc = KstatUtilFFM.openChain()) {

@@ -38,7 +38,7 @@ public final class SolarisLibcFunctions extends ForeignFunctions {
     /**
      * {@code getrlimit} resource: maximum number of open file descriptors. illumos/Solaris value (5). JNA's
      * {@code Resource.RLIMIT_NOFILE} is the Linux value (7), which on Solaris corresponds to {@code RLIM_NLIMITS}
-     * (invalid); the JNA-side {@link oshi.jna.platform.unix.SolarisLibc#RLIMIT_NOFILE} shadows it with the correct
+     * (invalid); the JNA-side {@code oshi.jna.platform.unix.SolarisLibc#RLIMIT_NOFILE} shadows it with the correct
      * value.
      */
     public static final int RLIMIT_NOFILE = 5;

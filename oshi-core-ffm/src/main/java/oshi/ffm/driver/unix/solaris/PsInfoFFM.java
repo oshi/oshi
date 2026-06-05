@@ -22,10 +22,10 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * FFM equivalent of {@link oshi.driver.unix.solaris.PsInfo}. Parses {@code /proc/<pid>/psinfo},
+ * FFM equivalent of {@code oshi.driver.unix.solaris.PsInfo}. Parses {@code /proc/<pid>/psinfo},
  * {@code /proc/<pid>/lwp/<tid>/lwpsinfo}, and {@code /proc/<pid>/usage} into pure-Java data classes (no JNA structs).
  * <p>
- * The arg/env scan that {@link oshi.driver.unix.solaris.PsInfo#queryArgsEnv} performs via {@code pread} on
+ * The arg/env scan that {@code oshi.driver.unix.solaris.PsInfo#queryArgsEnv} performs via {@code pread} on
  * {@code /proc/<pid>/as} is replaced here with {@code pargs -e}, which is simpler and avoids needing a libc binding for
  * {@code open}/{@code close}/{@code pread}. The functional result is the same (the same argv/envp the kernel exposed),
  * at the cost of forking a child process per query.
@@ -250,7 +250,11 @@ public final class PsInfoFFM {
             this.tv_nsec = FileUtil.readLongFromBuffer(buff);
         }
 
-        /** Returns this timestamp converted to milliseconds since the epoch. */
+        /**
+         * Returns this timestamp converted to milliseconds since the epoch.
+         *
+         * @return the timestamp in milliseconds
+         */
         public long toMillis() {
             return tv_sec * 1000L + tv_nsec / 1_000_000L;
         }
@@ -266,7 +270,9 @@ public final class PsInfoFFM {
         String path = String.format(Locale.ROOT, "/proc/%d/psinfo", pid);
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(path);
         if (buff == null || buff.remaining() == 0) {
-            LOG.warn("psinfo file empty or unreadable for pid {} ({})", pid, path);
+            // Short-lived processes (e.g. test forks) commonly disappear from /proc
+            // between enumeration and read. Logging at debug avoids CI noise.
+            LOG.debug("psinfo file empty or unreadable for pid {} ({})", pid, path);
             return null;
         }
         int sz = buff.remaining();
