@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.common.os.unix.solaris;
 
 import java.util.List;
 
@@ -50,39 +50,39 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
                     String[] split = stat.split("=");
                     if (split.length == 2) {
                         switch (split[0].trim()) {
-                        case "tcpCurrEstab":
-                            connectionsEstablished = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpActiveOpens":
-                            connectionsActive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpPassiveOpens":
-                            connectionsPassive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpAttemptFails":
-                            connectionFailures = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpEstabResets":
-                            connectionsReset = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpOutSegs":
-                            segmentsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpInSegs":
-                            segmentsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpRetransSegs":
-                            segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "tcpInErr":
-                            // doesn't have tcp in second column
-                            inErrors = ParseUtil.getFirstIntValue(split[1].trim());
-                            break;
-                        case "tcpOutRsts":
-                            outResets = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        default:
-                            break;
+                            case "tcpCurrEstab":
+                                connectionsEstablished = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpActiveOpens":
+                                connectionsActive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpPassiveOpens":
+                                connectionsPassive = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpAttemptFails":
+                                connectionFailures = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpEstabResets":
+                                connectionsReset = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpOutSegs":
+                                segmentsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpInSegs":
+                                segmentsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpRetransSegs":
+                                segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "tcpInErr":
+                                // doesn't have tcp in second column
+                                inErrors = ParseUtil.getFirstIntValue(split[1].trim());
+                                break;
+                            case "tcpOutRsts":
+                                outResets = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -109,20 +109,20 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
                     String[] split = stat.split("=");
                     if (split.length == 2) {
                         switch (split[0].trim()) {
-                        case "udpOutDatagrams":
-                            datagramsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpInDatagrams":
-                            datagramsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpNoPorts":
-                            datagramsNoPort = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        case "udpInErrors":
-                            datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
-                            break;
-                        default:
-                            break;
+                            case "udpOutDatagrams":
+                                datagramsSent = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "udpInDatagrams":
+                                datagramsReceived = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "udpNoPorts":
+                                datagramsNoPort = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            case "udpInErrors":
+                                datagramsReceivedErrors = ParseUtil.parseLongOrDefault(split[1].trim(), 0L);
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }

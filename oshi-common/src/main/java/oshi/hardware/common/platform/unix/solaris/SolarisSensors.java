@@ -1,8 +1,8 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import oshi.util.ParseUtil;
  * Sensors from prtpicl
  */
 @ThreadSafe
-final class SolarisSensors extends AbstractSensors {
+public final class SolarisSensors extends AbstractSensors {
 
     @Override
     public double queryCpuTemperature() {

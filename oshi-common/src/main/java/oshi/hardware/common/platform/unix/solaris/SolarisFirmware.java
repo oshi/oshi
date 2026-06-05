@@ -1,8 +1,8 @@
 /*
- * Copyright 2016-2022 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
@@ -11,7 +11,7 @@ import oshi.hardware.common.AbstractFirmware;
  * Firmware data.
  */
 @Immutable
-final class SolarisFirmware extends AbstractFirmware {
+public class SolarisFirmware extends AbstractFirmware {
 
     private final String manufacturer;
     private final String version;

@@ -1,8 +1,8 @@
 /*
- * Copyright 2018-2022 The OSHI Project Contributors
+ * Copyright 2018-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import oshi.util.ParseUtil;
  * Solaris Sound Card.
  */
 @Immutable
-final class SolarisSoundCard extends AbstractSoundCard {
+public class SolarisSoundCard extends AbstractSoundCard {
 
     private static final String LSHAL = "lshal";
     private static final String DEFAULT_AUDIO_DRIVER = "audio810";

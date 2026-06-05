@@ -21,6 +21,11 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.solaris.SolarisComputerSystem;
+import oshi.hardware.common.platform.unix.solaris.SolarisGraphicsCard;
+import oshi.hardware.common.platform.unix.solaris.SolarisSensors;
+import oshi.hardware.common.platform.unix.solaris.SolarisSoundCard;
+import oshi.hardware.common.platform.unix.solaris.SolarisUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**

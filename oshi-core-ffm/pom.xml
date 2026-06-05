@@ -93,7 +93,7 @@
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
-                    <bnd><![CDATA[Export-Package: oshi.ffm.*,!oshi.driver.common.*,!oshi.driver.unix.bsd.*,!oshi.driver.unix.freebsd.disk.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
+                    <bnd><![CDATA[Export-Package: oshi.ffm.*,!oshi.driver.common.*,!oshi.driver.unix.bsd.*,!oshi.driver.unix.freebsd.disk.*,!oshi.driver.unix.solaris.disk.*,oshi.driver.*,oshi.hardware.platform.*,!oshi.software.common.*,oshi.software.os.linux.*,oshi.software.os.mac.*,oshi.software.os.unix.*,oshi.software.os.windows.*,oshi.util.gpu.*,oshi.util.platform.*;-noimport:=true
                     Import-Package: ${osgi.slf4j.import.packages}, *
                     Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                     -snapshot: SNAPSHOT

@@ -2,11 +2,11 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
-import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
-import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BIOS;
-import static oshi.hardware.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_SYSTEM;
+import static oshi.hardware.common.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BASEBOARD;
+import static oshi.hardware.common.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_BIOS;
+import static oshi.hardware.common.platform.unix.solaris.SolarisComputerSystem.SmbType.SMB_TYPE_SYSTEM;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.getValueOrUnknown;
 
@@ -28,7 +28,7 @@ import oshi.util.Util;
  * Hardware data obtained from smbios.
  */
 @Immutable
-final class SolarisComputerSystem extends AbstractComputerSystem {
+public class SolarisComputerSystem extends AbstractComputerSystem {
     public enum SmbType {
         /**
          * BIOS

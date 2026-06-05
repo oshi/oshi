@@ -26,6 +26,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.Who;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.solaris.SolarisInternetProtocolStats;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;

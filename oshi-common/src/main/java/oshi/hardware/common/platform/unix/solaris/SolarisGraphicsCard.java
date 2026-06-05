@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import oshi.util.ParseUtil;
  * Graphics Card info obtained from prtconf
  */
 @Immutable
-final class SolarisGraphicsCard extends AbstractGraphicsCard {
+public class SolarisGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "0003";
 
