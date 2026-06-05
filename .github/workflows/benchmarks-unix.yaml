@@ -1,0 +1,78 @@
+# One-shot JMH benchmark capture for FreeBSD / OpenBSD / OpenIndiana.
+#
+# Runs only on workflow_dispatch so it doesn't burn CI time on every push/PR.
+# Intended for occasional re-capture of the numbers reported in PERFORMANCE.md
+# (e.g. when adding a new platform or making a perf-relevant change).
+#
+# Numbers are noisier than the native-runner platforms (macOS/Windows/Linux)
+# because these all run inside a nested VM on an Ubuntu GitHub Actions runner;
+# only the relative JNA-vs-FFM comparison within a single run is meaningful.
+name: Unix Benchmarks (manual)
+
+on:
+  workflow_dispatch:
+  # Temporary: trigger on push to this branch so the numbers can be captured
+  # before the branch is merged. Remove this `push:` block before opening the PR.
+  push:
+    branches:
+      - docs-and-audit-pass
+
+jobs:
+  benchfreebsd:
+    name: JMH benchmarks, FreeBSD
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Benchmark on FreeBSD
+        uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
+        with:
+          usesh: true
+          prepare: |
+            pkg install -y curl
+            pkg install -y openjdk25
+          run: |
+            export JAVA_HOME=/usr/local/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
+            java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  benchopenbsd:
+    name: JMH benchmarks, OpenBSD
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Benchmark on OpenBSD
+        uses: vmactions/openbsd-vm@fcf799d7ce9c305ad89eabef1fb2fa5c1c42d0ee # v1
+        with:
+          release: "7.9"
+          usesh: false
+          mem: 4096
+          prepare: |
+            pkg_add curl
+            pkg_add jdk%25
+            pkg_add maven
+          run: |
+            mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
+            java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  benchopenindiana:
+    name: JMH benchmarks, OpenIndiana
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Benchmark on OpenIndiana
+        uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
+        with:
+          # Bumped above the 8 GB used by the regular CI job because JMH forks
+          # a fresh JVM per benchmark and illumos's native malloc pool is the
+          # OOM bottleneck under back-to-back forks.
+          mem: 12288
+          prepare: |
+            pkg install openjdk25
+          run: |
+            export JAVA_HOME=/usr/jdk/openjdk25
+            export PATH=$JAVA_HOME/bin:$PATH
+            export MAVEN_OPTS="-Xmx1g"
+            export _JAVA_OPTIONS="-Xmx1g"
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+            java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1

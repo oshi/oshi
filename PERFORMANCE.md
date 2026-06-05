@@ -46,6 +46,10 @@ Windows benefits from FFM across all benchmarks.
 
 Linux shows minimal difference between FFM and JNA for most benchmarks. This is because Linux exposes most system information through the `/proc` and `/sys` pseudo-filesystems, which OSHI reads as plain files without native calls. The FileStore benchmark is the exception, where FFM's direct `statvfs` call avoids JNA marshalling overhead.
 
+### FreeBSD / OpenBSD / Solaris (illumos)
+
+_Numbers will be populated from a manual run of the `Unix Benchmarks (manual)` workflow (`.github/workflows/benchmarks-unix.yaml`). These platforms run inside a nested QEMU VM on an Ubuntu GitHub Actions runner; absolute numbers are noisier than the native-runner platforms above and the benchmark is gated to a one-off `workflow_dispatch` trigger rather than every push (especially on illumos, where back-to-back JMH JVM forks easily exhaust the VM's native malloc pool). The relative JNA-vs-FFM comparison within a single run is still meaningful._
+
 ### Running benchmarks locally
 
 The numbers above were collected on GitHub Actions CI runners, which may differ significantly from your hardware and workload (e.g., number of running processes, mounted file stores, or network interfaces). The `oshi-benchmark` module contains JMH benchmarks that can be built and run with JDK 25+:

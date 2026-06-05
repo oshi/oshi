@@ -112,9 +112,16 @@ public final class SolarisPowerSourceFFM extends AbstractPowerSource {
                     if (powerNow == 0xFFFFFFFFL) {
                         powerNow = 0L;
                     }
-                    boolean isCharging = (KstatUtilFFM.dataLookupLong(ksp, "bst_state") & 0x10) > 0;
+                    psPowerUsageRate = powerNow;
+                    // Battery State:
+                    // bit 0 = discharging
+                    // bit 1 = charging
+                    // bit 2 = critical energy state
+                    long bstState = KstatUtilFFM.dataLookupLong(ksp, "bst_state");
+                    psDischarging = (bstState & 0x1) > 0;
+                    psCharging = (bstState & 0x2) > 0;
 
-                    if (!isCharging) {
+                    if (psDischarging) {
                         psTimeRemainingEstimated = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
                     }
 
