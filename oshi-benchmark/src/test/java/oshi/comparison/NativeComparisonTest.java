@@ -553,10 +553,9 @@ class NativeComparisonTest {
             assertThat(f.updateAttributes()).as("FFM fileStore %s updateAttributes", f.getMount()).isTrue();
             // Space values should remain valid (non-negative, total unchanged)
             assertThat(j.getTotalSpace()).as("JNA totalSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
-            // Total space can drift by a handful of blocks between back-to-back snapshots on live filesystems
-            // (block-allocation churn while the test itself is writing); allow a tight 0.1% tolerance instead of
-            // demanding strict equality.
-            assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.001, "totalSpace(" + j.getMount() + ")");
+            // Total space can drift between back-to-back snapshots on live filesystems (block-allocation churn,
+            // and tmpfs grows/shrinks with memory pressure on Solaris). Allow a 1% tolerance.
+            assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.01, "totalSpace(" + j.getMount() + ")");
             assertThat(j.getUsableSpace()).as("JNA usableSpace(%s)", j.getMount()).isGreaterThanOrEqualTo(0L);
             assertThat(f.getUsableSpace()).as("FFM usableSpace(%s)", f.getMount()).isGreaterThanOrEqualTo(0L);
         }
@@ -605,7 +604,9 @@ class NativeComparisonTest {
             assertThat(f.getName()).isEqualTo(j.getName());
             assertThat(f.getType()).isEqualTo(j.getType());
             assertThat(f.getVolume()).isEqualTo(j.getVolume());
-            assertThat(f.getTotalSpace()).isEqualTo(j.getTotalSpace());
+            // Total space can drift on tmpfs and live filesystems between back-to-back snapshots
+            // (e.g. Solaris /var/run grows/shrinks with memory pressure); allow a small ratio.
+            assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.01, "totalSpace(" + j.getMount() + ")");
             // Usable space fluctuates
             assertWithinRatio(f.getUsableSpace(), j.getUsableSpace(), 0.25, "usableSpace(" + j.getMount() + ")");
         }
