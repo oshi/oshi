@@ -89,6 +89,67 @@ public final class LibKstatFunctions extends ForeignFunctions {
     /** Byte size of a {@code kstat_named} record (48). */
     public static final long KSTAT_NAMED_SIZE = KSTAT_NAMED_LAYOUT.byteSize();
 
+    /**
+     * Layout of {@code kstat_io_t} ({@code <kstat.h>}). 80 bytes total on LP64 — no internal padding because the long
+     * and int fields naturally align.
+     */
+    public static final StructLayout KSTAT_IO_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("nread"),
+            JAVA_LONG.withName("nwritten"), JAVA_INT.withName("reads"), JAVA_INT.withName("writes"),
+            JAVA_LONG.withName("wtime"), JAVA_LONG.withName("wlentime"), JAVA_LONG.withName("wlastupdate"),
+            JAVA_LONG.withName("rtime"), JAVA_LONG.withName("rlentime"), JAVA_LONG.withName("rlastupdate"),
+            JAVA_INT.withName("wcnt"), JAVA_INT.withName("rcnt"));
+
+    private static final VarHandle KSTAT_IO_NREAD = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("nread"));
+    private static final VarHandle KSTAT_IO_NWRITTEN = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("nwritten"));
+    private static final VarHandle KSTAT_IO_READS = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("reads"));
+    private static final VarHandle KSTAT_IO_WRITES = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("writes"));
+    private static final VarHandle KSTAT_IO_RTIME = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("rtime"));
+    private static final VarHandle KSTAT_IO_WCNT = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("wcnt"));
+    private static final VarHandle KSTAT_IO_RCNT = KSTAT_IO_LAYOUT.varHandle(PathElement.groupElement("rcnt"));
+
+    /** Returns {@code ks_snaptime} from a kstat header. */
+    private static final VarHandle KSTAT_SNAPTIME = KSTAT_LAYOUT.varHandle(PathElement.groupElement("ks_snaptime"));
+
+    /** Reads {@code ks_snaptime} (nanoseconds). */
+    public static long kstatSnaptime(MemorySegment ksp) {
+        return (long) KSTAT_SNAPTIME.get(ksp, 0L);
+    }
+
+    /** Reads {@code nread} from a {@code kstat_io_t} segment. */
+    public static long kstatIoNread(MemorySegment io) {
+        return (long) KSTAT_IO_NREAD.get(io, 0L);
+    }
+
+    /** Reads {@code nwritten} from a {@code kstat_io_t} segment. */
+    public static long kstatIoNwritten(MemorySegment io) {
+        return (long) KSTAT_IO_NWRITTEN.get(io, 0L);
+    }
+
+    /** Reads {@code reads} from a {@code kstat_io_t} segment. */
+    public static int kstatIoReads(MemorySegment io) {
+        return (int) KSTAT_IO_READS.get(io, 0L);
+    }
+
+    /** Reads {@code writes} from a {@code kstat_io_t} segment. */
+    public static int kstatIoWrites(MemorySegment io) {
+        return (int) KSTAT_IO_WRITES.get(io, 0L);
+    }
+
+    /** Reads {@code rtime} from a {@code kstat_io_t} segment. */
+    public static long kstatIoRtime(MemorySegment io) {
+        return (long) KSTAT_IO_RTIME.get(io, 0L);
+    }
+
+    /** Reads {@code wcnt} from a {@code kstat_io_t} segment. */
+    public static int kstatIoWcnt(MemorySegment io) {
+        return (int) KSTAT_IO_WCNT.get(io, 0L);
+    }
+
+    /** Reads {@code rcnt} from a {@code kstat_io_t} segment. */
+    public static int kstatIoRcnt(MemorySegment io) {
+        return (int) KSTAT_IO_RCNT.get(io, 0L);
+    }
+
     private static final VarHandle KSTAT_NAMED_DATA_TYPE = KSTAT_NAMED_LAYOUT
             .varHandle(PathElement.groupElement("data_type"));
     private static final long KSTAT_NAMED_NAME_OFFSET = KSTAT_NAMED_LAYOUT.byteOffset(PathElement.groupElement("name"));

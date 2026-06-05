@@ -56,7 +56,7 @@ import oshi.util.Util;
  * <p>
  * Activate with: {@code mvn test -pl oshi-benchmark -Pnative-comparison}
  */
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS })
 class NativeComparisonTest {
 
     // Snapshot all values once; JNA first (baseline), then FFM

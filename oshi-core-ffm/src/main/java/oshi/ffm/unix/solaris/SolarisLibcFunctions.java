@@ -116,4 +116,36 @@ public final class SolarisLibcFunctions extends ForeignFunctions {
     public static long rlimitMax(MemorySegment rlim) {
         return (long) RLIMIT_MAX.get(rlim, 0L);
     }
+
+    // int gethostname(char *name, size_t namelen);
+    private static final MethodHandle gethostname = LINKER.downcallHandle(LIBC.findOrThrow("gethostname"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, SIZE_T));
+
+    /**
+     * Calls {@code gethostname(name, namelen)}.
+     *
+     * @param name    buffer for the hostname (allocated by caller)
+     * @param namelen size of {@code name} in bytes
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int gethostname(MemorySegment name, long namelen) throws Throwable {
+        return (int) gethostname.invokeExact(name, namelen);
+    }
+
+    // int getloadavg(double loadavg[], int nelem);
+    private static final MethodHandle getloadavg = LINKER.downcallHandle(LIBC.findOrThrow("getloadavg"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+
+    /**
+     * Calls {@code getloadavg(loadavg, nelem)}.
+     *
+     * @param loadavg pre-allocated segment of {@code nelem} doubles
+     * @param nelem   number of load average values to retrieve (1-3)
+     * @return number of samples set, or -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getloadavg(MemorySegment loadavg, int nelem) throws Throwable {
+        return (int) getloadavg.invokeExact(loadavg, nelem);
+    }
 }
