@@ -40,8 +40,7 @@ jobs:
             echo "=== JDK contents ==="
             ls -la /usr/jdk/ || true
             ls -la "$JAVA_HOME"/bin | head -20 || true
-            # Verify oshi-core-ffm (and its deps) compile with JDK 25.
-            # Don't run tests yet; just confirm the FFM module bytecode is buildable.
-            echo "=== Compiling oshi-core-ffm ==="
-            ./mvnw -pl oshi-core-ffm -am compile -B \
+            # Run oshi-core-ffm tests on JDK 25 OpenIndiana to validate FFM bindings.
+            echo "=== Testing oshi-core-ffm ==="
+            ./mvnw -pl oshi-core-ffm -am test -B \
               -Djacoco.skip=true -Dmaven.gitcommitid.skip=true

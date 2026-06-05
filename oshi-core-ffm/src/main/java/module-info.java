@@ -26,6 +26,7 @@ module com.github.oshi.ffm {
     exports oshi.ffm.util.platform.mac;
     exports oshi.ffm.util.platform.unix.freebsd;
     exports oshi.ffm.util.platform.unix.openbsd;
+    exports oshi.ffm.util.platform.unix.solaris;
     exports oshi.ffm.util.platform.windows;
 
     provides oshi.spi.SystemInfoProvider with oshi.ffm.SystemInfo;
