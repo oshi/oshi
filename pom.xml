@@ -820,18 +820,14 @@
                         <exclude>**/unix/aix/**</exclude>
                         <exclude>**/unix/dragonflybsd/**</exclude>
                         <exclude>**/unix/netbsd/**</exclude>
-                        <exclude>**/unix/openbsd/**</exclude>
-                        <exclude>**/unix/solaris/**</exclude>
                         <!-- Narrow these `**/unix/<Name>*` patterns — JaCoCo agent globs let `*`
                              cross path separators, so `**/unix/*Bsd*` etc. would also exclude
-                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. BsdNetworkIF and UnixBaseboard
-                             are no longer excluded: they're now exercised on the permanent FreeBSD
-                             CI job that landed with the FreeBSD FFM port. -->
+                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. OpenBSD and Solaris are now
+                             exercised on the permanent OpenBSD/OpenIndiana CI jobs (with aggregate
+                             coverage and codecov upload) that landed with the FFM ports. -->
                         <exclude>**/unix/*Aix*</exclude>
                         <exclude>**/unix/*DragonFlyBsd*</exclude>
                         <exclude>**/unix/*NetBsd*</exclude>
-                        <exclude>**/unix/*OpenBsd*</exclude>
-                        <exclude>**/unix/*Solaris*</exclude>
                         <!-- Hardware-dependent: no GPU/sensors/battery on CI runners -->
                         <exclude>**/gpu/NvmlUtil*</exclude>
                         <exclude>**/gpu/AdlUtil*</exclude>

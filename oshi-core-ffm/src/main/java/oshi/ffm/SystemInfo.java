@@ -54,9 +54,10 @@ import oshi.util.PlatformEnum;
  * instance. To conserve memory at the cost of additional processing time, create a new SystemInfo for subsequent calls.
  * To conserve processing time at the cost of additional memory usage, re-use the same instance.
  * <p>
- * This implementation requires JDK 25+ and currently supports Windows, macOS, Linux, and FreeBSD. It uses the FFM API
- * in place of JNA for native access, which may offer better performance. For broader platform support (including
- * OpenBSD, Solaris, and AIX), use the JNA-based entry point ({@code oshi.SystemInfo}) in the {@code oshi-core} module.
+ * This implementation requires JDK 25+ and currently supports Windows, macOS, Linux, FreeBSD, OpenBSD, and Solaris
+ * (illumos). It uses the FFM API in place of JNA for native access, which may offer better performance. For broader
+ * platform support (DragonFly BSD, NetBSD, and AIX), use the JNA-based entry point ({@code oshi.SystemInfo}) in the
+ * {@code oshi-core} module.
  * <p>
  * Both this class and the JNA entry point require native access. Starting with
  * <a href="https://openjdk.org/jeps/472">JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future
