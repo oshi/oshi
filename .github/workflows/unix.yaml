@@ -41,7 +41,8 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: freebsd
 
-  # Runs on OpenBSD 7.9 x86 VM
+  # Runs on OpenBSD 7.9 x86 VM with aggregate-coverage uploaded
+  # to Codecov under the `openbsd` flag.
   testopenbsd:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenBSD
@@ -54,12 +55,20 @@ jobs:
           release: "7.9"
           usesh: false
           mem: 2048
+          copyback: true
           prepare: |
             pkg_add curl
             pkg_add jdk%25
             pkg_add maven
           run: |
-            mvn clean test -B -Djacoco.skip=true
+            mvn clean test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: openbsd
 
   # Runs on OpenIndiana (illumos/Solaris) x86 VM
   testopenindiana:

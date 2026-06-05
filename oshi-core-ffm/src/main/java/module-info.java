@@ -2,7 +2,7 @@
  * FFM-based native implementation of the OSHI API for JDK 25+.
  * <p>
  * This module uses the Foreign Function and Memory (FFM) API for native access and currently supports Windows, macOS,
- * Linux, and FreeBSD. For broader platform support (OpenBSD, Solaris, AIX), use the JNA-based {@code com.github.oshi}
+ * Linux, FreeBSD, and OpenBSD. For broader platform support (Solaris, AIX), use the JNA-based {@code com.github.oshi}
  * module.
  * <p>
  * Usage:

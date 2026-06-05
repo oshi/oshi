@@ -25,10 +25,6 @@
 --add-opens
   com.github.oshi/oshi.driver.unix.aix.perfstat=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.driver.unix.bsd=org.junit.platform.commons
---add-opens
-  com.github.oshi/oshi.driver.unix.bsd.disk=org.junit.platform.commons
---add-opens
   com.github.oshi/oshi.driver.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util.platform.unix.dragonflybsd=org.junit.platform.commons

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.openbsd;
@@ -15,23 +15,24 @@ import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.bsd.disk.Disklabel;
+import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 import oshi.util.tuples.Quartet;
 
 /**
- * OpenBSD hard disk implementation.
+ * FFM-backed OpenBSD hard disk implementation.
  */
 @ThreadSafe
-public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
+public final class OpenBsdHWDiskStoreFFM extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStoreFFM::querySystatIostat,
+            defaultExpiration());
 
-    private OpenBsdHWDiskStore(String name, String model, String serial, long size) {
+    private OpenBsdHWDiskStoreFFM(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
@@ -42,16 +43,13 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks() {
         List<HWDiskStore> diskList = new ArrayList<>();
-        List<String> dmesg = null; // Lazily fetch in loop if needed
+        List<String> dmesg = null;
 
-        // Get list of disks from sysctl
-        // hw.disknames=sd0:2cf69345d371cd82,cd0:,sd1:
-        String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
-        OpenBsdHWDiskStore store;
+        String[] devices = OpenBsdSysctlUtilFFM.sysctl("hw.disknames", "").split(",");
+        OpenBsdHWDiskStoreFFM store;
         String diskName;
         for (String device : devices) {
             diskName = device.split(":")[0];
-            // get partitions using disklabel command (requires root)
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
             String model = diskdata.getA();
             long size = diskdata.getC();
@@ -69,18 +67,11 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                     m = diskMB.matcher(line);
                     if (m.matches()) {
-                        // Group 3 is sectors
                         long sectors = ParseUtil.parseLongOrDefault(m.group(3), 0L);
-                        // Group 2 is optional capture of bytes per sector
                         long bytesPerSector = ParseUtil.parseLongOrDefault(m.group(2), 0L);
                         if (bytesPerSector == 0 && sectors > 0) {
-                            // if we don't have bytes per sector guess at it based on total size and number
-                            // of sectors
-                            // Group 1 is size in MB, which may round
                             size = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 20;
-                            // Estimate bytes per sector. Should be "near" a power of 2
                             bytesPerSector = size / sectors;
-                            // Multiply by 1.5 and round down to nearest power of 2:
                             bytesPerSector = Long.highestOneBit(bytesPerSector + (bytesPerSector >> 1));
                         }
                         size = bytesPerSector * sectors;
@@ -88,7 +79,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                 }
             }
-            store = new OpenBsdHWDiskStore(diskName, model, diskdata.getB(), size);
+            store = new OpenBsdHWDiskStoreFFM(diskName, model, diskdata.getB(), size);
             store.setPartitionList(diskdata.getD());
             store.updateAttributes();
 
@@ -109,7 +100,6 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                 setWriteBytes(ParseUtil.parseMultipliedToLongs(split[2]));
                 setReads((long) ParseUtil.parseDoubleOrDefault(split[3], 0d));
                 setWrites((long) ParseUtil.parseDoubleOrDefault(split[4], 0d));
-                // In seconds, multiply for ms
                 setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000));
                 setTimeStamp(now);
             }

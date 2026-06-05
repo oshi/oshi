@@ -24,11 +24,8 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.HWPartition;
-import oshi.software.os.unix.netbsd.NetBsdOperatingSystem;
-import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.util.Constants;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.ExecutingCommand;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
@@ -60,7 +57,7 @@ class DisklabelTest {
 
         assertThat("label", result.getA(), is("Storage Device"));
         assertThat("duid", result.getB(), is("0000000000000000"));
-        // total sectors × bytes/sector
+        // total sectors x bytes/sector
         assertThat("size in bytes", result.getC(), is(15693824L * 512L));
         // Only `a` and `b` keep enough columns to be considered partitions. The single-letter rows for `c` (unused) and
         // `i` (MSDOS) have <=4 whitespace fields and are deliberately filtered out by `split.length > 4`.
@@ -100,7 +97,7 @@ class DisklabelTest {
 
         assertThat(result.getA(), is(""));
         assertThat(result.getB(), is(""));
-        assertThat(result.getC(), is(1L)); // default 1 sector × 1 byte
+        assertThat(result.getC(), is(1L)); // default 1 sector x 1 byte
         assertThat(result.getD(), is(empty()));
     }
 
@@ -137,7 +134,7 @@ class DisklabelTest {
         // df fallback names use the suffix after "/dev/" (e.g. "sd0a"), not just the partition letter.
         assertThat(rootPart.getName(), is("sd0a"));
         assertThat(rootPart.getMountPoint(), is("/"));
-        // 1024000 1K blocks × 512 (df fallback assumes 512-byte units)
+        // 1024000 1K blocks x 512 (df fallback assumes 512-byte units)
         assertThat(rootPart.getSize(), is(1024000L * 512L));
     }
 
@@ -164,8 +161,9 @@ class DisklabelTest {
     @Test
     @EnabledOnOs(OS.OPENBSD)
     void testGetDiskParamsLiveOpenBsd() {
-        String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
-        boolean elevated = new OpenBsdOperatingSystem().isElevated();
+        String disknames = ExecutingCommand.getFirstAnswer("sysctl -n hw.disknames");
+        String[] devices = disknames.isEmpty() ? new String[0] : disknames.split(",");
+        boolean elevated = "0".equals(ExecutingCommand.getFirstAnswer("id -u"));
         for (String device : devices) {
             String diskName = device.split(":")[0];
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
@@ -183,9 +181,9 @@ class DisklabelTest {
     @Test
     @EnabledIfSystemProperty(named = "os.name", matches = "(?i)netbsd")
     void testGetDiskParamsLiveNetBsd() {
-        // NetBSD: hw.disknames is space-separated without colon suffix.
-        boolean elevated = new NetBsdOperatingSystem().isElevated();
-        String[] devices = NetBsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+");
+        String disknames = ExecutingCommand.getFirstAnswer("sysctl -n hw.disknames");
+        String[] devices = disknames.isEmpty() ? new String[0] : disknames.trim().split("\\s+");
+        boolean elevated = "0".equals(ExecutingCommand.getFirstAnswer("id -u"));
         for (String device : devices) {
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(device);
             if (elevated) {

@@ -85,6 +85,20 @@ public final class OpenBsdLibcFunctions extends ForeignFunctions {
         return (int) getthrid.invokeExact();
     }
 
+    // pid_t getpid(void);
+    private static final MethodHandle getpid = LINKER.downcallHandle(LIBC.findOrThrow("getpid"),
+            FunctionDescriptor.of(JAVA_INT));
+
+    /**
+     * Calls {@code getpid()}.
+     *
+     * @return the process ID of the calling process
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getpid() throws Throwable {
+        return (int) getpid.invokeExact();
+    }
+
     // int getrlimit(int resource, struct rlimit *rlim);
     private static final MethodHandle getrlimit = LINKER.downcallHandle(LIBC.findOrThrow("getrlimit"),
             FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
@@ -119,5 +133,78 @@ public final class OpenBsdLibcFunctions extends ForeignFunctions {
      */
     public static long rlimitMax(MemorySegment rlim) {
         return (long) RLIMIT_MAX.get(rlim, 0L);
+    }
+
+    // --- Sysctl MIB constants ---
+
+    public static final int CTL_KERN = 1;
+    public static final int CTL_HW = 6;
+    public static final int CTL_VFS = 10;
+
+    public static final int KERN_OSTYPE = 1;
+    public static final int KERN_OSRELEASE = 2;
+    public static final int KERN_VERSION = 4;
+    public static final int KERN_ARGMAX = 8;
+    public static final int KERN_CPTIME = 40;
+    public static final int KERN_CPTIME2 = 71;
+
+    public static final int HW_MACHINE = 1;
+    public static final int HW_MODEL = 2;
+    public static final int HW_PAGESIZE = 7;
+    public static final int HW_CPUSPEED = 12;
+    public static final int HW_NCPUFOUND = 21;
+    public static final int HW_NCPUONLINE = 25;
+
+    public static final int VFS_GENERIC = 0;
+    public static final int VFS_BCACHESTAT = 3;
+
+    public static final int CPUSTATES = 5;
+    public static final int CP_USER = 0;
+    public static final int CP_NICE = 1;
+    public static final int CP_SYS = 2;
+    public static final int CP_INTR = 3;
+    public static final int CP_IDLE = 4;
+
+    public static final int KERN_PROC_ARGS = 55;
+    public static final int KERN_PROC_ARGV = 1;
+    public static final int KERN_PROC_ENV = 3;
+
+    // --- Bcachestats struct layout (18 int64_t fields) ---
+
+    public static final StructLayout BCACHESTATS_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("numbufs"),
+            JAVA_LONG.withName("numbufpages"), JAVA_LONG.withName("numdirtypages"), JAVA_LONG.withName("numcleanpages"),
+            JAVA_LONG.withName("pendingwrites"), JAVA_LONG.withName("pendingreads"), JAVA_LONG.withName("numwrites"),
+            JAVA_LONG.withName("numreads"), JAVA_LONG.withName("cachehits"), JAVA_LONG.withName("busymapped"),
+            JAVA_LONG.withName("dmapages"), JAVA_LONG.withName("highpages"), JAVA_LONG.withName("delwribufs"),
+            JAVA_LONG.withName("kvaslots"), JAVA_LONG.withName("kvaslots_avail"), JAVA_LONG.withName("highflips"),
+            JAVA_LONG.withName("highflops"), JAVA_LONG.withName("dmaflips"));
+
+    private static final VarHandle BCACHESTATS_NUMBUFPAGES = BCACHESTATS_LAYOUT
+            .varHandle(PathElement.groupElement("numbufpages"));
+
+    /**
+     * Reads the {@code numbufpages} field from a Bcachestats segment.
+     *
+     * @param seg segment allocated with {@link #BCACHESTATS_LAYOUT}
+     * @return the number of pages in the buffer cache
+     */
+    public static long bcachestatsNumbufpages(MemorySegment seg) {
+        return (long) BCACHESTATS_NUMBUFPAGES.get(seg, 0L);
+    }
+
+    // int getloadavg(double loadavg[], int nelem);
+    private static final MethodHandle getloadavg = LINKER.downcallHandle(LIBC.findOrThrow("getloadavg"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+
+    /**
+     * Calls {@code getloadavg(loadavg, nelem)}.
+     *
+     * @param loadavg pre-allocated segment of {@code nelem} doubles
+     * @param nelem   number of load average values to retrieve (1-3)
+     * @return number of samples set, or -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int getloadavg(MemorySegment loadavg, int nelem) throws Throwable {
+        return (int) getloadavg.invokeExact(loadavg, nelem);
     }
 }

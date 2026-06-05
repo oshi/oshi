@@ -15,11 +15,13 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerFFM;
+import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerFFM;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemFFM;
+import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
 import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
@@ -84,7 +86,7 @@ public class SystemInfo implements SystemInfoProvider {
     }
 
     private static final Set<PlatformEnum> SUPPORTED_PLATFORMS = EnumSet.of(PlatformEnum.LINUX, PlatformEnum.MACOS,
-            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD);
+            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.OPENBSD);
 
     @Override
     public boolean isAvailable() {
@@ -101,6 +103,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new WindowsOperatingSystemFFM();
             case FREEBSD:
                 return new FreeBsdOperatingSystemFFM();
+            case OPENBSD:
+                return new OpenBsdOperatingSystemFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }
@@ -116,6 +120,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new WindowsHardwareAbstractionLayerFFM();
             case FREEBSD:
                 return new FreeBsdHardwareAbstractionLayerFFM();
+            case OPENBSD:
+                return new OpenBsdHardwareAbstractionLayerFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }

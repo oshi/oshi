@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix.openbsd;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
