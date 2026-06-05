@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -17,6 +17,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,14 +35,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.Resource;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.PsInfo;
-import oshi.jna.platform.unix.SolarisLibc;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
+import oshi.ffm.driver.unix.solaris.PsInfoFFM;
+import oshi.ffm.unix.solaris.SolarisLibcFunctions;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
@@ -49,21 +46,18 @@ import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.tuples.Pair;
 
-/**
- * OSProcess implementation
- */
 @ThreadSafe
-public class SolarisOSProcess extends AbstractOSProcess {
+public class SolarisOSProcessFFM extends AbstractOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcessFFM.class);
 
-    private final SolarisOperatingSystem os;
+    private final SolarisOperatingSystemFFM os;
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
+    private Supplier<PsInfoFFM.PsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
-    private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private Supplier<PsInfoFFM.PrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -90,18 +84,18 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long voluntaryContextSwitches;
     private long involuntaryContextSwitches;
 
-    public SolarisOSProcess(int pid, SolarisOperatingSystem os) {
+    public SolarisOSProcessFFM(int pid, SolarisOperatingSystemFFM os) {
         super(pid);
         this.os = os;
         updateAttributes();
     }
 
-    private SolarisPsInfo queryPsInfo() {
-        return PsInfo.queryPsInfo(this.getProcessID());
+    private PsInfoFFM.PsInfo queryPsInfo() {
+        return PsInfoFFM.queryPsInfo(this.getProcessID());
     }
 
-    private SolarisPrUsage queryPrUsage() {
-        return PsInfo.queryPrUsage(this.getProcessID());
+    private PsInfoFFM.PrUsage queryPrUsage() {
+        return PsInfoFFM.queryPrUsage(this.getProcessID());
     }
 
     @Override
@@ -135,7 +129,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
+        return PsInfoFFM.queryArgsEnv(getProcessID());
     }
 
     @Override
@@ -269,9 +263,7 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
+            return rlimitNofile(true);
         } else {
             return getProcessOpenFileLimit(getProcessID(), 1);
         }
@@ -280,11 +272,22 @@ public class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
+            return rlimitNofile(false);
         } else {
             return getProcessOpenFileLimit(getProcessID(), 2);
+        }
+    }
+
+    private static long rlimitNofile(boolean soft) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment rlim = arena.allocate(SolarisLibcFunctions.RLIMIT_LAYOUT);
+            if (SolarisLibcFunctions.getrlimit(SolarisLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
+                return -1L;
+            }
+            return soft ? SolarisLibcFunctions.rlimitCur(rlim) : SolarisLibcFunctions.rlimitMax(rlim);
+        } catch (Throwable t) {
+            LOG.warn("getrlimit failed", t);
+            return -1L;
         }
     }
 
@@ -311,9 +314,6 @@ public class SolarisOSProcess extends AbstractOSProcess {
     public long getAffinityMask() {
         long bitMask = 0L;
         String cpuset = ExecutingCommand.getFirstAnswer("pbind -q " + getProcessID());
-        // Sample output:
-        // <empty string if no binding>
-        // pid 101048 strongly bound to processor(s) 0 1 2 3.
         if (cpuset.isEmpty()) {
             List<String> allProcs = ExecutingCommand.runNative("psrinfo");
             for (String proc : allProcs) {
@@ -332,7 +332,6 @@ public class SolarisOSProcess extends AbstractOSProcess {
                 if (bitToSet >= 0) {
                     bitMask |= 1L << bitToSet;
                 } else {
-                    // Once we run into the word processor(s) we're done
                     break;
                 }
             }
@@ -342,26 +341,26 @@ public class SolarisOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        // Get process files in proc
         File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return Collections.emptyList();
         }
 
-        return Arrays.stream(numericFiles).parallel().map(
-                lwpidFile -> new SolarisOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
+        return Arrays.stream(numericFiles).parallel()
+                .map(lwpidFile -> new SolarisOSThreadFFM(getProcessID(),
+                        ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
     @Override
     public boolean updateAttributes() {
-        SolarisPsInfo info = psinfo.get();
+        PsInfoFFM.PsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
             return false;
         }
-        SolarisPrUsage usage = prusage.get();
+        PsInfoFFM.PrUsage usage = prusage.get();
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);
         this.parentProcessID = info.pr_ppid;
@@ -371,40 +370,29 @@ public class SolarisOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(this.groupID);
         this.threadCount = info.pr_nlwp;
         this.priority = info.pr_lwp.pr_pri;
-        // These are in KB, multiply
-        this.virtualSize = info.pr_size.longValue() * 1024;
-        this.residentSetSize = info.pr_rssize.longValue() * 1024;
-        this.residentSetSizePrivate = info.pr_rssizepriv.longValue() * 1024;
-        this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;
-        // Avoid divide by zero for processes up less than a millisecond
+        this.virtualSize = info.pr_size * 1024;
+        this.residentSetSize = info.pr_rssize * 1024;
+        this.residentSetSizePrivate = info.pr_rssizepriv * 1024;
+        this.startTime = info.pr_start.toMillis();
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.kernelTime = 0L;
-        this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;
-        // 80 character truncation but enough for path and name (usually)
-        this.commandLineBackup = Native.toString(info.pr_psargs);
+        this.userTime = info.pr_time.toMillis();
+        this.commandLineBackup = PsInfoFFM.bytesToString(info.pr_psargs);
         String[] parts = ParseUtil.whitespaces.split(commandLineBackup);
         this.path = parts.length > 0 ? parts[0] : "";
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (usage != null) {
-            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;
-            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L
-                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;
-            this.bytesRead = usage.pr_ioch.longValue();
-            this.majorFaults = usage.pr_majf.longValue();
-            this.minorFaults = usage.pr_minf.longValue();
-            this.voluntaryContextSwitches = usage.pr_vctx.longValue();
-            this.involuntaryContextSwitches = usage.pr_ictx.longValue();
+            this.userTime = usage.pr_utime.toMillis();
+            this.kernelTime = usage.pr_stime.toMillis();
+            this.majorFaults = usage.pr_majf;
+            this.minorFaults = usage.pr_minf;
+            this.voluntaryContextSwitches = usage.pr_vctx;
+            this.involuntaryContextSwitches = usage.pr_ictx;
         }
         return true;
     }
 
-    /***
-     * Returns Enum STATE for the state value obtained from status string of thread/process.
-     *
-     * @param stateValue state value from the status string
-     * @return The state
-     */
     static State getStateFromOutput(char stateValue) {
         State state;
         switch (stateValue) {
@@ -434,16 +422,13 @@ public class SolarisOSProcess extends AbstractOSProcess {
     private long getProcessOpenFileLimit(final long processId, final int index) {
         final List<String> output = ExecutingCommand.runNative("plimit " + processId);
         if (output.isEmpty()) {
-            return -1; // not supported
+            return -1;
         }
-
         final Optional<String> nofilesLine = output.stream().filter(line -> line.trim().startsWith("nofiles"))
                 .findFirst();
         if (!nofilesLine.isPresent()) {
             return -1;
         }
-
-        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
         final String[] split = nofilesLine.get().split("\\D+");
         return ParseUtil.parseLongOrDefault(split[index], -1);
     }

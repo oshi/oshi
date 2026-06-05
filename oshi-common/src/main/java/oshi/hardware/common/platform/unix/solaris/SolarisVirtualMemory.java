@@ -1,8 +1,8 @@
 /*
- * Copyright 2019-2022 The OSHI Project Contributors
+ * Copyright 2019-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.kstat.SystemPages;
 import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -22,15 +21,11 @@ import oshi.util.tuples.Pair;
  * Memory obtained by kstat and swap
  */
 @ThreadSafe
-final class SolarisVirtualMemory extends AbstractVirtualMemory {
+public class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     private static final Pattern SWAP_INFO = Pattern.compile(".+\\s(\\d+)K\\s+(\\d+)K$");
 
     private final SolarisGlobalMemory global;
-
-    // Physical
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
-            defaultExpiration());
 
     // Swap
     private final Supplier<Pair<Long, Long>> usedTotal = memoize(SolarisVirtualMemory::querySwapInfo,
@@ -45,7 +40,7 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
      *
      * @param solarisGlobalMemory The parent global memory class instantiating this
      */
-    SolarisVirtualMemory(SolarisGlobalMemory solarisGlobalMemory) {
+    public SolarisVirtualMemory(SolarisGlobalMemory solarisGlobalMemory) {
         this.global = solarisGlobalMemory;
     }
 
@@ -61,12 +56,12 @@ final class SolarisVirtualMemory extends AbstractVirtualMemory {
 
     @Override
     public long getVirtualMax() {
-        return this.global.getPageSize() * availTotal.get().getB() + getSwapTotal();
+        return this.global.getTotal() + getSwapTotal();
     }
 
     @Override
     public long getVirtualInUse() {
-        return this.global.getPageSize() * (availTotal.get().getB() - availTotal.get().getA()) + getSwapUsed();
+        return this.global.getTotal() - this.global.getAvailable() + getSwapUsed();
     }
 
     @Override

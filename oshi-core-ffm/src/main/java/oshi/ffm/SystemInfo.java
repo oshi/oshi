@@ -16,12 +16,14 @@ import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerFFM;
+import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerFFM;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemFFM;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemFFM;
+import oshi.software.os.unix.solaris.SolarisOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
 import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
@@ -52,9 +54,10 @@ import oshi.util.PlatformEnum;
  * instance. To conserve memory at the cost of additional processing time, create a new SystemInfo for subsequent calls.
  * To conserve processing time at the cost of additional memory usage, re-use the same instance.
  * <p>
- * This implementation requires JDK 25+ and currently supports Windows, macOS, Linux, and FreeBSD. It uses the FFM API
- * in place of JNA for native access, which may offer better performance. For broader platform support (including
- * OpenBSD, Solaris, and AIX), use the JNA-based entry point ({@code oshi.SystemInfo}) in the {@code oshi-core} module.
+ * This implementation requires JDK 25+ and currently supports Windows, macOS, Linux, FreeBSD, OpenBSD, and Solaris
+ * (illumos). It uses the FFM API in place of JNA for native access, which may offer better performance. For broader
+ * platform support (DragonFly BSD, NetBSD, and AIX), use the JNA-based entry point ({@code oshi.SystemInfo}) in the
+ * {@code oshi-core} module.
  * <p>
  * Both this class and the JNA entry point require native access. Starting with
  * <a href="https://openjdk.org/jeps/472">JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future
@@ -86,7 +89,7 @@ public class SystemInfo implements SystemInfoProvider {
     }
 
     private static final Set<PlatformEnum> SUPPORTED_PLATFORMS = EnumSet.of(PlatformEnum.LINUX, PlatformEnum.MACOS,
-            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.OPENBSD);
+            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.OPENBSD, PlatformEnum.SOLARIS);
 
     @Override
     public boolean isAvailable() {
@@ -105,6 +108,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new FreeBsdOperatingSystemFFM();
             case OPENBSD:
                 return new OpenBsdOperatingSystemFFM();
+            case SOLARIS:
+                return new SolarisOperatingSystemFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }
@@ -122,6 +127,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new FreeBsdHardwareAbstractionLayerFFM();
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayerFFM();
+            case SOLARIS:
+                return new SolarisHardwareAbstractionLayerFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }

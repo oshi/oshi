@@ -70,9 +70,10 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: openbsd
 
-  # Runs on OpenIndiana (illumos/Solaris) x86 VM
+  # Runs on OpenIndiana (illumos/Solaris) x86 VM with aggregate-coverage uploaded
+  # to Codecov under the `solaris` flag.
   testopenindiana:
-    name: Test JDK 21, OpenIndiana
+    name: Test JDK 25, OpenIndiana
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -80,13 +81,27 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
         with:
+          mem: 8192
+          copyback: true
           prepare: |
-            pkg install openjdk21
+            pkg install openjdk25
           run: |
-            export JAVA_HOME=/usr/jdk/openjdk21
+            export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
+            # Cap Maven + child-JVM heap so back-to-back module test runs don't
+            # exhaust the VM's native memory pool (illumos malloc OOMs are
+            # otherwise easy to hit with parallel JUnit + FFM + JNA all loaded).
+            export MAVEN_OPTS="-Xmx1g"
+            export _JAVA_OPTIONS="-Xmx1g"
             java -version
-            ./mvnw clean test -B -Djacoco.skip=true -Dmaven.gitcommitid.skip=true
+            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: solaris
 
   # Runs current branch on Solaris 11.4 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue

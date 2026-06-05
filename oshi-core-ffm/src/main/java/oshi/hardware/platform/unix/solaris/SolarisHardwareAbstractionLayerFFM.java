@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -7,6 +7,7 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -26,13 +27,9 @@ import oshi.hardware.common.platform.unix.solaris.SolarisGraphicsCard;
 import oshi.hardware.common.platform.unix.solaris.SolarisSensors;
 import oshi.hardware.common.platform.unix.solaris.SolarisSoundCard;
 import oshi.hardware.common.platform.unix.solaris.SolarisUsbDevice;
-import oshi.hardware.platform.unix.CupsPrinterJNA;
 
-/**
- * SolarisHardwareAbstractionLayer class.
- */
 @ThreadSafe
-public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class SolarisHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -41,12 +38,12 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public GlobalMemory createMemory() {
-        return new SolarisGlobalMemory();
+        return new SolarisGlobalMemoryFFM();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new SolarisCentralProcessor();
+        return new SolarisCentralProcessorFFM();
     }
 
     @Override
@@ -56,12 +53,12 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return SolarisPowerSource.getPowerSources();
+        return SolarisPowerSourceFFM.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return SolarisHWDiskStore.getDisks();
+        return SolarisHWDiskStoreFFM.getDisks();
     }
 
     @Override
@@ -71,7 +68,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return SolarisNetworkIF.getNetworks(includeLocalInterfaces);
+        return SolarisNetworkIFFFM.getNetworks(includeLocalInterfaces);
     }
 
     @Override
@@ -91,6 +88,6 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinterJNA.getPrinters();
+        return CupsPrinterFFM.getPrinters();
     }
 }

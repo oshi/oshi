@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.solaris;
@@ -10,13 +10,13 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.kstat.SystemPages;
+import oshi.ffm.driver.unix.solaris.kstat.SystemPagesFFM;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-final class SolarisGlobalMemory extends oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory {
+final class SolarisGlobalMemoryFFM extends oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory {
 
-    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
+    private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPagesFFM::queryAvailableTotal,
             defaultExpiration());
 
     @Override

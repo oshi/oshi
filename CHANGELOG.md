@@ -1,4 +1,4 @@
-# 7.2.2 (in progress)
+# 7.3.0 (in progress)
 
 ##### New Features
 
@@ -12,6 +12,7 @@
 * [#3333](https://github.com/oshi/oshi/pull/3333),
   [#3334](https://github.com/oshi/oshi/pull/3334),
   [#3335](https://github.com/oshi/oshi/pull/3335): Add OpenBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* Add Solaris/illumos support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

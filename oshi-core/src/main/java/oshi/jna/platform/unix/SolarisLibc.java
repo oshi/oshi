@@ -23,6 +23,14 @@ public interface SolarisLibc extends CLibrary {
 
     SolarisLibc INSTANCE = Native.load("c", SolarisLibc.class);
 
+    /**
+     * Solaris/illumos {@code RLIMIT_NOFILE} from {@code <sys/resource.h>} is {@code 5}, not {@code 7} like Linux. The
+     * inherited {@code Resource.RLIMIT_NOFILE} from JNA's platform module is the Linux value, so calling
+     * {@code getrlimit(Resource.RLIMIT_NOFILE, …)} on Solaris asks for resource {@code 7} (which is
+     * {@code RLIM_NLIMITS} — not a valid limit) and returns {@code -1}/{@code EINVAL}. Shadow it here.
+     */
+    int RLIMIT_NOFILE = 5;
+
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 32;
     int UTX_IDSIZE = 4;

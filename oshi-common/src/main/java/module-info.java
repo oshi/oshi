@@ -28,6 +28,7 @@ module com.github.oshi.common {
     exports oshi.driver.unix.bsd;
     exports oshi.driver.unix.bsd.disk;
     exports oshi.driver.unix.freebsd.disk;
+    exports oshi.driver.unix.solaris.disk;
     exports oshi.hardware;
     exports oshi.hardware.common;
     exports oshi.hardware.common.platform.linux;
@@ -35,6 +36,7 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.unix.freebsd;
     exports oshi.hardware.common.platform.unix.openbsd;
+    exports oshi.hardware.common.platform.unix.solaris;
     exports oshi.hardware.common.platform.windows;
     exports oshi.nativefree;
     exports oshi.software.common;
@@ -42,6 +44,7 @@ module com.github.oshi.common {
     exports oshi.software.common.os.mac;
     exports oshi.software.common.os.unix.freebsd;
     exports oshi.software.common.os.unix.openbsd;
+    exports oshi.software.common.os.unix.solaris;
     exports oshi.software.common.os.windows;
     exports oshi.software.os;
     exports oshi.spi;

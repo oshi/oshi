@@ -2,7 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.solaris;
+package oshi.hardware.common.platform.unix.solaris;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
