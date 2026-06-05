@@ -81,12 +81,18 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@5ecd04945b8ac6c9b82248324912326a4d065094 # v1
         with:
+          mem: 8192
           copyback: true
           prepare: |
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
+            # Cap Maven + child-JVM heap so back-to-back module test runs don't
+            # exhaust the VM's native memory pool (illumos malloc OOMs are
+            # otherwise easy to hit with parallel JUnit + FFM + JNA all loaded).
+            export MAVEN_OPTS="-Xmx1g"
+            export _JAVA_OPTIONS="-Xmx1g"
             java -version
             ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true
       - name: Upload Coverage
