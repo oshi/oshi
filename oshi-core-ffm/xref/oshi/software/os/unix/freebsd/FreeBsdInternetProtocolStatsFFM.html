@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>FreeBsdInternetProtocolStatsFFM xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStatsFFM.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.unix.freebsd;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.defaultExpiration;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.unix.freebsd.FreeBsdInternetProtocolStats;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.unix.NetStat;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * FFM-backed FreeBSD Internet Protocol stats. Reads {@code net.inet.tcp.stats} and {@code net.inet.udp.stats} as raw</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * memory and pulls counters at fixed offsets matching the kernel struct layout. Established-connection counts come from</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * the shared {@link NetStat} command-line driver.</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdInternetProtocolStatsFFM" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdInternetProtocolStatsFFM.html#FreeBsdInternetProtocolStatsFFM">FreeBsdInternetProtocolStatsFFM</a> <strong class="jxr_keyword">extends</strong> FreeBsdInternetProtocolStats {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_comment">// Minimum sizes that contain all the fields we read. Sysctl outputs may grow over time but never shrink.</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> TCPSTAT_MIN_SIZE = 128;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> UDPSTAT_MIN_SIZE = 84;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;Pair&lt;Long, Long&gt;&gt; establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;MemorySegment&gt; tcpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryTcpstat,
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              defaultExpiration());
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> Supplier&lt;MemorySegment&gt; udpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryUdpstat,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              defaultExpiration());
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      @Override
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">public</strong> TcpStats getTCPv4Stats() {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          MemorySegment m = tcpstat.get();
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">if</strong> (m == <strong class="jxr_keyword">null</strong> || m.byteSize() &lt; TCPSTAT_MIN_SIZE) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getA(), 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">long</strong> connattempt = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 0));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">long</strong> accepts = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 4));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">long</strong> drops = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 12));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">long</strong> conndrops = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 16));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">long</strong> sndpack = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 64));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">long</strong> sndrexmitpack = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 72));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">long</strong> rcvpack = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 104));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">long</strong> inErrors = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 112)) <em class="jxr_comment">// rcvbadsum</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  + ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 116)) <em class="jxr_comment">// rcvbadoff</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  + ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 120)) <em class="jxr_comment">// rcvmemdrop</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  + ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 124)); <em class="jxr_comment">// rcvshort</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getA(), connattempt, accepts, conndrops, drops, sndpack, rcvpack,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  sndrexmitpack, inErrors, 0L);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Override
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> UdpStats getUDPv4Stats() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          MemorySegment m = udpstat.get();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">if</strong> (m == <strong class="jxr_keyword">null</strong> || m.byteSize() &lt; UDPSTAT_MIN_SIZE) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(0L, 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">long</strong> ipackets = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 0));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">long</strong> hdrops = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 4));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">long</strong> badsum = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 8));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">long</strong> badlen = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 12));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">long</strong> opackets = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 36));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">long</strong> noportmcast = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 48));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(opackets, ipackets, noportmcast, hdrops + badsum + badlen);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Override
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> UdpStats getUDPv6Stats() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          MemorySegment m = udpstat.get();
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">if</strong> (m == <strong class="jxr_keyword">null</strong> || m.byteSize() &lt; UDPSTAT_MIN_SIZE) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(0L, 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">long</strong> rcv6 = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 64));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">long</strong> snd6 = ParseUtil.unsignedIntToLong(m.get(JAVA_INT, 80));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(snd6, rcv6, 0L, 0L);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> MemorySegment queryTcpstat() {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtilFFM.sysctl(<span class="jxr_string">"net.inet.tcp.stats"</span>);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> MemorySegment queryUdpstat() {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtilFFM.sysctl(<span class="jxr_string">"net.inet.udp.stats"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

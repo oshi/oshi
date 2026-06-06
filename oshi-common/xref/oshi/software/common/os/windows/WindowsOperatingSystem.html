@@ -31,52 +31,53 @@
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">protected</strong> <a name="WindowsOperatingSystem" href="../../../../../oshi/software/common/os/windows/WindowsOperatingSystem.html#WindowsOperatingSystem">WindowsOperatingSystem</a>() {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_PROCSTATE_SUSPENDED = <a name="GlobalConfig" href="../../../../../oshi/util/GlobalConfig.html#GlobalConfig">GlobalConfig</a>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>              .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      @Override
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">protected</strong> String queryManufacturer() {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Microsoft"</span>;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * Gets suites available on the system and return as a codename.</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @param suiteMask The suite mask bitmask</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @return Suites</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String parseCodeName(<strong class="jxr_keyword">int</strong> suiteMask) {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          List&lt;String&gt; suites = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000002) != 0) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              suites.add(<span class="jxr_string">"Enterprise"</span>);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000004) != 0) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              suites.add(<span class="jxr_string">"BackOffice"</span>);
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000008) != 0) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              suites.add(<span class="jxr_string">"Communications Server"</span>);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000080) != 0) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              suites.add(<span class="jxr_string">"Datacenter"</span>);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000200) != 0) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              suites.add(<span class="jxr_string">"Home"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000400) != 0) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              suites.add(<span class="jxr_string">"Web Server"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00002000) != 0) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              suites.add(<span class="jxr_string">"Storage Server"</span>);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00004000) != 0) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              suites.add(<span class="jxr_string">"Compute Cluster"</span>);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00008000) != 0) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              suites.add(<span class="jxr_string">"Home Server"</span>);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> String.join(<span class="jxr_string">","</span>, suites);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <em class="jxr_javadoccomment">/** Whether to check thread states to determine if a process is suspended. */</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> USE_PROCSTATE_SUSPENDED = <a name="GlobalConfig" href="../../../../../oshi/util/GlobalConfig.html#GlobalConfig">GlobalConfig</a>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>              .get(GlobalConfig.OSHI_OS_WINDOWS_PROCSTATE_SUSPENDED, false);
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      @Override
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">protected</strong> String queryManufacturer() {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Microsoft"</span>;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * Gets suites available on the system and return as a codename.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @param suiteMask The suite mask bitmask</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @return Suites</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String parseCodeName(<strong class="jxr_keyword">int</strong> suiteMask) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          List&lt;String&gt; suites = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000002) != 0) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              suites.add(<span class="jxr_string">"Enterprise"</span>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000004) != 0) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              suites.add(<span class="jxr_string">"BackOffice"</span>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000008) != 0) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              suites.add(<span class="jxr_string">"Communications Server"</span>);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000080) != 0) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              suites.add(<span class="jxr_string">"Datacenter"</span>);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000200) != 0) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              suites.add(<span class="jxr_string">"Home"</span>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00000400) != 0) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              suites.add(<span class="jxr_string">"Web Server"</span>);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00002000) != 0) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              suites.add(<span class="jxr_string">"Storage Server"</span>);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00004000) != 0) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              suites.add(<span class="jxr_string">"Compute Cluster"</span>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">if</strong> ((suiteMask &amp; 0x00008000) != 0) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              suites.add(<span class="jxr_string">"Home Server"</span>);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> String.join(<span class="jxr_string">","</span>, suites);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

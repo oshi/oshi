@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.openbsd.disk.Disklabel;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.unix.bsd.disk.Disklabel;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractHWDiskStore;
@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                              <em class="jxr_comment">// Estimate bytes per sector. Should be "near" a power of 2</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                              bytesPerSector = size / sectors;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                              <em class="jxr_comment">// Multiply by 1.5 and round down to nearest power of 2:</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              bytesPerSector = Long.highestOneBit(bytesPerSector + bytesPerSector &gt;&gt; 1);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              bytesPerSector = Long.highestOneBit(bytesPerSector + (bytesPerSector &gt;&gt; 1));
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                          }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                          size = bytesPerSector * sectors;
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                          <strong class="jxr_keyword">break</strong>;
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">boolean</strong> diskFound = false;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">for</strong> (String line : iostat.get()) {
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>             String[] split = ParseUtil.whitespaces.split(line);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">if</strong> (split.length &lt; 7 &amp;&amp; split[0].equals(getName())) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 6 &amp;&amp; split[0].equals(getName())) {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                 diskFound = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>                 setReadBytes(ParseUtil.parseMultipliedToLongs(split[1]));
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>                 setWriteBytes(ParseUtil.parseMultipliedToLongs(split[2]));

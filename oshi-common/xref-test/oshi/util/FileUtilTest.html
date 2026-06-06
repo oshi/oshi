@@ -296,11 +296,34 @@
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>     }
 <a class="jxr_linenumber" name="L289" href="#L289">289</a> 
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     @Test
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">void</strong> testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         Path file = Files.createFile(tempDir.resolve(<span class="jxr_string">"regular.txt"</span>));
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         assertThat(FileUtil.readSymlinkTarget(file.toFile()), is(nullValue()));
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
-<a class="jxr_linenumber" name="L295" href="#L295">295</a> }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">void</strong> testReadAllBytesReportError(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         Path file = tempDir.resolve(<span class="jxr_string">"bytes.bin"</span>);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         byte[] expected = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         Files.write(file, expected);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> 
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         byte[] actual = FileUtil.readAllBytes(file.toString(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         assertArrayEquals(expected, actual, <span class="jxr_string">"readAllBytes should return file content"</span>);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <em class="jxr_comment">// Non-existent file with reportError=true</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         String missing = tempDir.resolve(<span class="jxr_string">"missing.bin"</span>).toString();
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         byte[] result = FileUtil.readAllBytes(missing, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         assertThat(<span class="jxr_string">"Missing file should return empty array"</span>, result.length, is(0));
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     @Test
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">void</strong> testReadAllBytesAsBufferEmpty(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <em class="jxr_comment">// Non-existent file should return an empty buffer</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         String missing = tempDir.resolve(<span class="jxr_string">"nofile.bin"</span>).toString();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(missing);
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         assertThat(<span class="jxr_string">"Buffer from missing file should have 0 limit"</span>, buff.limit(), is(0));
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     @Test
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">void</strong> testReadSymlinkTargetNonSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         Path file = Files.createFile(tempDir.resolve(<span class="jxr_string">"regular.txt"</span>));
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         assertThat(FileUtil.readSymlinkTarget(file.toFile()), is(nullValue()));
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

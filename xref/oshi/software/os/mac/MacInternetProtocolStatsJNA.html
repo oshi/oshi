@@ -12,15 +12,15 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.os.mac;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.INT_SIZE;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.PROC_ALL_PIDS;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.AF_INET;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.AF_INET6;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.PROC_PIDFDSOCKETINFO;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.SOCKINFO_IN;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.jna.platform.mac.SystemB.SOCKINFO_TCP;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.AF_INET;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.AF_INET6;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.INT_SIZE;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.PROC_ALL_PIDS;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.PROC_PIDFDSOCKETINFO;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.SOCKINFO_IN;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> com.sun.jna.platform.mac.SystemB.SOCKINFO_TCP;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
@@ -42,12 +42,12 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.Memory;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB.InSockInfo;
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB.ProcFdInfo;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB.SocketFdInfo;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.InSockInfo;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.SystemB.ProcFdInfo;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.jna.Struct.CloseableSocketFdInfo;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemB;
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.CLibrary.BsdIp6stat;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.CLibrary.BsdIpstat;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.unix.CLibrary.BsdTcpstat;
@@ -167,7 +167,7 @@
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> IPConnection queryIPConnection(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">int</strong> fd) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">try</strong> (SocketFdInfo si = <strong class="jxr_keyword">new</strong> SocketFdInfo()) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">try</strong> (CloseableSocketFdInfo si = <strong class="jxr_keyword">new</strong> CloseableSocketFdInfo()) {
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">int</strong> ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">if</strong> (si.size() == ret &amp;&amp; si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>                 InSockInfo ini;
@@ -192,16 +192,16 @@
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>                 byte[] laddr;
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                 byte[] faddr;
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <strong class="jxr_keyword">if</strong> (ini.insi_vflag == 1) {
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>                     laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>                     faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                     laddr = ParseUtil.parseIntToIP(ini.insi_laddr.ina_46.i46a_addr4);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                     faddr = ParseUtil.parseIntToIP(ini.insi_faddr.ina_46.i46a_addr4);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>                     type += <span class="jxr_string">"4"</span>;
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ini.insi_vflag == 2) {
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>                     laddr = ParseUtil.parseIntArrayToIP(ini.insi_laddr);
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                     faddr = ParseUtil.parseIntArrayToIP(ini.insi_faddr);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                     laddr = ini.insi_laddr.ina_6.__u6_addr;
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                     faddr = ini.insi_faddr.ina_6.__u6_addr;
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>                     type += <span class="jxr_string">"6"</span>;
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ini.insi_vflag == 3) {
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                     laddr = ParseUtil.parseIntToIP(ini.insi_laddr[3]);
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>                     faddr = ParseUtil.parseIntToIP(ini.insi_faddr[3]);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                     laddr = ParseUtil.parseIntToIP(ini.insi_laddr.ina_46.i46a_addr4);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>                     faddr = ParseUtil.parseIntToIP(ini.insi_faddr.ina_46.i46a_addr4);
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                     type += <span class="jxr_string">"46"</span>;
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;

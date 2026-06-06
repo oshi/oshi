@@ -43,21 +43,27 @@
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param description a label for assertion failure messages</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertWithinRatio(<strong class="jxr_keyword">double</strong> actual, <strong class="jxr_keyword">double</strong> expected, <strong class="jxr_keyword">double</strong> ratio, String description) {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">if</strong> (expected == 0 &amp;&amp; actual == 0) {
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          }
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">if</strong> (expected == 0 || actual == 0) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">double</strong> nonZero = Math.max(Math.abs(expected), Math.abs(actual));
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              assertThat(nonZero).as(<span class="jxr_string">"%s: one value is 0, other is %.2f"</span>, description, nonZero)
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                      .isLessThanOrEqualTo(ratio);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// Sensors that aren't available on a platform return NaN from both implementations (e.g. CPU temperature on a</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <em class="jxr_comment">// FreeBSD VM without the coretemp kld module). Treat that as "equal: both are 'no data'" since NaN arithmetic</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <em class="jxr_comment">// would otherwise make the ratio comparison fail.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">if</strong> (Double.isNaN(actual) &amp;&amp; Double.isNaN(expected)) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">if</strong> (expected == 0 &amp;&amp; actual == 0) {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>          }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">double</strong> min = Math.min(Math.abs(actual), Math.abs(expected));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">double</strong> max = Math.max(Math.abs(actual), Math.abs(expected));
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(min / max).as(<span class="jxr_string">"%s: expected=%f, actual=%f"</span>, description, expected, actual)
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  .isGreaterThanOrEqualTo(1.0 - ratio);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">if</strong> (expected == 0 || actual == 0) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">double</strong> nonZero = Math.max(Math.abs(expected), Math.abs(actual));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              assertThat(nonZero).as(<span class="jxr_string">"%s: one value is 0, other is %.2f"</span>, description, nonZero)
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      .isLessThanOrEqualTo(ratio);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">double</strong> min = Math.min(Math.abs(actual), Math.abs(expected));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">double</strong> max = Math.max(Math.abs(actual), Math.abs(expected));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(min / max).as(<span class="jxr_string">"%s: expected=%f, actual=%f"</span>, description, expected, actual)
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  .isGreaterThanOrEqualTo(1.0 - ratio);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

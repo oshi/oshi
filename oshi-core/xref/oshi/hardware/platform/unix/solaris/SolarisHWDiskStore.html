@@ -118,7 +118,7 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> 
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// Create map of model, vendor, product, serial, size</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// We'll use Model if available, otherwise Vendor+Product</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         Map&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; deviceStringMap = <a name="Iostat" href="../../../../../oshi/driver/unix/solaris/disk/Iostat.html#Iostat">Iostat</a>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         Map&lt;String, Quintet&lt;String, String, String, String, Long&gt;&gt; deviceStringMap = Iostat
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                 .queryDeviceStrings(deviceMap.keySet());
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         List&lt;HWDiskStore&gt; storeList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();

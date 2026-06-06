@@ -477,13 +477,13 @@
 <a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">     * @param status status map to fill.</em>
 <a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_javadoccomment">     * @param stat   string to read from.</em>
 <a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> getMissingDetails(Map&lt;String, String&gt; status, String stat) {
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> getMissingDetails(Map&lt;String, String&gt; status, String stat) {
 <a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">if</strong> (status == <strong class="jxr_keyword">null</strong> || stat == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L474" href="#L474">474</a>             <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L475" href="#L475">475</a>         }
 <a class="jxr_linenumber" name="L476" href="#L476">476</a> 
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">int</strong> nameStart = stat.indexOf('(');
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">int</strong> nameEnd = stat.indexOf(')');
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">int</strong> nameEnd = stat.lastIndexOf(')');
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">if</strong> (Util.isBlank(status.get(<span class="jxr_string">"Name"</span>)) &amp;&amp; nameStart &gt; 0 &amp;&amp; nameStart &lt; nameEnd) {
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>             <em class="jxr_comment">// remove leading and trailing parentheses</em>
 <a class="jxr_linenumber" name="L481" href="#L481">481</a>             String statName = stat.substring(nameStart + 1, nameEnd);

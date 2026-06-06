@@ -400,7 +400,7 @@
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>         lines.add(<span class="jxr_string">"File System:"</span>);
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>         lines.add(String.format(Locale.ROOT, <span class="jxr_string">" File Descriptors: %d/%d"</span>, fileSystem.getOpenFileDescriptors(),
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>                 fileSystem.getMaxFileDescriptors()));
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fs : fileSystem.getFileStores()) {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fs : fileSystem.getFileStores(<strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>             lines.add(String.format(Locale.ROOT,

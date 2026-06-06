@@ -16,19 +16,19 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Collections;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.ptr.PointerByReference;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.BluetoothDevice;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractBluetoothDevice;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.BluetoothApis;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_INFO;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_DEVICE_SEARCH_PARAMS;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_FIND_RADIO_PARAMS;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.windows.BluetoothApis.BLUETOOTH_RADIO_INFO;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BluetoothApis;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_DEVICE_INFO;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_DEVICE_SEARCH_PARAMS;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_FIND_RADIO_PARAMS;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.BluetoothApis.BLUETOOTH_RADIO_INFO;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.Kernel32;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.VersionHelpers;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLE;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.win32.WinNT.HANDLEByReference;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.BluetoothDevice;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractBluetoothDevice;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
@@ -55,7 +55,7 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;BluetoothDevice&gt; devices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          BLUETOOTH_FIND_RADIO_PARAMS radioParams = <strong class="jxr_keyword">new</strong> BLUETOOTH_FIND_RADIO_PARAMS();
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          PointerByReference phRadio = <strong class="jxr_keyword">new</strong> PointerByReference();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          HANDLEByReference phRadio = <strong class="jxr_keyword">new</strong> HANDLEByReference();
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          HANDLE hFindRadio = BluetoothApis.INSTANCE.BluetoothFindFirstRadio(radioParams, phRadio);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">if</strong> (hFindRadio == <strong class="jxr_keyword">null</strong>) {
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  HANDLE hRadio = <strong class="jxr_keyword">new</strong> HANDLE(phRadio.getValue());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  HANDLE hRadio = phRadio.getValue();
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>                  <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>                      String adapterName = getRadioName(hRadio);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                      queryDevicesForRadio(hRadio, adapterName, devices);

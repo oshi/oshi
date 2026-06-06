@@ -14,23 +14,41 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Kernel32FFM;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Kernel32UtilFFM" href="../../../../../oshi/ffm/util/platform/windows/Kernel32UtilFFM.html#Kernel32UtilFFM">Kernel32UtilFFM</a> {
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>      <strong class="jxr_keyword">private</strong> <a name="Kernel32UtilFFM" href="../../../../../oshi/ffm/util/platform/windows/Kernel32UtilFFM.html#Kernel32UtilFFM">Kernel32UtilFFM</a>() {
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>      }
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * FFM-based utility for Windows Kernel32 system information operations.</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Kernel32UtilFFM" href="../../../../../oshi/ffm/util/platform/windows/Kernel32UtilFFM.html#Kernel32UtilFFM">Kernel32UtilFFM</a> {
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> querySystemUptime() {
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>      }
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerName() {
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetComputerName().orElse(<span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      }
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerNameEx() {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetComputerNameEx().orElse(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <strong class="jxr_keyword">private</strong> <a name="Kernel32UtilFFM" href="../../../../../oshi/ffm/util/platform/windows/Kernel32UtilFFM.html#Kernel32UtilFFM">Kernel32UtilFFM</a>() {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>      }
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">     * Queries the system uptime in seconds.</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">     * @return the system uptime in seconds</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> querySystemUptime() {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetTickCount().orElse(-1) / 1000L;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  }
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * Gets the NetBIOS computer name.</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @return the computer name, or empty string on failure</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerName() {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetComputerName().orElse(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * Gets the fully qualified DNS computer name.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @return the DNS computer name, or empty string on failure</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getComputerNameEx() {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">return</strong> Kernel32FFM.GetComputerNameEx().orElse(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
