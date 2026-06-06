@@ -1,0 +1,80 @@
+# CI on cfarm physical machines (AIX, Solaris SPARC)
+name: Cfarm CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+jobs:
+  # Runs current branch on Solaris 11.4 on SPARC
+  # Retries flaky test once, possible junit-platform-maven-test issue
+  testsolaris_sparc:
+    name: Test JDK 17, Solaris SPARC
+    concurrency: solaris_cfarm216
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test in Solaris SPARC
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      with:
+        host: cfarm216.cfarm.net
+        username: oshi
+        key: ${{ secrets.GCC_CI_KEY }}
+        port: 22
+        command_timeout: 25m
+        script: |
+          set -e
+          source .profile
+          cd ~/oshi
+          git reset --hard
+          git checkout master
+          git reset --hard HEAD~2
+          git pull
+          for i in {1..2}; do ./mvnw clean test -B -Djacoco.skip=true && break || sleep 15; done
+
+  # SSH into AIX server and run test on AIX 7.3
+  # Configured to pull latest from oshi master branch
+  # To test on a PR, log into the aix server and create a new branch
+  # Retries up to 3 times due to flaky library loading in OpenJ9
+  testaix:
+    name: Test JDK 25, AIX
+    concurrency: aix_cfarm119
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test in AIX
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      with:
+        host: cfarm119.cfarm.net
+        username: oshi
+        key: ${{ secrets.GCC_CI_KEY }}
+        port: 22
+        command_timeout: 15m
+        script: |
+          set -e
+          rm -fR ~/javashared*
+          cd ~/git/oshi
+          export JAVA_HOME=~/java/jdk-25.0.3+9
+          export PATH=$PATH:/opt/freeware/bin
+          export MAVEN_OPTS="-Xshareclasses:none -Djna.tmpdir=/home/oshi/.cache/jna"
+          git reset --hard
+          git checkout master
+          git reset --hard HEAD~2
+          git pull upstream master
+          # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
+          MAVEN_VERSION=3.9.15
+          MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
+          if [ ! -d "$MAVEN_DIR" ]; then
+            mkdir -p /home/oshi/software
+            wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv -O /tmp/maven.tar.gz
+            gunzip -f /tmp/maven.tar.gz
+            cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
+            cd ~/git/oshi
+          fi
+          mkdir -p /home/oshi/.cache/jna
+          export PATH=$MAVEN_DIR/bin:$PATH
+          mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna; }; }

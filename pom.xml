@@ -292,6 +292,7 @@
                         <parameters>
                             <junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
                             <junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
+                            <junit.jupiter.execution.parallel.config.executor-service>WORKER_THREAD_POOL</junit.jupiter.execution.parallel.config.executor-service>
                         </parameters>
                         <executor>JAVA</executor>
                         <javaOptions>

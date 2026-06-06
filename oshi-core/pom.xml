@@ -15,6 +15,10 @@
     <description>A JNA-based (native) operating system information library for Java that aims to provide a
         cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
 
+    <properties>
+        <native.access.modules>com.sun.jna</native.access.modules>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- Due to critical nature of OSHI jna usage, set to dependency management to help influence usage -->
