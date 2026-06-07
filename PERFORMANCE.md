@@ -6,7 +6,7 @@
 OSHI provides two native access implementations:
 
 - **JNA** (`oshi-core`): Supports JDK 8+ and all platforms OSHI targets. JNA uses reflection-based marshalling for native calls, which adds overhead per invocation.
-- **FFM** (`oshi-core-ffm`): Requires JDK 25+ and currently supports Linux, macOS, Windows, FreeBSD, OpenBSD, and Solaris (illumos). FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
+- **FFM** (`oshi-core-ffm`): Requires JDK 25+ and currently supports Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos), and AIX. FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
 
 The tables below show approximate average times from JMH benchmarks (5 warmup iterations, 7 measurement iterations, 5 forks) captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`) on GitHub Actions runners. The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change.
 
@@ -81,6 +81,18 @@ OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the 
 | Processes  | ~367 ms  | ~368 ms  |
 
 Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~80x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
+
+### AIX
+
+| Benchmark  | FFM      | JNA      |
+|------------|----------|----------|
+| CpuTicks   | ~67 µs   | ~5.5 ms  |
+| FileStore  | ~267 ms  | ~267 ms  |
+| Memory     | ~114 µs  | ~203 µs  |
+| NetworkIF  | ~49 µs   | ~341 µs  |
+| Processes  | ~8.5 ms  | ~9.2 ms  |
+
+AIX shows a Solaris-like ~80x FFM advantage on `CpuTicks`: every read traverses a `libperfstat` call, and JNA's per-call marshalling dominates against AIX's tiny native cost. `FileStore` is bottlenecked on filesystem stat() calls and is insensitive to native-binding overhead. AIX runs on cfarm119 (shared real hardware via SSH, OpenJ9 JDK 25), so numbers are more stable than the nested-VM platforms above but noisier than the dedicated GitHub Actions runners.
 
 ### Running benchmarks locally
 
