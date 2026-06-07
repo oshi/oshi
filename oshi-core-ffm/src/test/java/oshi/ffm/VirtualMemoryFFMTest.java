@@ -20,7 +20,7 @@ import org.junit.jupiter.api.condition.OS;
 import oshi.hardware.VirtualMemory;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS, OS.AIX })
 public class VirtualMemoryFFMTest {
 
     @Test
