@@ -175,7 +175,13 @@ jobs:
           # themselves have no platform gate; they instantiate both
           # oshi.SystemInfo and oshi.ffm.SystemInfo unconditionally.
           mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
-          java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 7 -f 5
+          # Explicit $JAVA_HOME/bin/java: /opt/freeware/bin on AIX shadows
+          # `java` with the OS-bundled Java 8, which doesn't recognize
+          # --enable-native-access (added in JDK 17) — the flag the
+          # @Fork(jvmArgsPrepend = "--enable-native-access=ALL-UNNAMED")
+          # annotation passes to JMH forks. Launching via the JDK 25 binary
+          # makes JMH set java.home to JDK 25 so forks inherit the same.
+          $JAVA_HOME/bin/java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 7 -f 5
 
   benchopenindiana:
     name: JMH benchmarks, OpenIndiana
