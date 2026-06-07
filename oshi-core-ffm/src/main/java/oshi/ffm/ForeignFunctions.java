@@ -305,14 +305,21 @@ public abstract class ForeignFunctions {
     // SymbolLookup.libraryLookup() can't pass custom flags; some platforms need them (notably AIX
     // archive-member loading via RTLD_MEMBER). We bind dlopen/dlsym from libc directly so callers
     // can dlopen with whatever flags they need and wrap the handle into a SymbolLookup.
+    //
+    // Bill Pugh holder pattern: these symbols are POSIX-only (Windows has LoadLibrary +
+    // GetProcAddress instead), so binding them eagerly in <clinit> on ForeignFunctions would break
+    // every Windows FFM class that extends this one. The holder class is only loaded on first
+    // access — i.e., on the first call to dlopenWithFlags — which Windows code paths never make.
 
-    private static final MethodHandle DLOPEN = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlopen"),
-            FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
-                    java.lang.foreign.ValueLayout.JAVA_INT));
+    private static final class DlSyms {
+        static final MethodHandle DLOPEN = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlopen"),
+                FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
+                        java.lang.foreign.ValueLayout.JAVA_INT));
 
-    private static final MethodHandle DLSYM = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlsym"),
-            FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
-                    java.lang.foreign.ValueLayout.ADDRESS));
+        static final MethodHandle DLSYM = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlsym"),
+                FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
+                        java.lang.foreign.ValueLayout.ADDRESS));
+    }
 
     /**
      * Calls {@code dlopen(path, flags)} directly through the C runtime, returning a {@link SymbolLookup} over the
@@ -332,7 +339,7 @@ public abstract class ForeignFunctions {
         try {
             Arena global = Arena.global();
             MemorySegment pathSeg = global.allocateFrom(path);
-            MemorySegment handle = (MemorySegment) DLOPEN.invokeExact(pathSeg, flags);
+            MemorySegment handle = (MemorySegment) DlSyms.DLOPEN.invokeExact(pathSeg, flags);
             if (handle.address() == 0L) {
                 throw new UnsatisfiedLinkError("dlopen returned NULL for " + path);
             }
@@ -371,7 +378,7 @@ public abstract class ForeignFunctions {
         return name -> {
             try (Arena local = Arena.ofConfined()) {
                 MemorySegment nameSeg = local.allocateFrom(name);
-                MemorySegment sym = (MemorySegment) DLSYM.invokeExact(libHandle, nameSeg);
+                MemorySegment sym = (MemorySegment) DlSyms.DLSYM.invokeExact(libHandle, nameSeg);
                 return sym.address() == 0L ? java.util.Optional.empty()
                         : java.util.Optional.of(MemorySegment.ofAddress(sym.address()));
             } catch (Throwable t) {
