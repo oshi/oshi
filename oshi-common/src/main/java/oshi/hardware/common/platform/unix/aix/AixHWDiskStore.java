@@ -38,8 +38,11 @@ public abstract class AixHWDiskStore extends AbstractHWDiskStore {
         long now = System.currentTimeMillis();
         long blks = stats.rblks + stats.wblks;
         if (blks == 0L) {
-            setReads(stats.xfers);
-            setWrites(0L);
+            // No block-split info: attribute all transfers to reads, but stay monotonic with the
+            // non-zero branch below — never decrease a previously-reported counter.
+            if (stats.xfers > getReads()) {
+                setReads(stats.xfers);
+            }
         } else {
             long approximateReads = Math.round(stats.xfers * stats.rblks / (double) blks);
             long approximateWrites = stats.xfers - approximateReads;

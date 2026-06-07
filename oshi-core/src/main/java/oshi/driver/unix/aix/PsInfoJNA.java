@@ -103,19 +103,20 @@ public final class PsInfoJNA {
                         }
                     }
 
-                    // Also read the pointers to the env strings
-                    // We don't know how many, so stop when we get to null pointer
+                    // Also read the pointers to the env strings; the envp table is null-terminated,
+                    // so stop at the first null entry (with a 500-entry safety cap).
                     bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envp);
                     List<Long> envPtrList = new ArrayList<>();
                     long addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, envp - bufStart, increment);
-                    int limit = 500; // sane max env strings to stop at
+                    int limit = 500;
                     long offset = addr;
                     while (addr != 0 && --limit > 0) {
                         bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
                         long envPtr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                        if (envPtr != 0) {
-                            envPtrList.add(envPtr);
+                        if (envPtr == 0) {
+                            break;
                         }
+                        envPtrList.add(envPtr);
                         offset += increment;
                     }
 

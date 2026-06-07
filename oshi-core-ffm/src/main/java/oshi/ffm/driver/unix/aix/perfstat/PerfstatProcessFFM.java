@@ -15,16 +15,22 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.procRealMemText;
 import static oshi.ffm.unix.aix.PerfstatFunctions.procScpuTime;
 import static oshi.ffm.unix.aix.PerfstatFunctions.procUcpuTime;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_process}, mirroring {@code oshi.driver.unix.aix.perfstat.PerfstatProcessJNA}.
  */
 @ThreadSafe
 public final class PerfstatProcessFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatProcessFFM.class);
 
     private PerfstatProcessFFM() {
     }
@@ -53,7 +59,7 @@ public final class PerfstatProcessFFM {
      * @return one {@link ProcessInfo} per process, or an empty array on error
      */
     public static ProcessInfo[] queryProcesses() {
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
             int count = perfstat_process(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_PROCESS_T_SIZE, 0);
             if (count <= 0) {
                 return new ProcessInfo[0];
@@ -79,8 +85,6 @@ public final class PerfstatProcessFFM {
                 result[i] = p;
             }
             return result;
-        } catch (Throwable t) {
-            return new ProcessInfo[0];
-        }
+        }, LOG, Level.TRACE, "Failed to query process statistics", new ProcessInfo[0]);
     }
 }

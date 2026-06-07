@@ -20,10 +20,14 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpIpackets;
 import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpNoSocket;
 import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpOpackets;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_protocol}, mirroring {@code oshi.driver.unix.aix.perfstat.PerfstatProtocolJNA}.
@@ -31,6 +35,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PerfstatProtocolFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatProtocolFFM.class);
 
     private PerfstatProtocolFFM() {
     }
@@ -59,7 +65,7 @@ public final class PerfstatProtocolFFM {
      * @return one {@link Protocol} per entry, or an empty array on error
      */
     public static Protocol[] queryProtocols() {
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
             int count = perfstat_protocol(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_PROTOCOL_T_SIZE, 0);
             if (count <= 0) {
                 return new Protocol[0];
@@ -92,8 +98,6 @@ public final class PerfstatProtocolFFM {
                 result[i] = p;
             }
             return result;
-        } catch (Throwable t) {
-            return new Protocol[0];
-        }
+        }, LOG, Level.TRACE, "Failed to query protocol statistics", new Protocol[0]);
     }
 }

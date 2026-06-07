@@ -67,8 +67,9 @@ public final class AixOSProcessJNA extends AixOSProcess {
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
+            if (AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit) == 0) {
+                return rlimit.rlim_cur;
+            }
         }
         return -1L;
     }
@@ -77,8 +78,9 @@ public final class AixOSProcessJNA extends AixOSProcess {
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
+            if (AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit) == 0) {
+                return rlimit.rlim_max;
+            }
         }
         return -1L;
     }

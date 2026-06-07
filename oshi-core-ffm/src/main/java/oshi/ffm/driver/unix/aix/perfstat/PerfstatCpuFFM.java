@@ -30,10 +30,14 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.cpuWait;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_cpu;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_cpu_total;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_cpu_total} and {@code perfstat_cpu}, mirroring
@@ -41,6 +45,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PerfstatCpuFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatCpuFFM.class);
 
     private PerfstatCpuFFM() {
     }
@@ -79,8 +85,8 @@ public final class PerfstatCpuFFM {
      * @return populated {@link CpuTotal}, or an empty instance on error
      */
     public static CpuTotal queryCpuTotal() {
-        CpuTotal result = new CpuTotal();
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
+            CpuTotal result = new CpuTotal();
             MemorySegment buf = arena.allocate(PERFSTAT_CPU_TOTAL_T_SIZE);
             int ret = perfstat_cpu_total(MemorySegment.NULL, buf, PERFSTAT_CPU_TOTAL_T_SIZE, 1);
             if (ret > 0) {
@@ -99,10 +105,8 @@ public final class PerfstatCpuFFM {
                 result.idle_stolen_purr = cpuTotalIdleStolenPurr(buf);
                 result.busy_stolen_purr = cpuTotalBusyStolenPurr(buf);
             }
-        } catch (Throwable t) {
-            // empty result returned
-        }
-        return result;
+            return result;
+        }, LOG, Level.TRACE, "Failed to query CPU total", new CpuTotal());
     }
 
     /**
@@ -111,7 +115,7 @@ public final class PerfstatCpuFFM {
      * @return one {@link Cpu} per logical processor, or an empty array on error
      */
     public static Cpu[] queryCpu() {
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
             // First call with NULL buf to get count.
             int count = perfstat_cpu(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_CPU_T_SIZE, 0);
             if (count <= 0) {
@@ -139,9 +143,7 @@ public final class PerfstatCpuFFM {
                 result[i] = c;
             }
             return result;
-        } catch (Throwable t) {
-            return new Cpu[0];
-        }
+        }, LOG, Level.TRACE, "Failed to query per-CPU statistics", new Cpu[0]);
     }
 
     /**

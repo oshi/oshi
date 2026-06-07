@@ -17,16 +17,22 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.diskWblks;
 import static oshi.ffm.unix.aix.PerfstatFunctions.diskXfers;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_disk;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_disk}, mirroring {@code oshi.driver.unix.aix.perfstat.PerfstatDiskJNA}.
  */
 @ThreadSafe
 public final class PerfstatDiskFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatDiskFFM.class);
 
     private PerfstatDiskFFM() {
     }
@@ -50,7 +56,7 @@ public final class PerfstatDiskFFM {
      * @return one {@link Disk} per disk, or an empty array on error
      */
     public static Disk[] queryDiskStats() {
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
             int count = perfstat_disk(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_DISK_T_SIZE, 0);
             if (count <= 0) {
                 return new Disk[0];
@@ -77,8 +83,6 @@ public final class PerfstatDiskFFM {
                 result[i] = d;
             }
             return result;
-        } catch (Throwable t) {
-            return new Disk[0];
-        }
+        }, LOG, Level.TRACE, "Failed to query disk statistics", new Disk[0]);
     }
 }

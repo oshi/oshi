@@ -13,10 +13,14 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.configSmtthreads;
 import static oshi.ffm.unix.aix.PerfstatFunctions.configVcpusMax;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_partition_config;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_partition_config}, mirroring
@@ -24,6 +28,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PerfstatConfigFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatConfigFFM.class);
 
     private PerfstatConfigFFM() {
     }
@@ -44,8 +50,8 @@ public final class PerfstatConfigFFM {
      * @return populated {@link PartitionConfig}, or an empty instance on error
      */
     public static PartitionConfig queryConfig() {
-        PartitionConfig result = new PartitionConfig();
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
+            PartitionConfig result = new PartitionConfig();
             MemorySegment buf = arena.allocate(PERFSTAT_PARTITION_CONFIG_T_SIZE);
             int ret = perfstat_partition_config(MemorySegment.NULL, buf, PERFSTAT_PARTITION_CONFIG_T_SIZE, 1);
             if (ret > 0) {
@@ -56,9 +62,7 @@ public final class PerfstatConfigFFM {
                 result.smtthreads = configSmtthreads(buf);
                 result.vcpusMax = configVcpusMax(buf);
             }
-        } catch (Throwable t) {
-            // empty result returned
-        }
-        return result;
+            return result;
+        }, LOG, Level.TRACE, "Failed to query partition config", new PartitionConfig());
     }
 }

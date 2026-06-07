@@ -21,10 +21,14 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.netIfOpackets;
 import static oshi.ffm.unix.aix.PerfstatFunctions.netIfType;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_netinterface;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_netinterface}, mirroring
@@ -32,6 +36,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PerfstatNetInterfaceFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatNetInterfaceFFM.class);
 
     private PerfstatNetInterfaceFFM() {
     }
@@ -59,7 +65,7 @@ public final class PerfstatNetInterfaceFFM {
      * @return one {@link NetInterface} per interface, or an empty array on error
      */
     public static NetInterface[] queryNetInterfaces() {
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
             int count = perfstat_netinterface(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_NETINTERFACE_T_SIZE, 0);
             if (count <= 0) {
                 return new NetInterface[0];
@@ -90,8 +96,6 @@ public final class PerfstatNetInterfaceFFM {
                 result[i] = n;
             }
             return result;
-        } catch (Throwable t) {
-            return new NetInterface[0];
-        }
+        }, LOG, Level.TRACE, "Failed to query network interfaces", new NetInterface[0]);
     }
 }

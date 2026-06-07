@@ -15,10 +15,14 @@ import static oshi.ffm.unix.aix.PerfstatFunctions.memVirtActive;
 import static oshi.ffm.unix.aix.PerfstatFunctions.memVirtTotal;
 import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_memory_total;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.ForeignFunctions;
 
 /**
  * FFM-backed driver for {@code perfstat_memory_total}, mirroring
@@ -26,6 +30,8 @@ import oshi.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class PerfstatMemoryFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PerfstatMemoryFFM.class);
 
     private PerfstatMemoryFFM() {
     }
@@ -48,8 +54,8 @@ public final class PerfstatMemoryFFM {
      * @return populated {@link MemoryTotal}, or an empty instance on error
      */
     public static MemoryTotal queryMemoryTotal() {
-        MemoryTotal result = new MemoryTotal();
-        try (Arena arena = Arena.ofConfined()) {
+        return ForeignFunctions.callInArenaOrDefault(arena -> {
+            MemoryTotal result = new MemoryTotal();
             MemorySegment buf = arena.allocate(PERFSTAT_MEMORY_TOTAL_T_SIZE);
             int ret = perfstat_memory_total(MemorySegment.NULL, buf, PERFSTAT_MEMORY_TOTAL_T_SIZE, 1);
             if (ret > 0) {
@@ -62,9 +68,7 @@ public final class PerfstatMemoryFFM {
                 result.pgsp_total = memPgspTotal(buf);
                 result.pgsp_free = memPgspFree(buf);
             }
-        } catch (Throwable t) {
-            // empty result returned
-        }
-        return result;
+            return result;
+        }, LOG, Level.TRACE, "Failed to query memory total", new MemoryTotal());
     }
 }
