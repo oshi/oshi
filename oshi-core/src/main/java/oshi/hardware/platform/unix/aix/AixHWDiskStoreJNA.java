@@ -19,66 +19,50 @@ import oshi.driver.common.unix.aix.Ls;
 import oshi.driver.common.unix.aix.Lscfg;
 import oshi.driver.common.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.common.AbstractHWDiskStore;
+import oshi.hardware.common.platform.unix.aix.AixHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.tuples.Pair;
 
 /**
- * AIX hard disk implementation.
+ * JNA-backed AIX HWDiskStore.
  */
 @ThreadSafe
-public final class AixHWDiskStore extends AbstractHWDiskStore {
+public final class AixHWDiskStoreJNA extends AixHWDiskStore {
 
     private final Supplier<perfstat_disk_t[]> diskStats;
 
-    private AixHWDiskStore(String name, String model, String serial, long size, Supplier<perfstat_disk_t[]> diskStats) {
+    private AixHWDiskStoreJNA(String name, String model, String serial, long size,
+            Supplier<perfstat_disk_t[]> diskStats) {
         super(name, model, serial, size);
         this.diskStats = diskStats;
     }
 
     @Override
-    public synchronized boolean updateAttributes() {
-        long now = System.currentTimeMillis();
+    protected DiskStats queryStats() {
         for (perfstat_disk_t stat : diskStats.get()) {
-            String name = Native.toString(stat.name);
-            if (name.equals(this.getName())) {
-                // we only have total transfers so estimate read/write ratio from blocks
-                long blks = stat.rblks + stat.wblks;
-                if (blks == 0L) {
-                    setReads(stat.xfers);
-                    setWrites(0L);
-                } else {
-                    long approximateReads = Math.round(stat.xfers * stat.rblks / (double) blks);
-                    long approximateWrites = stat.xfers - approximateReads;
-                    // Enforce monotonic increase
-                    if (approximateReads > getReads()) {
-                        setReads(approximateReads);
-                    }
-                    if (approximateWrites > getWrites()) {
-                        setWrites(approximateWrites);
-                    }
-                }
-                setReadBytes(stat.rblks * stat.bsize);
-                setWriteBytes(stat.wblks * stat.bsize);
-                setCurrentQueueLength(stat.qdepth);
-                setTransferTime(stat.time);
-                setTimeStamp(now);
-                return true;
+            if (Native.toString(stat.name).equals(this.getName())) {
+                DiskStats out = new DiskStats();
+                out.xfers = stat.xfers;
+                out.rblks = stat.rblks;
+                out.wblks = stat.wblks;
+                out.bsize = stat.bsize;
+                out.qdepth = stat.qdepth;
+                out.time = stat.time;
+                return out;
             }
         }
-        return false;
+        return null;
     }
 
     /**
-     * Gets the disks on this machine
+     * Gets the disks on this machine.
      *
-     * @param diskStats Memoized supplier of disk statistics
-     *
-     * @return a list of {@link HWDiskStore} objects representing the disks
+     * @param diskStats memoized supplier of disk statistics
+     * @return a list of {@link HWDiskStore} objects
      */
     public static List<HWDiskStore> getDisks(Supplier<perfstat_disk_t[]> diskStats) {
         Map<String, Pair<Integer, Integer>> majMinMap = Ls.queryDeviceMajorMinor();
-        List<AixHWDiskStore> storeList = new ArrayList<>();
+        List<AixHWDiskStoreJNA> storeList = new ArrayList<>();
         for (perfstat_disk_t disk : diskStats.get()) {
             String storeName = Native.toString(disk.name);
             Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
@@ -92,10 +76,10 @@ public final class AixHWDiskStore extends AbstractHWDiskStore {
                 .collect(Collectors.toList());
     }
 
-    private static AixHWDiskStore createStore(String diskName, String model, String serial, long size,
+    private static AixHWDiskStoreJNA createStore(String diskName, String model, String serial, long size,
             Supplier<perfstat_disk_t[]> diskStats, Map<String, Pair<Integer, Integer>> majMinMap) {
-        AixHWDiskStore store = new AixHWDiskStore(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial, size,
-                diskStats);
+        AixHWDiskStoreJNA store = new AixHWDiskStoreJNA(diskName, model.isEmpty() ? Constants.UNKNOWN : model, serial,
+                size, diskStats);
         store.setPartitionList(Lspv.queryLogicalVolumes(diskName, majMinMap));
         store.updateAttributes();
         return store;

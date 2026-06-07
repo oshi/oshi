@@ -2,27 +2,16 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
-
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
-
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_t;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_cpu_total_t;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lssrad;
-import oshi.driver.unix.aix.perfstat.PerfstatConfigJNA;
-import oshi.driver.unix.aix.perfstat.PerfstatCpuJNA;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.Constants;
@@ -33,25 +22,50 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
 /**
- * A CPU
+ * Abstract base for AIX CentralProcessor. The ProcessorIdentifier parsing, cache table, load-average math, and tick
+ * conversion live here; concrete subclasses (JNA/FFM) provide the partition config and per-CPU/total tick rows from
+ * their respective perfstat data sources.
  */
 @ThreadSafe
-final class AixCentralProcessor extends AbstractCentralProcessor {
+public abstract class AixCentralProcessor extends AbstractCentralProcessor {
 
-    private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpuJNA::queryCpuTotal, defaultExpiration());
-    private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpuJNA::queryCpu, defaultExpiration());
+    /** Jiffies per second, used for process time counters. */
+    protected static final long USER_HZ = ParseUtil
+            .parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
+
     private static final int SBITS = querySbits();
 
-    private perfstat_partition_config_t config;
+    /** Tick values OSHI consumes from {@code perfstat_cpu_total_t} and {@code perfstat_cpu_t}. */
+    public static class CpuTickRow {
+        public long user;
+        public long sys;
+        public long idle;
+        public long wait;
+        public long devintrs;
+        public long softintrs;
+        public long idle_stolen_purr;
+        public long busy_stolen_purr;
+    }
 
-    /**
-     * Jiffies per second, used for process time counters.
-     */
-    private static final long USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"),
-            100L);
+    /** Aggregate {@code perfstat_cpu_total_t} values OSHI consumes. */
+    public static final class CpuTotalRow extends CpuTickRow {
+        public int ncpus;
+        public long processorHZ;
+        public long pswitch;
+        public long[] loadavg = new long[3];
+    }
+
+    /** Partition fields the CPU init path needs from {@code perfstat_partition_config_t}. */
+    public static final class PartitionInfo {
+        public long vcpusMax;
+        public int smtthreads;
+        public String machineID = "";
+        public double processorMHz;
+    }
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
+        PartitionInfo info = queryPartitionInfo();
         String cpuVendor = Constants.UNKNOWN;
         String cpuName = "";
         String cpuFamily = "";
@@ -77,11 +91,10 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
         String cpuModel = "";
         String cpuStepping = "";
-        String machineId = Native.toString(config.machineID);
+        String machineId = info.machineID;
         if (machineId.isEmpty()) {
             machineId = ExecutingCommand.getFirstAnswer("uname -m");
         }
-        // last 4 characters are model ID (often 4C) and submodel (always 00)
         if (machineId.length() > 10) {
             int m = machineId.length() - 4;
             int s = machineId.length() - 2;
@@ -90,24 +103,19 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         }
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
-                (long) (config.processorMHz * 1_000_000L));
+                (long) (info.processorMHz * 1_000_000L));
     }
 
     @Override
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        this.config = PerfstatConfigJNA.queryConfig();
-
-        // Use max vcpus (cores) for physical processor count and multiply by SMT threads
-        // for logical processor count. These represent the LPAR's configured maximum capacity.
-        // numProcessors refers to the physical frame, not this LPAR.
-        int physProcs = (int) config.vcpus.max;
+        PartitionInfo info = queryPartitionInfo();
+        int physProcs = (int) info.vcpusMax;
         if (physProcs < 1) {
             physProcs = 1;
         }
-        int smtThreads = config.smtthreads > 0 ? config.smtthreads : 1;
+        int smtThreads = info.smtthreads > 0 ? info.smtthreads : 1;
         int lcpus = physProcs * smtThreads;
         int lpPerPp = lcpus / physProcs;
-        // Get node and package mapping
         Map<Integer, Pair<Integer, Integer>> nodePkgMap = Lssrad.queryNodesPackages();
         List<LogicalProcessor> logProcs = new ArrayList<>();
         for (int proc = 0; proc < lcpus; proc++) {
@@ -119,9 +127,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         return new Quartet<>(logProcs, null, getCachesForModel(physProcs), Collections.emptyList());
     }
 
-    private List<ProcessorCache> getCachesForModel(int cores) {
-        // The only info available in the OS is the L2 size
-        // But we can hardcode POWER7, POWER8, and POWER9 configs
+    private static List<ProcessorCache> getCachesForModel(int cores) {
         List<ProcessorCache> caches = new ArrayList<>();
         int powerVersion = ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer("uname -n"));
         switch (powerVersion) {
@@ -152,32 +158,13 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[] querySystemCpuLoadTicks() {
-        perfstat_cpu_total_t perfstat = cpuTotal.get();
-        long[] ticks = new long[TickType.values().length];
-        ticks[TickType.USER.ordinal()] = perfstat.user * 1000L / USER_HZ;
-        // Skip NICE
-        ticks[TickType.SYSTEM.ordinal()] = perfstat.sys * 1000L / USER_HZ;
-        ticks[TickType.IDLE.ordinal()] = perfstat.idle * 1000L / USER_HZ;
-        ticks[TickType.IOWAIT.ordinal()] = perfstat.wait * 1000L / USER_HZ;
-        ticks[TickType.IRQ.ordinal()] = perfstat.devintrs * 1000L / USER_HZ;
-        ticks[TickType.SOFTIRQ.ordinal()] = perfstat.softintrs * 1000L / USER_HZ;
-        ticks[TickType.STEAL.ordinal()] = (perfstat.idle_stolen_purr + perfstat.busy_stolen_purr) * 1000L / USER_HZ;
-        return ticks;
+        CpuTotalRow row = queryCpuTotal();
+        return ticksFromRow(row);
     }
 
     @Override
     public long[] queryCurrentFreq() {
-        // $ pmcycles -m
-        // CPU 0 runs at 4204 MHz
-        // CPU 1 runs at 4204 MHz
-        //
-        // ~/git/oshi$ pmcycles -m
-        // This machine runs at 1000 MHz
-
-        // FIXME change to this as pmcycles requires root
-        // $ lsattr -El proc0
-        // frequency 3425000000 Processor Speed False
-
+        // pmcycles may require root; this is best-effort.
         long[] freqs = new long[getLogicalProcessorCount()];
         Arrays.fill(freqs, -1);
         String freqMarker = "runs at";
@@ -195,8 +182,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected long queryMaxFreq() {
-        perfstat_cpu_total_t perfstat = cpuTotal.get();
-        return perfstat.processorHZ;
+        return queryCpuTotal().processorHZ;
     }
 
     @Override
@@ -205,7 +191,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        long[] loadavg = cpuTotal.get().loadavg;
+        long[] loadavg = queryCpuTotal().loadavg;
         for (int i = 0; i < nelem; i++) {
             average[i] = loadavg[i] / (double) (1L << SBITS);
         }
@@ -214,37 +200,39 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        perfstat_cpu_t[] cpu = cpuProc.get();
-        // Allocate for max logical processors; fill only what perfstat_cpu reports online
+        CpuTickRow[] cpu = queryPerCpuTicks();
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        // DLPAR could theoretically add CPUs beyond vcpus.max if admin reconfigures at runtime
         for (int i = 0; i < cpu.length && i < ticks.length; i++) {
-            ticks[i] = new long[TickType.values().length];
-            ticks[i][TickType.USER.ordinal()] = cpu[i].user * 1000L / USER_HZ;
-            // Skip NICE
-            ticks[i][TickType.SYSTEM.ordinal()] = cpu[i].sys * 1000L / USER_HZ;
-            ticks[i][TickType.IDLE.ordinal()] = cpu[i].idle * 1000L / USER_HZ;
-            ticks[i][TickType.IOWAIT.ordinal()] = cpu[i].wait * 1000L / USER_HZ;
-            ticks[i][TickType.IRQ.ordinal()] = cpu[i].devintrs * 1000L / USER_HZ;
-            ticks[i][TickType.SOFTIRQ.ordinal()] = cpu[i].softintrs * 1000L / USER_HZ;
-            ticks[i][TickType.STEAL.ordinal()] = (cpu[i].idle_stolen_purr + cpu[i].busy_stolen_purr) * 1000L / USER_HZ;
+            ticks[i] = ticksFromRow(cpu[i]);
         }
         return ticks;
     }
 
     @Override
     public long queryContextSwitches() {
-        return cpuTotal.get().pswitch;
+        return queryCpuTotal().pswitch;
     }
 
     @Override
     public long queryInterrupts() {
-        perfstat_cpu_total_t cpu = cpuTotal.get();
-        return cpu.devintrs + cpu.softintrs;
+        CpuTotalRow row = queryCpuTotal();
+        return row.devintrs + row.softintrs;
+    }
+
+    private static long[] ticksFromRow(CpuTickRow row) {
+        long[] ticks = new long[TickType.values().length];
+        ticks[TickType.USER.ordinal()] = row.user * 1000L / USER_HZ;
+        // Skip NICE
+        ticks[TickType.SYSTEM.ordinal()] = row.sys * 1000L / USER_HZ;
+        ticks[TickType.IDLE.ordinal()] = row.idle * 1000L / USER_HZ;
+        ticks[TickType.IOWAIT.ordinal()] = row.wait * 1000L / USER_HZ;
+        ticks[TickType.IRQ.ordinal()] = row.devintrs * 1000L / USER_HZ;
+        ticks[TickType.SOFTIRQ.ordinal()] = row.softintrs * 1000L / USER_HZ;
+        ticks[TickType.STEAL.ordinal()] = (row.idle_stolen_purr + row.busy_stolen_purr) * 1000L / USER_HZ;
+        return ticks;
     }
 
     private static int querySbits() {
-        // read from /usr/include/sys/proc.h
         for (String s : FileUtil.readFile("/usr/include/sys/proc.h")) {
             if (s.contains("SBITS") && s.contains("#define")) {
                 return ParseUtil.parseLastInt(s, 16);
@@ -252,4 +240,25 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
         }
         return 16;
     }
+
+    /**
+     * Queries the AIX partition config.
+     *
+     * @return populated partition config (vcpus.max, smtthreads, machineID, processorMHz)
+     */
+    protected abstract PartitionInfo queryPartitionInfo();
+
+    /**
+     * Queries the aggregate CPU statistics.
+     *
+     * @return aggregate CPU ticks + load avg + freq
+     */
+    protected abstract CpuTotalRow queryCpuTotal();
+
+    /**
+     * Queries per-CPU statistics.
+     *
+     * @return per-CPU tick rows
+     */
+    protected abstract CpuTickRow[] queryPerCpuTicks();
 }

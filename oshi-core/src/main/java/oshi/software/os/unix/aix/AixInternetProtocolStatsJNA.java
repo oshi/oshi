@@ -14,18 +14,19 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatProtocolJNA;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.common.os.unix.aix.AixInternetProtocolStats;
 
 /**
- * Internet Protocol Stats implementation
+ * JNA-backed AIX InternetProtocolStats.
  */
 @ThreadSafe
-public class AixInternetProtocolStats extends AbstractInternetProtocolStats {
+public final class AixInternetProtocolStatsJNA extends AixInternetProtocolStats {
 
-    private Supplier<perfstat_protocol_t[]> ipstats = memoize(PerfstatProtocolJNA::queryProtocols, defaultExpiration());
+    private final Supplier<perfstat_protocol_t[]> ipstats = memoize(PerfstatProtocolJNA::queryProtocols,
+            defaultExpiration());
 
     @Override
-    public TcpStats getTCPv4Stats() {
+    protected TcpStats queryTcpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("tcp".equals(Native.toString(stat.name))) {
                 return new TcpStats(stat.u.tcp.established, stat.u.tcp.initiated, stat.u.tcp.accepted,
@@ -33,16 +34,16 @@ public class AixInternetProtocolStats extends AbstractInternetProtocolStats {
                         stat.u.tcp.ierrors, 0L);
             }
         }
-        return new TcpStats(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+        return null;
     }
 
     @Override
-    public UdpStats getUDPv4Stats() {
+    protected UdpStats queryUdpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("udp".equals(Native.toString(stat.name))) {
                 return new UdpStats(stat.u.udp.opackets, stat.u.udp.ipackets, stat.u.udp.no_socket, stat.u.udp.ierrors);
             }
         }
-        return new UdpStats(0L, 0L, 0L, 0L);
+        return null;
     }
 }

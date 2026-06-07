@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.aix;
+package oshi.software.common.os.unix.aix;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
@@ -11,7 +11,8 @@ import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 
 /**
- * OSThread implementation
+ * AIX OSThread implementation. Reads {@code /proc/<pid>/lwp/<tid>/lwpsinfo} via {@link PsInfo} so it has no native
+ * dependency and is shared by the JNA and FFM backends.
  */
 @ThreadSafe
 public class AixOSThread extends AbstractOSThread {
@@ -86,7 +87,7 @@ public class AixOSThread extends AbstractOSThread {
         }
         this.threadId = (int) lwpsinfo.pr_lwpid; // 64 bit storage but always 32 bit
         this.startMemoryAddress = lwpsinfo.pr_addr;
-        this.state = AixOSProcess.getStateFromOutput((char) lwpsinfo.pr_sname);
+        this.state = AixProcessState.getStateFromOutput((char) lwpsinfo.pr_sname);
         this.priority = lwpsinfo.pr_pri;
         return true;
     }

@@ -2,19 +2,13 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
-
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
-
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.perfstat.PerfstatMemoryJNA;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
@@ -22,43 +16,37 @@ import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
 /**
- * Memory obtained by perfstat_memory_total_t
+ * Abstract base for AIX GlobalMemory. The public {@link AbstractGlobalMemory} API translates
+ * {@code perfstat_memory_total_t} fields into bytes; {@link #getPhysicalMemory()} parses the shared {@code lscfg}
+ * supplier passed in from the HAL. Subclasses provide the perfstat field accessors and the matching
+ * {@link AixVirtualMemory}.
  */
 @ThreadSafe
-final class AixGlobalMemory extends AbstractGlobalMemory {
+public abstract class AixGlobalMemory extends AbstractGlobalMemory {
 
-    private final Supplier<perfstat_memory_total_t> perfstatMem = memoize(AixGlobalMemory::queryPerfstat,
-            defaultExpiration());
-    private final Supplier<List<String>> lscfg;
+    // AIX uses 4 KB pages for "pages" reported by perfstat (per the libperfstat docs).
+    protected static final long PAGESIZE = 4096L;
 
-    // AIX has multiple page size units, but for purposes of "pages" in perfstat,
-    // the docs specify 4KB pages so we hardcode this
-    private static final long PAGESIZE = 4096L;
+    /** Memoized hardware listing supplier from the owning HAL. */
+    protected final Supplier<List<String>> lscfg;
 
-    private final Supplier<VirtualMemory> vm = memoize(this::createVirtualMemory);
-
-    AixGlobalMemory(Supplier<List<String>> lscfg) {
+    protected AixGlobalMemory(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
 
     @Override
     public long getAvailable() {
-        return perfstatMem.get().real_avail * PAGESIZE;
+        return queryRealAvail() * PAGESIZE;
     }
 
     @Override
     public long getTotal() {
-        return perfstatMem.get().real_total * PAGESIZE;
+        return queryRealTotal() * PAGESIZE;
     }
 
     @Override
     public long getPageSize() {
         return PAGESIZE;
-    }
-
-    @Override
-    public VirtualMemory getVirtualMemory() {
-        return vm.get();
     }
 
     @Override
@@ -88,7 +76,6 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                     capacity = ParseUtil.parseLongOrDefault(ParseUtil.removeLeadingDots(s.substring(4).trim()),
                             0L) << 20;
                 } else if (s.startsWith("Hardware Location Code")) {
-                    // Save previous bank
                     if (capacity > 0) {
                         pmList.add(new PhysicalMemory(bankLabel + locator, capacity, 0L, "IBM", Constants.UNKNOWN,
                                 Constants.UNKNOWN, Constants.UNKNOWN));
@@ -107,7 +94,6 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
                 } else if (s.startsWith("Part Number") || s.startsWith("FRU Number")) {
                     partNumber = ParseUtil.removeLeadingDots(s.substring(11).trim());
                 } else if (s.startsWith("Physical Location:")) {
-                    // Save previous bank
                     if (capacity > 0) {
                         pmList.add(new PhysicalMemory(locator, capacity, 0L, "IBM", Constants.UNKNOWN, partNumber,
                                 Constants.UNKNOWN));
@@ -122,11 +108,25 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
         return pmList;
     }
 
-    private static perfstat_memory_total_t queryPerfstat() {
-        return PerfstatMemoryJNA.queryMemoryTotal();
-    }
+    /**
+     * Reads {@code perfstat_memory_total_t.real_avail} (4 KB pages) via the subclass.
+     *
+     * @return real_avail in pages
+     */
+    protected abstract long queryRealAvail();
 
-    private VirtualMemory createVirtualMemory() {
-        return new AixVirtualMemory(perfstatMem);
-    }
+    /**
+     * Reads {@code perfstat_memory_total_t.real_total} (4 KB pages) via the subclass.
+     *
+     * @return real_total in pages
+     */
+    protected abstract long queryRealTotal();
+
+    /**
+     * Constructs the matching {@link AixVirtualMemory} (JNA or FFM) for this instance.
+     *
+     * @return the VirtualMemory paired with this GlobalMemory implementation
+     */
+    @Override
+    public abstract VirtualMemory getVirtualMemory();
 }

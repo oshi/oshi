@@ -14,6 +14,7 @@ import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
+import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayerFFM;
@@ -21,6 +22,7 @@ import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerFFM;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
+import oshi.software.os.unix.aix.AixOperatingSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemFFM;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemFFM;
 import oshi.software.os.unix.solaris.SolarisOperatingSystemFFM;
@@ -89,7 +91,7 @@ public class SystemInfo implements SystemInfoProvider {
     }
 
     private static final Set<PlatformEnum> SUPPORTED_PLATFORMS = EnumSet.of(PlatformEnum.LINUX, PlatformEnum.MACOS,
-            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.OPENBSD, PlatformEnum.SOLARIS);
+            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.OPENBSD, PlatformEnum.SOLARIS, PlatformEnum.AIX);
 
     @Override
     public boolean isAvailable() {
@@ -110,6 +112,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new OpenBsdOperatingSystemFFM();
             case SOLARIS:
                 return new SolarisOperatingSystemFFM();
+            case AIX:
+                return new AixOperatingSystemFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }
@@ -129,6 +133,8 @@ public class SystemInfo implements SystemInfoProvider {
                 return new OpenBsdHardwareAbstractionLayerFFM();
             case SOLARIS:
                 return new SolarisHardwareAbstractionLayerFFM();
+            case AIX:
+                return new AixHardwareAbstractionLayerFFM();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }

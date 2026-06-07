@@ -34,6 +34,7 @@ import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.aix.AixFileSystem;
 import oshi.software.common.os.unix.aix.AixInstalledApps;
+import oshi.software.common.os.unix.aix.AixOSThread;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -49,11 +50,10 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
 /**
- * AIX (Advanced Interactive eXecutive) is a series of proprietary Unix operating systems developed and sold by IBM for
- * several of its computer platforms.
+ * JNA-backed AIX OperatingSystem.
  */
 @ThreadSafe
-public class AixOperatingSystem extends AbstractOperatingSystem {
+public final class AixOperatingSystemJNA extends AbstractOperatingSystem {
 
     private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfigJNA::queryConfig);
     private final Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcessJNA::queryProcesses,
@@ -71,7 +71,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
         perfstat_partition_config_t cfg = config.get();
-
         String systemName = System.getProperty("os.name");
         String archName = System.getProperty("os.arch");
         String versionNumber = System.getProperty("os.version");
@@ -82,7 +81,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
         if (Util.isBlank(releaseNumber)) {
             releaseNumber = ExecutingCommand.getFirstAnswer("oslevel -s");
         } else {
-            // strip leading date
             int idx = releaseNumber.lastIndexOf(' ');
             if (idx > 0 && idx < releaseNumber.length()) {
                 releaseNumber = releaseNumber.substring(idx + 1);
@@ -107,7 +105,7 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {
-        return new AixInternetProtocolStats();
+        return new AixInternetProtocolStatsJNA();
     }
 
     @Override
@@ -140,7 +138,6 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     private List<OSProcess> getProcessListFromProcfs(int pid) {
         List<OSProcess> procs = new ArrayList<>();
-        // Fetch user/system times from perfstat
         perfstat_process_t[] perfstat = procCpu.get();
         Map<Integer, Quartet<Long, Long, Long, Long>> cpuMemMap = new HashMap<>();
         for (perfstat_process_t stat : perfstat) {
@@ -150,10 +147,8 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                         stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
             }
         }
-
-        // Keys of this map are pids
         for (Entry<Integer, Quartet<Long, Long, Long, Long>> entry : cpuMemMap.entrySet()) {
-            OSProcess proc = new AixOSProcess(entry.getKey(), entry.getValue(), procCpu, this);
+            OSProcess proc = new AixOSProcessJNA(entry.getKey(), entry.getValue(), procCpu, this);
             if (proc.getState() != INVALID) {
                 procs.add(proc);
             }
@@ -213,29 +208,15 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new AixNetworkParams();
+        return new AixNetworkParamsJNA();
     }
 
     @Override
     public List<OSService> getServices() {
         List<OSService> services = new ArrayList<>();
-        // Get system services from lssrc command
-        /*-
-         Output:
-         Subsystem         Group            PID          Status
-            platform_agent                    2949214      active
-            cimsys                            2490590      active
-            snmpd            tcpip            2883698      active
-            syslogd          ras              2359466      active
-            sendmail         mail             3145828      active
-            portmap          portmap          2818188      active
-            inetd            tcpip            2752656      active
-            lpd              spooler                       inoperative
-                        ...
-         */
         List<String> systemServicesInfoList = ExecutingCommand.runNative("lssrc -a");
         if (systemServicesInfoList.size() > 1) {
-            systemServicesInfoList.remove(0); // remove header
+            systemServicesInfoList.remove(0);
             for (String systemService : systemServicesInfoList) {
                 String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
                 if (systemService.contains("active")) {
@@ -251,13 +232,11 @@ public class AixOperatingSystem extends AbstractOperatingSystem {
                 }
             }
         }
-        // Get installed services from /etc/rc.d/init.d
         File dir = new File("/etc/rc.d/init.d");
         File[] listFiles;
         if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
             for (File file : listFiles) {
                 String installedService = ExecutingCommand.getFirstAnswer(file.getAbsolutePath() + " status");
-                // Apache httpd daemon is running with PID 3997858.
                 if (installedService.contains("running")) {
                     services.add(new OSService(file.getName(), ParseUtil.parseLastInt(installedService, 0), RUNNING));
                 } else {

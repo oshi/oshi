@@ -38,14 +38,12 @@ import oshi.hardware.common.platform.unix.aix.AixUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
- * AIXHardwareAbstractionLayer class.
+ * JNA-backed AIX HardwareAbstractionLayer.
  */
 @ThreadSafe
-public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class AixHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
-    // Memoized hardware listing
     private final Supplier<List<String>> lscfg = memoize(Lscfg::queryAllDevices, defaultExpiration());
-    // Memoized disk stats to pass to disk object(s)
     private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDiskJNA::queryDiskStats, defaultExpiration());
 
     @Override
@@ -55,12 +53,12 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public GlobalMemory createMemory() {
-        return new AixGlobalMemory(lscfg);
+        return new AixGlobalMemoryJNA(lscfg);
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new AixCentralProcessor();
+        return new AixCentralProcessorJNA();
     }
 
     @Override
@@ -75,7 +73,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return AixHWDiskStore.getDisks(diskStats);
+        return AixHWDiskStoreJNA.getDisks(diskStats);
     }
 
     @Override
@@ -85,7 +83,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return AixNetworkIF.getNetworks(includeLocalInterfaces);
+        return AixNetworkIFJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override

@@ -12,7 +12,7 @@ import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
-import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
@@ -22,7 +22,7 @@ import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
-import oshi.software.os.unix.aix.AixOperatingSystem;
+import oshi.software.os.unix.aix.AixOperatingSystemJNA;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
 import oshi.software.os.unix.netbsd.NetBsdOperatingSystem;
@@ -124,7 +124,7 @@ public class SystemInfo implements SystemInfoProvider {
             case FREEBSD:
                 return new FreeBsdOperatingSystemJNA();
             case AIX:
-                return new AixOperatingSystem();
+                return new AixOperatingSystemJNA();
             case OPENBSD:
                 return new OpenBsdOperatingSystem();
             case DRAGONFLYBSD:
@@ -159,7 +159,7 @@ public class SystemInfo implements SystemInfoProvider {
             case FREEBSD:
                 return new FreeBsdHardwareAbstractionLayerJNA();
             case AIX:
-                return new AixHardwareAbstractionLayer();
+                return new AixHardwareAbstractionLayerJNA();
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayer();
             case DRAGONFLYBSD:

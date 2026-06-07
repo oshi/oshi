@@ -2,21 +2,16 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.aix;
+package oshi.software.common.os.unix.aix;
 
 import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,17 +27,10 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Native;
-import com.sun.jna.platform.unix.Resource;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.common.unix.aix.PsInfo;
-import oshi.driver.unix.aix.PsInfoJNA;
-import oshi.driver.unix.aix.perfstat.PerfstatCpuJNA;
-import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
@@ -53,18 +41,19 @@ import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
 /**
- * OSProcess implementation
+ * Abstract base for AIX OSProcess. The /proc parsing, command-line/env memoization, thread enumeration, and field
+ * assignment are shared; concrete subclasses (JNA/FFM) provide the perfstat lookup, the {@code rlimit} read, the
+ * affinity supplier, and the actual {@code queryArgsEnv} address-space read.
  */
 @ThreadSafe
-public class AixOSProcess extends AbstractOSProcess {
+public abstract class AixOSProcess extends AbstractOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(AixOSProcess.class);
 
-    private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
-    private final Supplier<Long> affinityMask = memoize(PerfstatCpuJNA::queryCpuAffinityMask, defaultExpiration());
+    private final Supplier<Integer> bitnessSupplier = memoize(this::queryBitness);
+    private final Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfoMemo, defaultExpiration());
+    private final Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private final Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
 
     private String name;
     private String path = "";
@@ -87,19 +76,11 @@ public class AixOSProcess extends AbstractOSProcess {
     private long bytesRead;
     private long bytesWritten;
 
-    // Memoized copy from OperatingSystem
-    private Supplier<perfstat_process_t[]> procCpu;
-    private final AixOperatingSystem os;
-
-    public AixOSProcess(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<perfstat_process_t[]> procCpu,
-            AixOperatingSystem os) {
+    protected AixOSProcess(int pid) {
         super(pid);
-        this.procCpu = procCpu;
-        this.os = os;
-        updateAttributes(cpuMem);
     }
 
-    private AixPsInfo queryPsInfo() {
+    private AixPsInfo queryPsInfoMemo() {
         return PsInfo.queryPsInfo(this.getProcessID());
     }
 
@@ -134,7 +115,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfoJNA.queryArgsEnv(getProcessID(), psinfo.get());
+        return queryArgsEnv(getProcessID(), psinfo.get());
     }
 
     @Override
@@ -246,30 +227,8 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return -1L; // not supported
-        }
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return -1L; // not supported
-        }
-    }
-
-    @Override
     public int getBitness() {
-        return this.bitness.get();
+        return this.bitnessSupplier.get();
     }
 
     private int queryBitness() {
@@ -289,14 +248,11 @@ public class AixOSProcess extends AbstractOSProcess {
     @Override
     public long getAffinityMask() {
         long mask = 0L;
-        // Need to capture pr_bndpro for all threads
-        // Get process files in proc
         File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return mask;
         }
-        // Iterate files
         for (File lwpidFile : numericFiles) {
             int lwpidNum = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
             AixLwpsInfo info = PsInfo.queryLwpsInfo(getProcessID(), lwpidNum);
@@ -304,47 +260,39 @@ public class AixOSProcess extends AbstractOSProcess {
                 mask |= info.pr_bindpro;
             }
         }
-        mask &= affinityMask.get();
+        mask &= getCpuAffinityMask();
         return mask;
     }
 
     @Override
     public List<OSThread> getThreadDetails() {
-        // Get process files in proc
         File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
         if (numericFiles == null) {
             return Collections.emptyList();
         }
-
         return Arrays.stream(numericFiles).parallel()
-                .map(lwpidFile -> new AixOSThread(getProcessID(), ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
+                .map(lwpidFile -> (OSThread) new AixOSThread(getProcessID(),
+                        ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }
 
-    @Override
-    public boolean updateAttributes() {
-        perfstat_process_t[] perfstat = procCpu.get();
-        for (perfstat_process_t stat : perfstat) {
-            int statpid = (int) stat.pid;
-            if (statpid == getProcessID()) {
-                return updateAttributes(new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
-                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
-            }
-        }
-        this.state = State.INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Quartet<Long, Long, Long, Long> cpuMem) {
+    /**
+     * Applies the perfstat-derived CPU and memory quartet to this process. Concrete subclasses arrange a
+     * {@code Quartet&lt;ucpu_time(ms), scpu_time(ms), real_inuse(bytes), proc_real_mem_data+text(bytes)&gt;} from their
+     * data source and call this. Returns true on success; sets {@code state = INVALID} and returns false otherwise.
+     *
+     * @param cpuMem the quartet of (userTime, kernelTime, residentSetSize, privateResidentMemory)
+     * @return {@code true} if attributes were updated
+     */
+    protected boolean updateAttributes(Quartet<Long, Long, Long, Long> cpuMem) {
         AixPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;
             return false;
         }
-
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput((char) info.pr_lwp.pr_sname);
+        this.state = AixProcessState.getStateFromOutput((char) info.pr_lwp.pr_sname);
         this.parentProcessID = (int) info.pr_ppid;
         this.userID = Long.toString(info.pr_euid);
         this.user = UserGroupInfo.getUser(this.userID);
@@ -352,11 +300,9 @@ public class AixOSProcess extends AbstractOSProcess {
         this.group = UserGroupInfo.getGroupName(this.groupID);
         this.threadCount = info.pr_nlwp;
         this.priority = info.pr_lwp.pr_pri;
-        // These are in KB, multiply
         this.virtualSize = info.pr_size * 1024;
         this.residentSetSize = info.pr_rssize * 1024;
         this.startTime = info.pr_start.tv_sec * 1000L + info.pr_start.tv_nsec / 1_000_000L;
-        // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.userTime = cpuMem.getA();
@@ -367,48 +313,42 @@ public class AixOSProcess extends AbstractOSProcess {
         } else {
             this.privateResidentMemory = this.residentSetSize;
         }
-        this.commandLineBackup = Native.toString(info.pr_psargs);
+        this.commandLineBackup = nulTerminatedToString(info.pr_psargs);
         this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (this.name.isEmpty()) {
-            this.name = Native.toString(info.pr_fname);
+            this.name = nulTerminatedToString(info.pr_fname);
         }
         return true;
     }
 
-    /***
-     * Returns Enum STATE for the state value obtained from status string of thread/process.
+    /**
+     * Decodes a NUL-terminated byte slice as US-ASCII. Mirrors JNA's {@code Native.toString(byte[])}.
      *
-     * @param stateValue state value from the status string
-     * @return The state
+     * @param bytes a byte array possibly containing a trailing NUL
+     * @return decoded string
      */
-    static State getStateFromOutput(char stateValue) {
-        State state;
-        switch (stateValue) {
-            case 'O':
-                state = INVALID;
-                break;
-            case 'R':
-            case 'A':
-                state = RUNNING;
-                break;
-            case 'I':
-                state = WAITING;
-                break;
-            case 'S':
-            case 'W':
-                state = SLEEPING;
-                break;
-            case 'Z':
-                state = ZOMBIE;
-                break;
-            case 'T':
-                state = STOPPED;
-                break;
-            default:
-                state = OTHER;
-                break;
+    private static String nulTerminatedToString(byte[] bytes) {
+        int len = 0;
+        while (len < bytes.length && bytes[len] != 0) {
+            len++;
         }
-        return state;
+        return new String(bytes, 0, len, StandardCharsets.US_ASCII);
     }
+
+    /**
+     * Performs the address-space read for command-line arguments and environment variables.
+     *
+     * @param pid    the process id
+     * @param psinfo a populated {@link AixPsInfo}
+     * @return (argv list, env map) — may be empty if the address-space cannot be read
+     */
+    protected abstract Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo);
+
+    /**
+     * Returns the per-process CPU affinity mask (from {@code PerfstatCpu.queryCpuAffinityMask}).
+     *
+     * @return affinity mask
+     */
+    protected abstract long getCpuAffinityMask();
 }

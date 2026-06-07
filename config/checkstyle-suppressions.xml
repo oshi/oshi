@@ -56,6 +56,12 @@
     <suppress checks="VisibilityModifier" files="Perfstat[a-zA-Z]+FFM\.java"/>
     <suppress checks="JavadocMethod" files="PsInfoFFM\.java"/>
 
+    <!-- AIX shared HAL/OS abstract bases use public data POJOs (CpuTickRow, CpuTotalRow,
+         PartitionInfo, IfStats, DiskStats) and protected final fields (lscfg supplier) that match
+         the C struct field names rather than camelCase getters. -->
+    <suppress checks="MemberName" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
+    <suppress checks="VisibilityModifier" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
+
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 
