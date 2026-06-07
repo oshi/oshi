@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import static oshi.util.Memoizer.memoize;
 
@@ -22,12 +22,12 @@ import oshi.util.Util;
  * Hardware data obtained from lsattr
  */
 @Immutable
-final class AixComputerSystem extends AbstractComputerSystem {
+public final class AixComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<LsattrStrings> lsattrStrings = memoize(AixComputerSystem::readLsattr);
     private final Supplier<List<String>> lscfg;
 
-    AixComputerSystem(Supplier<List<String>> lscfg) {
+    public AixComputerSystem(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
 

@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.aix;
+package oshi.driver.common.unix.aix;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

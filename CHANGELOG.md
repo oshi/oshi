@@ -1,5 +1,9 @@
 # 7.3.1 (in progress)
 
+##### New Features
+
+* [#3350](https://github.com/oshi/oshi/pull/3350): Add AIX support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### Bug Fixes and Improvements
 
 * [#3349](https://github.com/oshi/oshi/pull/3349): Fix AIX `Uptime.queryUpTime()` regex to accept the `mins` suffix that appears in the first hour past each day boundary - [@dbwiddis](https://github.com/dbwiddis).

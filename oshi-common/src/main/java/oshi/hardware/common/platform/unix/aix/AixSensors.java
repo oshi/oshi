@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -14,11 +14,11 @@ import oshi.hardware.common.AbstractSensors;
  * Sensors not available except counting fans from lscfg
  */
 @ThreadSafe
-final class AixSensors extends AbstractSensors {
+public final class AixSensors extends AbstractSensors {
 
     private final Supplier<List<String>> lscfg;
 
-    AixSensors(Supplier<List<String>> lscfg) {
+    public AixSensors(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
 

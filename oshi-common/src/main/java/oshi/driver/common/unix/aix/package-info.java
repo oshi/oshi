@@ -5,4 +5,4 @@
 /**
  * Provides functions to query information on AIX
  */
-package oshi.driver.unix.aix;
+package oshi.driver.common.unix.aix;

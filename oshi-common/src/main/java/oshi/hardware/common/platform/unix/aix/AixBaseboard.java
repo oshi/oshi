@@ -1,14 +1,14 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.unix.aix.Lscfg;
+import oshi.driver.common.unix.aix.Lscfg;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
 import oshi.util.Util;
@@ -18,7 +18,7 @@ import oshi.util.tuples.Triplet;
  * Baseboard data obtained by lscfg
  */
 @Immutable
-final class AixBaseboard extends AbstractBaseboard {
+public final class AixBaseboard extends AbstractBaseboard {
 
     private static final String IBM = "IBM";
     private final String model;

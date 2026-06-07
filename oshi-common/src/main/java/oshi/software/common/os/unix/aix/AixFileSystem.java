@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.aix;
+package oshi.software.common.os.unix.aix;
 
 import java.io.File;
 import java.nio.file.PathMatcher;

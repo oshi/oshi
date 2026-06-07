@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.Lscfg;
+import oshi.driver.common.unix.aix.Lscfg;
 import oshi.driver.unix.aix.perfstat.PerfstatDisk;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -29,6 +29,12 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.aix.AixComputerSystem;
+import oshi.hardware.common.platform.unix.aix.AixGraphicsCard;
+import oshi.hardware.common.platform.unix.aix.AixPowerSource;
+import oshi.hardware.common.platform.unix.aix.AixSensors;
+import oshi.hardware.common.platform.unix.aix.AixSoundCard;
+import oshi.hardware.common.platform.unix.aix.AixUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**

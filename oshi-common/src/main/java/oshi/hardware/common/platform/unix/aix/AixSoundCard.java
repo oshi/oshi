@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import oshi.util.ParseUtil;
  * AIX Sound Card.
  */
 @Immutable
-final class AixSoundCard extends AbstractSoundCard {
+public final class AixSoundCard extends AbstractSoundCard {
 
     /**
      * Constructor for AixSoundCard.

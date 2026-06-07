@@ -15,9 +15,9 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.Ls;
-import oshi.driver.unix.aix.Lscfg;
-import oshi.driver.unix.aix.Lspv;
+import oshi.driver.common.unix.aix.Ls;
+import oshi.driver.common.unix.aix.Lscfg;
+import oshi.driver.common.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;

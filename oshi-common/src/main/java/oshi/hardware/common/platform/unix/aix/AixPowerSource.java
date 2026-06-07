@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.time.LocalDate;
 import java.util.Collections;

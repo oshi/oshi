@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.aix;
+package oshi.driver.common.unix.aix;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

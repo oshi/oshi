@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2023 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.aix;
+package oshi.hardware.common.platform.unix.aix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import oshi.util.Util;
  * Graphics Card info obtained from lscfg
  */
 @Immutable
-final class AixGraphicsCard extends AbstractGraphicsCard {
+public final class AixGraphicsCard extends AbstractGraphicsCard {
 
     /**
      * Constructor for AixGraphicsCard
