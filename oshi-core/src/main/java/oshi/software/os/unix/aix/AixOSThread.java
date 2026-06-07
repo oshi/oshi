@@ -1,12 +1,12 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.unix.aix.PsInfo;
-import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 

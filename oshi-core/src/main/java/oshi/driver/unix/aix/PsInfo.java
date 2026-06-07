@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix;
@@ -23,9 +23,9 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixLwpsInfo;
+import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.jna.platform.unix.AixLibc;
-import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
-import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.util.FileUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;

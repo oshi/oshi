@@ -29,19 +29,19 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.sun.jna.platform.unix.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
+import com.sun.jna.platform.unix.Resource;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixLwpsInfo;
+import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.unix.aix.PsInfo;
 import oshi.driver.unix.aix.perfstat.PerfstatCpu;
 import oshi.jna.platform.unix.AixLibc;
-import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
-import oshi.jna.platform.unix.AixLibc.AixPsInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix;
@@ -18,8 +18,8 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.SystemInfo;
-import oshi.jna.platform.unix.AixLibc.AixLwpsInfo;
-import oshi.jna.platform.unix.AixLibc.AixPsInfo;
+import oshi.driver.common.unix.aix.AixLwpsInfo;
+import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
