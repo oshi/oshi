@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.freebsd.disk;
+package oshi.driver.common.unix.freebsd.disk;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.bsd.Systat;
-import oshi.driver.unix.bsd.Systat.BatteryFields;
+import oshi.driver.common.unix.bsd.Systat;
+import oshi.driver.common.unix.bsd.Systat.BatteryFields;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;

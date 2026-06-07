@@ -5,4 +5,4 @@
 /**
  * Provides parsing utilities for commands shared by BSD-derived platforms (e.g. OpenBSD and NetBSD).
  */
-package oshi.driver.unix.bsd;
+package oshi.driver.common.unix.bsd;

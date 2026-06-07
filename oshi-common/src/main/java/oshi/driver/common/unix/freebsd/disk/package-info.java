@@ -5,4 +5,4 @@
 /**
  * Provides functions to query FreeBSD disk information
  */
-package oshi.driver.unix.freebsd.disk;
+package oshi.driver.common.unix.freebsd.disk;
