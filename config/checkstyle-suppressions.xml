@@ -36,8 +36,31 @@
     <suppress checks="MemberName" files="PsInfoFFM\.java"/>
     <suppress checks="VisibilityModifier" files="PsInfoFFM\.java"/>
 
+    <!-- AIX /proc struct mirrors: pr_* / tv_* fields and public visibility match the kernel struct
+         layout (psinfo_t / lwpsinfo_t / timestruc_t in <sys/procfs.h>). Shared between the JNA and
+         FFM drivers, so they live in oshi-common. -->
+    <suppress checks="MemberName" files="(AixPsInfo|AixLwpsInfo|Timestruc)\.java"/>
+    <suppress checks="VisibilityModifier" files="(AixPsInfo|AixLwpsInfo|Timestruc)\.java"/>
+
     <!-- Apple naming convention for CoreGraphics constants (kCG prefix) -->
     <suppress checks="ConstantName" files="WindowInfoFFM\.java"/>
+
+    <!-- AIX perfstat field accessors: ~80 trivial getters reading C struct fields at fixed byte
+         offsets. Method-level @param/@return tags would duplicate the field comment already on
+         each method. -->
+    <suppress checks="JavadocMethod" files="PerfstatFunctions\.java"/>
+
+    <!-- AIX FFM driver POJOs mirror libperfstat struct field names verbatim (snake_case) so the
+         JNA and FFM consumer code reads identically. -->
+    <suppress checks="MemberName" files="Perfstat[a-zA-Z]+FFM\.java"/>
+    <suppress checks="VisibilityModifier" files="Perfstat[a-zA-Z]+FFM\.java"/>
+    <suppress checks="JavadocMethod" files="PsInfoFFM\.java"/>
+
+    <!-- AIX shared HAL/OS abstract bases use public data POJOs (CpuTickRow, CpuTotalRow,
+         PartitionInfo, IfStats, DiskStats) and protected final fields (lscfg supplier) that match
+         the C struct field names rather than camelCase getters. -->
+    <suppress checks="MemberName" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
+    <suppress checks="VisibilityModifier" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
 
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>

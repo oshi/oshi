@@ -28,7 +28,7 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.PhysicalMemory;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS })
+@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS, OS.AIX })
 @TestInstance(Lifecycle.PER_CLASS)
 public class GlobalMemoryFFMTest {
 

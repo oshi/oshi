@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2020-2022 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 /**
- * Provides functions to query information on AIX
+ * Provides JNA-backed driver classes for AIX (PsInfo + perfstat subpackage).
  */
 package oshi.driver.unix.aix;

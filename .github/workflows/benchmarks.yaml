@@ -104,6 +104,74 @@ jobs:
             mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
 
+  benchaix:
+    # SSH into the same cfarm AIX 7.3 box the regular Cfarm CI job uses. Same
+    # JNA stable-load gymnastics: libjnidispatch.a gets pre-extracted to a
+    # known cache path so the test JVM can System.load() it directly. Without
+    # this, OpenJ9 occasionally fails the per-PID jar-unpack with EBUSY.
+    name: JMH benchmarks, AIX
+    concurrency: aix_cfarm119
+    runs-on: ubuntu-latest
+    steps:
+    - name: Benchmark on AIX
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      with:
+        host: cfarm119.cfarm.net
+        username: oshi
+        key: ${{ secrets.GCC_CI_KEY }}
+        port: 22
+        command_timeout: 30m
+        script: |
+          set -e
+          rm -fR ~/javashared*
+          cd ~/git/oshi
+          export JAVA_HOME=~/java/jdk-25.0.3+9
+          export PATH=$PATH:/opt/freeware/bin
+          export MAVEN_OPTS="-Xshareclasses:none"
+          git reset --hard
+          git checkout master
+          git reset --hard HEAD~2
+          git pull upstream master
+          # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
+          MAVEN_VERSION=3.9.15
+          MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
+          if [ ! -d "$MAVEN_DIR" ]; then
+            mkdir -p /home/oshi/software
+            wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv -O /tmp/maven.tar.gz
+            gunzip -f /tmp/maven.tar.gz
+            cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
+            cd ~/git/oshi
+          fi
+          export PATH=$MAVEN_DIR/bin:$PATH
+          # Pre-extract libjnidispatch.a (see cfarm.yaml testaix for the long form).
+          JNA_CACHE=/home/oshi/.cache/jna
+          JNA_LIB=$JNA_CACHE/libjnidispatch.a
+          mkdir -p "$JNA_CACHE"
+          JNA_VERSION=$(mvn -q -N help:evaluate -Dexpression=jna.version -DforceStdout 2>/dev/null)
+          JNA_JAR=$HOME/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar
+          if [ ! -f "$JNA_JAR" ]; then
+            mvn -q -N dependency:get -Dartifact=net.java.dev.jna:jna:$JNA_VERSION -Dmaven.gitcommitid.skip=true
+          fi
+          if [ ! -f "$JNA_LIB" ] || [ "$JNA_JAR" -nt "$JNA_LIB" ]; then
+            rm -rf /tmp/jna-extract && mkdir -p /tmp/jna-extract
+            (cd /tmp/jna-extract && jar xf "$JNA_JAR" com/sun/jna/aix-ppc64/libjnidispatch.a)
+            mv /tmp/jna-extract/com/sun/jna/aix-ppc64/libjnidispatch.a "$JNA_LIB"
+            rm -rf /tmp/jna-extract
+            ln -sf libjnidispatch.a "$JNA_CACHE/libjnidispatch.so"
+          fi
+          export _JAVA_OPTIONS="-Djna.boot.library.path=$JNA_CACHE"
+          # Build the shaded benchmark jar then run JMH. The benchmark classes
+          # themselves have no platform gate; they instantiate both
+          # oshi.SystemInfo and oshi.ffm.SystemInfo unconditionally.
+          mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+          # Explicit $JAVA_HOME/bin/java: /opt/freeware/bin on AIX shadows
+          # `java` with the OS-bundled Java 8, which doesn't recognize
+          # --enable-native-access (added in JDK 17) — the flag the
+          # @Fork(jvmArgsPrepend = "--enable-native-access=ALL-UNNAMED")
+          # annotation passes to JMH forks. Launching via the JDK 25 binary
+          # makes JMH set java.home to JDK 25 so forks inherit the same.
+          $JAVA_HOME/bin/java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
   benchopenindiana:
     name: JMH benchmarks, OpenIndiana
     runs-on: ubuntu-24.04

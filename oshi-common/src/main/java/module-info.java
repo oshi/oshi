@@ -21,6 +21,7 @@ module com.github.oshi.common {
     exports oshi.annotation;
     exports oshi.annotation.concurrent;
     exports oshi.driver.common.mac;
+    exports oshi.driver.common.unix.aix;
     exports oshi.driver.common.windows.perfmon;
     exports oshi.driver.common.windows.registry;
     exports oshi.driver.common.windows.gpu;
@@ -34,6 +35,7 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.linux;
     exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
+    exports oshi.hardware.common.platform.unix.aix;
     exports oshi.hardware.common.platform.unix.freebsd;
     exports oshi.hardware.common.platform.unix.openbsd;
     exports oshi.hardware.common.platform.unix.solaris;
@@ -42,6 +44,7 @@ module com.github.oshi.common {
     exports oshi.software.common;
     exports oshi.software.common.os.linux;
     exports oshi.software.common.os.mac;
+    exports oshi.software.common.os.unix.aix;
     exports oshi.software.common.os.unix.freebsd;
     exports oshi.software.common.os.unix.openbsd;
     exports oshi.software.common.os.unix.solaris;

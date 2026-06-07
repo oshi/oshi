@@ -76,9 +76,9 @@ SystemInfoProvider si = SystemInfoFactory.create();
 | Classpath | JDK | Platform | Selected implementation |
 |-----------|-----|----------|------------------------|
 | `oshi-core` only | 8+ | Any | JNA (`oshi.SystemInfo`) |
-| `oshi-core-ffm` only | 25+ | Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos) | FFM (`oshi.ffm.SystemInfo`) |
-| Both `oshi-core` and `oshi-core-ffm` | 25+ | Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos) | FFM (higher priority) |
-| Both `oshi-core` and `oshi-core-ffm` | &lt;25 or unsupported platform (AIX, DragonFly BSD, NetBSD) | Any | JNA (FFM unavailable) |
+| `oshi-core-ffm` only | 25+ | Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos), AIX | FFM (`oshi.ffm.SystemInfo`) |
+| Both `oshi-core` and `oshi-core-ffm` | 25+ | Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos), AIX | FFM (higher priority) |
+| Both `oshi-core` and `oshi-core-ffm` | &lt;25 or unsupported platform (DragonFly BSD, NetBSD) | Any | JNA (FFM unavailable) |
 | `oshi-common` only | 8+ | Linux | No `--enable-native-access` required (`oshi.nativefree.SystemInfo`) |
 
 You can also instantiate directly:
