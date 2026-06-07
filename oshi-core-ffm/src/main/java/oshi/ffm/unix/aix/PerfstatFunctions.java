@@ -10,7 +10,6 @@ import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
@@ -25,8 +24,9 @@ import oshi.ffm.ForeignFunctions;
  * reviewed against AIX's {@code <libperfstat.h>}); see the JNA file for full field documentation.
  * <p>
  * The library lives at {@code /usr/lib/libperfstat.a(shr_64.o)} (or {@code (shr.o)} for the 32-bit variant). Loading
- * requires the AIX-specific {@code RTLD_MEMBER} flag, so we call {@code dlopen} via FFM rather than relying on
- * {@link SymbolLookup#libraryLookup} (which uses default flags only).
+ * requires the AIX-specific {@code RTLD_MEMBER} flag, which FFM's {@link SymbolLookup#libraryLookup} can't pass; the
+ * dlopen call is wrapped behind {@link SharedObjectLoader}, mirroring JNA's contrib/platform
+ * {@code SharedObjectLoader}.
  */
 public final class PerfstatFunctions extends ForeignFunctions {
 
@@ -48,49 +48,9 @@ public final class PerfstatFunctions extends ForeignFunctions {
     public static final int PERFSTAT_NETINTERFACE_T_SIZE = 240;
     public static final int PERFSTAT_PROTOCOL_T_SIZE = 728;
 
-    // ---- libperfstat load via dlopen (RTLD_MEMBER required for AIX archive-member syntax) ----
-
-    private static final int RTLD_LAZY = 0x4;
-    private static final int RTLD_GLOBAL = 0x10000;
-    private static final int RTLD_MEMBER = 0x40000;
-
-    private static final SymbolLookup LIBPERFSTAT = loadLibperfstat();
-
-    private static SymbolLookup loadLibperfstat() {
-        try {
-            SymbolLookup libc = LINKER.defaultLookup();
-            MethodHandle dlopen = LINKER.downcallHandle(libc.findOrThrow("dlopen"),
-                    FunctionDescriptor.of(ADDRESS, ADDRESS, JAVA_INT));
-            MethodHandle dlsym = LINKER.downcallHandle(libc.findOrThrow("dlsym"),
-                    FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS));
-            int flags = RTLD_MEMBER | RTLD_GLOBAL | RTLD_LAZY;
-
-            Arena global = Arena.global();
-            MemorySegment path = global.allocateFrom("/usr/lib/libperfstat.a(shr_64.o)");
-            MemorySegment handle = (MemorySegment) dlopen.invokeExact(path, flags);
-            if (handle.address() == 0L) {
-                // Fall back to 32-bit member
-                MemorySegment path32 = global.allocateFrom("/usr/lib/libperfstat.a(shr.o)");
-                handle = (MemorySegment) dlopen.invokeExact(path32, flags);
-                if (handle.address() == 0L) {
-                    throw new UnsatisfiedLinkError("dlopen returned NULL for libperfstat (tried shr_64.o, shr.o)");
-                }
-            }
-            final MemorySegment libHandle = handle;
-            return name -> {
-                try (Arena local = Arena.ofConfined()) {
-                    MemorySegment nameSeg = local.allocateFrom(name);
-                    MemorySegment sym = (MemorySegment) dlsym.invokeExact(libHandle, nameSeg);
-                    return sym.address() == 0L ? java.util.Optional.empty()
-                            : java.util.Optional.of(MemorySegment.ofAddress(sym.address()));
-                } catch (Throwable t) {
-                    return java.util.Optional.empty();
-                }
-            };
-        } catch (Throwable t) {
-            throw new ExceptionInInitializerError(t);
-        }
-    }
+    // libperfstat is loaded via the AIX-specific SharedObjectLoader, which knows about
+    // RTLD_MEMBER + the archive-member syntax. The lookup is cached for the JVM lifetime.
+    private static final SymbolLookup LIBPERFSTAT = SharedObjectLoader.loadPerfstat();
 
     // ---- Method handles. All perfstat_* APIs share the signature
     // ---- int perfstat_xxx(perfstat_id_t *name, perfstat_xxx_t *userbuff, int sizeof_struct, int desired_number);

@@ -40,8 +40,15 @@ public final class PerfstatProcessFFM {
         public double scpu_time;
     }
 
+    /** Slack added to the perfstat_process count to absorb new processes between count and fill calls. */
+    private static final int PROC_COUNT_PAD = 10;
+
     /**
      * Queries {@code perfstat_process} for per-process statistics.
+     * <p>
+     * Pads the array by {@value #PROC_COUNT_PAD} entries past the initial count to absorb process churn between the two
+     * perfstat calls — mirrors {@code PerfstatProcessJNA} and the {@code MacOperatingSystemJNA.getThreadCount}
+     * precedent (+10).
      *
      * @return one {@link ProcessInfo} per process, or an empty array on error
      */
@@ -51,9 +58,10 @@ public final class PerfstatProcessFFM {
             if (count <= 0) {
                 return new ProcessInfo[0];
             }
-            MemorySegment buf = arena.allocate((long) PERFSTAT_PROCESS_T_SIZE * count);
+            int padded = count + PROC_COUNT_PAD;
+            MemorySegment buf = arena.allocate((long) PERFSTAT_PROCESS_T_SIZE * padded);
             MemorySegment firstName = arena.allocate(PERFSTAT_ID_T_SIZE);
-            int ret = perfstat_process(firstName, buf, PERFSTAT_PROCESS_T_SIZE, count);
+            int ret = perfstat_process(firstName, buf, PERFSTAT_PROCESS_T_SIZE, padded);
             if (ret <= 0) {
                 return new ProcessInfo[0];
             }

@@ -157,6 +157,18 @@ public abstract class AixOSProcess extends AbstractOSProcess {
         return this.state;
     }
 
+    /**
+     * Allows subclasses to set this process's state to {@link State#INVALID} when their perfstat lookup can't find the
+     * process. Mirrors the original pre-split {@code AixOSProcess.updateAttributes()} behavior so a stale
+     * {@code perfstat_process_t[]} array that briefly omits the pid leaves the OSProcess marked invalid rather than
+     * silently retaining whatever fields were last assigned.
+     *
+     * @param newState the new state
+     */
+    protected final void setState(State newState) {
+        this.state = newState;
+    }
+
     @Override
     public int getParentProcessID() {
         return this.parentProcessID;

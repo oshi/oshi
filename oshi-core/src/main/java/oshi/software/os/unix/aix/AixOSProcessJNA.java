@@ -49,6 +49,7 @@ public final class AixOSProcessJNA extends AixOSProcess {
                         stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
             }
         }
+        setState(State.INVALID);
         return false;
     }
 

@@ -301,6 +301,85 @@ public abstract class ForeignFunctions {
         return SymbolLookup.libraryLookup(System.mapLibraryName(libraryName), LIBRARY_ARENA);
     }
 
+    // ---- dlopen/dlsym escape hatch ----
+    // SymbolLookup.libraryLookup() can't pass custom flags; some platforms need them (notably AIX
+    // archive-member loading via RTLD_MEMBER). We bind dlopen/dlsym from libc directly so callers
+    // can dlopen with whatever flags they need and wrap the handle into a SymbolLookup.
+
+    private static final MethodHandle DLOPEN = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlopen"),
+            FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
+                    java.lang.foreign.ValueLayout.JAVA_INT));
+
+    private static final MethodHandle DLSYM = LINKER.downcallHandle(LINKER.defaultLookup().findOrThrow("dlsym"),
+            FunctionDescriptor.of(java.lang.foreign.ValueLayout.ADDRESS, java.lang.foreign.ValueLayout.ADDRESS,
+                    java.lang.foreign.ValueLayout.ADDRESS));
+
+    /**
+     * Calls {@code dlopen(path, flags)} directly through the C runtime, returning a {@link SymbolLookup} over the
+     * loaded library. Use this when {@link SymbolLookup#libraryLookup(java.nio.file.Path, Arena)} can't pass the flag
+     * set the platform requires — most notably AIX's {@code RTLD_MEMBER} for archive-member loading.
+     * <p>
+     * The library is loaded into {@link Arena#global()} so the lookup persists for the JVM lifetime, mirroring how
+     * statically-bound system libraries are loaded.
+     *
+     * @param path  absolute path passed verbatim to {@code dlopen} (must include any platform-specific syntax, e.g.
+     *              {@code "/usr/lib/libperfstat.a(shr_64.o)"} on AIX)
+     * @param flags bitwise-OR of the {@code RTLD_*} flags from the platform's {@code <dlfcn.h>}
+     * @return a {@link SymbolLookup} backed by {@code dlsym} on the loaded library
+     * @throws UnsatisfiedLinkError if {@code dlopen} returns {@code NULL}
+     */
+    public static SymbolLookup dlopenWithFlags(String path, int flags) {
+        try {
+            Arena global = Arena.global();
+            MemorySegment pathSeg = global.allocateFrom(path);
+            MemorySegment handle = (MemorySegment) DLOPEN.invokeExact(pathSeg, flags);
+            if (handle.address() == 0L) {
+                throw new UnsatisfiedLinkError("dlopen returned NULL for " + path);
+            }
+            return dlsymLookup(handle);
+        } catch (UnsatisfiedLinkError e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new UnsatisfiedLinkError("dlopen failed for " + path + ": " + t.getMessage());
+        }
+    }
+
+    /**
+     * Calls {@link #dlopenWithFlags(String, int)} on each path in turn, returning the first lookup that succeeds.
+     * Useful for libraries that may live under multiple names — e.g. AIX's 64-bit/32-bit shared-object members of
+     * {@code libperfstat.a}.
+     *
+     * @param paths candidate absolute paths to try, in order
+     * @param flags bitwise-OR of {@code RTLD_*} flags
+     * @return the first successful {@link SymbolLookup}
+     * @throws UnsatisfiedLinkError if every path's {@code dlopen} returns {@code NULL}
+     */
+    public static SymbolLookup dlopenFirstAvailable(java.util.List<String> paths, int flags) {
+        UnsatisfiedLinkError last = null;
+        for (String path : paths) {
+            try {
+                return dlopenWithFlags(path, flags);
+            } catch (UnsatisfiedLinkError e) {
+                last = e;
+            }
+        }
+        throw new UnsatisfiedLinkError(
+                "dlopen returned NULL for every candidate: " + paths + (last == null ? "" : " (" + last + ")"));
+    }
+
+    private static SymbolLookup dlsymLookup(MemorySegment libHandle) {
+        return name -> {
+            try (Arena local = Arena.ofConfined()) {
+                MemorySegment nameSeg = local.allocateFrom(name);
+                MemorySegment sym = (MemorySegment) DLSYM.invokeExact(libHandle, nameSeg);
+                return sym.address() == 0L ? java.util.Optional.empty()
+                        : java.util.Optional.of(MemorySegment.ofAddress(sym.address()));
+            } catch (Throwable t) {
+                return java.util.Optional.empty();
+            }
+        };
+    }
+
     /**
      * Reinterpret a raw native pointer as a struct of the given layout, scoped to the provided arena.
      *
