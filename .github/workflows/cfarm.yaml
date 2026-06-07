@@ -40,7 +40,8 @@ jobs:
   # SSH into AIX server and run test on AIX 7.3
   # Configured to pull latest from oshi master branch
   # To test on a PR, log into the aix server and create a new branch
-  # Retries up to 3 times due to flaky library loading in OpenJ9
+  # JNA's library is pre-extracted to ~/.cache/jna so the test JVM loads it
+  # directly via System.load(); the JAR-unpack step is the flaky one on OpenJ9.
   testaix:
     name: Test JDK 25, AIX
     concurrency: aix_cfarm119
@@ -60,7 +61,7 @@ jobs:
           cd ~/git/oshi
           export JAVA_HOME=~/java/jdk-25.0.3+9
           export PATH=$PATH:/opt/freeware/bin
-          export MAVEN_OPTS="-Xshareclasses:none -Djna.tmpdir=/home/oshi/.cache/jna"
+          export MAVEN_OPTS="-Xshareclasses:none"
           git reset --hard
           git checkout master
           git reset --hard HEAD~2
@@ -75,6 +76,30 @@ jobs:
             cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
             cd ~/git/oshi
           fi
-          mkdir -p /home/oshi/.cache/jna
           export PATH=$MAVEN_DIR/bin:$PATH
-          mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna || { sleep 15; mvn clean test -B -Djacoco.skip=true -Djna.tmpdir=/home/oshi/.cache/jna; }; }
+          # Pre-extract libjnidispatch.a to a stable path so the test JVM can
+          # System.load() it directly. JNA's default behavior is to unpack the
+          # library from the jar with a fresh per-PID filename on every JVM
+          # start, which is what flakes on OpenJ9. Use 'jar' (always shipped
+          # with the JDK) to avoid depending on AIX-side 'unzip' or 'sort -V'.
+          JNA_CACHE=/home/oshi/.cache/jna
+          JNA_LIB=$JNA_CACHE/libjnidispatch.a
+          mkdir -p "$JNA_CACHE"
+          JNA_VERSION=$(mvn -q -N help:evaluate -Dexpression=jna.version -DforceStdout 2>/dev/null)
+          JNA_JAR=$HOME/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar
+          if [ ! -f "$JNA_JAR" ]; then
+            mvn -q -N dependency:get -Dartifact=net.java.dev.jna:jna:$JNA_VERSION -Dmaven.gitcommitid.skip=true
+          fi
+          if [ ! -f "$JNA_LIB" ] || [ "$JNA_JAR" -nt "$JNA_LIB" ]; then
+            rm -rf /tmp/jna-extract && mkdir -p /tmp/jna-extract
+            (cd /tmp/jna-extract && jar xf "$JNA_JAR" com/sun/jna/aix-ppc64/libjnidispatch.a)
+            mv /tmp/jna-extract/com/sun/jna/aix-ppc64/libjnidispatch.a "$JNA_LIB"
+            rm -rf /tmp/jna-extract
+            # Expose under both names in case the JVM's mapLibraryName picks .so
+            ln -sf libjnidispatch.a "$JNA_CACHE/libjnidispatch.so"
+          fi
+          # jna.boot.library.path tells JNA to System.load() the pre-extracted
+          # file first; we deliberately do NOT set jna.nounpack so JNA can still
+          # fall back to JAR extraction if the boot-path load ever fails.
+          export _JAVA_OPTIONS="-Djna.boot.library.path=$JNA_CACHE"
+          mvn clean test -B -Djacoco.skip=true || { sleep 15; mvn clean test -B -Djacoco.skip=true; }

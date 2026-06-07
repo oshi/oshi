@@ -94,7 +94,15 @@ jobs:
             export MAVEN_OPTS="-Xmx1g"
             export _JAVA_OPTIONS="-Xmx1g"
             java -version
-            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true
+            # OpenIndiana-only: override the WORKER_THREAD_POOL default to a
+            # single-carrier fixed FORK_JOIN_POOL. illumos libumem reserves
+            # per-CPU arenas, and vthread-style unbounded fan-out on blocking
+            # JNA exec calls trips Native memory allocation OOMs.
+            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
+              -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+              -Djunit.parallel.strategy=fixed \
+              -Djunit.parallel.fixed.parallelism=1 \
+              -Djunit.parallel.fixed.max-pool-size=2
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6

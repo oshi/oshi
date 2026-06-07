@@ -88,6 +88,11 @@
         <slf4j.version>2.0.18</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
         <junit.version>6.1.0</junit.version>
+        <!-- JUnit parallel-execution config; overridable per CI run (see OpenIndiana). -->
+        <junit.parallel.executor-service>WORKER_THREAD_POOL</junit.parallel.executor-service>
+        <junit.parallel.strategy>dynamic</junit.parallel.strategy>
+        <junit.parallel.fixed.parallelism>2</junit.parallel.fixed.parallelism>
+        <junit.parallel.fixed.max-pool-size>4</junit.parallel.fixed.max-pool-size>
         <hamcrest.version>3.0</hamcrest.version>
         <assertj.version>3.27.7</assertj.version>
         <!-- Compile versions -->
@@ -292,7 +297,10 @@
                         <parameters>
                             <junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
                             <junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
-                            <junit.jupiter.execution.parallel.config.executor-service>WORKER_THREAD_POOL</junit.jupiter.execution.parallel.config.executor-service>
+                            <junit.jupiter.execution.parallel.config.executor-service>${junit.parallel.executor-service}</junit.jupiter.execution.parallel.config.executor-service>
+                            <junit.jupiter.execution.parallel.config.strategy>${junit.parallel.strategy}</junit.jupiter.execution.parallel.config.strategy>
+                            <junit.jupiter.execution.parallel.config.fixed.parallelism>${junit.parallel.fixed.parallelism}</junit.jupiter.execution.parallel.config.fixed.parallelism>
+                            <junit.jupiter.execution.parallel.config.fixed.max-pool-size>${junit.parallel.fixed.max-pool-size}</junit.jupiter.execution.parallel.config.fixed.max-pool-size>
                         </parameters>
                         <executor>JAVA</executor>
                         <javaOptions>
