@@ -20,13 +20,14 @@ import org.junit.jupiter.api.condition.OS;
 import oshi.SystemInfo;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.common.unix.aix.AixPsInfo;
+import oshi.driver.common.unix.aix.PsInfo;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 @EnabledOnOs(OS.AIX)
-class PsInfoTest {
+class PsInfoJNATest {
     @Test
     void testQueryPsInfo() {
         int pid = new SystemInfo().getOperatingSystem().getProcessId();
@@ -35,7 +36,7 @@ class PsInfoTest {
 
         Triplet<Integer, Long, Long> addrs = PsInfo.queryArgsEnvAddrs(pid, psinfo);
         assertNotNull(addrs);
-        Pair<List<String>, Map<String, String>> argsEnv = PsInfo.queryArgsEnv(pid, psinfo);
+        Pair<List<String>, Map<String, String>> argsEnv = PsInfoJNA.queryArgsEnv(pid, psinfo);
         assertThat("Arg list size should match argc", argsEnv.getA().size(), is(addrs.getA().intValue()));
 
         File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", pid));

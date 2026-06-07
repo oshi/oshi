@@ -39,8 +39,9 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.common.unix.aix.AixPsInfo;
-import oshi.driver.unix.aix.PsInfo;
-import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.driver.common.unix.aix.PsInfo;
+import oshi.driver.unix.aix.PsInfoJNA;
+import oshi.driver.unix.aix.perfstat.PerfstatCpuJNA;
 import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
@@ -63,7 +64,7 @@ public class AixOSProcess extends AbstractOSProcess {
     private Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
-    private final Supplier<Long> affinityMask = memoize(PerfstatCpu::queryCpuAffinityMask, defaultExpiration());
+    private final Supplier<Long> affinityMask = memoize(PerfstatCpuJNA::queryCpuAffinityMask, defaultExpiration());
 
     private String name;
     private String path = "";
@@ -133,7 +134,7 @@ public class AixOSProcess extends AbstractOSProcess {
     }
 
     private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
-        return PsInfo.queryArgsEnv(getProcessID(), psinfo.get());
+        return PsInfoJNA.queryArgsEnv(getProcessID(), psinfo.get());
     }
 
     @Override

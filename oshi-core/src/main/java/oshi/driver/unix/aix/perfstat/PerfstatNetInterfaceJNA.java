@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix.perfstat;
@@ -14,11 +14,11 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Utility to query performance stats for network interfaces
  */
 @ThreadSafe
-public final class PerfstatNetInterface {
+public final class PerfstatNetInterfaceJNA {
 
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
-    private PerfstatNetInterface() {
+    private PerfstatNetInterfaceJNA() {
     }
 
     /**

@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,19 +22,20 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.common.unix.aix.AixPsInfo;
+import oshi.driver.common.unix.aix.PsInfo;
 import oshi.jna.platform.unix.AixLibc;
-import oshi.util.FileUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility to query /proc/psinfo
+ * JNA-backed driver for the {@code queryArgsEnv} address-space read on AIX. The pure-Java parsing of
+ * {@code /proc/<pid>/psinfo} and {@code /proc/<pid>/lwp/<tid>/lwpsinfo} lives in {@link PsInfo} (oshi-common).
  */
 @ThreadSafe
-public final class PsInfo {
-    private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);
+public final class PsInfoJNA {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PsInfoJNA.class);
 
     private static final AixLibc LIBC = AixLibc.INSTANCE;
 
@@ -43,67 +43,22 @@ public final class PsInfo {
     // the docs specify 4KB pages so we hardcode this
     private static final long PAGE_SIZE = 4096L;
 
-    private PsInfo() {
+    private PsInfoJNA() {
     }
 
     /**
-     * Reads /proc/pid/psinfo and returns data in a structure
-     *
-     * @param pid The process ID
-     * @return A structure containing information for the requested process
-     */
-    public static AixPsInfo queryPsInfo(int pid) {
-        return new AixPsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/psinfo", pid)));
-    }
-
-    /**
-     * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
-     *
-     * @param pid The process ID
-     * @param tid The thread ID (lwpid)
-     * @return A structure containing information for the requested thread
-     */
-    public static AixLwpsInfo queryLwpsInfo(int pid, int tid) {
-        return new AixLwpsInfo(
-                FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
-    }
-
-    /**
-     * Reads the pr_argc, pr_argv, and pr_envp fields from /proc/pid/psinfo
-     *
-     * @param pid    The process ID
-     * @param psinfo A populated {@link AixPsInfo} structure containing the offset pointers for these fields
-     * @return A triplet containing the argc, argv, and envp values, or null if unable to read
-     */
-    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
-        if (psinfo != null) {
-            int argc = psinfo.pr_argc;
-            // Must have at least one argc (the command itself) so failure here means exit
-            if (argc > 0) {
-                long argv = psinfo.pr_argv;
-                long envp = psinfo.pr_envp;
-                return new Triplet<>(argc, argv, envp);
-            }
-            LOG.trace("Failed argc sanity check: argc={}", argc);
-            return null;
-        }
-        LOG.trace("Failed to read psinfo file for pid: {} ", pid);
-        return null;
-    }
-
-    /**
-     * Read the argument and environment strings from process address space
+     * Reads the argument and environment strings from process address space.
      *
      * @param pid    the process id
-     * @param psinfo A populated {@link AixPsInfo} structure containing the offset pointers for these fields
-     * @return A pair containing a list of the arguments and a map of environment variables
+     * @param psinfo a populated {@link AixPsInfo} containing the offset pointers
+     * @return a pair of (argv list, env map)
      */
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
         // Get the arg count and list of env vars
-        Triplet<Integer, Long, Long> addrs = queryArgsEnvAddrs(pid, psinfo);
+        Triplet<Integer, Long, Long> addrs = PsInfo.queryArgsEnvAddrs(pid, psinfo);
         if (addrs != null) {
             // Open a file descriptor to the address space
             String procas = "/proc/" + pid + "/as";
@@ -195,19 +150,18 @@ public final class PsInfo {
     }
 
     /**
-     * Reads the page containing addr into buffer, unless the buffer already contains that page (as indicated by the
-     * bufStart address), in which case nothing is changed.
+     * Reads the page containing {@code addr} into {@code buffer}, unless the buffer already contains that page (as
+     * indicated by {@code bufStart}), in which case nothing is changed.
      *
-     * @param fd       The file descriptor for the address space
-     * @param buffer   An allocated buffer, possibly with data reread from bufStart
-     * @param bufSize  The size of the buffer
-     * @param bufStart The start of data currently in bufStart, or 0 if uninitialized
-     * @param addr     THe address whose page to read into the buffer
-     * @return The new starting pointer for the buffer
+     * @param fd       the file descriptor for the address space
+     * @param buffer   an allocated buffer
+     * @param bufSize  the size of the buffer
+     * @param bufStart the start of data currently in the buffer, or 0 if uninitialized
+     * @param addr     the address whose page to read into the buffer
+     * @return the new starting pointer for the buffer
      */
     private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
             long addr) {
-        // If we don't have the right buffer, update it
         if (addr < bufStart || addr - bufStart > PAGE_SIZE) {
             long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
             ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));

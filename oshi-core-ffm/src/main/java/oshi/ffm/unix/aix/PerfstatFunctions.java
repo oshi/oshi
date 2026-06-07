@@ -291,6 +291,26 @@ public final class PerfstatFunctions extends ForeignFunctions {
     // Field accessors for perfstat_memory_total_t.
     // ===========================================================================================
 
+    /** {@code virt_total}: total virtual memory (in 4 KB pages). */
+    public static long memVirtTotal(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 0);
+    }
+
+    /** {@code real_total}: total real memory (in 4 KB pages). */
+    public static long memRealTotal(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 8);
+    }
+
+    /** {@code pgspins}: number of page-ins from paging space. */
+    public static long memPgspins(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 72);
+    }
+
+    /** {@code pgspouts}: number of page-outs to paging space. */
+    public static long memPgspouts(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 80);
+    }
+
     /** {@code pgsp_total}: total paging space (in 4 KB pages). */
     public static long memPgspTotal(MemorySegment seg) {
         return seg.get(JAVA_LONG, 120);
@@ -299,6 +319,16 @@ public final class PerfstatFunctions extends ForeignFunctions {
     /** {@code pgsp_free}: free paging space (in 4 KB pages). */
     public static long memPgspFree(MemorySegment seg) {
         return seg.get(JAVA_LONG, 128);
+    }
+
+    /** {@code virt_active}: active virtual pages (accessed). */
+    public static long memVirtActive(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 168);
+    }
+
+    /** {@code real_avail}: real memory available without paging out working segments (in 4 KB pages). */
+    public static long memRealAvail(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 328);
     }
 
     // ===========================================================================================

@@ -111,6 +111,55 @@ public final class AixLibcFunctions extends ForeignFunctions {
         return (long) RLIMIT_MAX.get(rlim, 0L);
     }
 
+    // int open(const char *path, int flags);
+    private static final MethodHandle open = LINKER.downcallHandle(LIBC.findOrThrow("open"),
+            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+
+    /**
+     * Calls {@code open(path, flags)}.
+     *
+     * @param path  null-terminated path segment
+     * @param flags open flags (e.g. {@code O_RDONLY})
+     * @return file descriptor on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int open(MemorySegment path, int flags) throws Throwable {
+        return (int) open.invokeExact(path, flags);
+    }
+
+    // int close(int fd);
+    private static final MethodHandle close = LINKER.downcallHandle(LIBC.findOrThrow("close"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+
+    /**
+     * Calls {@code close(fd)}.
+     *
+     * @param fd file descriptor
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int close(int fd) throws Throwable {
+        return (int) close.invokeExact(fd);
+    }
+
+    // ssize_t pread(int fd, void *buf, size_t count, off_t offset);
+    private static final MethodHandle pread = LINKER.downcallHandle(LIBC.findOrThrow("pread"),
+            FunctionDescriptor.of(SIZE_T, JAVA_INT, ADDRESS, SIZE_T, JAVA_LONG));
+
+    /**
+     * Calls {@code pread(fd, buf, count, offset)}. {@code ssize_t} is mapped to {@code long}.
+     *
+     * @param fd     file descriptor
+     * @param buf    buffer for the read
+     * @param count  number of bytes to read
+     * @param offset starting byte offset in the file
+     * @return number of bytes actually read, or -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static long pread(int fd, MemorySegment buf, long count, long offset) throws Throwable {
+        return (long) pread.invokeExact(fd, buf, count, offset);
+    }
+
     // int gethostname(char *name, size_t namelen);
     private static final MethodHandle gethostname = LINKER.downcallHandle(LIBC.findOrThrow("gethostname"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, SIZE_T));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.aix;
@@ -13,7 +13,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.perfstat.PerfstatProtocol;
+import oshi.driver.unix.aix.perfstat.PerfstatProtocolJNA;
 import oshi.software.common.AbstractInternetProtocolStats;
 
 /**
@@ -22,7 +22,7 @@ import oshi.software.common.AbstractInternetProtocolStats;
 @ThreadSafe
 public class AixInternetProtocolStats extends AbstractInternetProtocolStats {
 
-    private Supplier<perfstat_protocol_t[]> ipstats = memoize(PerfstatProtocol::queryProtocols, defaultExpiration());
+    private Supplier<perfstat_protocol_t[]> ipstats = memoize(PerfstatProtocolJNA::queryProtocols, defaultExpiration());
 
     @Override
     public TcpStats getTCPv4Stats() {

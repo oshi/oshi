@@ -28,8 +28,8 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Uptime;
 import oshi.driver.common.unix.aix.Who;
-import oshi.driver.unix.aix.perfstat.PerfstatConfig;
-import oshi.driver.unix.aix.perfstat.PerfstatProcess;
+import oshi.driver.unix.aix.perfstat.PerfstatConfigJNA;
+import oshi.driver.unix.aix.perfstat.PerfstatProcessJNA;
 import oshi.jna.platform.unix.AixLibc;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.aix.AixFileSystem;
@@ -55,8 +55,8 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public class AixOperatingSystem extends AbstractOperatingSystem {
 
-    private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfig::queryConfig);
-    private final Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcess::queryProcesses,
+    private final Supplier<perfstat_partition_config_t> config = memoize(PerfstatConfigJNA::queryConfig);
+    private final Supplier<perfstat_process_t[]> procCpu = memoize(PerfstatProcessJNA::queryProcesses,
             defaultExpiration());
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(AixInstalledApps::queryInstalledApps, installedAppsExpiration());

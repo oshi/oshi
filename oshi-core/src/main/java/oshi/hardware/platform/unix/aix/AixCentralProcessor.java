@@ -21,8 +21,8 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lssrad;
-import oshi.driver.unix.aix.perfstat.PerfstatConfig;
-import oshi.driver.unix.aix.perfstat.PerfstatCpu;
+import oshi.driver.unix.aix.perfstat.PerfstatConfigJNA;
+import oshi.driver.unix.aix.perfstat.PerfstatCpuJNA;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.Constants;
@@ -38,8 +38,8 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 final class AixCentralProcessor extends AbstractCentralProcessor {
 
-    private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpu::queryCpuTotal, defaultExpiration());
-    private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpu::queryCpu, defaultExpiration());
+    private final Supplier<perfstat_cpu_total_t> cpuTotal = memoize(PerfstatCpuJNA::queryCpuTotal, defaultExpiration());
+    private final Supplier<perfstat_cpu_t[]> cpuProc = memoize(PerfstatCpuJNA::queryCpu, defaultExpiration());
     private static final int SBITS = querySbits();
 
     private perfstat_partition_config_t config;
@@ -95,7 +95,7 @@ final class AixCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        this.config = PerfstatConfig.queryConfig();
+        this.config = PerfstatConfigJNA.queryConfig();
 
         // Use max vcpus (cores) for physical processor count and multiply by SMT threads
         // for logical processor count. These represent the LPAR's configured maximum capacity.

@@ -14,7 +14,7 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lscfg;
-import oshi.driver.unix.aix.perfstat.PerfstatDisk;
+import oshi.driver.unix.aix.perfstat.PerfstatDiskJNA;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -46,7 +46,7 @@ public final class AixHardwareAbstractionLayer extends AbstractHardwareAbstracti
     // Memoized hardware listing
     private final Supplier<List<String>> lscfg = memoize(Lscfg::queryAllDevices, defaultExpiration());
     // Memoized disk stats to pass to disk object(s)
-    private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDisk::queryDiskStats, defaultExpiration());
+    private final Supplier<perfstat_disk_t[]> diskStats = memoize(PerfstatDiskJNA::queryDiskStats, defaultExpiration());
 
     @Override
     public ComputerSystem createComputerSystem() {

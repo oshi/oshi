@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.unix.aix;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.perfstat.PerfstatMemory;
+import oshi.driver.unix.aix.perfstat.PerfstatMemoryJNA;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
@@ -123,7 +123,7 @@ final class AixGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static perfstat_memory_total_t queryPerfstat() {
-        return PerfstatMemory.queryMemoryTotal();
+        return PerfstatMemoryJNA.queryMemoryTotal();
     }
 
     private VirtualMemory createVirtualMemory() {

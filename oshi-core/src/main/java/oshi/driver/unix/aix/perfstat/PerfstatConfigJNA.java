@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix.perfstat;
@@ -13,11 +13,11 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Utility to query partition config
  */
 @ThreadSafe
-public final class PerfstatConfig {
+public final class PerfstatConfigJNA {
 
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
-    private PerfstatConfig() {
+    private PerfstatConfigJNA() {
     }
 
     /**

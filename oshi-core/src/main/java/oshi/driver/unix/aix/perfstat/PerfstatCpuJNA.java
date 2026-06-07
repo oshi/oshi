@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix.perfstat;
@@ -15,11 +15,11 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Utility to query performance stats for cpu
  */
 @ThreadSafe
-public final class PerfstatCpu {
+public final class PerfstatCpuJNA {
 
     private static final Perfstat PERF = Perfstat.INSTANCE;
 
-    private PerfstatCpu() {
+    private PerfstatCpuJNA() {
     }
 
     /**

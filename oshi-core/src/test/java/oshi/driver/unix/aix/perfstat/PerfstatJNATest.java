@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.aix.perfstat;
@@ -29,31 +29,31 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
 @EnabledOnOs(OS.AIX)
-class PerfstatTest {
+class PerfstatJNATest {
     @Test
     void testQueryConfig() {
-        perfstat_partition_config_t config = PerfstatConfig.queryConfig();
+        perfstat_partition_config_t config = PerfstatConfigJNA.queryConfig();
         assertThat("Should have at least one logical CPU", config.lcpus, greaterThan(0));
     }
 
     @Test
     void testQueryCpu() {
-        perfstat_cpu_t[] cpus = PerfstatCpu.queryCpu();
+        perfstat_cpu_t[] cpus = PerfstatCpuJNA.queryCpu();
         assertThat("Should have at least one CPU", cpus.length, greaterThan(0));
         for (perfstat_cpu_t cpu : cpus) {
             assertThat("Should have at least one idle tick", cpu.idle, greaterThan(0L));
         }
 
-        perfstat_cpu_total_t total = PerfstatCpu.queryCpuTotal();
+        perfstat_cpu_total_t total = PerfstatCpuJNA.queryCpuTotal();
         assertThat("Should have at least one idle tick", total.idle, greaterThan(0L));
 
-        long affinity = PerfstatCpu.queryCpuAffinityMask();
+        long affinity = PerfstatCpuJNA.queryCpuAffinityMask();
         assertThat("Should have at least one CPU", affinity, greaterThan(0L));
     }
 
     @Test
     void testQueryDiskStats() {
-        perfstat_disk_t[] disks = PerfstatDisk.queryDiskStats();
+        perfstat_disk_t[] disks = PerfstatDiskJNA.queryDiskStats();
         assertThat("Should have at least one disk", disks.length, greaterThan(0));
         for (perfstat_disk_t disk : disks) {
             // Virtual disks may give 0 capacity but also have 0 time
@@ -67,13 +67,13 @@ class PerfstatTest {
 
     @Test
     void testQueryMemory() {
-        perfstat_memory_total_t mem = PerfstatMemory.queryMemoryTotal();
+        perfstat_memory_total_t mem = PerfstatMemoryJNA.queryMemoryTotal();
         assertThat("Should have nonzero memory", mem.real_total, greaterThan(0L));
     }
 
     @Test
     void testQueryNetInterface() {
-        perfstat_netinterface_t[] nets = PerfstatNetInterface.queryNetInterfaces();
+        perfstat_netinterface_t[] nets = PerfstatNetInterfaceJNA.queryNetInterfaces();
         assertThat("Should have at least one interface", nets.length, greaterThan(0));
         for (perfstat_netinterface_t net : nets) {
             assertThat("Should have a nonempty name", Native.toString(net.name), not(emptyString()));
@@ -82,7 +82,7 @@ class PerfstatTest {
 
     @Test
     void testQueryProcesses() {
-        perfstat_process_t[] procs = PerfstatProcess.queryProcesses();
+        perfstat_process_t[] procs = PerfstatProcessJNA.queryProcesses();
         assertThat("Should have at least one process", procs.length, greaterThan(0));
         for (perfstat_process_t proc : procs) {
             assertThat("Should have at least one thread", proc.num_threads, greaterThan(0L));
@@ -91,7 +91,7 @@ class PerfstatTest {
 
     @Test
     void testQueryProtocol() {
-        perfstat_protocol_t[] protos = PerfstatProtocol.queryProtocols();
+        perfstat_protocol_t[] protos = PerfstatProtocolJNA.queryProtocols();
         assertThat("Should have at least one protocol", protos.length, greaterThan(0));
         List<String> validProtos = Arrays.asList("ip", "ipv6", "icmp", "icmpv6", "udp", "tcp", "rpc", "nfs", "nfsv2",
                 "nfsv3", "nfsv4");

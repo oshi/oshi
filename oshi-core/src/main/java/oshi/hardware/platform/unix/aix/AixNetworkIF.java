@@ -19,7 +19,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.aix.perfstat.PerfstatNetInterface;
+import oshi.driver.unix.aix.perfstat.PerfstatNetInterfaceJNA;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 
@@ -47,7 +47,7 @@ public final class AixNetworkIF extends AbstractNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterface::queryNetInterfaces,
+        Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterfaceJNA::queryNetInterfaces,
                 defaultExpiration());
         List<NetworkIF> ifList = new ArrayList<>();
         for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {

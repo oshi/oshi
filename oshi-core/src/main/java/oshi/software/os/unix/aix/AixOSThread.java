@@ -6,7 +6,7 @@ package oshi.software.os.unix.aix;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
-import oshi.driver.unix.aix.PsInfo;
+import oshi.driver.common.unix.aix.PsInfo;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 

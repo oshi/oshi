@@ -50,6 +50,12 @@
          each method. -->
     <suppress checks="JavadocMethod" files="PerfstatFunctions\.java"/>
 
+    <!-- AIX FFM driver POJOs mirror libperfstat struct field names verbatim (snake_case) so the
+         JNA and FFM consumer code reads identically. -->
+    <suppress checks="MemberName" files="Perfstat[a-zA-Z]+FFM\.java"/>
+    <suppress checks="VisibilityModifier" files="Perfstat[a-zA-Z]+FFM\.java"/>
+    <suppress checks="JavadocMethod" files="PsInfoFFM\.java"/>
+
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 
