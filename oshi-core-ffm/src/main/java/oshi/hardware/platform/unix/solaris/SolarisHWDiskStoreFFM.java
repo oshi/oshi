@@ -14,9 +14,9 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.disk.Iostat;
-import oshi.driver.unix.solaris.disk.Lshal;
-import oshi.driver.unix.solaris.disk.Prtvtoc;
+import oshi.driver.common.unix.solaris.disk.Iostat;
+import oshi.driver.common.unix.solaris.disk.Lshal;
+import oshi.driver.common.unix.solaris.disk.Prtvtoc;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
 import oshi.ffm.util.platform.unix.solaris.LibKstatFunctions;

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.freebsd.disk.GeomDiskList;
-import oshi.driver.unix.freebsd.disk.GeomPartList;
+import oshi.driver.common.unix.freebsd.disk.GeomDiskList;
+import oshi.driver.common.unix.freebsd.disk.GeomPartList;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;

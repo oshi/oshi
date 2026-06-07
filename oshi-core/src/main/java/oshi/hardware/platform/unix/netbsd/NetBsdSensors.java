@@ -10,7 +10,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.bsd.Systat;
+import oshi.driver.common.unix.bsd.Systat;
 import oshi.hardware.common.AbstractSensors;
 import oshi.util.tuples.Triplet;
 

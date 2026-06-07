@@ -18,9 +18,9 @@ import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.disk.Iostat;
-import oshi.driver.unix.solaris.disk.Lshal;
-import oshi.driver.unix.solaris.disk.Prtvtoc;
+import oshi.driver.common.unix.solaris.disk.Iostat;
+import oshi.driver.common.unix.solaris.disk.Lshal;
+import oshi.driver.common.unix.solaris.disk.Prtvtoc;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;

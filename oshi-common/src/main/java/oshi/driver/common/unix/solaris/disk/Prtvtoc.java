@@ -2,7 +2,7 @@
  * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.solaris.disk;
+package oshi.driver.common.unix.solaris.disk;
 
 import java.util.ArrayList;
 import java.util.List;

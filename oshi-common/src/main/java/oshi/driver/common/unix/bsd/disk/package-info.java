@@ -5,4 +5,4 @@
 /**
  * Provides parsing utilities for BSD disk-related commands (e.g. {@code disklabel}) shared by OpenBSD and NetBSD.
  */
-package oshi.driver.unix.bsd.disk;
+package oshi.driver.common.unix.bsd.disk;

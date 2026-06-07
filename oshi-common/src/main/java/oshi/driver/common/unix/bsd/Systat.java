@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.bsd;
+package oshi.driver.common.unix.bsd;
 
 import java.util.ArrayList;
 import java.util.HashSet;

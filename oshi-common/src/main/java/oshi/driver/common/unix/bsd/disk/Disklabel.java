@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.bsd.disk;
+package oshi.driver.common.unix.bsd.disk;
 
 import java.util.ArrayList;
 import java.util.List;

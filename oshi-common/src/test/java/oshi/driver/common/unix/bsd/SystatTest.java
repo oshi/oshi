@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.driver.unix.bsd;
+package oshi.driver.common.unix.bsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.driver.unix.bsd.Systat.BatteryFields;
+import oshi.driver.common.unix.bsd.Systat.BatteryFields;
 import oshi.hardware.PowerSource.CapacityUnits;
 import oshi.util.tuples.Triplet;
 
