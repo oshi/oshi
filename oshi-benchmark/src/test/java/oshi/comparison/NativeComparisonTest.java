@@ -378,7 +378,9 @@ class NativeComparisonTest {
         assertThat(ffm.getGroup()).isEqualTo(jna.getGroup());
         assertThat(ffm.getGroupID()).isEqualTo(jna.getGroupID());
         assertThat(ffm.getParentProcessID()).isEqualTo(jna.getParentProcessID());
-        assertThat(ffm.getPriority()).isEqualTo(jna.getPriority());
+        // Priority can drift between JNA and FFM snapshots (e.g. Solaris TS scheduler re-prioritizes by CPU usage);
+        // tolerate ±20 — wide enough for scheduler drift, tight enough to catch a wrong-field bug
+        assertThat(Math.abs(ffm.getPriority() - jna.getPriority())).as("process.priority").isLessThanOrEqualTo(20);
         // Memory values should be in the same ballpark
         // Virtual size can differ significantly between JNA and FFM due to timing of memory-mapped regions
         // and DLL loading between the two snapshots; 0.95 tolerance accommodates this variance
