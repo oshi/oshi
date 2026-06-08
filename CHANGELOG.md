@@ -7,6 +7,7 @@
 ##### Bug Fixes and Improvements
 
 * [#3349](https://github.com/oshi/oshi/pull/3349): Fix AIX `Uptime.queryUpTime()` regex to accept the `mins` suffix that appears in the first hour past each day boundary - [@dbwiddis](https://github.com/dbwiddis).
+* [#3358](https://github.com/oshi/oshi/pull/3358): Add macOS 27 (Golden Gate) codename mapping - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.3.0 (2026-06-06)
 
