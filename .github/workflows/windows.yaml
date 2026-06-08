@@ -11,6 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   # Runs current branch with multiple JDKs
   testmatrix:

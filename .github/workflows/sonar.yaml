@@ -9,6 +9,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     if: github.repository_owner == 'oshi'

@@ -11,6 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   # Runs current branch on Solaris 11.4 on SPARC
   # Retries flaky test once, possible junit-platform-maven-test issue
