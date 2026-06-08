@@ -21,10 +21,10 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
-import oshi.ffm.util.platform.unix.solaris.LibKstatFunctions;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.solaris.SolarisInternetProtocolStats;
 import oshi.software.os.FileSystem;
