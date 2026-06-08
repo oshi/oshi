@@ -11,6 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   # Runs full project on multiple JDKs
   testmatrix:

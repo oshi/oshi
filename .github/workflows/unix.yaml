@@ -11,6 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   # Runs current branch on FreeBSD in a VM, with aggregate-coverage uploaded
   # to Codecov under the `freebsd` flag (no other CI job exercises the

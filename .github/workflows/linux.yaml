@@ -11,6 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   # Static analysis: formatting, style, API restrictions, and javadoc link validity.
   # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).

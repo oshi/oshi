@@ -9,6 +9,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     if: github.repository_owner == 'oshi' && ! contains(toJSON(github.event.head_commit.message), '[maven-release-plugin] prepare release')
