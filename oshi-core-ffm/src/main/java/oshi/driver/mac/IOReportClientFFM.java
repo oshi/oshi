@@ -4,6 +4,8 @@
  */
 package oshi.driver.mac;
 
+import static org.slf4j.event.Level.TRACE;
+import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
 
 import java.lang.foreign.Arena;
@@ -12,6 +14,9 @@ import java.lang.foreign.ValueLayout;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.ffm.mac.CoreFoundation.CFArrayRef;
 import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
@@ -31,6 +36,8 @@ import oshi.hardware.GpuTicks;
  * Call {@link #close()} when done to release all CoreFoundation references.
  */
 public final class IOReportClientFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IOReportClientFFM.class);
 
     private static final String GROUP_GPU_STATS = "GPU Stats";
     private static final String GROUP_ENERGY = "Energy Model";
@@ -105,7 +112,7 @@ public final class IOReportClientFFM {
         if (closed) {
             return new GpuTicks(0L, 0L);
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment sample = IOReportFunctions.IOReportCreateSamples(subscription, subscribedChannels,
                     MemorySegment.NULL);
             try (CFTypeRef sampleRef = new CFTypeRef(sample)) {
@@ -120,9 +127,7 @@ public final class IOReportClientFFM {
                 long total = states.values().stream().mapToLong(Long::longValue).sum();
                 return new GpuTicks(total - idle, idle);
             }
-        } catch (Throwable e) {
-            return new GpuTicks(0L, 0L);
-        }
+        }, new GpuTicks(0L, 0L), LOG, TRACE, "Failed to sample GPU ticks");
     }
 
     /**
