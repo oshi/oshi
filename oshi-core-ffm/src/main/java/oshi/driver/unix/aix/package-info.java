@@ -5,4 +5,4 @@
 /**
  * FFM-backed driver classes for AIX-specific data sources that aren't pure-Java.
  */
-package oshi.ffm.driver.unix.aix;
+package oshi.driver.unix.aix;

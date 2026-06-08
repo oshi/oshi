@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lscfg;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatDiskFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatDiskFFM;
 import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;

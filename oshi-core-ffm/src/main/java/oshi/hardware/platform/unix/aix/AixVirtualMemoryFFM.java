@@ -7,7 +7,7 @@ package oshi.hardware.platform.unix.aix;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatMemoryFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatMemoryFFM;
 import oshi.hardware.common.platform.unix.aix.AixVirtualMemory;
 
 /**

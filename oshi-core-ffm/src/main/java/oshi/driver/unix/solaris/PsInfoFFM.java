@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.driver.unix.solaris;
+package oshi.driver.unix.solaris;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

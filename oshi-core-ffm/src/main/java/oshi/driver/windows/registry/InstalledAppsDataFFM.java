@@ -2,7 +2,7 @@
  * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.driver.windows.registry;
+package oshi.driver.windows.registry;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static oshi.ffm.util.platform.windows.Advapi32UtilFFM.registryGetValue;

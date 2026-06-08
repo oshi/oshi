@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.driver.unix.solaris.kstat;
+package oshi.driver.unix.solaris.kstat;
 
 import java.lang.foreign.MemorySegment;
 

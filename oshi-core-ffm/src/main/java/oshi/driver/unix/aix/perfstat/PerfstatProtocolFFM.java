@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.driver.unix.aix.perfstat;
+package oshi.driver.unix.aix.perfstat;
 
 import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
 import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_PROTOCOL_T_SIZE;

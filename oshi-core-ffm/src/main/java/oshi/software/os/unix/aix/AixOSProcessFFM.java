@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPsInfo;
-import oshi.ffm.driver.unix.aix.PsInfoFFM;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatCpuFFM;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatProcessFFM;
+import oshi.driver.unix.aix.PsInfoFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatCpuFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatProcessFFM;
 import oshi.ffm.unix.aix.AixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixOSProcess;
 import oshi.util.tuples.Pair;

@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.solaris.PsInfoFFM;
+import oshi.driver.unix.solaris.PsInfoFFM;
 import oshi.ffm.unix.solaris.SolarisLibcFunctions;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
