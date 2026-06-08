@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm.unix;
+package oshi.hardware.platform.unix;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.unix.CupsFunctions;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.unix.CupsPrinter;
 import oshi.util.ParseUtil;

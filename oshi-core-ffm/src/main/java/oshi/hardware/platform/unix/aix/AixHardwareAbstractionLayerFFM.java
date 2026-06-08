@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lscfg;
 import oshi.driver.unix.aix.perfstat.PerfstatDiskFFM;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -34,6 +33,7 @@ import oshi.hardware.common.platform.unix.aix.AixPowerSource;
 import oshi.hardware.common.platform.unix.aix.AixSensors;
 import oshi.hardware.common.platform.unix.aix.AixSoundCard;
 import oshi.hardware.common.platform.unix.aix.AixUsbDevice;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 /**
  * FFM-backed AIX HardwareAbstractionLayer.

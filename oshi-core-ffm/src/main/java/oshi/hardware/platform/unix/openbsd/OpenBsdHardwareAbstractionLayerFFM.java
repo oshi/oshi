@@ -7,7 +7,6 @@ package oshi.hardware.platform.unix.openbsd;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -28,6 +27,7 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdPowerSource;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSensors;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSoundCard;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdUsbDevice;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 @ThreadSafe
 public final class OpenBsdHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {

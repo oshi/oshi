@@ -7,7 +7,6 @@ package oshi.hardware.platform.unix.freebsd;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -26,6 +25,7 @@ import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdGraphicsCard;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdSoundCard;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdUsbDevice;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 /**
  * FFM-backed FreeBSD hardware abstraction layer. Wires the FFM HAL concretes shipped in Phase 4/5; the pure-Java

@@ -7,7 +7,6 @@ package oshi.hardware.platform.linux;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
@@ -19,6 +18,7 @@ import oshi.hardware.Printer;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 
 /**

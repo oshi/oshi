@@ -7,7 +7,6 @@ package oshi.hardware.platform.unix.solaris;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -27,6 +26,7 @@ import oshi.hardware.common.platform.unix.solaris.SolarisGraphicsCard;
 import oshi.hardware.common.platform.unix.solaris.SolarisSensors;
 import oshi.hardware.common.platform.unix.solaris.SolarisSoundCard;
 import oshi.hardware.common.platform.unix.solaris.SolarisUsbDevice;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 @ThreadSafe
 public final class SolarisHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
