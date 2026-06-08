@@ -5,6 +5,7 @@
 package oshi.driver.mac;
 
 import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFRelease;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
 
@@ -323,7 +324,7 @@ public final class IOReportClientFFM {
 
     private static void cfRelease(MemorySegment seg) {
         if (seg != null && !seg.equals(MemorySegment.NULL)) {
-            runSilently(() -> oshi.ffm.platform.mac.CoreFoundationFunctions.CFRelease(seg));
+            runSilently(() -> CFRelease(seg));
         }
     }
 }

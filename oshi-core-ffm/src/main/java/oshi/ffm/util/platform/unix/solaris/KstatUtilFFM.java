@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.util.FormatUtil;
 
 /**
