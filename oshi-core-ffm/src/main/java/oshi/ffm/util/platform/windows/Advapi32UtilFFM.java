@@ -7,6 +7,9 @@ package oshi.ffm.util.platform.windows;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.windows.Advapi32FFM.GetTokenInformation;
 import static oshi.ffm.windows.Advapi32FFM.OpenProcessToken;
 import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
@@ -255,7 +258,7 @@ public final class Advapi32UtilFFM {
      * @return The value object (Integer for REG_DWORD, String for REG_SZ/REG_EXPAND_SZ), or null on failure
      */
     public static Object registryGetValue(MemorySegment rootKey, String keyPath, String valueName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
             if (rc != ERROR_SUCCESS) {
@@ -270,9 +273,7 @@ public final class Advapi32UtilFFM {
                     LOG.debug("Failed to close registry key {}: error {}", keyPath, closeRc);
                 }
             }
-        } catch (Throwable t) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to read registry value", null);
     }
 
     /**
@@ -284,7 +285,7 @@ public final class Advapi32UtilFFM {
      * @return true if the value exists, false otherwise
      */
     public static boolean registryValueExists(MemorySegment rootKey, String keyPath, String valueName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
             if (rc != ERROR_SUCCESS) {
@@ -302,9 +303,7 @@ public final class Advapi32UtilFFM {
                     LOG.debug("Failed to close registry key {}: error {}", keyPath, closeRc);
                 }
             }
-        } catch (Throwable t) {
-            return false;
-        }
+        }, LOG, TRACE, "Failed to check registry value exists", false);
     }
 
     /**
