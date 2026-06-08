@@ -16,10 +16,6 @@ jobs:
   build:
     if: github.repository_owner == 'oshi' && ! contains(toJSON(github.event.head_commit.message), '[maven-release-plugin] prepare release')
     runs-on: ubuntu-latest
-    env:
-      CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
-      CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Java
@@ -29,4 +25,8 @@ jobs:
           distribution: temurin
           java-version: 25
       - name: Deploy to Sonatype
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: ./mvnw deploy -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
