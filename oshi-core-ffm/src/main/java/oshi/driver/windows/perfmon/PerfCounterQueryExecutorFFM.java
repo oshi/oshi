@@ -10,9 +10,9 @@ import java.util.Map;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
+import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
 import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
-import oshi.ffm.windows.VersionHelpersFFM;
 import oshi.util.tuples.Pair;
 
 /**

@@ -5,17 +5,17 @@
 package oshi.driver.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
-import static oshi.ffm.mac.CoreGraphicsFunctions.CGRectMakeWithDictionaryRepresentation;
-import static oshi.ffm.mac.CoreGraphicsFunctions.CGWindowListCopyWindowInfo;
-import static oshi.ffm.mac.MacSystem.CG_HEIGHT;
-import static oshi.ffm.mac.MacSystem.CG_ORIGIN;
-import static oshi.ffm.mac.MacSystem.CG_POINT;
-import static oshi.ffm.mac.MacSystem.CG_RECT;
-import static oshi.ffm.mac.MacSystem.CG_SIZE;
-import static oshi.ffm.mac.MacSystem.CG_SIZE_ELEM;
-import static oshi.ffm.mac.MacSystem.CG_WIDTH;
-import static oshi.ffm.mac.MacSystem.CG_X;
-import static oshi.ffm.mac.MacSystem.CG_Y;
+import static oshi.ffm.platform.mac.CoreGraphicsFunctions.CGRectMakeWithDictionaryRepresentation;
+import static oshi.ffm.platform.mac.CoreGraphicsFunctions.CGWindowListCopyWindowInfo;
+import static oshi.ffm.platform.mac.MacSystem.CG_HEIGHT;
+import static oshi.ffm.platform.mac.MacSystem.CG_ORIGIN;
+import static oshi.ffm.platform.mac.MacSystem.CG_POINT;
+import static oshi.ffm.platform.mac.MacSystem.CG_RECT;
+import static oshi.ffm.platform.mac.MacSystem.CG_SIZE;
+import static oshi.ffm.platform.mac.MacSystem.CG_SIZE_ELEM;
+import static oshi.ffm.platform.mac.MacSystem.CG_WIDTH;
+import static oshi.ffm.platform.mac.MacSystem.CG_X;
+import static oshi.ffm.platform.mac.MacSystem.CG_Y;
 
 import java.awt.Rectangle;
 import java.lang.foreign.Arena;
@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.CoreFoundation.CFArrayRef;
-import oshi.ffm.mac.CoreFoundation.CFBooleanRef;
-import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
-import oshi.ffm.mac.CoreFoundation.CFNumberRef;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.software.os.OSDesktopWindow;
 import oshi.util.FormatUtil;

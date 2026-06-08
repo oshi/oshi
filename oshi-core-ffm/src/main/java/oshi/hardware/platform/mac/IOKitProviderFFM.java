@@ -7,8 +7,8 @@ package oshi.hardware.platform.mac;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.IOKit.IOIterator;
+import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.IOKitProvider;
 

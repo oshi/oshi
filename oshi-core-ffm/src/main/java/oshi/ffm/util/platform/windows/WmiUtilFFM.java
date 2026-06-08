@@ -8,8 +8,8 @@ import java.time.OffsetDateTime;
 import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.com.VariantFFM;
-import oshi.ffm.windows.com.WbemcliFFM;
+import oshi.ffm.platform.windows.com.VariantFFM;
+import oshi.ffm.platform.windows.com.WbemcliFFM;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 

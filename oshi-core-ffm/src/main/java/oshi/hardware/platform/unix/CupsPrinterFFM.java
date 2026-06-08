@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.ForeignFunctions;
-import oshi.ffm.unix.CupsFunctions;
+import oshi.ffm.platform.unix.CupsFunctions;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.unix.CupsPrinter;
 import oshi.util.ParseUtil;

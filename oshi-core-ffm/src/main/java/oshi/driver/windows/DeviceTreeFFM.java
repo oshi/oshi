@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.Cfgmgr32FFM;
-import oshi.ffm.windows.SetupApiFFM;
+import oshi.ffm.platform.windows.Cfgmgr32FFM;
+import oshi.ffm.platform.windows.SetupApiFFM;
 import oshi.util.tuples.Quintet;
 
 /**

@@ -4,16 +4,16 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_MEMORY_TOTAL_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memPgspFree;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memPgspTotal;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memPgspins;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memPgspouts;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memRealAvail;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memRealTotal;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memVirtActive;
-import static oshi.ffm.unix.aix.PerfstatFunctions.memVirtTotal;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_memory_total;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_MEMORY_TOTAL_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memPgspFree;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memPgspTotal;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memPgspins;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memPgspouts;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memRealAvail;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memRealTotal;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memVirtActive;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.memVirtTotal;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_memory_total;
 
 import java.lang.foreign.MemorySegment;
 

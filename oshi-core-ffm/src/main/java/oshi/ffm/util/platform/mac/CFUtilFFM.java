@@ -7,7 +7,7 @@ package oshi.ffm.util.platform.mac;
 import java.lang.foreign.MemorySegment;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.util.Constants;
 
 /**

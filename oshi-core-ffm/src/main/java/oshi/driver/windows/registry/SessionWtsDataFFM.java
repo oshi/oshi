@@ -8,7 +8,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.Wtsapi32FFM;
+import oshi.ffm.platform.windows.Wtsapi32FFM;
 import oshi.software.os.OSSession;
 import oshi.util.ParseUtil;
 

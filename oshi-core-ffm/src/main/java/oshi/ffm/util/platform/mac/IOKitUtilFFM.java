@@ -9,14 +9,14 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-import static oshi.ffm.mac.IOKitFunctions.IOBSDNameMatching;
-import static oshi.ffm.mac.IOKitFunctions.IOMasterPort;
-import static oshi.ffm.mac.IOKitFunctions.IORegistryGetRootEntry;
-import static oshi.ffm.mac.IOKitFunctions.IOServiceGetMatchingService;
-import static oshi.ffm.mac.IOKitFunctions.IOServiceGetMatchingServices;
-import static oshi.ffm.mac.IOKitFunctions.IOServiceMatching;
-import static oshi.ffm.mac.MacSystemFunctions.mach_port_deallocate;
-import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOBSDNameMatching;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOMasterPort;
+import static oshi.ffm.platform.mac.IOKitFunctions.IORegistryGetRootEntry;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceGetMatchingService;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceGetMatchingServices;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceMatching;
+import static oshi.ffm.platform.mac.MacSystemFunctions.mach_port_deallocate;
+import static oshi.ffm.platform.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
 
@@ -25,9 +25,9 @@ import java.lang.foreign.MemorySegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
-import oshi.ffm.mac.IOKit.IOService;
+import oshi.ffm.platform.mac.IOKit.IOIterator;
+import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.IOKit.IOService;
 
 /**
  * FFM-based utility for macOS IOKit registry and service operations.

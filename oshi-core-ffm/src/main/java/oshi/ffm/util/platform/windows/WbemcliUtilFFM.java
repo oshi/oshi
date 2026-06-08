@@ -4,32 +4,32 @@
  */
 package oshi.ffm.util.platform.windows;
 
-import static oshi.ffm.windows.com.VariantFFM.VT_BOOL;
-import static oshi.ffm.windows.com.VariantFFM.VT_BSTR;
-import static oshi.ffm.windows.com.VariantFFM.VT_EMPTY;
-import static oshi.ffm.windows.com.VariantFFM.VT_I1;
-import static oshi.ffm.windows.com.VariantFFM.VT_I2;
-import static oshi.ffm.windows.com.VariantFFM.VT_I4;
-import static oshi.ffm.windows.com.VariantFFM.VT_I8;
-import static oshi.ffm.windows.com.VariantFFM.VT_INT;
-import static oshi.ffm.windows.com.VariantFFM.VT_NULL;
-import static oshi.ffm.windows.com.VariantFFM.VT_R4;
-import static oshi.ffm.windows.com.VariantFFM.VT_R8;
-import static oshi.ffm.windows.com.VariantFFM.VT_UI1;
-import static oshi.ffm.windows.com.VariantFFM.VT_UI2;
-import static oshi.ffm.windows.com.VariantFFM.VT_UI4;
-import static oshi.ffm.windows.com.VariantFFM.VT_UI8;
-import static oshi.ffm.windows.com.VariantFFM.VT_UINT;
-import static oshi.ffm.windows.com.VariantFFM.clear;
-import static oshi.ffm.windows.com.VariantFFM.getBoolVal;
-import static oshi.ffm.windows.com.VariantFFM.getBstrVal;
-import static oshi.ffm.windows.com.VariantFFM.getByteVal;
-import static oshi.ffm.windows.com.VariantFFM.getDoubleVal;
-import static oshi.ffm.windows.com.VariantFFM.getFloatVal;
-import static oshi.ffm.windows.com.VariantFFM.getIntVal;
-import static oshi.ffm.windows.com.VariantFFM.getLongVal;
-import static oshi.ffm.windows.com.VariantFFM.getShortVal;
-import static oshi.ffm.windows.com.VariantFFM.getVt;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_BOOL;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_BSTR;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_EMPTY;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_I1;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_I2;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_I4;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_I8;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_INT;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_NULL;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_R4;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_R8;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_UI1;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_UI2;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_UI4;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_UI8;
+import static oshi.ffm.platform.windows.com.VariantFFM.VT_UINT;
+import static oshi.ffm.platform.windows.com.VariantFFM.clear;
+import static oshi.ffm.platform.windows.com.VariantFFM.getBoolVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getBstrVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getByteVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getDoubleVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getFloatVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getIntVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getLongVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getShortVal;
+import static oshi.ffm.platform.windows.com.VariantFFM.getVt;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -41,8 +41,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.windows.com.IWbemClassObjectFFM;
-import oshi.ffm.windows.com.WbemcliFFM;
+import oshi.ffm.platform.windows.com.IWbemClassObjectFFM;
+import oshi.ffm.platform.windows.com.WbemcliFFM;
 
 /**
  * FFM-based utility providing WMI query and result classes that mirror the JNA WbemcliUtil API.

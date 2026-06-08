@@ -4,18 +4,18 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_DISK_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskBsize;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskDescription;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskName;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskQdepth;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskRblks;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskSize;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskTime;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskWblks;
-import static oshi.ffm.unix.aix.PerfstatFunctions.diskXfers;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_disk;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_DISK_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskBsize;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskDescription;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskName;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskQdepth;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskRblks;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskSize;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskTime;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskWblks;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.diskXfers;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_disk;
 
 import java.lang.foreign.MemorySegment;
 

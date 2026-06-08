@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.NativeHandle;
-import oshi.ffm.linux.UdevFunctions;
+import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.linux.LinuxHWDiskStore;

@@ -18,11 +18,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.mac.CoreFoundation.CFArrayRef;
-import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
-import oshi.ffm.mac.CoreFoundation.CFTypeRef;
-import oshi.ffm.mac.IOReportFunctions;
+import oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.ffm.platform.mac.IOReportFunctions;
 import oshi.hardware.GpuTicks;
 
 /**
@@ -323,7 +323,7 @@ public final class IOReportClientFFM {
 
     private static void cfRelease(MemorySegment seg) {
         if (seg != null && !seg.equals(MemorySegment.NULL)) {
-            runSilently(() -> oshi.ffm.mac.CoreFoundationFunctions.CFRelease(seg));
+            runSilently(() -> oshi.ffm.platform.mac.CoreFoundationFunctions.CFRelease(seg));
         }
     }
 }

@@ -9,10 +9,10 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
-import static oshi.ffm.mac.MacSystem.VM_FREE_COUNT;
-import static oshi.ffm.mac.MacSystem.VM_INACTIVE_COUNT;
-import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
-import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
+import static oshi.ffm.platform.mac.MacSystem.VM_FREE_COUNT;
+import static oshi.ffm.platform.mac.MacSystem.VM_INACTIVE_COUNT;
+import static oshi.ffm.platform.mac.MacSystem.VM_STATISTICS;
+import static oshi.ffm.platform.mac.MacSystemFunctions.mach_host_self;
 
 import java.lang.foreign.MemorySegment;
 
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.mac.MacGlobalMemory;
 import oshi.hardware.common.platform.mac.SysctlProvider;

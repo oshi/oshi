@@ -7,8 +7,8 @@ package oshi.hardware.platform.mac;
 import java.nio.charset.StandardCharsets;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.IOKit.IOIterator;
+import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;

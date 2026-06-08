@@ -4,16 +4,16 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_PROCESS_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_process;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procNumThreads;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procPid;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procRealInuse;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procRealMemData;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procRealMemText;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procScpuTime;
-import static oshi.ffm.unix.aix.PerfstatFunctions.procUcpuTime;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_PROCESS_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_process;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procNumThreads;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procPid;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procRealInuse;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procRealMemData;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procRealMemText;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procScpuTime;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.procUcpuTime;
 
 import java.lang.foreign.MemorySegment;
 

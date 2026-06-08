@@ -4,14 +4,14 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_PARTITION_CONFIG_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configConf;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configMachineID;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configOSBuild;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configProcessorMHz;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configSmtthreads;
-import static oshi.ffm.unix.aix.PerfstatFunctions.configVcpusMax;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_partition_config;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_PARTITION_CONFIG_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configConf;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configMachineID;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configOSBuild;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configProcessorMHz;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configSmtthreads;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.configVcpusMax;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_partition_config;
 
 import java.lang.foreign.MemorySegment;
 

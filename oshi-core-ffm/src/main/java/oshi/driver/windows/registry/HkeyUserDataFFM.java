@@ -10,15 +10,15 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-import static oshi.ffm.windows.Advapi32FFM.ConvertStringSidToSid;
-import static oshi.ffm.windows.Advapi32FFM.LookupAccountSid;
-import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
-import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
-import static oshi.ffm.windows.Advapi32FFM.RegQueryInfoKey;
-import static oshi.ffm.windows.WinErrorFFM.ERROR_SUCCESS;
-import static oshi.ffm.windows.WinNTFFM.KEY_READ;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.ffm.platform.windows.Advapi32FFM.ConvertStringSidToSid;
+import static oshi.ffm.platform.windows.Advapi32FFM.LookupAccountSid;
+import static oshi.ffm.platform.windows.Advapi32FFM.RegCloseKey;
+import static oshi.ffm.platform.windows.Advapi32FFM.RegOpenKeyEx;
+import static oshi.ffm.platform.windows.Advapi32FFM.RegQueryInfoKey;
+import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
+import static oshi.ffm.platform.windows.WinNTFFM.KEY_READ;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runOrLog;
 
@@ -31,9 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.WinRegFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-import oshi.ffm.windows.Kernel32FFM;
-import oshi.ffm.windows.WinRegFFM;
 import oshi.software.os.OSSession;
 import oshi.util.ParseUtil;
 

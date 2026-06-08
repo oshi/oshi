@@ -1,0 +1,760 @@
+/*
+ * Copyright 2025-2026 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.ffm.platform.mac;
+
+import static oshi.ffm.ForeignFunctions.getByteArrayFromNativePointer;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.ARRAY_TYPE_ID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.BOOLEAN_TYPE_ID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFAllocatorGetDefault;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFArrayGetCount;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFArrayGetValueAtIndex;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFBooleanGetValue;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDataGetBytePtr;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDataGetLength;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDateFormatterCreate;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDateFormatterGetFormat;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDictionaryGetCount;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDictionaryGetValue;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDictionaryGetValueIfPresent;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFDictionarySetValue;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFEqual;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFGetTypeID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFHash;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFLocaleCopyCurrent;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFNumberGetValue;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFRelease;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFRetain;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFStringCreateWithCharacters;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFStringGetCString;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFStringGetLength;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFStringGetMaximumSizeForEncoding;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.DATA_TYPE_ID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.DICTIONARY_TYPE_ID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.NUMBER_TYPE_ID;
+import static oshi.ffm.platform.mac.CoreFoundationFunctions.STRING_TYPE_ID;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getDoubleOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getLongOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runSilently;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+import java.util.Objects;
+
+/**
+ * Core Foundation is a framework that provides fundamental software services useful to application services,
+ * application environments, and to applications themselves. Core Foundation also provides abstractions for common data
+ * types.
+ * <p>
+ * This is the FFM implementation of the CoreFoundation framework.
+ */
+public interface CoreFoundation {
+    int kCFNotFound = -1;
+
+    // String encodings
+    int kCFStringEncodingASCII = 0x0600;
+    int kCFStringEncodingUTF8 = 0x08000100;
+
+    // CFNumber types
+    int kCFNumberSInt8Type = 1;
+    int kCFNumberSInt16Type = 2;
+    int kCFNumberSInt32Type = 3;
+    int kCFNumberSInt64Type = 4;
+    int kCFNumberFloat32Type = 5;
+    int kCFNumberFloat64Type = 6;
+    int kCFNumberCharType = 7;
+    int kCFNumberShortType = 8;
+    int kCFNumberIntType = 9;
+    int kCFNumberLongType = 10;
+    int kCFNumberLongLongType = 11;
+    int kCFNumberFloatType = 12;
+    int kCFNumberDoubleType = 13;
+    int kCFNumberCFIndexType = 14;
+    int kCFNumberNSIntegerType = 15;
+    int kCFNumberCGFloatType = 16;
+
+    // CFDateFormatter styles
+    int kCFDateFormatterNoStyle = 0;
+    int kCFDateFormatterShortStyle = 1;
+    int kCFDateFormatterMediumStyle = 2;
+    int kCFDateFormatterLongStyle = 3;
+    int kCFDateFormatterFullStyle = 4;
+
+    /**
+     * Base class for all CoreFoundation objects
+     */
+    class CFTypeRef implements AutoCloseable {
+        private final MemorySegment segment;
+
+        public CFTypeRef(MemorySegment segment) {
+            this.segment = segment;
+        }
+
+        public MemorySegment segment() {
+            return segment;
+        }
+
+        public boolean isNull() {
+            return segment == null || segment.equals(MemorySegment.NULL);
+        }
+
+        /**
+         * Gets the type ID of this CF object
+         *
+         * @return The type ID
+         */
+        public long getTypeID() {
+            if (isNull()) {
+                return 0;
+            }
+            return getLongOrDefault(() -> CFGetTypeID(segment()), 0);
+        }
+
+        /**
+         * Tests if this object has the specified type ID
+         *
+         * @param typeID The type ID to test against
+         * @return True if the types match
+         */
+        public boolean isTypeID(long typeID) {
+            return getTypeID() == typeID;
+        }
+
+        /**
+         * Retains this object (increments reference count)
+         */
+        public void retain() {
+            if (!isNull()) {
+                runSilently(() -> CFRetain(segment()));
+            }
+        }
+
+        /**
+         * Releases this object (decrements reference count)
+         */
+        public void release() {
+            if (!isNull()) {
+                runSilently(() -> CFRelease(segment()));
+            }
+        }
+
+        @Override
+        public void close() {
+            release();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            CFTypeRef cfTypeRef = (CFTypeRef) o;
+            if (isNull() || cfTypeRef.isNull()) {
+                return isNull() == cfTypeRef.isNull();
+            }
+            return getBooleanOrDefault(() -> CFEqual(segment(), cfTypeRef.segment()), false);
+        }
+
+        @Override
+        public int hashCode() {
+            if (isNull()) {
+                return 0;
+            }
+            return getIntOrDefault(() -> Long.hashCode(CFHash(segment())), Objects.hash(segment()));
+        }
+    }
+
+    /**
+     * A reference to a CFAllocator object
+     */
+    class CFAllocatorRef extends CFTypeRef {
+        public CFAllocatorRef(MemorySegment segment) {
+            super(segment);
+        }
+    }
+
+    /**
+     * A reference to a CFNumber object
+     */
+    class CFNumberRef extends CFTypeRef {
+        public CFNumberRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(NUMBER_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFNumber. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Convert this CFNumber to a long
+         *
+         * @return The long value
+         */
+        public long longValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getLongOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
+                    if (CFNumberGetValue(segment(), kCFNumberLongLongType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+                    }
+                    return 0L;
+                }
+            }, 0);
+        }
+
+        /**
+         * Extract a long value from a borrowed CFNumber segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFNumber
+         * @return The long value, or 0 if null
+         */
+        public static long longValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getLongOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_LONG);
+                    if (CFNumberGetValue(segment, kCFNumberLongLongType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_LONG, 0);
+                    }
+                    return 0L;
+                }
+            }, 0);
+        }
+
+        /**
+         * Convert this CFNumber to an int
+         *
+         * @return The int value
+         */
+        public int intValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getIntOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
+                    if (CFNumberGetValue(segment(), kCFNumberIntType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_INT, 0);
+                    }
+                    return 0;
+                }
+            }, 0);
+        }
+
+        /**
+         * Extract an int value from a borrowed CFNumber segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFNumber
+         * @return The int value, or 0 if null
+         */
+        public static int intValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getIntOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_INT);
+                    if (CFNumberGetValue(segment, kCFNumberIntType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_INT, 0);
+                    }
+                    return 0;
+                }
+            }, 0);
+        }
+
+        /**
+         * Convert this CFNumber to a short
+         *
+         * @return The short value
+         */
+        public short shortValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_SHORT);
+                    if (CFNumberGetValue(segment(), kCFNumberShortType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_SHORT, 0);
+                    }
+                    return (short) 0;
+                }
+            }, (short) 0);
+        }
+
+        /**
+         * Convert this CFNumber to a byte
+         *
+         * @return The byte value
+         */
+        public byte byteValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_BYTE);
+                    if (CFNumberGetValue(segment(), kCFNumberCharType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_BYTE, 0);
+                    }
+                    return (byte) 0;
+                }
+            }, (byte) 0);
+        }
+
+        /**
+         * Convert this CFNumber to a double
+         *
+         * @return The double value
+         */
+        public double doubleValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getDoubleOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_DOUBLE);
+                    if (CFNumberGetValue(segment(), kCFNumberDoubleType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_DOUBLE, 0);
+                    }
+                    return 0d;
+                }
+            }, 0);
+        }
+
+        /**
+         * Convert this CFNumber to a float
+         *
+         * @return The float value
+         */
+        public float floatValue() {
+            if (isNull()) {
+                return 0;
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment valuePtr = arena.allocate(ValueLayout.JAVA_FLOAT);
+                    if (CFNumberGetValue(segment(), kCFNumberFloatType, valuePtr)) {
+                        return valuePtr.get(ValueLayout.JAVA_FLOAT, 0);
+                    }
+                    return 0f;
+                }
+            }, 0f);
+        }
+    }
+
+    /**
+     * A reference to a CFBoolean object
+     */
+    class CFBooleanRef extends CFTypeRef {
+        public CFBooleanRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(BOOLEAN_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFBoolean. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Get the boolean value
+         *
+         * @return The boolean value
+         */
+        public boolean booleanValue() {
+            if (isNull()) {
+                return false;
+            }
+            return getBooleanOrDefault(() -> CFBooleanGetValue(segment()) != 0, false);
+        }
+
+        /**
+         * Extract a boolean value from a borrowed CFBoolean segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFBoolean
+         * @return The boolean value, or false if null
+         */
+        public static boolean booleanValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return false;
+            }
+            return getBooleanOrDefault(() -> CFBooleanGetValue(segment) != 0, false);
+        }
+    }
+
+    /**
+     * A reference to a CFArray object
+     */
+    class CFArrayRef extends CFTypeRef {
+        public CFArrayRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(ARRAY_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFArray. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Get the count of items in the array
+         *
+         * @return Number of items
+         */
+        public int getCount() {
+            if (isNull()) {
+                return 0;
+            }
+            return getIntOrDefault(() -> (int) CFArrayGetCount(segment()), 0);
+        }
+
+        /**
+         * Get the count of items from a borrowed CFArray segment without creating an AutoCloseable instance.
+         *
+         * @param array The memory segment pointing to a CFArray
+         * @return Number of items, or 0 if null
+         */
+        public static int getCount(MemorySegment array) {
+            if (array == null || array.equals(MemorySegment.NULL)) {
+                return 0;
+            }
+            return getIntOrDefault(() -> (int) CFArrayGetCount(array), 0);
+        }
+
+        /**
+         * Get a value at the specified index
+         *
+         * @param idx The index
+         * @return The value at that index
+         */
+        public MemorySegment getValueAtIndex(int idx) {
+            if (isNull()) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFArrayGetValueAtIndex(segment(), idx), MemorySegment.NULL);
+        }
+
+        /**
+         * Get a value at the specified index from a borrowed CFArray segment without creating an AutoCloseable
+         * instance.
+         *
+         * @param array The memory segment pointing to a CFArray
+         * @param idx   The index
+         * @return The value at that index, or NULL if null
+         */
+        public static MemorySegment getValueAtIndex(MemorySegment array, int idx) {
+            if (array == null || array.equals(MemorySegment.NULL)) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFArrayGetValueAtIndex(array, idx), MemorySegment.NULL);
+        }
+    }
+
+    /**
+     * A reference to a CFData object
+     */
+    class CFDataRef extends CFTypeRef {
+        public CFDataRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(DATA_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFData. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Get the length of the data in bytes
+         *
+         * @return Length in bytes
+         */
+        public int getLength() {
+            if (isNull()) {
+                return 0;
+            }
+            return getIntOrDefault(() -> (int) CFDataGetLength(segment()), 0);
+        }
+
+        /**
+         * Get a pointer to the bytes in the data
+         *
+         * @return Pointer to bytes
+         */
+        public MemorySegment getBytePtr() {
+            if (isNull()) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFDataGetBytePtr(segment()), MemorySegment.NULL);
+        }
+
+        /**
+         * Get the data as a byte array
+         *
+         * @return Byte array containing the data
+         */
+        public byte[] getBytes() {
+            if (isNull()) {
+                return new byte[0];
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    int length = getLength();
+                    MemorySegment bytePtr = getBytePtr();
+                    return getByteArrayFromNativePointer(bytePtr, length, arena);
+                }
+            }, new byte[0]);
+        }
+    }
+
+    /**
+     * A reference to a CFDictionary object
+     */
+    class CFDictionaryRef extends CFTypeRef {
+        public CFDictionaryRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(DICTIONARY_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFDictionary. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Get a value from the dictionary
+         *
+         * @param key The key
+         * @return The value associated with the key, or null if not found
+         */
+        public MemorySegment getValue(CFTypeRef key) {
+            if (isNull() || key == null || key.isNull()) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFDictionaryGetValue(segment(), key.segment()), MemorySegment.NULL);
+        }
+
+        /**
+         * Get a value from a borrowed CFDictionary segment without creating an AutoCloseable instance.
+         *
+         * @param dict The memory segment pointing to a CFDictionary
+         * @param key  The key
+         * @return The value associated with the key, or NULL if not found
+         */
+        public static MemorySegment getValue(MemorySegment dict, CFTypeRef key) {
+            if (dict == null || dict.equals(MemorySegment.NULL) || key == null || key.isNull()) {
+                return MemorySegment.NULL;
+            }
+            return getOrDefault(() -> CFDictionaryGetValue(dict, key.segment()), MemorySegment.NULL);
+        }
+
+        /**
+         * Get the count of key-value pairs in the dictionary
+         *
+         * @return Number of pairs
+         */
+        public long getCount() {
+            if (isNull()) {
+                return 0;
+            }
+            return getLongOrDefault(() -> CFDictionaryGetCount(segment()), 0);
+        }
+
+        /**
+         * Get a value if present
+         *
+         * @param key   The key
+         * @param value Pointer to store the value
+         * @return True if the key exists
+         */
+        public boolean getValueIfPresent(CFTypeRef key, MemorySegment value) {
+            if (isNull() || key == null || key.isNull()) {
+                return false;
+            }
+            return getBooleanOrDefault(() -> CFDictionaryGetValueIfPresent(segment(), key.segment(), value) != 0,
+                    false);
+        }
+    }
+
+    /**
+     * A reference to a mutable CFDictionary object
+     */
+    class CFMutableDictionaryRef extends CFDictionaryRef {
+        public CFMutableDictionaryRef(MemorySegment segment) {
+            super(segment);
+        }
+
+        /**
+         * Set a value in the dictionary
+         *
+         * @param key   The key
+         * @param value The value
+         */
+        public void setValue(CFTypeRef key, CFTypeRef value) {
+            if (isNull() || key == null || key.isNull() || value == null || value.isNull()) {
+                return;
+            }
+            runSilently(() -> CFDictionarySetValue(segment(), key.segment(), value.segment()));
+        }
+    }
+
+    /**
+     * A reference to a CFString object
+     */
+    class CFStringRef extends CFTypeRef {
+        public CFStringRef(MemorySegment segment) {
+            super(segment);
+            if (!isNull() && !isTypeID(STRING_TYPE_ID)) {
+                throw new ClassCastException("Unable to cast to CFString. Type ID: " + getTypeID());
+            }
+        }
+
+        /**
+         * Create a CFString from a Java String
+         *
+         * @param s The Java string
+         * @return The CFString
+         */
+        public static CFStringRef createCFString(String s) {
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    char[] chars = s.toCharArray();
+                    MemorySegment charsSeg = arena.allocateFrom(ValueLayout.JAVA_CHAR, chars);
+
+                    MemorySegment allocator = CFAllocatorGetDefault();
+                    MemorySegment stringRef = CFStringCreateWithCharacters(allocator, charsSeg, chars.length);
+
+                    return new CFStringRef(stringRef);
+                }
+            }, new CFStringRef(MemorySegment.NULL));
+        }
+
+        /**
+         * Convert this CFString to a Java String
+         *
+         * @return The Java String value
+         */
+        public String stringValue() {
+            if (isNull()) {
+                return "";
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    // Get length and calculate buffer size
+                    long length = CFStringGetLength(segment());
+                    if (length == 0) {
+                        return "";
+                    }
+
+                    long maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+                    if (maxSize == CoreFoundation.kCFNotFound) {
+                        throw new StringIndexOutOfBoundsException("CFString maximum number of bytes exceeds LONG_MAX.");
+                    }
+
+                    // Allocate buffer (add 1 for null terminator)
+                    MemorySegment buf = arena.allocate(maxSize + 1);
+
+                    if (CFStringGetCString(segment(), buf, maxSize + 1, kCFStringEncodingUTF8)) {
+                        return buf.getString(0);
+                    }
+
+                    throw new IllegalArgumentException("CFString conversion failed or buffer too small.");
+                }
+            }, "");
+        }
+
+        /**
+         * Extract a String value from a borrowed CFString segment without creating an AutoCloseable instance.
+         *
+         * @param segment The memory segment pointing to a CFString
+         * @return The String value, or empty string if null
+         */
+        public static String stringValue(MemorySegment segment) {
+            if (segment == null || segment.equals(MemorySegment.NULL)) {
+                return "";
+            }
+            return getOrDefault(() -> {
+                try (Arena arena = Arena.ofConfined()) {
+                    long length = CFStringGetLength(segment);
+                    if (length == 0) {
+                        return "";
+                    }
+
+                    long maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+                    if (maxSize == CoreFoundation.kCFNotFound) {
+                        throw new StringIndexOutOfBoundsException("CFString maximum number of bytes exceeds LONG_MAX.");
+                    }
+
+                    MemorySegment buf = arena.allocate(maxSize + 1);
+
+                    if (CFStringGetCString(segment, buf, maxSize + 1, kCFStringEncodingUTF8)) {
+                        return buf.getString(0);
+                    }
+
+                    throw new IllegalArgumentException("CFString conversion failed or buffer too small.");
+                }
+            }, "");
+        }
+    }
+
+    /**
+     * A reference to a CFLocale object
+     */
+    class CFLocale extends CFTypeRef {
+        public CFLocale(MemorySegment segment) {
+            super(segment);
+        }
+
+        /**
+         * Get the current locale
+         *
+         * @return The current locale
+         */
+        public static CFLocale copyCurrent() {
+            return getOrDefault(() -> new CFLocale(CFLocaleCopyCurrent()), new CFLocale(MemorySegment.NULL));
+        }
+    }
+
+    /**
+     * A reference to a CFDateFormatter object
+     */
+    class CFDateFormatter extends CFTypeRef {
+        public CFDateFormatter(MemorySegment segment) {
+            super(segment);
+        }
+
+        /**
+         * Create a new date formatter
+         *
+         * @param allocator The allocator (can be null)
+         * @param locale    The locale to use (can be null)
+         * @param dateStyle The date style
+         * @param timeStyle The time style
+         * @return A new date formatter
+         */
+        public static CFDateFormatter create(CFAllocatorRef allocator, CFLocale locale, int dateStyle, int timeStyle) {
+            return getOrDefault(() -> {
+                MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
+                MemorySegment localeSeg = locale != null ? locale.segment() : MemorySegment.NULL;
+
+                MemorySegment formatter = CFDateFormatterCreate(allocSeg, localeSeg, dateStyle, timeStyle);
+                return new CFDateFormatter(formatter);
+            }, new CFDateFormatter(MemorySegment.NULL));
+        }
+
+        /**
+         * Get the format string
+         *
+         * @return The format string
+         */
+        public CFStringRef getFormat() {
+            if (isNull()) {
+                return new CFStringRef(MemorySegment.NULL);
+            }
+            return getOrDefault(() -> new CFStringRef(CFDateFormatterGetFormat(segment())),
+                    new CFStringRef(MemorySegment.NULL));
+        }
+    }
+
+}

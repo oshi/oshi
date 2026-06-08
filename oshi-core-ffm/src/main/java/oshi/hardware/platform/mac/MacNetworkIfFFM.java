@@ -4,9 +4,9 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.ffm.mac.SystemConfigurationFunctions.SCNetworkInterfaceCopyAll;
-import static oshi.ffm.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetBSDName;
-import static oshi.ffm.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetLocalizedDisplayName;
+import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceCopyAll;
+import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetBSDName;
+import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetLocalizedDisplayName;
 
 import java.lang.foreign.MemorySegment;
 import java.net.NetworkInterface;
@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.net.NetStatFFM;
 import oshi.driver.mac.net.NetStatFFM.IFdata;
-import oshi.ffm.mac.CoreFoundation.CFArrayRef;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.mac.MacNetworkIF;
 

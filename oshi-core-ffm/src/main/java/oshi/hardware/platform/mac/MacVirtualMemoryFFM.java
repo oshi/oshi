@@ -8,9 +8,9 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
-import static oshi.ffm.mac.MacSystem.XSW_USAGE_TOTAL;
-import static oshi.ffm.mac.MacSystem.XSW_USAGE_USED;
+import static oshi.ffm.platform.mac.MacSystem.VM_STATISTICS;
+import static oshi.ffm.platform.mac.MacSystem.XSW_USAGE_TOTAL;
+import static oshi.ffm.platform.mac.MacSystem.XSW_USAGE_USED;
 
 import java.lang.foreign.MemorySegment;
 
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystem;
+import oshi.ffm.platform.mac.MacSystem;
 import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.hardware.common.platform.mac.MacVirtualMemory;
 import oshi.util.ParseUtil;

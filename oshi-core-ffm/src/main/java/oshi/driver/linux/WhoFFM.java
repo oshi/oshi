@@ -7,8 +7,8 @@ package oshi.driver.linux;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.util.Objects.nonNull;
-import static oshi.ffm.linux.LinuxLibcFunctions.LOGIN_PROCESS;
-import static oshi.ffm.linux.LinuxLibcFunctions.USER_PROCESS;
+import static oshi.ffm.platform.linux.LinuxLibcFunctions.LOGIN_PROCESS;
+import static oshi.ffm.platform.linux.LinuxLibcFunctions.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
 
 import java.io.File;
@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.linux.LinuxLibcFunctions;
-import oshi.ffm.linux.SystemdFunctions;
+import oshi.ffm.platform.linux.LinuxLibcFunctions;
+import oshi.ffm.platform.linux.SystemdFunctions;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.FileUtil;

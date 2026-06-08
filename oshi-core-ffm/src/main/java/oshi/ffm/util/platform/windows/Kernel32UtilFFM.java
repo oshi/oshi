@@ -4,7 +4,7 @@
  */
 package oshi.ffm.util.platform.windows;
 
-import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.Kernel32FFM;
 
 /**
  * FFM-based utility for Windows Kernel32 system information operations.

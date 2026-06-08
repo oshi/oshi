@@ -11,7 +11,7 @@ import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixNetworkParams;
 
 /**

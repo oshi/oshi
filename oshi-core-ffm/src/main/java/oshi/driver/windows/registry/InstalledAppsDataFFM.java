@@ -5,16 +5,16 @@
 package oshi.driver.windows.registry;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static oshi.ffm.platform.windows.Advapi32FFM.RegCloseKey;
+import static oshi.ffm.platform.windows.Advapi32FFM.RegOpenKeyEx;
+import static oshi.ffm.platform.windows.WinNTFFM.KEY_READ;
+import static oshi.ffm.platform.windows.WinNTFFM.KEY_WOW64_32KEY;
+import static oshi.ffm.platform.windows.WinNTFFM.KEY_WOW64_64KEY;
+import static oshi.ffm.platform.windows.WinRegFFM.HKEY_CURRENT_USER;
+import static oshi.ffm.platform.windows.WinRegFFM.HKEY_LOCAL_MACHINE;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.ffm.util.platform.windows.Advapi32UtilFFM.registryGetValue;
-import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
-import static oshi.ffm.windows.Advapi32FFM.RegOpenKeyEx;
-import static oshi.ffm.windows.WinNTFFM.KEY_READ;
-import static oshi.ffm.windows.WinNTFFM.KEY_WOW64_32KEY;
-import static oshi.ffm.windows.WinNTFFM.KEY_WOW64_64KEY;
-import static oshi.ffm.windows.WinRegFFM.HKEY_CURRENT_USER;
-import static oshi.ffm.windows.WinRegFFM.HKEY_LOCAL_MACHINE;
-import static oshi.ffm.windows.WindowsForeignFunctions.checkSuccess;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -29,8 +29,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.ffm.platform.windows.Win32Exception;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-import oshi.ffm.windows.Win32Exception;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.ParseUtil;
 

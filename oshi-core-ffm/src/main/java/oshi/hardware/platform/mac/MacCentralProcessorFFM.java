@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystem;
-import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.platform.mac.MacSystem;
+import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.hardware.common.platform.mac.IOKitProvider;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.hardware.common.platform.mac.SysctlProvider;

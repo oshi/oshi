@@ -4,22 +4,22 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_NETINTERFACE_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfBitrate;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfCollisions;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfDescription;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfIbytes;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfIerrors;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfIfIqdrops;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfIpackets;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfMtu;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfName;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfObytes;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfOerrors;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfOpackets;
-import static oshi.ffm.unix.aix.PerfstatFunctions.netIfType;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_netinterface;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_NETINTERFACE_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfBitrate;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfCollisions;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfDescription;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfIbytes;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfIerrors;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfIfIqdrops;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfIpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfMtu;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfName;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfObytes;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfOerrors;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfOpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.netIfType;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_netinterface;
 
 import java.lang.foreign.MemorySegment;
 

@@ -4,31 +4,31 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_CPU_TOTAL_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_CPU_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuBusyStolenPurr;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuDevintrs;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuIdle;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuIdleStolenPurr;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuSoftintrs;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuSys;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalBusyStolenPurr;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalDevintrs;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalIdle;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalIdleStolenPurr;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalLoadavg;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalNcpus;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalProcessorHZ;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalPswitch;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalSoftintrs;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalSys;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalUser;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuTotalWait;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuUser;
-import static oshi.ffm.unix.aix.PerfstatFunctions.cpuWait;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_cpu;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_cpu_total;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_TOTAL_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuBusyStolenPurr;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuDevintrs;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdle;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdleStolenPurr;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSoftintrs;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSys;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalBusyStolenPurr;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalDevintrs;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdle;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdleStolenPurr;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalLoadavg;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalNcpus;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalProcessorHZ;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPswitch;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSoftintrs;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSys;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalUser;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalWait;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuUser;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuWait;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_cpu;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_cpu_total;
 
 import java.lang.foreign.MemorySegment;
 

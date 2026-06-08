@@ -4,8 +4,8 @@
  */
 package oshi.software.os.unix.aix;
 
-import static oshi.ffm.unix.aix.AixLibcFunctions.RLIMIT_LAYOUT;
-import static oshi.ffm.unix.aix.AixLibcFunctions.RLIMIT_NOFILE;
+import static oshi.ffm.platform.unix.aix.AixLibcFunctions.RLIMIT_LAYOUT;
+import static oshi.ffm.platform.unix.aix.AixLibcFunctions.RLIMIT_NOFILE;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -20,7 +20,7 @@ import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.unix.aix.PsInfoFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatCpuFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatProcessFFM;
-import oshi.ffm.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixOSProcess;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;

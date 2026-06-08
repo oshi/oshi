@@ -7,9 +7,9 @@ package oshi.software.os.unix.freebsd;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.ADDRINFO_LAYOUT;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.AI_CANONNAME;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.HOST_NAME_MAX;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.ADDRINFO_LAYOUT;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.AI_CANONNAME;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.HOST_NAME_MAX;
 
 import java.lang.foreign.MemorySegment;
 
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
 
 /**

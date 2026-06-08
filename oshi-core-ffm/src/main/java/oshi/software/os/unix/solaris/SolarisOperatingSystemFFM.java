@@ -21,7 +21,7 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
-import oshi.ffm.unix.solaris.SolarisLibcFunctions;
+import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
 import oshi.ffm.util.platform.unix.solaris.LibKstatFunctions;

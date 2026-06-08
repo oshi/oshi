@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
-import oshi.ffm.windows.com.IWbemClassObjectFFM;
+import oshi.ffm.platform.windows.com.IWbemClassObjectFFM;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 

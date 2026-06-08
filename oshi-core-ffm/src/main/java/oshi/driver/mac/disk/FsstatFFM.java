@@ -4,11 +4,11 @@
  */
 package oshi.driver.mac.disk;
 
-import static oshi.ffm.mac.MacSystem.F_MNTFROMNAME;
-import static oshi.ffm.mac.MacSystem.F_MNTONNAME;
-import static oshi.ffm.mac.MacSystem.MNT_NOWAIT;
-import static oshi.ffm.mac.MacSystem.STATFS;
-import static oshi.ffm.mac.MacSystemFunctions.getfsstat64;
+import static oshi.ffm.platform.mac.MacSystem.F_MNTFROMNAME;
+import static oshi.ffm.platform.mac.MacSystem.F_MNTONNAME;
+import static oshi.ffm.platform.mac.MacSystem.MNT_NOWAIT;
+import static oshi.ffm.platform.mac.MacSystem.STATFS;
+import static oshi.ffm.platform.mac.MacSystemFunctions.getfsstat64;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

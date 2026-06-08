@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
-import oshi.ffm.windows.com.IWbemClassObjectFFM;
+import oshi.ffm.platform.windows.com.IWbemClassObjectFFM;
 
 /**
  * Enables queries of Performance Counters using PDH with WMI backup, for enums implementing {@link PdhCounterProperty}.

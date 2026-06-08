@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.common.unix.aix.PsInfo;
-import oshi.ffm.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 

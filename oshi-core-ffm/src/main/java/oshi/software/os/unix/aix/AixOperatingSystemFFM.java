@@ -26,7 +26,7 @@ import oshi.driver.common.unix.aix.Uptime;
 import oshi.driver.common.unix.aix.Who;
 import oshi.driver.unix.aix.perfstat.PerfstatConfigFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatProcessFFM;
-import oshi.ffm.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.aix.AixFileSystem;
 import oshi.software.common.os.unix.aix.AixInstalledApps;

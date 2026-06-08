@@ -4,21 +4,21 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.PERFSTAT_PROTOCOL_T_SIZE;
-import static oshi.ffm.unix.aix.PerfstatFunctions.perfstat_protocol;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoName;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpAccepted;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpDropped;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpEstablished;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpIerrors;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpInitiated;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpIpackets;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoTcpOpackets;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpIerrors;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpIpackets;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpNoSocket;
-import static oshi.ffm.unix.aix.PerfstatFunctions.protoUdpOpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_PROTOCOL_T_SIZE;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.perfstat_protocol;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoName;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpAccepted;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpDropped;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpEstablished;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpIerrors;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpInitiated;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpIpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoTcpOpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoUdpIerrors;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoUdpIpackets;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoUdpNoSocket;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.protoUdpOpackets;
 
 import java.lang.foreign.MemorySegment;
 

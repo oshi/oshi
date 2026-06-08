@@ -4,10 +4,10 @@
  */
 package oshi.hardware.platform.mac;
 
-import static oshi.ffm.mac.IOKitFunctions.IOPSCopyPowerSourcesInfo;
-import static oshi.ffm.mac.IOKitFunctions.IOPSCopyPowerSourcesList;
-import static oshi.ffm.mac.IOKitFunctions.IOPSGetPowerSourceDescription;
-import static oshi.ffm.mac.IOKitFunctions.IOPSGetTimeRemainingEstimate;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOPSCopyPowerSourcesInfo;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOPSCopyPowerSourcesList;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOPSGetPowerSourceDescription;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOPSGetTimeRemainingEstimate;
 
 import java.lang.foreign.MemorySegment;
 import java.time.DateTimeException;
@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.CoreFoundation.CFArrayRef;
-import oshi.ffm.mac.CoreFoundation.CFBooleanRef;
-import oshi.ffm.mac.CoreFoundation.CFDictionaryRef;
-import oshi.ffm.mac.CoreFoundation.CFNumberRef;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
-import oshi.ffm.mac.CoreFoundation.CFTypeRef;
-import oshi.ffm.mac.IOKit.IOService;
+import oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
+import oshi.ffm.platform.mac.IOKit.IOService;
 import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.PowerSource;
