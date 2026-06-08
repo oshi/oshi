@@ -8,6 +8,8 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.mac.MacSystem.AF_INET;
 import static oshi.ffm.mac.MacSystem.AF_INET6;
 import static oshi.ffm.mac.MacSystem.INSI_FADDR;
@@ -52,6 +54,7 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
 import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
+import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.parseIntToIP;
@@ -61,6 +64,9 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.mac.SysctlUtilFFM;
@@ -74,6 +80,8 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MacInternetProtocolStatsFFM.class);
 
     private boolean isElevated;
 
@@ -141,7 +149,7 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
     @Override
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Match JNA approach: fixed-size buffer, single call
             int bufferSize = 1024 * Integer.BYTES;
             MemorySegment pidBuffer = arena.allocate(bufferSize);
@@ -164,15 +172,13 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
                     }
                 }
             }
-        } catch (Throwable e) {
             return conns;
-        }
-        return conns;
+        }, LOG, TRACE, "Failed to enumerate IP connections", conns);
     }
 
     private static List<Integer> queryFdList(int pid, Arena arena) {
         List<Integer> fdList = new ArrayList<>();
-        try {
+        return getOrDefault(() -> {
             int bufferSize = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, MemorySegment.NULL, 0);
             if (bufferSize > 0) {
                 MemorySegment buffer = arena.allocate(bufferSize);
@@ -188,14 +194,12 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
                     }
                 }
             }
-        } catch (Throwable e) {
             return fdList;
-        }
-        return fdList;
+        }, fdList, LOG, TRACE, "Failed to query file descriptor list");
     }
 
     private static IPConnection queryIPConnection(int pid, int fd, Arena arena) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment socketInfo = arena.allocate(SOCKET_FD_INFO);
             int ret = proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, socketInfo, (int) SOCKET_FD_INFO.byteSize());
             if (ret < SOCKET_FD_INFO.byteSize()) {
@@ -255,9 +259,7 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
             int incqlen = psi.get(JAVA_SHORT, SOCKET_INFO.byteOffset(SOI_INCQLEN));
 
             return new IPConnection(type, laddr, lport, faddr, fport, state, qlen, incqlen, pid);
-        } catch (Throwable e) {
-            return null;
-        }
+        }, null, LOG, TRACE, "Failed to query IP connection details");
     }
 
     private static byte[] parseIntArrayToIP(MemorySegment segment, long offset) {

@@ -10,6 +10,8 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.mac.MacSystem.GROUP;
 import static oshi.ffm.mac.MacSystem.MAXCOMLEN;
@@ -468,18 +470,16 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         int pid = getProcessID();
-        try (Arena arena = Arena.ofConfined()) {
+        boolean updated = callInArenaBooleanOrDefault(arena -> {
             MemorySegment taskAllInfo = arena.allocate(PROC_TASK_ALL_INFO);
             int infoResult = proc_pidinfo(pid, PROC_PIDTASKALLINFO, 0L, taskAllInfo,
                     (int) PROC_TASK_ALL_INFO.byteSize());
             if (infoResult <= 0) {
-                this.state = INVALID;
                 return false;
             }
             MemorySegment ptinfo = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PTINFO),
                     PROC_TASK_INFO.byteSize());
             if (ptinfo.get(JAVA_INT, PROC_TASK_INFO.byteOffset(PTI_THREADNUM)) < 1) {
-                this.state = INVALID;
                 return false;
             }
             MemorySegment pbsd = taskAllInfo.asSlice(PROC_TASK_ALL_INFO.byteOffset(PBSD), PROC_BSD_INFO.byteSize());
@@ -597,10 +597,11 @@ public class MacOSProcessFFM extends AbstractOSProcess {
                 this.currentWorkingDirectory = vnodeInfo.asSlice(VNODE_PATH_INFO.byteOffset(PVI_CDIR))
                         .asSlice(VNODE_INFO_PATH.byteOffset(VIP_PATH), MAXPATHLEN).getString(0);
             }
-        } catch (Throwable e) {
+            return true;
+        }, LOG, TRACE, "Failed to update process attributes", false);
+        if (!updated) {
             this.state = INVALID;
-            return false;
         }
-        return true;
+        return updated;
     }
 }

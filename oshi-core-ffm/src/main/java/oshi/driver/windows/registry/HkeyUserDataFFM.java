@@ -8,6 +8,8 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.windows.Advapi32FFM.ConvertStringSidToSid;
 import static oshi.ffm.windows.Advapi32FFM.LookupAccountSid;
 import static oshi.ffm.windows.Advapi32FFM.RegCloseKey;
@@ -101,7 +103,7 @@ public final class HkeyUserDataFFM {
     }
 
     private static String[] lookupAccountBySid(String sidString) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment pSidPtr = arena.allocate(ADDRESS);
             if (!ConvertStringSidToSid(toWideString(arena, sidString), pSidPtr)) {
                 return null;
@@ -131,9 +133,7 @@ public final class HkeyUserDataFFM {
             } finally {
                 Kernel32FFM.LocalFree(pSid);
             }
-        } catch (Throwable t) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to look up account by SID", null);
     }
 
     private static boolean registryKeyExists(MemorySegment rootKey, String keyPath) {

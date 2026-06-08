@@ -9,7 +9,9 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +24,12 @@ import oshi.util.PlatformEnum;
  * Test File System
  */
 class FileSystemTest {
+
+    // Platforms whose default file systems (ZFS on Solaris and on FreeBSD's CI runner) report dynamically computed
+    // total space that can fluctuate by a few MB between back-to-back queries due to pool/dataset metadata refresh.
+    // The "total space should not change after update" check below is skipped on these.
+    private static final Set<PlatformEnum> FLUCTUATING_TOTAL_SPACE = EnumSet.of(PlatformEnum.SOLARIS,
+            PlatformEnum.FREEBSD);
 
     /**
      * Test file system.
@@ -72,7 +80,7 @@ class FileSystemTest {
                 long totalBefore = store.getTotalSpace();
                 assertThat("File store updateAttributes should succeed for " + store.getMount(),
                         store.updateAttributes(), is(true));
-                if (PlatformEnum.getCurrentPlatform() != PlatformEnum.SOLARIS) {
+                if (!FLUCTUATING_TOTAL_SPACE.contains(PlatformEnum.getCurrentPlatform())) {
                     assertThat("File store total space should not change after update", store.getTotalSpace(),
                             is(totalBefore));
                 }
