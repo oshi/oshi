@@ -6,6 +6,9 @@ package oshi.ffm.util.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static org.slf4j.event.Level.TRACE;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.mac.IOKitFunctions.IOBSDNameMatching;
 import static oshi.ffm.mac.IOKitFunctions.IOMasterPort;
 import static oshi.ffm.mac.IOKitFunctions.IORegistryGetRootEntry;
@@ -17,8 +20,10 @@ import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.ffm.mac.IOKit.IOIterator;
 import oshi.ffm.mac.IOKit.IORegistryEntry;
@@ -28,6 +33,8 @@ import oshi.ffm.mac.IOKit.IOService;
  * FFM-based utility for macOS IOKit registry and service operations.
  */
 public final class IOKitUtilFFM {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IOKitUtilFFM.class);
 
     private IOKitUtilFFM() {
     }
@@ -41,16 +48,14 @@ public final class IOKitUtilFFM {
      *         programming practice to deallocate the port when you are finished with it, using mach_port_deallocate.
      */
     public static int getMasterPort() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaIntOrDefault(arena -> {
             MemorySegment port = arena.allocate(JAVA_INT);
             int result = IOMasterPort(0, port);
             if (result == 0) {
                 return port.get(JAVA_INT, 0);
             }
             return 0;
-        } catch (Throwable e) {
-            return 0;
-        }
+        }, LOG, TRACE, "Failed to get IOKit master port", 0);
     }
 
     /**
@@ -74,16 +79,14 @@ public final class IOKitUtilFFM {
      * @return a handle to an IOService if successful, {@code null} if failed. Callers should release when finished.
      */
     public static IOService getMatchingService(String serviceName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
             MemorySegment dict = IOServiceMatching(nameStr);
             if (dict != null && !dict.equals(MemorySegment.NULL)) {
                 return getMatchingService(dict);
             }
             return null;
-        } catch (Throwable e) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to get matching IOService for name", null);
     }
 
     /**
@@ -108,16 +111,14 @@ public final class IOKitUtilFFM {
      * @return a handle to an IOIterator if successful, {@code null} if failed. Callers should release when finished.
      */
     public static IOIterator getMatchingServices(String serviceName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
             MemorySegment dict = IOServiceMatching(nameStr);
             if (dict != null && !dict.equals(MemorySegment.NULL)) {
                 return getMatchingServices(dict);
             }
             return null;
-        } catch (Throwable e) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to get matching IOServices for name", null);
     }
 
     /**
@@ -127,7 +128,7 @@ public final class IOKitUtilFFM {
      * @return a handle to an IOIterator if successful, {@code null} if failed. Callers should release when finished.
      */
     public static IOIterator getMatchingServices(MemorySegment matchingDictionary) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             int masterPort = getMasterPort();
             MemorySegment iteratorSeg = arena.allocate(ADDRESS);
 
@@ -141,9 +142,7 @@ public final class IOKitUtilFFM {
                 }
             }
             return null;
-        } catch (Throwable e) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to get matching IOServices for dictionary", null);
     }
 
     /**
@@ -153,15 +152,13 @@ public final class IOKitUtilFFM {
      * @return The dictionary ref if successful, {@code null} if failed. Callers should release when finished.
      */
     public static MemorySegment getBSDNameMatchingDict(String bsdName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             int masterPort = getMasterPort();
             MemorySegment bsdNameStr = arena.allocateFrom(bsdName);
             MemorySegment result = IOBSDNameMatching(masterPort, 0, bsdNameStr);
             deallocatePort(masterPort);
             return result;
-        } catch (Throwable e) {
-            return null;
-        }
+        }, LOG, TRACE, "Failed to get BSD name matching dictionary", null);
     }
 
     /**
