@@ -13,6 +13,9 @@ on:
   schedule:
     - cron: '16 14 * * 1'
 
+# Default-deny at the workflow level; each job re-grants only what it needs.
+permissions: {}
+
 jobs:
   analyze:
     name: Analyze
