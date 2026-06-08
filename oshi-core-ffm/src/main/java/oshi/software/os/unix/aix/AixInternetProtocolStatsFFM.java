@@ -10,7 +10,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatProtocolFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatProtocolFFM;
 import oshi.software.common.os.unix.aix.AixInternetProtocolStats;
 
 /**

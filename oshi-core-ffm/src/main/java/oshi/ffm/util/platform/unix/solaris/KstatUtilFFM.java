@@ -4,27 +4,27 @@
  */
 package oshi.ffm.util.platform.unix.solaris;
 
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_CHAR;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT32;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT64;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_STRING;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_UINT32;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_UINT64;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_LAYOUT;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_NAMED_LAYOUT;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_TYPE_NAMED;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.KSTAT_TYPE_TIMER;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatClass;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatInstance;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatModule;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatName;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatNext;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.kstatType;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.namedDataType;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.namedValueChar;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.namedValueInt32;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.namedValueInt64;
-import static oshi.ffm.util.platform.unix.solaris.LibKstatFunctions.namedValueString;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_CHAR;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT32;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT64;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_STRING;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_UINT32;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_UINT64;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_LAYOUT;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_NAMED_LAYOUT;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_TYPE_NAMED;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_TYPE_TIMER;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatClass;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatInstance;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatModule;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatName;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatNext;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.kstatType;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedDataType;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueChar;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueInt32;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueInt64;
+import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueString;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.util.FormatUtil;
 
 /**

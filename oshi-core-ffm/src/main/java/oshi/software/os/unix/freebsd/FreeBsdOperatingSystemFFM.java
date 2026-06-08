@@ -29,7 +29,7 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.WhoFFM;
-import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.freebsd.FreeBsdOSThread;

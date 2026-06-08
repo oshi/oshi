@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.NativeHandle;
-import oshi.ffm.linux.UdevFunctions;
+import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 

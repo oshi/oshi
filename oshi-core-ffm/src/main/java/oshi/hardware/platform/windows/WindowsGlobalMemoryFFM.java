@@ -25,9 +25,9 @@ import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
-import oshi.ffm.windows.Kernel32FFM;
-import oshi.ffm.windows.PsapiFFM;
-import oshi.ffm.windows.VersionHelpersFFM;
+import oshi.ffm.platform.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.PsapiFFM;
+import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.hardware.PhysicalMemory;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.windows.WindowsGlobalMemory;

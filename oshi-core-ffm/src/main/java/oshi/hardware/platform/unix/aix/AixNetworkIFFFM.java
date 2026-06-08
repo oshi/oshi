@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatNetInterfaceFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatNetInterfaceFFM;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.unix.aix.AixNetworkIF;
 

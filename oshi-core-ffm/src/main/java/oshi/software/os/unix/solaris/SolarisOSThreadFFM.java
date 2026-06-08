@@ -11,7 +11,7 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.solaris.PsInfoFFM;
+import oshi.driver.unix.solaris.PsInfoFFM;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.Util;

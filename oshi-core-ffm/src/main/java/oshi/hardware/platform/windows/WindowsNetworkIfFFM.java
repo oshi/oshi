@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.IPHlpAPIFFM;
+import oshi.ffm.platform.windows.IPHlpAPIFFM;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 

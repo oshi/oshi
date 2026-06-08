@@ -7,9 +7,9 @@ package oshi.hardware.platform.mac;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.getErrno;
-import static oshi.ffm.mac.MacSystem.VM_STATISTICS;
-import static oshi.ffm.mac.MacSystemFunctions.host_statistics;
-import static oshi.ffm.mac.MacSystemFunctions.mach_host_self;
+import static oshi.ffm.platform.mac.MacSystem.VM_STATISTICS;
+import static oshi.ffm.platform.mac.MacSystemFunctions.host_statistics;
+import static oshi.ffm.platform.mac.MacSystemFunctions.mach_host_self;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -17,7 +17,7 @@ import java.lang.foreign.MemorySegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.mac.MacSystem;
+import oshi.ffm.platform.mac.MacSystem;
 
 final class MacMemoryUtilFFM {
 

@@ -4,17 +4,17 @@
  */
 package oshi.driver.unix.freebsd;
 
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.LOGIN_PROCESS;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.USER_PROCESS;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.UTMPX_LAYOUT;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.endutxent;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.getutxent;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.setutxent;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.utmpxHost;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.utmpxLine;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.utmpxLoginTime;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.utmpxType;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.utmpxUser;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.LOGIN_PROCESS;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.USER_PROCESS;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.UTMPX_LAYOUT;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.endutxent;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.getutxent;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.setutxent;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.utmpxHost;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.utmpxLine;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.utmpxLoginTime;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.utmpxType;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.utmpxUser;
 import static oshi.util.Util.isSessionValid;
 
 import java.lang.foreign.Arena;

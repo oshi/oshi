@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.solaris.SolarisLibcFunctions;
+import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 

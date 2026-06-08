@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
-import oshi.ffm.util.platform.unix.solaris.LibKstatFunctions;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 

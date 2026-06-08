@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatMemoryFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatMemoryFFM;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.unix.aix.AixGlobalMemory;
 

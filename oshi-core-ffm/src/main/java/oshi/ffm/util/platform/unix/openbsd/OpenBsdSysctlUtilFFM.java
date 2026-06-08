@@ -8,7 +8,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.getErrno;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.SIZE_T;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.SIZE_T;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.openbsd.OpenBsdLibcFunctions;
+import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 

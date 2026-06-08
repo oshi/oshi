@@ -11,6 +11,8 @@ import java.lang.foreign.SymbolLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
+
 /**
  * FFM probe for {@code libkstat2.so.1}, available on Solaris 11.4 and later but absent on illumos and earlier Solaris
  * releases. {@link #HAS_KSTAT2} reflects whether the library was loadable at class-init time; consumers should branch

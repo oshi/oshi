@@ -7,7 +7,6 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.CupsPrinterFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -20,6 +19,7 @@ import oshi.hardware.Printer;
 import oshi.hardware.Sensors;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.mac.MacHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 @ThreadSafe
 public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstractionLayer {

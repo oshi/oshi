@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdCentralProcessor;

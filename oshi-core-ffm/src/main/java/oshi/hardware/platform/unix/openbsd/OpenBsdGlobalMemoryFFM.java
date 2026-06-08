@@ -4,15 +4,15 @@
  */
 package oshi.hardware.platform.unix.openbsd;
 
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CTL_VFS;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.VFS_BCACHESTAT;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.VFS_GENERIC;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_VFS;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.VFS_BCACHESTAT;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.VFS_GENERIC;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.openbsd.OpenBsdLibcFunctions;
+import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdVirtualMemory;

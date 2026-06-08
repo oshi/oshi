@@ -27,8 +27,8 @@ import oshi.driver.windows.wmi.OhmHardwareFFM;
 import oshi.driver.windows.wmi.OhmSensorFFM;
 import oshi.driver.windows.wmi.Win32FanFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
+import oshi.ffm.platform.windows.com.FfmComException;
 import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-import oshi.ffm.windows.com.FfmComException;
 import oshi.hardware.common.AbstractSensors;
 
 /**

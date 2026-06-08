@@ -10,8 +10,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatConfigFFM;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatCpuFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatConfigFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatCpuFFM;
 import oshi.hardware.common.platform.unix.aix.AixCentralProcessor;
 
 /**

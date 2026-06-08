@@ -15,7 +15,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Ls;
 import oshi.driver.common.unix.aix.Lscfg;
 import oshi.driver.common.unix.aix.Lspv;
-import oshi.ffm.driver.unix.aix.perfstat.PerfstatDiskFFM;
+import oshi.driver.unix.aix.perfstat.PerfstatDiskFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.platform.unix.aix.AixHWDiskStore;
 import oshi.util.Constants;

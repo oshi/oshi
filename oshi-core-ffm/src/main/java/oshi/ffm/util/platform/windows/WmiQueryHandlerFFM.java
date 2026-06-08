@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.WmiQueryExecutor;
-import oshi.ffm.windows.com.FfmComException;
-import oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
-import oshi.ffm.windows.com.IUnknownFFM;
-import oshi.ffm.windows.com.IWbemLocatorFFM;
-import oshi.ffm.windows.com.IWbemServicesFFM;
-import oshi.ffm.windows.com.Ole32FFM;
-import oshi.ffm.windows.com.WbemcliFFM;
+import oshi.ffm.platform.windows.com.FfmComException;
+import oshi.ffm.platform.windows.com.IEnumWbemClassObjectFFM;
+import oshi.ffm.platform.windows.com.IUnknownFFM;
+import oshi.ffm.platform.windows.com.IWbemLocatorFFM;
+import oshi.ffm.platform.windows.com.IWbemServicesFFM;
+import oshi.ffm.platform.windows.com.Ole32FFM;
+import oshi.ffm.platform.windows.com.WbemcliFFM;
 import oshi.util.GlobalConfig;
 
 /**

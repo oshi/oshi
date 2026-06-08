@@ -824,7 +824,20 @@
                         <exclude>**/annotation/**</exclude>
                         <exclude>**/benchmark/**</exclude>
                         <exclude>**/demo/**</exclude>
-                        <exclude>**/jna/**</exclude>
+                        <!-- FFM mapping layer: anything that inherits ForeignFunctions, plus the
+                             tightly-coupled struct/constant types they import. Mirrors the JNA
+                             exclusion below. Util classes (oshi.ffm.util.*) and the public
+                             entry point (oshi.ffm.SystemInfo) stay in coverage. -->
+                        <exclude>**/ffm/common/**</exclude>
+                        <exclude>**/ffm/platform/**</exclude>
+                        <exclude>**/ffm/ForeignFunctions*</exclude>
+                        <exclude>**/ffm/NativeHandle*</exclude>
+                        <!-- JNA mapping layer: same shape as the FFM block above. Util classes
+                             (oshi.jna.util.*) stay in coverage. -->
+                        <exclude>**/jna/common/**</exclude>
+                        <exclude>**/jna/platform/**</exclude>
+                        <exclude>**/jna/ByRef*</exclude>
+                        <exclude>**/jna/Struct*</exclude>
                         <exclude>**/unix/aix/**</exclude>
                         <exclude>**/unix/dragonflybsd/**</exclude>
                         <exclude>**/unix/netbsd/**</exclude>

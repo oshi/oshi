@@ -7,9 +7,9 @@ package oshi.software.os.mac;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
-import static oshi.ffm.mac.MacSystem.F_FFREE;
-import static oshi.ffm.mac.MacSystem.F_FILES;
-import static oshi.ffm.mac.MacSystem.STATFS;
+import static oshi.ffm.platform.mac.MacSystem.F_FFREE;
+import static oshi.ffm.platform.mac.MacSystem.F_FILES;
+import static oshi.ffm.platform.mac.MacSystem.STATFS;
 
 import java.io.File;
 import java.lang.foreign.MemorySegment;
@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.software.common.os.mac.MacOSFileStore;
 import oshi.software.os.OSFileStore;
 

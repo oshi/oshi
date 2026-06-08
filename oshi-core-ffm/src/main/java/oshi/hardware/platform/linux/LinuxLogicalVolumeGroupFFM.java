@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.NativeHandle;
-import oshi.ffm.linux.UdevFunctions;
+import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup;
 import oshi.util.Util;

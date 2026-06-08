@@ -7,19 +7,19 @@ package oshi.driver.windows.registry;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.windows.WindowsForeignFunctions.readWideString;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_NUMBER_OF_THREADS;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PAGEFILE_USAGE;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_ID;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_NAME;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_SIZE;
-import static oshi.ffm.windows.Wtsapi32FFM.PROCESS_INFO_EX_USER_TIME;
-import static oshi.ffm.windows.Wtsapi32FFM.WTS_ANY_SESSION;
-import static oshi.ffm.windows.Wtsapi32FFM.WTS_CURRENT_SERVER_HANDLE;
-import static oshi.ffm.windows.Wtsapi32FFM.WTS_PROCESS_INFO_LEVEL_1;
-import static oshi.ffm.windows.Wtsapi32FFM.WTS_TYPE_PROCESS_INFO_LEVEL_1;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_NUMBER_OF_THREADS;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_PAGEFILE_USAGE;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_ID;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_PROCESS_NAME;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_SIZE;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_USER_TIME;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_ANY_SESSION;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_CURRENT_SERVER_HANDLE;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_PROCESS_INFO_LEVEL_1;
+import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_TYPE_PROCESS_INFO_LEVEL_1;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -38,9 +38,9 @@ import oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
-import oshi.ffm.windows.Kernel32FFM;
-import oshi.ffm.windows.VersionHelpersFFM;
-import oshi.ffm.windows.Wtsapi32FFM;
+import oshi.ffm.platform.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.VersionHelpersFFM;
+import oshi.ffm.platform.windows.Wtsapi32FFM;
 
 /**
  * Utility to read process data from WTS native calls with backup from WMI.

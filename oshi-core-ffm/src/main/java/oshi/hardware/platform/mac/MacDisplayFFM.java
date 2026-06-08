@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.ffm.mac.CoreFoundation.CFDataRef;
-import oshi.ffm.mac.CoreFoundation.CFStringRef;
-import oshi.ffm.mac.IOKit.IOIterator;
-import oshi.ffm.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.CoreFoundation.CFDataRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.IOKit.IOIterator;
+import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;

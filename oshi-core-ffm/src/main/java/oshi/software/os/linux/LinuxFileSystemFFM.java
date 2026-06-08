@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.linux.LinuxLibcFunctions;
+import oshi.ffm.platform.linux.LinuxLibcFunctions;
 import oshi.software.common.os.linux.LinuxFileSystem;
 
 /**

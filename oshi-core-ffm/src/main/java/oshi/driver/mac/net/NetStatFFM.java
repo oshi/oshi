@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.MacSystemFunctions;
+import oshi.ffm.platform.mac.MacSystemFunctions;
 
 /**
  * Utility to query NetStat using FFM.

@@ -3,23 +3,23 @@
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.mac=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.ffm.platform.mac=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.openbsd=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.unix.solaris=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.ffm.platform.unix.solaris=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.solaris=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.unix.aix=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.ffm.platform.unix.aix=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.driver.unix.aix=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.driver.unix.aix=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.driver.unix.aix.perfstat=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.driver.unix.aix.perfstat=org.junit.platform.commons
 --add-opens
-  com.github.oshi.ffm/oshi.ffm.windows.com=org.junit.platform.commons
+  com.github.oshi.ffm/oshi.ffm.platform.windows.com=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.driver.windows.perfmon=org.junit.platform.commons
 --add-opens

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.ffm.unix.openbsd.OpenBsdLibcFunctions;
+import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 
 @EnabledOnOs(OS.OPENBSD)
 class OpenBsdSysctlUtilFFMTest {

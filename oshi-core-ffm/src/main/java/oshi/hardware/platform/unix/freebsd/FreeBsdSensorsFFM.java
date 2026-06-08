@@ -7,7 +7,7 @@ package oshi.hardware.platform.unix.freebsd;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaDoubleOrDefault;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
 
 import java.lang.foreign.MemorySegment;
 import java.util.Locale;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdSensors;
 
 /**

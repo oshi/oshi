@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.ffm.platform.windows.Win32Exception;
+import oshi.ffm.platform.windows.WinErrorFFM;
+import oshi.ffm.platform.windows.WinRegFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-import oshi.ffm.windows.Win32Exception;
-import oshi.ffm.windows.WinErrorFFM;
-import oshi.ffm.windows.WinRegFFM;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
 

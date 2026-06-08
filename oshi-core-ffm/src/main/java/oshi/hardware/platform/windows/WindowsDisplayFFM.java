@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.NativeHandle;
-import oshi.ffm.windows.Advapi32FFM;
-import oshi.ffm.windows.SetupApiFFM;
+import oshi.ffm.platform.windows.Advapi32FFM;
+import oshi.ffm.platform.windows.SetupApiFFM;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
 

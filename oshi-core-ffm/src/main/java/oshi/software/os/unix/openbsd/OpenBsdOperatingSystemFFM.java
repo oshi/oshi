@@ -4,10 +4,10 @@
  */
 package oshi.software.os.unix.openbsd;
 
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.KERN_OSRELEASE;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.KERN_OSTYPE;
-import static oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.KERN_VERSION;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_OSRELEASE;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_OSTYPE;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_VERSION;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 
@@ -28,7 +28,7 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
-import oshi.ffm.unix.openbsd.OpenBsdLibcFunctions;
+import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.common.os.unix.openbsd.OpenBsdInternetProtocolStats;

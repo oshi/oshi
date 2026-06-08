@@ -7,22 +7,22 @@ package oshi.ffm.util.platform.mac;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.mac.IOKitFunctions.IOConnectCallStructMethod;
-import static oshi.ffm.mac.IOKitFunctions.IOServiceClose;
-import static oshi.ffm.mac.IOKitFunctions.IOServiceOpen;
-import static oshi.ffm.mac.MacSystem.SMC_BYTES;
-import static oshi.ffm.mac.MacSystem.SMC_DATA8;
-import static oshi.ffm.mac.MacSystem.SMC_DATA_ATTRIBUTES;
-import static oshi.ffm.mac.MacSystem.SMC_DATA_SIZE;
-import static oshi.ffm.mac.MacSystem.SMC_DATA_TYPE;
-import static oshi.ffm.mac.MacSystem.SMC_KEY;
-import static oshi.ffm.mac.MacSystem.SMC_KEY_DATA;
-import static oshi.ffm.mac.MacSystem.SMC_KEY_INFO;
-import static oshi.ffm.mac.MacSystem.SMC_VAL;
-import static oshi.ffm.mac.MacSystem.SMC_VAL_BYTES;
-import static oshi.ffm.mac.MacSystem.SMC_VAL_DATA_SIZE;
-import static oshi.ffm.mac.MacSystem.SMC_VAL_DATA_TYPE;
-import static oshi.ffm.mac.MacSystemFunctions.mach_task_self;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOConnectCallStructMethod;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceClose;
+import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceOpen;
+import static oshi.ffm.platform.mac.MacSystem.SMC_BYTES;
+import static oshi.ffm.platform.mac.MacSystem.SMC_DATA8;
+import static oshi.ffm.platform.mac.MacSystem.SMC_DATA_ATTRIBUTES;
+import static oshi.ffm.platform.mac.MacSystem.SMC_DATA_SIZE;
+import static oshi.ffm.platform.mac.MacSystem.SMC_DATA_TYPE;
+import static oshi.ffm.platform.mac.MacSystem.SMC_KEY;
+import static oshi.ffm.platform.mac.MacSystem.SMC_KEY_DATA;
+import static oshi.ffm.platform.mac.MacSystem.SMC_KEY_INFO;
+import static oshi.ffm.platform.mac.MacSystem.SMC_VAL;
+import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_BYTES;
+import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_DATA_SIZE;
+import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_DATA_TYPE;
+import static oshi.ffm.platform.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
 
 import java.lang.foreign.Arena;
@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.mac.IOKit.IOService;
+import oshi.ffm.platform.mac.IOKit.IOService;
 import oshi.util.ParseUtil;
 
 /**

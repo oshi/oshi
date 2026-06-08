@@ -8,7 +8,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.getErrno;
-import static oshi.ffm.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
+import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.unix.freebsd.FreeBsdLibcFunctions;
+import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 
 /**
  * Provides access to sysctl calls on FreeBSD via the FFM API.

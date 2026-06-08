@@ -5,7 +5,7 @@
 package oshi.software.os.windows;
 
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.windows.WindowsForeignFunctions.toWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.OptionalInt;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.Kernel32FFM;
 import oshi.software.common.os.windows.WindowsOSFileStore;
 import oshi.software.os.OSFileStore;
 
