@@ -50,8 +50,8 @@ import oshi.util.tuples.Triplet;
  * OpenBSD Central Processor implementation
  */
 @ThreadSafe
-public class OpenBsdCentralProcessor extends AbstractCentralProcessor {
-    private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessor::queryVmStats,
+public class OpenBsdCentralProcessorJNA extends AbstractCentralProcessor {
+    private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessorJNA::queryVmStats,
             defaultExpiration());
     private static final Pattern DMESG_CPU = Pattern.compile("cpu(\\d+): smt (\\d+), core (\\d+), package (\\d+)");
 

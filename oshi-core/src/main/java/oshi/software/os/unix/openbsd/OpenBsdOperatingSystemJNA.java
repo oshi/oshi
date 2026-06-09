@@ -46,14 +46,14 @@ import oshi.util.tuples.Pair;
  * which was based on Research Unix.
  */
 @ThreadSafe
-public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
+public class OpenBsdOperatingSystemJNA extends AbstractOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Package-private for use by OpenBsdOSProcess
+     * Package-private for use by OpenBsdOSProcessJNA
      */
     enum PsKeywords {
         STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,
@@ -93,7 +93,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public FileSystem getFileSystem() {
-        return new OpenBsdFileSystem();
+        return new OpenBsdFileSystemJNA();
     }
 
     @Override
@@ -149,7 +149,7 @@ public class OpenBsdOperatingSystem extends AbstractOperatingSystem {
             Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
             // Check if last (thus all) value populated
             if (psMap.containsKey(PsKeywords.ARGS)) {
-                procs.add(new OpenBsdOSProcess(
+                procs.add(new OpenBsdOSProcessJNA(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));
             }
         }

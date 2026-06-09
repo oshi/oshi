@@ -27,11 +27,12 @@ import oshi.util.tuples.Quartet;
  * OpenBSD hard disk implementation.
  */
 @ThreadSafe
-public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
+public final class OpenBsdHWDiskStoreJNA extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStoreJNA::querySystatIostat,
+            defaultExpiration());
 
-    private OpenBsdHWDiskStore(String name, String model, String serial, long size) {
+    private OpenBsdHWDiskStoreJNA(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
 
@@ -47,7 +48,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         // Get list of disks from sysctl
         // hw.disknames=sd0:2cf69345d371cd82,cd0:,sd1:
         String[] devices = OpenBsdSysctlUtil.sysctl("hw.disknames", "").split(",");
-        OpenBsdHWDiskStore store;
+        OpenBsdHWDiskStoreJNA store;
         String diskName;
         for (String device : devices) {
             diskName = device.split(":")[0];
@@ -88,7 +89,7 @@ public final class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                 }
             }
-            store = new OpenBsdHWDiskStore(diskName, model, diskdata.getB(), size);
+            store = new OpenBsdHWDiskStoreJNA(diskName, model, diskdata.getB(), size);
             store.setPartitionList(diskdata.getD());
             store.updateAttributes();
 
