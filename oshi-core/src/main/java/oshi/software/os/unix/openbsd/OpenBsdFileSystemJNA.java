@@ -5,6 +5,7 @@
 package oshi.software.os.unix.openbsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.common.os.unix.openbsd.OpenBsdFileSystem;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
@@ -12,7 +13,7 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
  * volume, concrete file system or other implementation specific means of file storage.
  */
 @ThreadSafe
-public class OpenBsdFileSystem extends oshi.software.common.os.unix.openbsd.OpenBsdFileSystem {
+public class OpenBsdFileSystemJNA extends OpenBsdFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {

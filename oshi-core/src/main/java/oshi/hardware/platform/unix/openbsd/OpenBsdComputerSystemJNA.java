@@ -21,15 +21,15 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
  * OpenBSD ComputerSystem implementation
  */
 @Immutable
-public class OpenBsdComputerSystem extends AbstractComputerSystem {
+public class OpenBsdComputerSystemJNA extends AbstractComputerSystem {
 
-    private final Supplier<String> manufacturer = memoize(OpenBsdComputerSystem::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(OpenBsdComputerSystemJNA::queryManufacturer);
 
-    private final Supplier<String> model = memoize(OpenBsdComputerSystem::queryModel);
+    private final Supplier<String> model = memoize(OpenBsdComputerSystemJNA::queryModel);
 
-    private final Supplier<String> serialNumber = memoize(OpenBsdComputerSystem::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(OpenBsdComputerSystemJNA::querySerialNumber);
 
-    private final Supplier<String> uuid = memoize(OpenBsdComputerSystem::queryUUID);
+    private final Supplier<String> uuid = memoize(OpenBsdComputerSystemJNA::queryUUID);
 
     @Override
     public String getManufacturer() {

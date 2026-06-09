@@ -30,24 +30,24 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
- * OpenBsdHardwareAbstractionLayer class.
+ * OpenBsdHardwareAbstractionLayerJNA class.
  */
 @ThreadSafe
-public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class OpenBsdHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new OpenBsdComputerSystem();
+        return new OpenBsdComputerSystemJNA();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new OpenBsdGlobalMemory();
+        return new OpenBsdGlobalMemoryJNA();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new OpenBsdCentralProcessor();
+        return new OpenBsdCentralProcessorJNA();
     }
 
     @Override
@@ -62,7 +62,7 @@ public final class OpenBsdHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return OpenBsdHWDiskStore.getDisks();
+        return OpenBsdHWDiskStoreJNA.getDisks();
     }
 
     @Override

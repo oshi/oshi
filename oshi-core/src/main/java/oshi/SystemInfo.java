@@ -16,7 +16,7 @@ import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
-import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
 import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
@@ -26,7 +26,7 @@ import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystemJNA;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemJNA;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
-import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
+import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemJNA;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
 import oshi.spi.SystemInfoProvider;
@@ -125,7 +125,7 @@ public class SystemInfo implements SystemInfoProvider {
             case AIX:
                 return new AixOperatingSystemJNA();
             case OPENBSD:
-                return new OpenBsdOperatingSystem();
+                return new OpenBsdOperatingSystemJNA();
             case DRAGONFLYBSD:
                 return new DragonFlyBsdOperatingSystemJNA();
             case NETBSD:
@@ -160,7 +160,7 @@ public class SystemInfo implements SystemInfoProvider {
             case AIX:
                 return new AixHardwareAbstractionLayerJNA();
             case OPENBSD:
-                return new OpenBsdHardwareAbstractionLayer();
+                return new OpenBsdHardwareAbstractionLayerJNA();
             case DRAGONFLYBSD:
                 return new DragonFlyBsdHardwareAbstractionLayerJNA();
             case NETBSD:

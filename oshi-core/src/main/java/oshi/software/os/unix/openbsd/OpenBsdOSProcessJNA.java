@@ -35,9 +35,10 @@ import com.sun.jna.platform.unix.Resource;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess;
 import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem.PsKeywords;
+import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemJNA.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.unix.openbsd.FstatUtil;
@@ -46,9 +47,9 @@ import oshi.util.common.platform.unix.openbsd.FstatUtil;
  * OSProcess implementation
  */
 @ThreadSafe
-public class OpenBsdOSProcess extends oshi.software.common.os.unix.openbsd.OpenBsdOSProcess {
+public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOSProcessJNA.class);
 
     private static final int ARGMAX;
 
@@ -68,7 +69,7 @@ public class OpenBsdOSProcess extends oshi.software.common.os.unix.openbsd.OpenB
         }
     }
 
-    private final OpenBsdOperatingSystem os;
+    private final OpenBsdOperatingSystemJNA os;
 
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
     private Supplier<List<String>> arguments = memoize(this::queryArguments);
@@ -99,7 +100,7 @@ public class OpenBsdOSProcess extends oshi.software.common.os.unix.openbsd.OpenB
     private int bitness;
     private String commandLineBackup;
 
-    public OpenBsdOSProcess(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystem os) {
+    public OpenBsdOSProcessJNA(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystemJNA os) {
         super(pid);
         this.os = os;
         // OpenBSD does not maintain a compatibility layer.
@@ -384,7 +385,7 @@ public class OpenBsdOSProcess extends oshi.software.common.os.unix.openbsd.OpenB
     @Override
     public boolean updateAttributes() {
         // 'ps' does not provide threadCount or kernelTime on OpenBSD
-        String psCommand = "ps -awwxo " + OpenBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
+        String psCommand = "ps -awwxo " + OpenBsdOperatingSystemJNA.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row

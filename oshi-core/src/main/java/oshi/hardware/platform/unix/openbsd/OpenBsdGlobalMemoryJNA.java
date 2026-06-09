@@ -12,6 +12,7 @@ import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.VirtualMemory;
+import oshi.hardware.common.platform.unix.openbsd.OpenBsdGlobalMemory;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdVirtualMemory;
 import oshi.jna.platform.unix.OpenBsdLibc.Bcachestats;
 import oshi.util.ExecutingCommand;
@@ -22,7 +23,7 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
  * Memory obtained by sysctl vm.stats
  */
 @ThreadSafe
-final class OpenBsdGlobalMemory extends oshi.hardware.common.platform.unix.openbsd.OpenBsdGlobalMemory {
+final class OpenBsdGlobalMemoryJNA extends OpenBsdGlobalMemory {
 
     @Override
     protected long queryAvailable() {
