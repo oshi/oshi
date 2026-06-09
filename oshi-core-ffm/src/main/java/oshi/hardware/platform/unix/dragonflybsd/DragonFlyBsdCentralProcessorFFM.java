@@ -41,6 +41,11 @@ public class DragonFlyBsdCentralProcessorFFM extends FreeBsdCentralProcessorFFM 
             return ticks;
         }
         long structSize = arraySize / cpus;
+        // Guard: kern.cputime's per-CPU struct must hold at least the 5 tick fields we read (CP_IDLE is the highest
+        // index). A short return — e.g. a stub sysctl on a non-DragonFly kernel — would otherwise IOBE in buf.get().
+        if (structSize < (CP_IDLE + 1) * UINT64_SIZE) {
+            return ticks;
+        }
         for (int cpu = 0; cpu < cpus; cpu++) {
             long base = structSize * cpu;
             ticks[cpu][TickType.USER.getIndex()] = buf.get(JAVA_LONG, base + CP_USER * UINT64_SIZE);

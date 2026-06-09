@@ -6,6 +6,7 @@ package oshi.util.common.platform.unix.dragonflybsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -89,6 +90,7 @@ class ProcstatUtilTest {
         // RuntimeMXBean#getName() returns "<pid>@<host>" — use it to avoid pulling oshi-core's SystemInfo into a
         // oshi-common test. Mirrors the pattern used in the FreeBSD ProcstatUtilTest and NetBSD FstatUtilTest.
         int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], -1);
+        assertThat("RuntimeMXBean#getName() should yield a positive PID, got " + pid, pid, is(greaterThan(0)));
         assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
         assertThat("Cwd should be nonempty", ProcstatUtil.getCwd(pid), is(not(emptyString())));
     }
