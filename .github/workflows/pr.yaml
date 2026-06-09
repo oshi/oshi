@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -55,6 +56,8 @@ jobs:
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Set up JDK
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -84,6 +87,8 @@ jobs:
     name: Test JDK 25, FreeBSD (+ JNA==FFM)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Test in FreeBSD with aggregate coverage
         id: test-freebsd
         uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
@@ -111,6 +116,8 @@ jobs:
     name: Test JDK 25, OpenBSD (+ JNA==FFM)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Test on OpenBSD with aggregate coverage
         id: test-openbsd
         uses: vmactions/openbsd-vm@fcf799d7ce9c305ad89eabef1fb2fa5c1c42d0ee # v1
@@ -141,6 +148,8 @@ jobs:
     name: Test JDK 25, OpenIndiana (+ JNA==FFM)
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Test on OpenIndiana with aggregate coverage
         id: test-openindiana
         uses: vmactions/openindiana-vm@3248e8c61485588528c034a4285242f77efd8b97 # v1
@@ -180,6 +189,8 @@ jobs:
     name: JMH Benchmarks, ${{ matrix.os }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Set up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:

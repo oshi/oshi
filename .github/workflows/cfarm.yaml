@@ -11,8 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
-permissions:
-  contents: read
+# Default-deny at the workflow level. Both jobs SSH into cfarm hosts and never
+# touch GITHUB_TOKEN, so no per-job grants are needed.
+permissions: {}
 
 jobs:
   # Runs current branch on Solaris 11.4 on SPARC
