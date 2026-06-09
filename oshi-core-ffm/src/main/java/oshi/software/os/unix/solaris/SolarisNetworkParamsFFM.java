@@ -25,8 +25,8 @@ final class SolarisNetworkParamsFFM extends AbstractNetworkParams {
     @Override
     public String getHostName() {
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1);
-            int rc = SolarisLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1);
+            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
+            int rc = SolarisLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L);
             if (rc == 0) {
                 return buf.getString(0);
             }

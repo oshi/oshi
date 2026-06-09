@@ -410,7 +410,7 @@ public final class PerfstatFunctions extends ForeignFunctions {
 
     /** {@code vcpus.max}: max virtual CPUs. vcpus is a perfstat_value_t starting at offset 632; max is at +8. */
     public static long configVcpusMax(MemorySegment seg) {
-        return seg.get(JAVA_LONG, 632 + 8);
+        return seg.get(JAVA_LONG, 632L + 8);
     }
 
     // ===========================================================================================

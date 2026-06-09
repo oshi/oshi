@@ -210,8 +210,8 @@ public class OpenBsdCentralProcessorFFM extends AbstractCentralProcessor {
                 ticks[TickType.NICE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_NICE);
                 ticks[TickType.SYSTEM.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_SYS);
                 int offset = arraySize > CPUSTATES ? 1 : 0;
-                ticks[TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_INTR + offset);
-                ticks[TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_IDLE + offset);
+                ticks[TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, (long) CP_INTR + offset);
+                ticks[TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, (long) CP_IDLE + offset);
             }
         }
         return ticks;
@@ -230,8 +230,8 @@ public class OpenBsdCentralProcessorFFM extends AbstractCentralProcessor {
                     ticks[cpu][TickType.NICE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_NICE);
                     ticks[cpu][TickType.SYSTEM.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_SYS);
                     int offset = arraySize > CPUSTATES ? 1 : 0;
-                    ticks[cpu][TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_INTR + offset);
-                    ticks[cpu][TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_IDLE + offset);
+                    ticks[cpu][TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, (long) CP_INTR + offset);
+                    ticks[cpu][TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, (long) CP_IDLE + offset);
                 }
             }
         }

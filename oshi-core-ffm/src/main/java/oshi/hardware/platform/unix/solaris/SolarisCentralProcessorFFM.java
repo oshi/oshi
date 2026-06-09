@@ -169,11 +169,11 @@ final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
         }
         double[] average = new double[nelem];
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment buf = arena.allocate(nelem * Double.BYTES);
+            MemorySegment buf = arena.allocate((long) nelem * Double.BYTES);
             int retval = SolarisLibcFunctions.getloadavg(buf, nelem);
             int validCount = Math.max(retval, 0);
             for (int i = 0; i < validCount && i < nelem; i++) {
-                average[i] = buf.get(ValueLayout.JAVA_DOUBLE, i * Double.BYTES);
+                average[i] = buf.get(ValueLayout.JAVA_DOUBLE, (long) i * Double.BYTES);
             }
             for (int i = validCount; i < nelem; i++) {
                 average[i] = -1d;
