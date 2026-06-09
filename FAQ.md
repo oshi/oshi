@@ -100,7 +100,7 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 * AIX 7.1 (POWER4)
 * Android 7.0 and higher
 
-The FFM implementation (`oshi-core-ffm`) supports Windows, macOS, Linux, FreeBSD, NetBSD, OpenBSD, Solaris (illumos), and AIX, and assumes a 64-bit operating system.
+The FFM implementation (`oshi-core-ffm`) supports the same platforms as the JNA implementation and assumes a 64-bit operating system.
 
 ## How can I get reliable sensor information on Windows?
 

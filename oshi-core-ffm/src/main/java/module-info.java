@@ -1,9 +1,8 @@
 /**
  * FFM-based native implementation of the OSHI API for JDK 25+.
  * <p>
- * This module uses the Foreign Function and Memory (FFM) API for native access and currently supports Windows, macOS,
- * Linux, FreeBSD, NetBSD, OpenBSD, Solaris (illumos), and AIX. For DragonFly BSD support, use the JNA-based
- * {@code com.github.oshi} module.
+ * This module uses the Foreign Function and Memory (FFM) API for native access and supports the same platforms as the
+ * JNA-based {@code com.github.oshi} module.
  * <p>
  * Usage:
  *
@@ -24,6 +23,7 @@ module com.github.oshi.ffm {
     exports oshi.ffm.util;
     exports oshi.ffm.util.gpu;
     exports oshi.ffm.util.platform.mac;
+    exports oshi.ffm.platform.unix.dragonflybsd;
     exports oshi.ffm.util.platform.unix.freebsd;
     exports oshi.ffm.util.platform.unix.openbsd;
     exports oshi.ffm.util.platform.unix.solaris;

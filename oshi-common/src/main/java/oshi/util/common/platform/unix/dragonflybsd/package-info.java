@@ -5,4 +5,4 @@
 /**
  * Provides utilities for DragonFly BSD
  */
-package oshi.util.platform.unix.dragonflybsd;
+package oshi.util.common.platform.unix.dragonflybsd;

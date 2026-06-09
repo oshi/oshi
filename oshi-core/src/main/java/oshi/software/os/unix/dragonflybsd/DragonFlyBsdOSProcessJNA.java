@@ -16,7 +16,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -36,33 +35,24 @@ import com.sun.jna.platform.unix.Resource;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
-import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
+import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSThread;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem.PsKeywords;
+import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemJNA.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.dragonflybsd.ProcstatUtil;
+import oshi.util.common.platform.unix.dragonflybsd.ProcstatUtil;
 
 /**
  * OSProcess implementation
  */
 @ThreadSafe
-public class DragonFlyBsdOSProcess extends AbstractOSProcess {
+public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcess.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcessJNA.class);
 
-    private final DragonFlyBsdOperatingSystem os;
-
-    /*
-     * Package-private for use by DragonFlyBsdOSThread
-     */
-    enum PsThreadColumns {
-        TID, STATE, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, PRI;
-    }
-
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
+    private final DragonFlyBsdOperatingSystemJNA os;
 
     private Supplier<Integer> bitness = memoize(this::queryBitness);
     private Supplier<String> commandLine = memoize(this::queryCommandLine);
@@ -93,7 +83,7 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
     private long involuntaryContextSwitches;
     private String commandLineBackup;
 
-    public DragonFlyBsdOSProcess(int pid, Map<PsKeywords, String> psMap, DragonFlyBsdOperatingSystem os) {
+    public DragonFlyBsdOSProcessJNA(int pid, Map<PsKeywords, String> psMap, DragonFlyBsdOperatingSystemJNA os) {
         super(pid);
         this.os = os;
         updateAttributes(psMap);
@@ -343,7 +333,7 @@ public class DragonFlyBsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        String psCommand = "ps -awwxo " + DragonFlyBsdOperatingSystem.PS_COMMAND_ARGS + " -p " + getProcessID();
+        String psCommand = "ps -awwxo " + DragonFlyBsdOperatingSystemJNA.PS_COMMAND_ARGS + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // skip header row

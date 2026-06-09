@@ -27,6 +27,7 @@ import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -47,14 +48,14 @@ import oshi.util.tuples.Pair;
  * HAMMER2 filesystem and a unique approach to SMP with its lightweight kernel threads (LWKT) subsystem.
  */
 @ThreadSafe
-public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
+public class DragonFlyBsdOperatingSystemJNA extends AbstractOperatingSystem {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOperatingSystem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
 
     /*
-     * Package-private for use by DragonFlyBsdOSProcess
+     * Package-private for use by DragonFlyBsdOSProcessJNA
      */
     enum PsKeywords {
         STATE, PID, PPID, USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND; // COMMAND
@@ -143,7 +144,7 @@ public class DragonFlyBsdOperatingSystem extends AbstractOperatingSystem {
         Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.COMMAND);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
-                .map(psMap -> new DragonFlyBsdOSProcess(
+                .map(psMap -> new DragonFlyBsdOSProcessJNA(
                         pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
                 // DragonFlyBSD kernel threads report PID -1; filter them out
                 .filter(proc -> proc.getProcessID() > 0).filter(VALID_PROCESS).collect(Collectors.toList());

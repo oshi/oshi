@@ -21,9 +21,9 @@ import oshi.jna.platform.unix.FreeBsdLibc;
  * DragonFly BSD Central Processor. Overrides CPU tick retrieval to use DragonFly's kern.cputime sysctl via
  * {@link DragonFlyBsdLibc#INSTANCE}.
  */
-public class DragonFlyBsdCentralProcessor extends FreeBsdCentralProcessorJNA {
+public class DragonFlyBsdCentralProcessorJNA extends FreeBsdCentralProcessorJNA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdCentralProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdCentralProcessorJNA.class);
 
     @Override
     public long[] querySystemCpuLoadTicks() {
