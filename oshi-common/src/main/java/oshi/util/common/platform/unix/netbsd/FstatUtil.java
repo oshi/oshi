@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.netbsd;
+package oshi.util.common.platform.unix.netbsd;
 
 import java.util.List;
 

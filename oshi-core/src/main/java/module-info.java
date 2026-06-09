@@ -24,7 +24,6 @@ module com.github.oshi {
     exports oshi.util.platform.mac;
     exports oshi.util.platform.unix.freebsd;
     exports oshi.util.platform.unix.dragonflybsd;
-    exports oshi.util.platform.unix.netbsd;
     exports oshi.util.platform.unix.openbsd;
     exports oshi.util.platform.unix.solaris;
     exports oshi.util.platform.windows;

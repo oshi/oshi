@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.unix.LpstatPrinter;
 import oshi.hardware.common.platform.unix.UnixDisplay;
-import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
  * NetBsdHardwareAbstractionLayer class.
@@ -86,6 +86,6 @@ public final class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstra
 
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinterJNA.getPrinters();
+        return LpstatPrinter.getPrinters();
     }
 }

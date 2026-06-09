@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;
 
 import static oshi.util.Memoizer.memoize;
 
@@ -14,7 +14,7 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * NetBSD ComputerSystem implementation

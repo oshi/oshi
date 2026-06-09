@@ -10,22 +10,22 @@ import java.util.function.Supplier;
 
 import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.common.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
-import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
+import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystemJNA;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
-import oshi.software.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
@@ -61,7 +61,8 @@ import oshi.util.PlatformEnum;
  * all OSHI platforms (Windows, macOS, Linux, Android, DragonFly BSD, FreeBSD, NetBSD, OpenBSD, Solaris, AIX). Android
  * is routed through the Linux implementations. For JDK 25+, the {@code oshi-core-ffm} module provides an alternative
  * entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function and Memory (FFM) API for potentially better
- * performance on supported platforms (currently Windows, macOS, Linux, FreeBSD, OpenBSD, and Solaris (illumos)).
+ * performance on supported platforms (currently Windows, macOS, Linux, FreeBSD, NetBSD, OpenBSD, Solaris (illumos), and
+ * AIX).
  * <p>
  * Both this class and the FFM entry point require native access. Starting with <a href="https://openjdk.org/jeps/472">
  * JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future JDK release will require

@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;
 
 import static oshi.util.Memoizer.memoize;
 

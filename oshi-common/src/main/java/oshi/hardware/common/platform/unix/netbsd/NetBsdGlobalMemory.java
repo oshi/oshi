@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -14,7 +14,7 @@ import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * Memory obtained by sysctl and vmstat

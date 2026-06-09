@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.netbsd;
+package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
@@ -30,7 +30,7 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**

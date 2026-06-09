@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.netbsd;
+package oshi.software.common.os.unix.netbsd;
 
 import java.io.File;
 import java.nio.file.PathMatcher;
@@ -17,7 +17,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * The NetBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,

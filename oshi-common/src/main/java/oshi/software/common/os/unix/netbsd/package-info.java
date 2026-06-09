@@ -5,4 +5,4 @@
 /**
  * Provides information about Software and OS on NetBSD
  */
-package oshi.software.os.unix.netbsd;
+package oshi.software.common.os.unix.netbsd;
