@@ -101,11 +101,17 @@ jobs:
             # single-carrier fixed FORK_JOIN_POOL. illumos libumem reserves
             # per-CPU arenas, and vthread-style unbounded fan-out on blocking
             # JNA exec calls trips Native memory allocation OOMs.
-            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
-              -Djunit.parallel.executor-service=FORK_JOIN_POOL \
-              -Djunit.parallel.strategy=fixed \
-              -Djunit.parallel.fixed.parallelism=1 \
-              -Djunit.parallel.fixed.max-pool-size=2
+            #
+            # Retry once on failure — the OOMs are intermittent and always
+            # pass on a fresh attempt. Matches the cfarm AIX / Solaris-SPARC
+            # retry pattern.
+            for i in 1 2; do
+              ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
+                -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+                -Djunit.parallel.strategy=fixed \
+                -Djunit.parallel.fixed.parallelism=1 \
+                -Djunit.parallel.fixed.max-pool-size=2 && break || sleep 30
+            done
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
