@@ -68,5 +68,6 @@ module com.github.oshi.common {
     provides oshi.spi.SystemInfoProvider with oshi.nativefree.SystemInfo;
 
     requires transitive java.desktop;
+    requires java.management;
     requires org.slf4j;
 }

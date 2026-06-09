@@ -43,6 +43,5 @@ module com.github.oshi {
     requires transitive com.sun.jna;
     requires transitive com.sun.jna.platform;
     requires transitive java.desktop;
-    requires java.management;
     requires org.slf4j;
 }

@@ -3,7 +3,7 @@
 ##### New Features
 
 * [#3350](https://github.com/oshi/oshi/pull/3350): Add AIX support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
-* Add NetBSD support to the FFM (`oshi-core-ffm`) implementation. The NetBSD implementation has no native dependencies, so the classes live in `oshi-common` and are used by both `oshi-core` and `oshi-core-ffm` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3360](https://github.com/oshi/oshi/pull/3360): Add NetBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
