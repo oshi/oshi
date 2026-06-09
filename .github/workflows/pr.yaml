@@ -154,11 +154,14 @@ jobs:
             export PATH=$JAVA_HOME/bin:$PATH
             export MAVEN_OPTS="-Xmx1g"
             export _JAVA_OPTIONS="-Xmx1g"
-            # Retry once on failure — illumos OOMs are intermittent and always
-            # pass on a fresh attempt. Matches the cfarm retry pattern.
-            for i in 1 2; do
-              ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true && break || sleep 30
-            done
+            # OpenIndiana-only: same parallelism cap as unix.yaml. illumos
+            # libumem reserves per-CPU arenas; vthread-style unbounded fan-out
+            # on blocking JNA exec calls trips Native memory allocation OOMs.
+            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
+              -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+              -Djunit.parallel.strategy=fixed \
+              -Djunit.parallel.fixed.parallelism=1 \
+              -Djunit.parallel.fixed.max-pool-size=2
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
