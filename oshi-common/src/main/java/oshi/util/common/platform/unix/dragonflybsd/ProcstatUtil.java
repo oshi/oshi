@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.dragonflybsd;
+package oshi.util.common.platform.unix.dragonflybsd;
 
 import java.io.IOException;
 import java.nio.file.Files;

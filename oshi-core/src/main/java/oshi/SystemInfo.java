@@ -14,7 +14,7 @@ import oshi.hardware.common.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
-import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
@@ -24,7 +24,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystemJNA;
-import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
+import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemJNA;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.unix.solaris.SolarisOperatingSystem;
@@ -58,11 +58,9 @@ import oshi.util.PlatformEnum;
  * To conserve processing time at the cost of additional memory usage, re-use the same instance.
  * <p>
  * This implementation uses <a href="https://github.com/java-native-access/jna">JNA</a> for native access and supports
- * all OSHI platforms (Windows, macOS, Linux, Android, DragonFly BSD, FreeBSD, NetBSD, OpenBSD, Solaris, AIX). Android
- * is routed through the Linux implementations. For JDK 25+, the {@code oshi-core-ffm} module provides an alternative
- * entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function and Memory (FFM) API for potentially better
- * performance on supported platforms (currently Windows, macOS, Linux, FreeBSD, NetBSD, OpenBSD, Solaris (illumos), and
- * AIX).
+ * all OSHI platforms. Android is routed through the Linux implementations. For JDK 25+, the {@code oshi-core-ffm}
+ * module provides an alternative entry point ({@code oshi.ffm.SystemInfo}) that uses the Foreign Function and Memory
+ * (FFM) API for potentially better performance.
  * <p>
  * Both this class and the FFM entry point require native access. Starting with <a href="https://openjdk.org/jeps/472">
  * JEP 472</a> (JDK 24), the JVM warns when native code is loaded, and a future JDK release will require
@@ -129,7 +127,7 @@ public class SystemInfo implements SystemInfoProvider {
             case OPENBSD:
                 return new OpenBsdOperatingSystem();
             case DRAGONFLYBSD:
-                return new DragonFlyBsdOperatingSystem();
+                return new DragonFlyBsdOperatingSystemJNA();
             case NETBSD:
                 return new NetBsdOperatingSystem();
             default:
@@ -164,7 +162,7 @@ public class SystemInfo implements SystemInfoProvider {
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayer();
             case DRAGONFLYBSD:
-                return new DragonFlyBsdHardwareAbstractionLayer();
+                return new DragonFlyBsdHardwareAbstractionLayerJNA();
             case NETBSD:
                 return new NetBsdHardwareAbstractionLayer();
             default:

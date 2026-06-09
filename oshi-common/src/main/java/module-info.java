@@ -46,6 +46,7 @@ module com.github.oshi.common {
     exports oshi.software.common.os.linux;
     exports oshi.software.common.os.mac;
     exports oshi.software.common.os.unix.aix;
+    exports oshi.software.common.os.unix.dragonflybsd;
     exports oshi.software.common.os.unix.freebsd;
     exports oshi.software.common.os.unix.netbsd;
     exports oshi.software.common.os.unix.openbsd;
@@ -54,6 +55,7 @@ module com.github.oshi.common {
     exports oshi.software.os;
     exports oshi.spi;
     exports oshi.util;
+    exports oshi.util.common.platform.unix.dragonflybsd;
     exports oshi.util.common.platform.unix.freebsd;
     exports oshi.util.common.platform.unix.netbsd;
     exports oshi.util.common.platform.unix.openbsd;

@@ -25,47 +25,48 @@ import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdGraphicsCard;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdSoundCard;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdUsbDevice;
-import oshi.hardware.platform.unix.CupsPrinterJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystemJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemoryJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStoreJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSourceJNA;
-import oshi.hardware.platform.unix.freebsd.FreeBsdSensorsJNA;
+import oshi.hardware.platform.unix.CupsPrinterFFM;
+import oshi.hardware.platform.unix.freebsd.FreeBsdComputerSystemFFM;
+import oshi.hardware.platform.unix.freebsd.FreeBsdGlobalMemoryFFM;
+import oshi.hardware.platform.unix.freebsd.FreeBsdHWDiskStoreFFM;
+import oshi.hardware.platform.unix.freebsd.FreeBsdPowerSourceFFM;
+import oshi.hardware.platform.unix.freebsd.FreeBsdSensorsFFM;
 
 /**
- * DragonFlyBsdHardwareAbstractionLayer class. Uses FreeBSD implementations where behavior is identical.
+ * FFM-backed DragonFly BSD HAL. Uses FreeBSD FFM implementations where behavior is identical; overrides
+ * {@link #createProcessor()} to return the DragonFly-specific CPU implementation.
  */
 @ThreadSafe
-public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class DragonFlyBsdHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new FreeBsdComputerSystemJNA();
+        return new FreeBsdComputerSystemFFM();
     }
 
     @Override
     public GlobalMemory createMemory() {
-        return new FreeBsdGlobalMemoryJNA();
+        return new FreeBsdGlobalMemoryFFM();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new DragonFlyBsdCentralProcessor();
+        return new DragonFlyBsdCentralProcessorFFM();
     }
 
     @Override
     public Sensors createSensors() {
-        return new FreeBsdSensorsJNA();
+        return new FreeBsdSensorsFFM();
     }
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return FreeBsdPowerSourceJNA.getPowerSources();
+        return FreeBsdPowerSourceFFM.getPowerSources();
     }
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return FreeBsdHWDiskStoreJNA.getDisks();
+        return FreeBsdHWDiskStoreFFM.getDisks();
     }
 
     @Override
@@ -95,6 +96,6 @@ public final class DragonFlyBsdHardwareAbstractionLayer extends AbstractHardware
 
     @Override
     public List<Printer> getPrinters() {
-        return CupsPrinterJNA.getPrinters();
+        return CupsPrinterFFM.getPrinters();
     }
 }

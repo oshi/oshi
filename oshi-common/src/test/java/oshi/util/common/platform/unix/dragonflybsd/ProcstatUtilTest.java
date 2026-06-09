@@ -2,14 +2,16 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.platform.unix.dragonflybsd;
+package oshi.util.common.platform.unix.dragonflybsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
-import oshi.SystemInfo;
+import oshi.util.ParseUtil;
 
 /**
  * Tests for {@link ProcstatUtil}. Pure parsing methods are covered with sample {@code fstat} output; the integration
@@ -85,7 +87,10 @@ class ProcstatUtilTest {
     @Test
     @EnabledIfSystemProperty(named = "os.name", matches = "(?i)dragonfly")
     void testProcstatLive() {
-        int pid = new SystemInfo().getOperatingSystem().getProcessId();
+        // RuntimeMXBean#getName() returns "<pid>@<host>" — use it to avoid pulling oshi-core's SystemInfo into a
+        // oshi-common test. Mirrors the pattern used in the FreeBSD ProcstatUtilTest and NetBSD FstatUtilTest.
+        int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], -1);
+        assertThat("RuntimeMXBean#getName() should yield a positive PID, got " + pid, pid, is(greaterThan(0)));
         assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
         assertThat("Cwd should be nonempty", ProcstatUtil.getCwd(pid), is(not(emptyString())));
     }

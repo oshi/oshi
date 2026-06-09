@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.dragonflybsd;
+package oshi.software.common.os.unix.dragonflybsd;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -17,8 +17,8 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
+import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess.PsThreadColumns;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -116,6 +116,7 @@ public class DragonFlyBsdOSThread extends AbstractOSThread {
     public boolean updateAttributes() {
         List<String> threadList = ExecutingCommand
                 .runNative("ps -awwxo " + DragonFlyBsdOSProcess.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
+        // DragonFlyBsdOSProcess (oshi-common abstract base) provides PS_THREAD_COLUMNS + the PsThreadColumns enum.
         // there is no switch for thread in ps command, hence filtering.
         String lwpStr = Integer.toString(this.threadId);
         for (String psOutput : threadList) {
