@@ -16,8 +16,9 @@ on:
 permissions: {}
 
 jobs:
-  # Runs current branch on Solaris 11.4 on SPARC
-  # Retries flaky test once, possible junit-platform-maven-test issue
+  # Tests the triggering ref on Solaris 11.4 SPARC: master on push, or the
+  # dispatched branch (possibly from a fork) on workflow_dispatch. Retries
+  # once for the occasional junit-platform-maven-test flake.
   testsolaris_sparc:
     name: Test JDK 17, Solaris SPARC
     concurrency: solaris_cfarm216
@@ -25,25 +26,28 @@ jobs:
     steps:
     - name: Test in Solaris SPARC
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      env:
+        REPO_URL: https://github.com/${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
       with:
         host: cfarm216.cfarm.net
         username: oshi
         key: ${{ secrets.GCC_CI_KEY }}
         port: 22
         command_timeout: 25m
+        envs: REPO_URL,BRANCH
         script: |
           set -e
           source .profile
           cd ~/oshi
-          git reset --hard
-          git checkout master
-          git reset --hard HEAD~2
-          git pull
+          # Fetch + reset to the triggering ref regardless of local state.
+          # FETCH_HEAD avoids touching the cfarm clone's named branches.
+          git fetch "$REPO_URL" "$BRANCH"
+          git reset --hard FETCH_HEAD
           for i in {1..2}; do ./mvnw clean test -B -Djacoco.skip=true && break || sleep 15; done
 
-  # SSH into AIX server and run test on AIX 7.3
-  # Configured to pull latest from oshi master branch
-  # To test on a PR, log into the aix server and create a new branch
+  # Tests the triggering ref on AIX 7.3: master on push, or the dispatched
+  # branch (possibly from a fork) on workflow_dispatch.
   # JNA's library is pre-extracted to ~/.cache/jna so the test JVM loads it
   # directly via System.load(); the JAR-unpack step is the flaky one on OpenJ9.
   testaix:
@@ -53,12 +57,16 @@ jobs:
     steps:
     - name: Test in AIX
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      env:
+        REPO_URL: https://github.com/${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
       with:
         host: cfarm119.cfarm.net
         username: oshi
         key: ${{ secrets.GCC_CI_KEY }}
         port: 22
         command_timeout: 15m
+        envs: REPO_URL,BRANCH
         script: |
           set -e
           rm -fR ~/javashared*
@@ -66,10 +74,10 @@ jobs:
           export JAVA_HOME=~/java/jdk-25.0.3+9
           export PATH=$PATH:/opt/freeware/bin
           export MAVEN_OPTS="-Xshareclasses:none"
-          git reset --hard
-          git checkout master
-          git reset --hard HEAD~2
-          git pull upstream master
+          # Fetch + reset to the triggering ref regardless of local state.
+          # FETCH_HEAD avoids touching the cfarm clone's named branches.
+          git fetch "$REPO_URL" "$BRANCH"
+          git reset --hard FETCH_HEAD
           # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
           MAVEN_VERSION=3.9.15
           MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
