@@ -73,13 +73,12 @@ Usage
 SystemInfoProvider si = SystemInfoFactory.create();
 ```
 
-| Classpath | JDK | Platform | Selected implementation |
-|-----------|-----|----------|------------------------|
-| `oshi-core` only | 8+ | Any | JNA (`oshi.SystemInfo`) |
-| `oshi-core-ffm` only | 25+ | All supported platforms | FFM (`oshi.ffm.SystemInfo`) |
-| Both `oshi-core` and `oshi-core-ffm` | 25+ | All supported platforms | FFM (higher priority) |
-| Both `oshi-core` and `oshi-core-ffm` | &lt;25 | Any | JNA (FFM unavailable) |
-| `oshi-common` only | 8+ | Linux | No `--enable-native-access` required (`oshi.nativefree.SystemInfo`) |
+| Classpath | JDK | Selected implementation |
+|-----------|-----|------------------------|
+| `oshi-core` only | 8+ | JNA (`oshi.SystemInfo`) |
+| `oshi-core-ffm` only | 25+ | FFM (`oshi.ffm.SystemInfo`) |
+| Both `oshi-core` and `oshi-core-ffm` | 8+ | FFM (JDK 25+), otherwise JNA |
+| `oshi-common` only | 8+ | No `--enable-native-access` required — Linux only (`oshi.nativefree.SystemInfo`) |
 
 You can also instantiate directly:
 
