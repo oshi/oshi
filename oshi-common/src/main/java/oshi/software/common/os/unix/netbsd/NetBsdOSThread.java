@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.netbsd;
+package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -17,8 +17,8 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
+import oshi.software.common.os.unix.netbsd.NetBsdOSProcess.PsThreadColumns;
 import oshi.software.os.OSProcess;
-import oshi.software.os.unix.netbsd.NetBsdOSProcess.PsThreadColumns;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 

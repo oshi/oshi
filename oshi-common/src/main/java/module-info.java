@@ -37,6 +37,7 @@ module com.github.oshi.common {
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.unix.aix;
     exports oshi.hardware.common.platform.unix.freebsd;
+    exports oshi.hardware.common.platform.unix.netbsd;
     exports oshi.hardware.common.platform.unix.openbsd;
     exports oshi.hardware.common.platform.unix.solaris;
     exports oshi.hardware.common.platform.windows;
@@ -46,6 +47,7 @@ module com.github.oshi.common {
     exports oshi.software.common.os.mac;
     exports oshi.software.common.os.unix.aix;
     exports oshi.software.common.os.unix.freebsd;
+    exports oshi.software.common.os.unix.netbsd;
     exports oshi.software.common.os.unix.openbsd;
     exports oshi.software.common.os.unix.solaris;
     exports oshi.software.common.os.windows;
@@ -53,6 +55,7 @@ module com.github.oshi.common {
     exports oshi.spi;
     exports oshi.util;
     exports oshi.util.common.platform.unix.freebsd;
+    exports oshi.util.common.platform.unix.netbsd;
     exports oshi.util.common.platform.unix.openbsd;
     exports oshi.util.driver.linux;
     exports oshi.util.driver.linux.proc;
@@ -65,5 +68,6 @@ module com.github.oshi.common {
     provides oshi.spi.SystemInfoProvider with oshi.nativefree.SystemInfo;
 
     requires transitive java.desktop;
+    requires java.management;
     requires org.slf4j;
 }

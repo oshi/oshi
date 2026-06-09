@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.netbsd;
+package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.OTHER;
@@ -28,13 +28,13 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem.PsKeywords;
 import oshi.software.os.OSThread;
-import oshi.software.os.unix.netbsd.NetBsdOperatingSystem.PsKeywords;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.netbsd.FstatUtil;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.FstatUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * OSProcess implementation

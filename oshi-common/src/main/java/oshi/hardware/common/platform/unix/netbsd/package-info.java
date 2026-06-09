@@ -5,4 +5,4 @@
 /**
  * Provides information about hardware such as Memory, Power Sources, and Processor on NetBSD systems
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;

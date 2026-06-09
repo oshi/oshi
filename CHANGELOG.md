@@ -3,6 +3,7 @@
 ##### New Features
 
 * [#3350](https://github.com/oshi/oshi/pull/3350): Add AIX support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#3360](https://github.com/oshi/oshi/pull/3360): Add NetBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.netbsd;
 
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
@@ -20,7 +20,7 @@ import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 import oshi.util.tuples.Quartet;
 
 /**

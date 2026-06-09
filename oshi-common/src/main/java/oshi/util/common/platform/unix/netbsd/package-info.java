@@ -5,4 +5,4 @@
 /**
  * Provides utilities for NetBSD
  */
-package oshi.util.platform.unix.netbsd;
+package oshi.util.common.platform.unix.netbsd;
