@@ -14,15 +14,20 @@ name: Benchmarks (manual)
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
+# Default-deny at the workflow level; each checkout-using job re-grants only
+# what it needs. benchaix is SSH-only and gets no grants.
+permissions: {}
 
 jobs:
   benchlinux:
     name: JMH benchmarks, Linux
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Set up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -37,8 +42,12 @@ jobs:
   benchmacos:
     name: JMH benchmarks, macOS
     runs-on: macos-26
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Set up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -53,8 +62,12 @@ jobs:
   benchwindows:
     name: JMH benchmarks, Windows
     runs-on: windows-2025
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Set up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -69,8 +82,12 @@ jobs:
   benchfreebsd:
     name: JMH benchmarks, FreeBSD
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Benchmark on FreeBSD
         uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a # v1
         with:
@@ -87,8 +104,12 @@ jobs:
   benchopenbsd:
     name: JMH benchmarks, OpenBSD
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Benchmark on OpenBSD
         uses: vmactions/openbsd-vm@fcf799d7ce9c305ad89eabef1fb2fa5c1c42d0ee # v1
         with:
@@ -178,8 +199,12 @@ jobs:
   benchopenindiana:
     name: JMH benchmarks, OpenIndiana
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - name: Benchmark on OpenIndiana
         uses: vmactions/openindiana-vm@3248e8c61485588528c034a4285242f77efd8b97 # v1
         with:
