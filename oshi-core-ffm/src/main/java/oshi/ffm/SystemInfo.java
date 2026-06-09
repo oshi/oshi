@@ -6,8 +6,6 @@ package oshi.ffm;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import oshi.annotation.PublicApi;
@@ -92,13 +90,9 @@ public class SystemInfo implements SystemInfoProvider {
         return 20;
     }
 
-    private static final Set<PlatformEnum> SUPPORTED_PLATFORMS = EnumSet.of(PlatformEnum.LINUX, PlatformEnum.MACOS,
-            PlatformEnum.WINDOWS, PlatformEnum.FREEBSD, PlatformEnum.NETBSD, PlatformEnum.OPENBSD,
-            PlatformEnum.DRAGONFLYBSD, PlatformEnum.SOLARIS, PlatformEnum.AIX);
-
     @Override
     public boolean isAvailable() {
-        return SUPPORTED_PLATFORMS.contains(PlatformEnum.getCurrentPlatform()) && Runtime.version().feature() >= 25;
+        return true;
     }
 
     private static OperatingSystem createOperatingSystem() {
