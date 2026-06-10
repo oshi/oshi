@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,8 +232,8 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             }
                         }
                     }
-                    setPartitionList(Collections.unmodifiableList(partitions.stream()
-                            .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
+                    setPartitionList(Collections.unmodifiableList(
+                            partitions.stream().sorted(Comparator.comparing(HWPartition::getName)).toList()));
                 } finally {
                     if (parent != null) {
                         parent.release();

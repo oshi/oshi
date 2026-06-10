@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -179,7 +178,7 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
 
         List<String> featureFlags = IntStream.range(0, PROCESSOR_FEATURES.length)
                 .filter(i -> Kernel32FFM.IsProcessorFeaturePresent(PROCESSOR_FEATURES[i]))
-                .mapToObj(i -> PROCESSOR_FEATURE_NAMES[i]).collect(Collectors.toList());
+                .mapToObj(i -> PROCESSOR_FEATURE_NAMES[i]).toList();
         return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 

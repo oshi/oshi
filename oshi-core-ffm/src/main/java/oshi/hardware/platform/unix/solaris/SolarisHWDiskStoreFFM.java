@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.solaris.disk.Iostat;
@@ -78,7 +77,7 @@ public final class SolarisHWDiskStoreFFM extends AbstractHWDiskStore {
         SolarisHWDiskStoreFFM store = new SolarisHWDiskStoreFFM(diskName,
                 model.isEmpty() ? (vendor + " " + product).trim() : model, serial, size);
         store.setPartitionList(Collections.unmodifiableList(Prtvtoc.queryPartitions(mount, major).stream()
-                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
+                .sorted(Comparator.comparing(HWPartition::getName)).toList()));
         store.updateAttributes();
         return store;
     }

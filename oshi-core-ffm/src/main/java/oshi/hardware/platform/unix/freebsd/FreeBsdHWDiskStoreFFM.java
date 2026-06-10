@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.freebsd.disk.GeomDiskList;
@@ -97,9 +96,9 @@ public final class FreeBsdHWDiskStoreFFM extends FreeBsdHWDiskStore {
                 store.setCurrentQueueLength(ParseUtil.parseLongOrDefault(split[5], 0L));
                 // In seconds, multiply for ms
                 store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
-                store.setPartitionList(Collections
-                        .unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList()).stream()
-                                .sorted(Comparator.comparing(HWPartition::getName)).collect(Collectors.toList())));
+                store.setPartitionList(
+                        Collections.unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList())
+                                .stream().sorted(Comparator.comparing(HWPartition::getName)).toList()));
                 store.setTimeStamp(now);
                 diskList.add(store);
             }
