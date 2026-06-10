@@ -255,7 +255,7 @@ public class SolarisOSProcessFFM extends AbstractOSProcess {
     public long getOpenFiles() {
         try (Stream<Path> fd = Files.list(Paths.get("/proc/" + getProcessID() + "/fd"))) {
             return fd.count();
-        } catch (IOException e) {
+        } catch (IOException _) {
             return 0L;
         }
     }

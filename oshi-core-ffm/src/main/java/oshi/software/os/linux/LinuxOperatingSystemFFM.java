@@ -100,7 +100,7 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
         if (!hasSyscallGettid) {
             try {
                 hasSyscallGettid = LinuxLibcFunctions.syscallGettid() > 0;
-            } catch (Throwable e) {
+            } catch (Throwable _) {
                 LOG.debug("Did not find working syscall gettid via FFM. Using procfs");
             }
         }
@@ -159,7 +159,7 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
         try {
             return ParseUtil.parseIntOrDefault(
                     Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).getFileName().toString(), 0);
-        } catch (IOException e) {
+        } catch (IOException _) {
             return 0;
         }
     }

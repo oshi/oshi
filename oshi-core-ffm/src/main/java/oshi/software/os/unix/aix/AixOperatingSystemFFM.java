@@ -152,7 +152,7 @@ public final class AixOperatingSystemFFM extends AbstractOperatingSystem {
     public int getProcessId() {
         try {
             return AixLibcFunctions.getpid();
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             return 0;
         }
     }
@@ -166,7 +166,7 @@ public final class AixOperatingSystemFFM extends AbstractOperatingSystem {
     public int getThreadId() {
         try {
             return AixLibcFunctions.thread_self();
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             return 0;
         }
     }

@@ -95,7 +95,7 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                     int year80 = (temp >> 9) & 0x7f;
                     try {
                         psManufactureDate = LocalDate.of(1980 + year80, month, day);
-                    } catch (DateTimeException e) {
+                    } catch (DateTimeException _) {
                         // Corrupt bitfield — leave psManufactureDate as null
                     }
                 }
@@ -217,7 +217,7 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                     return psList;
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return new ArrayList<>();
         }
     }

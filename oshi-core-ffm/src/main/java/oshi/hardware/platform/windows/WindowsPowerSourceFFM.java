@@ -254,7 +254,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                                 if (year > 1900 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
                                     try {
                                         psManufactureDate = LocalDate.of(year, month, day);
-                                    } catch (java.time.DateTimeException ignored) {
+                                    } catch (java.time.DateTimeException _) {
                                         // malformed firmware date — leave null
                                     }
                                 }

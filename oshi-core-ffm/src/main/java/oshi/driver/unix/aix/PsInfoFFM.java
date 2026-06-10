@@ -77,7 +77,7 @@ public final class PsInfoFFM {
                 try {
                     byte[] status = Files.readAllBytes(p);
                     increment = status[17] == 1 ? 8 : 4;
-                } catch (IOException e) {
+                } catch (IOException _) {
                     return new Pair<>(args, env);
                 }
 

@@ -96,7 +96,7 @@ public final class CupsFunctions extends ForeignFunctions {
                     FunctionDescriptor.of(ADDRESS, ADDRESS, JAVA_INT, ADDRESS));
             hGetDefault = LINKER.downcallHandle(lookup.findOrThrow("cupsGetDefault"), FunctionDescriptor.of(ADDRESS));
             available = true;
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             // libcups not available or symbol binding failed; callers should fall back to lpstat
         }
         CUPS_LIBRARY = lookup;
@@ -179,7 +179,7 @@ public final class CupsFunctions extends ForeignFunctions {
                 return "";
             }
             return getStringFromNativePointer(result, arena);
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return "";
         }
     }

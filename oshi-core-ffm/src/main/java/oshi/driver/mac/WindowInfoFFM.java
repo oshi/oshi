@@ -130,7 +130,7 @@ public final class WindowInfoFFM {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return windowList;
         }
         return windowList;

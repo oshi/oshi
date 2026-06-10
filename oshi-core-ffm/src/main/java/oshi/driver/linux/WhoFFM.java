@@ -52,7 +52,7 @@ public final class WhoFFM {
                 if (!systemdSessions.isEmpty()) {
                     return systemdSessions;
                 }
-            } catch (Throwable t) {
+            } catch (Throwable _) {
                 useSystemd = false;
             }
         }
@@ -79,7 +79,7 @@ public final class WhoFFM {
             } finally {
                 LinuxLibcFunctions.endutxent();
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return oshi.util.driver.linux.Who.queryWho();
         }
 
@@ -121,7 +121,7 @@ public final class WhoFFM {
                         if (session != null) {
                             sessionList.add(session);
                         }
-                    } catch (Exception e) {
+                    } catch (Exception _) {
                         // Skip invalid session
                     }
                 }
@@ -221,7 +221,7 @@ public final class WhoFFM {
                                 sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
                             }
                         }
-                    } catch (Exception e) {
+                    } catch (Exception _) {
                         // Skip invalid session files
                     }
                 }

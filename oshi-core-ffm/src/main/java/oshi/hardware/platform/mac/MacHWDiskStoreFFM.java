@@ -78,7 +78,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return false;
         }
     }

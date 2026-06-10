@@ -575,7 +575,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         try {
             SymbolLookup powrProf = lib("PowrProf");
             mh = downcall(powrProf, "CallNtPowerInformation", JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, JAVA_INT);
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             // PowrProf may not be available
         }
         CallNtPowerInformation = mh;

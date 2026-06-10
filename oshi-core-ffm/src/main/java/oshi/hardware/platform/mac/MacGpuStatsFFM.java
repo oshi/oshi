@@ -249,7 +249,7 @@ final class MacGpuStatsFFM implements GpuStats {
                                     if (!statsSeg.equals(MemorySegment.NULL)) {
                                         try {
                                             CoreFoundationFunctions.CFRetain(statsSeg);
-                                        } catch (Throwable ignored) {
+                                        } catch (Throwable _) {
                                             // CFRetain declares throws Throwable; swallow to keep flow clean
                                         }
                                         result = new CFMutableDictionaryRef(statsSeg);

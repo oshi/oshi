@@ -80,10 +80,10 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
         }
         try {
             return customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
-        } catch (NoSuchMethodException | SecurityException e) {
+        } catch (NoSuchMethodException | SecurityException _) {
             LOG.error("Failed to find or access a no-arg constructor for {}", customClass);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
+                | InvocationTargetException _) {
             LOG.error("Failed to create a new instance of {}", customClass);
         }
         customClass = null;
@@ -346,7 +346,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             } finally {
                 IUnknownFFM.safeRelease(pLocator, arena);
             }
-        } catch (FfmComException e) {
+        } catch (FfmComException _) {
             failedWmiClassNames.add(wmiClassName);
         } catch (Exception e) {
             LOG.debug("WMI query failed for {}: {}", wmiClassName, e.getMessage());
