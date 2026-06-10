@@ -68,10 +68,9 @@ class CoreFoundationTest {
 
     @Test
     void testCFTypeRefEqualsAndHashCode() {
-        var str1 = CFStringRef.createCFString("test");
-        var str2 = CFStringRef.createCFString("test");
-        var str3 = CFStringRef.createCFString("other");
-        try {
+        try (var str1 = CFStringRef.createCFString("test");
+                var str2 = CFStringRef.createCFString("test");
+                var str3 = CFStringRef.createCFString("other")) {
             assertThat(str1.equals(str2), is(true));
             assertThat(str1.hashCode(), is(str2.hashCode()));
             assertThat(str1.equals(str3), is(false));
@@ -83,10 +82,6 @@ class CoreFoundationTest {
             assertThat(nullRef1.equals(nullRef2), is(true));
             assertThat(nullRef1.hashCode(), is(nullRef2.hashCode()));
             assertThat(nullRef1.equals(str1), is(false));
-        } finally {
-            str1.release();
-            str2.release();
-            str3.release();
         }
     }
 
@@ -155,10 +150,8 @@ class CoreFoundationTest {
             var valuePtr = arena.allocate(ValueLayout.JAVA_INT);
             valuePtr.set(ValueLayout.JAVA_INT, 0, 42);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberIntType, valuePtr);
-            try {
-                assertThrows(ClassCastException.class, () -> new CFStringRef(numSeg));
-            } finally {
-                CoreFoundationFunctions.CFRelease(numSeg);
+            try (var cfNum = new CFNumberRef(numSeg)) {
+                assertThrows(ClassCastException.class, () -> new CFStringRef(cfNum.segment()));
             }
         }
     }
@@ -175,12 +168,9 @@ class CoreFoundationTest {
             valuePtr.set(ValueLayout.JAVA_LONG, 0, 123456789L);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberLongLongType,
                     valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.longValue(), is(123456789L));
                 assertThat(cfNum.isTypeID(CoreFoundationFunctions.NUMBER_TYPE_ID), is(true));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -192,11 +182,8 @@ class CoreFoundationTest {
             var valuePtr = arena.allocate(ValueLayout.JAVA_INT);
             valuePtr.set(ValueLayout.JAVA_INT, 0, 42);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberIntType, valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.intValue(), is(42));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -208,11 +195,8 @@ class CoreFoundationTest {
             var valuePtr = arena.allocate(ValueLayout.JAVA_SHORT);
             valuePtr.set(ValueLayout.JAVA_SHORT, 0, (short) 7);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberShortType, valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.shortValue(), is((short) 7));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -224,11 +208,8 @@ class CoreFoundationTest {
             var valuePtr = arena.allocate(ValueLayout.JAVA_BYTE);
             valuePtr.set(ValueLayout.JAVA_BYTE, 0, (byte) 3);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberCharType, valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.byteValue(), is((byte) 3));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -241,11 +222,8 @@ class CoreFoundationTest {
             valuePtr.set(ValueLayout.JAVA_DOUBLE, 0, 3.14);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberDoubleType,
                     valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.doubleValue(), is(closeTo(3.14, 0.001)));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -257,11 +235,8 @@ class CoreFoundationTest {
             var valuePtr = arena.allocate(ValueLayout.JAVA_FLOAT);
             valuePtr.set(ValueLayout.JAVA_FLOAT, 0, 2.5f);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberFloatType, valuePtr);
-            var cfNum = new CFNumberRef(numSeg);
-            try {
+            try (var cfNum = new CFNumberRef(numSeg)) {
                 assertThat(cfNum.floatValue(), is(2.5f));
-            } finally {
-                cfNum.release();
             }
         }
     }
@@ -315,15 +290,12 @@ class CoreFoundationTest {
             var bytesSeg = arena.allocateFrom(ValueLayout.JAVA_BYTE, input);
             var allocator = CoreFoundationFunctions.CFAllocatorGetDefault();
             var dataSeg = CoreFoundationFunctions.CFDataCreate(allocator, bytesSeg, input.length);
-            var cfData = new CFDataRef(dataSeg);
-            try {
+            try (var cfData = new CFDataRef(dataSeg)) {
                 assertThat(cfData.isNull(), is(false));
                 assertThat(cfData.isTypeID(CoreFoundationFunctions.DATA_TYPE_ID), is(true));
                 assertThat(cfData.getLength(), is(5));
                 assertThat(cfData.getBytePtr(), is(not(NULL)));
                 assertThat(cfData.getBytes(), is(input));
-            } finally {
-                cfData.release();
             }
         }
     }
@@ -342,27 +314,21 @@ class CoreFoundationTest {
 
     @Test
     void testCFArrayWithStrings() throws Throwable {
-        var str1 = CFStringRef.createCFString("a");
-        var str2 = CFStringRef.createCFString("b");
-        try (var arena = Arena.ofConfined()) {
+        try (var arena = Arena.ofConfined();
+                var str1 = CFStringRef.createCFString("a");
+                var str2 = CFStringRef.createCFString("b")) {
             var values = arena.allocate(ValueLayout.ADDRESS, 2);
             values.setAtIndex(ValueLayout.ADDRESS, 0, str1.segment());
             values.setAtIndex(ValueLayout.ADDRESS, 1, str2.segment());
             var allocator = CoreFoundationFunctions.CFAllocatorGetDefault();
             var callbacks = CF_LOOKUP.findOrThrow("kCFTypeArrayCallBacks");
             var arraySeg = CoreFoundationFunctions.CFArrayCreate(allocator, values, 2, callbacks);
-            var cfArray = new CFArrayRef(arraySeg);
-            try {
+            try (var cfArray = new CFArrayRef(arraySeg)) {
                 assertThat(cfArray.isTypeID(CoreFoundationFunctions.ARRAY_TYPE_ID), is(true));
                 assertThat(cfArray.getCount(), is(2));
                 var elem0 = new CFStringRef(cfArray.getValueAtIndex(0));
                 assertThat(elem0.stringValue(), is("a"));
-            } finally {
-                cfArray.release();
             }
-        } finally {
-            str1.release();
-            str2.release();
         }
     }
 
@@ -384,36 +350,25 @@ class CoreFoundationTest {
             var keyCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryKeyCallBacks");
             var valCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryValueCallBacks");
             var dictSeg = CoreFoundationFunctions.CFDictionaryCreateMutable(allocator, 0, keyCallbacks, valCallbacks);
-            var dict = new CFMutableDictionaryRef(dictSeg);
-            try {
-                var key = CFStringRef.createCFString("myKey");
-                var val = CFStringRef.createCFString("myValue");
-                try {
-                    dict.setValue(key, val);
-                    assertThat(dict.getCount(), is(1L));
+            try (var dict = new CFMutableDictionaryRef(dictSeg);
+                    var key = CFStringRef.createCFString("myKey");
+                    var val = CFStringRef.createCFString("myValue")) {
+                dict.setValue(key, val);
+                assertThat(dict.getCount(), is(1L));
 
-                    var result = dict.getValue(key);
-                    assertThat(result, is(not(NULL)));
-                    assertThat(new CFStringRef(result).stringValue(), is("myValue"));
+                var result = dict.getValue(key);
+                assertThat(result, is(not(NULL)));
+                assertThat(new CFStringRef(result).stringValue(), is("myValue"));
 
-                    // getValueIfPresent
-                    var outPtr = arena.allocate(ValueLayout.ADDRESS);
-                    assertThat(dict.getValueIfPresent(key, outPtr), is(true));
+                // getValueIfPresent
+                var outPtr = arena.allocate(ValueLayout.ADDRESS);
+                assertThat(dict.getValueIfPresent(key, outPtr), is(true));
 
-                    // Missing key
-                    var missingKey = CFStringRef.createCFString("noSuchKey");
-                    try {
-                        assertThat(dict.getValue(missingKey), is(NULL));
-                        assertThat(dict.getValueIfPresent(missingKey, outPtr), is(false));
-                    } finally {
-                        missingKey.release();
-                    }
-                } finally {
-                    key.release();
-                    val.release();
+                // Missing key
+                try (var missingKey = CFStringRef.createCFString("noSuchKey")) {
+                    assertThat(dict.getValue(missingKey), is(NULL));
+                    assertThat(dict.getValueIfPresent(missingKey, outPtr), is(false));
                 }
-            } finally {
-                dict.release();
             }
         }
     }
@@ -433,21 +388,13 @@ class CoreFoundationTest {
             var keyCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryKeyCallBacks");
             var valCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryValueCallBacks");
             var dictSeg = CoreFoundationFunctions.CFDictionaryCreateMutable(allocator, 0, keyCallbacks, valCallbacks);
-            var dict = new CFMutableDictionaryRef(dictSeg);
-            try {
-                // setValue with null key should not throw
-                var val1 = CFStringRef.createCFString("val");
-                var val2 = CFStringRef.createCFString("val");
-                try {
-                    dict.setValue(null, val1);
-                    dict.setValue(new CFStringRef(NULL), val2);
-                    assertThat(dict.getCount(), is(0L));
-                } finally {
-                    val1.release();
-                    val2.release();
-                }
-            } finally {
-                dict.release();
+            // setValue with null key should not throw
+            try (var dict = new CFMutableDictionaryRef(dictSeg);
+                    var val1 = CFStringRef.createCFString("val");
+                    var val2 = CFStringRef.createCFString("val")) {
+                dict.setValue(null, val1);
+                dict.setValue(new CFStringRef(NULL), val2);
+                assertThat(dict.getCount(), is(0L));
             }
         }
     }
@@ -469,11 +416,8 @@ class CoreFoundationTest {
 
     @Test
     void testCFLocaleCopyCurrent() {
-        var locale = CFLocale.copyCurrent();
-        try {
+        try (var locale = CFLocale.copyCurrent()) {
             assertThat(locale.isNull(), is(false));
-        } finally {
-            locale.release();
         }
     }
 
@@ -483,20 +427,13 @@ class CoreFoundationTest {
 
     @Test
     void testCFDateFormatterGetFormat() {
-        var locale = CFLocale.copyCurrent();
-        try {
-            var formatter = CFDateFormatter.create(null, locale, CoreFoundation.kCFDateFormatterShortStyle,
-                    CoreFoundation.kCFDateFormatterNoStyle);
-            try {
-                assertThat(formatter.isNull(), is(false));
-                var format = formatter.getFormat();
-                assertThat(format.isNull(), is(false));
-                assertThat(format.stringValue().length(), is(greaterThan(0)));
-            } finally {
-                formatter.release();
-            }
-        } finally {
-            locale.release();
+        try (var locale = CFLocale.copyCurrent();
+                var formatter = CFDateFormatter.create(null, locale, CoreFoundation.kCFDateFormatterShortStyle,
+                        CoreFoundation.kCFDateFormatterNoStyle)) {
+            assertThat(formatter.isNull(), is(false));
+            var format = formatter.getFormat();
+            assertThat(format.isNull(), is(false));
+            assertThat(format.stringValue().length(), is(greaterThan(0)));
         }
     }
 
@@ -513,51 +450,36 @@ class CoreFoundationTest {
 
     @Test
     void testCFNumberRefRejectsString() {
-        var cfStr = CFStringRef.createCFString("notANumber");
-        try {
+        try (var cfStr = CFStringRef.createCFString("notANumber")) {
             assertThrows(ClassCastException.class, () -> new CFNumberRef(cfStr.segment()));
-        } finally {
-            cfStr.release();
         }
     }
 
     @Test
     void testCFBooleanRefRejectsString() {
-        var cfStr = CFStringRef.createCFString("notABool");
-        try {
+        try (var cfStr = CFStringRef.createCFString("notABool")) {
             assertThrows(ClassCastException.class, () -> new CFBooleanRef(cfStr.segment()));
-        } finally {
-            cfStr.release();
         }
     }
 
     @Test
     void testCFArrayRefRejectsString() {
-        var cfStr = CFStringRef.createCFString("notAnArray");
-        try {
+        try (var cfStr = CFStringRef.createCFString("notAnArray")) {
             assertThrows(ClassCastException.class, () -> new CFArrayRef(cfStr.segment()));
-        } finally {
-            cfStr.release();
         }
     }
 
     @Test
     void testCFDataRefRejectsString() {
-        var cfStr = CFStringRef.createCFString("notData");
-        try {
+        try (var cfStr = CFStringRef.createCFString("notData")) {
             assertThrows(ClassCastException.class, () -> new CFDataRef(cfStr.segment()));
-        } finally {
-            cfStr.release();
         }
     }
 
     @Test
     void testCFDictionaryRefRejectsString() {
-        var cfStr = CFStringRef.createCFString("notADict");
-        try {
+        try (var cfStr = CFStringRef.createCFString("notADict")) {
             assertThrows(ClassCastException.class, () -> new CFDictionaryRef(cfStr.segment()));
-        } finally {
-            cfStr.release();
         }
     }
 }
