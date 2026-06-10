@@ -810,7 +810,7 @@ class NativeComparisonTest {
 
         // The longest-lived processes should be present in both lists
         List<OSProcess> jnaSorted = jna.stream().sorted(Comparator.comparingLong(OSProcess::getStartTime)).limit(10)
-                .collect(Collectors.toList());
+                .toList();
         Map<Integer, OSProcess> ffmByPid = ffm.stream()
                 .collect(Collectors.toMap(OSProcess::getProcessID, Function.identity(), (a, b) -> a));
         for (OSProcess j : jnaSorted) {

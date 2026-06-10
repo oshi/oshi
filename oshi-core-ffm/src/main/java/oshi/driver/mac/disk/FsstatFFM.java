@@ -50,7 +50,7 @@ public final class FsstatFFM {
                 String mntOn = statfs.getString(STATFS.byteOffset(F_MNTONNAME));
                 mountPointMap.put(mntFrom.replace("/dev/", ""), mntOn);
             }
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             // Fall through with empty map
         }
         return mountPointMap;

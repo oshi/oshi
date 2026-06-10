@@ -62,7 +62,7 @@ public final class WhoFFM {
             } finally {
                 endutxent();
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return oshi.util.driver.unix.Who.queryWho();
         }
         return whoList;

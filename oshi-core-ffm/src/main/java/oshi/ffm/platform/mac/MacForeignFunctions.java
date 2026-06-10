@@ -42,7 +42,7 @@ public abstract class MacForeignFunctions extends ForeignFunctions {
             try {
                 return SymbolLookup.libraryLookup(base + "/" + frameworkName + ".framework/" + frameworkName,
                         LIBRARY_ARENA);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
                 // Not found in this directory, try the next one
             }
         }

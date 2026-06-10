@@ -63,7 +63,7 @@ public final class NetSessionDataFFM {
                     Netapi32FFM.NetApiBufferFree(buf);
                 }
             }
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             // Silently return what we have
         }
         return sessions;

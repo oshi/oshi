@@ -162,7 +162,7 @@ public final class SessionWtsDataFFM {
                         if (addrFamily == AF_INET) {
                             try {
                                 host = InetAddress.getByAddress(Arrays.copyOfRange(address, 2, 6)).getHostAddress();
-                            } catch (UnknownHostException e) {
+                            } catch (UnknownHostException _) {
                                 host = "Illegal length IP Array";
                             }
                         } else if (addrFamily == AF_INET6) {
@@ -175,7 +175,7 @@ public final class SessionWtsDataFFM {
             } finally {
                 Wtsapi32FFM.WTSFreeMemory(pSessionInfo);
             }
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             // Silently return what we have
         }
         return sessions;

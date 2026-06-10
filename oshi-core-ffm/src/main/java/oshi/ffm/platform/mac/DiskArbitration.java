@@ -71,7 +71,7 @@ public interface DiskArbitration {
                 MemorySegment bsdNameSeg = arena.allocateFrom(bsdName);
                 MemorySegment diskSeg = DADiskCreateFromBSDName(allocSeg, sessionSeg, bsdNameSeg);
                 return new DADiskRef(diskSeg);
-            } catch (Throwable e) {
+            } catch (Throwable _) {
                 return new DADiskRef(MemorySegment.NULL);
             }
         }
@@ -122,7 +122,7 @@ public interface DiskArbitration {
             try (Arena arena = Arena.ofConfined()) {
                 MemorySegment nameSeg = DADiskGetBSDName(segment());
                 return ForeignFunctions.getStringFromNativePointer(nameSeg, arena);
-            } catch (Throwable e) {
+            } catch (Throwable _) {
                 return null;
             }
         }

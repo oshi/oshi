@@ -64,7 +64,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
             if (SysctlUtilFFM.sysctl("kern.boottime", timeval)) {
                 bootTime = timeval.get(JAVA_LONG, 0L);
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             // do nothing, the bootTime == 0 conditional will handle
         }
         // Usually this works. If it doesn't, fall back to text parsing.

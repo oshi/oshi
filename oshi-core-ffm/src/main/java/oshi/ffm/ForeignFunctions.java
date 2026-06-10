@@ -381,7 +381,7 @@ public abstract class ForeignFunctions {
                 MemorySegment sym = (MemorySegment) DlSyms.DLSYM.invokeExact(libHandle, nameSeg);
                 return sym.address() == 0L ? java.util.Optional.empty()
                         : java.util.Optional.of(MemorySegment.ofAddress(sym.address()));
-            } catch (Throwable t) {
+            } catch (Throwable _) {
                 return java.util.Optional.empty();
             }
         };

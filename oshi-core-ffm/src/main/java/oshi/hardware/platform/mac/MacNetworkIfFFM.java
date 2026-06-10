@@ -61,7 +61,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             LOG.debug("Failed to query SC network interface display name for {}", name);
         }
         return name;

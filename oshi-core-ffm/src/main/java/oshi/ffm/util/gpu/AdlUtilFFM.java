@@ -88,7 +88,7 @@ public final class AdlUtilFFM {
             SymbolLookup adl;
             try {
                 adl = SymbolLookup.libraryLookup("atiadlxx", Arena.global());
-            } catch (Throwable t) {
+            } catch (Throwable _) {
                 adl = SymbolLookup.libraryLookup("atiadlxy", Arena.global());
             }
             Linker linker = Linker.nativeLinker();

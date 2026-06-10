@@ -92,7 +92,7 @@ public final class KstatUtilFFM {
                     // Avoids busy-spinning on transient EAGAINs while still bounded.
                     try {
                         Thread.sleep(8L << retry);
-                    } catch (InterruptedException ie) {
+                    } catch (InterruptedException _) {
                         Thread.currentThread().interrupt();
                         return false;
                     }

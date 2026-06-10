@@ -163,7 +163,7 @@ public final class UdevFunctions extends ForeignFunctions {
         for (String name : new String[] { "udev", "libudev.so.1", "libudev.so.0" }) {
             try {
                 return name.startsWith("lib") ? SymbolLookup.libraryLookup(name, LIBRARY_ARENA) : libraryLookup(name);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException _) {
                 // try next candidate name
             }
         }

@@ -35,7 +35,7 @@ public final class IOReportFunctions extends MacForeignFunctions {
         // JNA's Native.load("IOReport", ...) which maps to the same name via System.mapLibraryName.
         try {
             return SymbolLookup.libraryLookup(System.mapLibraryName("IOReport"), LIBRARY_ARENA);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException _) {
             return null;
         }
     }

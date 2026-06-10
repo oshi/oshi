@@ -99,7 +99,7 @@ public final class IOReportClientFFM {
                     return new IOReportClientFFM(sub, subPtr);
                 }
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return null;
         }
     }
@@ -170,7 +170,7 @@ public final class IOReportClientFFM {
             } finally {
                 cfRelease(delta);
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return -1d;
         } finally {
             if (sample != null && !sample.equals(MemorySegment.NULL)) {
@@ -224,7 +224,7 @@ public final class IOReportClientFFM {
             } finally {
                 cfRelease(delta);
             }
-        } catch (Throwable e) {
+        } catch (Throwable _) {
             return -1d;
         } finally {
             if (sample != null && !sample.equals(MemorySegment.NULL)) {

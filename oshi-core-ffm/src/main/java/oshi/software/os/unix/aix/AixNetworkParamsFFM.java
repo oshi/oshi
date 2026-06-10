@@ -34,7 +34,7 @@ final class AixNetworkParamsFFM extends AixNetworkParams {
             byte[] bytes = new byte[len];
             MemorySegment.copy(buf, JAVA_BYTE, 0, bytes, 0, len);
             return new String(bytes, StandardCharsets.US_ASCII);
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             return super.getHostName();
         }
     }

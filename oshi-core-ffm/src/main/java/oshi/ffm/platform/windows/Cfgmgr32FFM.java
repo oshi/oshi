@@ -114,7 +114,7 @@ public final class Cfgmgr32FFM extends WindowsForeignFunctions {
             if (CM_Get_Device_ID(dnDevInst, buf, 260, 0) == CR_SUCCESS) {
                 return readWideString(buf);
             }
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             LOG.debug("CM_Get_Device_ID failed for node {}", dnDevInst);
         }
         return "";
@@ -137,7 +137,7 @@ public final class Cfgmgr32FFM extends WindowsForeignFunctions {
                     0) == CR_SUCCESS) {
                 return readWideString(buf);
             }
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             LOG.debug("CM_Get_DevNode_Registry_Property failed for node {} property {}", dnDevInst, ulProperty);
         }
         return "";

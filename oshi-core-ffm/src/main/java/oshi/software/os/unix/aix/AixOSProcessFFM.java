@@ -73,7 +73,7 @@ public final class AixOSProcessFFM extends AixOSProcess {
                 if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
                     return AixLibcFunctions.rlimitCur(rlim);
                 }
-            } catch (Throwable t) {
+            } catch (Throwable _) {
                 // fall through
             }
         }
@@ -88,7 +88,7 @@ public final class AixOSProcessFFM extends AixOSProcess {
                 if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
                     return AixLibcFunctions.rlimitMax(rlim);
                 }
-            } catch (Throwable t) {
+            } catch (Throwable _) {
                 // fall through
             }
         }

@@ -113,14 +113,14 @@ public class FreeBsdOperatingSystemFFM extends AbstractOperatingSystem {
     public List<OSProcess> queryChildProcesses(int parentPid) {
         List<OSProcess> allProcs = queryAllProcesses();
         Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).toList();
     }
 
     @Override
     public List<OSProcess> queryDescendantProcesses(int parentPid) {
         List<OSProcess> allProcs = queryAllProcesses();
         Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
+        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).toList();
     }
 
     @Override
