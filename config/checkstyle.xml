@@ -208,27 +208,27 @@
              value="Member name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ParameterName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LambdaParameterName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="CatchParameterName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LocalVariableName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Local variable name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="PatternVariableName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
              value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
     </module>
@@ -238,7 +238,7 @@
              value="Class type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="RecordComponentName">
-      <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^_$|^[a-z]([a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
                value="Record component name ''{0}'' must match pattern ''{1}''."/>
     </module>
