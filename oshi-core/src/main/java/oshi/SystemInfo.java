@@ -17,7 +17,7 @@ import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerJNA;
-import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayer;
+import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
 import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.OperatingSystem;
@@ -154,7 +154,7 @@ public class SystemInfo implements SystemInfoProvider {
             case WINDOWS:
                 return new WindowsHardwareAbstractionLayerJNA();
             case SOLARIS:
-                return new SolarisHardwareAbstractionLayer();
+                return new SolarisHardwareAbstractionLayerJNA();
             case FREEBSD:
                 return new FreeBsdHardwareAbstractionLayerJNA();
             case AIX:
