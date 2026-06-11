@@ -1,8 +1,8 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.common.os.unix.solaris;
 
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.util.Memoizer.defaultExpiration;
@@ -10,27 +10,24 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
-import com.sun.jna.Pointer;
-
-import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.solaris.PsInfo;
-import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
+import oshi.driver.common.unix.solaris.PsInfo;
+import oshi.driver.common.unix.solaris.SolarisLwpsInfo;
+import oshi.driver.common.unix.solaris.SolarisPrUsage;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
 import oshi.util.Util;
 
 /**
- * OSThread implementation
+ * Abstract base for Solaris OSThread. All attribute parsing is shared via the common {@code lwpsinfo}/{@code usage}
+ * carriers; there is no platform-specific behavior, so the JNA and FFM subclasses add only their constructors.
  */
-@ThreadSafe
-public class SolarisOSThread extends AbstractOSThread {
+public abstract class SolarisOSThread extends AbstractOSThread {
 
-    private Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
-    private Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private final Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
+    private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private String name;
-    private int threadId;
+    private final int threadId;
     private OSProcess.State state = OSProcess.State.INVALID;
     private long startMemoryAddress;
     private long contextSwitches;
@@ -40,7 +37,7 @@ public class SolarisOSThread extends AbstractOSThread {
     private long upTime;
     private int priority;
 
-    public SolarisOSThread(int pid, int lwpid) {
+    protected SolarisOSThread(int pid, int lwpid) {
         super(pid);
         this.threadId = lwpid;
         updateAttributes();
@@ -114,23 +111,23 @@ public class SolarisOSThread extends AbstractOSThread {
         SolarisPrUsage usage = prusage.get();
         long now = System.currentTimeMillis();
         this.state = SolarisOSProcess.getStateFromOutput((char) info.pr_sname);
-        this.startTime = info.pr_start.tv_sec.longValue() * 1000L + info.pr_start.tv_nsec.longValue() / 1_000_000L;
+        this.startTime = info.pr_start.toMillis();
         // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
         this.kernelTime = 0L;
-        this.userTime = info.pr_time.tv_sec.longValue() * 1000L + info.pr_time.tv_nsec.longValue() / 1_000_000L;
-        this.startMemoryAddress = Pointer.nativeValue(info.pr_addr);
+        this.userTime = info.pr_time.toMillis();
+        this.startMemoryAddress = info.pr_addr;
         this.priority = info.pr_pri;
+        this.contextSwitches = 0L;
         if (usage != null) {
-            this.userTime = usage.pr_utime.tv_sec.longValue() * 1000L + usage.pr_utime.tv_nsec.longValue() / 1_000_000L;
-            this.kernelTime = usage.pr_stime.tv_sec.longValue() * 1000L
-                    + usage.pr_stime.tv_nsec.longValue() / 1_000_000L;
-            this.contextSwitches = usage.pr_ictx.longValue() + usage.pr_vctx.longValue();
+            this.userTime = usage.pr_utime.toMillis();
+            this.kernelTime = usage.pr_stime.toMillis();
+            this.contextSwitches = usage.pr_ictx + usage.pr_vctx;
         }
-        this.name = com.sun.jna.Native.toString(info.pr_name);
+        this.name = PsInfo.bytesToString(info.pr_name);
         if (Util.isBlank(name)) {
-            this.name = com.sun.jna.Native.toString(info.pr_oldname);
+            this.name = PsInfo.bytesToString(info.pr_oldname);
         }
         return true;
     }

@@ -1,10 +1,10 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris.kstat;
 
-import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+import static oshi.software.os.unix.solaris.SolarisOperatingSystemJNA.HAS_KSTAT2;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 

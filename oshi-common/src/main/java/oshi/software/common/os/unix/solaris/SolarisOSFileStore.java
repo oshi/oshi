@@ -1,17 +1,21 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.solaris;
+package oshi.software.common.os.unix.solaris;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSFileStore;
 import oshi.software.os.OSFileStore;
 
+/**
+ * OSFileStore implementation for Solaris. Contains no native code, so a single concrete class serves both the JNA and
+ * FFM implementations.
+ */
 @ThreadSafe
-public class SolarisOSFileStoreFFM extends AbstractOSFileStore {
+public class SolarisOSFileStore extends AbstractOSFileStore {
 
-    public SolarisOSFileStoreFFM(String name, String volume, String label, String mount, String options, String uuid,
+    public SolarisOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {
         super(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
@@ -20,7 +24,7 @@ public class SolarisOSFileStoreFFM extends AbstractOSFileStore {
 
     @Override
     public boolean updateAttributes() {
-        for (OSFileStore fileStore : SolarisFileSystemFFM.getFileStoreMatching(getName(), isLocal())) {
+        for (OSFileStore fileStore : SolarisFileSystem.getFileStoreMatching(getName(), isLocal())) {
             if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
                 updateFrom(fileStore);
                 return true;

@@ -4,7 +4,7 @@
  */
 package oshi.hardware.platform.unix.solaris;
 
-import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
+import static oshi.software.os.unix.solaris.SolarisOperatingSystemJNA.HAS_KSTAT2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
