@@ -5,14 +5,7 @@
 package oshi.software.os.unix.openbsd;
 
 import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
-import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -71,71 +63,22 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
 
     private final OpenBsdOperatingSystemJNA os;
 
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<List<String>> arguments = memoize(this::queryArguments);
-    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
-
-    private String name;
-    private String path = "";
-    private String user;
-    private String userID;
-    private String group;
-    private String groupID;
-    private State state = INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
-    private long residentSetSize;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
-    private long minorFaults;
-    private long majorFaults;
-    private long voluntaryContextSwitches;
-    private long involuntaryContextSwitches;
-    private int bitness;
-    private String commandLineBackup;
-
     public OpenBsdOSProcessJNA(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystemJNA os) {
         super(pid);
         this.os = os;
-        // OpenBSD does not maintain a compatibility layer.
-        // Process bitness is OS bitness
-        this.bitness = Native.LONG_SIZE * 8;
         updateThreadCount();
         updateAttributes(psMap);
     }
 
     @Override
-    public String getName() {
-        return this.name;
+    protected int queryBitness() {
+        // OpenBSD does not maintain a compatibility layer.
+        // Process bitness is OS bitness
+        return Native.LONG_SIZE * 8;
     }
 
     @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getCommandLine() {
-        return this.commandLine.get();
-    }
-
-    private String queryCommandLine() {
-        String cl = String.join(" ", getArguments());
-        return cl.isEmpty() ? this.commandLineBackup : cl;
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return arguments.get();
-    }
-
-    private List<String> queryArguments() {
+    protected List<String> queryArguments() {
         if (ARGMAX > 0) {
             // Get arguments via sysctl(3)
             int[] mib = new int[4];
@@ -170,11 +113,7 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
     }
 
     @Override
-    public Map<String, String> getEnvironmentVariables() {
-        return environmentVariables.get();
-    }
-
-    private Map<String, String> queryEnvironmentVariables() {
+    protected Map<String, String> queryEnvironmentVariables() {
         // Get environment variables via sysctl(3)
         int[] mib = new int[4];
         mib[0] = 1; // CTL_KERN
@@ -215,86 +154,6 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
     }
 
     @Override
-    public String getUser() {
-        return this.user;
-    }
-
-    @Override
-    public String getUserID() {
-        return this.userID;
-    }
-
-    @Override
-    public String getGroup() {
-        return this.group;
-    }
-
-    @Override
-    public String getGroupID() {
-        return this.groupID;
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
-    public long getResidentMemory() {
-        return this.residentSetSize;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
-    }
-
-    @Override
     public long getOpenFiles() {
         return FstatUtil.getOpenFiles(getProcessID());
     }
@@ -322,33 +181,6 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
     }
 
     @Override
-    public int getBitness() {
-        return this.bitness;
-    }
-
-    @Override
-    public long getAffinityMask() {
-        long bitMask = 0L;
-        // Would prefer to use native cpuset_getaffinity call but variable sizing is
-        // kernel-dependent and requires C macros, so we use commandline instead.
-        String cpuset = ExecutingCommand.getFirstAnswer("cpuset -gp " + getProcessID());
-        // Sample output:
-        // pid 8 mask: 0, 1
-        // cpuset: getaffinity: No such process
-        String[] split = cpuset.split(":");
-        if (split.length > 1) {
-            String[] bits = split[1].split(",");
-            for (String bit : bits) {
-                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-        }
-        return bitMask;
-    }
-
-    @Override
     public List<OSThread> getThreadDetails() {
         String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
@@ -360,26 +192,6 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
                 .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
                 .filter(hasColumnsArgs).map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getVoluntaryContextSwitches() {
-        return this.voluntaryContextSwitches;
-    }
-
-    @Override
-    public long getInvoluntaryContextSwitches() {
-        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -402,29 +214,7 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
 
     private boolean updateAttributes(Map<PsKeywords, String> psMap) {
         long now = System.currentTimeMillis();
-        switch (psMap.get(PsKeywords.STATE).charAt(0)) {
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
-        }
+        this.state = getStateFromOutput(psMap.get(PsKeywords.STATE).charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
         this.user = psMap.get(PsKeywords.USER);
         this.userID = psMap.get(PsKeywords.UID);
@@ -459,6 +249,5 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
             // Subtract 1 for header
             this.threadCount = threadList.size() - 1;
         }
-        this.threadCount = 1;
     }
 }
