@@ -13,14 +13,11 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +28,10 @@ import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdInternetProtocolStats;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess;
 import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -50,14 +49,6 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystemFFM.class);
 
     private static final long BOOTTIME = querySystemBootTime();
-
-    enum PsKeywords {
-        STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,
-        ARGS;
-    }
-
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -126,7 +117,7 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
     }
 
     private List<OSProcess> getProcessListFromPS(int pid) {
-        String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
+        String psCommand = "ps -awwxo " + OpenBsdOSProcess.PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -135,13 +126,14 @@ public class OpenBsdOperatingSystemFFM extends AbstractOperatingSystem {
             return new ArrayList<>();
         }
         procList.remove(0);
-        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
+        Predicate<Map<BsdPsKeyword, String>> hasKeywordArgs = psMap -> psMap.containsKey(BsdPsKeyword.ARGS);
         List<OSProcess> procs = new ArrayList<>();
         for (String proc : procList) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
+            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class,
+                    OpenBsdOSProcess.PS_KEYWORDS, proc.trim(), ' ');
             if (hasKeywordArgs.test(psMap)) {
                 procs.add(new OpenBsdOSProcessFFM(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PID), 0) : pid, psMap, this));
             }
         }
         return procs;

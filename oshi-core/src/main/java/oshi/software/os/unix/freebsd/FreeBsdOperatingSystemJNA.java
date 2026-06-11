@@ -10,10 +10,8 @@ import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -29,6 +27,8 @@ import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc.Timeval;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.freebsd.FreeBsdOSProcess;
 import oshi.software.common.os.unix.freebsd.FreeBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -54,17 +54,6 @@ public class FreeBsdOperatingSystemJNA extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
-
-    /*
-     * Package-private for use by FreeBsdOSProcessJNA
-     */
-    enum PsKeywords {
-        STATE, PID, PPID, USER, UID, GROUP, GID, NLWP, PRI, VSZ, RSS, ETIMES, SYSTIME, TIME, COMM, MAJFLT, MINFLT,
-        NVCSW, NIVCSW, ARGS; // ARGS must always be last
-    }
-
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -134,16 +123,18 @@ public class FreeBsdOperatingSystemJNA extends AbstractOperatingSystem {
     }
 
     private List<OSProcess> getProcessListFromPS(int pid) {
-        String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
+        String psCommand = "ps -awwxo " + FreeBsdOSProcess.PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
 
-        Predicate<Map<PsKeywords, String>> hasKeywordArgs = psMap -> psMap.containsKey(PsKeywords.ARGS);
+        Predicate<Map<BsdPsKeyword, String>> hasKeywordArgs = psMap -> psMap.containsKey(BsdPsKeyword.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(proc -> ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ')).filter(hasKeywordArgs)
+                .map(proc -> ParseUtil
+                        .stringToEnumMap(BsdPsKeyword.class, FreeBsdOSProcess.PS_KEYWORDS, proc.trim(), ' '))
+                .filter(hasKeywordArgs)
                 .map(psMap -> new FreeBsdOSProcessJNA(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this))
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PID), 0) : pid, psMap, this))
                 .filter(VALID_PROCESS).collect(Collectors.toList());
     }
 

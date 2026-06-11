@@ -15,8 +15,6 @@ import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ARGV
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ENV;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.RLIMIT_NOFILE;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.SIZE_T;
-import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -25,8 +23,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +31,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
-import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
-import oshi.software.os.OSThread;
-import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemFFM.PsKeywords;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 @ThreadSafe
@@ -56,10 +48,9 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
 
     private final OpenBsdOperatingSystemFFM os;
 
-    public OpenBsdOSProcessFFM(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystemFFM os) {
+    public OpenBsdOSProcessFFM(int pid, Map<BsdPsKeyword, String> psMap, OpenBsdOperatingSystemFFM os) {
         super(pid);
         this.os = os;
-        updateThreadCount();
         updateAttributes(psMap);
     }
 
@@ -176,66 +167,4 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
         }, LOG, org.slf4j.event.Level.WARN, "Failed getrlimit", -1L);
     }
 
-    @Override
-    public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS;
-        if (getProcessID() >= 0) {
-            psCommand += " -p " + getProcessID();
-        }
-        Predicate<Map<PsThreadColumns, String>> hasColumnsArgs = threadMap -> threadMap
-                .containsKey(PsThreadColumns.ARGS);
-        return ExecutingCommand.runNative(psCommand).stream().skip(1)
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
-                .filter(hasColumnsArgs).map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
-                .filter(VALID_THREAD).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        String psCommand = "ps -awwxo " + OpenBsdOperatingSystemFFM.PS_COMMAND_ARGS + " -p " + getProcessID();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
-        if (procList.size() > 1) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, procList.get(1).trim(), ' ');
-            if (psMap.containsKey(PsKeywords.ARGS)) {
-                updateThreadCount();
-                return updateAttributes(psMap);
-            }
-        }
-        this.state = INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Map<PsKeywords, String> psMap) {
-        long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(psMap.get(PsKeywords.STATE).charAt(0));
-        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
-        this.user = psMap.get(PsKeywords.USER);
-        this.userID = psMap.get(PsKeywords.UID);
-        this.group = psMap.get(PsKeywords.GROUP);
-        this.groupID = psMap.get(PsKeywords.GID);
-        this.priority = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PRI), 0);
-        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.VSZ), 0) * 1024;
-        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.RSS), 0) * 1024;
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.ETIME), 0L);
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.startTime = now - this.upTime;
-        this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(PsKeywords.CPUTIME), 0L);
-        this.kernelTime = 0L;
-        this.path = psMap.get(PsKeywords.COMM);
-        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
-        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MINFLT), 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.MAJFLT), 0L);
-        this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NVCSW), 0L);
-        this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(PsKeywords.NIVCSW), 0L);
-        this.commandLineBackup = psMap.get(PsKeywords.ARGS);
-        return true;
-    }
-
-    private void updateThreadCount() {
-        List<String> threadList = ExecutingCommand.runNative("ps -axHo tid -p " + getProcessID());
-        if (!threadList.isEmpty()) {
-            this.threadCount = threadList.size() - 1;
-        }
-        this.threadCount = Math.max(this.threadCount, 1);
-    }
 }
