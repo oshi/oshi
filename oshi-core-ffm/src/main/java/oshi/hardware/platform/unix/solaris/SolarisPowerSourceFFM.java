@@ -6,18 +6,19 @@ package oshi.hardware.platform.unix.solaris;
 
 import java.lang.foreign.MemorySegment;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
 import oshi.hardware.PowerSource;
-import oshi.hardware.common.AbstractPowerSource;
-import oshi.util.Constants;
+import oshi.hardware.common.platform.unix.solaris.SolarisPowerSource;
 
+/**
+ * FFM-backed Solaris PowerSource.
+ */
 @ThreadSafe
-public final class SolarisPowerSourceFFM extends AbstractPowerSource {
+public final class SolarisPowerSourceFFM extends SolarisPowerSource {
 
     private static final String[] KSTAT_BATT_MOD = { null, "battery", "acpi_drv" };
 
@@ -52,91 +53,41 @@ public final class SolarisPowerSourceFFM extends AbstractPowerSource {
         return getPowerSources();
     }
 
+    /**
+     * Gets Battery Information.
+     *
+     * @return A list of PowerSource objects representing batteries, etc.
+     */
     public static List<PowerSource> getPowerSources() {
-        return Arrays.asList(getPowerSource("BAT0"));
+        return buildPowerSources("BAT0", readBattery(), SolarisPowerSourceFFM::new);
     }
 
-    private static SolarisPowerSourceFFM getPowerSource(String name) {
-        String psName = name;
-        String psDeviceName = Constants.UNKNOWN;
-        double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = -1d;
-        double psTimeRemainingInstant = 0d;
-        double psPowerUsageRate = 0d;
-        double psVoltage = -1d;
-        double psAmperage = 0d;
-        boolean psPowerOnLine = false;
-        boolean psCharging = false;
-        boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
-        int psCurrentCapacity = 0;
-        int psMaxCapacity = 1;
-        int psDesignCapacity = 1;
-        int psCycleCount = -1;
-        String psChemistry = Constants.UNKNOWN;
-        LocalDate psManufactureDate = null;
-        String psManufacturer = Constants.UNKNOWN;
-        String psSerialNumber = Constants.UNKNOWN;
-        double psTemperature = 0d;
-
+    private static BatteryReadings readBattery() {
+        BatteryReadings readings = new BatteryReadings();
         if (KSTAT_BATT_IDX > 0) {
             try (KstatChain kc = KstatUtilFFM.openChain()) {
                 MemorySegment ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BIF0");
                 if (ksp.address() != 0L && kc.read(ksp)) {
-                    long energyFull = KstatUtilFFM.dataLookupLong(ksp, "bif_last_cap");
-                    if (energyFull == 0xffffffffL || energyFull <= 0) {
-                        energyFull = KstatUtilFFM.dataLookupLong(ksp, "bif_design_cap");
-                    }
-                    if (energyFull != 0xffffffffL && energyFull > 0) {
-                        psMaxCapacity = (int) energyFull;
-                    }
-                    long unit = KstatUtilFFM.dataLookupLong(ksp, "bif_unit");
-                    if (unit == 0) {
-                        psCapacityUnits = CapacityUnits.MWH;
-                    } else if (unit == 1) {
-                        psCapacityUnits = CapacityUnits.MAH;
-                    }
-                    psDeviceName = KstatUtilFFM.dataLookupString(ksp, "bif_model");
-                    psSerialNumber = KstatUtilFFM.dataLookupString(ksp, "bif_serial");
-                    psChemistry = KstatUtilFFM.dataLookupString(ksp, "bif_type");
-                    psManufacturer = KstatUtilFFM.dataLookupString(ksp, "bif_oem_info");
+                    readings.bifValid = true;
+                    readings.bifLastCap = KstatUtilFFM.dataLookupLong(ksp, "bif_last_cap");
+                    readings.bifDesignCap = KstatUtilFFM.dataLookupLong(ksp, "bif_design_cap");
+                    readings.bifUnit = KstatUtilFFM.dataLookupLong(ksp, "bif_unit");
+                    readings.bifModel = KstatUtilFFM.dataLookupString(ksp, "bif_model");
+                    readings.bifSerial = KstatUtilFFM.dataLookupString(ksp, "bif_serial");
+                    readings.bifType = KstatUtilFFM.dataLookupString(ksp, "bif_type");
+                    readings.bifOemInfo = KstatUtilFFM.dataLookupString(ksp, "bif_oem_info");
                 }
 
                 ksp = kc.lookup(KSTAT_BATT_MOD[KSTAT_BATT_IDX], 0, "battery BST0");
                 if (ksp.address() != 0L && kc.read(ksp)) {
-                    long energyNow = KstatUtilFFM.dataLookupLong(ksp, "bst_rem_cap");
-                    if (energyNow >= 0) {
-                        psCurrentCapacity = (int) energyNow;
-                    }
-                    long powerNow = KstatUtilFFM.dataLookupLong(ksp, "bst_rate");
-                    if (powerNow == 0xFFFFFFFFL) {
-                        powerNow = 0L;
-                    }
-                    psPowerUsageRate = powerNow;
-                    // Battery State:
-                    // bit 0 = discharging
-                    // bit 1 = charging
-                    // bit 2 = critical energy state
-                    long bstState = KstatUtilFFM.dataLookupLong(ksp, "bst_state");
-                    psDischarging = (bstState & 0x1) > 0;
-                    psCharging = (bstState & 0x2) > 0;
-
-                    if (psDischarging) {
-                        psTimeRemainingEstimated = powerNow > 0 ? 3600d * energyNow / powerNow : -1d;
-                    }
-
-                    long voltageNow = KstatUtilFFM.dataLookupLong(ksp, "bst_voltage");
-                    if (voltageNow > 0) {
-                        psVoltage = voltageNow / 1000d;
-                        psAmperage = psPowerUsageRate * 1000d / voltageNow;
-                    }
+                    readings.bstValid = true;
+                    readings.bstRemCap = KstatUtilFFM.dataLookupLong(ksp, "bst_rem_cap");
+                    readings.bstRate = KstatUtilFFM.dataLookupLong(ksp, "bst_rate");
+                    readings.bstState = KstatUtilFFM.dataLookupLong(ksp, "bst_state");
+                    readings.bstVoltage = KstatUtilFFM.dataLookupLong(ksp, "bst_voltage");
                 }
             }
         }
-
-        return new SolarisPowerSourceFFM(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+        return readings;
     }
 }

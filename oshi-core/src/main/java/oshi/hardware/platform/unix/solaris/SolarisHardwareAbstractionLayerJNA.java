@@ -56,7 +56,7 @@ public final class SolarisHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return SolarisPowerSource.getPowerSources();
+        return SolarisPowerSourceJNA.getPowerSources();
     }
 
     @Override
