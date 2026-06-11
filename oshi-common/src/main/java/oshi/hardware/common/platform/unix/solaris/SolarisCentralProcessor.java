@@ -4,6 +4,7 @@
  */
 package oshi.hardware.common.platform.unix.solaris;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,8 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        List<LogicalProcessor> logProcs = queryLogicalProcessors();
+        // Defensive copy: the base appends a fallback entry, so don't assume the subclass returned a mutable list
+        List<LogicalProcessor> logProcs = new ArrayList<>(queryLogicalProcessors());
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
