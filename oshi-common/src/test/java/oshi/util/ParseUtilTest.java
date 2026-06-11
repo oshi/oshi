@@ -924,6 +924,28 @@ class ParseUtilTest {
     }
 
     @Test
+    void teststringToEnumMapWithKeys() {
+        // Explicit key order independent of ordinal order; last key slurps the remainder
+        List<TestEnum> keys = Arrays.asList(TestEnum.BAZ, TestEnum.FOO);
+        Map<TestEnum, String> map = ParseUtil.stringToEnumMap(TestEnum.class, keys, "one two,three four", ' ');
+        assertThat(map.get(TestEnum.BAZ), is("one"));
+        assertThat(map.get(TestEnum.FOO), is("two,three four"));
+        assertThat(map.containsKey(TestEnum.BAR), is(false));
+
+        // Fewer values than keys: later keys are not mapped
+        map = ParseUtil.stringToEnumMap(TestEnum.class, keys, "only", ' ');
+        assertThat(map.get(TestEnum.BAZ), is("only"));
+        assertThat(map.containsKey(TestEnum.FOO), is(false));
+
+        // Consecutive delimiters are treated as one
+        List<TestEnum> three = Arrays.asList(TestEnum.FOO, TestEnum.BAR, TestEnum.BAZ);
+        map = ParseUtil.stringToEnumMap(TestEnum.class, three, "one,,two,three", ',');
+        assertThat(map.get(TestEnum.FOO), is("one"));
+        assertThat(map.get(TestEnum.BAR), is("two"));
+        assertThat(map.get(TestEnum.BAZ), is("three"));
+    }
+
+    @Test
     void testgetValueOrUnknown() {
         String key = "key";
         Map<String, String> map = new HashMap<>();
