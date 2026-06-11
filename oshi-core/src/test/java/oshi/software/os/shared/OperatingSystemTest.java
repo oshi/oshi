@@ -209,8 +209,12 @@ class OperatingSystemTest {
         if (currentThread.updateAttributes()) {
             assertThat("Thread kernel time should be nondecreasing after update", currentThread.getKernelTime(),
                     is(greaterThanOrEqualTo(preKernel)));
-            assertThat("Thread user time should be nondecreasing after update", currentThread.getUserTime(),
-                    is(greaterThanOrEqualTo(preUser)));
+            // The user-time component alone can dip between two back-to-back reads on platforms that derive it as
+            // (total - kernel) from coarse-resolution ps columns: the ps syscall itself bumps kernel time while the
+            // total rounds unchanged. Assert the total CPU time (which maps to the monotonic ps TIME) is nondecreasing.
+            assertThat("Thread total CPU time should be nondecreasing after update",
+                    currentThread.getUserTime() + currentThread.getKernelTime(),
+                    is(greaterThanOrEqualTo(preUser + preKernel)));
         }
     }
 
