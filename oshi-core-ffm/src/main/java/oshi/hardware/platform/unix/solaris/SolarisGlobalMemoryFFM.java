@@ -11,10 +11,11 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.kstat.SystemPagesFFM;
+import oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory;
 import oshi.util.tuples.Pair;
 
 @ThreadSafe
-final class SolarisGlobalMemoryFFM extends oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory {
+final class SolarisGlobalMemoryFFM extends SolarisGlobalMemory {
 
     private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPagesFFM::queryAvailableTotal,
             defaultExpiration());

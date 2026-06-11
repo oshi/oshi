@@ -9,13 +9,8 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +19,16 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
-import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.hardware.common.platform.unix.solaris.SolarisCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Quartet;
 
+/**
+ * FFM-backed Solaris CPU. Uses the legacy {@code kstat} chain only; Kstat2 exists only on the JDK 17-capped latest
+ * Solaris, so FFM (JDK 25) never needs it.
+ */
 @ThreadSafe
-final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
+final class SolarisCentralProcessorFFM extends SolarisCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisCentralProcessorFFM.class);
 
@@ -63,7 +61,7 @@ final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected List<LogicalProcessor> queryLogicalProcessors() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         List<LogicalProcessor> logProcs = new ArrayList<>();
         try (KstatChain kc = KstatUtilFFM.openChain()) {
@@ -78,51 +76,7 @@ final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
                 }
             }
         }
-        if (logProcs.isEmpty()) {
-            logProcs.add(new LogicalProcessor(0, 0, 0));
-        }
-        Map<Integer, String> dmesg = new HashMap<>();
-        Pattern p = Pattern.compile(".* cpu(\\d+): ((ARM|AMD|Intel).+)");
-        for (String s : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = p.matcher(s);
-            if (m.matches()) {
-                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                dmesg.put(coreId, m.group(2).trim());
-            }
-        }
-        if (dmesg.isEmpty()) {
-            return new Quartet<>(logProcs, null, null, Collections.emptyList());
-        }
-        List<String> featureFlags = ExecutingCommand.runNative("isainfo -x");
-        return new Quartet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null, featureFlags);
-    }
-
-    private static Map<Integer, Integer> mapNumaNodes() {
-        Map<Integer, Integer> numaNodeMap = new HashMap<>();
-        int lgroup = 0;
-        for (String line : ExecutingCommand.runNative("lgrpinfo -c leaves")) {
-            if (line.startsWith("lgroup")) {
-                lgroup = ParseUtil.getFirstIntValue(line);
-            } else if (line.contains("CPUs:") || line.contains("CPU:")) {
-                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":")[1])) {
-                    numaNodeMap.put(cpu, lgroup);
-                }
-            }
-        }
-        return numaNodeMap;
-    }
-
-    @Override
-    public long[] querySystemCpuLoadTicks() {
-        long[] ticks = new long[TickType.values().length];
-        long[][] procTicks = getProcessorCpuLoadTicks();
-        for (int i = 0; i < ticks.length; i++) {
-            for (long[] procTick : procTicks) {
-                ticks[i] += procTick[i];
-            }
-            ticks[i] /= procTicks.length;
-        }
-        return ticks;
+        return logProcs;
     }
 
     @Override
@@ -203,41 +157,5 @@ final class SolarisCentralProcessorFFM extends AbstractCentralProcessor {
             }
         }
         return ticks;
-    }
-
-    private static String getProcessorID(String stepping, String model, String family) {
-        List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
-        StringBuilder flags = new StringBuilder();
-        for (String line : isainfo) {
-            if (line.startsWith("32-bit")) {
-                break;
-            } else if (!line.startsWith("64-bit")) {
-                flags.append(' ').append(line.trim());
-            }
-        }
-        return createProcessorID(stepping, model, family,
-                ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
-    }
-
-    @Override
-    public long queryContextSwitches() {
-        long swtch = 0;
-        // Shell-escaped pipe: Java \\\\| → shell \\| → kstat regex \| → matches literal pipe.
-        // Matches the JNA SolarisCentralProcessor invocation exactly.
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
-        for (String s : kstat) {
-            swtch += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swtch;
-    }
-
-    @Override
-    public long queryInterrupts() {
-        long intr = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
-        for (String s : kstat) {
-            intr += ParseUtil.parseLastLong(s, 0L);
-        }
-        return intr;
     }
 }

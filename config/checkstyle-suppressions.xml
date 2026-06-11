@@ -62,6 +62,10 @@
     <suppress checks="MemberName" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
     <suppress checks="VisibilityModifier" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
 
+    <!-- Solaris shared HAL abstract bases use public data POJOs (DiskStats, IfStats) for the kstat
+         I/O and interface counters that the JNA and FFM subclasses populate. -->
+    <suppress checks="VisibilityModifier" files="(SolarisHWDiskStore|SolarisNetworkIF)\.java"/>
+
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 

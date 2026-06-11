@@ -11,10 +11,14 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.kstat.SystemPages;
+import oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory;
 import oshi.util.tuples.Pair;
 
+/**
+ * JNA-backed Solaris GlobalMemory.
+ */
 @ThreadSafe
-final class SolarisGlobalMemory extends oshi.hardware.common.platform.unix.solaris.SolarisGlobalMemory {
+final class SolarisGlobalMemoryJNA extends SolarisGlobalMemory {
 
     private final Supplier<Pair<Long, Long>> availTotal = memoize(SystemPages::queryAvailableTotal,
             defaultExpiration());

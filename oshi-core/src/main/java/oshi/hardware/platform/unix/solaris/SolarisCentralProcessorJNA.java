@@ -8,30 +8,24 @@ import static oshi.software.os.unix.solaris.SolarisOperatingSystemJNA.HAS_KSTAT2
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.hardware.common.platform.unix.solaris.SolarisCentralProcessor;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Quartet;
 
 /**
- * A CPU
+ * JNA-backed Solaris CPU. Uses Kstat2 (Solaris 11.4+) where available, falling back to the legacy {@code kstat} chain.
  */
 @ThreadSafe
-final class SolarisCentralProcessor extends AbstractCentralProcessor {
+final class SolarisCentralProcessorJNA extends SolarisCentralProcessor {
 
     private static final String KSTAT_SYSTEM_CPU = "kstat:/system/cpu/";
     private static final String INFO = "/info";
@@ -93,105 +87,38 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        List<LogicalProcessor> logProcs;
+    protected List<LogicalProcessor> queryLogicalProcessors() {
         Map<Integer, Integer> numaNodeMap = mapNumaNodes();
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
-            logProcs = initProcessorCounts2(numaNodeMap);
-        } else {
-            logProcs = new ArrayList<>();
-            try (KstatChain kc = KstatUtil.openChain()) {
-                List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
-
-                for (Kstat ksp : kstats) {
-                    if (ksp != null && kc.read(ksp)) {
-                        int procId = logProcs.size(); // 0-indexed
-                        String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
-                        String coreId = KstatUtil.dataLookupString(ksp, "core_id");
-                        LogicalProcessor logProc = new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
-                                ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0));
-                        logProcs.add(logProc);
-                    }
+            return initProcessorCounts2(numaNodeMap);
+        }
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        try (KstatChain kc = KstatUtil.openChain()) {
+            List<Kstat> kstats = kc.lookupAll(CPU_INFO, -1, null);
+            for (Kstat ksp : kstats) {
+                if (ksp != null && kc.read(ksp)) {
+                    int procId = logProcs.size(); // 0-indexed
+                    String chipId = KstatUtil.dataLookupString(ksp, "chip_id");
+                    String coreId = KstatUtil.dataLookupString(ksp, "core_id");
+                    logProcs.add(new LogicalProcessor(procId, ParseUtil.parseIntOrDefault(coreId, 0),
+                            ParseUtil.parseIntOrDefault(chipId, 0), numaNodeMap.getOrDefault(procId, 0)));
                 }
             }
         }
-        if (logProcs.isEmpty()) {
-            logProcs.add(new LogicalProcessor(0, 0, 0));
-        }
-        Map<Integer, String> dmesg = new HashMap<>();
-        // Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r)
-        // CPU J3455 @ 1.50GHz
-        // but NOT: Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid
-        // 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
-        Pattern p = Pattern.compile(".* cpu(\\d+): ((ARM|AMD|Intel).+)");
-        for (String s : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = p.matcher(s);
-            if (m.matches()) {
-                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                dmesg.put(coreId, m.group(2).trim());
-            }
-        }
-        if (dmesg.isEmpty()) {
-            return new Quartet<>(logProcs, null, null, Collections.emptyList());
-        }
-        List<String> featureFlags = ExecutingCommand.runNative("isainfo -x");
-        return new Quartet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), null, featureFlags);
+        return logProcs;
     }
 
     private static List<LogicalProcessor> initProcessorCounts2(Map<Integer, Integer> numaNodeMap) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
-
         List<Object[]> results = KstatUtil.queryKstat2List(KSTAT_SYSTEM_CPU, INFO, "chip_id", "core_id");
         for (Object[] result : results) {
             int procId = logProcs.size();
             long chipId = result[0] == null ? 0L : (long) result[0];
             long coreId = result[1] == null ? 0L : (long) result[1];
-            LogicalProcessor logProc = new LogicalProcessor(procId, (int) coreId, (int) chipId,
-                    numaNodeMap.getOrDefault(procId, 0));
-            logProcs.add(logProc);
-        }
-        if (logProcs.isEmpty()) {
-            logProcs.add(new LogicalProcessor(0, 0, 0));
+            logProcs.add(new LogicalProcessor(procId, (int) coreId, (int) chipId, numaNodeMap.getOrDefault(procId, 0)));
         }
         return logProcs;
-    }
-
-    private static Map<Integer, Integer> mapNumaNodes() {
-        // Get numa node info from lgrpinfo
-        Map<Integer, Integer> numaNodeMap = new HashMap<>();
-        int lgroup = 0;
-        for (String line : ExecutingCommand.runNative("lgrpinfo -c leaves")) {
-            // Format:
-            // lgroup 0 (root):
-            // CPUs: 0 1
-            // CPUs: 0-7
-            // CPUs: 0-3 6 7 12 13
-            // CPU: 0
-            // CPU: 1
-            if (line.startsWith("lgroup")) {
-                lgroup = ParseUtil.getFirstIntValue(line);
-            } else if (line.contains("CPUs:") || line.contains("CPU:")) {
-                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":")[1])) {
-                    numaNodeMap.put(cpu, lgroup);
-                }
-            }
-        }
-        return numaNodeMap;
-    }
-
-    @Override
-    public long[] querySystemCpuLoadTicks() {
-        long[] ticks = new long[TickType.values().length];
-        // Average processor ticks
-        long[][] procTicks = getProcessorCpuLoadTicks();
-        for (int i = 0; i < ticks.length; i++) {
-            for (long[] procTick : procTicks) {
-                ticks[i] += procTick[i];
-            }
-            ticks[i] /= procTicks.length;
-        }
-        return ticks;
     }
 
     @Override
@@ -324,40 +251,13 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
         return ticks;
     }
 
-    /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and feature flags.
-     *
-     * @param stepping The stepping
-     * @param model    The model
-     * @param family   The family
-     * @return The Processor ID string
-     */
-    private static String getProcessorID(String stepping, String model, String family) {
-        List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
-        StringBuilder flags = new StringBuilder();
-        for (String line : isainfo) {
-            if (line.startsWith("32-bit")) {
-                break;
-            } else if (!line.startsWith("64-bit")) {
-                flags.append(' ').append(line.trim());
-            }
-        }
-        return createProcessorID(stepping, model, family,
-                ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
-    }
-
     @Override
     public long queryContextSwitches() {
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
             return queryContextSwitches2();
         }
-        long swtch = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
-        for (String s : kstat) {
-            swtch += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swtch;
+        return super.queryContextSwitches();
     }
 
     private static long queryContextSwitches2() {
@@ -376,12 +276,7 @@ final class SolarisCentralProcessor extends AbstractCentralProcessor {
             // Use Kstat2 implementation
             return queryInterrupts2();
         }
-        long intr = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
-        for (String s : kstat) {
-            intr += ParseUtil.parseLastLong(s, 0L);
-        }
-        return intr;
+        return super.queryInterrupts();
     }
 
     private static long queryInterrupts2() {

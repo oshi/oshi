@@ -29,10 +29,10 @@ import oshi.hardware.common.platform.unix.solaris.SolarisUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
- * SolarisHardwareAbstractionLayer class.
+ * JNA-backed Solaris HardwareAbstractionLayer.
  */
 @ThreadSafe
-public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public final class SolarisHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
@@ -41,12 +41,12 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public GlobalMemory createMemory() {
-        return new SolarisGlobalMemory();
+        return new SolarisGlobalMemoryJNA();
     }
 
     @Override
     public CentralProcessor createProcessor() {
-        return new SolarisCentralProcessor();
+        return new SolarisCentralProcessorJNA();
     }
 
     @Override
@@ -61,7 +61,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<HWDiskStore> getDiskStores() {
-        return SolarisHWDiskStore.getDisks();
+        return SolarisHWDiskStoreJNA.getDisks();
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class SolarisHardwareAbstractionLayer extends AbstractHardwareAbstr
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return SolarisNetworkIF.getNetworks(includeLocalInterfaces);
+        return SolarisNetworkIFJNA.getNetworks(includeLocalInterfaces);
     }
 
     @Override
