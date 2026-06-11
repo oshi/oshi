@@ -25,6 +25,7 @@ module com.github.oshi.common {
     exports oshi.driver.common.unix.bsd;
     exports oshi.driver.common.unix.bsd.disk;
     exports oshi.driver.common.unix.freebsd.disk;
+    exports oshi.driver.common.unix.solaris;
     exports oshi.driver.common.unix.solaris.disk;
     exports oshi.driver.common.windows.perfmon;
     exports oshi.driver.common.windows.registry;
