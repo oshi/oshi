@@ -124,7 +124,7 @@ public abstract class SolarisPowerSource extends AbstractPowerSource {
         if (readings.bstValid) {
             // estimated remaining battery capacity
             long energyNow = readings.bstRemCap;
-            if (energyNow >= 0) {
+            if (energyNow >= 0 && energyNow != UNKNOWN_CAP) {
                 psCurrentCapacity = (int) energyNow;
             }
             // power or current supplied at battery terminal
