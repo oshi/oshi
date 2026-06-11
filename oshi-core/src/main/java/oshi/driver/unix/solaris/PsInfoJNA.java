@@ -191,6 +191,7 @@ public final class PsInfoJNA {
     }
 
     private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
-        return increment == 8 ? buffer.getLong(offset) : buffer.getInt(offset);
+        // For 32-bit processes read the pointer as unsigned so high addresses (>= 0x80000000) aren't sign-extended
+        return increment == 8 ? buffer.getLong(offset) : Integer.toUnsignedLong(buffer.getInt(offset));
     }
 }

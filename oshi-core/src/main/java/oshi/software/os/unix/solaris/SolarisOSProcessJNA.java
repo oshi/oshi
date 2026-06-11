@@ -44,8 +44,10 @@ public final class SolarisOSProcessJNA extends SolarisOSProcess {
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
+            if (SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit) == 0) {
+                return rlimit.rlim_cur;
+            }
+            return -1L;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 1);
         }
@@ -55,8 +57,10 @@ public final class SolarisOSProcessJNA extends SolarisOSProcess {
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
+            if (SolarisLibc.INSTANCE.getrlimit(SolarisLibc.RLIMIT_NOFILE, rlimit) == 0) {
+                return rlimit.rlim_max;
+            }
+            return -1L;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 2);
         }

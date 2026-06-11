@@ -165,9 +165,10 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
     }
 
     private static Pair<Long, Long> queryBootAndUptime() {
-        Object[] results = KstatUtil.queryKstat2("/misc/unix/system_misc", "boot_time", "snaptime");
+        Object[] results = KstatUtil.queryKstat2("kstat:/misc/unix/system_misc", "boot_time", "snaptime");
 
-        long boot = results[0] == null ? System.currentTimeMillis() : (long) results[0];
+        // boot_time is epoch seconds; keep the fallback in seconds to match getSystemBootTime()
+        long boot = results[0] == null ? System.currentTimeMillis() / 1000L : (long) results[0];
         // Snap Time is in nanoseconds; divide for seconds
         long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;
 

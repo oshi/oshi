@@ -50,7 +50,7 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
     }
 
     // Called by SolarisOSFileStore
-    public static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data

@@ -427,7 +427,11 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
             return -1;
         }
         // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
+        // A non-numeric limit (e.g. "nofiles(descriptors) 256 unlimited") yields fewer tokens
         final String[] split = nofilesLine.get().split("\\D+");
+        if (split.length <= index) {
+            return -1;
+        }
         return ParseUtil.parseLongOrDefault(split[index], -1);
     }
 

@@ -28,6 +28,7 @@ class PsInfoTest {
     void testQueryPsInfo() {
         int pid = new SystemInfo().getOperatingSystem().getProcessId();
         SolarisPsInfo psinfo = PsInfo.queryPsInfo(pid);
+        assertNotNull(psinfo, "psinfo should not be null for the current process");
         assertThat("Process ID in structure should match PID", psinfo.pr_pid, is(pid));
         File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", pid));
         File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
@@ -35,6 +36,7 @@ class PsInfoTest {
         for (File lwpidFile : numericFiles) {
             int tid = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
             SolarisLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(pid, tid);
+            assertNotNull(lwpsinfo, "lwpsinfo should not be null for an enumerated thread");
             assertThat("Thread ID in structure should match TID", lwpsinfo.pr_lwpid, is(tid));
         }
     }

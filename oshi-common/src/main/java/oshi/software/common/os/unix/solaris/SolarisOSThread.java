@@ -119,6 +119,7 @@ public abstract class SolarisOSThread extends AbstractOSThread {
         this.userTime = info.pr_time.toMillis();
         this.startMemoryAddress = info.pr_addr;
         this.priority = info.pr_pri;
+        this.contextSwitches = 0L;
         if (usage != null) {
             this.userTime = usage.pr_utime.toMillis();
             this.kernelTime = usage.pr_stime.toMillis();
