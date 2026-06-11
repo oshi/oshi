@@ -226,6 +226,94 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         return bitMask;
     }
 
+    @Override
+    public boolean updateAttributes() {
+        List<BsdPsKeyword> cols = psKeywords();
+        String psCommand = "ps -awwxo " + psCommandArgs() + " -p " + getProcessID();
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.size() > 1) {
+            // Skip the header row and parse the first data row against this platform's columns
+            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class, cols,
+                    procList.get(1).trim(), ' ');
+            // Check if the last (thus all) value populated
+            if (psMap.containsKey(cols.get(cols.size() - 1))) {
+                return updateAttributes(psMap);
+            }
+        }
+        this.state = State.INVALID;
+        return false;
+    }
+
+    /**
+     * Populates this process's attributes from a parsed {@code ps} row. Shared by every BSD platform; differences in
+     * the available columns are handled by checking which keys are present in the map.
+     *
+     * @param psMap the parsed {@code ps} columns for this process
+     * @return {@code true} once the attributes are populated
+     */
+    protected boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
+        long now = System.currentTimeMillis();
+        this.state = getStateFromOutput(psMap.get(BsdPsKeyword.STATE).charAt(0));
+        this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PPID), 0);
+        this.user = psMap.get(BsdPsKeyword.USER);
+        this.userID = psMap.get(BsdPsKeyword.UID);
+        // Most platforms report a group name and gid. DragonFly's ps has no group column, so fall
+        // back to the user name and the real group id.
+        if (psMap.containsKey(BsdPsKeyword.GROUP)) {
+            this.group = psMap.get(BsdPsKeyword.GROUP);
+            this.groupID = psMap.get(BsdPsKeyword.GID);
+        } else {
+            this.group = this.user;
+            this.groupID = psMap.get(BsdPsKeyword.RGID);
+        }
+        this.priority = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PRI), 0);
+        // These are in KB, multiply
+        this.virtualSize = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.VSZ), 0) * 1024;
+        this.residentSetSize = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.RSS), 0) * 1024;
+        // Thread count comes from the nlwp column where present; platforms that omit it (OpenBSD,
+        // NetBSD) populate it via a separate ps query.
+        if (psMap.containsKey(BsdPsKeyword.NLWP)) {
+            this.threadCount = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.NLWP), 0);
+        } else {
+            updateThreadCount();
+        }
+        // Kernel/user time: FreeBSD reports systime separately (time is user+sys); the others fold
+        // kernel time into a single cputime/time column.
+        if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
+            this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
+            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - this.kernelTime;
+        } else if (psMap.containsKey(BsdPsKeyword.CPUTIME)) {
+            this.kernelTime = 0L;
+            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.CPUTIME), 0L);
+        } else {
+            this.kernelTime = 0L;
+            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L);
+        }
+        // Start/up time: DragonFly resolves an absolute start time from /proc; the others derive it
+        // from the ps elapsed-time column.
+        long startMillis = queryStartTimeMillis();
+        if (startMillis > 0L) {
+            this.startTime = startMillis;
+            this.upTime = Math.max(1L, now - startMillis);
+        } else {
+            BsdPsKeyword elapsedKey = psMap.containsKey(BsdPsKeyword.ETIMES) ? BsdPsKeyword.ETIMES : BsdPsKeyword.ETIME;
+            long elapsedTime = ParseUtil.parseDHMSOrDefault(psMap.get(elapsedKey), 0L);
+            this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
+            this.startTime = now - this.upTime;
+        }
+        // Path/name come from comm (ucomm on DragonFly)
+        this.path = psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM);
+        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
+        this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MINFLT), 0L);
+        this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MAJFLT), 0L);
+        this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
+        this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
+        // Command-line fallback: the full args column (named "command" on DragonFly)
+        this.commandLineBackup = psMap
+                .get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS);
+        return true;
+    }
+
     /**
      * Maps a {@code ps} single-character state to an {@link State}.
      *
@@ -276,6 +364,41 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             return -1;
         }
         return ParseUtil.parseLongOrDefault(split[index], -1);
+    }
+
+    /**
+     * Returns this platform's ordered {@code ps} column keys, used both to build the {@code ps} command and to parse
+     * its output positionally.
+     *
+     * @return the ordered column keys
+     */
+    protected abstract List<BsdPsKeyword> psKeywords();
+
+    /**
+     * Returns the comma-separated {@code ps -o} column list for this platform, derived from {@link #psKeywords()}.
+     *
+     * @return the {@code ps} column argument
+     */
+    protected abstract String psCommandArgs();
+
+    /**
+     * Returns this process's start time in epoch milliseconds, or {@code -1} to derive it from the {@code ps}
+     * elapsed-time column. The default derives from elapsed time; platforms with an absolute source (DragonFly's
+     * {@code /proc}) override this.
+     *
+     * @return the start time in epoch milliseconds, or {@code -1} to derive from elapsed time
+     */
+    protected long queryStartTimeMillis() {
+        return -1L;
+    }
+
+    /**
+     * Populates {@link #threadCount} for platforms whose {@code ps} output lacks an {@code nlwp} column. The default is
+     * a no-op (the count is taken from the {@code nlwp} column); OpenBSD and NetBSD override this with a separate
+     * {@code ps} query.
+     */
+    protected void updateThreadCount() {
+        // Default no-op; overridden where ps lacks an nlwp column
     }
 
     /**

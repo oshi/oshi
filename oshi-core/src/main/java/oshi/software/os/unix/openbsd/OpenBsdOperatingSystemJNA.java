@@ -13,10 +13,8 @@ import static oshi.software.os.OSService.State.STOPPED;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,8 +25,10 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdInternetProtocolStats;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
+import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess;
 import oshi.software.common.os.unix.openbsd.OpenBsdOSThread;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -51,17 +51,6 @@ public class OpenBsdOperatingSystemJNA extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystemJNA.class);
 
     private static final long BOOTTIME = querySystemBootTime();
-
-    /*
-     * Package-private for use by OpenBsdOSProcessJNA
-     */
-    enum PsKeywords {
-        STATE, PID, PPID, USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW,
-        ARGS; // ARGS must always be last
-    }
-
-    static final String PS_COMMAND_ARGS = Arrays.stream(PsKeywords.values()).map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     @Override
     public String queryManufacturer() {
@@ -133,7 +122,7 @@ public class OpenBsdOperatingSystemJNA extends AbstractOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.openbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
-        String psCommand = "ps -awwxo " + PS_COMMAND_ARGS;
+        String psCommand = "ps -awwxo " + OpenBsdOSProcess.PS_COMMAND_ARGS;
         if (pid >= 0) {
             psCommand += " -p " + pid;
         }
@@ -146,11 +135,12 @@ public class OpenBsdOperatingSystemJNA extends AbstractOperatingSystem {
         procList.remove(0);
         // Fill list
         for (String proc : procList) {
-            Map<PsKeywords, String> psMap = ParseUtil.stringToEnumMap(PsKeywords.class, proc.trim(), ' ');
+            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class,
+                    OpenBsdOSProcess.PS_KEYWORDS, proc.trim(), ' ');
             // Check if last (thus all) value populated
-            if (psMap.containsKey(PsKeywords.ARGS)) {
+            if (psMap.containsKey(BsdPsKeyword.ARGS)) {
                 procs.add(new OpenBsdOSProcessJNA(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PID), 0) : pid, psMap, this));
+                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PID), 0) : pid, psMap, this));
             }
         }
         return procs;

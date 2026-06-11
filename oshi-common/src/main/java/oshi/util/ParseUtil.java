@@ -1393,10 +1393,29 @@ public final class ParseUtil {
      *         String, including excess delimiters.
      */
     public static <K extends Enum<K>> Map<K, String> stringToEnumMap(Class<K> clazz, String values, char delim) {
+        return stringToEnumMap(clazz, new ArrayList<>(EnumSet.allOf(clazz)), values, delim);
+    }
+
+    /**
+     * Parses a delimited String into an enum map using an explicit, ordered subset of enum keys. Multiple consecutive
+     * delimiters are treated as one. Unlike {@link #stringToEnumMap(Class, String, char)}, which maps every enum
+     * constant in ordinal order, this overload maps only the supplied {@code keys} in the order given, so callers can
+     * share a single enum across columns that vary by platform.
+     *
+     * @param <K>    a type extending Enum
+     * @param clazz  The enum class (used to construct the backing {@link EnumMap})
+     * @param keys   The ordered enum keys to map, one per delimited field
+     * @param values A delimited String to be parsed into the map
+     * @param delim  the delimiter to use
+     * @return An EnumMap populated in order using the delimited String values. If there are fewer String values than
+     *         keys, the later keys are not mapped. The final key will contain the remainder of the String, including
+     *         excess delimiters.
+     */
+    public static <K extends Enum<K>> Map<K, String> stringToEnumMap(Class<K> clazz, List<K> keys, String values,
+            char delim) {
         EnumMap<K, String> map = new EnumMap<>(clazz);
         int start = 0;
         int len = values.length();
-        EnumSet<K> keys = EnumSet.allOf(clazz);
         int keySize = keys.size();
         for (K key : keys) {
             // If this is the last enum, put the index at the end of the string, otherwise
