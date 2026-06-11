@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
-import oshi.software.common.AbstractNetworkParams;
-import oshi.util.ExecutingCommand;
+import oshi.software.common.os.unix.solaris.SolarisNetworkParams;
 
+/**
+ * FFM-backed Solaris NetworkParams.
+ */
 @ThreadSafe
-final class SolarisNetworkParamsFFM extends AbstractNetworkParams {
+final class SolarisNetworkParamsFFM extends SolarisNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(SolarisNetworkParamsFFM.class);
 
@@ -34,15 +36,5 @@ final class SolarisNetworkParamsFFM extends AbstractNetworkParams {
             LOG.warn("gethostname failed; falling back to InetAddress", t);
         }
         return super.getHostName();
-    }
-
-    @Override
-    public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route get -inet default"));
-    }
-
-    @Override
-    public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route get -inet6 default"));
     }
 }

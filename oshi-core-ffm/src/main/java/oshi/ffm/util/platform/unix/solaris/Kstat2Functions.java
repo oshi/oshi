@@ -28,7 +28,7 @@ public final class Kstat2Functions {
 
     /**
      * {@code true} if {@code libkstat2.so.1} was loadable at JVM startup. Mirrors
-     * {@code SolarisOperatingSystem.HAS_KSTAT2} on the JNA side.
+     * {@code SolarisOperatingSystemJNA.HAS_KSTAT2} on the JNA side.
      */
     public static final boolean HAS_KSTAT2;
 

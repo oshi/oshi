@@ -27,7 +27,7 @@ import oshi.software.os.unix.aix.AixOperatingSystemJNA;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemJNA;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemJNA;
-import oshi.software.os.unix.solaris.SolarisOperatingSystem;
+import oshi.software.os.unix.solaris.SolarisOperatingSystemJNA;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
 import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
@@ -119,7 +119,7 @@ public class SystemInfo implements SystemInfoProvider {
             case WINDOWS:
                 return new WindowsOperatingSystemJNA();
             case SOLARIS:
-                return new SolarisOperatingSystem();
+                return new SolarisOperatingSystemJNA();
             case FREEBSD:
                 return new FreeBsdOperatingSystemJNA();
             case AIX:

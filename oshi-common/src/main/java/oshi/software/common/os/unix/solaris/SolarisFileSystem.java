@@ -2,10 +2,7 @@
  * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.software.os.unix.solaris;
-
-import static oshi.software.os.unix.solaris.SolarisOperatingSystem.HAS_KSTAT2;
-import static oshi.util.Memoizer.defaultExpiration;
+package oshi.software.common.os.unix.solaris;
 
 import java.io.File;
 import java.nio.file.PathMatcher;
@@ -13,9 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
-
-import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
@@ -23,22 +17,18 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
-import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
-import oshi.util.platform.unix.solaris.KstatUtil;
-import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Pair;
 
 /**
  * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
  * volume, concrete file system or other implementation specific means of file storage. In Solaris, these are found in
  * the /proc/mount filesystem, excluding temporary and kernel mounts.
+ * <p>
+ * The mount-table and inode parsing is shared; the {@code kstat}-based file-descriptor counts ({@code getOpenFile...},
+ * {@code getMaxFile...}) are native and implemented by the JNA and FFM subclasses.
  */
 @ThreadSafe
-public class SolarisFileSystem extends AbstractFileSystem {
-
-    private static final Supplier<Pair<Long, Long>> FILE_DESC = Memoizer
-            .memoize(SolarisFileSystem::queryFileDescriptors, defaultExpiration());
+public abstract class SolarisFileSystem extends AbstractFileSystem {
 
     public static final String OSHI_SOLARIS_FS_PATH_EXCLUDES = "oshi.os.solaris.filesystem.path.excludes";
     public static final String OSHI_SOLARIS_FS_PATH_INCLUDES = "oshi.os.solaris.filesystem.path.includes";
@@ -60,7 +50,7 @@ public class SolarisFileSystem extends AbstractFileSystem {
     }
 
     // Called by SolarisOSFileStore
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    public static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
@@ -149,38 +139,6 @@ public class SolarisFileSystem extends AbstractFileSystem {
     }
 
     @Override
-    public long getOpenFileDescriptors() {
-        if (HAS_KSTAT2) {
-            // Use Kstat2 implementation
-            return FILE_DESC.get().getA();
-        }
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                return KstatUtil.dataLookupLong(ksp, "buf_inuse");
-            }
-        }
-        return 0L;
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        if (HAS_KSTAT2) {
-            // Use Kstat2 implementation
-            return FILE_DESC.get().getB();
-        }
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup(null, -1, "file_cache");
-            // Set values
-            if (ksp != null && kc.read(ksp)) {
-                return KstatUtil.dataLookupLong(ksp, "buf_max");
-            }
-        }
-        return 0L;
-    }
-
-    @Override
     public long getMaxFileDescriptorsPerProcess() {
         final List<String> lines = FileUtil.readFile("/etc/system");
         for (final String line : lines) {
@@ -189,12 +147,5 @@ public class SolarisFileSystem extends AbstractFileSystem {
             }
         }
         return 65536L; // 65536 is the default value for the process open file limit in Solaris
-    }
-
-    private static Pair<Long, Long> queryFileDescriptors() {
-        Object[] results = KstatUtil.queryKstat2("kstat:/kmem_cache/kmem_default/file_cache", "buf_inuse", "buf_max");
-        long inuse = results[0] == null ? 0L : (long) results[0];
-        long max = results[1] == null ? 0L : (long) results[1];
-        return new Pair<>(inuse, max);
     }
 }

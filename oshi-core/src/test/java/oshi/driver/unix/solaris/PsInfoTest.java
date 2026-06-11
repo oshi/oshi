@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 The OSHI Project Contributors
+ * Copyright 2022-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris;
@@ -16,8 +16,9 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.SystemInfo;
-import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
+import oshi.driver.common.unix.solaris.PsInfo;
+import oshi.driver.common.unix.solaris.SolarisLwpsInfo;
+import oshi.driver.common.unix.solaris.SolarisPsInfo;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 

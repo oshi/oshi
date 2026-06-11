@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2022 The OSHI Project Contributors
+ * Copyright 2017-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.software.os.unix.solaris;
@@ -10,14 +10,13 @@ import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.SolarisLibc;
-import oshi.software.common.AbstractNetworkParams;
-import oshi.util.ExecutingCommand;
+import oshi.software.common.os.unix.solaris.SolarisNetworkParams;
 
 /**
- * SolarisNetworkParams class.
+ * JNA-backed Solaris NetworkParams.
  */
 @ThreadSafe
-final class SolarisNetworkParams extends AbstractNetworkParams {
+final class SolarisNetworkParamsJNA extends SolarisNetworkParams {
 
     private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
 
@@ -28,15 +27,5 @@ final class SolarisNetworkParams extends AbstractNetworkParams {
             return super.getHostName();
         }
         return Native.toString(hostnameBuffer);
-    }
-
-    @Override
-    public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route get -inet default"));
-    }
-
-    @Override
-    public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route get -inet6 default"));
     }
 }

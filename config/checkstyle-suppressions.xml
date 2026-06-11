@@ -30,11 +30,11 @@
     <suppress checks="LocalVariableName" files=".*FFM\.java"/>
     <suppress checks="LocalFinalVariableName" files=".*FFM\.java"/>
 
-    <!-- Solaris /proc struct mirror: pr_* fields and public visibility match the kernel struct layout
-         (psinfo_t / lwpsinfo_t / prusage_t in <sys/procfs.h>), same convention as the JNA SolarisLibc
-         inner classes. -->
-    <suppress checks="MemberName" files="PsInfoFFM\.java"/>
-    <suppress checks="VisibilityModifier" files="PsInfoFFM\.java"/>
+    <!-- Solaris /proc struct mirrors: pr_* / tv_* fields and public visibility match the kernel struct
+         layout (psinfo_t / lwpsinfo_t / prusage_t / timestruc_t in <sys/procfs.h>). Shared between the
+         JNA and FFM drivers, so they live in oshi-common. -->
+    <suppress checks="MemberName" files="(SolarisPsInfo|SolarisLwpsInfo|SolarisPrUsage|SolarisTimestruc)\.java"/>
+    <suppress checks="VisibilityModifier" files="(SolarisPsInfo|SolarisLwpsInfo|SolarisPrUsage|SolarisTimestruc)\.java"/>
 
     <!-- AIX /proc struct mirrors: pr_* / tv_* fields and public visibility match the kernel struct
          layout (psinfo_t / lwpsinfo_t / timestruc_t in <sys/procfs.h>). Shared between the JNA and

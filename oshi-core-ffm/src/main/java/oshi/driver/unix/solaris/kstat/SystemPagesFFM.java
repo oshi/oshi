@@ -27,7 +27,7 @@ public final class SystemPagesFFM {
      * @return a pair (available, total) in pages; multiply by page size for bytes.
      */
     public static Pair<Long, Long> queryAvailableTotal() {
-        // The JNA SolarisOperatingSystem prefers Kstat2 on Solaris 11.4+; the FFM Kstat2 binding is a
+        // The JNA SolarisOperatingSystemJNA prefers Kstat2 on Solaris 11.4+; the FFM Kstat2 binding is a
         // stub today, so this method always falls through to LibKstat regardless of HAS_KSTAT2. Lower
         // fidelity is acceptable until a downstream consumer needs Solaris 11.4-specific kstat2 data.
         long memAvailable = 0L;

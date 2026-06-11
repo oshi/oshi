@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.unix.solaris;
@@ -7,7 +7,6 @@ package oshi.driver.unix.solaris;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,85 +14,42 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.LibCAPI.ssize_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.solaris.SolarisPsInfo;
 import oshi.jna.platform.unix.SolarisLibc;
-import oshi.jna.platform.unix.SolarisLibc.SolarisLwpsInfo;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPrUsage;
-import oshi.jna.platform.unix.SolarisLibc.SolarisPsInfo;
 import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
 /**
- * Utility to query /proc/psinfo
+ * JNA-backed reader of a Solaris process's argument list and environment from {@code /proc/<pid>/as}.
+ * <p>
+ * The {@code psinfo}/{@code lwpsinfo}/{@code usage} structures are parsed by the shared
+ * {@link oshi.driver.common.unix.solaris.PsInfo} driver; only the address-space read (which needs libc
+ * {@code open}/{@code pread}/{@code close}) lives here.
  */
 @ThreadSafe
-public final class PsInfo {
-    private static final Logger LOG = LoggerFactory.getLogger(PsInfo.class);
+public final class PsInfoJNA {
+    private static final Logger LOG = LoggerFactory.getLogger(PsInfoJNA.class);
 
     private static final SolarisLibc LIBC = SolarisLibc.INSTANCE;
 
     private static final long PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("pagesize"),
             4096L);
 
-    private PsInfo() {
+    private PsInfoJNA() {
     }
 
     /**
-     * Reads /proc/pid/psinfo and returns data in a structure
-     *
-     * @param pid The process ID
-     * @return A structure containing information for the requested process
-     */
-    public static SolarisPsInfo queryPsInfo(int pid) {
-        return new SolarisPsInfo(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/psinfo", pid)));
-    }
-
-    /**
-     * Reads /proc/pid/lwp/tid/lwpsinfo and returns data in a structure
-     *
-     * @param pid The process ID
-     * @param tid The thread ID (lwpid)
-     * @return A structure containing information for the requested thread
-     */
-    public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
-        return new SolarisLwpsInfo(
-                FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid)));
-    }
-
-    /**
-     * Reads /proc/pid/usage and returns data in a structure
-     *
-     * @param pid The process ID
-     * @return A structure containing information for the requested process
-     */
-    public static SolarisPrUsage queryPrUsage(int pid) {
-        return new SolarisPrUsage(FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/usage", pid)));
-    }
-
-    /**
-     * Reads /proc/pid/lwp/tid/usage and returns data in a structure
-     *
-     * @param pid The process ID
-     * @param tid The thread ID (lwpid)
-     * @return A structure containing information for the requested thread
-     */
-    public static SolarisPrUsage queryPrUsage(int pid, int tid) {
-        return new SolarisPrUsage(
-                FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/usage", pid, tid)));
-    }
-
-    /**
-     * Reads the pr_argc, pr_argv, pr_envp, and pr_dmodel fields from /proc/pid/psinfo
+     * Reads the {@code pr_argc}, {@code pr_argv}, {@code pr_envp}, and {@code pr_dmodel} fields from a populated
+     * {@link SolarisPsInfo}.
      *
      * @param pid    The process ID
-     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
      * @return A quartet containing the argc, argv, envp and dmodel values, or null if unable to read
      */
     public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid, SolarisPsInfo psinfo) {
@@ -101,8 +57,8 @@ public final class PsInfo {
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit
             if (argc > 0) {
-                long argv = Pointer.nativeValue(psinfo.pr_argv);
-                long envp = Pointer.nativeValue(psinfo.pr_envp);
+                long argv = psinfo.pr_argv;
+                long envp = psinfo.pr_envp;
                 // Process data model 1 = 32 bit, 2 = 64 bit
                 byte dmodel = psinfo.pr_dmodel;
                 // Sanity check
@@ -123,7 +79,7 @@ public final class PsInfo {
      * Read the argument and environment strings from process address space
      *
      * @param pid    the process id
-     * @param psinfo A populated {@link SolarisPsInfo} structure containing the offset pointers for these fields
+     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
      * @return A pair containing a list of the arguments and a map of environment variables
      */
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, SolarisPsInfo psinfo) {
