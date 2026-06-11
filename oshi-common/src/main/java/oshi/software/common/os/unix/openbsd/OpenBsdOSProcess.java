@@ -94,7 +94,7 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
         }
         Predicate<Map<PsThreadColumns, String>> hasColumnsArgs = threadMap -> threadMap
                 .containsKey(PsThreadColumns.ARGS);
-        return ExecutingCommand.runNative(psCommand).stream().skip(1)
+        return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
                 .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
                 .filter(hasColumnsArgs).map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());

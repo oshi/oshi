@@ -4,10 +4,10 @@
  */
 package oshi.software.os.unix.dragonflybsd;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 
@@ -111,7 +111,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
             MemorySegment buf = arena.allocate(32);
             MemorySegment size = arena.allocate(JAVA_LONG);
             size.set(JAVA_LONG, 0, 32L);
-            MemorySegment callState = arena.allocate(ADDRESS);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             int rc = FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L);
             if (rc != 0) {
                 return 0;

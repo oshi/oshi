@@ -104,6 +104,9 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
 
     @Override
     protected Map<String, String> queryEnvironmentVariables() {
+        if (ARGMAX <= 0) {
+            return Collections.emptyMap();
+        }
         // Get environment variables via sysctl(3)
         int[] mib = new int[4];
         mib[0] = 1; // CTL_KERN

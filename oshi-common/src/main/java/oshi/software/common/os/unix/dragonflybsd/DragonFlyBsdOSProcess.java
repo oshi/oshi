@@ -94,7 +94,8 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
                 }
             }
         }
-        return System.currentTimeMillis();
+        // Unknown start time: return the sentinel so updateAttributes() falls back to elapsed time
+        return -1L;
     }
 
     @Override
