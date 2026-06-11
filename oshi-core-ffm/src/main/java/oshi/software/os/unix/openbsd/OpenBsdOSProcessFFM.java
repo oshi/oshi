@@ -16,14 +16,7 @@ import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ENV;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.RLIMIT_NOFILE;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.SIZE_T;
 import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
-import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -33,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -64,69 +56,20 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
 
     private final OpenBsdOperatingSystemFFM os;
 
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<List<String>> arguments = memoize(this::queryArguments);
-    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
-
-    private String name;
-    private String path = "";
-    private String user;
-    private String userID;
-    private String group;
-    private String groupID;
-    private State state = INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
-    private long residentSetSize;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
-    private long minorFaults;
-    private long majorFaults;
-    private long voluntaryContextSwitches;
-    private long involuntaryContextSwitches;
-    private int bitness;
-    private String commandLineBackup;
-
     public OpenBsdOSProcessFFM(int pid, Map<PsKeywords, String> psMap, OpenBsdOperatingSystemFFM os) {
         super(pid);
         this.os = os;
-        this.bitness = (int) (NATIVE_LONG_SIZE * 8);
         updateThreadCount();
         updateAttributes(psMap);
     }
 
     @Override
-    public String getName() {
-        return this.name;
+    protected int queryBitness() {
+        return (int) (NATIVE_LONG_SIZE * 8);
     }
 
     @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getCommandLine() {
-        return this.commandLine.get();
-    }
-
-    private String queryCommandLine() {
-        String cl = String.join(" ", getArguments());
-        return cl.isEmpty() ? this.commandLineBackup : cl;
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return arguments.get();
-    }
-
-    private List<String> queryArguments() {
+    protected List<String> queryArguments() {
         if (ARGMAX > 0) {
             int[] mib = { CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ARGV };
             try (Arena arena = Arena.ofConfined()) {
@@ -160,11 +103,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     }
 
     @Override
-    public Map<String, String> getEnvironmentVariables() {
-        return environmentVariables.get();
-    }
-
-    private Map<String, String> queryEnvironmentVariables() {
+    protected Map<String, String> queryEnvironmentVariables() {
         if (ARGMAX > 0) {
             int[] mib = { CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ENV };
             try (Arena arena = Arena.ofConfined()) {
@@ -207,86 +146,6 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     }
 
     @Override
-    public String getUser() {
-        return this.user;
-    }
-
-    @Override
-    public String getUserID() {
-        return this.userID;
-    }
-
-    @Override
-    public String getGroup() {
-        return this.group;
-    }
-
-    @Override
-    public String getGroupID() {
-        return this.groupID;
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
-    public long getResidentMemory() {
-        return this.residentSetSize;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
-    }
-
-    @Override
     public long getOpenFiles() {
         return FstatUtil.getOpenFiles(getProcessID());
     }
@@ -318,28 +177,6 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     }
 
     @Override
-    public int getBitness() {
-        return this.bitness;
-    }
-
-    @Override
-    public long getAffinityMask() {
-        long bitMask = 0L;
-        String cpuset = ExecutingCommand.getFirstAnswer("cpuset -gp " + getProcessID());
-        String[] split = cpuset.split(":");
-        if (split.length > 1) {
-            String[] bits = split[1].split(",");
-            for (String bit : bits) {
-                int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-        }
-        return bitMask;
-    }
-
-    @Override
     public List<OSThread> getThreadDetails() {
         String psCommand = "ps -aHwwxo " + PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
@@ -351,26 +188,6 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                 .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
                 .filter(hasColumnsArgs).map(threadMap -> new OpenBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getVoluntaryContextSwitches() {
-        return this.voluntaryContextSwitches;
-    }
-
-    @Override
-    public long getInvoluntaryContextSwitches() {
-        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -390,29 +207,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
 
     private boolean updateAttributes(Map<PsKeywords, String> psMap) {
         long now = System.currentTimeMillis();
-        switch (psMap.get(PsKeywords.STATE).charAt(0)) {
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
-        }
+        this.state = getStateFromOutput(psMap.get(PsKeywords.STATE).charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(PsKeywords.PPID), 0);
         this.user = psMap.get(PsKeywords.USER);
         this.userID = psMap.get(PsKeywords.UID);

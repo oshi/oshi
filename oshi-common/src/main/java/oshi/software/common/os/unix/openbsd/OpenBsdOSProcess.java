@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.bsd.BsdOSProcess;
 
-public abstract class OpenBsdOSProcess extends AbstractOSProcess {
+public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
     /**
      * Columns requested from {@code ps -aHwwxo} when enumerating threads. Shared by OpenBsdOSProcess subclasses and
