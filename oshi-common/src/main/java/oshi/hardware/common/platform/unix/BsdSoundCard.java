@@ -1,8 +1,8 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.common.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,21 +20,21 @@ import oshi.hardware.common.AbstractSoundCard;
 import oshi.util.ExecutingCommand;
 
 /**
- * OpenBSD soundcard.
+ * Shared sound card implementation for BSDs that use {@code dmesg} audio/pci patterns (NetBSD, OpenBSD).
  */
 @Immutable
-public class OpenBsdSoundCard extends AbstractSoundCard {
+public final class BsdSoundCard extends AbstractSoundCard {
 
     private static final Pattern AUDIO_AT = Pattern.compile("audio\\d+ at (.+)");
     private static final Pattern PCI_AT = Pattern
             .compile("(.+) at pci\\d+ dev \\d+ function \\d+ \"(.*)\" (rev .+):.*");
 
-    public OpenBsdSoundCard(String kernelVersion, String name, String codec) {
+    public BsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }
 
     /**
-     * Gets sound cards.
+     * Gets sound cards by parsing {@code dmesg} output.
      *
      * @return a {@link java.util.List} object.
      */
@@ -68,8 +68,8 @@ public class OpenBsdSoundCard extends AbstractSoundCard {
         }
         List<SoundCard> soundCards = new ArrayList<>();
         for (Entry<String, String> entry : nameMap.entrySet()) {
-            soundCards.add(new OpenBsdSoundCard(versionMap.get(entry.getKey()), entry.getValue(),
-                    codecMap.get(entry.getKey())));
+            soundCards.add(
+                    new BsdSoundCard(versionMap.get(entry.getKey()), entry.getValue(), codecMap.get(entry.getKey())));
         }
         return soundCards;
     }

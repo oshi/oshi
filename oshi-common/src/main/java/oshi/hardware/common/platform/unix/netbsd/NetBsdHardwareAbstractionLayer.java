@@ -20,7 +20,11 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.unix.BsdGraphicsCard;
 import oshi.hardware.common.platform.unix.BsdPowerSource;
+import oshi.hardware.common.platform.unix.BsdSensors;
+import oshi.hardware.common.platform.unix.BsdSoundCard;
+import oshi.hardware.common.platform.unix.BsdUsbDevice;
 import oshi.hardware.common.platform.unix.LpstatPrinter;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 
@@ -47,7 +51,7 @@ public final class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstra
 
     @Override
     public Sensors createSensors() {
-        return new NetBsdSensors();
+        return new BsdSensors();
     }
 
     @Override
@@ -72,17 +76,17 @@ public final class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstra
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return NetBsdUsbDevice.getUsbDevices(tree);
+        return BsdUsbDevice.getUsbDevices(tree);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return NetBsdSoundCard.getSoundCards();
+        return BsdSoundCard.getSoundCards();
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return NetBsdGraphicsCard.getGraphicsCards();
+        return BsdGraphicsCard.getGraphicsCards();
     }
 
     @Override
