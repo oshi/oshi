@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.common.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,12 +18,13 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * A Power Source
+ * Shared power-source implementation for BSDs that use {@code apm} and {@code systat -ab sensors} for battery state
+ * (NetBSD, OpenBSD).
  */
 @ThreadSafe
-public final class NetBsdPowerSource extends AbstractPowerSource {
+public final class BsdPowerSource extends AbstractPowerSource {
 
-    public NetBsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+    private BsdPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
@@ -41,13 +42,11 @@ public final class NetBsdPowerSource extends AbstractPowerSource {
     }
 
     /**
-     * Gets Battery Information
+     * Gets Battery Information.
      *
-     * @return An array of PowerSource objects representing batteries, etc.
+     * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        // Run `systat -ab sensors` once and reuse its output for every battery; previously this method invoked the
-        // command N+1 times (one for the name set and one per battery).
         List<String> sensorLines = Systat.querySensorLines();
         List<PowerSource> psList = new ArrayList<>();
         for (String name : Systat.parsePowerSourceNames(sensorLines)) {
@@ -56,7 +55,7 @@ public final class NetBsdPowerSource extends AbstractPowerSource {
         return psList;
     }
 
-    private static NetBsdPowerSource getPowerSource(String name, List<String> sensorLines) {
+    private static BsdPowerSource getPowerSource(String name, List<String> sensorLines) {
         String psName = name.startsWith("acpi") ? name.substring(4) : name;
         BatteryFields b = Systat.parseBatteryFields(name, sensorLines);
         double psVoltage = b.getVoltage();
@@ -114,7 +113,7 @@ public final class NetBsdPowerSource extends AbstractPowerSource {
             }
         }
 
-        return new NetBsdPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+        return new BsdPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
