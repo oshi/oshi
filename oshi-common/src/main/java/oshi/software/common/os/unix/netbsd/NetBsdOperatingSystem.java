@@ -4,28 +4,18 @@
  */
 package oshi.software.common.os.unix.netbsd;
 
-import static oshi.software.os.OSService.State.RUNNING;
-import static oshi.software.os.OSService.State.STOPPED;
-
-import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractOperatingSystem;
+import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSService;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -35,18 +25,13 @@ import oshi.util.tuples.Pair;
 /**
  * NetBsd is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
  * which was based on Research Unix.
+ * <p>
+ * The cross-BSD-common pieces live in {@link BsdOperatingSystem}; NetBSD has no native-access split, so this single
+ * class also provides the {@code ps} process enumeration, the text-parsed boot time, the current-thread factory, and
+ * the sysctl version / file-system / network queries.
  */
 @ThreadSafe
-public class NetBsdOperatingSystem extends AbstractOperatingSystem {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NetBsdOperatingSystem.class);
-
-    private static final long BOOTTIME = querySystemBootTime();
-
-    @Override
-    public String queryManufacturer() {
-        return "Unix/BSD";
-    }
+public class NetBsdOperatingSystem extends BsdOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
@@ -56,14 +41,6 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
         return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
-    }
-
-    @Override
-    protected int queryBitness(int jvmBitness) {
-        if (jvmBitness < 64 && ExecutingCommand.getFirstAnswer("uname -m").indexOf("64") == -1) {
-            return jvmBitness;
-        }
-        return 64;
     }
 
     @Override
@@ -77,34 +54,12 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> queryAllProcesses() {
-        return getProcessListFromPS(-1);
+    public NetworkParams getNetworkParams() {
+        return new NetBsdNetworkParams();
     }
 
     @Override
-    public List<OSProcess> queryChildProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, false);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        List<OSProcess> allProcs = queryAllProcesses();
-        Set<Integer> descendantPids = getChildrenOrDescendants(allProcs, parentPid, true);
-        return allProcs.stream().filter(p -> descendantPids.contains(p.getProcessID())).collect(Collectors.toList());
-    }
-
-    @Override
-    public OSProcess getProcess(int pid) {
-        List<OSProcess> procs = getProcessListFromPS(pid);
-        if (procs.isEmpty()) {
-            return null;
-        }
-        return procs.get(0);
-    }
-
-    private List<OSProcess> getProcessListFromPS(int pid) {
+    protected List<OSProcess> getProcessListFromPS(int pid) {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.netbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
@@ -135,18 +90,8 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
     @Override
     public int getProcessId() {
         // RuntimeMXBean name format is "pid@hostname"
-        String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+        String name = ManagementFactory.getRuntimeMXBean().getName();
         return ParseUtil.parseIntOrDefault(name.split("@")[0], -1);
-    }
-
-    @Override
-    public int getProcessCount() {
-        List<String> procList = ExecutingCommand.runNative("ps -axo pid");
-        if (!procList.isEmpty()) {
-            // Subtract 1 for header
-            return procList.size() - 1;
-        }
-        return 0;
     }
 
     @Override
@@ -163,62 +108,10 @@ public class NetBsdOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public int getThreadCount() {
-        int threads = 0;
-        // Sum nlwp (number of LWPs) across all processes
-        List<String> nlwpList = ExecutingCommand.runNative("ps -axo nlwp");
-        for (String line : nlwpList) {
-            threads += ParseUtil.parseIntOrDefault(line.trim(), 0);
-        }
-        return threads;
-    }
-
-    @Override
-    public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000 - BOOTTIME;
-    }
-
-    @Override
-    public long getSystemBootTime() {
-        return BOOTTIME;
-    }
-
-    private static long querySystemBootTime() {
+    protected long queryBootTime() {
         // Boot time will be the first consecutive string of digits.
         return ParseUtil.parseLongOrDefault(
                 ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
                 System.currentTimeMillis() / 1000);
-    }
-
-    @Override
-    public NetworkParams getNetworkParams() {
-        return new NetBsdNetworkParams();
-    }
-
-    @Override
-    public List<OSService> getServices() {
-        // Get running services
-        List<OSService> services = new ArrayList<>();
-        Set<String> running = new HashSet<>();
-        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
-            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
-            services.add(s);
-            running.add(p.getName());
-        }
-        // Get Directories for stopped services
-        File dir = new File("/etc/rc.d");
-        File[] listFiles;
-        if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
-            for (File f : listFiles) {
-                String name = f.getName();
-                if (!running.contains(name)) {
-                    OSService s = new OSService(name, 0, STOPPED);
-                    services.add(s);
-                }
-            }
-        } else {
-            LOG.error("Directory: /etc/rc.d does not exist");
-        }
-        return services;
     }
 }
