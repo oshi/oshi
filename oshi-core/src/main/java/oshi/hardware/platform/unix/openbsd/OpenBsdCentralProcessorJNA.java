@@ -9,237 +9,44 @@ import static oshi.jna.platform.unix.OpenBsdLibc.CP_INTR;
 import static oshi.jna.platform.unix.OpenBsdLibc.CP_NICE;
 import static oshi.jna.platform.unix.OpenBsdLibc.CP_SYS;
 import static oshi.jna.platform.unix.OpenBsdLibc.CP_USER;
-import static oshi.jna.platform.unix.OpenBsdLibc.CTL_HW;
 import static oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
-import static oshi.jna.platform.unix.OpenBsdLibc.HW_CPUSPEED;
-import static oshi.jna.platform.unix.OpenBsdLibc.HW_MACHINE;
-import static oshi.jna.platform.unix.OpenBsdLibc.HW_MODEL;
 import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME;
 import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME2;
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
-import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.hardware.common.platform.unix.openbsd.OpenBsdCentralProcessor;
 import oshi.jna.platform.unix.OpenBsdLibc;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
-import oshi.util.tuples.Pair;
-import oshi.util.tuples.Quartet;
-import oshi.util.tuples.Triplet;
 
 /**
- * OpenBSD Central Processor implementation
+ * OpenBSD Central Processor implementation, backed by JNA sysctl and native library calls.
  */
 @ThreadSafe
-public class OpenBsdCentralProcessorJNA extends AbstractCentralProcessor {
-    private final Supplier<Pair<Long, Long>> vmStats = memoize(OpenBsdCentralProcessorJNA::queryVmStats,
-            defaultExpiration());
-    private static final Pattern DMESG_CPU = Pattern.compile("cpu(\\d+): smt (\\d+), core (\\d+), package (\\d+)");
+public class OpenBsdCentralProcessorJNA extends OpenBsdCentralProcessor {
 
     @Override
-    protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = OpenBsdSysctlUtil.sysctl("machdep.cpuvendor", "");
-        int[] mib = { CTL_HW, HW_MODEL };
-        String cpuName = OpenBsdSysctlUtil.sysctl(mib, "");
-        int cpuid = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpuid", ""), 0);
-        int cpufeature = ParseUtil.hexStringToInt(OpenBsdSysctlUtil.sysctl("machdep.cpufeature", ""), 0);
-        Triplet<Integer, Integer, Integer> cpu = cpuidToFamilyModelStepping(cpuid);
-        String cpuFamily = cpu.getA().toString();
-        String cpuModel = cpu.getB().toString();
-        String cpuStepping = cpu.getC().toString();
-        long cpuFreq = ParseUtil.parseHertz(cpuName);
-        if (cpuFreq < 0) {
-            cpuFreq = queryMaxFreq();
-        }
-        mib = new int[] { CTL_HW, HW_MACHINE };
-        String machine = OpenBsdSysctlUtil.sysctl(mib, "");
-        boolean cpu64bit = machine != null && machine.contains("64")
-                || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
-        String processorID = String.format(Locale.ROOT, "%08x%08x", cpufeature, cpuid);
-
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-                cpuFreq);
-    }
-
-    private static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
-        // family is bits 27:20 | 11:8
-        int family = cpuid >> 16 & 0xff0 | cpuid >> 8 & 0xf;
-        // model is bits 19:16 | 7:4
-        int model = cpuid >> 12 & 0xf0 | cpuid >> 4 & 0xf;
-        // stepping is bits 3:0
-        int stepping = cpuid & 0xf;
-        return new Triplet<>(family, model, stepping);
+    protected int sysctl(String name, int def) {
+        return OpenBsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
-    protected long[] queryCurrentFreq() {
-        long[] freq = new long[1];
-        int[] mib = { CTL_HW, HW_CPUSPEED };
-        freq[0] = OpenBsdSysctlUtil.sysctl(mib, 0) * 1_000_000L;
-        return freq;
+    protected String sysctl(String name, String def) {
+        return OpenBsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        // Iterate dmesg, look for lines:
-        // cpu0: smt 0, core 0, package 0
-        // cpu1: smt 0, core 1, package 0
-        Map<Integer, Integer> coreMap = new HashMap<>();
-        Map<Integer, Integer> packageMap = new HashMap<>();
-        for (String line : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = DMESG_CPU.matcher(line);
-            if (m.matches()) {
-                int cpu = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                coreMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(3), 0));
-                packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
-            }
-        }
-        // native call seems to fail here, use fallback
-        int logicalProcessorCount = OpenBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
-        // If we found more procs in dmesg, update
-        if (logicalProcessorCount < coreMap.keySet().size()) {
-            logicalProcessorCount = coreMap.keySet().size();
-        }
-        List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
-        for (int i = 0; i < logicalProcessorCount; i++) {
-            logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
-        }
-        Map<Integer, String> cpuMap = new HashMap<>();
-        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A7 r0p5
-        // but NOT: cpu0 at mainbus0: apid 0 (boot processor)
-        // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
-        // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
-        // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
-        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
-
-        Set<ProcessorCache> caches = new HashSet<>();
-        // cpu0: 48KB 64b/line 12-way D-cache, 32KB 64b/line 8-way I-cache,
-        // ... 1MB 64b/line 10-way L2 cache, 24MB 64b/line 12-way L3 cache
-        // cpu0: 32KB 64b/line 8-way D-cache, 64KB 64b/line 4-way I-cache,
-        // ... 512KB 64b/line 8-way L2 cache, 4MB 64b/line 16-way L3 cache
-        // cpu0: 32KB 64b/line 2-way I-cache, 32KB 64b/line 8-way D-cache,
-        // ... 2MB 64b/line 16-way L2 cache
-        // cpu0: 32KB 64b/line 8-way I-cache, 32KB 64b/line 8-way D-cache,
-        // ... 512KB 64b/line 8-way L2 cache
-        // cpu0: 256KB 64b/line disabled L2 cache
-        // cpu0: 1MB 64b/line 16-way L2 cache
-        // --- Mac M1 example ---
-        // shows different for icestorm/firestrorm and multiple lines for L1 vs. L2
-        // cpu0 at mainbus0 mpidr 0: Apple Icestorm Pro r2p0
-        // cpu0: 128KB 64b/line 8-way L1 VIPT I-cache, 64KB 64b/line 8-way L1 D-cache
-        // cpu0: 4096KB 128b/line 16-way L2 cache
-        // cpu2 at mainbus0 mpidr 10100: Apple Firestorm Pro r2p0
-        // cpu2: 192KB 64b/line 6-way L1 VIPT I-cache, 128KB 64b/line 8-way L1 D-cache
-        // cpu2: 12288KB 128b/line 12-way L2 cache
-        // --- BIG:little example ---
-        // shows different for A53/A72 and multiple lines for L1 vs. L2
-        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4
-        // cpu0: 32KB 64b/line 2-way L1 VIPT I-cache, 32KB 64b/line 4-way L1 D-cache
-        // cpu0: 512KB 64b/line 16-way L2 cache
-        // cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
-        // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
-        // cpu4: 1024KB 64b/line 16-way L2 cache
-        Pattern q = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
-        Set<String> featureFlags = new LinkedHashSet<>();
-        for (String s : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = p.matcher(s);
-            if (m.matches()) {
-                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                cpuMap.put(coreId, m.group(2).trim());
-            } else {
-                Matcher n = q.matcher(s);
-                if (n.matches()) {
-                    for (String cacheStr : n.group(2).split(",")) {
-                        ProcessorCache cache = parseCacheStr(cacheStr);
-                        if (cache != null) {
-                            caches.add(cache);
-                        }
-                    }
-                }
-            }
-            if (s.startsWith("cpu")) {
-                String[] ss = s.trim().split(": ");
-                if (ss.length == 2 && ss[1].split(",").length > 3) {
-                    featureFlags.add(ss[1]);
-                }
-            }
-        }
-        List<PhysicalProcessor> physProcs = cpuMap.isEmpty() ? null : createProcListFromDmesg(logProcs, cpuMap);
-        return new Quartet<>(logProcs, physProcs, orderedProcCaches(caches), new ArrayList<>(featureFlags));
+    protected String sysctl(int[] mib, String def) {
+        return OpenBsdSysctlUtil.sysctl(mib, def);
     }
 
-    private ProcessorCache parseCacheStr(String cacheStr) {
-        String[] split = ParseUtil.whitespaces.split(cacheStr.trim());
-        if (split.length > 3) {
-            switch (split[split.length - 1]) {
-                case "I-cache":
-                    return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
-                            ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
-                            Type.INSTRUCTION);
-                case "D-cache":
-                    return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
-                            ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
-                            Type.DATA);
-                default:
-                    return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]),
-                            ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                            ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get number of context switches
-     *
-     * @return The context switches
-     */
     @Override
-    protected long queryContextSwitches() {
-        return vmStats.get().getA();
-    }
-
-    /**
-     * Get number of interrupts
-     *
-     * @return The interrupts
-     */
-    @Override
-    protected long queryInterrupts() {
-        return vmStats.get().getB();
-    }
-
-    private static Pair<Long, Long> queryVmStats() {
-        long contextSwitches = 0L;
-        long interrupts = 0L;
-        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
-        for (String line : vmstat) {
-            if (line.endsWith("cpu context switches")) {
-                contextSwitches = ParseUtil.getFirstIntValue(line);
-            } else if (line.endsWith("interrupts")) {
-                interrupts = ParseUtil.getFirstIntValue(line);
-            }
-        }
-        return new Pair<>(contextSwitches, interrupts);
+    protected int sysctl(int[] mib, int def) {
+        return OpenBsdSysctlUtil.sysctl(mib, def);
     }
 
     /**
