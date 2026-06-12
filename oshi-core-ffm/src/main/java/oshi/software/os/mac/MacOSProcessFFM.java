@@ -63,14 +63,6 @@ import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidinfo;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidpath;
 import static oshi.ffm.util.platform.mac.SysctlUtilFFM.sysctl;
 import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.NEW;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
-import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -80,31 +72,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.common.mac.ThreadInfo;
 import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
-import oshi.software.common.AbstractOSProcess;
-import oshi.software.common.os.mac.MacOSThread;
-import oshi.software.os.OSThread;
-import oshi.util.GlobalConfig;
+import oshi.software.common.os.mac.MacOSProcess;
+import oshi.software.common.os.mac.MacOperatingSystem;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
- * OSProcess implementation
+ * FFM-backed macOS OSProcess.
  */
 @ThreadSafe
-public class MacOSProcessFFM extends AbstractOSProcess {
+public class MacOSProcessFFM extends MacOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacOSProcessFFM.class);
 
@@ -136,96 +123,13 @@ public class MacOSProcessFFM extends AbstractOSProcess {
         TICKS_PER_MS = ticksPerSec / 1000L;
     }
 
-    private static final boolean LOG_MAC_SYSCTL_WARNING = GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SYSCTL_LOGWARNING,
-            false);
-
-    private static final int MAC_RLIMIT_NOFILE = 8;
-
-    // 64-bit flag
-    private static final int P_LP64 = 0x4;
-    /*
-     * macOS States:
-     */
-    private static final int SSLEEP = 1; // sleeping on high priority
-    private static final int SWAIT = 2; // sleeping on low priority
-    private static final int SRUN = 3; // running
-    private static final int SIDL = 4; // intermediate state in process creation
-    private static final int SZOMB = 5; // intermediate state in process termination
-    private static final int SSTOP = 6; // process being traced
-
-    private int majorVersion;
-    private int minorVersion;
-    private final MacOperatingSystemFFM os;
-
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(this::queryArgsAndEnvironment);
-
-    private String name = "";
-    private String path = "";
-    private String currentWorkingDirectory;
-    private String user;
-    private String userID;
-    private String group;
-    private String groupID;
-    private State state = INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
-    private long residentSetSize;
-    private long memoryFootprint;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
-    private long openFiles;
-    private int bitness;
-    private long minorFaults;
-    private long majorFaults;
-    private long contextSwitches;
-    private long voluntaryContextSwitches;
-    private long involuntaryContextSwitches;
-
-    public MacOSProcessFFM(int pid, int major, int minor, MacOperatingSystemFFM os) {
-        super(pid);
-        this.majorVersion = major;
-        this.minorVersion = minor;
-        this.os = os;
+    public MacOSProcessFFM(int pid, int major, int minor, MacOperatingSystem os) {
+        super(pid, major, minor, os);
         updateAttributes();
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getCommandLine() {
-        return this.commandLine.get();
-    }
-
-    private String queryCommandLine() {
-        return String.join(" ", getArguments());
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return argsEnviron.get().getA();
-    }
-
-    @Override
-    public Map<String, String> getEnvironmentVariables() {
-        return argsEnviron.get().getB();
-    }
-
-    private Pair<List<String>, Map<String, String>> queryArgsAndEnvironment() {
+    protected Pair<List<String>, Map<String, String>> queryArgsAndEnvironment() {
         int pid = getProcessID();
         // Set up return objects
         List<String> args = new ArrayList<>();
@@ -294,109 +198,8 @@ public class MacOSProcessFFM extends AbstractOSProcess {
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return this.currentWorkingDirectory;
-    }
-
-    @Override
-    public String getUser() {
-        return this.user;
-    }
-
-    @Override
-    public String getUserID() {
-        return this.userID;
-    }
-
-    @Override
-    public String getGroup() {
-        return this.group;
-    }
-
-    @Override
-    public String getGroupID() {
-        return this.groupID;
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public List<OSThread> getThreadDetails() {
-        long now = System.currentTimeMillis();
-        return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat -> {
-            // For long running threads the start time calculation can overestimate
-            long start = Math.max(now - stat.getUpTime(), getStartTime());
-            return new MacOSThread(getProcessID(), stat.getThreadId(), stat.getState(), stat.getSystemTime(),
-                    stat.getUserTime(), start, now - start, stat.getPriority());
-        }).collect(Collectors.toList());
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
-    public long getResidentMemory() {
-        return this.residentSetSize;
-    }
-
-    @Override
-    public long getPrivateResidentMemory() {
-        return this.memoryFootprint;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
-    }
-
-    @Override
-    public long getOpenFiles() {
-        return this.openFiles;
+    protected int queryLogicalProcessorCount() {
+        return sysctl("hw.logicalcpu", 1);
     }
 
     @Override
@@ -427,43 +230,6 @@ public class MacOSProcessFFM extends AbstractOSProcess {
             }, LOG, DEBUG, "Failed to query hard open file limit", 0L);
         }
         return -1L; // not supported
-    }
-
-    @Override
-    public int getBitness() {
-        return this.bitness;
-    }
-
-    @Override
-    public long getAffinityMask() {
-        // macOS doesn't do affinity. Return a bitmask of the current processors.
-        int logicalProcessorCount = sysctl("hw.logicalcpu", 1);
-        return logicalProcessorCount < 64 ? (1L << logicalProcessorCount) - 1 : -1L;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getVoluntaryContextSwitches() {
-        return this.voluntaryContextSwitches;
-    }
-
-    @Override
-    public long getInvoluntaryContextSwitches() {
-        return this.involuntaryContextSwitches;
     }
 
     @Override
@@ -501,15 +267,7 @@ public class MacOSProcessFFM extends AbstractOSProcess {
 
             // Get Process state based on status
             int status = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_STATUS));
-            this.state = switch (status) {
-                case SSLEEP -> SLEEPING;
-                case SWAIT -> WAITING;
-                case SRUN -> RUNNING;
-                case SIDL -> NEW;
-                case SZOMB -> ZOMBIE;
-                case SSTOP -> STOPPED;
-                default -> OTHER;
-            };
+            this.state = stateFromStatus(status);
 
             // User and group info
             this.parentProcessID = pbsd.get(JAVA_INT, PROC_BSD_INFO.byteOffset(PBI_PPID));

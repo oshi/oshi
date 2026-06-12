@@ -62,10 +62,10 @@
     <suppress checks="MemberName" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
     <suppress checks="VisibilityModifier" files="(AixCentralProcessor|AixHWDiskStore|AixNetworkIF|AixGlobalMemory)\.java"/>
 
-    <!-- BsdOSProcess/BsdOSThread are the shared BSD-family OSProcess/OSThread bases; their protected fields
-         are populated by the shared updateAttributes() against platform-specific ps columns (and the thread
-         id is set by the per-platform OSThread constructors), so they can't be private with accessors. -->
-    <suppress checks="VisibilityModifier" files="(BsdOSProcess|BsdOSThread)\.java"/>
+    <!-- BsdOSProcess/BsdOSThread/MacOSProcess are shared OSProcess/OSThread bases; their protected fields are
+         populated by the per-backend native updateAttributes() in the subclasses (and the thread id / version are
+         set by the per-platform constructors), so they can't be private with accessors. -->
+    <suppress checks="VisibilityModifier" files="(BsdOSProcess|BsdOSThread|MacOSProcess)\.java"/>
 
     <!-- Solaris shared HAL abstract bases use public data POJOs (DiskStats, IfStats, BatteryReadings)
          for the kstat I/O, interface, and battery counters that the JNA and FFM subclasses populate. -->
