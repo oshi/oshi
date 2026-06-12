@@ -20,6 +20,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.unix.BsdPowerSource;
 import oshi.hardware.common.platform.unix.LpstatPrinter;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 
@@ -51,7 +52,7 @@ public final class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstra
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return NetBsdPowerSource.getPowerSources();
+        return BsdPowerSource.getPowerSources();
     }
 
     @Override

@@ -21,9 +21,9 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.BsdNetworkIF;
+import oshi.hardware.common.platform.unix.BsdPowerSource;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdGraphicsCard;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdPowerSource;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSensors;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdSoundCard;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdUsbDevice;
@@ -54,7 +54,7 @@ public final class OpenBsdHardwareAbstractionLayerFFM extends AbstractHardwareAb
 
     @Override
     public List<PowerSource> getPowerSources() {
-        return OpenBsdPowerSource.getPowerSources();
+        return BsdPowerSource.getPowerSources();
     }
 
     @Override
