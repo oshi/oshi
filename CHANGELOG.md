@@ -1,19 +1,8 @@
-# 7.3.1 (in progress)
+# 7.3.2 (in progress)
 
-##### New Features
+* Your contribution here!
 
-* [#3350](https://github.com/oshi/oshi/pull/3350): Add AIX support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
-* [#3360](https://github.com/oshi/oshi/pull/3360): Add NetBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
-* [#3362](https://github.com/oshi/oshi/pull/3362): Add DragonFly BSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
-
-##### Bug Fixes and Improvements
-
-* [#3349](https://github.com/oshi/oshi/pull/3349): Fix AIX `Uptime.queryUpTime()` regex to accept the `mins` suffix that appears in the first hour past each day boundary - [@dbwiddis](https://github.com/dbwiddis).
-* [#3358](https://github.com/oshi/oshi/pull/3358): Add macOS 27 (Golden Gate) codename mapping - [@dbwiddis](https://github.com/dbwiddis).
-* [#3365](https://github.com/oshi/oshi/pull/3365): Allow `SystemInfoProvider` SPI discovery on the class path - [@dbwiddis](https://github.com/dbwiddis).
-* [#3373](https://github.com/oshi/oshi/pull/3373): Export the `oshi` package from `oshi-core` in the OSGi bundle so the documented `new oshi.SystemInfo()` entry point is usable in OSGi environments - [@dbwiddis](https://github.com/dbwiddis).
-
-# 7.3.0 (2026-06-06)
+# 7.3.0 (2026-06-06), 7.3.1 (2026-06-11)
 
 ##### New Features
 
@@ -28,11 +17,17 @@
   [#3334](https://github.com/oshi/oshi/pull/3334),
   [#3335](https://github.com/oshi/oshi/pull/3335): Add OpenBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 * [#3339](https://github.com/oshi/oshi/pull/3339): Add Solaris/illumos support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#3350](https://github.com/oshi/oshi/pull/3350): Add AIX support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#3360](https://github.com/oshi/oshi/pull/3360): Add NetBSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
+* [#3362](https://github.com/oshi/oshi/pull/3362): Add DragonFly BSD support to the FFM (`oshi-core-ffm`) implementation - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
 * [#3320](https://github.com/oshi/oshi/pull/3320): Update to JNA 5.19.0 - [@dbwiddis](https://github.com/dbwiddis).
-
+* [#3349](https://github.com/oshi/oshi/pull/3349): Fix AIX `Uptime.queryUpTime()` regex to accept the `mins` suffix that appears in the first hour past each day boundary - [@dbwiddis](https://github.com/dbwiddis).
+* [#3358](https://github.com/oshi/oshi/pull/3358): Add macOS 27 (Golden Gate) codename mapping - [@dbwiddis](https://github.com/dbwiddis).
+* [#3365](https://github.com/oshi/oshi/pull/3365): Allow `SystemInfoProvider` SPI discovery on the class path - [@dbwiddis](https://github.com/dbwiddis).
+* [#3373](https://github.com/oshi/oshi/pull/3373): Export the `oshi` package from `oshi-core` in the OSGi bundle so the documented `new oshi.SystemInfo()` entry point is usable in OSGi environments - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.2.0 (2026-05-24), 7.2.1 (2026-05-25)
 
