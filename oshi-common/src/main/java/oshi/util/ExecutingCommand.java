@@ -117,21 +117,9 @@ public final class ExecutingCommand {
         // so we must handle separately
         if (PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS
                 || PlatformEnum.getCurrentPlatform() == PlatformEnum.SOLARIS) {
-            try {
-                p.getOutputStream().close();
-            } catch (IOException e) {
-                // do nothing on failure
-            }
-            try {
-                p.getInputStream().close();
-            } catch (IOException e) {
-                // do nothing on failure
-            }
-            try {
-                p.getErrorStream().close();
-            } catch (IOException e) {
-                // do nothing on failure
-            }
+            ExceptionUtil.runSilently(() -> p.getOutputStream().close());
+            ExceptionUtil.runSilently(() -> p.getInputStream().close());
+            ExceptionUtil.runSilently(() -> p.getErrorStream().close());
         }
         p.destroy();
     }
