@@ -4,44 +4,43 @@
  */
 package oshi.software.common.os.unix.dragonflybsd;
 
-import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MAJFLT;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MINFLT;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NIVCSW;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NVCSW;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.PRI;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.STATE;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.TID;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.TIME;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractOSThread;
-import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess.PsThreadColumns;
-import oshi.software.os.OSProcess;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.software.common.os.unix.bsd.BsdOSThread;
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 
 /**
  * OSThread implementation
  */
 @ThreadSafe
-public class DragonFlyBsdOSThread extends AbstractOSThread {
+public class DragonFlyBsdOSThread extends BsdOSThread {
 
-    private int threadId;
-    private String name = "";
-    private OSProcess.State state = INVALID;
-    private long minorFaults;
-    private long majorFaults;
-    private long startMemoryAddress;
-    private long contextSwitches;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private int priority;
+    /**
+     * Ordered {@code ps} thread columns. Shared with DragonFlyBsdOSProcess's thread enumeration so the column list and
+     * parsing stay in lockstep. {@code PRI} must remain last (the row-complete sentinel).
+     */
+    public static final List<BsdPsThreadKeyword> PS_THREAD_KEYWORDS = Collections
+            .unmodifiableList(Arrays.asList(TID, STATE, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, PRI));
 
-    public DragonFlyBsdOSThread(int processId, Map<PsThreadColumns, String> threadMap) {
+    public static final String PS_THREAD_COLUMNS = PS_THREAD_KEYWORDS.stream().map(Enum::name)
+            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
+
+    public DragonFlyBsdOSThread(int processId, Map<BsdPsThreadKeyword, String> threadMap) {
         super(processId);
         updateAttributes(threadMap);
     }
@@ -53,118 +52,12 @@ public class DragonFlyBsdOSThread extends AbstractOSThread {
     }
 
     @Override
-    public int getThreadId() {
-        return this.threadId;
+    protected List<BsdPsThreadKeyword> psThreadKeywords() {
+        return PS_THREAD_KEYWORDS;
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public OSProcess.State getState() {
-        return this.state;
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return this.startMemoryAddress;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        List<String> threadList = ExecutingCommand
-                .runNative("ps -awwxo " + DragonFlyBsdOSProcess.PS_THREAD_COLUMNS + " -H -p " + getOwningProcessId());
-        // DragonFlyBsdOSProcess (oshi-common abstract base) provides PS_THREAD_COLUMNS + the PsThreadColumns enum.
-        // there is no switch for thread in ps command, hence filtering.
-        String lwpStr = Integer.toString(this.threadId);
-        for (String psOutput : threadList) {
-            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
-                    ' ');
-            if (threadMap.containsKey(PsThreadColumns.PRI) && lwpStr.equals(threadMap.get(PsThreadColumns.TID))) {
-                return updateAttributes(threadMap);
-            }
-        }
-        this.state = INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
-        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.TID), 0);
-        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
-        }
-        long now = System.currentTimeMillis();
-        this.startTime = now;
-        this.upTime = 1L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.TIME), 0L);
-        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);
-        long nvcsw = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
-        long nivcsw = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
-        this.contextSwitches = nvcsw + nivcsw;
-        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
-        return true;
+    protected String psThreadCommand() {
+        return "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
     }
 }

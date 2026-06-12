@@ -4,44 +4,45 @@
  */
 package oshi.software.common.os.unix.netbsd;
 
-import static oshi.software.os.OSProcess.State.INVALID;
-import static oshi.software.os.OSProcess.State.OTHER;
-import static oshi.software.os.OSProcess.State.RUNNING;
-import static oshi.software.os.OSProcess.State.SLEEPING;
-import static oshi.software.os.OSProcess.State.STOPPED;
-import static oshi.software.os.OSProcess.State.WAITING;
-import static oshi.software.os.OSProcess.State.ZOMBIE;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.ARGS;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.CPUTIME;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.ETIME;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.LID;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MAJFLT;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MINFLT;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NIVCSW;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NVCSW;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.PRI;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.STATE;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.software.common.AbstractOSThread;
-import oshi.software.common.os.unix.netbsd.NetBsdOSProcess.PsThreadColumns;
-import oshi.software.os.OSProcess;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.software.common.os.unix.bsd.BsdOSThread;
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 
 /**
  * OSThread implementation
  */
 @ThreadSafe
-public class NetBsdOSThread extends AbstractOSThread {
+public class NetBsdOSThread extends BsdOSThread {
 
-    private int threadId;
-    private String name = "";
-    private OSProcess.State state = INVALID;
-    private long minorFaults;
-    private long majorFaults;
-    private long startMemoryAddress;
-    private long contextSwitches;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private int priority;
+    /**
+     * Ordered {@code ps} thread columns. Shared with NetBsdOSProcess's thread enumeration so the column list and
+     * parsing stay in lockstep. {@code ARGS} must remain last (the row-complete sentinel).
+     */
+    public static final List<BsdPsThreadKeyword> PS_THREAD_KEYWORDS = Collections
+            .unmodifiableList(Arrays.asList(LID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS));
 
-    public NetBsdOSThread(int processId, Map<PsThreadColumns, String> threadMap) {
+    public static final String PS_THREAD_COLUMNS = PS_THREAD_KEYWORDS.stream().map(Enum::name)
+            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
+
+    public NetBsdOSThread(int processId, Map<BsdPsThreadKeyword, String> threadMap) {
         super(processId);
         updateAttributes(threadMap);
     }
@@ -53,123 +54,13 @@ public class NetBsdOSThread extends AbstractOSThread {
     }
 
     @Override
-    public int getThreadId() {
-        return this.threadId;
+    protected List<BsdPsThreadKeyword> psThreadKeywords() {
+        return PS_THREAD_KEYWORDS;
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public OSProcess.State getState() {
-        return this.state;
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return this.startMemoryAddress;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        String psCommand = "ps -awwxo " + NetBsdOSProcess.PS_THREAD_COLUMNS + " -p " + getOwningProcessId();
-        // there is no switch for thread in ps command, hence filtering.
-        List<String> threadList = ExecutingCommand.runNative(psCommand);
-        String tidStr = Integer.toString(this.threadId);
-        for (String psOutput : threadList) {
-            Map<PsThreadColumns, String> threadMap = ParseUtil.stringToEnumMap(PsThreadColumns.class, psOutput.trim(),
-                    ' ');
-            if (threadMap.containsKey(PsThreadColumns.ARGS) && tidStr.equals(threadMap.get(PsThreadColumns.LID))) {
-                return updateAttributes(threadMap);
-            }
-        }
-        this.state = INVALID;
-        return false;
-    }
-
-    private boolean updateAttributes(Map<PsThreadColumns, String> threadMap) {
-        this.threadId = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.LID), 0);
-        switch (threadMap.get(PsThreadColumns.STATE).charAt(0)) {
-            case 'R':
-                this.state = RUNNING;
-                break;
-            case 'I':
-            case 'S':
-                this.state = SLEEPING;
-                break;
-            case 'D':
-            case 'L':
-            case 'U':
-                this.state = WAITING;
-                break;
-            case 'Z':
-                this.state = ZOMBIE;
-                break;
-            case 'T':
-                this.state = STOPPED;
-                break;
-            default:
-                this.state = OTHER;
-                break;
-        }
-        // Avoid divide by zero for processes up less than a second
-        long elapsedTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.ETIME), 0L);
-        this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        long now = System.currentTimeMillis();
-        this.startTime = now - this.upTime;
-        // ps does not provide kerneltime on NetBSD
-        this.kernelTime = 0L;
-        this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(PsThreadColumns.CPUTIME), 0L);
-        this.startMemoryAddress = 0L;
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NIVCSW), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.NVCSW), 0L);
-        this.contextSwitches = voluntaryContextSwitches + nonVoluntaryContextSwitches;
-        this.majorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MAJFLT), 0L);
-        this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(PsThreadColumns.MINFLT), 0L);
-        this.priority = ParseUtil.parseIntOrDefault(threadMap.get(PsThreadColumns.PRI), 0);
-        this.name = threadMap.get(PsThreadColumns.ARGS);
-        return true;
+    protected String psThreadCommand() {
+        // NetBSD ps shows per-LWP rows when lid is in the format specifier; no -H needed
+        return "ps -awwxo " + PS_THREAD_COLUMNS;
     }
 }
