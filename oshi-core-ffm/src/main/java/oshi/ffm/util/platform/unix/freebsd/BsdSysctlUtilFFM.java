@@ -7,6 +7,10 @@ package oshi.ffm.util.platform.unix.freebsd;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
 
@@ -15,6 +19,7 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
@@ -43,7 +48,7 @@ public final class BsdSysctlUtilFFM {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaIntOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_INT);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_INT.byteSize());
@@ -51,10 +56,7 @@ public final class BsdSysctlUtilFFM {
                 return def;
             }
             return valueSeg.get(JAVA_INT, 0);
-        } catch (Throwable e) {
-            LOG.warn("Failed to get sysctl value for {}", name, e);
-            return def;
-        }
+        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -65,7 +67,7 @@ public final class BsdSysctlUtilFFM {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment valueSeg = arena.allocate(JAVA_LONG);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_LONG.byteSize());
@@ -73,10 +75,7 @@ public final class BsdSysctlUtilFFM {
                 return def;
             }
             return valueSeg.get(JAVA_LONG, 0);
-        } catch (Throwable e) {
-            LOG.warn("Failed to get sysctl value for {}", name, e);
-            return def;
-        }
+        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -87,23 +86,19 @@ public final class BsdSysctlUtilFFM {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocate(SIZE_T);
             if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg)) {
                 return def;
             }
             long size = sizeSeg.get(SIZE_T, 0);
-            // +1 for null terminator
             MemorySegment valueSeg = arena.allocate(size + 1);
             if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg)) {
                 return def;
             }
             return valueSeg.getString(0);
-        } catch (Throwable e) {
-            LOG.warn("Failed to get sysctl value for {}", name, e);
-            return def;
-        }
+        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -114,14 +109,11 @@ public final class BsdSysctlUtilFFM {
      * @return {@code true} if the struct was populated, {@code false} otherwise
      */
     public static boolean sysctl(String name, MemorySegment struct) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, struct.byteSize());
             return sysctlbyname(arena, nameSeg, struct, sizeSeg);
-        } catch (Throwable e) {
-            LOG.warn("Failed to get sysctl value for {}", name, e);
-            return false;
-        }
+        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, false);
     }
 
     /**
@@ -131,7 +123,7 @@ public final class BsdSysctlUtilFFM {
      * @return an auto-arena {@link MemorySegment} containing the result on success; {@code null} otherwise
      */
     public static MemorySegment sysctl(String name) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment sizeSeg = arena.allocate(SIZE_T);
             if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg)) {
@@ -142,14 +134,10 @@ public final class BsdSysctlUtilFFM {
             if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg)) {
                 return null;
             }
-            // Copy to an auto-arena segment so it outlives this confined arena
             MemorySegment returnSeg = Arena.ofAuto().allocate(size);
             returnSeg.copyFrom(valueSeg);
             return returnSeg;
-        } catch (Throwable e) {
-            LOG.warn("Failed to get sysctl value for {}", name, e);
-            return null;
-        }
+        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, null);
     }
 
     private static boolean sysctlbyname(Arena arena, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp)
