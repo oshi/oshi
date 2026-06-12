@@ -2,7 +2,7 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.common.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix;
 
 import static java.util.Collections.sort;
 
@@ -17,12 +17,12 @@ import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 
 /**
- * NetBsd Usb Device
+ * Shared USB device implementation for BSDs that use {@code usbdevs -v} to enumerate devices (NetBSD, OpenBSD).
  */
 @Immutable
-public class NetBsdUsbDevice extends AbstractUsbDevice {
+public final class BsdUsbDevice extends AbstractUsbDevice {
 
-    public NetBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
+    public BsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
@@ -52,8 +52,6 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
     }
 
     private static List<UsbDevice> getUsbDevices() {
-        // Maps to store information using node # as the key
-        // Node is controller+addr (+port+addr etc.)
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
@@ -62,23 +60,16 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
         Map<String, List<String>> hubMap = new HashMap<>();
 
         List<String> rootHubs = new ArrayList<>();
-        // For each item enumerated, store information in the maps
         String key = "";
-        // Addresses repeat for each controller:
-        // prepend the controller /dev/usb* for the key
         String parent = "";
-        // Enumerate all devices and build information maps.
-        // This will build the entire device tree in hubMap
         for (String line : ExecutingCommand.runNative("usbdevs -v")) {
             if (line.startsWith("Controller ")) {
                 parent = line.substring(11);
             } else if (line.startsWith("addr ")) {
-                // addr 01: 8086:0000 Intel, EHCI root hub
                 if (line.indexOf(':') == 7 && line.indexOf(',') >= 18) {
                     key = parent + line.substring(0, 7);
                     String[] split = line.substring(8).trim().split(",");
                     if (split.length > 1) {
-                        // 0 = vid:pid vendor
                         String vendorStr = split[0].trim();
                         int idx1 = vendorStr.indexOf(':');
                         int idx2 = vendorStr.indexOf(' ');
@@ -87,11 +78,8 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
                             productIdMap.put(key, vendorStr.substring(idx1 + 1, idx2));
                             vendorMap.put(key, vendorStr.substring(idx2 + 1));
                         }
-                        // 1 = product
                         nameMap.put(key, split[1].trim());
-                        // Add this key to the parent's hubmap list
                         hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
-                        // For the first addr in a controller, make it the parent
                         if (!parent.contains("addr")) {
                             parent = key;
                             rootHubs.add(parent);
@@ -99,9 +87,6 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
                     }
                 }
             } else if (!key.isEmpty()) {
-                // Continuing to read for the previous key
-                // CSV is speed, power, config, rev, optional iSerial
-                // Since all we need is the serial...
                 int idx = line.indexOf("iSerial ");
                 if (idx >= 0) {
                     serialMap.put(key, line.substring(idx + 8).trim());
@@ -110,7 +95,6 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
             }
         }
 
-        // Build tree and return
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String devusb : rootHubs) {
             controllerDevices.add(getDeviceAndChildren(devusb, "0000", "0000", nameMap, vendorMap, vendorIdMap,
@@ -119,21 +103,7 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
         return controllerDevices;
     }
 
-    /**
-     * Recursively creates NetBsdUsbDevices by fetching information from maps to populate fields
-     *
-     * @param devPath      The device node path.
-     * @param vid          The default (parent) vendor ID
-     * @param pid          The default (parent) product ID
-     * @param nameMap      the map of names
-     * @param vendorMap    the map of vendors
-     * @param vendorIdMap  the map of vendorIds
-     * @param productIdMap the map of productIds
-     * @param serialMap    the map of serial numbers
-     * @param hubMap       the map of hubs
-     * @return An NetBsdUsbDevice corresponding to this device
-     */
-    private static NetBsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
+    private static BsdUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
             Map<String, String> nameMap, Map<String, String> vendorMap, Map<String, String> vendorIdMap,
             Map<String, String> productIdMap, Map<String, String> serialMap, Map<String, List<String>> hubMap) {
         String vendorId = vendorIdMap.getOrDefault(devPath, vid);
@@ -145,7 +115,7 @@ public class NetBsdUsbDevice extends AbstractUsbDevice {
                     productIdMap, serialMap, hubMap));
         }
         sort(usbDevices);
-        return new NetBsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
+        return new BsdUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId),
                 vendorMap.getOrDefault(devPath, ""), vendorId, productId, serialMap.getOrDefault(devPath, ""), devPath,
                 usbDevices);
     }

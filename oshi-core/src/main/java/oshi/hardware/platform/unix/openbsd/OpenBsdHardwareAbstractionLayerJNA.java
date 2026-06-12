@@ -20,13 +20,13 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.unix.BsdGraphicsCard;
 import oshi.hardware.common.platform.unix.BsdNetworkIF;
 import oshi.hardware.common.platform.unix.BsdPowerSource;
+import oshi.hardware.common.platform.unix.BsdSensors;
+import oshi.hardware.common.platform.unix.BsdSoundCard;
+import oshi.hardware.common.platform.unix.BsdUsbDevice;
 import oshi.hardware.common.platform.unix.UnixDisplay;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdGraphicsCard;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdSensors;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdSoundCard;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
@@ -52,7 +52,7 @@ public final class OpenBsdHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     public Sensors createSensors() {
-        return new OpenBsdSensors();
+        return new BsdSensors();
     }
 
     @Override
@@ -77,17 +77,17 @@ public final class OpenBsdHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     public List<UsbDevice> getUsbDevices(boolean tree) {
-        return OpenBsdUsbDevice.getUsbDevices(tree);
+        return BsdUsbDevice.getUsbDevices(tree);
     }
 
     @Override
     public List<SoundCard> getSoundCards() {
-        return OpenBsdSoundCard.getSoundCards();
+        return BsdSoundCard.getSoundCards();
     }
 
     @Override
     public List<GraphicsCard> getGraphicsCards() {
-        return OpenBsdGraphicsCard.getGraphicsCards();
+        return BsdGraphicsCard.getGraphicsCards();
     }
 
     @Override
