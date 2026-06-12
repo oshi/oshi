@@ -9,6 +9,7 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.AF_INET;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.AF_INET6;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.FIXED_INFO_LAYOUT;
@@ -44,7 +45,6 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +52,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import oshi.ffm.platform.windows.Win32Exception;
 import oshi.software.os.InternetProtocolStats.IPConnection;
@@ -75,7 +76,7 @@ public final class IPHlpAPIUtilFFM {
      * @return an array of DNS server IP address strings, or an empty array on failure
      */
     public static String[] getDnsServers() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             int ret = GetNetworkParams(NULL, sizeSegment);
             if (ret != ERROR_BUFFER_OVERFLOW) {
@@ -115,10 +116,7 @@ public final class IPHlpAPIUtilFFM {
             }
 
             return dnsServers.toArray(new String[0]);
-        } catch (Throwable t) {
-            LOG.error("GetNetworkParams failed: {}", t.getMessage());
-            return new String[0];
-        }
+        }, LOG, Level.ERROR, "GetNetworkParams failed", new String[0]);
     }
 
     /**
@@ -128,7 +126,7 @@ public final class IPHlpAPIUtilFFM {
      * @return TCP statistics, or null on failure
      */
     public static TcpStats getTcpStats(int family) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment stats = arena.allocate(MIB_TCPSTATS_LAYOUT);
 
             int rc = GetTcpStatisticsEx(stats, family);
@@ -157,10 +155,7 @@ public final class IPHlpAPIUtilFFM {
 
             return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,
                     connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
-        } catch (Throwable t) {
-            LOG.debug("getTcpStats failed: {}", t.getMessage());
-            return null;
-        }
+        }, LOG, Level.DEBUG, "getTcpStats failed", null);
     }
 
     /**
@@ -170,7 +165,7 @@ public final class IPHlpAPIUtilFFM {
      * @return UDP statistics, or null on failure
      */
     public static UdpStats getUdpStats(int family) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment stats = arena.allocate(MIB_UDPSTATS_LAYOUT);
 
             int rc = GetUdpStatisticsEx(stats, family);
@@ -186,10 +181,7 @@ public final class IPHlpAPIUtilFFM {
             int inErrors = stats.get(JAVA_INT, MIB_UDPSTATS_LAYOUT.byteOffset(PathElement.groupElement("dwInErrors")));
 
             return new UdpStats(outDatagrams, inDatagrams, noPorts, inErrors);
-        } catch (Throwable t) {
-            LOG.debug("GetUdpStats failed: {}", t.getMessage());
-            return null;
-        }
+        }, LOG, Level.DEBUG, "getUdpStats failed", null);
     }
 
     /**
@@ -198,9 +190,7 @@ public final class IPHlpAPIUtilFFM {
      * @return list of TCP IPv4 connections
      */
     public static List<IPConnection> queryTCPv4Connections() {
-        List<IPConnection> conns = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
-
+        return callInArenaOrDefault(arena -> {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             int ret = GetExtendedTcpTable(NULL, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
 
@@ -218,6 +208,7 @@ public final class IPHlpAPIUtilFFM {
 
             int numEntries = buffer.get(JAVA_INT, 0);
             long entryOffset = JAVA_INT.byteSize();
+            List<IPConnection> conns = new ArrayList<>();
 
             for (int i = 0; i < numEntries; i++) {
                 MemorySegment rowSeg = buffer.asSlice(entryOffset + i * MIB_TCPROW_OWNER_PID_LAYOUT.byteSize(),
@@ -241,10 +232,7 @@ public final class IPHlpAPIUtilFFM {
                         ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
             }
             return conns;
-        } catch (Throwable t) {
-            LOG.debug("queryTCPv4Connections failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, Level.DEBUG, "queryTCPv4Connections failed", Collections.emptyList());
     }
 
     /**
@@ -253,9 +241,7 @@ public final class IPHlpAPIUtilFFM {
      * @return list of TCP IPv6 connections
      */
     public static List<IPConnection> queryTCPv6Connections() {
-        List<IPConnection> conns = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
-
+        return callInArenaOrDefault(arena -> {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             int ret = GetExtendedTcpTable(NULL, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
 
@@ -273,6 +259,7 @@ public final class IPHlpAPIUtilFFM {
 
             int numEntries = buffer.get(JAVA_INT, 0);
             long entryOffset = JAVA_INT.byteSize();
+            List<IPConnection> conns = new ArrayList<>();
 
             for (int i = 0; i < numEntries; i++) {
                 MemorySegment rowSeg = buffer.asSlice(entryOffset + i * MIB_TCP6ROW_OWNER_PID_LAYOUT.byteSize(),
@@ -303,10 +290,7 @@ public final class IPHlpAPIUtilFFM {
                         remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
             }
             return conns;
-        } catch (Throwable t) {
-            LOG.debug("queryTCPv6Connections failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, Level.DEBUG, "queryTCPv6Connections failed", Collections.emptyList());
     }
 
     /**
@@ -315,8 +299,7 @@ public final class IPHlpAPIUtilFFM {
      * @return list of UDP IPv4 connections
      */
     public static List<IPConnection> queryUDPv4Connections() {
-        List<IPConnection> conns = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             int ret = GetExtendedUdpTable(NULL, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
 
@@ -334,6 +317,7 @@ public final class IPHlpAPIUtilFFM {
 
             int numEntries = buffer.get(JAVA_INT, 0);
             long entryOffset = JAVA_INT.byteSize();
+            List<IPConnection> conns = new ArrayList<>();
 
             for (int i = 0; i < numEntries; i++) {
                 MemorySegment rowSeg = buffer.asSlice(entryOffset + i * MIB_UDPROW_OWNER_PID_LAYOUT.byteSize(),
@@ -350,10 +334,7 @@ public final class IPHlpAPIUtilFFM {
                         ParseUtil.bigEndian16ToLittleEndian(localPortBE), new byte[0], 0, TcpState.NONE, 0, 0, pid));
             }
             return conns;
-        } catch (Throwable t) {
-            LOG.debug("queryUDPv4Connections failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, Level.DEBUG, "queryUDPv4Connections failed", Collections.emptyList());
     }
 
     /**
@@ -362,8 +343,7 @@ public final class IPHlpAPIUtilFFM {
      * @return list of UDP IPv6 connections
      */
     public static List<IPConnection> queryUDPv6Connections() {
-        List<IPConnection> conns = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             int ret = GetExtendedUdpTable(NULL, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
 
@@ -381,6 +361,7 @@ public final class IPHlpAPIUtilFFM {
 
             int numEntries = buffer.get(JAVA_INT, 0);
             long entryOffset = JAVA_INT.byteSize();
+            List<IPConnection> conns = new ArrayList<>();
 
             for (int i = 0; i < numEntries; i++) {
                 MemorySegment rowSeg = buffer.asSlice(entryOffset + i * MIB_UDP6ROW_OWNER_PID_LAYOUT.byteSize(),
@@ -401,10 +382,7 @@ public final class IPHlpAPIUtilFFM {
                         new byte[0], 0, TcpState.NONE, 0, 0, pid));
             }
             return conns;
-        } catch (Throwable t) {
-            LOG.debug("queryUDPv6Connections failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, Level.DEBUG, "queryUDPv6Connections failed", Collections.emptyList());
     }
 
     private static TcpState stateLookup(int state) {
