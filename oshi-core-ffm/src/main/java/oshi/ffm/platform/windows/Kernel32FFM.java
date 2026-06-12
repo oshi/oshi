@@ -10,9 +10,13 @@ import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.platform.windows.WinNTFFM.INVALID_HANDLE_VALUE;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getLongOrDefault;
 import static oshi.util.ExceptionUtil.getOptional;
 import static oshi.util.ExceptionUtil.getOptionalInt;
 import static oshi.util.ExceptionUtil.getOptionalLong;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -45,12 +49,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle CloseHandle = downcall(K32, "CloseHandle", JAVA_INT, ADDRESS);
 
     public static OptionalInt CloseHandle(MemorySegment handle) {
-        try {
-            return OptionalInt.of((int) CloseHandle.invokeExact(handle));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.closeHandle failed", t);
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) CloseHandle.invokeExact(handle), LOG, "Kernel32FFM.CloseHandle failed: {}");
     }
 
     private static final MethodHandle CreateFile = downcall(K32, "CreateFileW", ADDRESS, ADDRESS, JAVA_INT, JAVA_INT,
@@ -58,17 +57,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     public static Optional<MemorySegment> CreateFile(MemorySegment lpFileName, int dwDesiredAccess, int dwShareMode,
             int dwCreationDisposition, int dwFlagsAndAttributes) {
-        try {
+        return getOptional(() -> {
             MemorySegment handle = (MemorySegment) CreateFile.invokeExact(lpFileName, dwDesiredAccess, dwShareMode,
                     MemorySegment.NULL, dwCreationDisposition, dwFlagsAndAttributes, MemorySegment.NULL);
-            if (isInvalidHandle(handle)) {
-                return Optional.empty();
-            }
-            return Optional.of(handle);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.CreateFile failed", t);
-            return Optional.empty();
-        }
+            return isInvalidHandle(handle) ? null : handle;
+        }, LOG, "Kernel32FFM.CreateFile failed: {}");
     }
 
     private static final MethodHandle DeviceIoControl = downcall(K32, "DeviceIoControl", JAVA_INT, ADDRESS, JAVA_INT,
@@ -81,7 +74,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             return isSuccess((int) DeviceIoControl.invokeExact(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize,
                     lpOutBuffer, nOutBufferSize, lpBytesReturned, MemorySegment.NULL));
         } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.DeviceIoControl failed", t);
+            LOG.debug("Kernel32FFM.DeviceIoControl failed: {}", t.getMessage());
             return false;
         }
     }
@@ -89,18 +82,15 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle FindFirstVolume = downcall(K32, "FindFirstVolumeW", ADDRESS, ADDRESS, JAVA_INT);
 
     public static Optional<MemorySegment> FindFirstVolume(MemorySegment lpszVolumeName, int cchBufferLength) {
-        try {
+        return getOptional(() -> {
             MemorySegment handle = (MemorySegment) FindFirstVolume.invokeExact(lpszVolumeName, cchBufferLength);
             if (isInvalidHandle(handle)) {
                 int error = (int) GetLastError.invokeExact();
                 LOG.error("FindFirstVolume failed with error: {}", error);
-                return Optional.empty();
+                return null;
             }
-            return Optional.of(handle);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.FindFirstVolume failed", t);
-            return Optional.empty();
-        }
+            return handle;
+        }, LOG, "Kernel32FFM.FindFirstVolume failed: {}");
     }
 
     private static final MethodHandle FindNextVolume = downcall(K32, "FindNextVolumeW", JAVA_INT, ADDRESS, ADDRESS,
@@ -132,7 +122,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             boolean success = isSuccess((int) GetComputerName.invokeExact(buffer, sizeSegment));
             if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
-                LOG.error("Failed to get computer name name. Error code: {}", errorCode);
+                LOG.error("Failed to get computer name. Error code: {}", errorCode);
                 return Optional.empty();
             }
 
@@ -181,35 +171,21 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle GetCurrentProcessId = downcall(K32, "GetCurrentProcessId", JAVA_INT);
 
     public static OptionalInt GetCurrentProcessId() {
-        try {
-            return OptionalInt.of((int) GetCurrentProcessId.invokeExact());
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetCurrentProcessId failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetCurrentProcessId.invokeExact(), LOG,
+                "Kernel32FFM.GetCurrentProcessId failed: {}");
     }
 
     private static final MethodHandle GetLastError = downcall(K32, "GetLastError", JAVA_INT);
 
     public static OptionalInt GetLastError() {
-        try {
-            return OptionalInt.of((int) GetLastError.invokeExact());
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetLastError failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetLastError.invokeExact(), LOG, "Kernel32FFM.GetLastError failed: {}");
     }
 
     private static final MethodHandle GetCurrentThreadId = downcall(K32, "GetCurrentThreadId", JAVA_INT);
 
     public static OptionalInt GetCurrentThreadId() {
-        try {
-            int tid = (int) GetCurrentThreadId.invokeExact();
-            return OptionalInt.of(tid);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetCurrentThreadId failed: {}", t.getMessage());
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) GetCurrentThreadId.invokeExact(), LOG,
+                "Kernel32FFM.GetCurrentThreadId failed: {}");
     }
 
     private static final MethodHandle GetDiskFreeSpaceEx = downcall(K32, "GetDiskFreeSpaceExW", JAVA_INT, ADDRESS,
@@ -262,12 +238,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle SetErrorMode = downcall(K32, "SetErrorMode", JAVA_INT, JAVA_INT);
 
     public static OptionalInt SetErrorMode(int uMode) {
-        try {
-            return OptionalInt.of((int) SetErrorMode.invokeExact(uMode));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.SetErrorMode failed", t);
-            return OptionalInt.empty();
-        }
+        return getOptionalInt(() -> (int) SetErrorMode.invokeExact(uMode), LOG, "Kernel32FFM.SetErrorMode failed: {}");
     }
 
     private static final MethodHandle GetVolumeNameForVolumeMountPoint = downcall(K32,
@@ -295,20 +266,14 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @param dwDesiredAccess The access to the process object
      * @param bInheritHandle  If TRUE, processes created by this process will inherit the handle
      * @param dwProcessId     The identifier of the local process to be opened
-     * @return Handle to the process, or null segment if failed
+     * @return Handle to the process, or empty if failed
      */
     public static Optional<MemorySegment> OpenProcess(int dwDesiredAccess, boolean bInheritHandle, int dwProcessId) {
-        try {
+        return getOptional(() -> {
             MemorySegment handle = (MemorySegment) OpenProcess.invokeExact(dwDesiredAccess, bInheritHandle ? 1 : 0,
                     dwProcessId);
-            if (handle == null || handle.address() == 0) {
-                return Optional.empty();
-            }
-            return Optional.of(handle);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.OpenProcess failed: {}", t.getMessage());
-            return Optional.empty();
-        }
+            return (handle == null || handle.address() == 0) ? null : handle;
+        }, LOG, "Kernel32FFM.OpenProcess failed: {}");
     }
 
     private static final MethodHandle GetProcessAffinityMask = downcall(K32, "GetProcessAffinityMask", JAVA_INT,
@@ -324,12 +289,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean GetProcessAffinityMask(MemorySegment hProcess, MemorySegment lpProcessAffinity,
             MemorySegment lpSystemAffinity) {
-        try {
-            return isSuccess((int) GetProcessAffinityMask.invokeExact(hProcess, lpProcessAffinity, lpSystemAffinity));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetProcessAffinityMask failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(
+                () -> isSuccess(
+                        (int) GetProcessAffinityMask.invokeExact(hProcess, lpProcessAffinity, lpSystemAffinity)),
+                false, LOG, "Kernel32FFM.GetProcessAffinityMask failed: {}");
     }
 
     private static final MethodHandle IsWow64Process = downcall(K32, "IsWow64Process", JAVA_INT, ADDRESS, ADDRESS);
@@ -342,12 +305,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @return true if the function succeeds
      */
     public static boolean IsWow64Process(MemorySegment hProcess, MemorySegment Wow64Process) {
-        try {
-            return isSuccess((int) IsWow64Process.invokeExact(hProcess, Wow64Process));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.IsWow64Process failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(() -> isSuccess((int) IsWow64Process.invokeExact(hProcess, Wow64Process)), false,
+                LOG, "Kernel32FFM.IsWow64Process failed: {}");
     }
 
     private static final MethodHandle ReadProcessMemory = downcall(K32, "ReadProcessMemory", JAVA_INT, ADDRESS, ADDRESS,
@@ -365,13 +324,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean ReadProcessMemory(MemorySegment hProcess, MemorySegment lpBaseAddress, MemorySegment lpBuffer,
             long nSize, MemorySegment lpNumberOfBytesRead) {
-        try {
-            return isSuccess(
-                    (int) ReadProcessMemory.invokeExact(hProcess, lpBaseAddress, lpBuffer, nSize, lpNumberOfBytesRead));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.ReadProcessMemory failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(() -> isSuccess(
+                (int) ReadProcessMemory.invokeExact(hProcess, lpBaseAddress, lpBuffer, nSize, lpNumberOfBytesRead)),
+                false, LOG, "Kernel32FFM.ReadProcessMemory failed: {}");
     }
 
     private static final MethodHandle QueryFullProcessImageNameW = downcall(K32, "QueryFullProcessImageNameW", JAVA_INT,
@@ -388,12 +343,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean QueryFullProcessImageName(MemorySegment hProcess, int dwFlags, MemorySegment lpExeName,
             MemorySegment lpdwSize) {
-        try {
-            return isSuccess((int) QueryFullProcessImageNameW.invokeExact(hProcess, dwFlags, lpExeName, lpdwSize));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.QueryFullProcessImageName failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(
+                () -> isSuccess((int) QueryFullProcessImageNameW.invokeExact(hProcess, dwFlags, lpExeName, lpdwSize)),
+                false, LOG, "Kernel32FFM.QueryFullProcessImageName failed: {}");
     }
 
     /**
@@ -418,10 +370,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             // Check if buffer was too small (returned size >= maxPath)
             int returnedSize = sizeSegment.get(JAVA_INT, 0);
             if (returnedSize < maxPath) {
-                // Failure wasn't due to buffer size
                 break;
             }
-            // Double the buffer size and retry
             maxPath *= 2;
         }
         return Optional.empty();
@@ -436,12 +386,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @return If the function succeeds, the return value is NULL
      */
     public static MemorySegment LocalFree(MemorySegment hMem) {
-        try {
-            return (MemorySegment) LocalFree.invokeExact(hMem);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.LocalFree failed: {}", t.getMessage());
-            return hMem;
-        }
+        return getOrDefault(() -> (MemorySegment) LocalFree.invokeExact(hMem), hMem);
     }
 
     private static final MethodHandle VerSetConditionMask = downcall(K32, "VerSetConditionMask", JAVA_LONG, JAVA_LONG,
@@ -458,12 +403,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @return The condition mask value
      */
     public static long VerSetConditionMask(long conditionMask, int typeMask, byte condition) {
-        try {
-            return (long) VerSetConditionMask.invokeExact(conditionMask, typeMask, condition);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.VerSetConditionMask failed: {}", t.getMessage());
-            return 0L;
-        }
+        return getLongOrDefault(() -> (long) VerSetConditionMask.invokeExact(conditionMask, typeMask, condition), 0L);
     }
 
     private static final MethodHandle VerifyVersionInfoW = downcall(K32, "VerifyVersionInfoW", JAVA_INT, ADDRESS,
@@ -481,12 +421,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean VerifyVersionInfoW(MemorySegment lpVersionInformation, int dwTypeMask,
             long dwlConditionMask) {
-        try {
-            return isSuccess((int) VerifyVersionInfoW.invokeExact(lpVersionInformation, dwTypeMask, dwlConditionMask));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.VerifyVersionInfoW failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(
+                () -> isSuccess(
+                        (int) VerifyVersionInfoW.invokeExact(lpVersionInformation, dwTypeMask, dwlConditionMask)),
+                false, LOG, "Kernel32FFM.VerifyVersionInfoW failed: {}");
     }
 
     private static final MethodHandle GetNativeSystemInfo = downcall(K32, "GetNativeSystemInfo", null, ADDRESS);
@@ -498,13 +436,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @return true if the call succeeded
      */
     public static boolean GetNativeSystemInfo(MemorySegment lpSystemInfo) {
-        try {
+        return getBooleanOrDefault(() -> {
             GetNativeSystemInfo.invokeExact(lpSystemInfo);
             return true;
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetNativeSystemInfo failed: {}", t.getMessage());
-            return false;
-        }
+        }, false, LOG, "Kernel32FFM.GetNativeSystemInfo failed: {}");
     }
 
     private static final MethodHandle GetSystemTimes = downcall(K32, "GetSystemTimes", JAVA_INT, ADDRESS, ADDRESS,
@@ -520,12 +455,9 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean GetSystemTimes(MemorySegment lpIdleTime, MemorySegment lpKernelTime,
             MemorySegment lpUserTime) {
-        try {
-            return isSuccess((int) GetSystemTimes.invokeExact(lpIdleTime, lpKernelTime, lpUserTime));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetSystemTimes failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(
+                () -> isSuccess((int) GetSystemTimes.invokeExact(lpIdleTime, lpKernelTime, lpUserTime)), false, LOG,
+                "Kernel32FFM.GetSystemTimes failed: {}");
     }
 
     private static final MethodHandle IsProcessorFeaturePresent = downcall(K32, "IsProcessorFeaturePresent", JAVA_INT,
@@ -538,12 +470,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      * @return true if the feature is supported
      */
     public static boolean IsProcessorFeaturePresent(int processorFeature) {
-        try {
-            return isSuccess((int) IsProcessorFeaturePresent.invokeExact(processorFeature));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.IsProcessorFeaturePresent failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(() -> isSuccess((int) IsProcessorFeaturePresent.invokeExact(processorFeature)),
+                false, LOG, "Kernel32FFM.IsProcessorFeaturePresent failed: {}");
     }
 
     private static final MethodHandle GetLogicalProcessorInformationEx = downcall(K32,
@@ -559,13 +487,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
      */
     public static boolean GetLogicalProcessorInformationEx(int relationshipType, MemorySegment buffer,
             MemorySegment returnedLength) {
-        try {
-            return isSuccess(
-                    (int) GetLogicalProcessorInformationEx.invokeExact(relationshipType, buffer, returnedLength));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetLogicalProcessorInformationEx failed: {}", t.getMessage());
-            return false;
-        }
+        return getBooleanOrDefault(
+                () -> isSuccess(
+                        (int) GetLogicalProcessorInformationEx.invokeExact(relationshipType, buffer, returnedLength)),
+                false, LOG, "Kernel32FFM.GetLogicalProcessorInformationEx failed: {}");
     }
 
     private static final MethodHandle CallNtPowerInformation;
@@ -596,12 +521,8 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
         if (CallNtPowerInformation == null) {
             return -1;
         }
-        try {
-            return (int) CallNtPowerInformation.invokeExact(informationLevel, lpInputBuffer, nInputBufferSize,
-                    lpOutputBuffer, nOutputBufferSize);
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.CallNtPowerInformation failed: {}", t.getMessage());
-            return -1;
-        }
+        return getIntOrDefault(() -> (int) CallNtPowerInformation.invokeExact(informationLevel, lpInputBuffer,
+                nInputBufferSize, lpOutputBuffer, nOutputBufferSize), -1, LOG,
+                "Kernel32FFM.CallNtPowerInformation failed: {}");
     }
 }
