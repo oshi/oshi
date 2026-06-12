@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import oshi.software.common.os.unix.bsd.BsdOSProcess;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -51,17 +52,6 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
                     SYSTIME, TIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
-
-    /**
-     * Columns requested from {@code ps -awwxo} when enumerating threads. Shared by FreeBsdOSProcess subclasses and
-     * FreeBsdOSThread so the column list and parsing enum stay in lockstep.
-     */
-    public enum PsThreadColumns {
-        TDNAME, LWP, STATE, ETIMES, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI;
-    }
-
-    public static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     protected FreeBsdOSProcess(int pid) {
@@ -80,13 +70,15 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
+        String psCommand = "ps -awwxo " + FreeBsdOSThread.PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        Predicate<Map<PsThreadColumns, String>> hasColumnsPri = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
+        Predicate<Map<BsdPsThreadKeyword, String>> hasColumnsPri = threadMap -> threadMap
+                .containsKey(BsdPsThreadKeyword.PRI);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .map(thread -> ParseUtil.stringToEnumMap(BsdPsThreadKeyword.class, FreeBsdOSThread.PS_THREAD_KEYWORDS,
+                        thread.trim(), ' '))
                 .filter(hasColumnsPri).map(threadMap -> new FreeBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }

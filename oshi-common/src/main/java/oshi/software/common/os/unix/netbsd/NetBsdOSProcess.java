@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOSProcess;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -56,16 +57,6 @@ public class NetBsdOSProcess extends BsdOSProcess {
             USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
-
-    /*
-     * Package-private for use by NetBsdOSThread
-     */
-    enum PsThreadColumns {
-        LID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS;
-    }
-
-    static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     private final NetBsdOperatingSystem os;
@@ -170,14 +161,15 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     public List<OSThread> getThreadDetails() {
         // NetBSD ps shows per-LWP rows when lid is in the format specifier
-        String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS;
+        String psCommand = "ps -awwxo " + NetBsdOSThread.PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        Predicate<Map<PsThreadColumns, String>> hasColumnsArgs = threadMap -> threadMap
-                .containsKey(PsThreadColumns.ARGS);
+        Predicate<Map<BsdPsThreadKeyword, String>> hasColumnsArgs = threadMap -> threadMap
+                .containsKey(BsdPsThreadKeyword.ARGS);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .map(thread -> ParseUtil.stringToEnumMap(BsdPsThreadKeyword.class, NetBsdOSThread.PS_THREAD_KEYWORDS,
+                        thread.trim(), ' '))
                 .filter(hasColumnsArgs).map(threadMap -> new NetBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }

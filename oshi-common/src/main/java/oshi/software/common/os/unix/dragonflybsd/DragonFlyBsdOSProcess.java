@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import oshi.software.common.os.unix.bsd.BsdOSProcess;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -49,17 +50,6 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
             USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND));
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
-
-    /**
-     * Columns requested from {@code ps -awwxo} when enumerating threads. Shared by DragonFlyBsdOSProcess subclasses and
-     * DragonFlyBsdOSThread so the column list and parsing enum stay in lockstep.
-     */
-    public enum PsThreadColumns {
-        TID, STATE, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, PRI;
-    }
-
-    public static final String PS_THREAD_COLUMNS = Arrays.stream(PsThreadColumns.values()).map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     protected DragonFlyBsdOSProcess(int pid) {
@@ -100,13 +90,15 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
+        String psCommand = "ps -awwxo " + DragonFlyBsdOSThread.PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
-        Predicate<Map<PsThreadColumns, String>> hasColumnsPri = threadMap -> threadMap.containsKey(PsThreadColumns.PRI);
+        Predicate<Map<BsdPsThreadKeyword, String>> hasColumnsPri = threadMap -> threadMap
+                .containsKey(BsdPsThreadKeyword.PRI);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-                .map(thread -> ParseUtil.stringToEnumMap(PsThreadColumns.class, thread.trim(), ' '))
+                .map(thread -> ParseUtil.stringToEnumMap(BsdPsThreadKeyword.class,
+                        DragonFlyBsdOSThread.PS_THREAD_KEYWORDS, thread.trim(), ' '))
                 .filter(hasColumnsPri).map(threadMap -> new DragonFlyBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }
