@@ -9,6 +9,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_CSTATUS_NEW_DATA;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_CSTATUS_VALID_DATA;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_MORE_DATA;
@@ -37,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
@@ -171,9 +173,8 @@ public final class PerfDataUtilFFM {
      * @return A list of matching instance names, or an empty list on failure
      */
     static List<String> enumInstances(String perfObject, String instanceFilter) {
-        // PdhEnumObjectItemsW requires the localized object name
         String localizedObject = localizeObjectName(perfObject);
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment objectName = toWideString(arena, localizedObject);
             MemorySegment counterLen = arena.allocate(JAVA_INT);
             MemorySegment instanceLen = arena.allocate(JAVA_INT);
@@ -185,7 +186,7 @@ public final class PerfDataUtilFFM {
                     counterLen, MemorySegment.NULL, instanceLen, 100, 0);
             if (result != ERROR_SUCCESS && result != PDH_MORE_DATA) {
                 LOG.warn("Failed to enumerate instances for {}: 0x{}", perfObject, Integer.toHexString(result));
-                return Collections.emptyList();
+                return Collections.<String>emptyList();
             }
 
             // Retry loop for race conditions (e.g., process/thread list changes)
@@ -200,8 +201,6 @@ public final class PerfDataUtilFFM {
 
                 result = PdhEnumObjectItemsW(MemorySegment.NULL, MemorySegment.NULL, objectName, counterBuf, counterLen,
                         instanceBuf, instanceLen, 100, 0);
-                // On PDH_MORE_DATA, counterLen/instanceLen are updated with required sizes;
-                // add headroom for race conditions where instances change between calls
                 if (result == PDH_MORE_DATA) {
                     counterLen.set(JAVA_INT, 0, counterLen.get(JAVA_INT, 0) + 1024);
                     instanceLen.set(JAVA_INT, 0, instanceLen.get(JAVA_INT, 0) + 1024);
@@ -210,17 +209,13 @@ public final class PerfDataUtilFFM {
 
             if (result != ERROR_SUCCESS) {
                 LOG.warn("Failed to enumerate instances for {}: 0x{}", localizedObject, Integer.toHexString(result));
-                return Collections.emptyList();
+                return Collections.<String>emptyList();
             }
 
-            // Parse multi-sz instance list and filter
             List<String> instances = parseMultiSz(instanceBuf);
             instances.removeIf(i -> !Util.wildcardMatch(i.toLowerCase(Locale.ROOT), instanceFilter));
             return instances;
-        } catch (Throwable t) {
-            LOG.warn("Failed to enumerate instances for {}: {}", localizedObject, t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, Level.WARN, "Failed to enumerate instances for " + localizedObject, Collections.emptyList());
     }
 
     /**
@@ -388,7 +383,7 @@ public final class PerfDataUtilFFM {
     }
 
     private static String lookupPerfNameByIndex(int index) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment bufSize = arena.allocate(JAVA_INT);
             bufSize.set(JAVA_INT, 0, 0);
             int result = PdhLookupPerfNameByIndexW(MemorySegment.NULL, index, MemorySegment.NULL, bufSize);
@@ -405,9 +400,6 @@ public final class PerfDataUtilFFM {
                 return "";
             }
             return readWideString(nameBuf);
-        } catch (Throwable t) {
-            LOG.debug("Failed to lookup perf name by index {}: {}", index, t.getMessage());
-            return "";
-        }
+        }, LOG, Level.DEBUG, "Failed to lookup perf name by index " + index, "");
     }
 }
