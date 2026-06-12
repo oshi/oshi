@@ -75,6 +75,10 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public OSProcess getProcess(int pid) {
+        if (pid < 0) {
+            // A negative pid is the getProcessListFromPS "all processes" sentinel, not a real process
+            return null;
+        }
         List<OSProcess> procs = getProcessListFromPS(pid);
         if (procs.isEmpty()) {
             return null;
