@@ -36,7 +36,7 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.GuardedBy;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.unix.solaris.SolarisOperatingSystem;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.unix.solaris.SolarisOperatingSystemJNA;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
@@ -264,9 +264,9 @@
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * @return An object array with the data corresponding to the names</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Object[] queryKstat2(String mapStr, String... names) {
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">if</strong> (!SolarisOperatingSystem.HAS_KSTAT2) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         <strong class="jxr_keyword">if</strong> (!SolarisOperatingSystemJNA.HAS_KSTAT2) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                     <span class="jxr_string">"Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this."</span>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                     <span class="jxr_string">"Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystemJNA#HAS_KSTAT2 to test this."</span>);
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>         }
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>         Object[] result = <strong class="jxr_keyword">new</strong> Object[names.length];
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         Kstat2MatcherList matchers = <strong class="jxr_keyword">new</strong> Kstat2MatcherList();
@@ -300,9 +300,9 @@
 <a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * @return A list of object arrays with the data corresponding to the names</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Object[]&gt; queryKstat2List(String beforeStr, String afterStr, String... names) {
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">if</strong> (!SolarisOperatingSystem.HAS_KSTAT2) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">if</strong> (!SolarisOperatingSystemJNA.HAS_KSTAT2) {
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                     <span class="jxr_string">"Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystem#HAS_KSTAT2 to test this."</span>);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                     <span class="jxr_string">"Kstat2 requires Solaris 11.4+. Use SolarisOperatingSystemJNA#HAS_KSTAT2 to test this."</span>);
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>         }
 <a class="jxr_linenumber" name="L299" href="#L299">299</a>         List&lt;Object[]&gt; results = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">int</strong> s = 0;

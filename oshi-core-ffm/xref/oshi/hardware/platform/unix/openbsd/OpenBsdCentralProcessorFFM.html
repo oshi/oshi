@@ -14,19 +14,19 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CPUSTATES;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CP_IDLE;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CP_INTR;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CP_NICE;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CP_SYS;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CP_USER;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CTL_HW;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.HW_CPUSPEED;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.HW_MACHINE;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.HW_MODEL;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.KERN_CPTIME;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions.KERN_CPTIME2;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CPUSTATES;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CP_IDLE;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CP_INTR;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CP_NICE;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CP_SYS;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CP_USER;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_HW;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.HW_CPUSPEED;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.HW_MACHINE;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.HW_MODEL;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_CPTIME;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_CPTIME2;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.defaultExpiration;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
@@ -50,7 +50,7 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.unix.openbsd.OpenBsdLibcFunctions;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache.Type;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractCentralProcessor;
@@ -218,8 +218,8 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>                 ticks[TickType.NICE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_NICE);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>                 ticks[TickType.SYSTEM.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_SYS);
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>                 <strong class="jxr_keyword">int</strong> offset = arraySize &gt; CPUSTATES ? 1 : 0;
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>                 ticks[TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_INTR + offset);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>                 ticks[TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_IDLE + offset);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                 ticks[TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, (<strong class="jxr_keyword">long</strong>) CP_INTR + offset);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                 ticks[TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, (<strong class="jxr_keyword">long</strong>) CP_IDLE + offset);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>             }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">return</strong> ticks;
@@ -238,8 +238,8 @@
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>                     ticks[cpu][TickType.NICE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_NICE);
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>                     ticks[cpu][TickType.SYSTEM.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_SYS);
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>                     <strong class="jxr_keyword">int</strong> offset = arraySize &gt; CPUSTATES ? 1 : 0;
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>                     ticks[cpu][TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_INTR + offset);
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>                     ticks[cpu][TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, CP_IDLE + offset);
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>                     ticks[cpu][TickType.IRQ.getIndex()] = buf.getAtIndex(JAVA_LONG, (<strong class="jxr_keyword">long</strong>) CP_INTR + offset);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                     ticks[cpu][TickType.IDLE.getIndex()] = buf.getAtIndex(JAVA_LONG, (<strong class="jxr_keyword">long</strong>) CP_IDLE + offset);
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>                 }
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>             }
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         }

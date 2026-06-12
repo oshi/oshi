@@ -33,8 +33,8 @@
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.AuxvFFM;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.NativeHandle;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.UdevFunctions;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.linux.LinuxLibcFunctions;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.linux.UdevFunctions;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystemFFM;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                                  UdevFunctions::udev_enumerate_unref)) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                              UdevFunctions.addMatchSubsystem(enumerate, <span class="jxr_string">"cpu"</span>, arena);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                              UdevFunctions.udev_enumerate_scan_devices(enumerate);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                              <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                              <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/platform/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                                      .udev_enumerate_get_list_entry(enumerate); !MemorySegment.NULL
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                                              .equals(entry); entry = UdevFunctions.udev_list_entry_get_next(entry)) {
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                                  String syspath = UdevFunctions.getString(UdevFunctions.udev_list_entry_get_name(entry),
@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                     UdevFunctions.addMatchSubsystem(enumerate, <span class="jxr_string">"cpu"</span>, arena);
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <strong class="jxr_keyword">long</strong> max = 0L;
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                     <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                     <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/platform/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                             .udev_enumerate_get_list_entry(enumerate); !MemorySegment.NULL
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                                     .equals(entry); entry = UdevFunctions.udev_list_entry_get_next(entry)) {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                         String syspath = UdevFunctions.getString(UdevFunctions.udev_list_entry_get_name(entry), arena);

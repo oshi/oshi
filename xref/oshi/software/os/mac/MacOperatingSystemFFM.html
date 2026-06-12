@@ -17,15 +17,15 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.slf4j.event.Level.WARN;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.INT_SIZE;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_ALL_PIDS;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_PIDTASKINFO;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PROC_TASK_INFO;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.PTI_THREADNUM;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.TIMEVAL;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getpid;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_listpids;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.proc_pidinfo;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.INT_SIZE;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.PROC_ALL_PIDS;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.PROC_PIDTASKINFO;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.PROC_TASK_INFO;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.PTI_THREADNUM;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.TIMEVAL;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystemFunctions.getpid;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystemFunctions.proc_listpids;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystemFunctions.proc_pidinfo;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.ExceptionUtil.getIntOrDefault;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
@@ -72,7 +72,7 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (SysctlUtilFFM.sysctl(<span class="jxr_string">"kern.boottime"</span>, timeval)) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  bootTime = timeval.get(JAVA_LONG, 0L);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// do nothing, the bootTime == 0 conditional will handle</em>
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// Usually this works. If it doesn't, fall back to text parsing.</em>

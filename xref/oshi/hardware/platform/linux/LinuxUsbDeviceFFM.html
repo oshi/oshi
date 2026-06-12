@@ -27,7 +27,7 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.NativeHandle;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.UdevFunctions;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.linux.UdevFunctions;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.UsbDevice;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxUsbDevice;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                      UdevFunctions.addMatchSubsystem(enumerate, SUBSYSTEM_USB, arena);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                      UdevFunctions.udev_enumerate_scan_devices(enumerate);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">for</strong> (MemorySegment entry = <a name="UdevFunctions" href="../../../../oshi/ffm/platform/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                              .udev_enumerate_get_list_entry(enumerate); !MemorySegment.NULL
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                                      .equals(entry); entry = UdevFunctions.udev_list_entry_get_next(entry)) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                          MemorySegment namePtr = UdevFunctions.udev_list_entry_get_name(entry);
@@ -136,7 +136,7 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                             <strong class="jxr_keyword">if</strong> (MemorySegment.NULL.equals(parent)) {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                                 usbControllers.add(syspath);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                                 String parentPath = <a name="UdevFunctions" href="../../../../oshi/ffm/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                                 String parentPath = <a name="UdevFunctions" href="../../../../oshi/ffm/platform/linux/UdevFunctions.html#UdevFunctions">UdevFunctions</a>
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                                         .getString(UdevFunctions.udev_device_get_syspath(parent), arena);
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                                 <strong class="jxr_keyword">if</strong> (parentPath != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                                     hubMap.computeIfAbsent(parentPath, x -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(syspath);

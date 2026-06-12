@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>DragonFlyBsdLibcFunctions xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/oshi/ffm/platform/unix/dragonflybsd/DragonFlyBsdLibcFunctions.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm.platform.unix.dragonflybsd;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.lang.foreign.FunctionDescriptor;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * FFM bindings for DragonFly BSD-specific libc functions. DragonFly shares most of its libc surface with FreeBSD, so</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * shared functions ({@code sysctlbyname}, {@code sysctl}, {@code getpid}, {@code getrlimit}, etc.) are called via</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * {@link oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions}. This class adds only the DragonFly-specific</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * {@code lwp_gettid()} (FreeBSD uses {@code thr_self} instead).</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="DragonFlyBsdLibcFunctions" href="../../../../../oshi/ffm/platform/unix/dragonflybsd/DragonFlyBsdLibcFunctions.html#DragonFlyBsdLibcFunctions">DragonFlyBsdLibcFunctions</a> <strong class="jxr_keyword">extends</strong> <a name="ForeignFunctions" href="../../../../../oshi/ffm/ForeignFunctions.html#ForeignFunctions">ForeignFunctions</a> {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <a name="DragonFlyBsdLibcFunctions" href="../../../../../oshi/ffm/platform/unix/dragonflybsd/DragonFlyBsdLibcFunctions.html#DragonFlyBsdLibcFunctions">DragonFlyBsdLibcFunctions</a>() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> SymbolLookup LIBC = LINKER.defaultLookup();
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <em class="jxr_comment">// int lwp_gettid(void);</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle lwp_gettid = LINKER.downcallHandle(LIBC.findOrThrow(<span class="jxr_string">"lwp_gettid"</span>),
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              FunctionDescriptor.of(JAVA_INT));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * Calls {@code lwp_gettid()} — returns the kernel thread ID of the calling LWP.</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @return the kernel thread ID, or -1 on error</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @throws Throwable on FFM invocation error</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> lwp_gettid() <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) lwp_gettid.invokeExact();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

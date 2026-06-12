@@ -20,10 +20,10 @@
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Win32Exception;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.WinErrorFFM;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.WinRegFFM;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Win32Exception;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.WinErrorFFM;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.WinRegFFM;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.SoundCard;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSoundCard;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
@@ -48,7 +48,7 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          String[] keys;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>              keys = Advapi32UtilFFM.registryGetKeys(HKLM, REGISTRY_SOUNDCARDS, 0);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          } <strong class="jxr_keyword">catch</strong> (<a name="Win32Exception" href="../../../../oshi/ffm/windows/Win32Exception.html#Win32Exception">Win32Exception</a> e) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          } <strong class="jxr_keyword">catch</strong> (<a name="Win32Exception" href="../../../../oshi/ffm/platform/windows/Win32Exception.html#Win32Exception">Win32Exception</a> e) {
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">if</strong> (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>                  <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              }
@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>                      soundCards.add(<strong class="jxr_keyword">new</strong> <a name="WindowsSoundCardFFM" href="../../../../oshi/hardware/platform/windows/WindowsSoundCardFFM.html#WindowsSoundCardFFM">WindowsSoundCardFFM</a>(driver + <span class="jxr_string">" "</span> + driverVersion,
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>                              providerName + <span class="jxr_string">" "</span> + driverDesc, driverDesc));
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                  }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              } <strong class="jxr_keyword">catch</strong> (<a name="Win32Exception" href="../../../../oshi/ffm/windows/Win32Exception.html#Win32Exception">Win32Exception</a> e) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              } <strong class="jxr_keyword">catch</strong> (<a name="Win32Exception" href="../../../../oshi/ffm/platform/windows/Win32Exception.html#Win32Exception">Win32Exception</a> e) {
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">if</strong> (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                      <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }

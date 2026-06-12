@@ -35,8 +35,8 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.OhmSensorFFM;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32FanFFM;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32ProcessorFFM;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.FfmComException;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.FfmComException;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractSensors;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">/**</em>
@@ -262,7 +262,7 @@
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>                 LOG.debug(<span class="jxr_string">"Found {} data in Open Hardware Monitor"</span>, sensorType);
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>                 ohmSensors = querySensorFunction.apply(h, ohmHardware);
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>             }
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>             LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>             <strong class="jxr_keyword">if</strong> (comInit) {

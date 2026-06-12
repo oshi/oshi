@@ -19,62 +19,64 @@
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> * FFM probe for {@code libkstat2.so.1}, available on Solaris 11.4 and later but absent on illumos and earlier Solaris</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * releases. {@link #HAS_KSTAT2} reflects whether the library was loadable at class-init time; consumers should branch</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * to a {@link LibKstatFunctions} path on {@code false}.</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Function bindings for the {@code kstat2_*} API will be added when a downstream consumer requires them. On</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * illumos/OpenIndiana — the FFM CI target — only the legacy {@code libkstat} path is exercised, so this class is</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * intentionally a probe-only stub today.</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Kstat2Functions" href="../../../../../../oshi/ffm/util/platform/unix/solaris/Kstat2Functions.html#Kstat2Functions">Kstat2Functions</a> {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(Kstat2Functions.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.unix.solaris.LibKstatFunctions;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * FFM probe for {@code libkstat2.so.1}, available on Solaris 11.4 and later but absent on illumos and earlier Solaris</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * releases. {@link #HAS_KSTAT2} reflects whether the library was loadable at class-init time; consumers should branch</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * to a {@link LibKstatFunctions} path on {@code false}.</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * Function bindings for the {@code kstat2_*} API will be added when a downstream consumer requires them. On</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * illumos/OpenIndiana — the FFM CI target — only the legacy {@code libkstat} path is exercised, so this class is</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * intentionally a probe-only stub today.</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Kstat2Functions" href="../../../../../../oshi/ffm/util/platform/unix/solaris/Kstat2Functions.html#Kstat2Functions">Kstat2Functions</a> {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * {@code true} if {@code libkstat2.so.1} was loadable at JVM startup. Mirrors</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * {@code SolarisOperatingSystem.HAS_KSTAT2} on the JNA side.</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> HAS_KSTAT2;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">boolean</strong> available = false;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <em class="jxr_comment">// Check the library file's existence on disk before letting SymbolLookup.libraryLookup</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <em class="jxr_comment">// attempt a dlopen — on illumos / Solaris &lt; 11.4 the file simply doesn't exist, and</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// avoiding the failed native load sidesteps a SIGSEGV pattern seen in JNA's</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// Native.load on the same library / same JDK 25 + illumos combination.</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">if</strong> (libkstat2Present()) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  SymbolLookup.libraryLookup(<span class="jxr_string">"libkstat2.so.1"</span>, Arena.global());
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  available = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              } <strong class="jxr_keyword">catch</strong> (Throwable t) {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  LOG.debug(<span class="jxr_string">"libkstat2.so.1 present on disk but not loadable"</span>, t);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          HAS_KSTAT2 = available;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <a name="Kstat2Functions" href="../../../../../../oshi/ffm/util/platform/unix/solaris/Kstat2Functions.html#Kstat2Functions">Kstat2Functions</a>() {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * Returns {@code true} if any {@code libkstat2.so*} file is present on the standard Solaris/illumos library search</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * paths. Solaris 11.4+ ships it (currently as {@code libkstat2.so.1}); illumos and Solaris &amp;lt; 11.4 do not.</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Matches any suffix to survive future SONAME bumps.</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @return whether a libkstat2 shared object exists on disk</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> libkstat2Present() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">for</strong> (String dir : <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"/lib/64"</span>, <span class="jxr_string">"/usr/lib/64"</span>, <span class="jxr_string">"/lib"</span>, <span class="jxr_string">"/usr/lib"</span> }) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              String[] hits = <strong class="jxr_keyword">new</strong> File(dir).list((d, name) -&gt; name.startsWith(<span class="jxr_string">"libkstat2.so"</span>));
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">if</strong> (hits != <strong class="jxr_keyword">null</strong> &amp;&amp; hits.length &gt; 0) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  }
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(Kstat2Functions.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * {@code true} if {@code libkstat2.so.1} was loadable at JVM startup. Mirrors</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * {@code SolarisOperatingSystemJNA.HAS_KSTAT2} on the JNA side.</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> HAS_KSTAT2;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">boolean</strong> available = false;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// Check the library file's existence on disk before letting SymbolLookup.libraryLookup</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// attempt a dlopen — on illumos / Solaris &lt; 11.4 the file simply doesn't exist, and</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <em class="jxr_comment">// avoiding the failed native load sidesteps a SIGSEGV pattern seen in JNA's</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <em class="jxr_comment">// Native.load on the same library / same JDK 25 + illumos combination.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">if</strong> (libkstat2Present()) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  SymbolLookup.libraryLookup(<span class="jxr_string">"libkstat2.so.1"</span>, Arena.global());
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  available = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  LOG.debug(<span class="jxr_string">"libkstat2.so.1 present on disk but not loadable"</span>, t);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          HAS_KSTAT2 = available;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <a name="Kstat2Functions" href="../../../../../../oshi/ffm/util/platform/unix/solaris/Kstat2Functions.html#Kstat2Functions">Kstat2Functions</a>() {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Returns {@code true} if any {@code libkstat2.so*} file is present on the standard Solaris/illumos library search</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * paths. Solaris 11.4+ ships it (currently as {@code libkstat2.so.1}); illumos and Solaris &amp;lt; 11.4 do not.</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * Matches any suffix to survive future SONAME bumps.</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * @return whether a libkstat2 shared object exists on disk</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> libkstat2Present() {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">for</strong> (String dir : <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"/lib/64"</span>, <span class="jxr_string">"/usr/lib/64"</span>, <span class="jxr_string">"/lib"</span>, <span class="jxr_string">"/usr/lib"</span> }) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              String[] hits = <strong class="jxr_keyword">new</strong> File(dir).list((d, name) -&gt; name.startsWith(<span class="jxr_string">"libkstat2.so"</span>));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (hits != <strong class="jxr_keyword">null</strong> &amp;&amp; hits.length &gt; 0) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

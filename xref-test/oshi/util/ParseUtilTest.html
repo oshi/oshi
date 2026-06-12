@@ -932,49 +932,71 @@
 <a class="jxr_linenumber" name="L924" href="#L924">924</a>     }
 <a class="jxr_linenumber" name="L925" href="#L925">925</a> 
 <a class="jxr_linenumber" name="L926" href="#L926">926</a>     @Test
-<a class="jxr_linenumber" name="L927" href="#L927">927</a>     <strong class="jxr_keyword">void</strong> testgetValueOrUnknown() {
-<a class="jxr_linenumber" name="L928" href="#L928">928</a>         String key = <span class="jxr_string">"key"</span>;
-<a class="jxr_linenumber" name="L929" href="#L929">929</a>         Map&lt;String, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L930" href="#L930">930</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L931" href="#L931">931</a> 
-<a class="jxr_linenumber" name="L932" href="#L932">932</a>         map.put(<span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span>);
-<a class="jxr_linenumber" name="L933" href="#L933">933</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(<span class="jxr_string">"value"</span>));
-<a class="jxr_linenumber" name="L934" href="#L934">934</a>     }
-<a class="jxr_linenumber" name="L935" href="#L935">935</a> 
-<a class="jxr_linenumber" name="L936" href="#L936">936</a>     @Test
-<a class="jxr_linenumber" name="L937" href="#L937">937</a>     <strong class="jxr_keyword">void</strong> testGetValueOrUnknownWithObjectKey() {
-<a class="jxr_linenumber" name="L938" href="#L938">938</a>         Object key = 1;
-<a class="jxr_linenumber" name="L939" href="#L939">939</a>         Map&lt;Object, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L940" href="#L940">940</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L941" href="#L941">941</a> 
-<a class="jxr_linenumber" name="L942" href="#L942">942</a>         map.put(key, <span class="jxr_string">"value"</span>);
-<a class="jxr_linenumber" name="L943" href="#L943">943</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(<span class="jxr_string">"value"</span>));
-<a class="jxr_linenumber" name="L944" href="#L944">944</a>     }
-<a class="jxr_linenumber" name="L945" href="#L945">945</a> 
-<a class="jxr_linenumber" name="L946" href="#L946">946</a>     @Test
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>     <strong class="jxr_keyword">void</strong> testParseDateToEpoch() {
-<a class="jxr_linenumber" name="L948" href="#L948">948</a>         assertThat(<span class="jxr_string">"Parse yyyyMMdd"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">"yyyyMMdd"</span>),
-<a class="jxr_linenumber" name="L949" href="#L949">949</a>                 is(LocalDate.of(2024, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-<a class="jxr_linenumber" name="L950" href="#L950">950</a> 
-<a class="jxr_linenumber" name="L951" href="#L951">951</a>         assertThat(<span class="jxr_string">"Parse dd/MM/yy, HH:mm"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"01/01/24, 12:30"</span>, <span class="jxr_string">"dd/MM/yy, HH:mm"</span>),
-<a class="jxr_linenumber" name="L952" href="#L952">952</a>                 is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L927" href="#L927">927</a>     <strong class="jxr_keyword">void</strong> teststringToEnumMapWithKeys() {
+<a class="jxr_linenumber" name="L928" href="#L928">928</a>         <em class="jxr_comment">// Explicit key order independent of ordinal order; last key slurps the remainder</em>
+<a class="jxr_linenumber" name="L929" href="#L929">929</a>         List&lt;TestEnum&gt; keys = Arrays.asList(TestEnum.BAZ, TestEnum.FOO);
+<a class="jxr_linenumber" name="L930" href="#L930">930</a>         Map&lt;TestEnum, String&gt; map = ParseUtil.stringToEnumMap(TestEnum.<strong class="jxr_keyword">class</strong>, keys, <span class="jxr_string">"one two,three four"</span>, ' ');
+<a class="jxr_linenumber" name="L931" href="#L931">931</a>         assertThat(map.get(TestEnum.BAZ), is(<span class="jxr_string">"one"</span>));
+<a class="jxr_linenumber" name="L932" href="#L932">932</a>         assertThat(map.get(TestEnum.FOO), is(<span class="jxr_string">"two,three four"</span>));
+<a class="jxr_linenumber" name="L933" href="#L933">933</a>         assertThat(map.containsKey(TestEnum.BAR), is(false));
+<a class="jxr_linenumber" name="L934" href="#L934">934</a> 
+<a class="jxr_linenumber" name="L935" href="#L935">935</a>         <em class="jxr_comment">// Fewer values than keys: later keys are not mapped</em>
+<a class="jxr_linenumber" name="L936" href="#L936">936</a>         map = ParseUtil.stringToEnumMap(TestEnum.<strong class="jxr_keyword">class</strong>, keys, <span class="jxr_string">"only"</span>, ' ');
+<a class="jxr_linenumber" name="L937" href="#L937">937</a>         assertThat(map.get(TestEnum.BAZ), is(<span class="jxr_string">"only"</span>));
+<a class="jxr_linenumber" name="L938" href="#L938">938</a>         assertThat(map.containsKey(TestEnum.FOO), is(false));
+<a class="jxr_linenumber" name="L939" href="#L939">939</a> 
+<a class="jxr_linenumber" name="L940" href="#L940">940</a>         <em class="jxr_comment">// Consecutive delimiters are treated as one</em>
+<a class="jxr_linenumber" name="L941" href="#L941">941</a>         List&lt;TestEnum&gt; three = Arrays.asList(TestEnum.FOO, TestEnum.BAR, TestEnum.BAZ);
+<a class="jxr_linenumber" name="L942" href="#L942">942</a>         map = ParseUtil.stringToEnumMap(TestEnum.<strong class="jxr_keyword">class</strong>, three, <span class="jxr_string">"one,,two,three"</span>, ',');
+<a class="jxr_linenumber" name="L943" href="#L943">943</a>         assertThat(map.get(TestEnum.FOO), is(<span class="jxr_string">"one"</span>));
+<a class="jxr_linenumber" name="L944" href="#L944">944</a>         assertThat(map.get(TestEnum.BAR), is(<span class="jxr_string">"two"</span>));
+<a class="jxr_linenumber" name="L945" href="#L945">945</a>         assertThat(map.get(TestEnum.BAZ), is(<span class="jxr_string">"three"</span>));
+<a class="jxr_linenumber" name="L946" href="#L946">946</a>     }
+<a class="jxr_linenumber" name="L947" href="#L947">947</a> 
+<a class="jxr_linenumber" name="L948" href="#L948">948</a>     @Test
+<a class="jxr_linenumber" name="L949" href="#L949">949</a>     <strong class="jxr_keyword">void</strong> testgetValueOrUnknown() {
+<a class="jxr_linenumber" name="L950" href="#L950">950</a>         String key = <span class="jxr_string">"key"</span>;
+<a class="jxr_linenumber" name="L951" href="#L951">951</a>         Map&lt;String, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L952" href="#L952">952</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
 <a class="jxr_linenumber" name="L953" href="#L953">953</a> 
-<a class="jxr_linenumber" name="L954" href="#L954">954</a>         assertThat(<span class="jxr_string">"Parse YYYY-'W'ww-e ISO week date"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"2025-W25-2"</span>, <span class="jxr_string">"YYYY-'W'ww-e"</span>),
-<a class="jxr_linenumber" name="L955" href="#L955">955</a>                 is(LocalDate.of(2025, 6, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-<a class="jxr_linenumber" name="L956" href="#L956">956</a> 
-<a class="jxr_linenumber" name="L957" href="#L957">957</a>         assertThat(<span class="jxr_string">"Parse EEE MMM dd HH:mm:ss yyyy"</span>,
-<a class="jxr_linenumber" name="L958" href="#L958">958</a>                 ParseUtil.parseDateToEpoch(<span class="jxr_string">"Fri Sep 18 15:53:11 2020"</span>, <span class="jxr_string">"EEE MMM dd HH:mm:ss yyyy"</span>), is(LocalDateTime
-<a class="jxr_linenumber" name="L959" href="#L959">959</a>                         .of(2020, 9, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
-<a class="jxr_linenumber" name="L960" href="#L960">960</a> 
-<a class="jxr_linenumber" name="L961" href="#L961">961</a>         assertThat(<span class="jxr_string">"Parse empty date string"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">""</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L962" href="#L962">962</a> 
-<a class="jxr_linenumber" name="L963" href="#L963">963</a>         assertThat(<span class="jxr_string">"Parse empty pattern"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">""</span>), is(0L));
-<a class="jxr_linenumber" name="L964" href="#L964">964</a> 
-<a class="jxr_linenumber" name="L965" href="#L965">965</a>         assertThat(<span class="jxr_string">"Parse UNKNOWN constant"</span>, ParseUtil.parseDateToEpoch(Constants.UNKNOWN, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L966" href="#L966">966</a> 
-<a class="jxr_linenumber" name="L967" href="#L967">967</a>         assertThat(<span class="jxr_string">"Parse invalid date format"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"invalid-date"</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
-<a class="jxr_linenumber" name="L968" href="#L968">968</a>     }
-<a class="jxr_linenumber" name="L969" href="#L969">969</a> }
+<a class="jxr_linenumber" name="L954" href="#L954">954</a>         map.put(<span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span>);
+<a class="jxr_linenumber" name="L955" href="#L955">955</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(<span class="jxr_string">"value"</span>));
+<a class="jxr_linenumber" name="L956" href="#L956">956</a>     }
+<a class="jxr_linenumber" name="L957" href="#L957">957</a> 
+<a class="jxr_linenumber" name="L958" href="#L958">958</a>     @Test
+<a class="jxr_linenumber" name="L959" href="#L959">959</a>     <strong class="jxr_keyword">void</strong> testGetValueOrUnknownWithObjectKey() {
+<a class="jxr_linenumber" name="L960" href="#L960">960</a>         Object key = 1;
+<a class="jxr_linenumber" name="L961" href="#L961">961</a>         Map&lt;Object, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L962" href="#L962">962</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L963" href="#L963">963</a> 
+<a class="jxr_linenumber" name="L964" href="#L964">964</a>         map.put(key, <span class="jxr_string">"value"</span>);
+<a class="jxr_linenumber" name="L965" href="#L965">965</a>         assertThat(ParseUtil.getValueOrUnknown(map, key), is(<span class="jxr_string">"value"</span>));
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>     }
+<a class="jxr_linenumber" name="L967" href="#L967">967</a> 
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>     @Test
+<a class="jxr_linenumber" name="L969" href="#L969">969</a>     <strong class="jxr_keyword">void</strong> testParseDateToEpoch() {
+<a class="jxr_linenumber" name="L970" href="#L970">970</a>         assertThat(<span class="jxr_string">"Parse yyyyMMdd"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">"yyyyMMdd"</span>),
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>                 is(LocalDate.of(2024, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L972" href="#L972">972</a> 
+<a class="jxr_linenumber" name="L973" href="#L973">973</a>         assertThat(<span class="jxr_string">"Parse dd/MM/yy, HH:mm"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"01/01/24, 12:30"</span>, <span class="jxr_string">"dd/MM/yy, HH:mm"</span>),
+<a class="jxr_linenumber" name="L974" href="#L974">974</a>                 is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L975" href="#L975">975</a> 
+<a class="jxr_linenumber" name="L976" href="#L976">976</a>         assertThat(<span class="jxr_string">"Parse YYYY-'W'ww-e ISO week date"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"2025-W25-2"</span>, <span class="jxr_string">"YYYY-'W'ww-e"</span>),
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>                 is(LocalDate.of(2025, 6, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L978" href="#L978">978</a> 
+<a class="jxr_linenumber" name="L979" href="#L979">979</a>         assertThat(<span class="jxr_string">"Parse EEE MMM dd HH:mm:ss yyyy"</span>,
+<a class="jxr_linenumber" name="L980" href="#L980">980</a>                 ParseUtil.parseDateToEpoch(<span class="jxr_string">"Fri Sep 18 15:53:11 2020"</span>, <span class="jxr_string">"EEE MMM dd HH:mm:ss yyyy"</span>), is(LocalDateTime
+<a class="jxr_linenumber" name="L981" href="#L981">981</a>                         .of(2020, 9, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+<a class="jxr_linenumber" name="L982" href="#L982">982</a> 
+<a class="jxr_linenumber" name="L983" href="#L983">983</a>         assertThat(<span class="jxr_string">"Parse empty date string"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">""</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L984" href="#L984">984</a> 
+<a class="jxr_linenumber" name="L985" href="#L985">985</a>         assertThat(<span class="jxr_string">"Parse empty pattern"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"20240101"</span>, <span class="jxr_string">""</span>), is(0L));
+<a class="jxr_linenumber" name="L986" href="#L986">986</a> 
+<a class="jxr_linenumber" name="L987" href="#L987">987</a>         assertThat(<span class="jxr_string">"Parse UNKNOWN constant"</span>, ParseUtil.parseDateToEpoch(Constants.UNKNOWN, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L988" href="#L988">988</a> 
+<a class="jxr_linenumber" name="L989" href="#L989">989</a>         assertThat(<span class="jxr_string">"Parse invalid date format"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"invalid-date"</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
+<a class="jxr_linenumber" name="L990" href="#L990">990</a>     }
+<a class="jxr_linenumber" name="L991" href="#L991">991</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

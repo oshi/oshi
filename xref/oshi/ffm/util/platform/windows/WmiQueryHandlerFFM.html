@@ -27,13 +27,13 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiQueryExecutor;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.FfmComException;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.IEnumWbemClassObjectFFM;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.IUnknownFFM;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.IWbemLocatorFFM;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.IWbemServicesFFM;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.Ole32FFM;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.WbemcliFFM;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.FfmComException;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.IEnumWbemClassObjectFFM;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.IUnknownFFM;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.IWbemLocatorFFM;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.IWbemServicesFFM;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.Ole32FFM;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.WbemcliFFM;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.util.GlobalConfig;
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">/**</em>
@@ -88,10 +88,10 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> customClass.getConstructor(EMPTY_CLASS_ARRAY).newInstance(EMPTY_OBJECT_ARRAY);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          } <strong class="jxr_keyword">catch</strong> (NoSuchMethodException | SecurityException e) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          } <strong class="jxr_keyword">catch</strong> (NoSuchMethodException | SecurityException _) {
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>              LOG.error(<span class="jxr_string">"Failed to find or access a no-arg constructor for {}"</span>, customClass);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          } <strong class="jxr_keyword">catch</strong> (InstantiationException | IllegalAccessException | IllegalArgumentException
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  | InvocationTargetException e) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  | InvocationTargetException _) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              LOG.error(<span class="jxr_string">"Failed to create a new instance of {}"</span>, customClass);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          customClass = <strong class="jxr_keyword">null</strong>;
@@ -204,7 +204,7 @@
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                 IUnknownFFM.safeRelease(pLocator, arena);
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>             }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>             <strong class="jxr_keyword">int</strong> hresult = e.getHresult();
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             <strong class="jxr_keyword">switch</strong> (hresult) {
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>                 <strong class="jxr_keyword">case</strong> WbemcliFFM.WBEM_E_INVALID_NAMESPACE:
@@ -354,7 +354,7 @@
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>                 IUnknownFFM.safeRelease(pLocator, arena);
 <a class="jxr_linenumber" name="L348" href="#L348">348</a>             }
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> _) {
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>             failedWmiClassNames.add(wmiClassName);
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>             LOG.debug(<span class="jxr_string">"WMI query failed for {}: {}"</span>, wmiClassName, e.getMessage());
@@ -391,7 +391,7 @@
 <a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     * @param query a WmiQuery object</em>
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     * @param ex    a FfmComException object</em>
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> handleComException(WbemcliUtilFFM.WmiQuery&lt;?&gt; query, <a name="FfmComException" href="../../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a> ex) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> handleComException(WbemcliUtilFFM.WmiQuery&lt;?&gt; query, <a name="FfmComException" href="../../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> ex) {
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>         String msg = <span class="jxr_string">"COM exception querying {}, which might not be on your system."</span>
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>                 + <span class="jxr_string">" Will not attempt to query it again. Error was {}: {}"</span>;
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>         Object[] args = { query.getWmiClassName(), ex.getHresult(), ex.getMessage() };
@@ -425,7 +425,7 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>                     securityInitialized = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>                 } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>                     Ole32FFM.CoUninitialize();
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="FfmComException" href="../../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a>(<span class="jxr_string">"Failed to initialize security."</span>, hr);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="FfmComException" href="../../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a>(<span class="jxr_string">"Failed to initialize security."</span>, hr);
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>                 }
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>             }
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>         }
@@ -447,7 +447,7 @@
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">switch</strong> (hr) {
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>             <strong class="jxr_keyword">case</strong> Ole32FFM.S_OK, Ole32FFM.S_FALSE -&gt; <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>             <strong class="jxr_keyword">case</strong> Ole32FFM.RPC_E_CHANGED_MODE -&gt; false;
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">default</strong> -&gt; <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="FfmComException" href="../../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a>(<span class="jxr_string">"Failed to initialize COM library."</span>, hr);
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">default</strong> -&gt; <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="FfmComException" href="../../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a>(<span class="jxr_string">"Failed to initialize COM library."</span>, hr);
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>         };
 <a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
 <a class="jxr_linenumber" name="L445" href="#L445">445</a> 

@@ -1401,112 +1401,131 @@
 <a class="jxr_linenumber" name="L1393" href="#L1393">1393</a> <em class="jxr_javadoccomment">     *         String, including excess delimiters.</em>
 <a class="jxr_linenumber" name="L1394" href="#L1394">1394</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L1395" href="#L1395">1395</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;K <strong class="jxr_keyword">extends</strong> Enum&lt;K&gt;&gt; Map&lt;K, String&gt; stringToEnumMap(Class&lt;K&gt; clazz, String values, <strong class="jxr_keyword">char</strong> delim) {
-<a class="jxr_linenumber" name="L1396" href="#L1396">1396</a>         EnumMap&lt;K, String&gt; map = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(clazz);
-<a class="jxr_linenumber" name="L1397" href="#L1397">1397</a>         <strong class="jxr_keyword">int</strong> start = 0;
-<a class="jxr_linenumber" name="L1398" href="#L1398">1398</a>         <strong class="jxr_keyword">int</strong> len = values.length();
-<a class="jxr_linenumber" name="L1399" href="#L1399">1399</a>         EnumSet&lt;K&gt; keys = EnumSet.allOf(clazz);
-<a class="jxr_linenumber" name="L1400" href="#L1400">1400</a>         <strong class="jxr_keyword">int</strong> keySize = keys.size();
-<a class="jxr_linenumber" name="L1401" href="#L1401">1401</a>         <strong class="jxr_keyword">for</strong> (K key : keys) {
-<a class="jxr_linenumber" name="L1402" href="#L1402">1402</a>             <em class="jxr_comment">// If this is the last enum, put the index at the end of the string, otherwise</em>
-<a class="jxr_linenumber" name="L1403" href="#L1403">1403</a>             <em class="jxr_comment">// put at delimiter</em>
-<a class="jxr_linenumber" name="L1404" href="#L1404">1404</a>             <strong class="jxr_keyword">int</strong> idx = --keySize == 0 ? len : values.indexOf(delim, start);
-<a class="jxr_linenumber" name="L1405" href="#L1405">1405</a>             <strong class="jxr_keyword">if</strong> (idx &gt;= 0) {
-<a class="jxr_linenumber" name="L1406" href="#L1406">1406</a>                 map.put(key, values.substring(start, idx));
-<a class="jxr_linenumber" name="L1407" href="#L1407">1407</a>                 start = idx;
-<a class="jxr_linenumber" name="L1408" href="#L1408">1408</a>                 <strong class="jxr_keyword">do</strong> {
-<a class="jxr_linenumber" name="L1409" href="#L1409">1409</a>                     start++;
-<a class="jxr_linenumber" name="L1410" href="#L1410">1410</a>                 } <strong class="jxr_keyword">while</strong> (start &lt; len &amp;&amp; values.charAt(start) == delim);
-<a class="jxr_linenumber" name="L1411" href="#L1411">1411</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L1412" href="#L1412">1412</a>                 map.put(key, values.substring(start));
-<a class="jxr_linenumber" name="L1413" href="#L1413">1413</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>             }
-<a class="jxr_linenumber" name="L1415" href="#L1415">1415</a>         }
-<a class="jxr_linenumber" name="L1416" href="#L1416">1416</a>         <strong class="jxr_keyword">return</strong> map;
-<a class="jxr_linenumber" name="L1417" href="#L1417">1417</a>     }
-<a class="jxr_linenumber" name="L1418" href="#L1418">1418</a> 
-<a class="jxr_linenumber" name="L1419" href="#L1419">1419</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1420" href="#L1420">1420</a> <em class="jxr_javadoccomment">     * Checks if value exists in map for the given key or not and returns value or unknown based on it</em>
-<a class="jxr_linenumber" name="L1421" href="#L1421">1421</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1422" href="#L1422">1422</a> <em class="jxr_javadoccomment">     * @param map A map of String key-value pairs</em>
-<a class="jxr_linenumber" name="L1423" href="#L1423">1423</a> <em class="jxr_javadoccomment">     * @param key Fetch value for the given key</em>
-<a class="jxr_linenumber" name="L1424" href="#L1424">1424</a> <em class="jxr_javadoccomment">     * @return Returns the value for the key if it exists in the map else it returns unknown</em>
-<a class="jxr_linenumber" name="L1425" href="#L1425">1425</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1426" href="#L1426">1426</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getValueOrUnknown(Map&lt;String, String&gt; map, String key) {
-<a class="jxr_linenumber" name="L1427" href="#L1427">1427</a>         String value = map.getOrDefault(key, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L1428" href="#L1428">1428</a>         <strong class="jxr_keyword">return</strong> value.isEmpty() ? Constants.UNKNOWN : value;
-<a class="jxr_linenumber" name="L1429" href="#L1429">1429</a>     }
-<a class="jxr_linenumber" name="L1430" href="#L1430">1430</a> 
-<a class="jxr_linenumber" name="L1431" href="#L1431">1431</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1432" href="#L1432">1432</a> <em class="jxr_javadoccomment">     * Checks if a value exists in the map for the given key and returns the value or unknown based on it</em>
-<a class="jxr_linenumber" name="L1433" href="#L1433">1433</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1434" href="#L1434">1434</a> <em class="jxr_javadoccomment">     * @param map A map where the keys can be of any type and the values are Strings.</em>
-<a class="jxr_linenumber" name="L1435" href="#L1435">1435</a> <em class="jxr_javadoccomment">     * @param key The key for which to fetch the value from the map. The key can be of any type that is compatible with</em>
-<a class="jxr_linenumber" name="L1436" href="#L1436">1436</a> <em class="jxr_javadoccomment">     *            the map's key type.</em>
-<a class="jxr_linenumber" name="L1437" href="#L1437">1437</a> <em class="jxr_javadoccomment">     * @return The value associated with the key if the key exists in the map and the value is not empty; otherwise,</em>
-<a class="jxr_linenumber" name="L1438" href="#L1438">1438</a> <em class="jxr_javadoccomment">     *         returns a predefined "unknown" string</em>
-<a class="jxr_linenumber" name="L1439" href="#L1439">1439</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1440" href="#L1440">1440</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getValueOrUnknown(Map&lt;?, String&gt; map, Object key) {
-<a class="jxr_linenumber" name="L1441" href="#L1441">1441</a>         <strong class="jxr_keyword">return</strong> getStringValueOrUnknown(map.get(key));
-<a class="jxr_linenumber" name="L1442" href="#L1442">1442</a>     }
-<a class="jxr_linenumber" name="L1443" href="#L1443">1443</a> 
-<a class="jxr_linenumber" name="L1444" href="#L1444">1444</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1445" href="#L1445">1445</a> <em class="jxr_javadoccomment">     * Returns the given string value if it is not empty; otherwise, returns {@code Constants.UNKNOWN}.</em>
-<a class="jxr_linenumber" name="L1446" href="#L1446">1446</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1447" href="#L1447">1447</a> <em class="jxr_javadoccomment">     * @param value The input string value.</em>
-<a class="jxr_linenumber" name="L1448" href="#L1448">1448</a> <em class="jxr_javadoccomment">     * @return The input value if it is non-empty; otherwise, {@code Constants.UNKNOWN}.</em>
-<a class="jxr_linenumber" name="L1449" href="#L1449">1449</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1450" href="#L1450">1450</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getStringValueOrUnknown(String value) {
-<a class="jxr_linenumber" name="L1451" href="#L1451">1451</a>         <strong class="jxr_keyword">return</strong> (value == <strong class="jxr_keyword">null</strong> || value.isEmpty()) ? Constants.UNKNOWN : value;
-<a class="jxr_linenumber" name="L1452" href="#L1452">1452</a>     }
-<a class="jxr_linenumber" name="L1453" href="#L1453">1453</a> 
-<a class="jxr_linenumber" name="L1454" href="#L1454">1454</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1455" href="#L1455">1455</a> <em class="jxr_javadoccomment">     * Parses a list of strings into a map of string key-value pairs.</em>
-<a class="jxr_linenumber" name="L1456" href="#L1456">1456</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1457" href="#L1457">1457</a> <em class="jxr_javadoccomment">     * @param lines     A list of strings, each containing a key-value pair separated by the separator</em>
-<a class="jxr_linenumber" name="L1458" href="#L1458">1458</a> <em class="jxr_javadoccomment">     * @param separator The character(s) that separate the key and value in each line</em>
-<a class="jxr_linenumber" name="L1459" href="#L1459">1459</a> <em class="jxr_javadoccomment">     * @return A map of String key-value pairs with the value whitespace trimmed</em>
-<a class="jxr_linenumber" name="L1460" href="#L1460">1460</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1461" href="#L1461">1461</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; parseStringListToMap(List&lt;String&gt; lines, String separator) {
-<a class="jxr_linenumber" name="L1462" href="#L1462">1462</a>         Map&lt;String, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L1463" href="#L1463">1463</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L1464" href="#L1464">1464</a>             <strong class="jxr_keyword">int</strong> idx = line.indexOf(separator);
-<a class="jxr_linenumber" name="L1465" href="#L1465">1465</a>             <strong class="jxr_keyword">if</strong> (idx &gt;= 0) {
-<a class="jxr_linenumber" name="L1466" href="#L1466">1466</a>                 map.put(line.substring(0, idx), line.substring(idx + separator.length()).trim());
-<a class="jxr_linenumber" name="L1467" href="#L1467">1467</a>             }
-<a class="jxr_linenumber" name="L1468" href="#L1468">1468</a>         }
-<a class="jxr_linenumber" name="L1469" href="#L1469">1469</a>         <strong class="jxr_keyword">return</strong> map;
-<a class="jxr_linenumber" name="L1470" href="#L1470">1470</a>     }
-<a class="jxr_linenumber" name="L1471" href="#L1471">1471</a> 
-<a class="jxr_linenumber" name="L1472" href="#L1472">1472</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1473" href="#L1473">1473</a> <em class="jxr_javadoccomment">     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch). This method is</em>
-<a class="jxr_linenumber" name="L1474" href="#L1474">1474</a> <em class="jxr_javadoccomment">     * useful for handling date formats across different operating systems, such as:</em>
-<a class="jxr_linenumber" name="L1475" href="#L1475">1475</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
-<a class="jxr_linenumber" name="L1476" href="#L1476">1476</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code yyyyMMdd}&lt;/li&gt;</em>
-<a class="jxr_linenumber" name="L1477" href="#L1477">1477</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code dd/MM/yy, HH:mm}&lt;/li&gt;</em>
-<a class="jxr_linenumber" name="L1478" href="#L1478">1478</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
-<a class="jxr_linenumber" name="L1479" href="#L1479">1479</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1480" href="#L1480">1480</a> <em class="jxr_javadoccomment">     * @param dateString  The date string to parse.</em>
-<a class="jxr_linenumber" name="L1481" href="#L1481">1481</a> <em class="jxr_javadoccomment">     * @param datePattern The expected date format pattern (e.g., {@code "yyyyMMdd"}).</em>
-<a class="jxr_linenumber" name="L1482" href="#L1482">1482</a> <em class="jxr_javadoccomment">     * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.</em>
-<a class="jxr_linenumber" name="L1483" href="#L1483">1483</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1484" href="#L1484">1484</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseDateToEpoch(String dateString, String datePattern) {
-<a class="jxr_linenumber" name="L1485" href="#L1485">1485</a>         <strong class="jxr_keyword">if</strong> (dateString == <strong class="jxr_keyword">null</strong> || dateString.equals(Constants.UNKNOWN) || dateString.isEmpty()
-<a class="jxr_linenumber" name="L1486" href="#L1486">1486</a>                 || datePattern.isEmpty()) {
-<a class="jxr_linenumber" name="L1487" href="#L1487">1487</a>             <strong class="jxr_keyword">return</strong> 0; <em class="jxr_comment">// Default value if date is unknown or empty or null</em>
-<a class="jxr_linenumber" name="L1488" href="#L1488">1488</a>         }
-<a class="jxr_linenumber" name="L1489" href="#L1489">1489</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1490" href="#L1490">1490</a>             DateTimeFormatter formatter = <strong class="jxr_keyword">new</strong> DateTimeFormatterBuilder().appendPattern(datePattern)
-<a class="jxr_linenumber" name="L1491" href="#L1491">1491</a>                     .parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-<a class="jxr_linenumber" name="L1492" href="#L1492">1492</a>                     .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
-<a class="jxr_linenumber" name="L1493" href="#L1493">1493</a>                     .toFormatter(Locale.ROOT);
-<a class="jxr_linenumber" name="L1494" href="#L1494">1494</a>             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
-<a class="jxr_linenumber" name="L1495" href="#L1495">1495</a>             <strong class="jxr_keyword">return</strong> localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-<a class="jxr_linenumber" name="L1496" href="#L1496">1496</a>         } <strong class="jxr_keyword">catch</strong> (DateTimeParseException e) {
-<a class="jxr_linenumber" name="L1497" href="#L1497">1497</a>             LOG.trace(<span class="jxr_string">"Unable to parse date string: {}"</span>, dateString);
-<a class="jxr_linenumber" name="L1498" href="#L1498">1498</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L1499" href="#L1499">1499</a>         }
-<a class="jxr_linenumber" name="L1500" href="#L1500">1500</a>     }
-<a class="jxr_linenumber" name="L1501" href="#L1501">1501</a> }
+<a class="jxr_linenumber" name="L1396" href="#L1396">1396</a>         <strong class="jxr_keyword">return</strong> stringToEnumMap(clazz, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(EnumSet.allOf(clazz)), values, delim);
+<a class="jxr_linenumber" name="L1397" href="#L1397">1397</a>     }
+<a class="jxr_linenumber" name="L1398" href="#L1398">1398</a> 
+<a class="jxr_linenumber" name="L1399" href="#L1399">1399</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1400" href="#L1400">1400</a> <em class="jxr_javadoccomment">     * Parses a delimited String into an enum map using an explicit, ordered subset of enum keys. Multiple consecutive</em>
+<a class="jxr_linenumber" name="L1401" href="#L1401">1401</a> <em class="jxr_javadoccomment">     * delimiters are treated as one. Unlike {@link #stringToEnumMap(Class, String, char)}, which maps every enum</em>
+<a class="jxr_linenumber" name="L1402" href="#L1402">1402</a> <em class="jxr_javadoccomment">     * constant in ordinal order, this overload maps only the supplied {@code keys} in the order given, so callers can</em>
+<a class="jxr_linenumber" name="L1403" href="#L1403">1403</a> <em class="jxr_javadoccomment">     * share a single enum across columns that vary by platform.</em>
+<a class="jxr_linenumber" name="L1404" href="#L1404">1404</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1405" href="#L1405">1405</a> <em class="jxr_javadoccomment">     * @param &lt;K&gt;    a type extending Enum</em>
+<a class="jxr_linenumber" name="L1406" href="#L1406">1406</a> <em class="jxr_javadoccomment">     * @param clazz  The enum class (used to construct the backing {@link EnumMap})</em>
+<a class="jxr_linenumber" name="L1407" href="#L1407">1407</a> <em class="jxr_javadoccomment">     * @param keys   The ordered enum keys to map, one per delimited field</em>
+<a class="jxr_linenumber" name="L1408" href="#L1408">1408</a> <em class="jxr_javadoccomment">     * @param values A delimited String to be parsed into the map</em>
+<a class="jxr_linenumber" name="L1409" href="#L1409">1409</a> <em class="jxr_javadoccomment">     * @param delim  the delimiter to use</em>
+<a class="jxr_linenumber" name="L1410" href="#L1410">1410</a> <em class="jxr_javadoccomment">     * @return An EnumMap populated in order using the delimited String values. If there are fewer String values than</em>
+<a class="jxr_linenumber" name="L1411" href="#L1411">1411</a> <em class="jxr_javadoccomment">     *         keys, the later keys are not mapped. The final key will contain the remainder of the String, including</em>
+<a class="jxr_linenumber" name="L1412" href="#L1412">1412</a> <em class="jxr_javadoccomment">     *         excess delimiters.</em>
+<a class="jxr_linenumber" name="L1413" href="#L1413">1413</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1414" href="#L1414">1414</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;K <strong class="jxr_keyword">extends</strong> Enum&lt;K&gt;&gt; Map&lt;K, String&gt; stringToEnumMap(Class&lt;K&gt; clazz, List&lt;K&gt; keys, String values,
+<a class="jxr_linenumber" name="L1415" href="#L1415">1415</a>             <strong class="jxr_keyword">char</strong> delim) {
+<a class="jxr_linenumber" name="L1416" href="#L1416">1416</a>         EnumMap&lt;K, String&gt; map = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(clazz);
+<a class="jxr_linenumber" name="L1417" href="#L1417">1417</a>         <strong class="jxr_keyword">int</strong> start = 0;
+<a class="jxr_linenumber" name="L1418" href="#L1418">1418</a>         <strong class="jxr_keyword">int</strong> len = values.length();
+<a class="jxr_linenumber" name="L1419" href="#L1419">1419</a>         <strong class="jxr_keyword">int</strong> keySize = keys.size();
+<a class="jxr_linenumber" name="L1420" href="#L1420">1420</a>         <strong class="jxr_keyword">for</strong> (K key : keys) {
+<a class="jxr_linenumber" name="L1421" href="#L1421">1421</a>             <em class="jxr_comment">// If this is the last enum, put the index at the end of the string, otherwise</em>
+<a class="jxr_linenumber" name="L1422" href="#L1422">1422</a>             <em class="jxr_comment">// put at delimiter</em>
+<a class="jxr_linenumber" name="L1423" href="#L1423">1423</a>             <strong class="jxr_keyword">int</strong> idx = --keySize == 0 ? len : values.indexOf(delim, start);
+<a class="jxr_linenumber" name="L1424" href="#L1424">1424</a>             <strong class="jxr_keyword">if</strong> (idx &gt;= 0) {
+<a class="jxr_linenumber" name="L1425" href="#L1425">1425</a>                 map.put(key, values.substring(start, idx));
+<a class="jxr_linenumber" name="L1426" href="#L1426">1426</a>                 start = idx;
+<a class="jxr_linenumber" name="L1427" href="#L1427">1427</a>                 <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L1428" href="#L1428">1428</a>                     start++;
+<a class="jxr_linenumber" name="L1429" href="#L1429">1429</a>                 } <strong class="jxr_keyword">while</strong> (start &lt; len &amp;&amp; values.charAt(start) == delim);
+<a class="jxr_linenumber" name="L1430" href="#L1430">1430</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L1431" href="#L1431">1431</a>                 map.put(key, values.substring(start));
+<a class="jxr_linenumber" name="L1432" href="#L1432">1432</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L1433" href="#L1433">1433</a>             }
+<a class="jxr_linenumber" name="L1434" href="#L1434">1434</a>         }
+<a class="jxr_linenumber" name="L1435" href="#L1435">1435</a>         <strong class="jxr_keyword">return</strong> map;
+<a class="jxr_linenumber" name="L1436" href="#L1436">1436</a>     }
+<a class="jxr_linenumber" name="L1437" href="#L1437">1437</a> 
+<a class="jxr_linenumber" name="L1438" href="#L1438">1438</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1439" href="#L1439">1439</a> <em class="jxr_javadoccomment">     * Checks if value exists in map for the given key or not and returns value or unknown based on it</em>
+<a class="jxr_linenumber" name="L1440" href="#L1440">1440</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1441" href="#L1441">1441</a> <em class="jxr_javadoccomment">     * @param map A map of String key-value pairs</em>
+<a class="jxr_linenumber" name="L1442" href="#L1442">1442</a> <em class="jxr_javadoccomment">     * @param key Fetch value for the given key</em>
+<a class="jxr_linenumber" name="L1443" href="#L1443">1443</a> <em class="jxr_javadoccomment">     * @return Returns the value for the key if it exists in the map else it returns unknown</em>
+<a class="jxr_linenumber" name="L1444" href="#L1444">1444</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1445" href="#L1445">1445</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getValueOrUnknown(Map&lt;String, String&gt; map, String key) {
+<a class="jxr_linenumber" name="L1446" href="#L1446">1446</a>         String value = map.getOrDefault(key, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L1447" href="#L1447">1447</a>         <strong class="jxr_keyword">return</strong> value.isEmpty() ? Constants.UNKNOWN : value;
+<a class="jxr_linenumber" name="L1448" href="#L1448">1448</a>     }
+<a class="jxr_linenumber" name="L1449" href="#L1449">1449</a> 
+<a class="jxr_linenumber" name="L1450" href="#L1450">1450</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1451" href="#L1451">1451</a> <em class="jxr_javadoccomment">     * Checks if a value exists in the map for the given key and returns the value or unknown based on it</em>
+<a class="jxr_linenumber" name="L1452" href="#L1452">1452</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1453" href="#L1453">1453</a> <em class="jxr_javadoccomment">     * @param map A map where the keys can be of any type and the values are Strings.</em>
+<a class="jxr_linenumber" name="L1454" href="#L1454">1454</a> <em class="jxr_javadoccomment">     * @param key The key for which to fetch the value from the map. The key can be of any type that is compatible with</em>
+<a class="jxr_linenumber" name="L1455" href="#L1455">1455</a> <em class="jxr_javadoccomment">     *            the map's key type.</em>
+<a class="jxr_linenumber" name="L1456" href="#L1456">1456</a> <em class="jxr_javadoccomment">     * @return The value associated with the key if the key exists in the map and the value is not empty; otherwise,</em>
+<a class="jxr_linenumber" name="L1457" href="#L1457">1457</a> <em class="jxr_javadoccomment">     *         returns a predefined "unknown" string</em>
+<a class="jxr_linenumber" name="L1458" href="#L1458">1458</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1459" href="#L1459">1459</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getValueOrUnknown(Map&lt;?, String&gt; map, Object key) {
+<a class="jxr_linenumber" name="L1460" href="#L1460">1460</a>         <strong class="jxr_keyword">return</strong> getStringValueOrUnknown(map.get(key));
+<a class="jxr_linenumber" name="L1461" href="#L1461">1461</a>     }
+<a class="jxr_linenumber" name="L1462" href="#L1462">1462</a> 
+<a class="jxr_linenumber" name="L1463" href="#L1463">1463</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1464" href="#L1464">1464</a> <em class="jxr_javadoccomment">     * Returns the given string value if it is not empty; otherwise, returns {@code Constants.UNKNOWN}.</em>
+<a class="jxr_linenumber" name="L1465" href="#L1465">1465</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1466" href="#L1466">1466</a> <em class="jxr_javadoccomment">     * @param value The input string value.</em>
+<a class="jxr_linenumber" name="L1467" href="#L1467">1467</a> <em class="jxr_javadoccomment">     * @return The input value if it is non-empty; otherwise, {@code Constants.UNKNOWN}.</em>
+<a class="jxr_linenumber" name="L1468" href="#L1468">1468</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1469" href="#L1469">1469</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getStringValueOrUnknown(String value) {
+<a class="jxr_linenumber" name="L1470" href="#L1470">1470</a>         <strong class="jxr_keyword">return</strong> (value == <strong class="jxr_keyword">null</strong> || value.isEmpty()) ? Constants.UNKNOWN : value;
+<a class="jxr_linenumber" name="L1471" href="#L1471">1471</a>     }
+<a class="jxr_linenumber" name="L1472" href="#L1472">1472</a> 
+<a class="jxr_linenumber" name="L1473" href="#L1473">1473</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1474" href="#L1474">1474</a> <em class="jxr_javadoccomment">     * Parses a list of strings into a map of string key-value pairs.</em>
+<a class="jxr_linenumber" name="L1475" href="#L1475">1475</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1476" href="#L1476">1476</a> <em class="jxr_javadoccomment">     * @param lines     A list of strings, each containing a key-value pair separated by the separator</em>
+<a class="jxr_linenumber" name="L1477" href="#L1477">1477</a> <em class="jxr_javadoccomment">     * @param separator The character(s) that separate the key and value in each line</em>
+<a class="jxr_linenumber" name="L1478" href="#L1478">1478</a> <em class="jxr_javadoccomment">     * @return A map of String key-value pairs with the value whitespace trimmed</em>
+<a class="jxr_linenumber" name="L1479" href="#L1479">1479</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1480" href="#L1480">1480</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; parseStringListToMap(List&lt;String&gt; lines, String separator) {
+<a class="jxr_linenumber" name="L1481" href="#L1481">1481</a>         Map&lt;String, String&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L1482" href="#L1482">1482</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L1483" href="#L1483">1483</a>             <strong class="jxr_keyword">int</strong> idx = line.indexOf(separator);
+<a class="jxr_linenumber" name="L1484" href="#L1484">1484</a>             <strong class="jxr_keyword">if</strong> (idx &gt;= 0) {
+<a class="jxr_linenumber" name="L1485" href="#L1485">1485</a>                 map.put(line.substring(0, idx), line.substring(idx + separator.length()).trim());
+<a class="jxr_linenumber" name="L1486" href="#L1486">1486</a>             }
+<a class="jxr_linenumber" name="L1487" href="#L1487">1487</a>         }
+<a class="jxr_linenumber" name="L1488" href="#L1488">1488</a>         <strong class="jxr_keyword">return</strong> map;
+<a class="jxr_linenumber" name="L1489" href="#L1489">1489</a>     }
+<a class="jxr_linenumber" name="L1490" href="#L1490">1490</a> 
+<a class="jxr_linenumber" name="L1491" href="#L1491">1491</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1492" href="#L1492">1492</a> <em class="jxr_javadoccomment">     * Parses a date string from a given format and converts it to epoch time (milliseconds since epoch). This method is</em>
+<a class="jxr_linenumber" name="L1493" href="#L1493">1493</a> <em class="jxr_javadoccomment">     * useful for handling date formats across different operating systems, such as:</em>
+<a class="jxr_linenumber" name="L1494" href="#L1494">1494</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L1495" href="#L1495">1495</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code yyyyMMdd}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L1496" href="#L1496">1496</a> <em class="jxr_javadoccomment">     * &lt;li&gt;{@code dd/MM/yy, HH:mm}&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L1497" href="#L1497">1497</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L1498" href="#L1498">1498</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1499" href="#L1499">1499</a> <em class="jxr_javadoccomment">     * @param dateString  The date string to parse.</em>
+<a class="jxr_linenumber" name="L1500" href="#L1500">1500</a> <em class="jxr_javadoccomment">     * @param datePattern The expected date format pattern (e.g., {@code "yyyyMMdd"}).</em>
+<a class="jxr_linenumber" name="L1501" href="#L1501">1501</a> <em class="jxr_javadoccomment">     * @return The epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.</em>
+<a class="jxr_linenumber" name="L1502" href="#L1502">1502</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1503" href="#L1503">1503</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseDateToEpoch(String dateString, String datePattern) {
+<a class="jxr_linenumber" name="L1504" href="#L1504">1504</a>         <strong class="jxr_keyword">if</strong> (dateString == <strong class="jxr_keyword">null</strong> || dateString.equals(Constants.UNKNOWN) || dateString.isEmpty()
+<a class="jxr_linenumber" name="L1505" href="#L1505">1505</a>                 || datePattern.isEmpty()) {
+<a class="jxr_linenumber" name="L1506" href="#L1506">1506</a>             <strong class="jxr_keyword">return</strong> 0; <em class="jxr_comment">// Default value if date is unknown or empty or null</em>
+<a class="jxr_linenumber" name="L1507" href="#L1507">1507</a>         }
+<a class="jxr_linenumber" name="L1508" href="#L1508">1508</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L1509" href="#L1509">1509</a>             DateTimeFormatter formatter = <strong class="jxr_keyword">new</strong> DateTimeFormatterBuilder().appendPattern(datePattern)
+<a class="jxr_linenumber" name="L1510" href="#L1510">1510</a>                     .parseDefaulting(ChronoField.HOUR_OF_DAY, 0).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+<a class="jxr_linenumber" name="L1511" href="#L1511">1511</a>                     .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0).parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
+<a class="jxr_linenumber" name="L1512" href="#L1512">1512</a>                     .toFormatter(Locale.ROOT);
+<a class="jxr_linenumber" name="L1513" href="#L1513">1513</a>             LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+<a class="jxr_linenumber" name="L1514" href="#L1514">1514</a>             <strong class="jxr_keyword">return</strong> localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+<a class="jxr_linenumber" name="L1515" href="#L1515">1515</a>         } <strong class="jxr_keyword">catch</strong> (DateTimeParseException e) {
+<a class="jxr_linenumber" name="L1516" href="#L1516">1516</a>             LOG.trace(<span class="jxr_string">"Unable to parse date string: {}"</span>, dateString);
+<a class="jxr_linenumber" name="L1517" href="#L1517">1517</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L1518" href="#L1518">1518</a>         }
+<a class="jxr_linenumber" name="L1519" href="#L1519">1519</a>     }
+<a class="jxr_linenumber" name="L1520" href="#L1520">1520</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Wtsapi32FFM xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../apidocs/oshi/ffm/platform/windows/Wtsapi32FFM.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm.platform.windows;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Wtsapi32FFM" href="../../../../oshi/ffm/platform/windows/Wtsapi32FFM.html#Wtsapi32FFM">Wtsapi32FFM</a> <strong class="jxr_keyword">extends</strong> <a name="WindowsForeignFunctions" href="../../../../oshi/ffm/platform/windows/WindowsForeignFunctions.html#WindowsForeignFunctions">WindowsForeignFunctions</a> {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> SymbolLookup WTS = lib(<span class="jxr_string">"Wtsapi32"</span>);
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MemorySegment WTS_CURRENT_SERVER_HANDLE = MemorySegment.NULL;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <em class="jxr_javadoccomment">/** Pass to WTSEnumerateProcessesEx to enumerate all sessions. */</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> WTS_ANY_SESSION = -2;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <em class="jxr_javadoccomment">/** Request WTS_PROCESS_INFO_EX structures from WTSEnumerateProcessesEx. */</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> WTS_PROCESS_INFO_LEVEL_1 = 1;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <em class="jxr_javadoccomment">/** WTS_TYPE_CLASS value for WTSTypeProcessInfoLevel1, used with WTSFreeMemoryEx. */</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> WTS_TYPE_PROCESS_INFO_LEVEL_1 = 1;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_comment">// WTS_PROCESS_INFO_EXW struct layout (64-bit):</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_comment">// SessionId(4) ProcessId(4) pProcessName(ptr) pUserSid(ptr)</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <em class="jxr_comment">// NumberOfThreads(4) HandleCount(4) PagefileUsage(4) PeakPagefileUsage(4)</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <em class="jxr_comment">// WorkingSetSize(4) PeakWorkingSetSize(4) UserTime(8) KernelTime(8) = 64 bytes</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_SIZE = 64;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_PROCESS_ID = 4;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_PROCESS_NAME = 8;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_NUMBER_OF_THREADS = 24;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_HANDLE_COUNT = 28;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_PAGEFILE_USAGE = 32;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_USER_TIME = 48;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> PROCESS_INFO_EX_KERNEL_TIME = 56;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle WTSEnumerateSessionsW = downcall(WTS, <span class="jxr_string">"WTSEnumerateSessionsW"</span>, JAVA_INT, ADDRESS,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              JAVA_INT, JAVA_INT, ADDRESS, ADDRESS);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> WTSEnumerateSessions(MemorySegment hServer, <strong class="jxr_keyword">int</strong> reserved, <strong class="jxr_keyword">int</strong> version,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              MemorySegment ppSessionInfo, MemorySegment pCount) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">return</strong> isSuccess((<strong class="jxr_keyword">int</strong>) WTSEnumerateSessionsW.invokeExact(hServer, reserved, version, ppSessionInfo, pCount));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle WTSEnumerateProcessesExW = downcall(WTS, <span class="jxr_string">"WTSEnumerateProcessesExW"</span>, JAVA_INT,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              ADDRESS, ADDRESS, JAVA_INT, ADDRESS, ADDRESS);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> WTSEnumerateProcessesEx(MemorySegment hServer, MemorySegment pLevel, <strong class="jxr_keyword">int</strong> sessionId,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              MemorySegment ppProcessInfo, MemorySegment pCount) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">return</strong> isSuccess((<strong class="jxr_keyword">int</strong>) WTSEnumerateProcessesExW.invokeExact(hServer, pLevel, sessionId, ppProcessInfo, pCount));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle WTSQuerySessionInformationW = downcall(WTS, <span class="jxr_string">"WTSQuerySessionInformationW"</span>,
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, ADDRESS);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> WTSQuerySessionInformation(MemorySegment hServer, <strong class="jxr_keyword">int</strong> sessionId, <strong class="jxr_keyword">int</strong> wtsInfoClass,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              MemorySegment ppBuffer, MemorySegment pBytesReturned) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> isSuccess((<strong class="jxr_keyword">int</strong>) WTSQuerySessionInformationW.invokeExact(hServer, sessionId, wtsInfoClass, ppBuffer,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  pBytesReturned));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle WTSFreeMemory = downcall(WTS, <span class="jxr_string">"WTSFreeMemory"</span>, <strong class="jxr_keyword">null</strong>, ADDRESS);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> WTSFreeMemory(MemorySegment pMemory) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          WTSFreeMemory.invokeExact(pMemory);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle WTSFreeMemoryExW = downcall(WTS, <span class="jxr_string">"WTSFreeMemoryExW"</span>, JAVA_INT, JAVA_INT, ADDRESS,
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              JAVA_INT);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> WTSFreeMemoryEx(<strong class="jxr_keyword">int</strong> wtsTypeClass, MemorySegment pMemory, <strong class="jxr_keyword">int</strong> numberOfEntries)
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> isSuccess((<strong class="jxr_keyword">int</strong>) WTSFreeMemoryExW.invokeExact(wtsTypeClass, pMemory, numberOfEntries));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

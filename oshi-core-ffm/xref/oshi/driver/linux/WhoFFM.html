@@ -15,8 +15,8 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.util.Objects.nonNull;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.linux.LinuxLibcFunctions.LOGIN_PROCESS;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.linux.LinuxLibcFunctions.USER_PROCESS;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.linux.LinuxLibcFunctions.LOGIN_PROCESS;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.linux.LinuxLibcFunctions.USER_PROCESS;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Util.isSessionValid;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.io.File;
@@ -27,8 +27,8 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.LinuxLibcFunctions;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.linux.SystemdFunctions;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.linux.LinuxLibcFunctions;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.linux.SystemdFunctions;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSSession;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
@@ -60,7 +60,7 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                  <strong class="jxr_keyword">if</strong> (!systemdSessions.isEmpty()) {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>                      <strong class="jxr_keyword">return</strong> systemdSessions;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>                  }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              } <strong class="jxr_keyword">catch</strong> (Throwable _) {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>                  useSystemd = false;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                  LinuxLibcFunctions.endutxent();
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          } <strong class="jxr_keyword">catch</strong> (Throwable e) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">return</strong> oshi.util.driver.linux.Who.queryWho();
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
@@ -129,7 +129,7 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                         <strong class="jxr_keyword">if</strong> (session != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>                             sessionList.add(session);
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                         }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     } <strong class="jxr_keyword">catch</strong> (Exception _) {
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                         <em class="jxr_comment">// Skip invalid session</em>
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>                     }
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 }
@@ -229,7 +229,7 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                                 sessionList.add(<strong class="jxr_keyword">new</strong> OSSession(user, tty, loginTime, remoteHost));
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>                             }
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                         }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                     } <strong class="jxr_keyword">catch</strong> (Exception _) {
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>                         <em class="jxr_comment">// Skip invalid session files</em>
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                     }
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                 }

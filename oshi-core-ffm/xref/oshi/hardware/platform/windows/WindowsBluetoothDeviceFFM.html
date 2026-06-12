@@ -16,11 +16,11 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_SHORT;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_INFO_LAYOUT;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_SEARCH_PARAMS_LAYOUT;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.BluetoothApisFFM.BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.BluetoothApisFFM.BLUETOOTH_MAX_NAME_SIZE;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.BluetoothApisFFM.BLUETOOTH_RADIO_INFO_LAYOUT;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_INFO_LAYOUT;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_SEARCH_PARAMS_LAYOUT;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_MAX_NAME_SIZE;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_RADIO_INFO_LAYOUT;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemoryLayout;
@@ -34,10 +34,10 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.NativeHandle;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.BluetoothApisFFM;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Kernel32FFM;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.VersionHelpersFFM;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.WindowsForeignFunctions;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.BluetoothApisFFM;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Kernel32FFM;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.VersionHelpersFFM;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.WindowsForeignFunctions;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.BluetoothDevice;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractBluetoothDevice;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.util.FormatUtil;
@@ -85,7 +85,7 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>                          String adapterName = getRadioName(arena, hRadio);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                          queryDevicesForRadio(arena, hRadio, adapterName, devices);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                      }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  } <strong class="jxr_keyword">while</strong> (<a name="WindowsForeignFunctions" href="../../../../oshi/ffm/windows/WindowsForeignFunctions.html#WindowsForeignFunctions">WindowsForeignFunctions</a>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  } <strong class="jxr_keyword">while</strong> (<a name="WindowsForeignFunctions" href="../../../../oshi/ffm/platform/windows/WindowsForeignFunctions.html#WindowsForeignFunctions">WindowsForeignFunctions</a>
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                          .isSuccess(BluetoothApisFFM.BluetoothFindNextRadio(hFindRadio, phRadio)));
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          } <strong class="jxr_keyword">catch</strong> (Throwable t) {

@@ -16,7 +16,7 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_SHORT;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.windows.WindowsForeignFunctions.readWideString;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
@@ -30,7 +30,7 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Wtsapi32FFM;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Wtsapi32FFM;
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSSession;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
@@ -170,7 +170,7 @@
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                         <strong class="jxr_keyword">if</strong> (addrFamily == AF_INET) {
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>                                 host = InetAddress.getByAddress(Arrays.copyOfRange(address, 2, 6)).getHostAddress();
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                             } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                             } <strong class="jxr_keyword">catch</strong> (UnknownHostException _) {
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                                 host = <span class="jxr_string">"Illegal length IP Array"</span>;
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>                             }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>                         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (addrFamily == AF_INET6) {
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>                 Wtsapi32FFM.WTSFreeMemory(pSessionInfo);
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>             }
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         } <strong class="jxr_keyword">catch</strong> (Throwable _) {
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>             <em class="jxr_comment">// Silently return what we have</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         }
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">return</strong> sessions;

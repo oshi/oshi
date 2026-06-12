@@ -12,11 +12,11 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.mac.disk;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.F_MNTFROMNAME;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.F_MNTONNAME;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.MNT_NOWAIT;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystem.STATFS;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.mac.MacSystemFunctions.getfsstat64;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.F_MNTFROMNAME;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.F_MNTONNAME;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.MNT_NOWAIT;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystem.STATFS;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.mac.MacSystemFunctions.getfsstat64;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
@@ -58,7 +58,7 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                  String mntOn = statfs.getString(STATFS.byteOffset(F_MNTONNAME));
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                  mountPointMap.put(mntFrom.replace(<span class="jxr_string">"/dev/"</span>, <span class="jxr_string">""</span>), mntOn);
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>              }
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          } <strong class="jxr_keyword">catch</strong> (Throwable t) {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>              <em class="jxr_comment">// Fall through with empty map</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          }
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> mountPointMap;

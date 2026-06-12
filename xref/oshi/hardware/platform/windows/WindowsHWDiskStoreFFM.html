@@ -38,10 +38,10 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32DiskPartitionFFM;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.Kernel32FFM;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.WindowsForeignFunctions;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.windows.com.FfmComException;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Kernel32FFM;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.WindowsForeignFunctions;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.FfmComException;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWDiskStore;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.HWPartition;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.windows.WindowsHWDiskStore;
@@ -98,7 +98,7 @@
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  result.add(ds);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              }
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../oshi/ffm/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>              LOG.warn(<span class="jxr_string">"COM exception: {}"</span>, e.getMessage());
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">return</strong> Collections.emptyList();
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          } <strong class="jxr_keyword">finally</strong> {
