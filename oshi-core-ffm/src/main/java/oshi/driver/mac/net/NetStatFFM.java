@@ -18,8 +18,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.IFdata;
 import oshi.ffm.platform.mac.MacSystemFunctions;
 
 /**
@@ -149,82 +149,5 @@ public final class NetStatFFM {
             LOG.error("Error querying network interface data", t);
         }
         return data;
-    }
-
-    /**
-     * Class to encapsulate IF data for method return.
-     */
-    @Immutable
-    public static class IFdata {
-        private final int ifType;
-        private final long oPackets;
-        private final long iPackets;
-        private final long oBytes;
-        private final long iBytes;
-        private final long oErrors;
-        private final long iErrors;
-        private final long collisions;
-        private final long iDrops;
-        private final long speed;
-        private final long timeStamp;
-
-        IFdata(int ifType, long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors,
-                long collisions, long iDrops, long speed, long timeStamp) {
-            this.ifType = ifType;
-            this.oPackets = oPackets & 0xffffffffL;
-            this.iPackets = iPackets & 0xffffffffL;
-            this.oBytes = oBytes & 0xffffffffL;
-            this.iBytes = iBytes & 0xffffffffL;
-            this.oErrors = oErrors & 0xffffffffL;
-            this.iErrors = iErrors & 0xffffffffL;
-            this.collisions = collisions & 0xffffffffL;
-            this.iDrops = iDrops & 0xffffffffL;
-            this.speed = speed & 0xffffffffL;
-            this.timeStamp = timeStamp;
-        }
-
-        public int getIfType() {
-            return ifType;
-        }
-
-        public long getOPackets() {
-            return oPackets;
-        }
-
-        public long getIPackets() {
-            return iPackets;
-        }
-
-        public long getOBytes() {
-            return oBytes;
-        }
-
-        public long getIBytes() {
-            return iBytes;
-        }
-
-        public long getOErrors() {
-            return oErrors;
-        }
-
-        public long getIErrors() {
-            return iErrors;
-        }
-
-        public long getCollisions() {
-            return collisions;
-        }
-
-        public long getIDrops() {
-            return iDrops;
-        }
-
-        public long getSpeed() {
-            return speed;
-        }
-
-        public long getTimeStamp() {
-            return timeStamp;
-        }
     }
 }

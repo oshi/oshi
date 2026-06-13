@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.IFdata;
 import oshi.driver.mac.net.NetStatFFM;
-import oshi.driver.mac.net.NetStatFFM.IFdata;
 import oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.hardware.NetworkIF;

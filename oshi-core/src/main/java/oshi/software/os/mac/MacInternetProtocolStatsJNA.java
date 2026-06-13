@@ -26,12 +26,9 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
 import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.sun.jna.Memory;
 import com.sun.jna.platform.mac.SystemB.InSockInfo;
@@ -40,83 +37,18 @@ import com.sun.jna.platform.mac.SystemB.ProcFdInfo;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.Struct.CloseableSocketFdInfo;
 import oshi.jna.platform.mac.SystemB;
-import oshi.jna.platform.unix.CLibrary.BsdIp6stat;
-import oshi.jna.platform.unix.CLibrary.BsdIpstat;
-import oshi.jna.platform.unix.CLibrary.BsdTcpstat;
-import oshi.jna.platform.unix.CLibrary.BsdUdpstat;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.common.os.mac.MacInternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.driver.unix.NetStat;
 import oshi.util.platform.mac.SysctlUtil;
-import oshi.util.tuples.Pair;
 
 /**
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-public class MacInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
-
-    private boolean isElevated;
+public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
 
     public MacInternetProtocolStatsJNA(boolean elevated) {
-        this.isElevated = elevated;
-    }
-
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
-    private Supplier<BsdTcpstat> tcpstat = memoize(MacInternetProtocolStatsJNA::queryTcpstat, defaultExpiration());
-    private Supplier<BsdUdpstat> udpstat = memoize(MacInternetProtocolStatsJNA::queryUdpstat, defaultExpiration());
-    // With elevated permissions use tcpstat only
-    // Backup estimate get ipstat and subtract off udp
-    private Supplier<BsdIpstat> ipstat = memoize(MacInternetProtocolStatsJNA::queryIpstat, defaultExpiration());
-    private Supplier<BsdIp6stat> ip6stat = memoize(MacInternetProtocolStatsJNA::queryIp6stat, defaultExpiration());
-
-    @Override
-    public TcpStats getTCPv4Stats() {
-        BsdTcpstat tcp = tcpstat.get();
-        if (this.isElevated) {
-            return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                    ParseUtil.unsignedIntToLong(
-                            tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
-                    0L);
-        }
-        BsdIpstat ip = ipstat.get();
-        BsdUdpstat udp = udpstat.get();
-        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
-                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
-                ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_delivered - udp.udps_opackets)),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_total - udp.udps_ipackets)),
-                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
-                        + ip.ips_badhlen + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen)),
-                0L);
-    }
-
-    @Override
-    public TcpStats getTCPv6Stats() {
-        BsdIp6stat ip6 = ip6stat.get();
-        BsdUdpstat udp = udpstat.get();
-        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-                Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
-                Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
-    }
-
-    @Override
-    public UdpStats getUDPv4Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
-                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
-                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
-    }
-
-    @Override
-    public UdpStats getUDPv6Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
-                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
+        super(elevated);
     }
 
     @Override
@@ -236,73 +168,46 @@ public class MacInternetProtocolStatsJNA extends AbstractInternetProtocolStats {
         }
     }
 
-    /*
-     * There are multiple versions of some tcp/udp/ip stats structures in macOS. Since we only need a few of the
-     * hundreds of fields, we can improve performance by selectively reading the ints from the appropriate offsets,
-     * which are consistent across the structure.
-     */
-
-    private static BsdTcpstat queryTcpstat() {
-        BsdTcpstat mt = new BsdTcpstat();
+    @Override
+    protected BsdTcpstat queryTcpstat() {
         try (Memory m = SysctlUtil.sysctl("net.inet.tcp.stats")) {
             if (m != null && m.size() >= 128) {
-                mt.tcps_connattempt = m.getInt(0);
-                mt.tcps_accepts = m.getInt(4);
-                mt.tcps_drops = m.getInt(12);
-                mt.tcps_conndrops = m.getInt(16);
-                mt.tcps_sndpack = m.getInt(64);
-                mt.tcps_sndrexmitpack = m.getInt(72);
-                mt.tcps_rcvpack = m.getInt(104);
-                mt.tcps_rcvbadsum = m.getInt(112);
-                mt.tcps_rcvbadoff = m.getInt(116);
-                mt.tcps_rcvmemdrop = m.getInt(120);
-                mt.tcps_rcvshort = m.getInt(124);
+                return new BsdTcpstat(m.getInt(0), m.getInt(4), m.getInt(12), m.getInt(16), m.getInt(64), m.getInt(72),
+                        m.getInt(104), m.getInt(112), m.getInt(116), m.getInt(120), m.getInt(124));
             }
         }
-        return mt;
+        return new BsdTcpstat(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    private static BsdIpstat queryIpstat() {
-        BsdIpstat mi = new BsdIpstat();
+    @Override
+    protected BsdIpstat queryIpstat() {
         try (Memory m = SysctlUtil.sysctl("net.inet.ip.stats")) {
             if (m != null && m.size() >= 60) {
-                mi.ips_total = m.getInt(0);
-                mi.ips_badsum = m.getInt(4);
-                mi.ips_tooshort = m.getInt(8);
-                mi.ips_toosmall = m.getInt(12);
-                mi.ips_badhlen = m.getInt(16);
-                mi.ips_badlen = m.getInt(20);
-                mi.ips_delivered = m.getInt(56);
+                return new BsdIpstat(m.getInt(0), m.getInt(4), m.getInt(8), m.getInt(12), m.getInt(16), m.getInt(20),
+                        m.getInt(56));
             }
         }
-        return mi;
+        return new BsdIpstat(0, 0, 0, 0, 0, 0, 0);
     }
 
-    private static BsdIp6stat queryIp6stat() {
-        BsdIp6stat mi6 = new BsdIp6stat();
+    @Override
+    protected BsdIp6stat queryIp6stat() {
         try (Memory m = SysctlUtil.sysctl("net.inet6.ip6.stats")) {
             if (m != null && m.size() >= 96) {
-                mi6.ip6s_total = m.getLong(0);
-                mi6.ip6s_localout = m.getLong(88);
+                return new BsdIp6stat(m.getLong(0), m.getLong(88));
             }
         }
-        return mi6;
+        return new BsdIp6stat(0, 0);
     }
 
-    public static BsdUdpstat queryUdpstat() {
-        BsdUdpstat ut = new BsdUdpstat();
+    @Override
+    protected BsdUdpstat queryUdpstat() {
         try (Memory m = SysctlUtil.sysctl("net.inet.udp.stats")) {
             if (m != null && m.size() >= 84) {
-                ut.udps_ipackets = m.getInt(0);
-                ut.udps_hdrops = m.getInt(4);
-                ut.udps_badsum = m.getInt(8);
-                ut.udps_badlen = m.getInt(12);
-                ut.udps_opackets = m.getInt(36);
-                ut.udps_noportmcast = m.getInt(48);
-                ut.udps_rcv6_swcsum = m.getInt(64);
-                ut.udps_snd6_swcsum = m.getInt(80);
+                return new BsdUdpstat(m.getInt(0), m.getInt(4), m.getInt(8), m.getInt(12), m.getInt(36), m.getInt(48),
+                        m.getInt(64), m.getInt(80));
             }
         }
-        return ut;
+        return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0);
     }
 }

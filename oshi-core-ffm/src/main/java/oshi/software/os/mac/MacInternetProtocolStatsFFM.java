@@ -55,95 +55,31 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 import static oshi.util.ExceptionUtil.getOrDefault;
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
 import static oshi.util.ParseUtil.parseIntToIP;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.mac.SysctlUtilFFM;
-import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.software.common.os.mac.MacInternetProtocolStats;
 import oshi.util.ParseUtil;
-import oshi.util.driver.unix.NetStat;
-import oshi.util.tuples.Pair;
 
 /**
  * Internet Protocol Stats implementation
  */
 @ThreadSafe
-public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
+public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacInternetProtocolStatsFFM.class);
 
-    private boolean isElevated;
-
     public MacInternetProtocolStatsFFM(boolean elevated) {
-        this.isElevated = elevated;
-    }
-
-    private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
-    private Supplier<BsdTcpstat> tcpstat = memoize(MacInternetProtocolStatsFFM::queryTcpstat, defaultExpiration());
-    private Supplier<BsdUdpstat> udpstat = memoize(MacInternetProtocolStatsFFM::queryUdpstat, defaultExpiration());
-    // With elevated permissions use tcpstat only
-    // Backup estimate get ipstat and subtract off udp
-    private Supplier<BsdIpstat> ipstat = memoize(MacInternetProtocolStatsFFM::queryIpstat, defaultExpiration());
-    private Supplier<BsdIp6stat> ip6stat = memoize(MacInternetProtocolStatsFFM::queryIp6stat, defaultExpiration());
-
-    @Override
-    public TcpStats getTCPv4Stats() {
-        BsdTcpstat tcp = tcpstat.get();
-        if (this.isElevated) {
-            return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_drops), ParseUtil.unsignedIntToLong(tcp.tcps_sndpack),
-                    ParseUtil.unsignedIntToLong(tcp.tcps_rcvpack), ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                    ParseUtil.unsignedIntToLong(
-                            tcp.tcps_rcvbadsum + tcp.tcps_rcvbadoff + tcp.tcps_rcvmemdrop + tcp.tcps_rcvshort),
-                    0L);
-        }
-        BsdIpstat ip = ipstat.get();
-        BsdUdpstat udp = udpstat.get();
-        return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
-                ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
-                ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_delivered - udp.udps_opackets)),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_total - udp.udps_ipackets)),
-                ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
-                        + ip.ips_badhlen + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen)),
-                0L);
-    }
-
-    @Override
-    public TcpStats getTCPv6Stats() {
-        BsdIp6stat ip6 = ip6stat.get();
-        BsdUdpstat udp = udpstat.get();
-        return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-                Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
-                Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
-    }
-
-    @Override
-    public UdpStats getUDPv4Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
-                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
-                ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
-    }
-
-    @Override
-    public UdpStats getUDPv6Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
-                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
+        super(elevated);
     }
 
     @Override
@@ -287,29 +223,8 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         };
     }
 
-    /*
-     * There are multiple versions of some tcp/udp/ip stats structures in macOS. Since we only need a few of the
-     * hundreds of fields, we can improve performance by selectively reading the ints from the appropriate offsets,
-     * which are consistent across the structure.
-     */
-
-    record BsdTcpstat(
-            //
-            int tcps_connattempt, // 0
-            int tcps_accepts, // 4
-            int tcps_drops, // 12
-            int tcps_conndrops, // 16
-            int tcps_sndpack, // 64
-            int tcps_sndrexmitpack, // 72
-            int tcps_rcvpack, // 104
-            int tcps_rcvbadsum, // 112
-            int tcps_rcvbadoff, // 116
-            int tcps_rcvmemdrop, // 120
-            int tcps_rcvshort // 124
-    ) {
-    }
-
-    private static BsdTcpstat queryTcpstat() {
+    @Override
+    protected BsdTcpstat queryTcpstat() {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet.tcp.stats");
         if (m != null && m.byteSize() >= 128) {
             return new BsdTcpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 12), m.get(JAVA_INT, 16),
@@ -319,20 +234,8 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         return new BsdTcpstat(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    record BsdUdpstat(
-            //
-            int udps_ipackets, // 0
-            int udps_hdrops, // 4
-            int udps_badsum, // 8
-            int udps_badlen, // 12
-            int udps_opackets, // 36
-            int udps_noportmcast, // 48
-            int udps_rcv6_swcsum, // 64
-            int udps_snd6_swcsum // 80
-    ) {
-    }
-
-    private static BsdUdpstat queryUdpstat() {
+    @Override
+    protected BsdUdpstat queryUdpstat() {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet.udp.stats");
         if (m != null && m.byteSize() >= 84) {
             return new BsdUdpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
@@ -341,19 +244,8 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    record BsdIpstat(
-            //
-            int ips_total, // 0
-            int ips_badsum, // 4
-            int ips_tooshort, // 8
-            int ips_toosmall, // 12
-            int ips_badhlen, // 16
-            int ips_badlen, // 20
-            int ips_delivered // 56
-    ) {
-    }
-
-    private static BsdIpstat queryIpstat() {
+    @Override
+    protected BsdIpstat queryIpstat() {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet.ip.stats");
         if (m != null && m.byteSize() >= 60) {
             return new BsdIpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
@@ -362,19 +254,12 @@ public class MacInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
         return new BsdIpstat(0, 0, 0, 0, 0, 0, 0);
     }
 
-    record BsdIp6stat(
-            //
-            long ip6s_total, // 0
-            long ip6s_localout // 88
-    ) {
-    }
-
-    private static BsdIp6stat queryIp6stat() {
+    @Override
+    protected BsdIp6stat queryIp6stat() {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet6.ip6.stats");
         if (m != null && m.byteSize() >= 96) {
             return new BsdIp6stat(m.get(JAVA_LONG, 0), m.get(JAVA_LONG, 88));
         }
         return new BsdIp6stat(0, 0);
     }
-
 }
