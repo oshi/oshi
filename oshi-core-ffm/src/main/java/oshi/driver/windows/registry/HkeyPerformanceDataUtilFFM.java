@@ -183,16 +183,16 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
                         int size = counterSizeMap.getOrDefault(keyIndex, 0);
                         // Currently, only DWORDs (4 bytes) and ULONGLONGs (8 bytes) are used to provide
                         // counter values.
-                        if (size == 4) {
-                            counterMap.put(key,
-                                    pPerfData.get(JAVA_INT, perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));
-                        } else if (size == 8) {
-                            counterMap.put(key,
-                                    pPerfData.get(JAVA_LONG, perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));
-                        } else {
+                        Object counterValue = switch (size) {
+                            case 4 -> pPerfData.get(JAVA_INT, perfCounterBlockOffset + counterOffsetMap.get(keyIndex));
+                            case 8 -> pPerfData.get(JAVA_LONG, perfCounterBlockOffset + counterOffsetMap.get(keyIndex));
                             // If counter defined in enum isn't in registry, fail
+                            default -> null;
+                        };
+                        if (counterValue == null) {
                             return null;
                         }
+                        counterMap.put(key, counterValue);
                     }
                     counterMaps.add(counterMap);
 

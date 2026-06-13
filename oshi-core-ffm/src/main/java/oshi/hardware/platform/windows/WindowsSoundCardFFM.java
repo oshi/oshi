@@ -73,6 +73,6 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
 
     private static String getRegString(String keyPath, String valueName) {
         Object val = Advapi32UtilFFM.registryGetValue(HKLM, keyPath, valueName);
-        return val instanceof String ? (String) val : "";
+        return val instanceof String string ? string : "";
     }
 }

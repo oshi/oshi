@@ -51,9 +51,11 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
             if (MemorySegment.NULL.equals(udev)) {
                 return Collections.emptyList();
             }
-            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
+                // wrapped only to release the native handle on close
+                try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, BLOCK, arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     for (MemorySegment entry = UdevFunctions
@@ -67,7 +69,8 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
+                        // wrapped only to release the native handle on close
+                        try (var _ = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             String devnode = UdevFunctions.getString(UdevFunctions.udev_device_get_devnode(device),
                                     arena);
                             if (devnode != null && devnode.startsWith(DevPath.DM)) {

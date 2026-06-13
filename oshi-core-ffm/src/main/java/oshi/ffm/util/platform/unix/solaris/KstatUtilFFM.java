@@ -274,8 +274,7 @@ public final class KstatUtilFFM {
                     return namedValueInt32(named);
                 case KSTAT_DATA_UINT32:
                     return FormatUtil.getUnsignedInt(namedValueInt32(named));
-                case KSTAT_DATA_INT64:
-                case KSTAT_DATA_UINT64:
+                case KSTAT_DATA_INT64, KSTAT_DATA_UINT64:
                     return namedValueInt64(named);
                 default:
                     LOG.error("Unimplemented or non-numeric kstat data type {}", dt);

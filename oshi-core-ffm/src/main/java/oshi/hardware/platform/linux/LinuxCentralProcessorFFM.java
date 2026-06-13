@@ -84,10 +84,11 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                     if (MemorySegment.NULL.equals(udev)) {
                         return readTopologyFromSysfs();
                     }
-                    try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+                    // wrapped only to release the native handle on close
+                    try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                         MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                        try (NativeHandle enumHandle = NativeHandle.of(enumerate,
-                                UdevFunctions::udev_enumerate_unref)) {
+                        // wrapped only to release the native handle on close
+                        try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                             UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                             UdevFunctions.udev_enumerate_scan_devices(enumerate);
                             for (MemorySegment entry = UdevFunctions
@@ -101,8 +102,8 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
                                 MemorySegment device = UdevFunctions.deviceNewFromSyspath(udev, syspath, arena);
                                 String modAlias = null;
                                 if (!MemorySegment.NULL.equals(device)) {
-                                    try (NativeHandle devHandle = NativeHandle.of(device,
-                                            UdevFunctions::udev_device_unref)) {
+                                    // wrapped only to release the native handle on close
+                                    try (var _ = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                                         modAlias = UdevFunctions.getPropertyValue(device, "MODALIAS", arena);
                                     }
                                 }
@@ -126,9 +127,11 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
             if (MemorySegment.NULL.equals(udev)) {
                 return false;
             }
-            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
+                // wrapped only to release the native handle on close
+                try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     long max = 0L;
@@ -173,9 +176,11 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
             if (MemorySegment.NULL.equals(udev)) {
                 return -1L;
             }
-            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
+                // wrapped only to release the native handle on close
+                try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "cpu", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     MemorySegment entry = UdevFunctions.udev_enumerate_get_list_entry(enumerate);

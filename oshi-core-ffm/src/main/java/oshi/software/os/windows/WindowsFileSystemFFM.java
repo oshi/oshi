@@ -158,7 +158,8 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                 return fs;
             }
             MemorySegment hVol = hVolOpt.get();
-            try (NativeHandle ignored = NativeHandle.of(hVol, Kernel32FFM::FindVolumeClose)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(hVol, Kernel32FFM::FindVolumeClose)) {
                 do {
                     String volume = readWideString(volumeNameBuf);
                     if (volumeToMatch != null && !volume.equals(volumeToMatch)) {

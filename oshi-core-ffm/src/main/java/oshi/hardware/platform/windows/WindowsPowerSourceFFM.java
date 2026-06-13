@@ -131,7 +131,8 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                 LOG.warn("SetupDiGetClassDevs failed for battery class");
             } else {
                 MemorySegment hdev = hdevOpt.get();
-                try (NativeHandle devInfoHandle = NativeHandle.of(hdev, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
+                // wrapped only to release the native handle on close
+                try (var _ = NativeHandle.of(hdev, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
                     boolean batteryFound = false;
                     for (int idev = 0; !batteryFound && idev < 100; idev++) {
                         MemorySegment did = arena.allocate(SP_DEVICE_INTERFACE_DATA);
@@ -164,7 +165,8 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             continue;
                         }
                         MemorySegment hBattery = hBatteryOpt.get();
-                        try (NativeHandle batteryHandle = NativeHandle.of(hBattery, Kernel32FFM::CloseHandle)) {
+                        // wrapped only to release the native handle on close
+                        try (var _ = NativeHandle.of(hBattery, Kernel32FFM::CloseHandle)) {
                             // Ask the battery for its tag
                             MemorySegment dwWait = arena.allocate(JAVA_INT);
                             MemorySegment dwTag = arena.allocate(JAVA_INT);

@@ -57,9 +57,11 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
             if (MemorySegment.NULL.equals(udev)) {
                 return null;
             }
-            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment enumerate = UdevFunctions.udev_enumerate_new(udev);
-                try (NativeHandle enumHandle = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
+                // wrapped only to release the native handle on close
+                try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, "power_supply", arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
                     for (MemorySegment entry = UdevFunctions
@@ -77,7 +79,8 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                         if (MemorySegment.NULL.equals(device)) {
                             continue;
                         }
-                        try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
+                        // wrapped only to release the native handle on close
+                        try (var _ = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                             if (ParseUtil.parseIntOrDefault(
                                     UdevFunctions.getPropertyValue(device, Prop.POWER_SUPPLY_PRESENT.name(), arena),
                                     1) > 0) {

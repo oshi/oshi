@@ -241,14 +241,10 @@ public final class WbemcliUtilFFM {
                     case VT_BSTR:
                         result.add(vt, cimType, property, getBstrVal(getResult.variant(), arena));
                         break;
-                    case VT_I4:
-                    case VT_INT:
-                    case VT_UI4:
-                    case VT_UINT:
+                    case VT_I4, VT_INT, VT_UI4, VT_UINT:
                         result.add(vt, cimType, property, getIntVal(getResult.variant()));
                         break;
-                    case VT_I8:
-                    case VT_UI8:
+                    case VT_I8, VT_UI8:
                         result.add(vt, cimType, property, getLongVal(getResult.variant()));
                         break;
                     case VT_I2:
@@ -272,8 +268,7 @@ public final class WbemcliUtilFFM {
                     case VT_R8:
                         result.add(vt, cimType, property, getDoubleVal(getResult.variant()));
                         break;
-                    case VT_NULL:
-                    case VT_EMPTY:
+                    case VT_NULL, VT_EMPTY:
                         result.add(vt, cimType, property, null);
                         break;
                     default:

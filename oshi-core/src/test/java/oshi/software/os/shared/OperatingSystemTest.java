@@ -223,18 +223,19 @@ class OperatingSystemTest {
      */
     @Test
     void testProcessQueryByList() {
-        OperatingSystem os = createOperatingSystem();
-        assertThat("OS family shouldn't be null", os.getFamily(), is(notNullValue()));
-        assertThat("OS manufacturer shouldn't be null", os.getManufacturer(), is(notNullValue()));
-        OSVersionInfo versionInfo = os.getVersionInfo();
+        OperatingSystem system = createOperatingSystem();
+        assertThat("OS family shouldn't be null", system.getFamily(), is(notNullValue()));
+        assertThat("OS manufacturer shouldn't be null", system.getManufacturer(), is(notNullValue()));
+        OSVersionInfo versionInfo = system.getVersionInfo();
         assertThat("OS version info shouldn't be null", versionInfo, is(notNullValue()));
 
-        assertThat("OS currently running processes should be 1 or higher", os.getProcessCount(), is(greaterThan(0)));
-        assertThat("OS thread count should be 1 or higher", os.getThreadCount(), is(greaterThan(0)));
-        assertThat("OS current running process id should be 0 or higher", os.getProcessId(),
+        assertThat("OS currently running processes should be 1 or higher", system.getProcessCount(),
+                is(greaterThan(0)));
+        assertThat("OS thread count should be 1 or higher", system.getThreadCount(), is(greaterThan(0)));
+        assertThat("OS current running process id should be 0 or higher", system.getProcessId(),
                 is(greaterThanOrEqualTo(0)));
 
-        List<OSProcess> processes = os.getProcesses(null, null, 0);
+        List<OSProcess> processes = system.getProcesses(null, null, 0);
         assertThat("Currently running processes shouldn't be null", processes, is(notNullValue()));
         assertThat("every OS should have at least one process running on it", processes, is(not(empty())));
         // the list of pids we want info on
@@ -243,7 +244,7 @@ class OperatingSystemTest {
             pids.add(p.getProcessID());
         }
         // query for just those processes
-        Collection<OSProcess> processes1 = os.getProcesses(pids);
+        Collection<OSProcess> processes1 = system.getProcesses(pids);
         // there's a potential for a race condition here, if a process we
         // queried for initially wasn't running during the second query. In this case,
         // try again with the shorter list
@@ -253,7 +254,7 @@ class OperatingSystemTest {
                 pids.add(p.getProcessID());
             }
             // query for just those processes
-            processes1 = os.getProcesses(pids);
+            processes1 = system.getProcesses(pids);
         }
         assertThat("OS processes should match processes with pids we want info on", pids, hasSize(processes1.size()));
 
@@ -277,8 +278,8 @@ class OperatingSystemTest {
         // processes. On the second poll, we expect at least half of processes in those
         // categories to still be in the same category.
         //
-        OperatingSystem os = createOperatingSystem();
-        List<OSProcess> processes = os.getProcesses(null, null, 0);
+        OperatingSystem system = createOperatingSystem();
+        List<OSProcess> processes = system.getProcesses(null, null, 0);
         Map<Integer, Long> zeroChildMap = new HashMap<>();
         Map<Integer, Long> oneChildMap = new HashMap<>();
         Map<Integer, Long> manyChildMap = new HashMap<>();
@@ -308,8 +309,8 @@ class OperatingSystemTest {
         if (zeroChildMap.size() > 9) {
             int total = 0;
             for (Integer i : zeroChildMap.keySet()) {
-                List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
-                List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+                List<OSProcess> children = system.getChildProcesses(i, null, null, 0);
+                List<OSProcess> descendants = system.getDescendantProcesses(i, null, null, 0);
                 if (children.size() == 0) {
                     matchedChild++;
                 }
@@ -333,8 +334,8 @@ class OperatingSystemTest {
         if (oneChildMap.size() > 9) {
             int total = 0;
             for (Integer i : oneChildMap.keySet()) {
-                List<OSProcess> children = os.getChildProcesses(i, null, null, 0);
-                List<OSProcess> descendants = os.getDescendantProcesses(i, null, null, 0);
+                List<OSProcess> children = system.getChildProcesses(i, null, null, 0);
+                List<OSProcess> descendants = system.getDescendantProcesses(i, null, null, 0);
                 if (children.size() == 1) {
                     matchedChild++;
                 }
@@ -364,9 +365,9 @@ class OperatingSystemTest {
             int total = 0;
             for (Integer i : manyChildMap.keySet()) {
                 // Use a non-null sorting for test purposes
-                List<OSProcess> children = os.getChildProcesses(i, ProcessFiltering.VALID_PROCESS,
+                List<OSProcess> children = system.getChildProcesses(i, ProcessFiltering.VALID_PROCESS,
                         ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
-                List<OSProcess> descendants = os.getDescendantProcesses(i, ProcessFiltering.VALID_PROCESS,
+                List<OSProcess> descendants = system.getDescendantProcesses(i, ProcessFiltering.VALID_PROCESS,
                         ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
                 if (children.size() > 0) {
                     matchedChild++;
@@ -395,8 +396,8 @@ class OperatingSystemTest {
     void testGetCommandLine() {
         int processesWithNonEmptyCmdLine = 0;
 
-        OperatingSystem os = createOperatingSystem();
-        for (OSProcess process : os.getProcesses(null, null, 0)) {
+        OperatingSystem system = createOperatingSystem();
+        for (OSProcess process : system.getProcesses(null, null, 0)) {
             if (!process.getCommandLine().trim().isEmpty()) {
                 processesWithNonEmptyCmdLine++;
             }
@@ -408,8 +409,8 @@ class OperatingSystemTest {
 
     @Test
     void testGetArguments() {
-        OperatingSystem os = createOperatingSystem();
-        List<OSProcess> processesWithNonEmptyArguments = os.getProcesses(p -> !p.getArguments().isEmpty(), null, 0);
+        OperatingSystem system = createOperatingSystem();
+        List<OSProcess> processesWithNonEmptyArguments = system.getProcesses(p -> !p.getArguments().isEmpty(), null, 0);
 
         assertThat("Processes with non-empty arguments should be non-empty", processesWithNonEmptyArguments,
                 not(empty()));
@@ -419,8 +420,8 @@ class OperatingSystemTest {
     void testGetEnvironment() {
         int processesWithNonEmptyEnvironment = 0;
 
-        OperatingSystem os = createOperatingSystem();
-        for (OSProcess process : os.getProcesses(null, null, 0)) {
+        OperatingSystem system = createOperatingSystem();
+        for (OSProcess process : system.getProcesses(null, null, 0)) {
             if (!process.getEnvironmentVariables().isEmpty()) {
                 processesWithNonEmptyEnvironment++;
             }
@@ -438,8 +439,8 @@ class OperatingSystemTest {
      */
     @Test
     void testGetServices() {
-        OperatingSystem os = createOperatingSystem();
-        List<OSService> services = os.getServices();
+        OperatingSystem system = createOperatingSystem();
+        List<OSService> services = system.getServices();
         // macOS CI typically has none, though, and some linux distros aren't covered
         if (!services.isEmpty()) {
             int stopped = 0;
@@ -468,8 +469,8 @@ class OperatingSystemTest {
      */
     @Test
     void testGetSessions() {
-        OperatingSystem os = createOperatingSystem();
-        for (OSSession sess : os.getSessions()) {
+        OperatingSystem system = createOperatingSystem();
+        for (OSSession sess : system.getSessions()) {
             assertThat("Logged in user's name for the session shouldn't be empty", sess.getUserName(),
                     is(not(emptyString())));
             assertThat("Sessions' terminal device name shouldn't be empty", sess.getTerminalDevice(),
@@ -488,9 +489,9 @@ class OperatingSystemTest {
      */
     @Test
     void testGetDesktopWindows() {
-        OperatingSystem os = createOperatingSystem();
-        List<OSDesktopWindow> allWindows = os.getDesktopWindows(false);
-        List<OSDesktopWindow> visibleWindows = os.getDesktopWindows(true);
+        OperatingSystem system = createOperatingSystem();
+        List<OSDesktopWindow> allWindows = system.getDesktopWindows(false);
+        List<OSDesktopWindow> visibleWindows = system.getDesktopWindows(true);
         assertThat("Visible should be a subset of all windows", visibleWindows.size(),
                 is(lessThanOrEqualTo(allWindows.size())));
         Set<Long> windowIds = new HashSet<>();

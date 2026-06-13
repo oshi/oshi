@@ -42,8 +42,8 @@ public final class PerfmonDisabledFFM {
             String value = "Disable Performance Counters";
             MemorySegment hklm = MemorySegment.ofAddress(WinRegFFM.HKEY_LOCAL_MACHINE);
             Object disabled = Advapi32UtilFFM.registryGetValue(hklm, key, value);
-            if (disabled instanceof Integer) {
-                if ((Integer) disabled > 0) {
+            if (disabled instanceof Integer disabledValue) {
+                if (disabledValue > 0) {
                     LOG.warn("{} counters are disabled and won't return data: {}\\{}\\{} > 0.", service,
                             "HKEY_LOCAL_MACHINE", key, value);
                     return true;

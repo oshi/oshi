@@ -387,8 +387,7 @@ public final class IPHlpAPIUtilFFM {
 
     private static TcpState stateLookup(int state) {
         switch (state) {
-            case 1:
-            case 12:
+            case 1, 12:
                 return CLOSED;
             case 2:
                 return LISTEN;

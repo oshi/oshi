@@ -40,12 +40,12 @@ final class MemoizerTest {
 
     @BeforeEach
     void before() {
-        final ThreadPoolExecutor ex = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        ex.allowCoreThreadTimeOut(false);
-        ex.prestartAllCoreThreads(); // make sure we don't lose refreshes in tests because of
-                                     // spending time to start threads
-        this.ex = ex;
+        executor.allowCoreThreadTimeOut(false);
+        executor.prestartAllCoreThreads(); // make sure we don't lose refreshes in tests because of
+                                           // spending time to start threads
+        this.ex = executor;
     }
 
     @AfterEach

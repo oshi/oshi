@@ -281,13 +281,11 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 long offset = i * (long) PPI_SIZE;
                 // ProcessorPowerInformation: number(4), maxMhz(4), currentMhz(4), mhzLimit(4), maxIdleState(4),
                 // currentIdleState(4)
-                if (fieldIndex == 1) {
-                    freqs[i] = Integer.toUnsignedLong(buffer.get(ValueLayout.JAVA_INT, offset + 4)) * 1_000_000L;
-                } else if (fieldIndex == 2) {
-                    freqs[i] = Integer.toUnsignedLong(buffer.get(ValueLayout.JAVA_INT, offset + 8)) * 1_000_000L;
-                } else {
-                    freqs[i] = -1L;
-                }
+                freqs[i] = switch (fieldIndex) {
+                    case 1 -> Integer.toUnsignedLong(buffer.get(ValueLayout.JAVA_INT, offset + 4)) * 1_000_000L;
+                    case 2 -> Integer.toUnsignedLong(buffer.get(ValueLayout.JAVA_INT, offset + 8)) * 1_000_000L;
+                    default -> -1L;
+                };
                 if (freqs[i] == 0) {
                     freqs[i] = getProcessorIdentifier().getVendorFreq();
                 }

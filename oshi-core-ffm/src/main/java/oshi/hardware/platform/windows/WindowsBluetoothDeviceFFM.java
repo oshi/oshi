@@ -69,11 +69,13 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
                 return Collections.emptyList();
             }
 
-            try (NativeHandle findRadioHandle = NativeHandle.of(hFindRadio,
-                    BluetoothApisFFM::BluetoothFindRadioClose)) {
+            // wrapped only to release the native handle on close
+
+            try (var _ = NativeHandle.of(hFindRadio, BluetoothApisFFM::BluetoothFindRadioClose)) {
                 do {
                     MemorySegment hRadio = phRadio.get(ADDRESS, 0);
-                    try (NativeHandle radioHandle = NativeHandle.of(hRadio, Kernel32FFM::CloseHandle)) {
+                    // wrapped only to release the native handle on close
+                    try (var _ = NativeHandle.of(hRadio, Kernel32FFM::CloseHandle)) {
                         String adapterName = getRadioName(arena, hRadio);
                         queryDevicesForRadio(arena, hRadio, adapterName, devices);
                     }
@@ -118,7 +120,9 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
             return;
         }
 
-        try (NativeHandle findDevHandle = NativeHandle.of(hFind, BluetoothApisFFM::BluetoothFindDeviceClose)) {
+        // wrapped only to release the native handle on close
+
+        try (var _ = NativeHandle.of(hFind, BluetoothApisFFM::BluetoothFindDeviceClose)) {
             do {
                 devices.add(parseDeviceInfo(deviceInfo, adapterName));
                 deviceInfo = arena.allocate(BLUETOOTH_DEVICE_INFO_LAYOUT);

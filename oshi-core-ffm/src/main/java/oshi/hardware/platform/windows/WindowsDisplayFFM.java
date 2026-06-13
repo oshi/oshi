@@ -57,7 +57,8 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                 return displays;
             }
             MemorySegment hDevInfo = hDevInfoOpt.get();
-            try (NativeHandle devInfoHandle = NativeHandle.of(hDevInfo, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(hDevInfo, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
                 MemorySegment devInfoData = arena.allocate(SetupApiFFM.SP_DEVINFO_DATA_SIZE);
                 MemorySegment edidName = arena.allocateFrom("EDID", java.nio.charset.StandardCharsets.UTF_16LE);
 
@@ -73,7 +74,8 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                     if (key == null) {
                         continue;
                     }
-                    try (NativeHandle regKey = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
+                    // wrapped only to release the native handle on close
+                    try (var _ = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
                         byte[] edid = queryEdidFromKey(key, edidName, arena);
                         if (edid != null) {
                             displays.add(new WindowsDisplayFFM(edid));

@@ -60,7 +60,8 @@ public final class MacPowerSourceFFM extends MacPowerSource {
         CFStringRef maxCapacityKey = CFStringRef.createCFString("Max Capacity");
         try (nameKey; isPresentKey; currentCapacityKey; maxCapacityKey) {
             MemorySegment powerSourcesInfo = IOPSCopyPowerSourcesInfo();
-            try (CFTypeRef infoRef = new CFTypeRef(powerSourcesInfo)) {
+            // wrapped only to release the native CF object on close
+            try (var _ = new CFTypeRef(powerSourcesInfo)) {
                 CFArrayRef cfList = new CFArrayRef(IOPSCopyPowerSourcesList(powerSourcesInfo));
                 try (cfList) {
                     double psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
