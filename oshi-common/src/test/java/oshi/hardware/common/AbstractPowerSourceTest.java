@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,8 +21,8 @@ class AbstractPowerSourceTest {
 
     private static AbstractPowerSource createSource(String name) {
         return createSource(name, 0.75, -2.0, 3600.0, 15.0, 12.0, 500.0, true, true, false,
-                PowerSource.CapacityUnits.MWH, 7500, 10000, 10500, 42, "Li-ion", LocalDate.of(2024, 1, 15), "TestMfg",
-                "SN123", 35.5);
+                PowerSource.CapacityUnits.MWH, 7500, 10000, 10500, 42, "Li-ion", LocalDate.of(2024, Month.JANUARY, 15),
+                "TestMfg", "SN123", 35.5);
     }
 
     private static AbstractPowerSource createSource(String name, double remainPct, double timeEst, double timeInst,
@@ -58,7 +59,7 @@ class AbstractPowerSourceTest {
         assertThat(ps.getDesignCapacity(), is(10500));
         assertThat(ps.getCycleCount(), is(42));
         assertThat(ps.getChemistry(), is("Li-ion"));
-        assertThat(ps.getManufactureDate(), is(LocalDate.of(2024, 1, 15)));
+        assertThat(ps.getManufactureDate(), is(LocalDate.of(2024, Month.JANUARY, 15)));
         assertThat(ps.getManufacturer(), is("TestMfg"));
         assertThat(ps.getSerialNumber(), is("SN123"));
         assertThat(ps.getTemperature(), is(35.5));

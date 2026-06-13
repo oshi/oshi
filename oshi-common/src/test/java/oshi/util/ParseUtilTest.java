@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -967,18 +968,20 @@ class ParseUtilTest {
 
     @Test
     void testParseDateToEpoch() {
-        assertThat("Parse yyyyMMdd", ParseUtil.parseDateToEpoch("20240101", "yyyyMMdd"),
-                is(LocalDate.of(2024, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+        assertThat("Parse yyyyMMdd", ParseUtil.parseDateToEpoch("20240101", "yyyyMMdd"), is(
+                LocalDate.of(2024, Month.JANUARY, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
         assertThat("Parse dd/MM/yy, HH:mm", ParseUtil.parseDateToEpoch("01/01/24, 12:30", "dd/MM/yy, HH:mm"),
-                is(LocalDateTime.of(2024, 1, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                is(LocalDateTime.of(2024, Month.JANUARY, 1, 12, 30).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
 
         assertThat("Parse YYYY-'W'ww-e ISO week date", ParseUtil.parseDateToEpoch("2025-W25-2", "YYYY-'W'ww-e"),
-                is(LocalDate.of(2025, 6, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                is(LocalDate.of(2025, Month.JUNE, 16).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
         assertThat("Parse EEE MMM dd HH:mm:ss yyyy",
-                ParseUtil.parseDateToEpoch("Fri Sep 18 15:53:11 2020", "EEE MMM dd HH:mm:ss yyyy"), is(LocalDateTime
-                        .of(2020, 9, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+                ParseUtil.parseDateToEpoch("Fri Sep 18 15:53:11 2020", "EEE MMM dd HH:mm:ss yyyy"),
+                is(LocalDateTime.of(2020, Month.SEPTEMBER, 18, 15, 53, 11).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
 
         assertThat("Parse empty date string", ParseUtil.parseDateToEpoch("", "yyyyMMdd"), is(0L));
 
