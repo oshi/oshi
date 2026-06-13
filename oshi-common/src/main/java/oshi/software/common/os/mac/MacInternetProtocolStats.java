@@ -93,7 +93,7 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
                 Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_total - udp.udps_ipackets)),
                 ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
                 Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
-                        + ip.ips_badhlen + ip.ips_badlen - udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen)),
+                        + ip.ips_badhlen + ip.ips_badlen - (udp.udps_hdrops + udp.udps_badsum + udp.udps_badlen))),
                 0L);
     }
 
