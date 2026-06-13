@@ -11,34 +11,19 @@ import static oshi.software.os.OSProcess.State.SLEEPING;
 import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
-import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.driver.common.unix.solaris.PsInfo;
 import oshi.driver.common.unix.solaris.SolarisPrUsage;
 import oshi.driver.common.unix.solaris.SolarisPsInfo;
-import oshi.software.common.AbstractOSProcess;
+import oshi.software.common.os.unix.AbstractProcOSProcess;
 import oshi.software.os.OSThread;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.UserGroupInfo;
@@ -46,39 +31,14 @@ import oshi.util.tuples.Pair;
 
 /**
  * Abstract base for Solaris OSProcess. The {@code /proc} parsing, command-line/env memoization, thread enumeration, and
- * field assignment are shared; concrete subclasses (JNA/FFM) provide the {@code queryArgsEnv} read, the self-process
- * {@code rlimit} read, and the {@link OSThread} factory.
+ * field assignment are shared (via {@link AbstractProcOSProcess}); concrete subclasses (JNA/FFM) provide the
+ * {@code queryArgsEnv} read, the self-process {@code rlimit} read, and the {@link OSThread} factory.
  */
-public abstract class SolarisOSProcess extends AbstractOSProcess {
+public abstract class SolarisOSProcess extends AbstractProcOSProcess {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SolarisOSProcess.class);
-
-    private final Supplier<Integer> bitness = memoize(this::queryBitness);
     private final Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
-    private final Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private final Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
     private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
-    private String name;
-    private String path = "";
-    private String commandLineBackup;
-    private String user;
-    private String userID;
-    private String group;
-    private String groupID;
-    private State state = State.INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
-    private long residentSetSize;
-    private long residentSetSizePrivate;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
     private long minorFaults;
     private long majorFaults;
     private long voluntaryContextSwitches;
@@ -106,136 +66,8 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getCommandLine() {
-        return this.commandLine.get();
-    }
-
-    private String queryCommandLine() {
-        String cl = String.join(" ", getArguments());
-        return cl.isEmpty() ? this.commandLineBackup : cl;
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return cmdEnv.get().getA();
-    }
-
-    @Override
-    public Map<String, String> getEnvironmentVariables() {
-        return cmdEnv.get().getB();
-    }
-
-    private Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
+    protected Pair<List<String>, Map<String, String>> queryCommandlineEnvironment() {
         return queryArgsEnv();
-    }
-
-    @Override
-    public String getCurrentWorkingDirectory() {
-        try {
-            String cwdLink = "/proc/" + getProcessID() + "/cwd";
-            String cwd = new File(cwdLink).getCanonicalPath();
-            if (!cwd.equals(cwdLink)) {
-                return cwd;
-            }
-        } catch (IOException e) {
-            LOG.trace("Couldn't find cwd for pid {}: {}", getProcessID(), e.getMessage());
-        }
-        return "";
-    }
-
-    @Override
-    public String getUser() {
-        return this.user;
-    }
-
-    @Override
-    public String getUserID() {
-        return this.userID;
-    }
-
-    @Override
-    public String getGroup() {
-        return this.group;
-    }
-
-    @Override
-    public String getGroupID() {
-        return this.groupID;
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
-    public long getResidentMemory() {
-        return this.residentSetSize;
-    }
-
-    @Override
-    public long getPrivateResidentMemory() {
-        return this.residentSetSizePrivate;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
     }
 
     @Override
@@ -256,34 +88,6 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
     @Override
     public long getInvoluntaryContextSwitches() {
         return this.involuntaryContextSwitches;
-    }
-
-    @Override
-    public long getOpenFiles() {
-        try (Stream<Path> fd = Files.list(Paths.get("/proc/" + getProcessID() + "/fd"))) {
-            return fd.count();
-        } catch (IOException e) {
-            return 0L;
-        }
-    }
-
-    @Override
-    public int getBitness() {
-        return this.bitness.get();
-    }
-
-    private int queryBitness() {
-        List<String> pflags = ExecutingCommand.runNative("pflags " + getProcessID());
-        for (String line : pflags) {
-            if (line.contains("data model")) {
-                if (line.contains("LP32")) {
-                    return 32;
-                } else if (line.contains("LP64")) {
-                    return 64;
-                }
-            }
-        }
-        return 0;
     }
 
     @Override
@@ -320,20 +124,6 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public List<OSThread> getThreadDetails() {
-        // Get process files in proc
-        File directory = new File(String.format(Locale.ROOT, "/proc/%d/lwp", getProcessID()));
-        File[] numericFiles = directory.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
-        if (numericFiles == null) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.stream(numericFiles).parallel()
-                .map(lwpidFile -> createThread(ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0)))
-                .filter(VALID_THREAD).collect(Collectors.toList());
-    }
-
-    @Override
     public boolean updateAttributes() {
         SolarisPsInfo info = psinfo.get();
         if (info == null) {
@@ -353,7 +143,7 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
         // These are in KB, multiply
         this.virtualSize = info.pr_size * 1024;
         this.residentSetSize = info.pr_rssize * 1024;
-        this.residentSetSizePrivate = info.pr_rssizepriv * 1024;
+        this.privateResidentMemory = info.pr_rssizepriv * 1024;
         this.startTime = info.pr_start.toMillis();
         // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
@@ -441,12 +231,4 @@ public abstract class SolarisOSProcess extends AbstractOSProcess {
      * @return a pair of (arg list, env map); either may be empty if it cannot be read
      */
     protected abstract Pair<List<String>, Map<String, String>> queryArgsEnv();
-
-    /**
-     * Creates a platform-specific {@link OSThread} for the given lwpid of this process.
-     *
-     * @param lwpid the thread (lwp) ID
-     * @return a new OSThread
-     */
-    protected abstract OSThread createThread(int lwpid);
 }

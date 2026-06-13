@@ -41,24 +41,11 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> arguments = memoize(this::queryArguments);
     private final Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
-    protected String name;
-    protected String path = "";
     protected String user;
     protected String userID;
     protected String group;
     protected String groupID;
-    protected State state = State.INVALID;
-    protected int parentProcessID;
-    protected int threadCount;
-    protected int priority;
-    protected long virtualSize;
     protected long residentSetSize;
-    protected long kernelTime;
-    protected long userTime;
-    protected long startTime;
-    protected long upTime;
-    protected long bytesRead;
-    protected long bytesWritten;
     protected long minorFaults;
     protected long majorFaults;
     protected long voluntaryContextSwitches;
@@ -67,16 +54,6 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     protected BsdOSProcess(int pid) {
         super(pid);
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
     }
 
     @Override
@@ -120,63 +97,8 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
     public long getResidentMemory() {
         return this.residentSetSize;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
     }
 
     @Override

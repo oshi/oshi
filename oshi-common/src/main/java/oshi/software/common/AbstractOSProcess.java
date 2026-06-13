@@ -24,6 +24,23 @@ public abstract class AbstractOSProcess implements OSProcess {
 
     private int processID;
 
+    // Common attributes populated by each platform's updateAttributes(). Declared protected (rather than private with
+    // setters) so the platform subclasses can assign them directly in their native refresh methods; see the
+    // VisibilityModifier suppression for this file.
+    protected String name;
+    protected String path = "";
+    protected State state = State.INVALID;
+    protected int parentProcessID;
+    protected int threadCount;
+    protected int priority;
+    protected long virtualSize;
+    protected long kernelTime;
+    protected long userTime;
+    protected long startTime;
+    protected long upTime;
+    protected long bytesRead;
+    protected long bytesWritten;
+
     /**
      * Creates an AbstractOSProcess for the given process ID.
      *
@@ -36,6 +53,71 @@ public abstract class AbstractOSProcess implements OSProcess {
     @Override
     public int getProcessID() {
         return this.processID;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
+    }
+
+    @Override
+    public State getState() {
+        return this.state;
+    }
+
+    @Override
+    public int getParentProcessID() {
+        return this.parentProcessID;
+    }
+
+    @Override
+    public int getThreadCount() {
+        return this.threadCount;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public long getVirtualSize() {
+        return this.virtualSize;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public long getBytesRead() {
+        return this.bytesRead;
+    }
+
+    @Override
+    public long getBytesWritten() {
+        return this.bytesWritten;
     }
 
     @Override

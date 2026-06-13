@@ -4,7 +4,6 @@
  */
 package oshi.software.common.os.mac;
 
-import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSProcess.State.NEW;
 import static oshi.software.os.OSProcess.State.OTHER;
 import static oshi.software.os.OSProcess.State.RUNNING;
@@ -61,26 +60,13 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     private final Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(
             this::queryArgsAndEnvironment);
 
-    protected String name = "";
-    protected String path = "";
     protected String currentWorkingDirectory;
     protected String user;
     protected String userID;
     protected String group;
     protected String groupID;
-    protected State state = INVALID;
-    protected int parentProcessID;
-    protected int threadCount;
-    protected int priority;
-    protected long virtualSize;
     protected long residentSetSize;
     protected long memoryFootprint;
-    protected long kernelTime;
-    protected long userTime;
-    protected long startTime;
-    protected long upTime;
-    protected long bytesRead;
-    protected long bytesWritten;
     protected long openFiles;
     protected int bitness;
     protected long minorFaults;
@@ -94,16 +80,8 @@ public abstract class MacOSProcess extends AbstractOSProcess {
         this.majorVersion = major;
         this.minorVersion = minor;
         this.os = os;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
+        // macOS historically reports an empty (not null) name until updateAttributes() populates it
+        this.name = "";
     }
 
     @Override
@@ -151,21 +129,6 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
     public List<OSThread> getThreadDetails() {
         long now = System.currentTimeMillis();
         return ThreadInfo.queryTaskThreads(getProcessID()).stream().parallel().map(stat -> {
@@ -177,16 +140,6 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
     public long getResidentMemory() {
         return this.residentSetSize;
     }
@@ -194,36 +147,6 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     @Override
     public long getPrivateResidentMemory() {
         return this.memoryFootprint;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
     }
 
     @Override
