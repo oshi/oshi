@@ -53,8 +53,8 @@ final class WindowsPrinterFFM extends WindowsPrinter {
 
     private static boolean getBooleanValue(WmiResult<PrinterProperty> result, PrinterProperty property, int index) {
         Object o = result.getValue(property, index);
-        if (o instanceof Boolean) {
-            return (Boolean) o;
+        if (o instanceof Boolean bool) {
+            return bool;
         }
         return false;
     }

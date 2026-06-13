@@ -117,8 +117,8 @@ public final class WmiUtilFFM {
         Object o = result.getValue(property, index);
         if (o == null) {
             return 0L;
-        } else if (o instanceof Number) {
-            return ((Number) o).longValue();
+        } else if (o instanceof Number number) {
+            return number.longValue();
         } else if (result.getCIMType(property) == WbemcliFFM.CIM_UINT64
                 && result.getVtType(property) == VariantFFM.VT_BSTR) {
             return ParseUtil.parseLongOrDefault((String) o, 0L);

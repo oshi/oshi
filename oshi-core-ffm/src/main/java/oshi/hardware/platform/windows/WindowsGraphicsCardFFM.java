@@ -279,8 +279,8 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
 
     private static String registryString(String keyPath, String valueName) {
         Object val = Advapi32UtilFFM.registryGetValue(HKLM, keyPath, valueName);
-        if (val instanceof String) {
-            return (String) val;
+        if (val instanceof String string) {
+            return string;
         }
         return "";
     }
