@@ -80,7 +80,8 @@ public final class IOReportClientFFM {
             }
             MemorySegment energyChannels = IOReportFunctions.IOReportCopyChannelsInGroup(energyGroup.segment(),
                     MemorySegment.NULL, 0, 0, 0);
-            try (CFTypeRef gpuRef = new CFTypeRef(gpuChannels); CFTypeRef energyRef = new CFTypeRef(energyChannels)) {
+            // wrapped only to release the native CF object on close
+            try (var _ = new CFTypeRef(gpuChannels); var _ = new CFTypeRef(energyChannels)) {
                 if (!energyChannels.equals(MemorySegment.NULL)) {
                     IOReportFunctions.IOReportMergeChannels(gpuChannels, energyChannels, MemorySegment.NULL);
                 }
@@ -116,7 +117,8 @@ public final class IOReportClientFFM {
         return getOrDefault(() -> {
             MemorySegment sample = IOReportFunctions.IOReportCreateSamples(subscription, subscribedChannels,
                     MemorySegment.NULL);
-            try (CFTypeRef sampleRef = new CFTypeRef(sample)) {
+            // wrapped only to release the native CF object on close
+            try (var _ = new CFTypeRef(sample)) {
                 if (sample.equals(MemorySegment.NULL)) {
                     return new GpuTicks(0L, 0L);
                 }

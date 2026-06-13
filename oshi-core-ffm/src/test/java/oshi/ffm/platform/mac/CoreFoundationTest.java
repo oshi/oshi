@@ -383,19 +383,18 @@ class CoreFoundationTest {
 
     @Test
     void testCFMutableDictionarySetValueNullKeyIgnored() throws Throwable {
-        try (var arena = Arena.ofConfined()) {
-            var allocator = CoreFoundationFunctions.CFAllocatorGetDefault();
-            var keyCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryKeyCallBacks");
-            var valCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryValueCallBacks");
-            var dictSeg = CoreFoundationFunctions.CFDictionaryCreateMutable(allocator, 0, keyCallbacks, valCallbacks);
-            // setValue with null key should not throw
-            try (var dict = new CFMutableDictionaryRef(dictSeg);
-                    var val1 = CFStringRef.createCFString("val");
-                    var val2 = CFStringRef.createCFString("val")) {
-                dict.setValue(null, val1);
-                dict.setValue(new CFStringRef(NULL), val2);
-                assertThat(dict.getCount(), is(0L));
-            }
+        // No Arena needed here — the dictionary is CF-managed and the strings are CFStringRef-managed
+        var allocator = CoreFoundationFunctions.CFAllocatorGetDefault();
+        var keyCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryKeyCallBacks");
+        var valCallbacks = CF_LOOKUP.findOrThrow("kCFTypeDictionaryValueCallBacks");
+        var dictSeg = CoreFoundationFunctions.CFDictionaryCreateMutable(allocator, 0, keyCallbacks, valCallbacks);
+        // setValue with null key should not throw
+        try (var dict = new CFMutableDictionaryRef(dictSeg);
+                var val1 = CFStringRef.createCFString("val");
+                var val2 = CFStringRef.createCFString("val")) {
+            dict.setValue(null, val1);
+            dict.setValue(new CFStringRef(NULL), val2);
+            assertThat(dict.getCount(), is(0L));
         }
     }
 

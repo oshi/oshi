@@ -152,7 +152,8 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 LOG.error("Failed to open Service Control Manager");
                 return Collections.emptyList();
             }
-            try (NativeHandle ignored = NativeHandle.of(hSCManager, Advapi32FFM::CloseServiceHandle)) {
+            // wrapped only to release the SCM handle on close
+            try (var _ = NativeHandle.of(hSCManager, Advapi32FFM::CloseServiceHandle)) {
                 // First call to get required buffer size
                 MemorySegment pcbBytesNeeded = arena.allocate(JAVA_INT);
                 MemorySegment lpServicesReturned = arena.allocate(JAVA_INT);

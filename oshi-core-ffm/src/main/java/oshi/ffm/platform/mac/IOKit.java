@@ -260,7 +260,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -275,7 +276,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -294,7 +296,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -313,7 +316,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -332,7 +336,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }
@@ -349,7 +354,8 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment cfKey = createCFString(key, arena);
                     MemorySegment cfValue = createCFProperty(cfKey);
-                    try (CFTypeRef keyRef = new CFTypeRef(cfKey); CFTypeRef valRef = new CFTypeRef(cfValue)) {
+                    // CFTypeRef wrappers release the native CF key/value on close; the body uses cfValue directly
+                    try (var _ = new CFTypeRef(cfKey); var _ = new CFTypeRef(cfValue)) {
                         if (cfValue.equals(MemorySegment.NULL)) {
                             return null;
                         }

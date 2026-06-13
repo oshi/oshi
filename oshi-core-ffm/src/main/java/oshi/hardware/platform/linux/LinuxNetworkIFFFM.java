@@ -46,10 +46,12 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
             if (MemorySegment.NULL.equals(udev)) {
                 return queryIfModelFromSysfs(name);
             }
-            try (NativeHandle udevHandle = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
+            // wrapped only to release the native handle on close
+            try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
                 MemorySegment device = UdevFunctions.deviceNewFromSyspath(udev, SysPath.NET + name, arena);
                 if (!MemorySegment.NULL.equals(device)) {
-                    try (NativeHandle devHandle = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
+                    // wrapped only to release the native handle on close
+                    try (var _ = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                         String devVendor = UdevFunctions.getPropertyValue(device, "ID_VENDOR_FROM_DATABASE", arena);
                         String devModel = UdevFunctions.getPropertyValue(device, "ID_MODEL_FROM_DATABASE", arena);
                         if (!Util.isBlank(devModel)) {
