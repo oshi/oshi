@@ -38,7 +38,7 @@ class AbstractHWDiskStoreTest {
         }
 
         void applyCurrentQueueLength(long queueLen) {
-            setCurrentQueueLength(queueLen);
+            this.currentQueueLength = queueLen;
         }
 
         void applyPartitions(List<HWPartition> parts) {

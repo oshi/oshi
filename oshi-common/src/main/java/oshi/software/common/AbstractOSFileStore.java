@@ -21,15 +21,18 @@ public abstract class AbstractOSFileStore implements OSFileStore {
     private String uuid;
     private boolean local;
 
-    private volatile String logicalVolume;
-    private volatile String description;
-    private volatile String fsType;
+    // Mutable state refreshed by updateFrom()/updateSpace*(); protected (volatile retained) to match the
+    // AbstractOSProcess model. See the VisibilityModifier suppression for this file. The bulk update helpers are
+    // retained; the immutable identity fields above stay private.
+    protected volatile String logicalVolume;
+    protected volatile String description;
+    protected volatile String fsType;
 
-    private volatile long freeSpace;
-    private volatile long usableSpace;
-    private volatile long totalSpace;
-    private volatile long freeInodes;
-    private volatile long totalInodes;
+    protected volatile long freeSpace;
+    protected volatile long usableSpace;
+    protected volatile long totalSpace;
+    protected volatile long freeInodes;
+    protected volatile long totalInodes;
 
     /**
      * Creates an AbstractOSFileStore with all parameters.

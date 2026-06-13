@@ -106,12 +106,12 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             String[] split = ParseUtil.whitespaces.split(line);
             if (split.length >= 6 && split[0].equals(getName())) {
                 diskFound = true;
-                setReadBytes(ParseUtil.parseMultipliedToLongs(split[1]));
-                setWriteBytes(ParseUtil.parseMultipliedToLongs(split[2]));
-                setReads((long) ParseUtil.parseDoubleOrDefault(split[3], 0d));
-                setWrites((long) ParseUtil.parseDoubleOrDefault(split[4], 0d));
-                setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000));
-                setTimeStamp(now);
+                this.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);
+                this.writeBytes = ParseUtil.parseMultipliedToLongs(split[2]);
+                this.reads = (long) ParseUtil.parseDoubleOrDefault(split[3], 0d);
+                this.writes = (long) ParseUtil.parseDoubleOrDefault(split[4], 0d);
+                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[5], 0d) * 1000);
+                this.timeStamp = now;
             }
         }
         return diskFound;

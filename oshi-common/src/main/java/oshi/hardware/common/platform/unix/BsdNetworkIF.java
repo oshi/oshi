@@ -51,20 +51,20 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     @Override
     public boolean updateAttributes() {
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         String[] split = ParseUtil.whitespaces.split(stats);
         if (split.length < 12) {
             // No update
             return false;
         }
-        setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[10], 0L));
-        setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[7], 0L));
-        setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(split[8], 0L));
-        setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
-        setOutErrors(ParseUtil.parseUnsignedLongOrDefault(split[9], 0L));
-        setInErrors(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
-        setCollisions(ParseUtil.parseUnsignedLongOrDefault(split[11], 0L));
-        setInDrops(ParseUtil.parseUnsignedLongOrDefault(split[6], 0L));
+        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);
+        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);
+        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);
+        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);
+        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);
+        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);
+        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);
+        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);
         return true;
     }
 }

@@ -52,18 +52,18 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
 
     @Override
     public boolean updateAttributes() {
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         DiskStats stats = queryStats();
         if (stats == null) {
             return false;
         }
-        setReads(stats.reads);
-        setWrites(stats.writes);
-        setReadBytes(stats.readBytes);
-        setWriteBytes(stats.writeBytes);
-        setCurrentQueueLength(stats.currentQueueLength);
-        setTransferTime(stats.transferTime);
-        setTimeStamp(stats.timeStamp);
+        this.reads = stats.reads;
+        this.writes = stats.writes;
+        this.readBytes = stats.readBytes;
+        this.writeBytes = stats.writeBytes;
+        this.currentQueueLength = stats.currentQueueLength;
+        this.transferTime = stats.transferTime;
+        this.timeStamp = stats.timeStamp;
         return true;
     }
 

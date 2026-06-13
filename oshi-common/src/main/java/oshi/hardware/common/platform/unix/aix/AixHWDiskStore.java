@@ -41,23 +41,23 @@ public abstract class AixHWDiskStore extends AbstractHWDiskStore {
             // No block-split info: attribute all transfers to reads, but stay monotonic with the
             // non-zero branch below — never decrease a previously-reported counter.
             if (stats.xfers > getReads()) {
-                setReads(stats.xfers);
+                this.reads = stats.xfers;
             }
         } else {
             long approximateReads = Math.round(stats.xfers * stats.rblks / (double) blks);
             long approximateWrites = stats.xfers - approximateReads;
             if (approximateReads > getReads()) {
-                setReads(approximateReads);
+                this.reads = approximateReads;
             }
             if (approximateWrites > getWrites()) {
-                setWrites(approximateWrites);
+                this.writes = approximateWrites;
             }
         }
-        setReadBytes(stats.rblks * stats.bsize);
-        setWriteBytes(stats.wblks * stats.bsize);
-        setCurrentQueueLength(stats.qdepth);
-        setTransferTime(stats.time);
-        setTimeStamp(now);
+        this.readBytes = stats.rblks * stats.bsize;
+        this.writeBytes = stats.wblks * stats.bsize;
+        this.currentQueueLength = stats.qdepth;
+        this.transferTime = stats.time;
+        this.timeStamp = now;
         return true;
     }
 

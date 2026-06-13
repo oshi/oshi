@@ -39,16 +39,16 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         if (stats == null) {
             return false;
         }
-        setBytesSent(stats.bytesSent);
-        setBytesRecv(stats.bytesRecv);
-        setPacketsSent(stats.packetsSent);
-        setPacketsRecv(stats.packetsRecv);
-        setOutErrors(stats.outErrors);
-        setInErrors(stats.inErrors);
-        setCollisions(stats.collisions);
-        setInDrops(stats.inDrops);
-        setSpeed(stats.speed);
-        setTimeStamp(System.currentTimeMillis());
+        this.bytesSent = stats.bytesSent;
+        this.bytesRecv = stats.bytesRecv;
+        this.packetsSent = stats.packetsSent;
+        this.packetsRecv = stats.packetsRecv;
+        this.outErrors = stats.outErrors;
+        this.inErrors = stats.inErrors;
+        this.collisions = stats.collisions;
+        this.inDrops = stats.inDrops;
+        this.speed = stats.speed;
+        this.timeStamp = System.currentTimeMillis();
         return true;
     }
 

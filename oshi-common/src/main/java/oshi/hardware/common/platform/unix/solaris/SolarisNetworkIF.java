@@ -51,21 +51,21 @@ public abstract class SolarisNetworkIF extends AbstractNetworkIF {
     @Override
     public boolean updateAttributes() {
         // Initialize to a sane default value
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         IfStats stats = queryStats();
         if (stats == null) {
             return false;
         }
-        setBytesSent(stats.bytesSent);
-        setBytesRecv(stats.bytesRecv);
-        setPacketsSent(stats.packetsSent);
-        setPacketsRecv(stats.packetsRecv);
-        setOutErrors(stats.outErrors);
-        setInErrors(stats.inErrors);
-        setCollisions(stats.collisions);
-        setInDrops(stats.inDrops);
-        setSpeed(stats.speed);
-        setTimeStamp(stats.timeStamp);
+        this.bytesSent = stats.bytesSent;
+        this.bytesRecv = stats.bytesRecv;
+        this.packetsSent = stats.packetsSent;
+        this.packetsRecv = stats.packetsRecv;
+        this.outErrors = stats.outErrors;
+        this.inErrors = stats.inErrors;
+        this.collisions = stats.collisions;
+        this.inDrops = stats.inDrops;
+        this.speed = stats.speed;
+        this.timeStamp = stats.timeStamp;
         return true;
     }
 

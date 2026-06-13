@@ -73,6 +73,13 @@
     <suppress checks="VisibilityModifier" files="AbstractOSProcess\.java"/>
     <suppress checks="VisibilityModifier" files="AbstractProcOSProcess\.java"/>
 
+    <!-- Mutable hardware/software value bases follow the AbstractOSProcess model: attribute fields are
+         protected so each platform's updateAttributes()/updateNetworkStats() assigns them directly, rather
+         than via setters. -->
+    <suppress checks="VisibilityModifier" files="AbstractNetworkIF\.java"/>
+    <suppress checks="VisibilityModifier" files="AbstractHWDiskStore\.java"/>
+    <suppress checks="VisibilityModifier" files="AbstractOSFileStore\.java"/>
+
     <!-- BsdOSProcess/BsdOSThread/MacOSProcess are shared OSProcess/OSThread bases; their protected fields are
          populated by the per-backend native updateAttributes() in the subclasses (and the thread id / version are
          set by the per-platform constructors), so they can't be private with accessors. -->

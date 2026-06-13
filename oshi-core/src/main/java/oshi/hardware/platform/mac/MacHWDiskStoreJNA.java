@@ -106,22 +106,22 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                             // statistics we need on it. Fetch them
                             Pointer result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                             CFDictionaryRef statistics = new CFDictionaryRef(result);
-                            setTimeStamp(System.currentTimeMillis());
+                            this.timeStamp = System.currentTimeMillis();
 
                             // Now get the stats we want
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_OPS));
                             CFNumberRef stat = new CFNumberRef(result);
-                            setReads(stat.longValue());
+                            this.reads = stat.longValue();
                             result = statistics.getValue(cfKeyMap.get(CFKey.READ_BYTES));
                             stat.setPointer(result);
-                            setReadBytes(stat.longValue());
+                            this.readBytes = stat.longValue();
 
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_OPS));
                             stat.setPointer(result);
-                            setWrites(stat.longValue());
+                            this.writes = stat.longValue();
                             result = statistics.getValue(cfKeyMap.get(CFKey.WRITE_BYTES));
                             stat.setPointer(result);
-                            setWriteBytes(stat.longValue());
+                            this.writeBytes = stat.longValue();
 
                             // Total time is in nanoseconds. Add read+write
                             // and convert total to ms
@@ -133,7 +133,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                                 long xferTime = stat.longValue();
                                 stat.setPointer(writeTimeResult);
                                 xferTime += stat.longValue();
-                                setTransferTime(xferTime / 1_000_000L);
+                                this.transferTime = xferTime / 1_000_000L;
                             }
 
                             properties.release();

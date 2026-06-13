@@ -103,15 +103,15 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
                 this.ifType = ifRow.Type;
                 this.ndisPhysicalMediumType = ifRow.PhysicalMediumType;
                 this.connectorPresent = (ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0;
-                setBytesSent(ifRow.OutOctets);
-                setBytesRecv(ifRow.InOctets);
-                setPacketsSent(ifRow.OutUcastPkts);
-                setPacketsRecv(ifRow.InUcastPkts);
-                setOutErrors(ifRow.OutErrors);
-                setInErrors(ifRow.InErrors);
-                setCollisions(ifRow.OutDiscards);
-                setInDrops(ifRow.InDiscards);
-                setSpeed(ifRow.ReceiveLinkSpeed);
+                this.bytesSent = ifRow.OutOctets;
+                this.bytesRecv = ifRow.InOctets;
+                this.packetsSent = ifRow.OutUcastPkts;
+                this.packetsRecv = ifRow.InUcastPkts;
+                this.outErrors = ifRow.OutErrors;
+                this.inErrors = ifRow.InErrors;
+                this.collisions = ifRow.OutDiscards;
+                this.inDrops = ifRow.InDiscards;
+                this.speed = ifRow.ReceiveLinkSpeed;
                 this.ifAlias = Native.toString(ifRow.Alias);
                 this.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
             }
@@ -127,20 +127,20 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
                 }
                 this.ifType = ifRow.dwType;
                 // These are unsigned ints. Widen them to longs.
-                setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
-                setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
-                setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
-                setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
-                setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
-                setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
-                setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards));
-                setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards));
-                setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
+                this.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
+                this.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
+                this.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
+                this.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
+                this.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
+                this.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
+                this.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards);
+                this.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards);
+                this.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
                 this.ifAlias = ""; // not supported by MIB_IFROW
                 this.ifOperStatus = IfOperStatus.UNKNOWN; // not supported
             }
         }
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         return true;
     }
 }

@@ -92,20 +92,20 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
             return false;
         }
 
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         this.ifType = FileUtil.getIntFromFile(name + "/type");
         this.connectorPresent = FileUtil.getIntFromFile(name + "/carrier") > 0;
-        setBytesSent(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_bytes"));
-        setBytesRecv(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_bytes"));
-        setPacketsSent(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_packets"));
-        setPacketsRecv(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_packets"));
-        setOutErrors(FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_errors"));
-        setInErrors(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_errors"));
-        setCollisions(FileUtil.getUnsignedLongFromFile(name + "/statistics/collisions"));
-        setInDrops(FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_dropped"));
+        this.bytesSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_bytes");
+        this.bytesRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_bytes");
+        this.packetsSent = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_packets");
+        this.packetsRecv = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_packets");
+        this.outErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/tx_errors");
+        this.inErrors = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_errors");
+        this.collisions = FileUtil.getUnsignedLongFromFile(name + "/statistics/collisions");
+        this.inDrops = FileUtil.getUnsignedLongFromFile(name + "/statistics/rx_dropped");
         long speedMbps = FileUtil.getUnsignedLongFromFile(name + "/speed");
         // speed may be -1 from file.
-        setSpeed(speedMbps < 0 ? 0 : speedMbps * 1000000L);
+        this.speed = speedMbps < 0 ? 0 : speedMbps * 1000000L;
         this.ifAlias = FileUtil.getStringFromFile(name + "/ifalias");
         this.ifOperStatus = parseIfOperStatus(FileUtil.getStringFromFile(name + "/operstate"));
 
