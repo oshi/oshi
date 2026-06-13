@@ -363,10 +363,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         this.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / getOs().getHz();
         this.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
         this.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
-        long nonVoluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
-        long voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("voluntary_ctxt_switches"), 0L);
-        this.voluntaryContextSwitches = voluntaryContextSwitches;
-        this.involuntaryContextSwitches = nonVoluntaryContextSwitches;
+        this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("voluntary_ctxt_switches"), 0L);
+        this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get("nonvoluntary_ctxt_switches"), 0L);
 
         this.upTime = now - startTime;
 
