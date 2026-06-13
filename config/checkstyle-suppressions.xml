@@ -78,6 +78,7 @@
          than via setters. -->
     <suppress checks="VisibilityModifier" files="AbstractNetworkIF\.java"/>
     <suppress checks="VisibilityModifier" files="AbstractHWDiskStore\.java"/>
+    <suppress checks="VisibilityModifier" files="AbstractOSFileStore\.java"/>
 
     <!-- BsdOSProcess/BsdOSThread/MacOSProcess are shared OSProcess/OSThread bases; their protected fields are
          populated by the per-backend native updateAttributes() in the subclasses (and the thread id / version are
