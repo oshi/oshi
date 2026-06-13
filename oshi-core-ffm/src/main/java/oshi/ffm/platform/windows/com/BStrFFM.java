@@ -69,9 +69,7 @@ public final class BStrFFM extends WindowsForeignFunctions {
         if (bstr == null || bstr.equals(MemorySegment.NULL)) {
             return;
         }
-        runOrLog(() -> {
-            SysFreeString.invokeExact(bstr);
-        }, LOG, "BStrFFM.free failed");
+        runOrLog(() -> SysFreeString.invokeExact(bstr), LOG, "BStrFFM.free failed");
     }
 
     // SysStringLen

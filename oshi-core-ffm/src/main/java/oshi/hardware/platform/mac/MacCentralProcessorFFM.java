@@ -132,10 +132,10 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                             procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (long) offset + MacSystem.CPU_STATE_IDLE));
                 }
             } finally {
-                runOrLog(() -> {
-                    MacSystemFunctions.vm_deallocate(MacSystemFunctions.mach_task_self(), rawProcInfoPtr.address(),
-                            (long) procInfoCount * MacSystem.INT_SIZE);
-                }, LOG, "Failed to vm_deallocate processor info buffer");
+                runOrLog(
+                        () -> MacSystemFunctions.vm_deallocate(MacSystemFunctions.mach_task_self(),
+                                rawProcInfoPtr.address(), (long) procInfoCount * MacSystem.INT_SIZE),
+                        LOG, "Failed to vm_deallocate processor info buffer");
             }
         } catch (Throwable e) {
             LOG.error("Failed to update CPU Load", e);
