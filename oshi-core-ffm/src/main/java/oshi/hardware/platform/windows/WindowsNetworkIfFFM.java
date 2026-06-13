@@ -97,15 +97,15 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
             this.ndisPhysicalMediumType = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_PHYSICAL_MEDIUM_TYPE);
             byte flags = ifRow.get(ValueLayout.JAVA_BYTE, IPHlpAPIFFM.OFFSET_FLAGS);
             this.connectorPresent = (flags & CONNECTOR_PRESENT_BIT) > 0;
-            setSpeed(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED));
-            setBytesRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS));
-            setPacketsRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS));
-            setInErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS));
-            setInDrops(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS));
-            setBytesSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS));
-            setPacketsSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS));
-            setOutErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS));
-            setCollisions(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS));
+            this.speed = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED);
+            this.bytesRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS);
+            this.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS);
+            this.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
+            this.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
+            this.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
+            this.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS);
+            this.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
+            this.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
             // Alias is WCHAR[257] at OFFSET_ALIAS
             MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
             this.ifAlias = readWideString(aliasSlice);
@@ -115,7 +115,7 @@ public final class WindowsNetworkIfFFM extends AbstractNetworkIF {
         }, LOG, ERROR, "Failed to retrieve data for interface " + queryNetworkInterface().getIndex() + ", " + getName(),
                 false);
         if (success) {
-            setTimeStamp(System.currentTimeMillis());
+            this.timeStamp = System.currentTimeMillis();
         }
         return success;
     }

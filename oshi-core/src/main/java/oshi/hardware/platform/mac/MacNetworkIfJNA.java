@@ -90,16 +90,16 @@ public final class MacNetworkIfJNA extends MacNetworkIF {
         if (data.containsKey(index)) {
             IFdata ifData = data.get(index);
             setIfType(ifData.getIfType());
-            setBytesSent(ifData.getOBytes());
-            setBytesRecv(ifData.getIBytes());
-            setPacketsSent(ifData.getOPackets());
-            setPacketsRecv(ifData.getIPackets());
-            setOutErrors(ifData.getOErrors());
-            setInErrors(ifData.getIErrors());
-            setCollisions(ifData.getCollisions());
-            setInDrops(ifData.getIDrops());
-            setSpeed(ifData.getSpeed());
-            setTimeStamp(ifData.getTimeStamp());
+            this.bytesSent = ifData.getOBytes();
+            this.bytesRecv = ifData.getIBytes();
+            this.packetsSent = ifData.getOPackets();
+            this.packetsRecv = ifData.getIPackets();
+            this.outErrors = ifData.getOErrors();
+            this.inErrors = ifData.getIErrors();
+            this.collisions = ifData.getCollisions();
+            this.inDrops = ifData.getIDrops();
+            this.speed = ifData.getSpeed();
+            this.timeStamp = ifData.getTimeStamp();
             return true;
         }
         return false;

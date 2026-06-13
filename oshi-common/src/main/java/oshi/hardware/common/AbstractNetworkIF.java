@@ -51,16 +51,18 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     private String[] ipv6;
     private Short[] prefixLengths;
 
-    private long bytesRecv;
-    private long bytesSent;
-    private long packetsRecv;
-    private long packetsSent;
-    private long inErrors;
-    private long outErrors;
-    private long inDrops;
-    private long collisions;
-    private long speed;
-    private long timeStamp;
+    // Refreshed by each platform's updateNetworkStats(); protected so subclasses assign directly (see the
+    // VisibilityModifier suppression for this file), matching the AbstractOSProcess model.
+    protected long bytesRecv;
+    protected long bytesSent;
+    protected long packetsRecv;
+    protected long packetsSent;
+    protected long inErrors;
+    protected long outErrors;
+    protected long inDrops;
+    protected long collisions;
+    protected long speed;
+    protected long timeStamp;
 
     private final Supplier<Properties> vmMacAddrProps = memoize(AbstractNetworkIF::queryVmMacAddrProps);
 
@@ -276,96 +278,6 @@ public abstract class AbstractNetworkIF implements NetworkIF {
     @Override
     public long getTimeStamp() {
         return this.timeStamp;
-    }
-
-    /**
-     * Sets the bytes received.
-     *
-     * @param bytesRecv the bytes received
-     */
-    protected void setBytesRecv(long bytesRecv) {
-        this.bytesRecv = bytesRecv;
-    }
-
-    /**
-     * Sets the bytes sent.
-     *
-     * @param bytesSent the bytes sent
-     */
-    protected void setBytesSent(long bytesSent) {
-        this.bytesSent = bytesSent;
-    }
-
-    /**
-     * Sets the packets received.
-     *
-     * @param packetsRecv the packets received
-     */
-    protected void setPacketsRecv(long packetsRecv) {
-        this.packetsRecv = packetsRecv;
-    }
-
-    /**
-     * Sets the packets sent.
-     *
-     * @param packetsSent the packets sent
-     */
-    protected void setPacketsSent(long packetsSent) {
-        this.packetsSent = packetsSent;
-    }
-
-    /**
-     * Sets the input errors.
-     *
-     * @param inErrors the input errors
-     */
-    protected void setInErrors(long inErrors) {
-        this.inErrors = inErrors;
-    }
-
-    /**
-     * Sets the output errors.
-     *
-     * @param outErrors the output errors
-     */
-    protected void setOutErrors(long outErrors) {
-        this.outErrors = outErrors;
-    }
-
-    /**
-     * Sets the input drops.
-     *
-     * @param inDrops the input drops
-     */
-    protected void setInDrops(long inDrops) {
-        this.inDrops = inDrops;
-    }
-
-    /**
-     * Sets the collisions.
-     *
-     * @param collisions the collisions
-     */
-    protected void setCollisions(long collisions) {
-        this.collisions = collisions;
-    }
-
-    /**
-     * Sets the speed.
-     *
-     * @param speed the speed in bits per second
-     */
-    protected void setSpeed(long speed) {
-        this.speed = speed;
-    }
-
-    /**
-     * Sets the timestamp.
-     *
-     * @param timeStamp the timestamp
-     */
-    protected void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     @Override

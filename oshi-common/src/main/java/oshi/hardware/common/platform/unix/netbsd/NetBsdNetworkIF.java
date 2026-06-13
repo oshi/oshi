@@ -54,24 +54,24 @@ public final class NetBsdNetworkIF extends AbstractNetworkIF {
         // Name Mtu Network Address Ibytes Obytes
         // wm0 1500 <Link> 52:54:00:12:34:56 689584214 13656411
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
-        setTimeStamp(System.currentTimeMillis());
+        this.timeStamp = System.currentTimeMillis();
         String[] split = ParseUtil.whitespaces.split(stats);
         if (split.length < 6) {
             return false;
         }
-        setBytesRecv(ParseUtil.parseUnsignedLongOrDefault(split[4], 0L));
-        setBytesSent(ParseUtil.parseUnsignedLongOrDefault(split[5], 0L));
+        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);
+        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);
 
         // Get packet counts from netstat -iI <name> (without -b)
         // Name Mtu Network Address Ipkts Ierrs Opkts Oerrs Coll
         String pktStats = ExecutingCommand.getAnswerAt("netstat -iI " + getName(), 1);
         String[] pktSplit = ParseUtil.whitespaces.split(pktStats);
         if (pktSplit.length >= 9) {
-            setPacketsRecv(ParseUtil.parseUnsignedLongOrDefault(pktSplit[4], 0L));
-            setInErrors(ParseUtil.parseUnsignedLongOrDefault(pktSplit[5], 0L));
-            setPacketsSent(ParseUtil.parseUnsignedLongOrDefault(pktSplit[6], 0L));
-            setOutErrors(ParseUtil.parseUnsignedLongOrDefault(pktSplit[7], 0L));
-            setCollisions(ParseUtil.parseUnsignedLongOrDefault(pktSplit[8], 0L));
+            this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(pktSplit[4], 0L);
+            this.inErrors = ParseUtil.parseUnsignedLongOrDefault(pktSplit[5], 0L);
+            this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(pktSplit[6], 0L);
+            this.outErrors = ParseUtil.parseUnsignedLongOrDefault(pktSplit[7], 0L);
+            this.collisions = ParseUtil.parseUnsignedLongOrDefault(pktSplit[8], 0L);
         }
         return true;
     }
