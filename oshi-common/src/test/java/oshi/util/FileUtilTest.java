@@ -14,8 +14,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,14 +46,12 @@ class FileUtilTest {
     @Test
     void testReadFile() {
         // Write to a temp file
-        Path multilineFile = null;
-        try {
-            multilineFile = Files.createTempFile("oshitest.multiline", null);
+        Path multilineFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.multiline", null);
             String s = "Line 1\nLine 2\nThe third line\nLine 4\nLine 5\n";
-            Files.write(multilineFile, s.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            fail("IO Exception creating or writing to temporary multiline file.");
-        }
+            Files.write(file, s.getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary multiline file.");
 
         // Try the new temp file
         List<String> tempFileStrings = FileUtil.readFile(multilineFile.toString());
@@ -63,11 +61,8 @@ class FileUtilTest {
         assertThat("Matching lines mismatch", matchingLines.size(), is(4));
 
         // Delete the temp file
-        try {
-            Files.deleteIfExists(multilineFile);
-        } catch (IOException e) {
-            fail("IO Exception deleting temporary multiline file.");
-        }
+        assertDoesNotThrow(() -> Files.deleteIfExists(multilineFile),
+                "IO Exception deleting temporary multiline file.");
 
         // Try file not found on deleted file
         assertThat("Deleted file should return empty", FileUtil.readFile(multilineFile.toString()), is(empty()));
@@ -79,44 +74,32 @@ class FileUtilTest {
     @Test
     void testGetFromFile() {
         // Write to temp file
-        Path integerFile = null;
-        try {
-            integerFile = Files.createTempFile("oshitest.int", null);
-            Files.write(integerFile, "123\n".getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            fail("IO Exception creating or writing to temporary integer file.");
-        }
+        Path integerFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.int", null);
+            Files.write(file, "123\n".getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary integer file.");
         assertThat("unsigned long from int", FileUtil.getUnsignedLongFromFile(integerFile.toString()), is(123L));
         assertThat("long from int", FileUtil.getLongFromFile(integerFile.toString()), is(123L));
         assertThat("int from int", FileUtil.getIntFromFile(integerFile.toString()), is(123));
         assertThat("string from int", FileUtil.getStringFromFile(integerFile.toString()), is("123"));
 
         // Delete the temp file
-        try {
-            Files.deleteIfExists(integerFile);
-        } catch (IOException e) {
-            fail("IO Exception deleting temporary integer file.");
-        }
+        assertDoesNotThrow(() -> Files.deleteIfExists(integerFile), "IO Exception deleting temporary integer file.");
 
         // Write to temp file
-        Path stringFile = null;
-        try {
-            stringFile = Files.createTempFile("oshitest.str", null);
-            Files.write(stringFile, "foo bar\n".getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            fail("IO Exception creating or writing to temporary string file.");
-        }
+        Path stringFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.str", null);
+            Files.write(file, "foo bar\n".getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary string file.");
 
         assertThat("unsigned long from string", FileUtil.getUnsignedLongFromFile(stringFile.toString()), is(0L));
         assertThat("long from string", FileUtil.getLongFromFile(stringFile.toString()), is(0L));
         assertThat("int from string", FileUtil.getIntFromFile(stringFile.toString()), is(0));
         assertThat("string from string", FileUtil.getStringFromFile(stringFile.toString()), is("foo bar"));
         // Delete the temp file
-        try {
-            Files.deleteIfExists(stringFile);
-        } catch (IOException e) {
-            fail("IO Exception deleting temporary string file.");
-        }
+        assertDoesNotThrow(() -> Files.deleteIfExists(stringFile), "IO Exception deleting temporary string file.");
 
         // Try file not found on deleted file
         assertThat("unsigned long from invalid", FileUtil.getUnsignedLongFromFile(stringFile.toString()), is(0L));
@@ -136,16 +119,14 @@ class FileUtilTest {
         expected.put("write_bytes", "124780544");
         expected.put("cancelled_write_bytes", "42");
         // Write this to a temp file
-        Path procIoFile = null;
-        try {
-            procIoFile = Files.createTempFile("oshitest.procio", null);
+        Path procIoFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.procio", null);
             for (Entry<String, String> e : expected.entrySet()) {
                 String s = e.getKey() + ": " + e.getValue() + "\n";
-                Files.write(procIoFile, s.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                Files.write(file, s.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
             }
-        } catch (IOException e) {
-            fail("IO Exception creating or writing to temporary procIo file.");
-        }
+            return file;
+        }, "IO Exception creating or writing to temporary procIo file.");
         // Read into map
         Map<String, String> actual = FileUtil.getKeyValueMapFromFile(procIoFile.toString(), ":");
         assertThat("procio size", actual, is(aMapWithSize(expected.size())));
@@ -154,11 +135,7 @@ class FileUtilTest {
         }
 
         // Cleanup
-        try {
-            Files.deleteIfExists(procIoFile);
-        } catch (IOException e) {
-            fail("IO Exception deleting temporary procIo file.");
-        }
+        assertDoesNotThrow(() -> Files.deleteIfExists(procIoFile), "IO Exception deleting temporary procIo file.");
 
         // Test deleted file
         actual = FileUtil.getKeyValueMapFromFile(procIoFile.toString(), ":");
@@ -203,14 +180,13 @@ class FileUtilTest {
         byte[] arr = new byte[] { 1, 2, 3 };
         buff.put(arr);
 
-        // Write to temp file
-        Path binaryFile = null;
-        try {
-            binaryFile = Files.createTempFile("oshitest.binary", null);
-            Files.write(binaryFile, buff.array());
-        } catch (IOException e) {
-            fail("IO Exception creating or writing to temporary binary file.");
-        }
+        // Write to temp file (snapshot the backing array since buff is reassigned below)
+        byte[] binaryData = buff.array();
+        Path binaryFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.binary", null);
+            Files.write(file, binaryData);
+            return file;
+        }, "IO Exception creating or writing to temporary binary file.");
 
         // Read from file
         buff = FileUtil.readAllBytesAsBuffer(binaryFile.toString());
@@ -233,11 +209,7 @@ class FileUtilTest {
         assertArrayEquals(arr0, array, "Byte array from buffer at limit should be all 0s");
 
         // Cleanup
-        try {
-            Files.deleteIfExists(binaryFile);
-        } catch (IOException e) {
-            fail("IO Exception deleting temporary procIo file.");
-        }
+        assertDoesNotThrow(() -> Files.deleteIfExists(binaryFile), "IO Exception deleting temporary binary file.");
     }
 
     @Test

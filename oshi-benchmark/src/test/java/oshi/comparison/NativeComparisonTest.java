@@ -152,7 +152,7 @@ class NativeComparisonTest {
         }
         long[][] jnaProc = jna.getProcessorCpuLoadTicks();
         long[][] ffmProc = ffm.getProcessorCpuLoadTicks();
-        assertThat(ffmProc.length).as("processorCpuLoadTicks length").isEqualTo(jnaProc.length);
+        assertThat(ffmProc).as("processorCpuLoadTicks dimensions").hasSameDimensionsAs(jnaProc);
     }
 
     /** Compares 1-, 5-, and 15-minute system load averages. */
@@ -706,8 +706,7 @@ class NativeComparisonTest {
         // Count unique tuples present in both
         Set<String> intersection = new HashSet<>(ffmKeys);
         intersection.retainAll(jnaKeys);
-        assertThat(intersection.size()).as("unique connection tuple overlap")
-                .isGreaterThanOrEqualTo(ffmKeys.size() / 4);
+        assertThat(intersection).as("unique connection tuple overlap").hasSizeGreaterThanOrEqualTo(ffmKeys.size() / 4);
 
         // Verify structural correctness of FFM connections
         for (InternetProtocolStats.IPConnection c : ffmConns) {
