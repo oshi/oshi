@@ -64,21 +64,8 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
             this::queryCwdCommandlineEnvironment);
     private Map<Integer, ThreadPerfCounterBlock> tcb;
 
-    private String name;
-    private String path = "";
-    private State state = INVALID;
-    private int parentProcessID;
-    private int threadCount;
-    private int priority;
-    private long virtualSize;
     private long workingSetSize;
     private long privateWorkingSetSize;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private long bytesRead;
-    private long bytesWritten;
     private long openFiles;
     private int bitness;
     private long pageFaults;
@@ -117,16 +104,6 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      */
     protected Triplet<String, String, Map<String, String>> getCwdCmdEnv() {
         return cwdCmdEnv.get();
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
     }
 
     @Override
@@ -170,31 +147,6 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public int getParentProcessID() {
-        return this.parentProcessID;
-    }
-
-    @Override
-    public int getThreadCount() {
-        return this.threadCount;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
-    }
-
-    @Override
-    public long getVirtualSize() {
-        return this.virtualSize;
-    }
-
-    @Override
     public long getResidentMemory() {
         return this.workingSetSize;
     }
@@ -202,36 +154,6 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     @Override
     public long getPrivateResidentMemory() {
         return this.privateWorkingSetSize;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getBytesRead() {
-        return this.bytesRead;
-    }
-
-    @Override
-    public long getBytesWritten() {
-        return this.bytesWritten;
     }
 
     @Override

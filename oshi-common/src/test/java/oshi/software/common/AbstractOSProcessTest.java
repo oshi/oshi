@@ -19,7 +19,7 @@ import oshi.software.os.OSThread;
 
 class AbstractOSProcessTest {
 
-    private static AbstractOSProcess createProcess(int pid, long kernelTime, long userTime, long upTime) {
+    private static AbstractOSProcess createProcess(int pid, long kernelTimeArg, long userTimeArg, long upTimeArg) {
         return new AbstractOSProcess(pid) {
             @Override
             public String getName() {
@@ -103,17 +103,17 @@ class AbstractOSProcessTest {
 
             @Override
             public long getKernelTime() {
-                return kernelTime;
+                return kernelTimeArg;
             }
 
             @Override
             public long getUserTime() {
-                return userTime;
+                return userTimeArg;
             }
 
             @Override
             public long getUpTime() {
-                return upTime;
+                return upTimeArg;
             }
 
             @Override
