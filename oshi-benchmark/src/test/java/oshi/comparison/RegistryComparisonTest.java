@@ -43,8 +43,8 @@ class RegistryComparisonTest {
         Set<Integer> commonPids = new HashSet<>(reg.keySet());
         commonPids.retainAll(pdh.keySet());
         int minSize = Math.min(reg.size(), pdh.size());
-        assertThat(commonPids.size()).as("common PID overlap (reg=%d, pdh=%d)", reg.size(), pdh.size())
-                .isGreaterThanOrEqualTo((minSize * 90 + 99) / 100);
+        assertThat(commonPids).as("common PID overlap (reg=%d, pdh=%d)", reg.size(), pdh.size())
+                .hasSizeGreaterThanOrEqualTo((minSize * 90 + 99) / 100);
 
         for (int pid : commonPids) {
             ProcessPerfCounterBlock r = reg.get(pid);
@@ -86,8 +86,8 @@ class RegistryComparisonTest {
         Set<Integer> commonTids = new HashSet<>(reg.keySet());
         commonTids.retainAll(pdh.keySet());
         int minSize = Math.min(reg.size(), pdh.size());
-        assertThat(commonTids.size()).as("common TID overlap (reg=%d, pdh=%d)", reg.size(), pdh.size())
-                .isGreaterThanOrEqualTo((minSize * 90 + 99) / 100);
+        assertThat(commonTids).as("common TID overlap (reg=%d, pdh=%d)", reg.size(), pdh.size())
+                .hasSizeGreaterThanOrEqualTo((minSize * 90 + 99) / 100);
 
         for (int tid : commonTids) {
             ThreadPerfCounterBlock r = reg.get(tid);

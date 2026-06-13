@@ -131,7 +131,7 @@ class NativeFreeComparisonTest {
         assertThat(nfTicks).hasSameSizeAs(jnaTicks);
         long[][] jnaProc = jna.getProcessorCpuLoadTicks();
         long[][] nfProc = nf.getProcessorCpuLoadTicks();
-        assertThat(nfProc.length).isEqualTo(jnaProc.length);
+        assertThat(nfProc).hasSameDimensionsAs(jnaProc);
     }
 
     // ---- Hardware: Memory ----
@@ -194,7 +194,7 @@ class NativeFreeComparisonTest {
             }
             assertThat(n.getSize()).isEqualTo(j.getSize());
             assertThat(n.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
-            assertThat(n.getPartitions().size()).as("partitions(%s)", j.getName()).isEqualTo(j.getPartitions().size());
+            assertThat(n.getPartitions()).as("partitions(%s)", j.getName()).hasSameSizeAs(j.getPartitions());
         }
     }
 
