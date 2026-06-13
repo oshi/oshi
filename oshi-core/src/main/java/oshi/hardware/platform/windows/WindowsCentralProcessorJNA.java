@@ -4,13 +4,9 @@
  */
 package oshi.hardware.platform.windows;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -62,20 +58,6 @@ final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     static {
         if (USE_LOAD_AVERAGE) {
             LoadAverageJNA.getInstance().startDaemon();
-        }
-    }
-
-    // This tick query is memoized to enforce a minimum elapsed time for determining
-    // the capacity base multiplier
-    private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
-            ? memoize(WindowsCentralProcessorJNA::queryProcessorUtilityCountersStatic,
-                    TimeUnit.MILLISECONDS.toNanos(300L))
-            : null;
-
-    {
-        // Store the initial query and start the memoizer expiration
-        if (USE_CPU_UTILITY) {
-            setInitialUtilityCounters(processorUtilityCounters.get().getB());
         }
     }
 
@@ -292,76 +274,13 @@ final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     }
 
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
-        // These are used in all cases
-        List<String> instances;
-        List<Long> systemList;
-        List<Long> userList;
-        List<Long> irqList;
-        List<Long> softIrqList;
-        List<Long> idleList;
-        // These are only used with USE_CPU_UTILITY
-        List<Long> baseList = null;
-        List<Long> systemUtility = null;
-        List<Long> processorUtility = null;
-        List<Long> processorUtilityBase = null;
-        List<Long> initSystemList = null;
-        List<Long> initUserList = null;
-        List<Long> initBase = null;
-        List<Long> initSystemUtility = null;
-        List<Long> initProcessorUtility = null;
-        List<Long> initProcessorUtilityBase = null;
-        if (USE_CPU_UTILITY) {
-            Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>> instanceValuePair = processorUtilityCounters
-                    .get();
-            instances = instanceValuePair.getA();
-            Map<ProcessorUtilityTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
-            systemList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
-            userList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
-            irqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTINTERRUPTTIME);
-            softIrqList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTDPCTIME);
-            // % Processor Time is actually Idle time
-            idleList = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORTIME);
-            baseList = valueMap.get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
-            // Utility ticks, if configured
-            systemUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
-            processorUtility = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
-            processorUtilityBase = valueMap.get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
-
-            initSystemList = getInitialUtilityCounters().get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDTIME);
-            initUserList = getInitialUtilityCounters().get(ProcessorUtilityTickCountProperty.PERCENTUSERTIME);
-            initBase = getInitialUtilityCounters().get(ProcessorUtilityTickCountProperty.TIMESTAMP_SYS100NS);
-            initSystemUtility = getInitialUtilityCounters()
-                    .get(ProcessorUtilityTickCountProperty.PERCENTPRIVILEGEDUTILITY);
-            initProcessorUtility = getInitialUtilityCounters()
-                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY);
-            initProcessorUtilityBase = getInitialUtilityCounters()
-                    .get(ProcessorUtilityTickCountProperty.PERCENTPROCESSORUTILITY_BASE);
-        } else {
-            Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> instanceValuePair = ProcessorInformationJNA
-                    .queryProcessorCounters();
-            instances = instanceValuePair.getA();
-            Map<ProcessorTickCountProperty, List<Long>> valueMap = instanceValuePair.getB();
-            systemList = valueMap.get(ProcessorTickCountProperty.PERCENTPRIVILEGEDTIME);
-            userList = valueMap.get(ProcessorTickCountProperty.PERCENTUSERTIME);
-            irqList = valueMap.get(ProcessorTickCountProperty.PERCENTINTERRUPTTIME);
-            softIrqList = valueMap.get(ProcessorTickCountProperty.PERCENTDPCTIME);
-            // % Processor Time is actually Idle time
-            idleList = valueMap.get(ProcessorTickCountProperty.PERCENTPROCESSORTIME);
-        }
-
-        return processTickData(instances, systemList, userList, irqList, softIrqList, idleList, baseList, systemUtility,
-                processorUtility, processorUtilityBase, initSystemList, initUserList, initBase, initSystemUtility,
-                initProcessorUtility, initProcessorUtilityBase);
+    protected Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>> queryProcessorCapacityCounters() {
+        return ProcessorInformationJNA.queryProcessorCapacityCounters();
     }
 
     @Override
-    protected Map<ProcessorUtilityTickCountProperty, List<Long>> queryProcessorUtilityCounters() {
-        return ProcessorInformationJNA.queryProcessorCapacityCounters().getB();
-    }
-
-    private static Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>> queryProcessorUtilityCountersStatic() {
-        return ProcessorInformationJNA.queryProcessorCapacityCounters();
+    protected Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> queryProcessorCounters() {
+        return ProcessorInformationJNA.queryProcessorCounters();
     }
 
     @Override
