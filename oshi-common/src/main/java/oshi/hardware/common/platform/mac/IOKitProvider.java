@@ -67,5 +67,21 @@ public interface IOKitProvider {
          * @return the property value as a string, or {@code null} if not found
          */
         String getStringProperty(String key);
+
+        /**
+         * Gets an integer property from this registry entry.
+         *
+         * @param key the property key
+         * @return the property value as an {@link Integer}, or {@code null} if not found
+         */
+        Integer getIntegerProperty(String key);
+
+        /**
+         * Gets a boolean property from this registry entry.
+         *
+         * @param key the property key
+         * @return the property value as a {@link Boolean}, or {@code null} if not found
+         */
+        Boolean getBooleanProperty(String key);
     }
 }

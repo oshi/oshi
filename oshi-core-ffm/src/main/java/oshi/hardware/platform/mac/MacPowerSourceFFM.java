@@ -10,7 +10,6 @@ import static oshi.ffm.platform.mac.IOKitFunctions.IOPSGetPowerSourceDescription
 import static oshi.ffm.platform.mac.IOKitFunctions.IOPSGetTimeRemainingEstimate;
 
 import java.lang.foreign.MemorySegment;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +21,9 @@ import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
-import oshi.ffm.platform.mac.IOKit.IOService;
 import oshi.ffm.util.platform.mac.CFUtilFFM;
-import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.platform.mac.MacPowerSource;
-import oshi.util.Constants;
 
 /**
  * A Power Source
@@ -52,122 +48,12 @@ public final class MacPowerSourceFFM extends MacPowerSource {
         return getPowerSources();
     }
 
+    /**
+     * Gets Battery Information.
+     *
+     * @return An array of PowerSource objects representing batteries, etc.
+     */
     public static List<PowerSource> getPowerSources() {
-        String psDeviceName = Constants.UNKNOWN;
-        double psTimeRemainingInstant = 0d;
-        double psPowerUsageRate = 0d;
-        double psVoltage = -1d;
-        double psAmperage = 0d;
-        boolean psPowerOnLine = false;
-        boolean psCharging = false;
-        boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
-        int psCurrentCapacity = 0;
-        int psMaxCapacity = 1;
-        int psDesignCapacity = -1;
-        int psCycleCount = -1;
-        String psChemistry = Constants.UNKNOWN;
-        LocalDate psManufactureDate = null;
-        String psManufacturer = Constants.UNKNOWN;
-        String psSerialNumber = Constants.UNKNOWN;
-        double psTemperature = 0d;
-
-        IOService smartBattery = IOKitUtilFFM.getMatchingService("AppleSmartBattery");
-        if (smartBattery != null) {
-            try (smartBattery) {
-                String s = smartBattery.getStringProperty("DeviceName");
-                if (s != null) {
-                    psDeviceName = s;
-                }
-                s = smartBattery.getStringProperty("Manufacturer");
-                if (s != null) {
-                    psManufacturer = s;
-                }
-                s = smartBattery.getStringProperty("BatterySerialNumber");
-                if (s != null) {
-                    psSerialNumber = s;
-                }
-
-                Integer temp = smartBattery.getIntegerProperty("ManufactureDate");
-                if (temp != null) {
-                    int day = temp & 0x1f;
-                    int month = (temp >> 5) & 0xf;
-                    int year80 = (temp >> 9) & 0x7f;
-                    try {
-                        psManufactureDate = LocalDate.of(1980 + year80, month, day);
-                    } catch (DateTimeException _) {
-                        // Corrupt bitfield — leave psManufactureDate as null
-                    }
-                }
-
-                temp = smartBattery.getIntegerProperty("DesignCapacity");
-                if (temp != null) {
-                    psDesignCapacity = temp;
-                }
-                temp = smartBattery.getIntegerProperty("MaxCapacity");
-                if (temp != null) {
-                    psMaxCapacity = temp;
-                }
-                temp = smartBattery.getIntegerProperty("CurrentCapacity");
-                if (temp != null) {
-                    psCurrentCapacity = temp;
-                }
-                psCapacityUnits = CapacityUnits.MAH;
-
-                temp = smartBattery.getIntegerProperty("TimeRemaining");
-                if (temp != null) {
-                    psTimeRemainingInstant = temp * 60d;
-                }
-                temp = smartBattery.getIntegerProperty("CycleCount");
-                if (temp != null) {
-                    psCycleCount = temp;
-                }
-                temp = smartBattery.getIntegerProperty("Temperature");
-                if (temp != null) {
-                    psTemperature = temp / 100d;
-                }
-                temp = smartBattery.getIntegerProperty("Voltage");
-                if (temp != null) {
-                    psVoltage = temp / 1000d;
-                }
-                temp = smartBattery.getIntegerProperty("Amperage");
-                if (temp != null) {
-                    psAmperage = temp;
-                }
-                psPowerUsageRate = psVoltage * psAmperage;
-
-                Boolean bool = smartBattery.getBooleanProperty("ExternalConnected");
-                if (bool != null) {
-                    psPowerOnLine = bool;
-                }
-                bool = smartBattery.getBooleanProperty("IsCharging");
-                if (bool != null) {
-                    psCharging = bool;
-                }
-                psDischarging = !psCharging && !psPowerOnLine;
-            }
-        }
-
-        // Capture final copies for use in lambda/inner scope
-        final String fDeviceName = psDeviceName;
-        final double fTimeRemainingInstant = psTimeRemainingInstant;
-        final double fPowerUsageRate = psPowerUsageRate;
-        final double fVoltage = psVoltage;
-        final double fAmperage = psAmperage;
-        final boolean fPowerOnLine = psPowerOnLine;
-        final boolean fCharging = psCharging;
-        final boolean fDischarging = psDischarging;
-        final CapacityUnits fCapacityUnits = psCapacityUnits;
-        final int fCurrentCapacity = psCurrentCapacity;
-        final int fMaxCapacity = psMaxCapacity;
-        final int fDesignCapacity = psDesignCapacity;
-        final int fCycleCount = psCycleCount;
-        final String fChemistry = psChemistry;
-        final LocalDate fManufactureDate = psManufactureDate;
-        final String fManufacturer = psManufacturer;
-        final String fSerialNumber = psSerialNumber;
-        final double fTemperature = psTemperature;
-
         CFStringRef nameKey = CFStringRef.createCFString("Name");
         CFStringRef isPresentKey = CFStringRef.createCFString("Is Present");
         CFStringRef currentCapacityKey = CFStringRef.createCFString("Current Capacity");
@@ -180,7 +66,7 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                     double psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
                     int powerSourcesCount = cfList.getCount();
 
-                    List<PowerSource> psList = new ArrayList<>(powerSourcesCount);
+                    List<PowerSourceData> sources = new ArrayList<>(powerSourcesCount);
                     for (int ps = 0; ps < powerSourcesCount; ps++) {
                         MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
                         MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
@@ -188,33 +74,25 @@ public final class MacPowerSourceFFM extends MacPowerSource {
                         CFDictionaryRef dict = new CFDictionaryRef(dictionary);
 
                         MemorySegment result = dict.getValue(isPresentKey);
-                        if (!result.equals(MemorySegment.NULL)) {
-                            if (CFBooleanRef.booleanValue(result)) {
-                                result = dict.getValue(nameKey);
-                                String psName = CFUtilFFM.cfPointerToString(result);
+                        if (!result.equals(MemorySegment.NULL) && CFBooleanRef.booleanValue(result)) {
+                            result = dict.getValue(nameKey);
+                            String psName = CFUtilFFM.cfPointerToString(result);
 
-                                double currentCapacity = 0d;
-                                if (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
-                                    result = dict.getValue(currentCapacityKey);
-                                    currentCapacity = CFNumberRef.intValue(result);
-                                }
-                                double maxCapacity = 1d;
-                                if (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
-                                    result = dict.getValue(maxCapacityKey);
-                                    maxCapacity = CFNumberRef.intValue(result);
-                                }
-                                double psRemainingCapacityPercent = maxCapacity <= 0 ? 0d
-                                        : Math.min(1d, currentCapacity / maxCapacity);
-
-                                psList.add(new MacPowerSourceFFM(psName, fDeviceName, psRemainingCapacityPercent,
-                                        psTimeRemainingEstimated, fTimeRemainingInstant, fPowerUsageRate, fVoltage,
-                                        fAmperage, fPowerOnLine, fCharging, fDischarging, fCapacityUnits,
-                                        fCurrentCapacity, fMaxCapacity, fDesignCapacity, fCycleCount, fChemistry,
-                                        fManufactureDate, fManufacturer, fSerialNumber, fTemperature));
+                            double currentCapacity = 0d;
+                            if (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
+                                result = dict.getValue(currentCapacityKey);
+                                currentCapacity = CFNumberRef.intValue(result);
                             }
+                            double maxCapacity = 1d;
+                            if (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
+                                result = dict.getValue(maxCapacityKey);
+                                maxCapacity = CFNumberRef.intValue(result);
+                            }
+                            sources.add(new PowerSourceData(psName, currentCapacity, maxCapacity));
                         }
                     }
-                    return psList;
+                    return buildPowerSources(IOKitProviderFFM.INSTANCE, psTimeRemainingEstimated, sources,
+                            MacPowerSourceFFM::new);
                 }
             }
         } catch (Throwable _) {

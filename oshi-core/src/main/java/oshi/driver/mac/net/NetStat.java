@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac.net;
@@ -17,8 +17,8 @@ import com.sun.jna.platform.mac.SystemB.IFmsgHdr;
 import com.sun.jna.platform.mac.SystemB.IFmsgHdr2;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
-import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.IFdata;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 
 /**
@@ -95,116 +95,5 @@ public final class NetStat {
             }
         }
         return data;
-    }
-
-    /**
-     * Class to encapsulate IF data for method return
-     */
-    @Immutable
-    public static class IFdata {
-        private final int ifType;
-        private final long oPackets;
-        private final long iPackets;
-        private final long oBytes;
-        private final long iBytes;
-        private final long oErrors;
-        private final long iErrors;
-        private final long collisions;
-        private final long iDrops;
-        private final long speed;
-        private final long timeStamp;
-
-        IFdata(int ifType, // NOSONAR squid:S00107
-                long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
-                long iDrops, long speed, long timeStamp) {
-            this.ifType = ifType;
-            this.oPackets = oPackets & 0xffffffffL;
-            this.iPackets = iPackets & 0xffffffffL;
-            this.oBytes = oBytes & 0xffffffffL;
-            this.iBytes = iBytes & 0xffffffffL;
-            this.oErrors = oErrors & 0xffffffffL;
-            this.iErrors = iErrors & 0xffffffffL;
-            this.collisions = collisions & 0xffffffffL;
-            this.iDrops = iDrops & 0xffffffffL;
-            this.speed = speed & 0xffffffffL;
-            this.timeStamp = timeStamp;
-        }
-
-        /**
-         * @return the ifType
-         */
-        public int getIfType() {
-            return ifType;
-        }
-
-        /**
-         * @return the oPackets
-         */
-        public long getOPackets() {
-            return oPackets;
-        }
-
-        /**
-         * @return the iPackets
-         */
-        public long getIPackets() {
-            return iPackets;
-        }
-
-        /**
-         * @return the oBytes
-         */
-        public long getOBytes() {
-            return oBytes;
-        }
-
-        /**
-         * @return the iBytes
-         */
-        public long getIBytes() {
-            return iBytes;
-        }
-
-        /**
-         * @return the oErrors
-         */
-        public long getOErrors() {
-            return oErrors;
-        }
-
-        /**
-         * @return the iErrors
-         */
-        public long getIErrors() {
-            return iErrors;
-        }
-
-        /**
-         * @return the collisions
-         */
-        public long getCollisions() {
-            return collisions;
-        }
-
-        /**
-         * @return the iDrops
-         */
-        public long getIDrops() {
-            return iDrops;
-        }
-
-        /**
-         * @return the speed
-         */
-        public long getSpeed() {
-            return speed;
-        }
-
-        /**
-         * @return the timeStamp
-         */
-        public long getTimeStamp() {
-            return timeStamp;
-        }
     }
 }

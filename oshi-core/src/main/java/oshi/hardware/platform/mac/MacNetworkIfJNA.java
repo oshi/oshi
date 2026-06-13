@@ -17,8 +17,8 @@ import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.IFdata;
 import oshi.driver.mac.net.NetStat;
-import oshi.driver.mac.net.NetStat.IFdata;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.mac.MacNetworkIF;
 import oshi.jna.platform.mac.SystemConfiguration;

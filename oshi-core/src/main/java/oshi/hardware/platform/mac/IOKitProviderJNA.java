@@ -87,5 +87,15 @@ final class IOKitProviderJNA implements IOKitProvider {
         public String getStringProperty(String key) {
             return entry.getStringProperty(key);
         }
+
+        @Override
+        public Integer getIntegerProperty(String key) {
+            return entry.getIntegerProperty(key);
+        }
+
+        @Override
+        public Boolean getBooleanProperty(String key) {
+            return entry.getBooleanProperty(key);
+        }
     }
 }
