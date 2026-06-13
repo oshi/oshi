@@ -44,13 +44,13 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
                 continue;
             }
             diskFound = true;
-            setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
-            setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
-            setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
-            setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
-            setCurrentQueueLength(ParseUtil.parseLongOrDefault(split[5], 0L));
-            setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
-            setTimeStamp(now);
+            this.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
+            this.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+            this.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
+            this.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+            this.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+            this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
+            this.timeStamp = now;
         }
         return diskFound;
     }
@@ -84,17 +84,17 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
                 Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
                 T store = (storeInfo == null) ? factory.create(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
                         : factory.create(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
-                store.setReads((long) ParseUtil.parseDoubleOrDefault(split[1], 0d));
-                store.setWrites((long) ParseUtil.parseDoubleOrDefault(split[2], 0d));
-                store.setReadBytes((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024));
-                store.setWriteBytes((long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024));
-                store.setCurrentQueueLength(ParseUtil.parseLongOrDefault(split[5], 0L));
-                store.setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000));
+                store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
+                store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
+                store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
+                store.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024);
+                store.currentQueueLength = ParseUtil.parseLongOrDefault(split[5], 0L);
+                store.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[6], 0d) * 1000);
                 store.setPartitionList(
                         Collections.unmodifiableList(partitionMap.getOrDefault(split[0], Collections.emptyList())
                                 .stream().sorted(Comparator.comparing(HWPartition::getName))
                                 .collect(java.util.stream.Collectors.toList())));
-                store.setTimeStamp(now);
+                store.timeStamp = now;
                 diskList.add(store);
             }
         }

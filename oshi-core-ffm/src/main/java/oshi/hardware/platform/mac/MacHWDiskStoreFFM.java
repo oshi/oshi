@@ -113,23 +113,23 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                 MemorySegment result = properties.getValue(cfKeyMap.get(CFKey.STATISTICS));
                                 if (!result.equals(MemorySegment.NULL)) {
                                     MemorySegment statsSeg = result;
-                                    setTimeStamp(System.currentTimeMillis());
+                                    this.timeStamp = System.currentTimeMillis();
 
                                     result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.READ_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setReads(CFNumberRef.longValue(result));
+                                        this.reads = CFNumberRef.longValue(result);
                                     }
                                     result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.READ_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setReadBytes(CFNumberRef.longValue(result));
+                                        this.readBytes = CFNumberRef.longValue(result);
                                     }
                                     result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.WRITE_OPS));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setWrites(CFNumberRef.longValue(result));
+                                        this.writes = CFNumberRef.longValue(result);
                                     }
                                     result = CFDictionaryRef.getValue(statsSeg, cfKeyMap.get(CFKey.WRITE_BYTES));
                                     if (!result.equals(MemorySegment.NULL)) {
-                                        setWriteBytes(CFNumberRef.longValue(result));
+                                        this.writeBytes = CFNumberRef.longValue(result);
                                     }
 
                                     MemorySegment readTimeResult = CFDictionaryRef.getValue(statsSeg,
@@ -140,7 +140,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                             && !writeTimeResult.equals(MemorySegment.NULL)) {
                                         long xferTime = CFNumberRef.longValue(readTimeResult);
                                         xferTime += CFNumberRef.longValue(writeTimeResult);
-                                        setTransferTime(xferTime / 1_000_000L);
+                                        this.transferTime = xferTime / 1_000_000L;
                                     }
                                 }
                             }

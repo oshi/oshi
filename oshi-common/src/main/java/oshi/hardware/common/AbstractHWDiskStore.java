@@ -25,14 +25,17 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
     private final long size;
     private final String diskType;
 
-    private volatile long reads;
-    private volatile long readBytes;
-    private volatile long writes;
-    private volatile long writeBytes;
-    private volatile long currentQueueLength;
-    private volatile long transferTime;
-    private volatile long timeStamp;
-    private final AtomicReference<List<HWPartition>> partitionList = new AtomicReference<>(Collections.emptyList());
+    // Refreshed by each platform's updateAttributes(); protected (volatile retained for visibility) so subclasses
+    // assign directly, matching the AbstractOSProcess model. See the VisibilityModifier suppression for this file.
+    // The bulk setDiskStats()/setPartitionList() helpers are retained for multi-line and cross-instance call sites.
+    protected volatile long reads;
+    protected volatile long readBytes;
+    protected volatile long writes;
+    protected volatile long writeBytes;
+    protected volatile long currentQueueLength;
+    protected volatile long transferTime;
+    protected volatile long timeStamp;
+    protected final AtomicReference<List<HWPartition>> partitionList = new AtomicReference<>(Collections.emptyList());
 
     /**
      * Creates an AbstractHWDiskStore with unknown disk type.
@@ -147,69 +150,6 @@ public abstract class AbstractHWDiskStore implements HWDiskStore {
         this.writeBytes = writeBytes;
         this.currentQueueLength = currentQueueLength;
         this.transferTime = transferTime;
-        this.timeStamp = timeStamp;
-    }
-
-    /**
-     * Sets the reads.
-     *
-     * @param reads the reads
-     */
-    protected void setReads(long reads) {
-        this.reads = reads;
-    }
-
-    /**
-     * Sets the read bytes.
-     *
-     * @param readBytes the read bytes
-     */
-    protected void setReadBytes(long readBytes) {
-        this.readBytes = readBytes;
-    }
-
-    /**
-     * Sets the writes.
-     *
-     * @param writes the writes
-     */
-    protected void setWrites(long writes) {
-        this.writes = writes;
-    }
-
-    /**
-     * Sets the write bytes.
-     *
-     * @param writeBytes the write bytes
-     */
-    protected void setWriteBytes(long writeBytes) {
-        this.writeBytes = writeBytes;
-    }
-
-    /**
-     * Sets the current queue length.
-     *
-     * @param currentQueueLength the queue length
-     */
-    protected void setCurrentQueueLength(long currentQueueLength) {
-        this.currentQueueLength = currentQueueLength;
-    }
-
-    /**
-     * Sets the transfer time.
-     *
-     * @param transferTime the transfer time in ms
-     */
-    protected void setTransferTime(long transferTime) {
-        this.transferTime = transferTime;
-    }
-
-    /**
-     * Sets the timestamp.
-     *
-     * @param timeStamp the timestamp
-     */
-    protected void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 

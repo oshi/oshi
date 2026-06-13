@@ -111,13 +111,13 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
                 long writes = ParseUtil.parseLongOrDefault(split[6], 0L);
                 double readKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[1], 0d);
                 double writeKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[5], 0d);
-                setReads(reads);
-                setWrites(writes);
-                setReadBytes((long) (readKBPerTransfer * reads * 1024));
-                setWriteBytes((long) (writeKBPerTransfer * writes * 1024));
-                setTransferTime((long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1000)
-                        + (long) (ParseUtil.parseDoubleOrDefault(split[7], 0d) * 1000));
-                setTimeStamp(now);
+                this.reads = reads;
+                this.writes = writes;
+                this.readBytes = (long) (readKBPerTransfer * reads * 1024);
+                this.writeBytes = (long) (writeKBPerTransfer * writes * 1024);
+                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1000)
+                        + (long) (ParseUtil.parseDoubleOrDefault(split[7], 0d) * 1000);
+                this.timeStamp = now;
                 break;
             }
         }
