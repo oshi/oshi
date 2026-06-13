@@ -6,6 +6,7 @@ package oshi.software.common.os.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +73,7 @@ class LinuxOSProcessTest {
 
     @Test
     void testGetMissingDetailsNullStatusNoException() {
-        LinuxOSProcess.getMissingDetails(null, "1234 (java) S 1 1234 1234 0");
+        assertDoesNotThrow(() -> LinuxOSProcess.getMissingDetails(null, "1234 (java) S 1 1234 1234 0"));
     }
 
     @Test

@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -263,18 +264,16 @@ class ExceptionUtilTest {
 
     @Test
     void testRunSilentlySwallowsException() {
-        // Should not throw
-        ExceptionUtil.runSilently(() -> {
+        assertDoesNotThrow(() -> ExceptionUtil.runSilently(() -> {
             throw new RuntimeException("fail");
-        });
+        }));
     }
 
     @Test
     void testRunSilentlySwallowsError() {
-        // Should not throw
-        ExceptionUtil.runSilently(() -> {
+        assertDoesNotThrow(() -> ExceptionUtil.runSilently(() -> {
             throw new StackOverflowError("simulated");
-        });
+        }));
     }
 
     // -- runOrLog --
@@ -288,10 +287,9 @@ class ExceptionUtilTest {
 
     @Test
     void testRunOrLogHandlesException() {
-        // Should not throw
-        ExceptionUtil.runOrLog(() -> {
+        assertDoesNotThrow(() -> ExceptionUtil.runOrLog(() -> {
             throw new RuntimeException("test error");
-        }, LOG, "RunOrLog failed: {}");
+        }, LOG, "RunOrLog failed: {}"));
     }
 
     // -- Edge cases --
@@ -372,10 +370,9 @@ class ExceptionUtilTest {
 
     @Test
     void testRunOrLogWithTraceLevel() {
-        // Should not throw
-        ExceptionUtil.runOrLog(() -> {
+        assertDoesNotThrow(() -> ExceptionUtil.runOrLog(() -> {
             throw new RuntimeException("fail");
-        }, LOG, Level.TRACE, "Runnable trace failure");
+        }, LOG, Level.TRACE, "Runnable trace failure"));
     }
 
     @Test
