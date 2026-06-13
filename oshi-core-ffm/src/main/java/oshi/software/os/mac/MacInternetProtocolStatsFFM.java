@@ -154,38 +154,47 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
 
             long protoOffset = SOCKET_INFO.byteOffset(SOI_PROTO);
             int kind = psi.get(JAVA_INT, SOCKET_INFO.byteOffset(SOI_KIND));
-            if (kind == SOCKINFO_TCP) {
-                type = "tcp";
-                MemorySegment tcpsi = psi.asSlice(protoOffset);
-                ini = tcpsi.asSlice(TCP_SOCK_INFO.byteOffset(TCPSI_INI));
-                int tcpState = tcpsi.get(JAVA_INT, TCP_SOCK_INFO.byteOffset(TCPSI_STATE));
-                state = stateLookup(tcpState);
-            } else if (kind == SOCKINFO_IN) {
-                type = "udp";
-                ini = psi.asSlice(protoOffset);
-                state = NONE;
-            } else {
-                return null;
+            switch (kind) {
+                case SOCKINFO_TCP -> {
+                    type = "tcp";
+                    MemorySegment tcpsi = psi.asSlice(protoOffset);
+                    ini = tcpsi.asSlice(TCP_SOCK_INFO.byteOffset(TCPSI_INI));
+                    int tcpState = tcpsi.get(JAVA_INT, TCP_SOCK_INFO.byteOffset(TCPSI_STATE));
+                    state = stateLookup(tcpState);
+                }
+                case SOCKINFO_IN -> {
+                    type = "udp";
+                    ini = psi.asSlice(protoOffset);
+                    state = NONE;
+                }
+                default -> {
+                    return null;
+                }
             }
 
             byte[] laddr;
             byte[] faddr;
 
             byte vflag = ini.get(JAVA_BYTE, IN_SOCK_INFO.byteOffset(INSI_VFLAG));
-            if (vflag == 1) { // IPv4
-                laddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_LADDR) / 4 + 3));
-                faddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_FADDR) / 4 + 3));
-                type += "4";
-            } else if (vflag == 2) { // IPv6
-                laddr = parseIntArrayToIP(ini, IN_SOCK_INFO.byteOffset(INSI_LADDR));
-                faddr = parseIntArrayToIP(ini, IN_SOCK_INFO.byteOffset(INSI_FADDR));
-                type += "6";
-            } else if (vflag == 3) { // IPv4/IPv6
-                laddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_LADDR) / 4 + 3));
-                faddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_FADDR) / 4 + 3));
-                type += "46";
-            } else {
-                return null;
+            switch (vflag) {
+                case 1 -> { // IPv4
+                    laddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_LADDR) / 4 + 3));
+                    faddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_FADDR) / 4 + 3));
+                    type += "4";
+                }
+                case 2 -> { // IPv6
+                    laddr = parseIntArrayToIP(ini, IN_SOCK_INFO.byteOffset(INSI_LADDR));
+                    faddr = parseIntArrayToIP(ini, IN_SOCK_INFO.byteOffset(INSI_FADDR));
+                    type += "6";
+                }
+                case 3 -> { // IPv4/IPv6
+                    laddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_LADDR) / 4 + 3));
+                    faddr = parseIntToIP(ini.getAtIndex(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_FADDR) / 4 + 3));
+                    type += "46";
+                }
+                default -> {
+                    return null;
+                }
             }
 
             int lport = ParseUtil.bigEndian16ToLittleEndian(ini.get(JAVA_INT, IN_SOCK_INFO.byteOffset(INSI_LPORT)));
