@@ -23,7 +23,7 @@ class AuxvTest {
             || "aarch64".equals(System.getProperty("os.arch"));
 
     private static final Auxv.NativeLongReader READER = IS_64_BIT ? FileUtil::readLongFromBuffer
-            : buff -> FileUtil.readIntFromBuffer(buff);
+            : FileUtil::readIntFromBuffer;
 
     @Test
     void testQueryAuxv() {

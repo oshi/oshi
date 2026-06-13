@@ -95,9 +95,7 @@ public final class Ole32FFM extends WindowsForeignFunctions {
      * Closes the COM library on the current thread.
      */
     public static void CoUninitialize() {
-        runOrLog(() -> {
-            CoUninitialize.invokeExact();
-        }, LOG, "Ole32FFM.CoUninitialize failed");
+        runOrLog(CoUninitialize::invokeExact, LOG, "Ole32FFM.CoUninitialize failed");
     }
 
     // CoInitializeSecurity
