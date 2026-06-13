@@ -123,10 +123,10 @@ public final class NtDllFFM extends WindowsForeignFunctions {
      */
     public static int NtQueryInformationProcess(MemorySegment processHandle, int processInformationClass,
             MemorySegment processInformation, int processInformationLength, MemorySegment returnLength) {
-        return getIntOrDefault(() -> {
-            return (int) NtQueryInformationProcess.invokeExact(processHandle, processInformationClass,
-                    processInformation, processInformationLength, returnLength);
-        }, -1, LOG, "NtDllFFM.NtQueryInformationProcess failed");
+        return getIntOrDefault(
+                () -> (int) NtQueryInformationProcess.invokeExact(processHandle, processInformationClass,
+                        processInformation, processInformationLength, returnLength),
+                -1, LOG, "NtDllFFM.NtQueryInformationProcess failed");
     }
 
     /**
