@@ -69,7 +69,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                     mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
                 }
                 MemorySegment buf = arena.allocate(ARGMAX);
-                MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, (long) ARGMAX);
+                MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, ARGMAX);
                 MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
                 if (OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, buf, sizeSeg, MemorySegment.NULL,
                         0L) == 0) {
@@ -103,7 +103,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                     mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
                 }
                 MemorySegment buf = arena.allocate(ARGMAX);
-                MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, (long) ARGMAX);
+                MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, ARGMAX);
                 MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
                 if (OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, buf, sizeSeg, MemorySegment.NULL,
                         0L) == 0) {

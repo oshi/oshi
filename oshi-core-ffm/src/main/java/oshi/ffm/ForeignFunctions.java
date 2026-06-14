@@ -131,10 +131,10 @@ public abstract class ForeignFunctions {
     protected static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
     /** The size in bytes of the C {@code long} type on this platform. */
-    public static final long NATIVE_LONG_SIZE = ((ValueLayout) LINKER.canonicalLayouts().get("long")).byteSize();
+    public static final long NATIVE_LONG_SIZE = LINKER.canonicalLayouts().get("long").byteSize();
 
     /** The size in bytes of the C {@code size_t} type on this platform. */
-    public static final long NATIVE_SIZE_T_SIZE = ((ValueLayout) LINKER.canonicalLayouts().get("size_t")).byteSize();
+    public static final long NATIVE_SIZE_T_SIZE = LINKER.canonicalLayouts().get("size_t").byteSize();
 
     /** The size in bytes of a native pointer on this platform. */
     public static final long NATIVE_POINTER_SIZE = ValueLayout.ADDRESS.byteSize();

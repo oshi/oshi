@@ -56,7 +56,7 @@ public class ComObjectFFM extends IUnknownFFM {
      * @return the function pointer
      */
     protected static MemorySegment getVtableFunction(MemorySegment vtable, int index) {
-        return vtable.get(ADDRESS, (long) index * PTR_SIZE);
+        return vtable.get(ADDRESS, index * PTR_SIZE);
     }
 
     /**

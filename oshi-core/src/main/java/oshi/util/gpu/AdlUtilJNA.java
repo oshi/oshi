@@ -72,7 +72,7 @@ public final class AdlUtilJNA {
                     if (size <= 0) {
                         return Pointer.NULL;
                     }
-                    long addr = Native.malloc((long) size);
+                    long addr = Native.malloc(size);
                     return addr == 0L ? Pointer.NULL : new Pointer(addr);
                 };
                 loaded = true;

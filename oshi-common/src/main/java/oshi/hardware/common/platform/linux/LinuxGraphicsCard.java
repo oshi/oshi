@@ -277,10 +277,6 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         return cardList;
     }
 
-    private static long queryLspciMemorySize(String lookupDevice) {
-        return queryLspciMemorySize(ExecutingCommand.runNative("lspci -v -s " + lookupDevice));
-    }
-
     /**
      * Parse prefetchable memory size from lspci verbose output.
      *

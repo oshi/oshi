@@ -74,9 +74,6 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
-    // Conversion: LHM reports memory in MB; 1 MB = 1_048_576 bytes
-    private static final long MB_TO_BYTES = 1_048_576L;
-
     public static final String ADAPTER_STRING = "HardwareInformation.AdapterString";
     public static final String DRIVER_DESC = "DriverDesc";
     public static final String DRIVER_VERSION = "DriverVersion";

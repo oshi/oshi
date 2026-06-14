@@ -43,10 +43,6 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStoreJNA.class);
 
-    private WindowsHWDiskStoreJNA(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
-    }
-
     private WindowsHWDiskStoreJNA(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
     }

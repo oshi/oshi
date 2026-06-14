@@ -251,13 +251,13 @@ public final class WbemcliUtilFFM {
                         result.add(vt, cimType, property, (int) getShortVal(getResult.variant()));
                         break;
                     case VT_UI2:
-                        result.add(vt, cimType, property, (int) getShortVal(getResult.variant()) & 0xFFFF);
+                        result.add(vt, cimType, property, getShortVal(getResult.variant()) & 0xFFFF);
                         break;
                     case VT_I1:
                         result.add(vt, cimType, property, (int) getByteVal(getResult.variant()));
                         break;
                     case VT_UI1:
-                        result.add(vt, cimType, property, (int) (getByteVal(getResult.variant()) & 0xFF));
+                        result.add(vt, cimType, property, getByteVal(getResult.variant()) & 0xFF);
                         break;
                     case VT_BOOL:
                         result.add(vt, cimType, property, getBoolVal(getResult.variant()));

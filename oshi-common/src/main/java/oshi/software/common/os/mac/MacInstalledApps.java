@@ -287,7 +287,7 @@ public final class MacInstalledApps {
                 .replace("&apos;", "'");
     }
 
-    private static String readStringValue(String xml, String keyName) throws Exception {
+    private static String readStringValue(String xml, String keyName) {
         int i = xml.indexOf("<key>" + keyName + "</key>");
         if (i > 0) {
             i = xml.indexOf("<string>", i);

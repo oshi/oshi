@@ -89,7 +89,7 @@ public final class PsInfoFFM {
                 long argp = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, argv - bufStart, increment);
                 if (argp > 0) {
                     for (int i = 0; i < argc; i++) {
-                        long offset = argp + (long) i * increment;
+                        long offset = argp + i * increment;
                         bufStart = conditionallyReadPage(fd, buffer, bufStart, offset);
                         argPtr[i] = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, offset - bufStart, increment);
                     }

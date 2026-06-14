@@ -8,9 +8,6 @@ import java.lang.foreign.MemorySegment;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClientFFM;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -42,8 +39,6 @@ import oshi.hardware.GpuTicks;
 @ThreadSafe
 final class MacGpuStatsFFM implements GpuStats {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStatsFFM.class);
-
     private static final String PERF_STATS_KEY = "PerformanceStatistics";
     private static final String GPU_CORE_UTIL_KEY = "GPU Core Utilization";
     private static final String DEVICE_UTIL_KEY = "Device Utilization %";
@@ -53,7 +48,6 @@ final class MacGpuStatsFFM implements GpuStats {
     private static final Pattern TRADEMARK_PATTERN = Pattern.compile("[®™]|\\([Rr]\\)|\\([Tt][Mm]\\)");
 
     private final boolean isAppleSilicon;
-    private final String cardName;
     private final IOReportClientFFM ioReportClient;
     private final String normCardName;
     private final Pattern cardNamePattern;
@@ -62,7 +56,6 @@ final class MacGpuStatsFFM implements GpuStats {
 
     MacGpuStatsFFM(boolean isAppleSilicon, String cardName) {
         this.isAppleSilicon = isAppleSilicon;
-        this.cardName = cardName;
         this.ioReportClient = IOReportClientFFM.create();
         this.normCardName = TRADEMARK_PATTERN.matcher(cardName.toLowerCase(Locale.ROOT)).replaceAll("").trim();
         this.cardNamePattern = Pattern.compile("\\b" + Pattern.quote(normCardName) + "\\b");

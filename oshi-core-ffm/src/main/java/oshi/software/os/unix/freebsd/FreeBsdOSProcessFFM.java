@@ -63,7 +63,7 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
         return callInArenaOrDefault(arena -> {
             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_ARGS, getProcessID());
             MemorySegment buf = arena.allocate(ARGMAX);
-            MemorySegment size = arena.allocateFrom(SIZE_T, (long) ARGMAX);
+            MemorySegment size = arena.allocateFrom(SIZE_T, ARGMAX);
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             int rc = FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L);
             if (rc != 0) {
@@ -86,7 +86,7 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
         return callInArenaOrDefault(arena -> {
             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_ENV, getProcessID());
             MemorySegment buf = arena.allocate(ARGMAX);
-            MemorySegment size = arena.allocateFrom(SIZE_T, (long) ARGMAX);
+            MemorySegment size = arena.allocateFrom(SIZE_T, ARGMAX);
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             int rc = FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L);
             if (rc != 0) {
