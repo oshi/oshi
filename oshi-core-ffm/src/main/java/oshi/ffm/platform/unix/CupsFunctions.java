@@ -67,7 +67,6 @@ public final class CupsFunctions extends ForeignFunctions {
     public static final VarHandle CUPS_DEST_OPTIONS = CUPS_DEST_T
             .varHandle(MemoryLayout.PathElement.groupElement("options"));
 
-    private static final SymbolLookup CUPS_LIBRARY;
     private static final boolean AVAILABLE;
 
     // int cupsGetDests(cups_dest_t **dests);
@@ -99,7 +98,6 @@ public final class CupsFunctions extends ForeignFunctions {
         } catch (Throwable _) {
             // libcups not available or symbol binding failed; callers should fall back to lpstat
         }
-        CUPS_LIBRARY = lookup;
         AVAILABLE = available;
         cupsGetDests = hGetDests;
         cupsFreeDests = hFreeDests;

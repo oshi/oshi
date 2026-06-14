@@ -52,7 +52,6 @@ public final class AdlUtilFFM {
     private static final int PERF_STATUS_SIZE = 72;
     private static final long PERF_CORE_CLOCK_OFFSET = 0;
     private static final long PERF_MEMORY_CLOCK_OFFSET = 4;
-    private static final long PERF_GPU_ACTIVITY_OFFSET = 24;
 
     // ADLODNFanControl: 8 ints = 32 bytes
     private static final int FAN_CONTROL_SIZE = 32;

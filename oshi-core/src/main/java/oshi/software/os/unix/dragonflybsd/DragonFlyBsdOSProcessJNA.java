@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.jna.Memory;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.Resource;
@@ -29,8 +26,6 @@ import oshi.util.common.platform.unix.dragonflybsd.ProcstatUtil;
  */
 @ThreadSafe
 public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcessJNA.class);
 
     private final DragonFlyBsdOperatingSystemJNA os;
 
