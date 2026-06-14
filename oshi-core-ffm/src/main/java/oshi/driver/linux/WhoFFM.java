@@ -109,7 +109,7 @@ public final class WhoFFM {
 
             try {
                 // Read array of string pointers
-                MemorySegment ptrArray = sessions.reinterpret((long) count * ADDRESS.byteSize(), arena, null);
+                MemorySegment ptrArray = sessions.reinterpret(count * ADDRESS.byteSize(), arena, null);
                 for (int i = 0; i < count; i++) {
                     MemorySegment sessionIdPtr = ptrArray.getAtIndex(ADDRESS, i);
                     if (sessionIdPtr.equals(MemorySegment.NULL)) {
@@ -127,7 +127,7 @@ public final class WhoFFM {
                 }
             } finally {
                 // Free each string, then the array
-                MemorySegment ptrArray = sessions.reinterpret((long) count * ADDRESS.byteSize(), arena, null);
+                MemorySegment ptrArray = sessions.reinterpret(count * ADDRESS.byteSize(), arena, null);
                 for (int i = 0; i < count; i++) {
                     MemorySegment ptr = ptrArray.getAtIndex(ADDRESS, i);
                     if (!ptr.equals(MemorySegment.NULL)) {

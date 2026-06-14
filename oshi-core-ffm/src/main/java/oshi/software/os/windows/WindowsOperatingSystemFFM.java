@@ -180,7 +180,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 List<OSService> svcArray = new ArrayList<>(count);
 
                 for (int i = 0; i < count; i++) {
-                    long base = (long) i * ENUM_SERVICE_STATUS_PROCESS_SIZE;
+                    long base = i * ENUM_SERVICE_STATUS_PROCESS_SIZE;
                     MemorySegment pDisplayName = lpServices.get(ADDRESS, base + DISPLAY_NAME_OFFSET).reinterpret(512);
                     String displayName = readWideString(pDisplayName);
                     int currentState = lpServices.get(JAVA_INT, base + CURRENT_STATE_OFFSET);

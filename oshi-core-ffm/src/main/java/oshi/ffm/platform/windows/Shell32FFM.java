@@ -61,10 +61,10 @@ public final class Shell32FFM extends WindowsForeignFunctions {
 
                 List<String> args = new ArrayList<>(numArgs);
                 // Reinterpret the pointer array with proper size
-                MemorySegment argvArray = argvPtr.reinterpret((long) numArgs * ADDRESS.byteSize());
+                MemorySegment argvArray = argvPtr.reinterpret(numArgs * ADDRESS.byteSize());
 
                 for (int i = 0; i < numArgs; i++) {
-                    MemorySegment argPtr = argvArray.get(ADDRESS, (long) i * ADDRESS.byteSize());
+                    MemorySegment argPtr = argvArray.get(ADDRESS, i * ADDRESS.byteSize());
                     if (argPtr != null && argPtr.address() != 0) {
                         // Calculate string length by finding null terminator
                         // Reinterpret with large size to scan for null

@@ -126,7 +126,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @return the mutable partition list
      */
     protected List<HWPartition> getMutablePartitionList() {
-        return (List<HWPartition>) getPartitions();
+        return getPartitions();
     }
 
     /**

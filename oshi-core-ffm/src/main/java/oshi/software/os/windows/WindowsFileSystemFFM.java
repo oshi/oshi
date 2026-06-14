@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
@@ -39,8 +36,6 @@ import oshi.util.ParseUtil;
 
 @ThreadSafe
 public class WindowsFileSystemFFM extends AbstractFileSystem {
-
-    private static final Logger LOG = LoggerFactory.getLogger(WindowsFileSystemFFM.class);
 
     private static final int BUFSIZE = 255;
 
@@ -189,7 +184,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
                         if (Kernel32FFM.GetLastError().orElse(0) == 0x7A) { // ERROR_MORE_DATA
                             mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
-                            mountBuf = arena.allocate((long) mountBufSize * JAVA_CHAR.byteSize());
+                            mountBuf = arena.allocate(mountBufSize * JAVA_CHAR.byteSize());
                             pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
                                     mountBuf, mountBufSize, returnLengthBuf);
                         }
