@@ -154,15 +154,22 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@3248e8c61485588528c034a4285242f77efd8b97 # v1
         with:
-          mem: 8192
+          mem: 12288
+          # Cap below the runner's core count: shrinks libumem's per-CPU arenas and
+          # the JVM common ForkJoinPool (OSHI .parallel() streams), reducing the
+          # thread fan-out that drives the native-memory OOMs.
+          cpu: 2
           copyback: true
           prepare: |
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            export MAVEN_OPTS="-Xmx1g"
-            export _JAVA_OPTIONS="-Xmx1g"
+            # illumos OOMs here are native memory (thread stacks + GC/JIT/metaspace),
+            # not Java heap. Cap every native pool that grows with thread fan-out and
+            # use SerialGC (no parallel GC threads/structures) to keep the footprint flat.
+            # _JAVA_OPTIONS reaches the Maven JVM and the forked test JVM alike.
+            export _JAVA_OPTIONS="-Xmx1g -Xss512k -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:+UseSerialGC"
             # OpenIndiana-only: same parallelism cap as unix.yaml. illumos
             # libumem reserves per-CPU arenas; vthread-style unbounded fan-out
             # on blocking JNA exec calls trips Native memory allocation OOMs.
