@@ -43,12 +43,6 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStoreFFM.class);
 
-    private MacHWDiskStoreFFM(String name, String model, String serial, long size, DASessionRef session,
-            Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
-        super(name, model, serial, size);
-        updateDiskStats(session, mountPointMap, cfKeyMap);
-    }
-
     private MacHWDiskStoreFFM(String name, String model, String serial, long size, String diskType,
             DASessionRef session, Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
         super(name, model, serial, size, diskType);

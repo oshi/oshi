@@ -48,10 +48,6 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStoreFFM.class);
 
-    private WindowsHWDiskStoreFFM(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
-    }
-
     private WindowsHWDiskStoreFFM(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
     }
