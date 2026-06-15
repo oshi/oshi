@@ -9,7 +9,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,8 +43,8 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
      * @param factory   constructs the platform-specific instance
      * @return a list of {@link HWDiskStore} objects representing the disks
      */
-    protected static <T extends OpenBsdHWDiskStore> List<HWDiskStore> getDisks(
-            BiFunction<String, String, String> sysctlStr, DiskStoreFactory<T> factory) {
+    protected static <T extends OpenBsdHWDiskStore> List<HWDiskStore> getDisks(BinaryOperator<String> sysctlStr,
+            DiskStoreFactory<T> factory) {
         List<HWDiskStore> diskList = new ArrayList<>();
         List<String> dmesg = null;
 

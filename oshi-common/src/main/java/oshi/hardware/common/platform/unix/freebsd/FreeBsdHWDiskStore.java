@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.freebsd.disk.GeomDiskList;
@@ -63,8 +63,8 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
      * @param factory   constructs the platform-specific instance
      * @return a list of {@link HWDiskStore} objects representing the disks
      */
-    protected static <T extends FreeBsdHWDiskStore> List<HWDiskStore> getDisks(
-            BiFunction<String, String, String> sysctlStr, DiskStoreFactory<T> factory) {
+    protected static <T extends FreeBsdHWDiskStore> List<HWDiskStore> getDisks(BinaryOperator<String> sysctlStr,
+            DiskStoreFactory<T> factory) {
         List<HWDiskStore> diskList = new ArrayList<>();
 
         Map<String, List<HWPartition>> partitionMap = GeomPartList.queryPartitions();

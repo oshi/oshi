@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.mac;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Abstracts IOKit registry operations so that iteration logic can be shared between JNA and FFM implementations.
@@ -38,7 +39,7 @@ public interface IOKitProvider {
      * @param serviceName the IOService class name (e.g. "AppleARMIODevice")
      * @param visitor     function invoked for each matched entry; return {@code true} to stop iteration
      */
-    void forEachMatchingServiceUntil(String serviceName, Function<RegistryEntry, Boolean> visitor);
+    void forEachMatchingServiceUntil(String serviceName, Predicate<RegistryEntry> visitor);
 
     /**
      * A handle to an IORegistry entry, providing property access.

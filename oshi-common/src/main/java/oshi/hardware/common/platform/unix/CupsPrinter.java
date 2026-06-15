@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.unix;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Printer;
@@ -72,8 +73,8 @@ public abstract class CupsPrinter extends AbstractPrinter {
      * @return list of printers
      */
     static List<Printer> getPrintersFromLpstat(List<String> lpstatLines, String defaultPrinter,
-            Map<String, String> portMap, Map<String, String> descriptionMap,
-            java.util.function.Function<String, String> driverLookup, PrinterFactory factory) {
+            Map<String, String> portMap, Map<String, String> descriptionMap, UnaryOperator<String> driverLookup,
+            PrinterFactory factory) {
         List<Printer> printers = new ArrayList<>();
 
         for (String line : lpstatLines) {

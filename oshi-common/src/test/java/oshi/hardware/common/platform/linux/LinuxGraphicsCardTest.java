@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -197,7 +198,7 @@ class LinuxGraphicsCardTest {
             attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
 
     // No-op lookups for pure parsing tests
-    private static final Function<String, Long> NO_VRAM = slot -> 0L;
+    private static final ToLongFunction<String> NO_VRAM = slot -> 0L;
     private static final Function<String, Triplet<String, String, String>> NO_DRM = slot -> new Triplet<>("", "", "");
 
     @Test
