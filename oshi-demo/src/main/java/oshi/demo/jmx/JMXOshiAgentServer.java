@@ -54,7 +54,6 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     private Map<String, ?> properties;
 
     private MBeanServer server;
-    private JMXServiceURL address;
     private JMXConnectorServer cntorServer;
     private ContextRegistrationPlatform contextRegistrationPlatform;
     private static JMXOshiAgentServer jmxOshiAgentServer;
@@ -99,7 +98,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         if (LocateRegistry.getRegistry(this.port) != null)
             LocateRegistry.createRegistry(this.port);
 
-        address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + this.host + ":" + this.port + "/server");
+        JMXServiceURL address = new JMXServiceURL(
+                "service:jmx:rmi:///jndi/rmi://" + this.host + ":" + this.port + "/server");
         cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(address, this.properties, null);
         server = MBeanServerFactory.createMBeanServer();
         ObjectName cntorServerName = ObjectName.getInstance("connectors:protocol=rmi");

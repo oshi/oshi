@@ -58,7 +58,8 @@ public class NetworkMetrics implements MeterBinder {
     private final Supplier<List<NetworkIF>> networkIFSupplier;
     private final InternetProtocolStats ipStats;
 
-    // Strong reference to prevent GC of NetworkIF objects used by FunctionCounter
+    // Strong reference to prevent GC of NetworkIF objects used by FunctionCounter (Micrometer holds them weakly)
+    @SuppressWarnings("java:S1450") // deliberate GC root; must outlive bindTo(), not a method-local
     private List<NetworkIF> networkIFs;
 
     // Connection count cache to avoid repeated getConnections() calls per scrape
