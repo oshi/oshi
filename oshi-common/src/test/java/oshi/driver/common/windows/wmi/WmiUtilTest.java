@@ -30,57 +30,49 @@ class WmiUtilTest {
 
     @Test
     void testGetStringValid() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_STRING, WmiConstants.VT_BSTR,
-                "hello");
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_STRING, WmiConstants.VT_BSTR, "hello");
         assertThat(WmiUtil.getString(result, TestProp.NAME, 0), is("hello"));
     }
 
     @Test
     void testGetStringNull() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_STRING, WmiConstants.VT_BSTR,
-                null);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_STRING, WmiConstants.VT_BSTR, null);
         assertThat(WmiUtil.getString(result, TestProp.NAME, 0), is(""));
     }
 
     @Test
     void testGetStringWrongType() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_UINT32, WmiConstants.VT_I4,
-                42);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, 42);
         assertThrows(ClassCastException.class, () -> WmiUtil.getString(result, TestProp.NAME, 0));
     }
 
     @Test
     void testGetUint32Valid() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_UINT32, WmiConstants.VT_I4,
-                42);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, 42);
         assertThat(WmiUtil.getUint32(result, TestProp.SIZE, 0), is(42));
     }
 
     @Test
     void testGetUint32Null() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_UINT32, WmiConstants.VT_I4,
-                null);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, null);
         assertThat(WmiUtil.getUint32(result, TestProp.SIZE, 0), is(0));
     }
 
     @Test
     void testGetUint64Valid() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_UINT64, WmiConstants.VT_BSTR,
-                "123456789");
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT64, WmiConstants.VT_BSTR, "123456789");
         assertThat(WmiUtil.getUint64(result, TestProp.SIZE, 0), is(123456789L));
     }
 
     @Test
     void testGetUint32asLong() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_UINT32, WmiConstants.VT_I4,
-                -1);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, -1);
         assertThat(WmiUtil.getUint32asLong(result, TestProp.SIZE, 0), is(0xFFFFFFFFL));
     }
 
     @Test
     void testGetFloat() {
-        WmiResult<TestProp> result = new MockWmiResult<>(TestProp.class, WmiConstants.CIM_REAL32, WmiConstants.VT_R4,
-                3.14f);
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_REAL32, WmiConstants.VT_R4, 3.14f);
         assertThat(WmiUtil.getFloat(result, TestProp.SIZE, 0), is(3.14f));
     }
 
@@ -96,7 +88,7 @@ class WmiUtilTest {
         private final int vtType;
         private final Object value;
 
-        MockWmiResult(Class<T> enumClass, int cimType, int vtType, Object value) {
+        MockWmiResult(int cimType, int vtType, Object value) {
             this.cimType = cimType;
             this.vtType = vtType;
             this.value = value;
