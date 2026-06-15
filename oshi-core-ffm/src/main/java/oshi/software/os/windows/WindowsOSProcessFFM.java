@@ -345,16 +345,15 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                         MemorySegment envAddress = upp.get(ADDRESS, UPP_ENVIRONMENT_OFFSET);
                         if (envAddress.address() != 0) {
                             MemorySegment envBuffer = arena.allocate((int) envSize);
-                            if (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)) {
-                                if (bytesRead.get(JAVA_LONG, 0) > 0) {
-                                    char[] env = new char[(int) (envSize / 2)];
-                                    for (int i = 0; i < env.length; i++) {
-                                        env[i] = envBuffer.get(JAVA_CHAR, (long) i * 2);
-                                    }
-                                    Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
-                                    envMap.remove("");
-                                    return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
+                            if (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)
+                                    && bytesRead.get(JAVA_LONG, 0) > 0) {
+                                char[] env = new char[(int) (envSize / 2)];
+                                for (int i = 0; i < env.length; i++) {
+                                    env[i] = envBuffer.get(JAVA_CHAR, (long) i * 2);
                                 }
+                                Map<String, String> envMap = ParseUtil.parseCharArrayToStringMap(env);
+                                envMap.remove("");
+                                return new Triplet<>(cwd, cl, Collections.unmodifiableMap(envMap));
                             }
                         }
                     }

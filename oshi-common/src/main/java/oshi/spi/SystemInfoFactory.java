@@ -55,10 +55,8 @@ public final class SystemInfoFactory {
         while (iterator.hasNext()) {
             try {
                 SystemInfoProvider provider = iterator.next();
-                if (provider.isAvailable()) {
-                    if (best == null || provider.getPriority() > best.getPriority()) {
-                        best = provider;
-                    }
+                if (provider.isAvailable() && (best == null || provider.getPriority() > best.getPriority())) {
+                    best = provider;
                 }
             } catch (ServiceConfigurationError | RuntimeException e) {
                 LOG.debug("Skipping unavailable provider: {}", e.getMessage());

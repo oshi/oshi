@@ -6,6 +6,7 @@ package oshi.hardware.platform.mac;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
@@ -45,14 +46,14 @@ final class IOKitProviderJNA implements IOKitProvider {
     }
 
     @Override
-    public void forEachMatchingServiceUntil(String serviceName, Function<RegistryEntry, Boolean> visitor) {
+    public void forEachMatchingServiceUntil(String serviceName, Predicate<RegistryEntry> visitor) {
         IOIterator iter = IOKitUtil.getMatchingServices(serviceName);
         if (iter != null) {
             try {
                 IORegistryEntry entry = iter.next();
                 while (entry != null) {
                     try {
-                        if (Boolean.TRUE.equals(visitor.apply(new JnaRegistryEntry(entry)))) {
+                        if (visitor.test(new JnaRegistryEntry(entry))) {
                             return;
                         }
                     } finally {

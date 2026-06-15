@@ -181,13 +181,13 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
                     int mountBufSize = BUFSIZE;
                     var pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
                             mountBuf, mountBufSize, returnLengthBuf);
-                    if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
-                        if (Kernel32FFM.GetLastError().orElse(0) == 0x7A) { // ERROR_MORE_DATA
-                            mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
-                            mountBuf = arena.allocate(mountBufSize * JAVA_CHAR.byteSize());
-                            pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
-                                    mountBuf, mountBufSize, returnLengthBuf);
-                        }
+                    // ERROR_MORE_DATA
+                    if ((pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0)
+                            && Kernel32FFM.GetLastError().orElse(0) == 0x7A) {
+                        mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
+                        mountBuf = arena.allocate(mountBufSize * JAVA_CHAR.byteSize());
+                        pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
+                                mountBuf, mountBufSize, returnLengthBuf);
                     }
                     if (pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0) {
                         continue;

@@ -127,10 +127,10 @@ public final class ParseUtil {
     public static final Pattern whitespaces = Pattern.compile("\\s+");
 
     /** Constant <code>notDigits</code> */
-    public static final Pattern notDigits = Pattern.compile("[^0-9]+");
+    public static final Pattern notDigits = Pattern.compile("\\D+");
 
     /** Constant <code>startWithNotDigits</code> */
-    public static final Pattern startWithNotDigits = Pattern.compile("^[^0-9]*");
+    public static final Pattern startWithNotDigits = Pattern.compile("^\\D*");
 
     /** Constant <code>forwardSlash</code> */
     public static final Pattern slash = Pattern.compile("\\/");
@@ -995,7 +995,7 @@ public final class ParseUtil {
             }
         }
         long capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
-        if (mem.length == 2 && mem[1].length() > 0) {
+        if (mem.length == 2 && !mem[1].isEmpty()) {
             switch (mem[1].charAt(0)) {
                 case 'T':
                     capacity <<= 40;

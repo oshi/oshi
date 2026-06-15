@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,7 +269,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      * @param rowProcessor  processor to populate result object from WMI row
      * @return list of result objects, empty list if query fails
      */
-    public <T> List<T> queryWMI(String wmiClassName, String whereClause, java.util.function.Supplier<T> resultFactory,
+    public <T> List<T> queryWMI(String wmiClassName, String whereClause, Supplier<T> resultFactory,
             TriConsumer<MemorySegment, Arena, T> rowProcessor) {
         return queryWMI(WbemcliFFM.DEFAULT_NAMESPACE, wmiClassName, whereClause, resultFactory, rowProcessor);
     }
@@ -284,8 +285,8 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      * @param rowProcessor  processor to populate result object from WMI row
      * @return list of result objects, empty list if query fails
      */
-    public <T> List<T> queryWMI(String namespace, String wmiClassName, String whereClause,
-            java.util.function.Supplier<T> resultFactory, TriConsumer<MemorySegment, Arena, T> rowProcessor) {
+    public <T> List<T> queryWMI(String namespace, String wmiClassName, String whereClause, Supplier<T> resultFactory,
+            TriConsumer<MemorySegment, Arena, T> rowProcessor) {
         if (failedWmiClassNames.contains(wmiClassName)) {
             return new ArrayList<>();
         }

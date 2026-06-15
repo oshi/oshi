@@ -13,7 +13,6 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
-import oshi.hardware.GraphicsCard;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
@@ -66,7 +65,4 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     public List<BluetoothDevice> getBluetoothDevices() {
         return LinuxBluetoothDevice.getBluetoothDevices();
     }
-
-    @Override
-    public abstract List<GraphicsCard> getGraphicsCards();
 }

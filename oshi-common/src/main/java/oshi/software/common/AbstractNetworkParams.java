@@ -67,7 +67,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             String line = resolv.get(i);
             if (line.startsWith(key)) {
                 String value = line.substring(key.length()).replaceFirst("^[ \t]+", "");
-                if (value.length() != 0 && value.charAt(0) != '#' && value.charAt(0) != ';') {
+                if (!value.isEmpty() && value.charAt(0) != '#' && value.charAt(0) != ';') {
                     String val = value.split("[ \t#;]", 2)[0];
                     servers.add(val);
                 }

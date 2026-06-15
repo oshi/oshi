@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
@@ -213,7 +214,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @return list of graphics cards
      */
     static List<GraphicsCard> getGraphicsCardsFromLspci(List<String> lspci, Function<Attrs, GraphicsCard> factory,
-            Function<String, Long> vramLookup, Function<String, Triplet<String, String, String>> drmLookup) {
+            ToLongFunction<String> vramLookup, Function<String, Triplet<String, String, String>> drmLookup) {
         List<GraphicsCard> cardList = new ArrayList<>();
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
@@ -242,8 +243,8 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
                     Triplet<String, String, String> drmInfo = drmLookup.apply(lookupDevice);
                     cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                            lookupDevice != null ? vramLookup.apply(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
-                            drmInfo.getC())));
+                            lookupDevice != null ? vramLookup.applyAsLong(lookupDevice) : 0L, drmInfo.getA(),
+                            drmInfo.getB(), drmInfo.getC())));
                     versionInfoList.clear();
                     found = false;
                 } else {
@@ -271,7 +272,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             Triplet<String, String, String> drmInfo = drmLookup.apply(lookupDevice);
             cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList),
-                    lookupDevice != null ? vramLookup.apply(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
+                    lookupDevice != null ? vramLookup.applyAsLong(lookupDevice) : 0L, drmInfo.getA(), drmInfo.getB(),
                     drmInfo.getC())));
         }
         return cardList;

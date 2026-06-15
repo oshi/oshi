@@ -6,6 +6,7 @@ package oshi.hardware.platform.mac;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
@@ -42,14 +43,14 @@ final class IOKitProviderFFM implements IOKitProvider {
     }
 
     @Override
-    public void forEachMatchingServiceUntil(String serviceName, Function<RegistryEntry, Boolean> visitor) {
+    public void forEachMatchingServiceUntil(String serviceName, Predicate<RegistryEntry> visitor) {
         IOIterator iter = IOKitUtilFFM.getMatchingServices(serviceName);
         if (iter != null) {
             try (iter) {
                 IORegistryEntry entry = iter.next();
                 while (entry != null) {
                     try (IORegistryEntry current = entry) {
-                        if (Boolean.TRUE.equals(visitor.apply(new FfmRegistryEntry(current)))) {
+                        if (visitor.test(new FfmRegistryEntry(current))) {
                             return;
                         }
                     }

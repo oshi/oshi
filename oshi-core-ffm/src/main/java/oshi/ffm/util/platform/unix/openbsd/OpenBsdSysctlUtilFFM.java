@@ -190,7 +190,10 @@ public final class OpenBsdSysctlUtilFFM {
         MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
         int result = OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, oldp, oldlenp, MemorySegment.NULL, 0L);
         if (result != 0) {
-            LOG.warn(SYSCTL_FAIL, Arrays.toString(mib), getErrno(callState));
+            // Guard so the native getErrno read is skipped when WARN is disabled
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(SYSCTL_FAIL, Arrays.toString(mib), getErrno(callState));
+            }
             return false;
         }
         return true;

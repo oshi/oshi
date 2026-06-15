@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,7 +246,7 @@ public abstract class WindowsSensors extends AbstractSensors {
     }
 
     private static double getAverageValueFromLHM(String hardwareType, String sensorType,
-            BiFunction<String, Double, Boolean> sensorValidFunction) {
+            BiPredicate<String, Double> sensorValidFunction) {
         List<?> sensors = getLhmSensors(hardwareType, sensorType);
         if (sensors == null || sensors.isEmpty()) {
             return 0;
@@ -263,7 +263,7 @@ public abstract class WindowsSensors extends AbstractSensors {
             for (Object sensor : sensors) {
                 String name = (String) getNameMethod.invoke(sensor);
                 double value = (double) getValueMethod.invoke(sensor);
-                if (sensorValidFunction.apply(name, value)) {
+                if (sensorValidFunction.test(name, value)) {
                     sum += value;
                     validCount++;
                 }

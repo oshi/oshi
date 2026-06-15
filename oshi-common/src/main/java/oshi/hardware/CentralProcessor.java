@@ -799,7 +799,7 @@ public interface CentralProcessor {
             if (this == obj) {
                 return true;
             }
-            if (obj == null || !(obj instanceof ProcessorCache)) {
+            if (!(obj instanceof ProcessorCache)) {
                 return false;
             }
             ProcessorCache other = (ProcessorCache) obj;

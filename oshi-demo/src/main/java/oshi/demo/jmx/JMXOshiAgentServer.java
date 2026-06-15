@@ -116,14 +116,12 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         StrategyRegistrationPlatformMBeans platformMBeans = null;
         SystemInfo si = new SystemInfo();
 
-        switch (PlatformEnum.getCurrentPlatform()) {
-            case WINDOWS:
-                platformMBeans = new WindowsStrategyRegistrattionPlatform();
-                contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);
-                break;
-            default:
-                System.out.println("Couldn't Initialize server ");
-                throw new Exception("Server could not be initialized");
+        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS) {
+            platformMBeans = new WindowsStrategyRegistrattionPlatform();
+            contextRegistrationPlatform.setStrategyRegistrationContext(platformMBeans);
+        } else {
+            System.out.println("Couldn't Initialize server ");
+            throw new Exception("Server could not be initialized");
         }
 
         platformMBeans.registerMBeans(si, this.server);

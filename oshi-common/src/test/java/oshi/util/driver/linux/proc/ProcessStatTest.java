@@ -80,7 +80,7 @@ class ProcessStatTest {
         Triplet<String, Character, Map<PidStat, Long>> stats = ProcessStat.getPidStats(pid);
         assertNotNull(stats);
         State procState = ProcessStat.getState(stats.getB());
-        return stats.getA().length() > 0 // at least one process should have nonempty name
+        return !stats.getA().isEmpty() // at least one process should have nonempty name
                 // At least one process should be running or sleeping
                 && (procState.equals(OSProcess.State.RUNNING) || procState.equals(OSProcess.State.SLEEPING))
                 // Have keys at least up to RSS
