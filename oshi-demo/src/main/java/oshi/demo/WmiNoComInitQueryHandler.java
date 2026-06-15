@@ -9,9 +9,6 @@ import oshi.util.platform.windows.WmiQueryHandler;
 /**
  * Query handler class that avoids COM initialization overhead assuming COM is already initialized by the user.
  */
-/**
- * WMI query handler that does not initialize COM.
- */
 public class WmiNoComInitQueryHandler extends WmiQueryHandler {
 
     /**
