@@ -403,9 +403,9 @@ public final class Advapi32UtilFFM {
 
             long event6005Time = 0L;
 
-            long OFFSET_EVENTID = WinNTFFM.OFFSET_EVENTID;
-            long OFFSET_TIME_GENERATED = WinNTFFM.OFFSET_TIME_GENERATED;
-            long OFFSET_LENGTH = WinNTFFM.OFFSET_LENGTH;
+            long offsetEventId = WinNTFFM.OFFSET_EVENTID;
+            long offsetTimeGenerated = WinNTFFM.OFFSET_TIME_GENERATED;
+            long offsetLength = WinNTFFM.OFFSET_LENGTH;
 
             while (Advapi32FFM.ReadEventLog(hEventLog,
                     WinNTFFM.EVENTLOG_BACKWARDS_READ | WinNTFFM.EVENTLOG_SEQUENTIAL_READ, buffer, bufSize, bytesRead,
@@ -417,8 +417,8 @@ public final class Advapi32UtilFFM {
                 while (offset < read) {
                     MemorySegment record = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
 
-                    int eventId = record.get(JAVA_INT, (int) OFFSET_EVENTID);
-                    long timeGenerated = Integer.toUnsignedLong(record.get(JAVA_INT, (int) OFFSET_TIME_GENERATED));
+                    int eventId = record.get(JAVA_INT, (int) offsetEventId);
+                    long timeGenerated = Integer.toUnsignedLong(record.get(JAVA_INT, (int) offsetTimeGenerated));
 
                     if (eventId == 12) { // system boot
                         Advapi32FFM.CloseEventLog(hEventLog);
@@ -432,7 +432,7 @@ public final class Advapi32UtilFFM {
                     }
 
                     // Advance to next record
-                    int length = record.get(JAVA_INT, (int) OFFSET_LENGTH);
+                    int length = record.get(JAVA_INT, (int) offsetLength);
                     offset += length;
                 }
             }
