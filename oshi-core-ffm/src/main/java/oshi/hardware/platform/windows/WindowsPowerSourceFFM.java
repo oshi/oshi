@@ -207,8 +207,14 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                             psDesignCapacity = bi.get(JAVA_INT, OFF_BI_DESIGNED);
                             psMaxCapacity = bi.get(JAVA_INT, OFF_BI_FULL);
                             psCycleCount = bi.get(JAVA_INT, OFF_BI_CYCLE);
-                            int maxCapacitySafe = psMaxCapacity > 0 ? psMaxCapacity
-                                    : psDesignCapacity > 0 ? psDesignCapacity : 1;
+                            int maxCapacitySafe;
+                            if (psMaxCapacity > 0) {
+                                maxCapacitySafe = psMaxCapacity;
+                            } else if (psDesignCapacity > 0) {
+                                maxCapacitySafe = psDesignCapacity;
+                            } else {
+                                maxCapacitySafe = 1;
+                            }
 
                             // Query battery status
                             MemorySegment bws = arena.allocate(BATTERY_WAIT_STATUS);

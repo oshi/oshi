@@ -60,7 +60,12 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
             long size = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(sysPath + SIZE).trim(), 0L)
                     * SECTORSIZE;
             String rotational = FileUtil.getStringFromFile(sysPath + "queue/rotational").trim();
-            String diskType = "1".equals(rotational) ? "HDD" : "0".equals(rotational) ? "SSD" : "";
+            String diskType = "";
+            if ("1".equals(rotational)) {
+                diskType = "HDD";
+            } else if ("0".equals(rotational)) {
+                diskType = "SSD";
+            }
 
             LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + name, model, serial, size, diskType);
 
