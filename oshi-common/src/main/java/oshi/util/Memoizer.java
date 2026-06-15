@@ -49,7 +49,7 @@ public final class Memoizer {
      * Store a supplier in a delegate function to be computed once, and only again after time to live (ttl) has expired.
      *
      * @param <T>      The type of object supplied
-     * @param original The {@link java.util.function.Supplier} to memoize
+     * @param original The {@link Supplier} to memoize
      * @param ttlNanos Time in nanoseconds to retain calculation. If negative, retain indefinitely.
      * @return A memoized version of the supplier
      */
@@ -84,7 +84,7 @@ public final class Memoizer {
      * Store a supplier in a delegate function to be computed only once.
      *
      * @param <T>      The type of object supplied
-     * @param original The {@link java.util.function.Supplier} to memoize
+     * @param original The {@link Supplier} to memoize
      * @return A memoized version of the supplier
      */
     public static <T> Supplier<T> memoize(Supplier<T> original) {
