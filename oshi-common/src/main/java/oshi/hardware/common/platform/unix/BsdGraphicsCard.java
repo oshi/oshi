@@ -23,6 +23,7 @@ import oshi.util.ExecutingCommand;
 public final class BsdGraphicsCard extends AbstractGraphicsCard {
 
     private static final String PCI_CLASS_DISPLAY = "Class: 03 Display";
+    private static final String UNKNOWN_PCI_ID = "0x0000";
     private static final Pattern PCI_DUMP_HEADER = Pattern.compile(" \\d+:\\d+:\\d+: (.+)");
 
     public BsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
@@ -50,7 +51,8 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
             if (m.matches()) {
                 if (classCodeFound) {
                     cardList.add(new BsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
-                            productId.isEmpty() ? "0x0000" : productId, vendorId.isEmpty() ? "0x0000" : vendorId,
+                            productId.isEmpty() ? UNKNOWN_PCI_ID : productId,
+                            vendorId.isEmpty() ? UNKNOWN_PCI_ID : vendorId,
                             versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
                 }
                 name = m.group(1);
@@ -82,7 +84,7 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
         }
         if (classCodeFound) {
             cardList.add(new BsdGraphicsCard(name.isEmpty() ? Constants.UNKNOWN : name,
-                    productId.isEmpty() ? "0x0000" : productId, vendorId.isEmpty() ? "0x0000" : vendorId,
+                    productId.isEmpty() ? UNKNOWN_PCI_ID : productId, vendorId.isEmpty() ? UNKNOWN_PCI_ID : vendorId,
                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
         }
         return cardList;
