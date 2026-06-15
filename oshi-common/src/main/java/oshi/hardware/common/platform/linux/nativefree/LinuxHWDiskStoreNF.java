@@ -50,11 +50,9 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
 
             // Filter to real disks (skip loop, ram, etc.)
             String devType = FileUtil.getStringFromFile(sysPath + "device/type").trim();
-            if (devType.isEmpty()) {
-                // No device/type means it's a virtual device; check if it has a device/ subdir
-                if (!new File(sysPath + "device").exists()) {
-                    continue;
-                }
+            // No device/type means it's a virtual device; check if it has a device/ subdir
+            if (devType.isEmpty() && !new File(sysPath + "device").exists()) {
+                continue;
             }
 
             String model = FileUtil.getStringFromFile(sysPath + "device/model").trim();

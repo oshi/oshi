@@ -215,11 +215,9 @@ public final class MacInstalledApps {
 
     static String parseStringArray(String arrayInner) {
         int lt = arrayInner.indexOf('<');
-        if (lt >= 0) {
-            if (startsWith(arrayInner, lt, TAG_STRING_OPEN)) {
-                String inner = extractSimpleInner(arrayInner, lt, TAG_STRING_OPEN, TAG_STRING_CLOSE);
-                return unescape(inner);
-            }
+        if (lt >= 0 && startsWith(arrayInner, lt, TAG_STRING_OPEN)) {
+            String inner = extractSimpleInner(arrayInner, lt, TAG_STRING_OPEN, TAG_STRING_CLOSE);
+            return unescape(inner);
         }
         return null;
     }

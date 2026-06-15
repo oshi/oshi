@@ -51,12 +51,10 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                 for (int i = 0; i < count; i++) {
                     MemorySegment pNetIf = cfArray.getValueAtIndex(i);
                     MemorySegment cfNameSeg = SCNetworkInterfaceGetBSDName(pNetIf);
-                    if (!cfNameSeg.equals(MemorySegment.NULL)) {
-                        if (name.equals(CFStringRef.stringValue(cfNameSeg))) {
-                            MemorySegment cfDisplayNameSeg = SCNetworkInterfaceGetLocalizedDisplayName(pNetIf);
-                            if (!cfDisplayNameSeg.equals(MemorySegment.NULL)) {
-                                return CFStringRef.stringValue(cfDisplayNameSeg);
-                            }
+                    if (!cfNameSeg.equals(MemorySegment.NULL) && name.equals(CFStringRef.stringValue(cfNameSeg))) {
+                        MemorySegment cfDisplayNameSeg = SCNetworkInterfaceGetLocalizedDisplayName(pNetIf);
+                        if (!cfDisplayNameSeg.equals(MemorySegment.NULL)) {
+                            return CFStringRef.stringValue(cfDisplayNameSeg);
                         }
                     }
                 }
