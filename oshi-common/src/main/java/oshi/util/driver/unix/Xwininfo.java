@@ -32,7 +32,7 @@ public final class Xwininfo {
     private static final String[] XPROP_NET_WM_PID_ID = ParseUtil.whitespaces.split("xprop _NET_WM_PID -id");
 
     private static final Pattern WINDOW_PATTERN = Pattern.compile(
-            "(0x\\S+) (?:\"(.+)\")?.*: \\((?:\"(.+)\" \".+\")?\\)  (\\d+)x(\\d+)\\+.+  \\+(-?\\d+)\\+(-?\\d+)");
+            "(0x\\S+) (?:\"(.+)\")?.*: \\((?:\"(.+)\" \".+\")?\\) {2}(\\d+)x(\\d+)\\+.+ {2}\\+(-?\\d+)\\+(-?\\d+)");
 
     private Xwininfo() {
     }

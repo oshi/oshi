@@ -231,7 +231,7 @@ public class WindowsFileSystemJNA extends AbstractFileSystem {
             } else {
                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
                 String[] split = volume.split("\\\\");
-                if (split.length > 1 && split[split.length - 1].length() > 0) {
+                if (split.length > 1 && !split[split.length - 1].isEmpty()) {
                     description = split[split.length - 1];
                 }
             }

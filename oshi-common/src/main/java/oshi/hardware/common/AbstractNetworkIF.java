@@ -110,7 +110,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
             for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                 InetAddress address = interfaceAddress.getAddress();
-                if (address.getHostAddress().length() > 0) {
+                if (!address.getHostAddress().isEmpty()) {
                     if (address.getHostAddress().contains(":")) {
                         ipv6list.add(address.getHostAddress().split("%")[0]);
                         prefixLengthList.add(interfaceAddress.getNetworkPrefixLength());

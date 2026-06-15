@@ -397,7 +397,7 @@ public final class SystemInfoHelper {
             long total = fs.getTotalSpace();
             lines.add(String.format(Locale.ROOT,
                     " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
-                            + (fs.getLogicalVolume() != null && fs.getLogicalVolume().length() > 0 ? "[%s]" : "%s")
+                            + (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s")
                             + " and is mounted at %s",
                     fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
@@ -490,7 +490,7 @@ public final class SystemInfoHelper {
             lines.add(" None detected.");
         } else {
             for (BluetoothDevice device : list) {
-                lines.add(" " + String.valueOf(device));
+                lines.add(" " + device);
             }
         }
     }
@@ -504,7 +504,7 @@ public final class SystemInfoHelper {
     public static void printSoundCards(List<String> lines, List<SoundCard> list) {
         lines.add("Sound Cards:");
         for (SoundCard card : list) {
-            lines.add(" " + String.valueOf(card));
+            lines.add(" " + card);
         }
     }
 
@@ -520,7 +520,7 @@ public final class SystemInfoHelper {
             lines.add(" None detected.");
         } else {
             for (GraphicsCard card : list) {
-                lines.add(" " + String.valueOf(card));
+                lines.add(" " + card);
             }
         }
     }
@@ -537,7 +537,7 @@ public final class SystemInfoHelper {
             lines.add(" None detected.");
         } else {
             for (Printer printer : list) {
-                lines.add(" " + String.valueOf(printer));
+                lines.add(" " + printer);
             }
         }
     }
