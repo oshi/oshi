@@ -312,6 +312,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(ObjectName name, byte[] data)
@@ -319,6 +324,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(String className, byte[] data)
@@ -326,6 +336,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(String className, ObjectName loaderName, byte[] data)
