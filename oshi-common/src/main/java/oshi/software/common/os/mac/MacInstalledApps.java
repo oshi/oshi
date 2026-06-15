@@ -34,6 +34,11 @@ public final class MacInstalledApps {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacInstalledApps.class);
 
+    private static final String TAG_STRING_OPEN = "<string>";
+    private static final String TAG_STRING_CLOSE = "</string>";
+    private static final String TAG_ARRAY_OPEN = "<array>";
+    private static final String TAG_ARRAY_CLOSE = "</array>";
+
     private MacInstalledApps() {
     }
 
@@ -146,12 +151,12 @@ public final class MacInstalledApps {
             return Collections.emptyList();
         }
 
-        int arrayOpen = xml.indexOf("<array>", m.end());
+        int arrayOpen = xml.indexOf(TAG_ARRAY_OPEN, m.end());
         if (arrayOpen < 0) {
             return Collections.emptyList();
         }
 
-        String arrayBody = extractBalancedInner(xml, arrayOpen, "<array>", "</array>");
+        String arrayBody = extractBalancedInner(xml, arrayOpen, TAG_ARRAY_OPEN, TAG_ARRAY_CLOSE);
         if (arrayBody == null) {
             return Collections.emptyList();
         }
@@ -184,19 +189,19 @@ public final class MacInstalledApps {
             }
 
             String val;
-            if (startsWith(dictInner, vOpen, "<string>")) {
-                String inner = extractSimpleInner(dictInner, vOpen, "<string>", "</string>");
+            if (startsWith(dictInner, vOpen, TAG_STRING_OPEN)) {
+                String inner = extractSimpleInner(dictInner, vOpen, TAG_STRING_OPEN, TAG_STRING_CLOSE);
                 val = unescape(inner);
-                pos = dictInner.indexOf("</string>", vOpen) + "</string>".length();
+                pos = dictInner.indexOf(TAG_STRING_CLOSE, vOpen) + TAG_STRING_CLOSE.length();
             } else if (startsWith(dictInner, vOpen, "<date>")) {
                 String inner = extractSimpleInner(dictInner, vOpen, "<date>", "</date>");
                 val = inner.trim();
                 pos = dictInner.indexOf("</date>", vOpen) + "</date>".length();
-            } else if (startsWith(dictInner, vOpen, "<array>")) {
-                String inner = extractBalancedInner(dictInner, vOpen, "<array>", "</array>");
+            } else if (startsWith(dictInner, vOpen, TAG_ARRAY_OPEN)) {
+                String inner = extractBalancedInner(dictInner, vOpen, TAG_ARRAY_OPEN, TAG_ARRAY_CLOSE);
                 String parsed = inner == null ? null : parseStringArray(inner);
                 val = parsed == null ? "" : parsed;
-                pos = dictInner.indexOf("</array>", vOpen) + "</array>".length();
+                pos = dictInner.indexOf(TAG_ARRAY_CLOSE, vOpen) + TAG_ARRAY_CLOSE.length();
             } else {
                 // other irrelevant tags: go to next tag
                 pos = vOpen + 1;
@@ -211,8 +216,8 @@ public final class MacInstalledApps {
     static String parseStringArray(String arrayInner) {
         int lt = arrayInner.indexOf('<');
         if (lt >= 0) {
-            if (startsWith(arrayInner, lt, "<string>")) {
-                String inner = extractSimpleInner(arrayInner, lt, "<string>", "</string>");
+            if (startsWith(arrayInner, lt, TAG_STRING_OPEN)) {
+                String inner = extractSimpleInner(arrayInner, lt, TAG_STRING_OPEN, TAG_STRING_CLOSE);
                 return unescape(inner);
             }
         }
@@ -290,10 +295,10 @@ public final class MacInstalledApps {
     private static String readStringValue(String xml, String keyName) {
         int i = xml.indexOf("<key>" + keyName + "</key>");
         if (i > 0) {
-            i = xml.indexOf("<string>", i);
+            i = xml.indexOf(TAG_STRING_OPEN, i);
             if (i > 0) {
-                i += 8; // lengh of "<string>"
-                int e = xml.indexOf("</string>", i);
+                i += TAG_STRING_OPEN.length();
+                int e = xml.indexOf(TAG_STRING_CLOSE, i);
                 if (e > 0) {
                     return xml.substring(i, e);
                 }

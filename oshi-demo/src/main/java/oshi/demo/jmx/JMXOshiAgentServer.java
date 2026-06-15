@@ -7,6 +7,7 @@ package oshi.demo.jmx;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.rmi.registry.LocateRegistry;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -185,12 +186,12 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
 
     @Override
     public Set<ObjectInstance> queryMBeans(ObjectName name, QueryExp query) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public Set<ObjectName> queryNames(ObjectName name, QueryExp query) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -212,7 +213,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     @Override
     public AttributeList getAttributes(ObjectName name, String[] attributes)
             throws InstanceNotFoundException, ReflectionException {
-        return null;
+        return new AttributeList();
     }
 
     @Override
@@ -224,7 +225,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     @Override
     public AttributeList setAttributes(ObjectName name, AttributeList attributes)
             throws InstanceNotFoundException, ReflectionException {
-        return null;
+        return new AttributeList();
     }
 
     @Override
@@ -314,18 +315,21 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     }
 
     @Override
+    @Deprecated
     public ObjectInputStream deserialize(ObjectName name, byte[] data)
             throws InstanceNotFoundException, OperationsException {
         return null;
     }
 
     @Override
+    @Deprecated
     public ObjectInputStream deserialize(String className, byte[] data)
             throws OperationsException, ReflectionException {
         return null;
     }
 
     @Override
+    @Deprecated
     public ObjectInputStream deserialize(String className, ObjectName loaderName, byte[] data)
             throws InstanceNotFoundException, OperationsException, ReflectionException {
         return null;

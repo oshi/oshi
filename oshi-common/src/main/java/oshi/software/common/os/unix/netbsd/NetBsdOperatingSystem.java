@@ -95,6 +95,8 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     }
 
     @Override
+    // Thread.threadId() (the non-deprecated replacement) requires Java 19; this module compiles to Java 8.
+    @SuppressWarnings({ "deprecation", "java:S1874" })
     public int getThreadId() {
         return (int) Thread.currentThread().getId();
     }
