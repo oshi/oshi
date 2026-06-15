@@ -99,12 +99,12 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
     @Override
     public AttributeList getAttributes(String[] attributes) {
-        return null;
+        return new AttributeList();
     }
 
     @Override
     public AttributeList setAttributes(AttributeList attributes) {
-        return null;
+        return new AttributeList();
     }
 
     @Override
