@@ -4,6 +4,7 @@
  */
 package oshi.software.os.unix.aix;
 
+import static com.sun.jna.platform.unix.Resource.RLIMIT_NOFILE;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
@@ -67,7 +68,7 @@ public final class AixOSProcessJNA extends AixOSProcess {
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            if (AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit) == 0) {
+            if (AixLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit) == 0) {
                 return rlimit.rlim_cur;
             }
         }
@@ -78,7 +79,7 @@ public final class AixOSProcessJNA extends AixOSProcess {
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            if (AixLibc.INSTANCE.getrlimit(AixLibc.RLIMIT_NOFILE, rlimit) == 0) {
+            if (AixLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit) == 0) {
                 return rlimit.rlim_max;
             }
         }

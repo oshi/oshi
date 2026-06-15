@@ -4,6 +4,9 @@
  */
 package oshi.software.os.linux;
 
+import static com.sun.jna.platform.unix.Resource.RLIMIT_NOFILE;
+import static oshi.jna.platform.unix.CLibrary.RUSAGE_SELF;
+
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -31,7 +34,7 @@ public class LinuxOSProcessJNA extends LinuxOSProcess {
         if (getProcessID() == getOs().getProcessId()) {
             this.rusagePopulated = false;
             LinuxLibc.Rusage rusage = new LinuxLibc.Rusage();
-            if (0 == LinuxLibc.INSTANCE.getrusage(LinuxLibc.RUSAGE_SELF, rusage)) {
+            if (0 == LinuxLibc.INSTANCE.getrusage(RUSAGE_SELF, rusage)) {
                 this.cachedVoluntaryContextSwitches = rusage.ru_nvcsw.longValue();
                 this.cachedInvoluntaryContextSwitches = rusage.ru_nivcsw.longValue();
                 this.rusagePopulated = true;
@@ -59,7 +62,7 @@ public class LinuxOSProcessJNA extends LinuxOSProcess {
     @Override
     protected long queryRlimitSoft() {
         final Resource.Rlimit rlimit = new Resource.Rlimit();
-        if (0 == LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit)) {
+        if (0 == LinuxLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit)) {
             return rlimit.rlim_cur;
         }
         return getProcessOpenFileLimit(getProcessID(), 1);
@@ -68,7 +71,7 @@ public class LinuxOSProcessJNA extends LinuxOSProcess {
     @Override
     protected long queryRlimitHard() {
         final Resource.Rlimit rlimit = new Resource.Rlimit();
-        if (0 == LinuxLibc.INSTANCE.getrlimit(LinuxLibc.RLIMIT_NOFILE, rlimit)) {
+        if (0 == LinuxLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit)) {
             return rlimit.rlim_max;
         }
         return getProcessOpenFileLimit(getProcessID(), 2);
