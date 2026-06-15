@@ -145,7 +145,10 @@ public final class BsdSysctlUtilFFM {
         MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
         int result = FreeBsdLibcFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
         if (result != 0) {
-            LOG.warn(SYSCTL_FAIL, name.getString(0), getErrno(callState));
+            // Guard so the native getErrno read is skipped when WARN is disabled
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(SYSCTL_FAIL, name.getString(0), getErrno(callState));
+            }
             return false;
         }
         return true;

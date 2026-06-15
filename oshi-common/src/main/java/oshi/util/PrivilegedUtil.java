@@ -132,6 +132,7 @@ public final class PrivilegedUtil {
     }
 
     private static String queryPrefix() {
+        // Switch (rather than if) is intentional: kept open for additional per-OS prefixes as platform support grows.
         switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_PREFIX, "");
@@ -141,6 +142,7 @@ public final class PrivilegedUtil {
     }
 
     private static Set<String> queryCommandAllowlist() {
+        // Switch (rather than if) is intentional: kept open for additional per-OS allowlists as platform support grows.
         switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_ALLOWLIST, ""));
@@ -150,6 +152,7 @@ public final class PrivilegedUtil {
     }
 
     private static Set<String> queryFileAllowlist() {
+        // Switch (rather than if) is intentional: kept open for additional per-OS allowlists as platform support grows.
         switch (PlatformEnum.getCurrentPlatform()) {
             case LINUX:
                 return parseAllowlist(GlobalConfig.get(OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, ""));

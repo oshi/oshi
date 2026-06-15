@@ -70,7 +70,7 @@ public final class RegistryUtil {
             if (hKey != null) {
                 int rc = ADV.RegCloseKey(hKey);
                 if (rc != ERROR_SUCCESS) {
-                    LOG.trace("Unable to close registry key " + path + ": " + rc);
+                    LOG.trace("Unable to close registry key {}: {}", path, rc);
                 }
             }
         }
