@@ -4,6 +4,9 @@
  */
 package oshi.hardware.platform.mac;
 
+import static com.sun.jna.platform.mac.SystemB.HOST_VM_INFO;
+import static com.sun.jna.platform.mac.SystemB.INT_SIZE;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +46,8 @@ final class MacVirtualMemoryJNA extends MacVirtualMemory {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
         try (CloseableVMStatistics vmStats = new CloseableVMStatistics();
-                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / SystemB.INT_SIZE)) {
-            int ret = SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), SystemB.HOST_VM_INFO, vmStats,
-                    size);
+                CloseableIntByReference size = new CloseableIntByReference(vmStats.size() / INT_SIZE)) {
+            int ret = SystemB.INSTANCE.host_statistics(SystemB.INSTANCE.mach_host_self(), HOST_VM_INFO, vmStats, size);
             if (0 == ret) {
                 swapPagesIn = ParseUtil.unsignedIntToLong(vmStats.pageins);
                 swapPagesOut = ParseUtil.unsignedIntToLong(vmStats.pageouts);

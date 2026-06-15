@@ -58,7 +58,7 @@ public class SystemInfoTest { // NOSONAR squid:S5786
      * Test that this platform is implemented..
      */
     @Test
-    public void testPlatformEnum() {
+    void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
         // Exercise the main method
         main(null);

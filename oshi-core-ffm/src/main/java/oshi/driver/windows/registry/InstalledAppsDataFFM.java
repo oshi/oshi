@@ -151,7 +151,7 @@ public final class InstalledAppsDataFFM {
                 checkSuccess(rc);
             }
         } catch (Win32Exception e) {
-            LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
+            LOG.trace("Unable to access {} with flag {}: {}", path, accessFlag, e.getMessage());
             return null;
         }
     }

@@ -7,6 +7,8 @@ package oshi.util.platform.mac;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,9 +63,11 @@ public final class SmcUtil {
     public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
 
     /** Apple Silicon CPU temperature keys, tried in order until one returns a positive value. */
-    public static final String[] SMC_KEYS_CPU_TEMP_AS = { "Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D" };
+    public static final List<String> SMC_KEYS_CPU_TEMP_AS = Collections
+            .unmodifiableList(Arrays.asList("Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D"));
     /** Apple Silicon GPU temperature keys, tried in order until one returns a positive value. */
-    public static final String[] SMC_KEYS_GPU_TEMP_AS = { "Tg05", "Tg0D", "Tg0f", "Tg0j" };
+    public static final List<String> SMC_KEYS_GPU_TEMP_AS = Collections
+            .unmodifiableList(Arrays.asList("Tg05", "Tg0D", "Tg0f", "Tg0j"));
     /** SMC key for CPU voltage (Apple Silicon). */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
@@ -148,7 +152,7 @@ public final class SmcUtil {
      * @param keys The keys to try in order
      * @return The first value greater than 0, or 0 if all keys fail
      */
-    public static double smcGetFirstFloat(IOConnect conn, String... keys) {
+    public static double smcGetFirstFloat(IOConnect conn, List<String> keys) {
         for (String key : keys) {
             double val = smcGetFloat(conn, key);
             if (val > 0d) {

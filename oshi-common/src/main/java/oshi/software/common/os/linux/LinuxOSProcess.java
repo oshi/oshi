@@ -97,7 +97,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      * @param pid the process ID
      * @param os  the operating system
      */
-    public LinuxOSProcess(int pid, LinuxOperatingSystem os) {
+    protected LinuxOSProcess(int pid, LinuxOperatingSystem os) {
         super(pid);
         this.os = os;
         updateAttributes();

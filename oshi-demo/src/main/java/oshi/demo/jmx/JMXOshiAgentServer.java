@@ -54,7 +54,6 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
     private Map<String, ?> properties;
 
     private MBeanServer server;
-    private JMXServiceURL address;
     private JMXConnectorServer cntorServer;
     private ContextRegistrationPlatform contextRegistrationPlatform;
     private static JMXOshiAgentServer jmxOshiAgentServer;
@@ -99,7 +98,8 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         if (LocateRegistry.getRegistry(this.port) != null)
             LocateRegistry.createRegistry(this.port);
 
-        address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + this.host + ":" + this.port + "/server");
+        JMXServiceURL address = new JMXServiceURL(
+                "service:jmx:rmi:///jndi/rmi://" + this.host + ":" + this.port + "/server");
         cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(address, this.properties, null);
         server = MBeanServerFactory.createMBeanServer();
         ObjectName cntorServerName = ObjectName.getInstance("connectors:protocol=rmi");
@@ -312,6 +312,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(ObjectName name, byte[] data)
@@ -319,6 +324,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(String className, byte[] data)
@@ -326,6 +336,11 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated Conformance stub for a deprecated {@code MBeanServer} interface method; not implemented.
+     */
     @Override
     @Deprecated
     public ObjectInputStream deserialize(String className, ObjectName loaderName, byte[] data)

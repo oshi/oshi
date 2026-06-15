@@ -104,7 +104,8 @@ class AbstractCentralProcessorTest {
 
     @Test
     void testSystemCpuLoadBetweenTicksWrongLength() {
-        assertThrows(IllegalArgumentException.class, () -> createProcessor().getSystemCpuLoadBetweenTicks(new long[2]));
+        AbstractCentralProcessor cpu = createProcessor();
+        assertThrows(IllegalArgumentException.class, () -> cpu.getSystemCpuLoadBetweenTicks(new long[2]));
     }
 
     @Test
@@ -321,12 +322,13 @@ class AbstractCentralProcessorTest {
 
     @Test
     void testProcessorCpuLoadBetweenTicksWrongLength() {
+        AbstractCentralProcessor cpu = createProcessor();
         // Outer array length mismatch
         assertThrows(IllegalArgumentException.class,
-                () -> createProcessor().getProcessorCpuLoadBetweenTicks(new long[2][2], new long[1][1]));
+                () -> cpu.getProcessorCpuLoadBetweenTicks(new long[2][2], new long[1][1]));
         // Matching outer length but wrong inner subarray length
         assertThrows(IllegalArgumentException.class,
-                () -> createProcessor().getProcessorCpuLoadBetweenTicks(new long[1][2], new long[1][2]));
+                () -> cpu.getProcessorCpuLoadBetweenTicks(new long[1][2], new long[1][2]));
     }
 
     @Test

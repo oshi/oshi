@@ -73,6 +73,7 @@ class NativeHandleTest {
 
     @Test
     void testNullCloserThrows() {
-        assertThrows(NullPointerException.class, () -> NativeHandle.of(MemorySegment.ofAddress(0x1), null));
+        MemorySegment segment = MemorySegment.ofAddress(0x1);
+        assertThrows(NullPointerException.class, () -> NativeHandle.of(segment, null));
     }
 }

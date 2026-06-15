@@ -4,6 +4,8 @@
  */
 package oshi.software.os.unix.dragonflybsd;
 
+import static oshi.jna.platform.unix.FreeBsdLibc.RLIMIT_NOFILE;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +71,7 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            DragonFlyBsdLibc.INSTANCE.getrlimit(DragonFlyBsdLibc.RLIMIT_NOFILE, rlimit);
+            DragonFlyBsdLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_cur;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 1);
@@ -80,7 +82,7 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
             final Resource.Rlimit rlimit = new Resource.Rlimit();
-            DragonFlyBsdLibc.INSTANCE.getrlimit(DragonFlyBsdLibc.RLIMIT_NOFILE, rlimit);
+            DragonFlyBsdLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit);
             return rlimit.rlim_max;
         } else {
             return getProcessOpenFileLimit(getProcessID(), 2);

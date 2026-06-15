@@ -30,6 +30,10 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
 
     /** Default constructor. */
     protected WindowsCentralProcessor() {
+        // Store the initial query and start the memoizer expiration
+        if (USE_CPU_UTILITY) {
+            setInitialUtilityCounters(processorUtilityCounters.get().getB());
+        }
     }
 
     // populated by initProcessorCounts called by the parent constructor
@@ -55,13 +59,6 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
             ? memoize(this::queryProcessorCapacityCounters, TimeUnit.MILLISECONDS.toNanos(300L))
             : null;
-
-    {
-        // Store the initial query and start the memoizer expiration
-        if (USE_CPU_UTILITY) {
-            setInitialUtilityCounters(processorUtilityCounters.get().getB());
-        }
-    }
 
     /**
      * Checks whether the OS version is Windows 8 or greater using system property 'os.version'.

@@ -168,8 +168,13 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                                 psDesignCapacity = bi.DesignedCapacity;
                                                                 psMaxCapacity = bi.FullChargedCapacity;
                                                                 psCycleCount = bi.CycleCount;
-                                                                maxCapacitySafe = psMaxCapacity > 0 ? psMaxCapacity
-                                                                        : psDesignCapacity > 0 ? psDesignCapacity : 1;
+                                                                if (psMaxCapacity > 0) {
+                                                                    maxCapacitySafe = psMaxCapacity;
+                                                                } else if (psDesignCapacity > 0) {
+                                                                    maxCapacitySafe = psDesignCapacity;
+                                                                } else {
+                                                                    maxCapacitySafe = 1;
+                                                                }
 
                                                                 // Query the battery status.
                                                                 bws.BatteryTag = bqi.BatteryTag;

@@ -25,6 +25,7 @@ public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolSta
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsInternetProtocolStatsFFM.class);
 
+    @Override
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
         conns.addAll(queryTCPv4Connections());

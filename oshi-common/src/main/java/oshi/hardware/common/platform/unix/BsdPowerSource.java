@@ -105,12 +105,9 @@ public final class BsdPowerSource extends AbstractPowerSource {
         String psManufacturer = Constants.UNKNOWN;
 
         double psTimeRemainingInstant = psTimeRemainingEstimated;
-        if (psVoltage > 0) {
-            if (psAmperage > 0 && psPowerUsageRate == 0) {
-                psPowerUsageRate = psAmperage * psVoltage;
-            } else if (psAmperage == 0 && psPowerUsageRate > 0) {
-                psAmperage = psPowerUsageRate / psVoltage;
-            }
+        // apm reports amperage but not power; derive power rate from P = IV
+        if (psVoltage > 0 && psAmperage > 0) {
+            psPowerUsageRate = psAmperage * psVoltage;
         }
 
         return new BsdPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,

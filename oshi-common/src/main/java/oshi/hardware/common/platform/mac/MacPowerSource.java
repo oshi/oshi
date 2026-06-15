@@ -48,7 +48,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
      * @param psSerialNumber             serial number
      * @param psTemperature              temperature
      */
-    public MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
+    protected MacPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,

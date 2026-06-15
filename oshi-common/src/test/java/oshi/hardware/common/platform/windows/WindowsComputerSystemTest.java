@@ -23,7 +23,7 @@ class WindowsComputerSystemTest {
     private static final WmiQueryExecutor EMPTY_EXECUTOR = new WmiQueryExecutor() {
         @Override
         public <T extends Enum<T>> WmiResult<T> queryWMI(WmiQuery<T> query) {
-            return emptyResult(query.getPropertyEnum());
+            return emptyResult();
         }
 
         @Override
@@ -31,7 +31,7 @@ class WindowsComputerSystemTest {
             return queryWMI(query);
         }
 
-        private <T extends Enum<T>> WmiResult<T> emptyResult(Class<T> propEnum) {
+        private <T extends Enum<T>> WmiResult<T> emptyResult() {
             return new WmiResult<T>() {
                 @Override
                 public int getResultCount() {

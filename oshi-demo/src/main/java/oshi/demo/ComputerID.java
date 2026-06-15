@@ -5,6 +5,7 @@
 package oshi.demo;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,8 +30,9 @@ public class ComputerID {
     }
 
     /** UUIDs that are known to be non-unique across systems. */
-    public static final List<String> NON_UNIQUE_UUIDS = Arrays.asList("03000200-0400-0500-0006-000700080009",
-            "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "00000000-0000-0000-0000-000000000000");
+    public static final List<String> NON_UNIQUE_UUIDS = Collections
+            .unmodifiableList(Arrays.asList("03000200-0400-0500-0006-000700080009",
+                    "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "00000000-0000-0000-0000-000000000000"));
 
     /**
      * <p>

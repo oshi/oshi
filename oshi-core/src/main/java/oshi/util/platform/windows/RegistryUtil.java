@@ -65,7 +65,7 @@ public final class RegistryUtil {
             Object value = Advapi32Util.registryGetValue(root, path, key);
             return Objects.isNull(value) ? null : value;
         } catch (Win32Exception e) {
-            LOG.trace("Unable to access " + path + " with flag " + accessFlag + ": " + e.getMessage());
+            LOG.trace("Unable to access {} with flag {}: {}", path, accessFlag, e.getMessage());
         } finally {
             if (hKey != null) {
                 int rc = ADV.RegCloseKey(hKey);

@@ -4,6 +4,12 @@
  */
 package oshi.software.os.mac;
 
+import static com.sun.jna.platform.mac.SystemB.INT_SIZE;
+import static com.sun.jna.platform.mac.SystemB.PROC_PIDPATHINFO_MAXSIZE;
+import static com.sun.jna.platform.mac.SystemB.PROC_PIDTASKALLINFO;
+import static com.sun.jna.platform.mac.SystemB.PROC_PIDVNODEPATHINFO;
+import static com.sun.jna.platform.mac.SystemB.RUSAGE_INFO_V2;
+import static oshi.jna.platform.unix.CLibrary.RUSAGE_SELF;
 import static oshi.software.os.OSProcess.State.INVALID;
 
 import java.nio.charset.StandardCharsets;
@@ -110,7 +116,7 @@ public class MacOSProcessJNA extends MacOSProcess {
                 // Sanity check
                 if (nargs > 0 && nargs <= 1024) {
                     // Skip first int (containing value of nargs)
-                    long offset = SystemB.INT_SIZE;
+                    long offset = INT_SIZE;
                     // Skip exec_command, as
                     offset += procargs.getString(offset).length();
                     // Iterate character by character using offset
@@ -181,13 +187,13 @@ public class MacOSProcessJNA extends MacOSProcess {
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {
-            if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDTASKALLINFO, 0, taskAllInfo,
+            if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), PROC_PIDTASKALLINFO, 0, taskAllInfo,
                     taskAllInfo.size()) || taskAllInfo.ptinfo.pti_threadnum < 1) {
                 this.state = INVALID;
                 return false;
             }
-            try (Memory buf = new Memory(SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
-                if (0 < SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, SystemB.PROC_PIDPATHINFO_MAXSIZE)) {
+            try (Memory buf = new Memory(PROC_PIDPATHINFO_MAXSIZE)) {
+                if (0 < SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, PROC_PIDPATHINFO_MAXSIZE)) {
                     this.path = buf.getString(0).trim();
                     // Overwrite name with last part of path
                     String[] pathSplit = this.path.split("/");
@@ -226,9 +232,8 @@ public class MacOSProcessJNA extends MacOSProcess {
             this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR squid:S2184
             // getrusage(RUSAGE_SELF) aggregates across all threads for current process
             if (getProcessID() == this.os.getProcessId()) {
-                oshi.jna.platform.mac.SystemB.Rusage rusage = new oshi.jna.platform.mac.SystemB.Rusage();
-                if (0 == oshi.jna.platform.mac.SystemB.INSTANCE.getrusage(oshi.jna.platform.mac.SystemB.RUSAGE_SELF,
-                        rusage)) {
+                SystemB.Rusage rusage = new SystemB.Rusage();
+                if (0 == SystemB.INSTANCE.getrusage(RUSAGE_SELF, rusage)) {
                     this.voluntaryContextSwitches = rusage.ru_nvcsw.longValue();
                     this.involuntaryContextSwitches = rusage.ru_nivcsw.longValue();
                     this.contextSwitches = this.voluntaryContextSwitches + this.involuntaryContextSwitches;
@@ -245,7 +250,7 @@ public class MacOSProcessJNA extends MacOSProcess {
         }
         if (this.majorVersion > 10 || (this.majorVersion == 10 && this.minorVersion >= 9)) {
             try (CloseableRUsageInfoV2 rUsageInfoV2 = new CloseableRUsageInfoV2()) {
-                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), SystemB.RUSAGE_INFO_V2, rUsageInfoV2)) {
+                if (0 == SystemB.INSTANCE.proc_pid_rusage(getProcessID(), RUSAGE_INFO_V2, rUsageInfoV2)) {
                     this.bytesRead = rUsageInfoV2.ri_diskio_bytesread;
                     this.bytesWritten = rUsageInfoV2.ri_diskio_byteswritten;
                     this.memoryFootprint = rUsageInfoV2.ri_phys_footprint;
@@ -253,7 +258,7 @@ public class MacOSProcessJNA extends MacOSProcess {
             }
         }
         try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {
-            if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), SystemB.PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
+            if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
                 this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
             }
         }

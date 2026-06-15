@@ -24,7 +24,6 @@ public final class Config {
     public static final int REFRESH_FAST = 1000;
     /** Slow refresh interval in ms. */
     public static final int REFRESH_SLOW = 5000;
-    /** Slow refresh interval in ms. */
     /** Slower refresh interval in ms. */
     public static final int REFRESH_SLOWER = 15_000;
 }

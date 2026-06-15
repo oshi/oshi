@@ -34,13 +34,13 @@ import org.junit.jupiter.api.condition.OS;
 @DisabledOnOs(OS.SOLARIS)
 final class MemoizerTest {
     // We want enough threads that some of them are forced to wait
-    private static final int numberOfThreads = Math.max(5, Runtime.getRuntime().availableProcessors() + 2);
+    private static final int NUMBER_OF_THREADS = Math.max(5, Runtime.getRuntime().availableProcessors() + 2);
 
     private ExecutorService ex;
 
     @BeforeEach
     void before() {
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L,
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(NUMBER_OF_THREADS, NUMBER_OF_THREADS, 0L,
                 TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         executor.allowCoreThreadTimeOut(false);
         executor.prestartAllCoreThreads(); // make sure we don't lose refreshes in tests because of
@@ -108,7 +108,7 @@ final class MemoizerTest {
         final Collection<Future<Void>> results = new ArrayList<>();
         // Mark the start time, end after iterationDuration
         final long beginNanos = System.nanoTime();
-        for (int tid = 0; tid < numberOfThreads; tid++) {
+        for (int tid = 0; tid < NUMBER_OF_THREADS; tid++) {
             results.add(ex.submit(() -> {
                 // First read from the memoizer. Only one thread will win this race to increment
                 // 0 to 1, but all threads should read at least 1, if not increment further
@@ -184,7 +184,7 @@ final class MemoizerTest {
              * guaranteedIteration. Therefore each thread may do up to 2 additional refreshes.
              */
             final long minExpectedNumberOfIncrements = 2L;
-            final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * numberOfThreads;
+            final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * NUMBER_OF_THREADS;
 
             assertThat(String.format(Locale.ROOT, "ttlNanos=%s", ttlNanos), minExpectedNumberOfIncrements,
                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
