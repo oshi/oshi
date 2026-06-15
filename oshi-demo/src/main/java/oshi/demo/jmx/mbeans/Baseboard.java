@@ -32,7 +32,7 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
     private oshi.hardware.Baseboard baseboard;
     private MBeanInfo dMBeanInfo = null;
     private List<String> propertiesAvailable = new ArrayList<>();
-    private final String PROPERTIES = "Properties";
+    private static final String PROPERTIES = "Properties";
 
     private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {
 
