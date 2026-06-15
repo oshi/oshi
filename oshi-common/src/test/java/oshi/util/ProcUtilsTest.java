@@ -17,7 +17,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 @EnabledOnOs(OS.LINUX)
-public class ProcUtilsTest {
+class ProcUtilsTest {
 
     @Test
     void testRawNetNetstat() {

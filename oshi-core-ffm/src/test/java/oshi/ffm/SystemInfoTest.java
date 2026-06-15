@@ -57,13 +57,13 @@ public class SystemInfoTest {
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 
     @Test
-    public void testPlatformEnum() {
+    void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
         main(null);
     }
 
     @Test
-    public void testGetCurrentPlatform() {
+    void testGetCurrentPlatform() {
         assertNotNull(PlatformEnum.getCurrentPlatform(), "Platform should not be null");
         assertNotEquals(PlatformEnum.UNKNOWN, PlatformEnum.getCurrentPlatform(), "Platform should be recognized");
     }

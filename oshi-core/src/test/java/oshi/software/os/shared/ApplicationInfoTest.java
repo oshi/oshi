@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import oshi.software.os.ApplicationInfo;
 
-public class ApplicationInfoTest {
+class ApplicationInfoTest {
 
     private ApplicationInfo appInfo;
     private final String name = "zstd";
@@ -79,21 +79,21 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void equalsWithSameReferenceShouldReturnTrue() {
+    void equalsWithSameReferenceShouldReturnTrue() {
         ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
         assertTrue(app.equals(app)); // this == o
     }
 
     @Test
-    public void equalsWithDifferentObjectTypeShouldReturnFalse() {
+    void equalsWithDifferentObjectTypeShouldReturnFalse() {
         ApplicationInfo app = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
         assertFalse(app.equals("NotAnApplicationInfo")); // !(o instanceof ApplicationInfo)
     }
 
     @Test
-    public void testEqualsAndHashCodeSameValues() {
+    void testEqualsAndHashCodeSameValues() {
         Map<String, String> info1 = new LinkedHashMap<>();
         info1.put("installLocation", null);
         info1.put("installSource",
@@ -109,7 +109,7 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void testEqualsAndHashCodeDifferentVersion() {
+    void testEqualsAndHashCodeDifferentVersion() {
         ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
         ApplicationInfo app2 = new ApplicationInfo("SQL Server Management Studio", "20.3.37.0", "Microsoft Corp.",
@@ -119,7 +119,7 @@ public class ApplicationInfoTest {
     }
 
     @Test
-    public void testDeduplicationWithListResult() {
+    void testDeduplicationWithListResult() {
         ApplicationInfo app1 = new ApplicationInfo("SQL Server Management Studio", "20.2.37.0", "Microsoft Corp.",
                 1746576000000L, new LinkedHashMap<>());
 
