@@ -151,7 +151,8 @@ class CoreFoundationTest {
             valuePtr.set(ValueLayout.JAVA_INT, 0, 42);
             var numSeg = CoreFoundationFunctions.CFNumberCreate(allocator, CoreFoundation.kCFNumberIntType, valuePtr);
             try (var cfNum = new CFNumberRef(numSeg)) {
-                assertThrows(ClassCastException.class, () -> new CFStringRef(cfNum.segment()));
+                var seg = cfNum.segment();
+                assertThrows(ClassCastException.class, () -> new CFStringRef(seg));
             }
         }
     }
@@ -450,35 +451,40 @@ class CoreFoundationTest {
     @Test
     void testCFNumberRefRejectsString() {
         try (var cfStr = CFStringRef.createCFString("notANumber")) {
-            assertThrows(ClassCastException.class, () -> new CFNumberRef(cfStr.segment()));
+            var seg = cfStr.segment();
+            assertThrows(ClassCastException.class, () -> new CFNumberRef(seg));
         }
     }
 
     @Test
     void testCFBooleanRefRejectsString() {
         try (var cfStr = CFStringRef.createCFString("notABool")) {
-            assertThrows(ClassCastException.class, () -> new CFBooleanRef(cfStr.segment()));
+            var seg = cfStr.segment();
+            assertThrows(ClassCastException.class, () -> new CFBooleanRef(seg));
         }
     }
 
     @Test
     void testCFArrayRefRejectsString() {
         try (var cfStr = CFStringRef.createCFString("notAnArray")) {
-            assertThrows(ClassCastException.class, () -> new CFArrayRef(cfStr.segment()));
+            var seg = cfStr.segment();
+            assertThrows(ClassCastException.class, () -> new CFArrayRef(seg));
         }
     }
 
     @Test
     void testCFDataRefRejectsString() {
         try (var cfStr = CFStringRef.createCFString("notData")) {
-            assertThrows(ClassCastException.class, () -> new CFDataRef(cfStr.segment()));
+            var seg = cfStr.segment();
+            assertThrows(ClassCastException.class, () -> new CFDataRef(seg));
         }
     }
 
     @Test
     void testCFDictionaryRefRejectsString() {
         try (var cfStr = CFStringRef.createCFString("notADict")) {
-            assertThrows(ClassCastException.class, () -> new CFDictionaryRef(cfStr.segment()));
+            var seg = cfStr.segment();
+            assertThrows(ClassCastException.class, () -> new CFDictionaryRef(seg));
         }
     }
 }
