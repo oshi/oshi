@@ -14,7 +14,7 @@ import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.mac.MacGlobalMemory;
 import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.jna.ByRef.CloseableIntByReference;
-import oshi.jna.ByRef.CloseableLongByReference;
+import oshi.jna.ByRef.CloseableNativeLongByReference;
 import oshi.jna.Struct.CloseableVMStatistics;
 
 @ThreadSafe
@@ -44,10 +44,10 @@ final class MacGlobalMemoryJNA extends MacGlobalMemory {
     @Override
     protected long queryPageSize() {
         int ret = -1;
-        try (CloseableLongByReference pPageSize = new CloseableLongByReference()) {
+        try (CloseableNativeLongByReference pPageSize = new CloseableNativeLongByReference()) {
             ret = SystemB.INSTANCE.host_page_size(SystemB.INSTANCE.mach_host_self(), pPageSize);
             if (0 == ret) {
-                return pPageSize.getValue();
+                return pPageSize.getValue().longValue();
             }
         }
         LOG.error("Failed to get host page size. Error code: {}", ret);
