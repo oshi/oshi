@@ -395,11 +395,11 @@ public final class SystemInfoHelper {
         for (OSFileStore fs : fileSystem.getFileStores(true)) {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
-            lines.add(String.format(Locale.ROOT,
-                    " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
-                            + (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s")
-                            + " and is mounted at %s",
-                    fs.getName(), fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
+            String fmt = " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
+                    + (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s")
+                    + " and is mounted at %s";
+            lines.add(String.format(Locale.ROOT, fmt, fs.getName(),
+                    fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
                     FormatUtil.formatValue(fs.getFreeInodes(), ""), FormatUtil.formatValue(fs.getTotalInodes(), ""),
                     100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),

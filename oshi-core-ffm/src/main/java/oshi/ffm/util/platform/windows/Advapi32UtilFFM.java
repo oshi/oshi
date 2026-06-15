@@ -242,7 +242,7 @@ public final class Advapi32UtilFFM {
                 case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
                 case REG_DWORD -> registryGetDword(hKey, valueName);
                 default -> {
-                    LOG.warn("Unsupported registry data type " + type + " for " + valueName);
+                    LOG.warn("Unsupported registry data type {} for {}", type, valueName);
                     yield null;
                 }
             };

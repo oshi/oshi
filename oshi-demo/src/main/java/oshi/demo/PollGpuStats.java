@@ -49,8 +49,10 @@ public final class PollGpuStats {
         }
 
         int nameWidth = cards.stream().mapToInt(c -> c.getName().length()).max().orElse(10);
-        String hdr = String.format(Locale.ROOT, "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %10s", "Card",
-                "Ticks%", "API Util%", "VRAM Used", "Temp(C)", "Power(W)", "Clock(MHz)");
+        String colFmt = "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %10s";
+        String rowFmt = colFmt + "%n";
+        String hdr = String.format(Locale.ROOT, colFmt, "Card", "Ticks%", "API Util%", "VRAM Used", "Temp(C)",
+                "Power(W)", "Clock(MHz)");
         System.out.println(hdr);
         StringBuilder sep = new StringBuilder(hdr.length());
         for (int s = 0; s < hdr.length(); s++)
@@ -87,8 +89,7 @@ public final class PollGpuStats {
                     double power = stats.getPowerDraw();
                     long clock = stats.getCoreClockMhz();
 
-                    System.out.printf(Locale.ROOT, "%-" + nameWidth + "s  %8s  %10s  %10s  %8s  %8s  %10s%n",
-                            card.getName(), tickStr,
+                    System.out.printf(Locale.ROOT, rowFmt, card.getName(), tickStr,
                             apiUtil >= 0 ? String.format(Locale.ROOT, "%.1f%%", apiUtil) : "n/a",
                             vramUsed >= 0 ? FormatUtil.formatBytes(vramUsed) : "n/a",
                             temp >= 0 ? String.format(Locale.ROOT, "%.1f", temp) : "n/a",
