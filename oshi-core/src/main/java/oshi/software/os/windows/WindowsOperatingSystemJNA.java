@@ -543,6 +543,6 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             return true;
         }
         HANDLE h = Kernel32.INSTANCE.GetCurrentProcess();
-        return (h == null) ? false : isWow(h);
+        return h != null && isWow(h);
     }
 }

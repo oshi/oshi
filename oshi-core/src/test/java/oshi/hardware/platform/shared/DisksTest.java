@@ -11,8 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,13 +34,6 @@ class DisksTest {
 
         for (HWDiskStore disk : si.getHardware().getDiskStores()) {
             assertThat(disk, is(notNullValue()));
-            List<HWPartition> parts = disk.getPartitions();
-            List<HWPartition> partList = new ArrayList<>(parts.size());
-            for (HWPartition part : parts) {
-                partList.add(new HWPartition(part.getIdentification(), part.getName(), part.getType(), part.getUuid(),
-                        part.getSize(), part.getMajor(), part.getMinor(), part.getMountPoint()));
-            }
-
             assertThat("Disk name should not be null", disk.getName(), is(notNullValue()));
             assertThat("Disk model should not be null", disk.getModel(), is(notNullValue()));
             assertThat("Disk serial number should not be null", disk.getSerial(), is(notNullValue()));

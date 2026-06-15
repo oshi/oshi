@@ -29,14 +29,14 @@ import oshi.demo.jmx.demo.PropertiesAvailable;
  */
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
-    private oshi.hardware.Baseboard baseboard;
+    private oshi.hardware.Baseboard hwBaseboard;
     private MBeanInfo dMBeanInfo = null;
     private List<String> propertiesAvailable = new ArrayList<>();
     private static final String PROPERTIES = "Properties";
 
     private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {
 
-        PropertyDescriptor[] methods = Introspector.getBeanInfo(baseboard.getClass()).getPropertyDescriptors();
+        PropertyDescriptor[] methods = Introspector.getBeanInfo(hwBaseboard.getClass()).getPropertyDescriptors();
         MBeanAttributeInfo[] attributeInfos = new MBeanAttributeInfo[methods.length];
 
         for (int i = 0; i < methods.length; i++) {
@@ -46,7 +46,7 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
                     methods[i].getName().substring(0, 1).toUpperCase(Locale.ROOT) + methods[i].getName().substring(1));
         }
 
-        dMBeanInfo = new MBeanInfo(baseboard.getClass().getName(), null, attributeInfos, null, null,
+        dMBeanInfo = new MBeanInfo(hwBaseboard.getClass().getName(), null, attributeInfos, null, null,
                 new MBeanNotificationInfo[0]);
     }
 
@@ -59,7 +59,7 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
      */
     public Baseboard(oshi.hardware.Baseboard baseboard)
             throws IntrospectionException, javax.management.IntrospectionException {
-        this.baseboard = baseboard;
+        this.hwBaseboard = baseboard;
         this.setUpMBean();
     }
 
@@ -69,13 +69,13 @@ public class Baseboard implements DynamicMBean, PropertiesAvailable {
             case PROPERTIES:
                 return this.getProperties();
             case "Manufacturer":
-                return baseboard.getManufacturer();
+                return hwBaseboard.getManufacturer();
             case "Model":
-                return baseboard.getModel();
+                return hwBaseboard.getModel();
             case "Version":
-                return baseboard.getVersion();
+                return hwBaseboard.getVersion();
             case "SerialNumber":
-                return baseboard.getSerialNumber();
+                return hwBaseboard.getSerialNumber();
             default:
                 throw new IllegalArgumentException("No attribute " + attribute);
         }

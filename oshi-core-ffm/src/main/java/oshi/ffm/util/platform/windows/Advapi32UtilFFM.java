@@ -170,7 +170,7 @@ public final class Advapi32UtilFFM {
             } finally {
                 rc = RegCloseKey(hKey);
                 if (rc != ERROR_SUCCESS) {
-                    throw new Win32Exception(rc);
+                    LOG.warn("Failed to close registry key, error code: {}", rc);
                 }
             }
         }
@@ -415,10 +415,10 @@ public final class Advapi32UtilFFM {
                 int offset = 0;
 
                 while (offset < read) {
-                    MemorySegment record = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
+                    MemorySegment eventRecord = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
 
-                    int eventId = record.get(JAVA_INT, (int) offsetEventId);
-                    long timeGenerated = Integer.toUnsignedLong(record.get(JAVA_INT, (int) offsetTimeGenerated));
+                    int eventId = eventRecord.get(JAVA_INT, (int) offsetEventId);
+                    long timeGenerated = Integer.toUnsignedLong(eventRecord.get(JAVA_INT, (int) offsetTimeGenerated));
 
                     if (eventId == 12) { // system boot
                         Advapi32FFM.CloseEventLog(hEventLog);
@@ -432,7 +432,7 @@ public final class Advapi32UtilFFM {
                     }
 
                     // Advance to next record
-                    int length = record.get(JAVA_INT, (int) offsetLength);
+                    int length = eventRecord.get(JAVA_INT, (int) offsetLength);
                     offset += length;
                 }
             }
