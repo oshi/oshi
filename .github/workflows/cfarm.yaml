@@ -15,6 +15,17 @@ on:
 # touch GITHUB_TOKEN, so no per-job grants are needed.
 permissions: {}
 
+# These boxes are a shared physical resource. GitHub's concurrency group keeps
+# same-repo runs from overlapping, but it is per-repository, so a fork dispatch
+# and an upstream run can still land on the same host. To make that survivable
+# (rather than prevent it with an on-box lock) each run, before building:
+#   * reaps stale JVMs left by a previously killed run (their open handles can
+#     block git clean / mvn clean on the shared, possibly NFS-backed workspace),
+#   * git clean -xffd to drop any leftover build output, and
+#   * bounds the build wall-clock below the ssh command_timeout with `timeout`
+#     so a hung/cancelled run tears down its own process tree instead of
+#     orphaning a JVM for the next run to trip over.
+
 jobs:
   # Tests the triggering ref on Solaris 11.4 SPARC: master on push, or the
   # dispatched branch (possibly from a fork) on workflow_dispatch. Retries
@@ -39,12 +50,34 @@ jobs:
         script: |
           set -e
           source .profile
+          # Backup reaper: kill stale JVMs from a previously killed run (older
+          # than the build budget) so they can't hold the workspace hostage.
+          for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
+                et=$2; n=split(et,a,/[-:]/);
+                m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
+                if (m>=20) print $1 }'); do
+            kill -9 "$pid" 2>/dev/null || true
+          done
           cd ~/oshi
           # Fetch + reset to the triggering ref regardless of local state.
           # FETCH_HEAD avoids touching the cfarm clone's named branches.
           git fetch "$REPO_URL" "$BRANCH"
           git reset --hard FETCH_HEAD
-          for i in {1..2}; do ./mvnw clean test -B -Djacoco.skip=true && break || sleep 15; done
+          # Force-remove leftover build output (incl. NFS .nfs* sillyrenames).
+          git clean -xffd
+          # Reap the build's process group on exit (orphaned test JVMs) while
+          # shielding this shell so the build's real exit code is preserved.
+          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
+          set +e
+          # One wall-clock budget for both attempts, kept under command_timeout
+          # so the box self-terminates first and leaves no orphan.
+          BUILD='./mvnw clean test -B -Djacoco.skip=true || { sleep 15; ./mvnw clean test -B -Djacoco.skip=true; }'
+          if command -v timeout >/dev/null 2>&1; then
+            timeout --kill-after=30s 20m sh -c "$BUILD"
+          else
+            sh -c "$BUILD"
+          fi
+          exit $?
 
   # Tests the triggering ref on AIX 7.3: master on push, or the dispatched
   # branch (possibly from a fork) on workflow_dispatch.
@@ -68,7 +101,15 @@ jobs:
         command_timeout: 15m
         envs: REPO_URL,BRANCH
         script: |
-          set -e
+          # Backup reaper: kill stale JVMs from a previously killed run (older
+          # than the build budget) so their open handles don't block git clean /
+          # mvn clean on the shared (possibly NFS) workspace.
+          for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
+                et=$2; n=split(et,a,/[-:]/);
+                m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
+                if (m>=13) print $1 }'); do
+            kill -9 "$pid" 2>/dev/null || true
+          done
           rm -fR ~/javashared*
           cd ~/git/oshi
           export JAVA_HOME=~/java/jdk-25.0.3+9
@@ -78,6 +119,8 @@ jobs:
           # FETCH_HEAD avoids touching the cfarm clone's named branches.
           git fetch "$REPO_URL" "$BRANCH"
           git reset --hard FETCH_HEAD
+          # Force-remove leftover build output (incl. NFS .nfs* sillyrenames).
+          git clean -xffd
           # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
           MAVEN_VERSION=3.9.15
           MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
@@ -103,15 +146,29 @@ jobs:
             mvn -q -N dependency:get -Dartifact=net.java.dev.jna:jna:$JNA_VERSION -Dmaven.gitcommitid.skip=true
           fi
           if [ ! -f "$JNA_LIB" ] || [ "$JNA_JAR" -nt "$JNA_LIB" ]; then
-            rm -rf /tmp/jna-extract && mkdir -p /tmp/jna-extract
-            (cd /tmp/jna-extract && jar xf "$JNA_JAR" com/sun/jna/aix-ppc64/libjnidispatch.a)
-            mv /tmp/jna-extract/com/sun/jna/aix-ppc64/libjnidispatch.a "$JNA_LIB"
-            rm -rf /tmp/jna-extract
+            # Extract into a per-run scratch dir on the SAME filesystem as the
+            # cache so the final install is an atomic rename -- concurrency-safe
+            # even if two runs populate at once (no shared /tmp scratch to race).
+            SCRATCH=$(mktemp -d "$JNA_CACHE/.extract.XXXXXX")
+            (cd "$SCRATCH" && jar xf "$JNA_JAR" com/sun/jna/aix-ppc64/libjnidispatch.a)
+            mv "$SCRATCH/com/sun/jna/aix-ppc64/libjnidispatch.a" "$JNA_LIB"
             # Expose under both names in case the JVM's mapLibraryName picks .so
             ln -sf libjnidispatch.a "$JNA_CACHE/libjnidispatch.so"
+            rm -rf "$SCRATCH"
           fi
           # jna.boot.library.path tells JNA to System.load() the pre-extracted
           # file first; we deliberately do NOT set jna.nounpack so JNA can still
           # fall back to JAR extraction if the boot-path load ever fails.
           export _JAVA_OPTIONS="-Djna.boot.library.path=$JNA_CACHE"
-          mvn clean test -B -Djacoco.skip=true || { sleep 15; mvn clean test -B -Djacoco.skip=true; }
+          # Reap the build's process group on exit (orphaned test JVMs) while
+          # shielding this shell so the build's real exit code is preserved.
+          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
+          # One wall-clock budget for both attempts, kept under command_timeout
+          # so the box self-terminates first and leaves no orphan.
+          BUILD='mvn clean test -B -Djacoco.skip=true || { sleep 15; mvn clean test -B -Djacoco.skip=true; }'
+          if command -v timeout >/dev/null 2>&1; then
+            timeout --kill-after=30s 12m sh -c "$BUILD"
+          else
+            sh -c "$BUILD"
+          fi
+          exit $?
