@@ -159,7 +159,7 @@ Please see [SECURITY.md](SECURITY.md).
 Continuous Integration Test Status
 ----------------------------------
 [![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
-[![Cirrus CI Build Status](https://img.shields.io/cirrus/github/oshi/oshi/master.svg?logo=cirrusci&logoColor=white)](https://cirrus-ci.com/github/oshi/oshi)
+[![Android CI](https://img.shields.io/circleci/build/github/oshi/oshi/master?logo=circleci&logoColor=white&label=Android%20CI)](https://circleci.com/gh/oshi/oshi)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
 [![macOS CI](https://github.com/oshi/oshi/workflows/macOS%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22macOS+CI%22)
 [![Linux CI](https://github.com/oshi/oshi/workflows/Linux%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Linux+CI%22)
@@ -198,7 +198,7 @@ Acknowledgments
 ---------------
 Many thanks to the following companies for providing free support of Open Source projects including OSHI:
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
-* [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [Cirrus CI](https://cirrus-ci.org/) for continuous integration testing
+* [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [CircleCI](https://circleci.com/) for continuous integration testing
 * [CodeRabbit](https://www.coderabbit.ai/) for automated AI code review
 * The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
 

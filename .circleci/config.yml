@@ -1,43 +1,39 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:java:.
+# CircleCI configuration for testing OSHI on an Android machine image.
+# Triggering is configured in CircleCI project settings (recommended:
+# "PR opened or pushed to" + "pushes to default branch"). Manual
+# triggers are available via the CircleCI dashboard.
 version: 2.1
+
 jobs:
-  test-java:
-    docker:
-      - image: cimg/openjdk:17.0
+  test:
+    machine:
+      image: android:default
+    resource_class: large
     steps:
       - checkout
       - run:
-          name: Calculate cache key
-          command: |-
-            find . -name 'pom.xml' -o -name 'gradlew*' -o -name '*.gradle*' | \
-                    sort | xargs cat > /tmp/CIRCLECI_CACHE_KEY
+          name: Check environment
+          command: |
+            java -version
+            cat /proc/version
+            cat /proc/self/cgroup
       - restore_cache:
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
+          key: maven-{{ checksum "pom.xml" }}
       - run:
-          command: mvn verify
-      - store_test_results:
-          path: target/surefire-reports
+          name: Test with Maven
+          command: ./mvnw test -B
       - save_cache:
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
+          key: maven-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2/repository
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
-    docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
+      - store_test_results:
+          path: oshi-common/target/junit-platform
+      - store_test_results:
+          path: oshi-core/target/junit-platform
+      - store_test_results:
+          path: oshi-core-ffm/target/junit-platform
+
 workflows:
-  build-and-test:
+  android-test:
     jobs:
-      - test-java
-    # - deploy:
-    #     requires:
-    #       - test-java
+      - test
