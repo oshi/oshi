@@ -1,0 +1,39 @@
+# CircleCI configuration for testing OSHI on an Android machine image.
+# Triggering is configured in CircleCI project settings (recommended:
+# "PR opened or pushed to" + "pushes to default branch"). Manual
+# triggers are available via the CircleCI dashboard.
+version: 2.1
+
+jobs:
+  test:
+    machine:
+      image: android:default
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Check environment
+          command: |
+            java -version
+            cat /proc/version
+            cat /proc/self/cgroup
+      - restore_cache:
+          key: maven-{{ checksum "pom.xml" }}
+      - run:
+          name: Test with Maven
+          command: ./mvnw test -B
+      - save_cache:
+          key: maven-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2/repository
+      - store_test_results:
+          path: oshi-common/target/junit-platform
+      - store_test_results:
+          path: oshi-core/target/junit-platform
+      - store_test_results:
+          path: oshi-core-ffm/target/junit-platform
+
+workflows:
+  android-test:
+    jobs:
+      - test
