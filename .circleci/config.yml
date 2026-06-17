@@ -1,11 +1,11 @@
-# CircleCI configuration for testing OSHI on an Android machine image.
+# CircleCI configuration for testing OSHI on non-standard Linux environments.
 # Triggering is configured in CircleCI project settings (recommended:
 # "PR opened or pushed to" + "pushes to default branch"). Manual
 # triggers are available via the CircleCI dashboard.
 version: 2.1
 
 jobs:
-  test:
+  test-android:
     machine:
       image: android:default
     resource_class: large
@@ -24,12 +24,75 @@ jobs:
             cat /proc/version
             cat /proc/self/cgroup
       - restore_cache:
-          key: maven-{{ checksum "pom.xml" }}
+          key: maven-android-{{ checksum "pom.xml" }}
       - run:
           name: Test with Maven
           command: ./mvnw test -B
       - save_cache:
-          key: maven-{{ checksum "pom.xml" }}
+          key: maven-android-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2/repository
+      - store_test_results:
+          path: oshi-common/target/junit-platform
+      - store_test_results:
+          path: oshi-core/target/junit-platform
+      - store_test_results:
+          path: oshi-core-ffm/target/junit-platform
+
+  test-alpine:
+    docker:
+      - image: eclipse-temurin:25-jdk-alpine
+    steps:
+      - checkout
+      - run:
+          name: Check environment
+          command: |
+            java -version
+            cat /proc/version
+            cat /proc/self/cgroup
+      - restore_cache:
+          key: maven-alpine-{{ checksum "pom.xml" }}
+      - run:
+          name: Test with Maven
+          command: ./mvnw test -B
+      - save_cache:
+          key: maven-alpine-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2/repository
+      - store_test_results:
+          path: oshi-common/target/junit-platform
+      - store_test_results:
+          path: oshi-core/target/junit-platform
+      - store_test_results:
+          path: oshi-core-ffm/target/junit-platform
+
+  test-fedora:
+    docker:
+      - image: fedora:latest
+    steps:
+      - run:
+          name: Install dependencies
+          command: dnf install -y git findutils tar gzip
+      - checkout
+      - run:
+          name: Install JDK 25
+          command: |
+            curl -sL https://download.java.net/java/GA/jdk25.0.2/b1e0dfa218384cb9959bdcb897162d4e/10/GPL/openjdk-25.0.2_linux-x64_bin.tar.gz | tar -xz -C /usr/local
+            echo 'export JAVA_HOME=/usr/local/jdk-25.0.2' >> "$BASH_ENV"
+            echo 'export PATH=/usr/local/jdk-25.0.2/bin:$PATH' >> "$BASH_ENV"
+      - run:
+          name: Check environment
+          command: |
+            java -version
+            cat /proc/version
+            cat /proc/self/cgroup
+      - restore_cache:
+          key: maven-fedora-{{ checksum "pom.xml" }}
+      - run:
+          name: Test with Maven
+          command: ./mvnw test -B
+      - save_cache:
+          key: maven-fedora-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2/repository
       - store_test_results:
@@ -40,6 +103,8 @@ jobs:
           path: oshi-core-ffm/target/junit-platform
 
 workflows:
-  android-test:
+  test:
     jobs:
-      - test
+      - test-android
+      - test-alpine
+      - test-fedora
