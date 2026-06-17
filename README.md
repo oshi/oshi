@@ -159,7 +159,7 @@ Please see [SECURITY.md](SECURITY.md).
 Continuous Integration Test Status
 ----------------------------------
 [![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
-[![Android CI](https://dl.circleci.com/status-badge/img/circleci/7frf59BcydwHUiyqcWKaTT/AHtfBSsooam2rtDgXXGB5M/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/7frf59BcydwHUiyqcWKaTT/AHtfBSsooam2rtDgXXGB5M/tree/master)
+[![Android CI](https://dl.circleci.com/status-badge/img/gh/oshi/oshi/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/oshi/oshi/tree/master)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
 [![macOS CI](https://github.com/oshi/oshi/workflows/macOS%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22macOS+CI%22)
 [![Linux CI](https://github.com/oshi/oshi/workflows/Linux%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Linux+CI%22)

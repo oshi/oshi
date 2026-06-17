@@ -12,6 +12,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install JDK 25
+          command: |
+            curl -sL https://download.java.net/java/GA/jdk25.0.2/b1e0dfa218384cb9959bdcb897162d4e/10/GPL/openjdk-25.0.2_linux-x64_bin.tar.gz | sudo tar -xz -C /usr/local
+            echo 'export JAVA_HOME=/usr/local/jdk-25.0.2' >> "$BASH_ENV"
+            echo 'export PATH=/usr/local/jdk-25.0.2/bin:$PATH' >> "$BASH_ENV"
+      - run:
           name: Check environment
           command: |
             java -version
