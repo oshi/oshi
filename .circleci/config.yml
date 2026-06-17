@@ -41,7 +41,7 @@ jobs:
 
   test-alpine:
     docker:
-      - image: eclipse-temurin:25-jdk-alpine
+      - image: eclipse-temurin:25.0.3_9-jdk-alpine
     steps:
       - checkout
       - run:
