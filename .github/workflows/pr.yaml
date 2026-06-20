@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -55,7 +55,7 @@ jobs:
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
       - name: Set up JDK
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, FreeBSD (+ JNA==FFM)
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
       - name: Test in FreeBSD with aggregate coverage
@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenBSD (+ JNA==FFM)
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
       - name: Test on OpenBSD with aggregate coverage
@@ -147,7 +147,7 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenIndiana (+ JNA==FFM)
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           persist-credentials: false
       - name: Test on OpenIndiana with aggregate coverage
