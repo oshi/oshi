@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractFileSystem;
@@ -40,6 +41,8 @@ public class AixFileSystem extends AbstractFileSystem {
     private static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_AIX_FS_VOLUME_INCLUDES);
 
+    private static final Pattern FS_PATTERN = Pattern.compile("^(?:[\\w.]+:)?/");
+
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
         return getFileStoreMatching(null, localOnly);
@@ -52,26 +55,28 @@ public class AixFileSystem extends AbstractFileSystem {
         // Get inode usage data
         Map<String, Long> inodeFreeMap = new HashMap<>();
         Map<String, Long> inodeTotalMap = new HashMap<>();
-        String command = "df -i" + (localOnly ? " -l" : "");
+        String command = "df -F \"%l %n\"" + (localOnly ? " -T local" : "");
         for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
-             $ df -i
-            Filesystem            Inodes   IUsed   IFree IUse% Mounted on
-            /dev/hd4               75081   16741   58340   23% /
-            /dev/hd2              269640   43104  226536   16% /usr
-            /dev/hd9var            43598    1370   42228    4% /var
-            /dev/hd3               79936     386   79550    1% /tmp
-            /dev/hd11admin         29138       7   29131    1% /admin
-            /proc                      0       0       0    -  /proc
-            /dev/hd10opt           47477    4232   43245    9% /opt
-            /dev/livedump          58204       4   58200    1% /var/adm/ras/livedump
-            /dev/fslv00          12419240  292668 12126572    3% /home
-            */
-            if (line.startsWith("/")) {
+             * $ df -F "%l %n"
+             * Filesystem              free      used
+             * /dev/hd4               58071     18137
+             * /dev/hd2              102455     44046
+             * /dev/hd9var            28280      9919
+             * /dev/hd3               39126       179
+             * /dev/hd11admin         29131         7
+             * /proc                      -         -
+             * /dev/hd10opt           89642       412
+             * /dev/livedump          58200         4
+             * 192.168.253.80:/export  5662375   84670
+             */
+            if (FS_PATTERN.matcher(line).find()) {
                 String[] split = ParseUtil.whitespaces.split(line);
-                if (split.length > 5) {
-                    inodeTotalMap.put(split[0], ParseUtil.parseLongOrDefault(split[1], 0L));
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[3], 0L));
+                if (split.length >= 3) {
+                    long used = ParseUtil.parseLongOrDefault(split[split.length - 2], 0L);
+                    long free = ParseUtil.parseLongOrDefault(split[split.length - 1], 0L);
+                    inodeTotalMap.put(split[0], used + free);
+                    inodeFreeMap.put(split[0], free);
                 }
             }
         }
