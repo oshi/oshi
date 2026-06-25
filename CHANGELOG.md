@@ -3,6 +3,7 @@
 ##### Bug Fixes and Improvements
 
 * [#3409](https://github.com/oshi/oshi/pull/3409): Fix AIX `getFileStores()` inode collection: switch to AIX-native `df -F %n %l`, fix NFS mount filtering, correct column parsing, and fix free/used inode swap - [@jank](https://github.com/jank).
+* [#3410](https://github.com/oshi/oshi/pull/3410): Fix Linux `getFileStores()` blocking indefinitely on stale NFS mounts by pre-checking NFS server reachability (TCP/2049) before calling `statvfs()` - [@jank](https://github.com/jank).
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11)
 
