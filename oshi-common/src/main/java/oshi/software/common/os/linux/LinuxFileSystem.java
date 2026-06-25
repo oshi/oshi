@@ -6,6 +6,8 @@ package oshi.software.common.os.linux;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,12 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);
 
     private static final String UNICODE_SPACE = "\\040";
+
+    private static final boolean CHECK_NFS = !"false"
+            .equalsIgnoreCase(System.getProperty("oshi.os.linux.filesystem.checknfs"));
+
+    // Matches addr= or mountaddr= in NFS mount options, capturing the IP or hostname
+    private static final Pattern NFS_ADDR_PATTERN = Pattern.compile("(?:^|,)(?:mount)?addr=([\\w.\\-]+)");
 
     /**
      * Queries filesystem statistics for the given mount path.
@@ -200,6 +210,15 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             long usableSpace = 0L;
             long freeSpace = 0L;
 
+            // For NFS mounts, check reachability before calling statvfs to avoid
+            // blocking indefinitely on hard-mounted stale NFS servers.
+            if (CHECK_NFS && NETWORK_FS_TYPES.contains(type) && !isNfsReachable(options)) {
+                description = "Network Disk [unreachable]";
+                fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options, uuid,
+                        isLocal, logicalVolume, description, type, 0L, 0L, 0L, 0L, 0L, this));
+                continue;
+            }
+
             long[] vfs = queryStatvfs(path);
             if (vfs != null) {
                 totalInodes = vfs[0];
@@ -221,6 +240,25 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                     totalInodes, this));
         }
         return fsList;
+    }
+
+    private static boolean isNfsReachable(String options) {
+        Matcher m = NFS_ADDR_PATTERN.matcher(options);
+        if (!m.find()) {
+            // No address found in options — don't block, assume reachable
+            return true;
+        }
+        String host = m.group(1);
+        // TCP connect to the standard NFS port (2049).
+        // More reliable than InetAddress.isReachable() which uses ICMP (may need root)
+        // or port 7 (echo, commonly firewalled).
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, 2049), 2_000);
+            return true;
+        } catch (IOException e) {
+            LOG.debug("NFS server {} not reachable for mount options '{}': {}", host, options, e.getMessage());
+            return false;
+        }
     }
 
     private static Map<String, String> queryLabelMap() {
