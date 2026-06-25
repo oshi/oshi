@@ -15,6 +15,7 @@ import oshi.software.os.OSFileStore;
 public class LinuxOSFileStore extends AbstractOSFileStore {
 
     private final LinuxFileSystem fs;
+    private final boolean unreachable;
 
     /**
      * Creates a LinuxOSFileStore.
@@ -39,13 +40,35 @@ public class LinuxOSFileStore extends AbstractOSFileStore {
     public LinuxOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes, LinuxFileSystem fs) {
+        this(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
+                usableSpace, totalSpace, freeInodes, totalInodes, fs, false);
+    }
+
+    LinuxOSFileStore(String name, String volume, String label, String mount, String options, String uuid, boolean local,
+            String logicalVolume, String description, String fsType, long freeSpace, long usableSpace, long totalSpace,
+            long freeInodes, long totalInodes, LinuxFileSystem fs, boolean unreachable) {
         super(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
                 usableSpace, totalSpace, freeInodes, totalInodes);
         this.fs = fs;
+        this.unreachable = unreachable;
     }
 
     @Override
     public boolean updateAttributes() {
+        if (unreachable) {
+            // Skip queryStatvfs — it would hang on a still-stale NFS mount.
+            // Delegate to full enumeration so the reachability guard in
+            // getFileStoreMatching() runs again; if the server is back the
+            // returned store will have correct metrics.
+            for (OSFileStore fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(),
+                    isLocal())) {
+                if (getVolume().equals(fileStore.getVolume()) && getMount().equals(fileStore.getMount())) {
+                    updateFrom(fileStore);
+                    return true;
+                }
+            }
+            return false;
+        }
         // Fast path: query space/inode stats directly on the known mount point
         long[] vfs = fs.queryStatvfs(getMount());
         if (vfs != null) {
