@@ -55,6 +55,8 @@ public class AixFileSystem extends AbstractFileSystem {
         // Get inode usage data
         Map<String, Long> inodeFreeMap = new HashMap<>();
         Map<String, Long> inodeTotalMap = new HashMap<>();
+        // AIX 7.3+ supports POSIX df -i, but AIX 7.1/7.2 only have the native format-specifier
+        // syntax. df -F %n %l (%n = Ifree, %l = Iused) works across all three versions.
         String command = "df -F %n %l" + (localOnly ? " -T local" : "");
         for (String line : ExecutingCommand.runNative(command)) {
             /*- Sample Output:
