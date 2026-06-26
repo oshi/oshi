@@ -141,6 +141,13 @@ public final class GlobalConfig {
      * Default is {@code false}.
      */
     public static final String OSHI_OS_LINUX_PROCFS_LOGWARNING = "oshi.os.linux.procfs.logwarning";
+    /**
+     * Whether to probe NFS servers for reachability before querying filesystem statistics on Linux. When enabled, a
+     * short parallel TCP probe of each NFS server (port 2049, 2-second timeout) is performed and the {@code statvfs}
+     * call is skipped for unreachable servers, preventing indefinite hangs on stale NFS mounts. Default is
+     * {@code true}.
+     */
+    public static final String OSHI_OS_LINUX_FILESYSTEM_CHECKNFS = "oshi.os.linux.filesystem.checknfs";
 
     /**
      * Whether to log warnings when failing to read process information via sysctl on macOS. When running without

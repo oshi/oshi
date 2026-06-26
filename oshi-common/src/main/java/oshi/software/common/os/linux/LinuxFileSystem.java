@@ -36,6 +36,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.ProcPath;
@@ -76,8 +77,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
 
     private static final String UNICODE_SPACE = "\\040";
 
-    private static final boolean CHECK_NFS = !"false"
-            .equalsIgnoreCase(System.getProperty("oshi.os.linux.filesystem.checknfs"));
+    private static final boolean CHECK_NFS = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_FILESYSTEM_CHECKNFS, true);
 
     // Matches addr= or mountaddr= in NFS mount options; captures up to the next comma
     // so IPv6 addresses (e.g. addr=2001:db8::1) are not truncated at the first colon.
@@ -259,14 +259,22 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         return fsList;
     }
 
-    /** Returns true for mount types that use the NFS protocol and port 2049. */
+    /**
+     * Returns true for mount types that use the NFS protocol and port 2049.
+     *
+     * @param type the filesystem type from {@code /proc/mounts}
+     * @return {@code true} if the type is {@code nfs} or {@code nfs4}, otherwise {@code false}
+     */
     static boolean isNfsType(String type) {
         return "nfs".equals(type) || "nfs4".equals(type);
     }
 
     /**
-     * Extracts the NFS server address from mount options. Returns {@code null} if no {@code addr=} or
-     * {@code mountaddr=} field is present.
+     * Extracts the NFS server address from mount options.
+     *
+     * @param options the mount options field from {@code /proc/mounts}
+     * @return the server address from the {@code addr=} or {@code mountaddr=} field, or {@code null} if neither is
+     *         present
      */
     static String parseNfsAddr(String options) {
         Matcher m = NFS_ADDR_PATTERN.matcher(options);
@@ -274,8 +282,12 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Attempts a TCP connection to {@code host:port} within {@code timeoutMs}. Returns {@code true} on success or
-     * refused connection (server is up); {@code false} on timeout or network error.
+     * Attempts a TCP connection to {@code host:port} within {@code timeoutMs}.
+     *
+     * @param host      the server address to probe
+     * @param port      the TCP port to connect to
+     * @param timeoutMs the connection timeout in milliseconds
+     * @return {@code true} on success or a refused connection (server is up); {@code false} on timeout or network error
      */
     private static boolean tcpReachable(String host, int port, int timeoutMs) {
         // TCP connect to the standard NFS port (2049).
@@ -291,9 +303,11 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Probes all unique NFS server hosts found in {@code mounts} in parallel, returning a map of host to reachability.
-     * All probes share the same 2-second timeout window, so the total wait is at most 2 seconds regardless of the
-     * number of NFS mounts.
+     * Probes all unique NFS server hosts found in {@code mounts} in parallel. All probes share the same 2-second
+     * timeout window, so the total wait is at most 2 seconds regardless of the number of NFS mounts.
+     *
+     * @param mounts the lines read from {@code /proc/mounts}
+     * @return a map of NFS server address to reachability ({@code true} if reachable, {@code false} otherwise)
      */
     private static Map<String, Boolean> probeNfsHosts(List<String> mounts) {
         Set<String> hosts = new HashSet<>();
