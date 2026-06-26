@@ -83,6 +83,11 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     // so IPv6 addresses (e.g. addr=2001:db8::1) are not truncated at the first colon.
     private static final Pattern NFS_ADDR_PATTERN = Pattern.compile("(?:^|,)(?:mount)?addr=([^,]+)");
 
+    // Maximum number of concurrent NFS reachability-probe threads. Hardcoded: probes are
+    // short-lived blocking I/O waits, not CPU work, so this only bounds the pathological
+    // many-stale-mounts case rather than acting as a throughput throttle.
+    private static final int NFS_PROBE_MAX_THREADS = 64;
+
     /**
      * Queries filesystem statistics for the given mount path.
      * <p>
@@ -147,9 +152,11 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         // Parse /proc/mounts to get fs types
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
 
-        // Pre-probe all unique NFS hosts in parallel so a single 2-second timeout
-        // covers all stale mounts regardless of how many there are.
-        Map<String, Boolean> nfsHostReachable = CHECK_NFS ? probeNfsHosts(mounts) : Collections.emptyMap();
+        // Pre-probe all unique NFS hosts in parallel before the loop. Skipped for localOnly
+        // scans, which filter out network filesystems anyway, so a local-only query never
+        // waits on a stale NFS mount.
+        Map<String, Boolean> nfsHostReachable = CHECK_NFS && !localOnly ? probeNfsHosts(mounts)
+                : Collections.emptyMap();
 
         for (String mount : mounts) {
             String[] split = mount.split(" ");
@@ -324,7 +331,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         if (hosts.isEmpty()) {
             return reachable;
         }
-        ExecutorService pool = Executors.newFixedThreadPool(Math.min(hosts.size(), 16));
+        ExecutorService pool = Executors.newFixedThreadPool(Math.min(hosts.size(), NFS_PROBE_MAX_THREADS));
         try {
             CompletableFuture<?>[] futures = hosts.stream()
                     .map(h -> CompletableFuture.runAsync(() -> reachable.put(h, tcpReachable(h, 2049, 2_000)), pool))
