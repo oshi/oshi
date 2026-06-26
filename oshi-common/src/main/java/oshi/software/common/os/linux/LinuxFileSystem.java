@@ -290,11 +290,14 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
 
     /**
      * Attempts a TCP connection to {@code host:port} within {@code timeoutMs}.
+     * <p>
+     * Only a completed connection counts as reachable. Any {@link IOException} — connection timeout, connection
+     * refused, host unreachable, or any other network error — is treated as unreachable and returns {@code false}.
      *
      * @param host      the server address to probe
      * @param port      the TCP port to connect to
      * @param timeoutMs the connection timeout in milliseconds
-     * @return {@code true} on success or a refused connection (server is up); {@code false} on timeout or network error
+     * @return {@code true} only if the connection succeeds; {@code false} on any {@link IOException}
      */
     private static boolean tcpReachable(String host, int port, int timeoutMs) {
         // TCP connect to the standard NFS port (2049).
@@ -310,8 +313,13 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Probes all unique NFS server hosts found in {@code mounts} in parallel. All probes share the same 2-second
-     * timeout window, so the total wait is at most 2 seconds regardless of the number of NFS mounts.
+     * Probes the unique NFS server hosts found in {@code mounts} for reachability, in parallel. Only {@code nfs}/
+     * {@code nfs4} mounts that expose an {@code addr=} or {@code mountaddr=} server address are probed; mounts without
+     * a parseable address are omitted and left for the normal {@code statvfs} path.
+     * <p>
+     * Probes run on a fixed pool capped at {@code NFS_PROBE_MAX_THREADS} (64) threads, each with a 2-second connect
+     * timeout. The worst-case wait is therefore roughly {@code 2s * ceil(unreachableHosts / 64)} rather than a strict 2
+     * seconds: up to 64 hosts resolve within one timeout window, and any excess queues into additional windows.
      *
      * @param mounts the lines read from {@code /proc/mounts}
      * @return a map of NFS server address to reachability ({@code true} if reachable, {@code false} otherwise)

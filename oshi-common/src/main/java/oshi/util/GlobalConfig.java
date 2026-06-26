@@ -143,9 +143,10 @@ public final class GlobalConfig {
     public static final String OSHI_OS_LINUX_PROCFS_LOGWARNING = "oshi.os.linux.procfs.logwarning";
     /**
      * Whether to probe NFS servers for reachability before querying filesystem statistics on Linux. When enabled, a
-     * short parallel TCP probe of each NFS server (port 2049, 2-second timeout) is performed and the {@code statvfs}
-     * call is skipped for unreachable servers, preventing indefinite hangs on stale NFS mounts. Default is
-     * {@code true}.
+     * short parallel TCP probe (port 2049, 2-second timeout) is performed for {@code nfs}/{@code nfs4} mounts whose
+     * options expose an {@code addr=} or {@code mountaddr=} server address; if that server is unreachable the
+     * {@code statvfs} call is skipped for that mount, preventing indefinite hangs on stale NFS mounts. Mounts without a
+     * parseable address, and all non-NFS filesystems, always call {@code statvfs}. Default is {@code true}.
      */
     public static final String OSHI_OS_LINUX_FILESYSTEM_CHECKNFS = "oshi.os.linux.filesystem.checknfs";
 
