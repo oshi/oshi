@@ -6,15 +6,26 @@ package oshi.software.common.os.linux;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +36,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.ProcPath;
@@ -64,6 +76,17 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);
 
     private static final String UNICODE_SPACE = "\\040";
+
+    private static final boolean CHECK_NFS = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_FILESYSTEM_CHECKNFS, true);
+
+    // Matches addr= or mountaddr= in NFS mount options; captures up to the next comma
+    // so IPv6 addresses (e.g. addr=2001:db8::1) are not truncated at the first colon.
+    private static final Pattern NFS_ADDR_PATTERN = Pattern.compile("(?:^|,)(?:mount)?addr=([^,]+)");
+
+    // Maximum number of concurrent NFS reachability-probe threads. Hardcoded: probes are
+    // short-lived blocking I/O waits, not CPU work, so this only bounds the pathological
+    // many-stale-mounts case rather than acting as a throughput throttle.
+    private static final int NFS_PROBE_MAX_THREADS = 64;
 
     /**
      * Queries filesystem statistics for the given mount path.
@@ -128,6 +151,13 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
 
         // Parse /proc/mounts to get fs types
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
+
+        // Pre-probe all unique NFS hosts in parallel before the loop. Skipped for localOnly
+        // scans, which filter out network filesystems anyway, so a local-only query never
+        // waits on a stale NFS mount.
+        Map<String, Boolean> nfsHostReachable = CHECK_NFS && !localOnly ? probeNfsHosts(mounts)
+                : Collections.emptyMap();
+
         for (String mount : mounts) {
             String[] split = mount.split(" ");
             // As reported in fstab(5) manpage, struct is:
@@ -200,6 +230,19 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             long usableSpace = 0L;
             long freeSpace = 0L;
 
+            // For NFS mounts, skip statvfs if the server was found unreachable during
+            // the parallel pre-probe above. Scoped to nfs/nfs4 only so non-NFS network
+            // filesystems (cifs, fuse, ...) are not probed on port 2049.
+            if (CHECK_NFS && isNfsType(type)) {
+                String host = parseNfsAddr(options);
+                if (host != null && Boolean.FALSE.equals(nfsHostReachable.get(host))) {
+                    description = "Network Disk [unreachable]";
+                    fsList.add(new LinuxOSFileStore(name, volume, labelMap.getOrDefault(path, name), path, options,
+                            uuid, isLocal, logicalVolume, description, type, 0L, 0L, 0L, 0L, 0L, this, true));
+                    continue;
+                }
+            }
+
             long[] vfs = queryStatvfs(path);
             if (vfs != null) {
                 totalInodes = vfs[0];
@@ -221,6 +264,91 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                     totalInodes, this));
         }
         return fsList;
+    }
+
+    /**
+     * Returns true for mount types that use the NFS protocol and port 2049.
+     *
+     * @param type the filesystem type from {@code /proc/mounts}
+     * @return {@code true} if the type is {@code nfs} or {@code nfs4}, otherwise {@code false}
+     */
+    static boolean isNfsType(String type) {
+        return "nfs".equals(type) || "nfs4".equals(type);
+    }
+
+    /**
+     * Extracts the NFS server address from mount options.
+     *
+     * @param options the mount options field from {@code /proc/mounts}
+     * @return the server address from the {@code addr=} or {@code mountaddr=} field, or {@code null} if neither is
+     *         present
+     */
+    static String parseNfsAddr(String options) {
+        Matcher m = NFS_ADDR_PATTERN.matcher(options);
+        return m.find() ? m.group(1) : null;
+    }
+
+    /**
+     * Attempts a TCP connection to {@code host:port} within {@code timeoutMs}.
+     * <p>
+     * Only a completed connection counts as reachable. Any {@link IOException} — connection timeout, connection
+     * refused, host unreachable, or any other network error — is treated as unreachable and returns {@code false}.
+     *
+     * @param host      the server address to probe
+     * @param port      the TCP port to connect to
+     * @param timeoutMs the connection timeout in milliseconds
+     * @return {@code true} only if the connection succeeds; {@code false} on any {@link IOException}
+     */
+    private static boolean tcpReachable(String host, int port, int timeoutMs) {
+        // TCP connect to the standard NFS port (2049).
+        // More reliable than InetAddress.isReachable() which uses ICMP (may need root)
+        // or port 7 (echo, commonly firewalled).
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), timeoutMs);
+            return true;
+        } catch (IOException e) {
+            LOG.debug("NFS host {} not reachable on port {}: {}", host, port, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Probes the unique NFS server hosts found in {@code mounts} for reachability, in parallel. Only {@code nfs}/
+     * {@code nfs4} mounts that expose an {@code addr=} or {@code mountaddr=} server address are probed; mounts without
+     * a parseable address are omitted and left for the normal {@code statvfs} path.
+     * <p>
+     * Probes run on a fixed pool capped at {@code NFS_PROBE_MAX_THREADS} (64) threads, each with a 2-second connect
+     * timeout. The worst-case wait is therefore roughly {@code 2s * ceil(unreachableHosts / 64)} rather than a strict 2
+     * seconds: up to 64 hosts resolve within one timeout window, and any excess queues into additional windows.
+     *
+     * @param mounts the lines read from {@code /proc/mounts}
+     * @return a map of NFS server address to reachability ({@code true} if reachable, {@code false} otherwise)
+     */
+    private static Map<String, Boolean> probeNfsHosts(List<String> mounts) {
+        Set<String> hosts = new HashSet<>();
+        for (String mount : mounts) {
+            String[] split = mount.split(" ");
+            if (split.length >= 6 && isNfsType(split[2])) {
+                String host = parseNfsAddr(split[3]);
+                if (host != null) {
+                    hosts.add(host);
+                }
+            }
+        }
+        Map<String, Boolean> reachable = new ConcurrentHashMap<>();
+        if (hosts.isEmpty()) {
+            return reachable;
+        }
+        ExecutorService pool = Executors.newFixedThreadPool(Math.min(hosts.size(), NFS_PROBE_MAX_THREADS));
+        try {
+            CompletableFuture<?>[] futures = hosts.stream()
+                    .map(h -> CompletableFuture.runAsync(() -> reachable.put(h, tcpReachable(h, 2049, 2_000)), pool))
+                    .toArray(CompletableFuture[]::new);
+            CompletableFuture.allOf(futures).join();
+        } finally {
+            pool.shutdownNow();
+        }
+        return reachable;
     }
 
     private static Map<String, String> queryLabelMap() {
