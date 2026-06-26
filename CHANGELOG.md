@@ -1,6 +1,8 @@
 # 7.3.2 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3409](https://github.com/oshi/oshi/pull/3409): Fix AIX `getFileStores()` inode collection: switch to AIX-native `df -F %n %l`, fix NFS mount filtering, correct column parsing, and fix free/used inode swap - [@jank](https://github.com/jank).
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11)
 
