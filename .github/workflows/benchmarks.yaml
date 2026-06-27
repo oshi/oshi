@@ -89,7 +89,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Benchmark on FreeBSD
-        uses: vmactions/freebsd-vm@b84ab5559b5a1bb4b8ee2737d2506a16e1737636 # v1
+        uses: vmactions/freebsd-vm@4441bea20b31bfa77329a5af583199362489567e # v1
         with:
           usesh: true
           prepare: |
