@@ -4,11 +4,10 @@
  */
 package oshi.hardware.common;
 
-import java.util.Arrays;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Display;
-import oshi.util.EdidUtil;
+import oshi.hardware.DisplayInfo;
+import oshi.hardware.DisplayInfoImpl;
 
 /**
  * A Display
@@ -16,24 +15,44 @@ import oshi.util.EdidUtil;
 @Immutable
 public abstract class AbstractDisplay implements Display {
 
-    private final byte[] edid;
+    private final DisplayInfo displayInfo;
 
     /**
-     * Constructor for AbstractDisplay.
+     * Constructor for AbstractDisplay from a raw EDID byte array.
      *
      * @param edid a byte array representing a display EDID
      */
     protected AbstractDisplay(byte[] edid) {
-        this.edid = Arrays.copyOf(edid, edid.length);
+        this.displayInfo = new DisplayInfoImpl(edid);
+    }
+
+    /**
+     * Constructor for AbstractDisplay from decoded display information, used when a display reports its attributes
+     * without providing an EDID. Pass a synthetic {@link DisplayInfo} to expose a synthesized EDID.
+     *
+     * @param displayInfo the decoded display information
+     */
+    protected AbstractDisplay(DisplayInfo displayInfo) {
+        this.displayInfo = displayInfo;
     }
 
     @Override
     public byte[] getEdid() {
-        return Arrays.copyOf(this.edid, this.edid.length);
+        return this.displayInfo.getEdid();
+    }
+
+    @Override
+    public DisplayInfo getDisplayInfo() {
+        return this.displayInfo;
+    }
+
+    @Override
+    public boolean isEdidSynthetic() {
+        return this.displayInfo.isEdidSynthetic();
     }
 
     @Override
     public String toString() {
-        return EdidUtil.toString(this.edid);
+        return this.displayInfo.toString();
     }
 }

@@ -28,7 +28,12 @@ import oshi.annotation.concurrent.Immutable;
  * }
  * }</pre>
  *
+ * For displays that report their attributes without providing an EDID (such as a built-in macOS Retina panel),
+ * {@link #isEdidSynthetic()} returns {@code true} and {@link #getEdid()} returns an EDID synthesized from those
+ * attributes. The decoded fields are also available directly through {@link #getDisplayInfo()}.
+ *
  * @see oshi.util.EdidUtil
+ * @see DisplayInfo
  */
 @PublicApi
 @Immutable
@@ -36,7 +41,23 @@ public interface Display {
     /**
      * The EDID byte array.
      *
-     * @return The original unparsed EDID byte array.
+     * @return The EDID byte array, either reported by the display or, when {@link #isEdidSynthetic()} is {@code true},
+     *         synthesized from the display's reported attributes.
      */
     byte[] getEdid();
+
+    /**
+     * The decoded display information, equivalent to parsing {@link #getEdid()} with {@link oshi.util.EdidUtil}.
+     *
+     * @return A {@link DisplayInfo} holding the display's decoded attributes.
+     */
+    DisplayInfo getDisplayInfo();
+
+    /**
+     * Indicates whether the EDID returned by {@link #getEdid()} was synthesized from the display's reported attributes
+     * rather than read directly from the display.
+     *
+     * @return {@code true} if the EDID is synthetic, {@code false} if it is the display's raw EDID.
+     */
+    boolean isEdidSynthetic();
 }
