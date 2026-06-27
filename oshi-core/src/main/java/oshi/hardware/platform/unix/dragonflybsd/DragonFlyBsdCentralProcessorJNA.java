@@ -28,8 +28,8 @@ public class DragonFlyBsdCentralProcessorJNA extends FreeBsdCentralProcessorJNA 
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        FreeBsdLibc.CpTime cpTime = new FreeBsdLibc.CpTime();
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference(cpTime.size())) {
+        try (FreeBsdLibc.CpTime cpTime = new FreeBsdLibc.CpTime();
+                CloseableSizeTByReference size = new CloseableSizeTByReference(cpTime.size())) {
             if (0 == DragonFlyBsdLibc.INSTANCE.sysctlbyname("kern.cp_time", cpTime.getPointer(), size, null,
                     size_t.ZERO)) {
                 cpTime.read();

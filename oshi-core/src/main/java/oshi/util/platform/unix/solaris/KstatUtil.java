@@ -306,6 +306,7 @@ public final class KstatUtil {
             Kstat2Handle handle = new Kstat2Handle();
             try {
                 for (s = 0; consecutiveMisses < 256; s++) {
+                    boolean hit = false;
                     try {
                         Object[] result = new Object[names.length];
                         Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
@@ -313,10 +314,12 @@ public final class KstatUtil {
                             result[i] = map.getValue(names[i]);
                         }
                         results.add(result);
-                        consecutiveMisses = 0;
+                        hit = true;
                     } catch (Kstat2StatusException e) {
-                        consecutiveMisses++;
+                        // Instance s is not present
                     }
+                    // Update the miss counter in normal control flow so the loop has a normal termination condition
+                    consecutiveMisses = hit ? 0 : consecutiveMisses + 1;
                 }
             } finally {
                 handle.close();
