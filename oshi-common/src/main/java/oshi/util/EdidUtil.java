@@ -116,8 +116,8 @@ public final class EdidUtil {
      * @return The year of manufacture
      */
     public static int getYear(byte[] edid) {
-        // Byte 17 is manufacture year-1990
-        byte temp = edid[YEAR_OFFSET];
+        // Byte 17 is manufacture year-1990 (unsigned)
+        int temp = edid[YEAR_OFFSET] & 0xFF;
         LOG.debug("Year-1990: {}", temp);
         return temp + YEAR_BASE;
     }
@@ -151,8 +151,8 @@ public final class EdidUtil {
      * @return Monitor width in cm
      */
     public static int getHcm(byte[] edid) {
-        // Byte 21 is horizontal size in cm
-        return edid[HORIZONTAL_SIZE_OFFSET];
+        // Byte 21 is horizontal size in cm (unsigned)
+        return edid[HORIZONTAL_SIZE_OFFSET] & 0xFF;
     }
 
     /**
@@ -162,8 +162,8 @@ public final class EdidUtil {
      * @return Monitor height in cm
      */
     public static int getVcm(byte[] edid) {
-        // Byte 22 is vertical size in cm
-        return edid[VERTICAL_SIZE_OFFSET];
+        // Byte 22 is vertical size in cm (unsigned)
+        return edid[VERTICAL_SIZE_OFFSET] & 0xFF;
     }
 
     /**
@@ -242,28 +242,17 @@ public final class EdidUtil {
      * Get the monitor model from the EDID
      *
      * @param edid The edid Byte array
-     * @return Plain text monitor model
+     * @return Plain text monitor model, or an empty string if the EDID has no monitor-name descriptor
      */
-
     public static String getModel(byte[] edid) {
-
-        byte[][] desc = EdidUtil.getDescriptors(edid);
-        String model = null;
-
-        for (byte[] b : desc) {
-
-            if (EdidUtil.getDescriptorType(b) == MONITOR_NAME_TYPE) {
-                model = EdidUtil.getDescriptorText(b);
-                break;
+        for (byte[] b : getDescriptors(edid)) {
+            if (getDescriptorType(b) == MONITOR_NAME_TYPE) {
+                // The model name is the final whitespace-delimited token of the monitor-name descriptor
+                String[] tokens = getDescriptorText(b).split("\\s+");
+                return tokens[tokens.length - 1].trim();
             }
         }
-
-        assert model != null;
-        String[] tokens = model.split("\\s+");
-        if (tokens.length >= 1) {
-            model = tokens[tokens.length - 1];
-        }
-        return model.trim();
+        return "";
     }
 
     /**
@@ -271,7 +260,7 @@ public final class EdidUtil {
      * is distinct from {@link #getSerialNo(byte[])}, which returns the numeric ID serial number in bytes 12-15.
      *
      * @param edid The edid byte array
-     * @return The serial-number descriptor text, or {@code null} if the EDID has no serial-number descriptor.
+     * @return The serial-number descriptor text, or an empty string if the EDID has no serial-number descriptor.
      */
     public static String getProductSerialNumber(byte[] edid) {
         for (byte[] desc : getDescriptors(edid)) {
@@ -279,7 +268,7 @@ public final class EdidUtil {
                 return getDescriptorText(desc);
             }
         }
-        return null;
+        return "";
     }
 
     /**
@@ -307,20 +296,25 @@ public final class EdidUtil {
     }
 
     /**
-     * Sets the Manufacturer ID into bytes 8 and 9, the inverse of {@link #getManufacturerID(byte[])}.
-     * <p>
-     * Reliably round-trips a standard three-letter A-Z code. An identifier whose decoded form begins with a stripped
-     * '@' (zero-valued) character cannot be reconstructed and is not supported.
+     * Sets the Manufacturer ID into bytes 8 and 9, the inverse of {@link #getManufacturerID(byte[])}. Requires a
+     * standard three-letter A-Z code so the value round-trips cleanly.
      *
      * @param edid           The EDID byte array to modify
-     * @param manufacturerId A three-letter manufacturer ID (e.g. {@code "AUO"})
+     * @param manufacturerId A three-letter (A-Z) manufacturer ID (e.g. {@code "AUO"})
+     * @throws IllegalArgumentException if {@code manufacturerId} is not exactly three uppercase A-Z letters
      */
     public static void setManufacturerID(byte[] edid, String manufacturerId) {
-        // Pack 3 5-bit characters (value = letter - 64) into bytes 8-9, MSB reserved 0
+        if (manufacturerId.length() != 3) {
+            throw new IllegalArgumentException("Manufacturer ID must be three letters: " + manufacturerId);
+        }
+        // Pack 3 5-bit characters (value = letter - 'A' + 1) into bytes 8-9, MSB reserved 0
         int packed = 0;
         for (int i = 0; i < 3; i++) {
-            int c = i < manufacturerId.length() ? manufacturerId.charAt(i) - 64 : 0;
-            packed = packed << 5 | c & 0x1F;
+            int c = manufacturerId.charAt(i) - 'A' + 1;
+            if (c < 1 || c > 26) {
+                throw new IllegalArgumentException("Manufacturer ID must be uppercase A-Z: " + manufacturerId);
+            }
+            packed = packed << 5 | c;
         }
         edid[MANUFACTURER_ID_OFFSET] = (byte) (packed >> 8 & 0xFF);
         edid[MANUFACTURER_ID_OFFSET + 1] = (byte) (packed & 0xFF);
@@ -330,11 +324,15 @@ public final class EdidUtil {
      * Sets the Product ID into bytes 10 and 11, the inverse of {@link #getProductID(byte[])}.
      *
      * @param edid      The EDID byte array to modify
-     * @param productId The product ID as a hex string
+     * @param productId The product ID as a hex string representing an unsigned 16-bit value (0-FFFF)
+     * @throws IllegalArgumentException if {@code productId} is not a hex value in the range 0-FFFF
      */
     public static void setProductID(byte[] edid, String productId) {
         // Bytes 10-11 store the product ID little-endian
-        int value = ParseUtil.hexStringToInt(productId, 0);
+        int value = ParseUtil.hexStringToInt(productId, -1);
+        if (value < 0 || value > 0xFFFF) {
+            throw new IllegalArgumentException("Product ID must be a hex value in the range 0-FFFF: " + productId);
+        }
         edid[PRODUCT_ID_OFFSET] = (byte) (value & 0xFF);
         edid[PRODUCT_ID_OFFSET + 1] = (byte) (value >> 8 & 0xFF);
     }
@@ -342,29 +340,39 @@ public final class EdidUtil {
     /**
      * Sets the Serial number into bytes 12-15, the inverse of {@link #getSerialNo(byte[])}.
      * <p>
-     * Because {@link #getSerialNo(byte[])} renders each byte as either a single alphanumeric character or two hex
-     * digits, only the unambiguous forms are accepted: an 8-character hex string (all four bytes non-printable) or a
-     * 4-character printable string (all four bytes alphanumeric).
+     * Because {@link #getSerialNo(byte[])} renders each byte as either a single alphanumeric character or two uppercase
+     * hex digits, only inputs that reproduce verbatim through {@link #getSerialNo(byte[])} are accepted: eight
+     * uppercase hex digits whose bytes are each non-alphanumeric, or four alphanumeric characters. Ambiguous values
+     * such as hex-looking ASCII (e.g. {@code "41424344"}) or non-alphanumeric four-character strings are rejected.
      *
      * @param edid     The EDID byte array to modify
-     * @param serialNo An 8-character hex string or 4-character printable string as returned by
-     *                 {@link #getSerialNo(byte[])}
-     * @throws IllegalArgumentException if {@code serialNo} is neither 8 hex characters nor 4 printable characters
+     * @param serialNo A serial number as returned by {@link #getSerialNo(byte[])}
+     * @throws IllegalArgumentException if {@code serialNo} does not round-trip through {@link #getSerialNo(byte[])}
      */
     public static void setSerialNo(byte[] edid, String serialNo) {
         // getSerialNo emits bytes 15,14,13,12 in order; reverse that mapping back into bytes 12-15
         byte[] bytes;
         if (serialNo.length() == 8) {
-            bytes = ParseUtil.hexStringToByteArray(serialNo);
+            bytes = ParseUtil.hexStringToByteArray(serialNo); // empty array if not valid hex
         } else if (serialNo.length() == 4) {
             bytes = serialNo.getBytes(StandardCharsets.US_ASCII);
         } else {
-            throw new IllegalArgumentException(
-                    "Serial number must be 8 hex characters or 4 printable characters: " + serialNo);
+            bytes = new byte[0];
         }
-        for (int i = 0; i < 4; i++) {
-            edid[SERIAL_NUMBER_OFFSET + 3 - i] = bytes[i];
+        if (bytes.length == 4) {
+            byte[] candidate = new byte[SERIAL_NUMBER_OFFSET + 4];
+            for (int i = 0; i < 4; i++) {
+                candidate[SERIAL_NUMBER_OFFSET + 3 - i] = bytes[i];
+            }
+            // Accept only if the written bytes reproduce the input exactly through getSerialNo
+            if (getSerialNo(candidate).equals(serialNo)) {
+                System.arraycopy(candidate, SERIAL_NUMBER_OFFSET, edid, SERIAL_NUMBER_OFFSET, 4);
+                return;
+            }
         }
+        throw new IllegalArgumentException(
+                "Serial number must round-trip through getSerialNo (8 uppercase hex digits or 4 alphanumeric characters): "
+                        + serialNo);
     }
 
     /**
@@ -381,9 +389,14 @@ public final class EdidUtil {
      * Sets the year of manufacture into byte 17, the inverse of {@link #getYear(byte[])}.
      *
      * @param edid The EDID byte array to modify
-     * @param year The four-digit year of manufacture (stored as {@code year - 1990})
+     * @param year The four-digit year of manufacture (stored as {@code year - 1990}, so 1990-2245)
+     * @throws IllegalArgumentException if {@code year} is outside the range 1990-2245
      */
     public static void setYear(byte[] edid, int year) {
+        if (year < YEAR_BASE || year > YEAR_BASE + 0xFF) {
+            throw new IllegalArgumentException(
+                    "Year must be in the range " + YEAR_BASE + "-" + (YEAR_BASE + 0xFF) + ": " + year);
+        }
         edid[YEAR_OFFSET] = (byte) (year - YEAR_BASE);
     }
 
@@ -414,9 +427,13 @@ public final class EdidUtil {
      * Sets the monitor width in cm into byte 21, the inverse of {@link #getHcm(byte[])}.
      *
      * @param edid The EDID byte array to modify
-     * @param hcm  Monitor width in cm
+     * @param hcm  Monitor width in cm (0-255)
+     * @throws IllegalArgumentException if {@code hcm} is outside the range 0-255
      */
     public static void setHcm(byte[] edid, int hcm) {
+        if (hcm < 0 || hcm > 0xFF) {
+            throw new IllegalArgumentException("Horizontal size must be in the range 0-255: " + hcm);
+        }
         edid[HORIZONTAL_SIZE_OFFSET] = (byte) hcm;
     }
 
@@ -424,9 +441,13 @@ public final class EdidUtil {
      * Sets the monitor height in cm into byte 22, the inverse of {@link #getVcm(byte[])}.
      *
      * @param edid The EDID byte array to modify
-     * @param vcm  Monitor height in cm
+     * @param vcm  Monitor height in cm (0-255)
+     * @throws IllegalArgumentException if {@code vcm} is outside the range 0-255
      */
     public static void setVcm(byte[] edid, int vcm) {
+        if (vcm < 0 || vcm > 0xFF) {
+            throw new IllegalArgumentException("Vertical size must be in the range 0-255: " + vcm);
+        }
         edid[VERTICAL_SIZE_OFFSET] = (byte) vcm;
     }
 

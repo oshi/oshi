@@ -7,6 +7,7 @@ package oshi.hardware;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,19 @@ class DisplayInfoImplTest {
         DisplayInfo info = new DisplayInfoImpl("AUO", "9227", "162C0C25", (byte) 44, 2012, "1.4", true, 60, 34,
                 "2560x1440", "Thunderbolt", "C02JM2PFF2GC");
         assertThat("synthetic", info.isEdidSynthetic(), is(true));
+        // Exercise the synthetic-branch field getters (return the stored values directly)
+        assertThat("synth manufacturerId", info.getManufacturerID(), is("AUO"));
+        assertThat("synth productId", info.getProductID(), is("9227"));
+        assertThat("synth serialNo", info.getSerialNo(), is("162C0C25"));
+        assertThat("synth week", info.getWeek(), is((byte) 44));
+        assertThat("synth year", info.getYear(), is(2012));
+        assertThat("synth version", info.getVersion(), is("1.4"));
+        assertThat("synth digital", info.isDigital(), is(true));
+        assertThat("synth hcm", info.getHcm(), is(60));
+        assertThat("synth vcm", info.getVcm(), is(34));
+        assertThat("synth preferredResolution", info.getPreferredResolution(), is("2560x1440"));
+        assertThat("synth model", info.getModel(), is("Thunderbolt"));
+        assertThat("synth productSerialNumber", info.getProductSerialNumber(), is("C02JM2PFF2GC"));
         // getEdid() is idempotent and stable across calls
         assertThat("stable edid", info.getEdid(), is(info.getEdid()));
         // Re-parsing the synthesized EDID yields the same field values
@@ -76,5 +90,21 @@ class DisplayInfoImplTest {
         assertThat("toString model", info.toString(), containsString("Acme"));
         assertThat("toString serial", info.toString(), containsString("SN12345"));
         assertThrows(IllegalArgumentException.class, info::getEdid);
+    }
+
+    @Test
+    void testSyntheticNullProductSerialNumber() {
+        // A null product serial number is omitted from both the synthesized EDID and the toString output; an analog
+        // display also exercises the non-digital toString branch
+        DisplayInfo info = new DisplayInfoImpl("AUO", "9227", "162C0C25", (byte) 44, 2012, "1.4", false, 60, 34,
+                "2560x1440", "Thunderbolt", null);
+        assertThat("analog", info.isDigital(), is(false));
+        assertThat("toString analog", info.toString(), containsString("Analog"));
+        // An absent product serial number is reported as an empty string, never null
+        assertThat("productSerialNumber", info.getProductSerialNumber(), is(""));
+        assertThat("toString omits serial", info.toString(), not(containsString("Serial Number")));
+        // The synthesized EDID has no serial-number descriptor, so a reparse also finds none
+        DisplayInfo reparsed = new DisplayInfoImpl(info.getEdid());
+        assertThat("reparsed productSerialNumber", reparsed.getProductSerialNumber(), is(""));
     }
 }

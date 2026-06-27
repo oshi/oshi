@@ -124,7 +124,7 @@ public interface DisplayInfo {
      * Gets the display product serial number, the text of the serial-number descriptor. This is distinct from
      * {@link #getSerialNo()}, which returns the numeric ID serial number.
      *
-     * @return The display product serial number, or {@code null} if not available.
+     * @return The display product serial number, or an empty string if not available.
      */
     String getProductSerialNumber();
 }

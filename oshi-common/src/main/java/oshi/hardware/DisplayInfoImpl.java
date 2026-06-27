@@ -82,7 +82,7 @@ public class DisplayInfoImpl implements DisplayInfo {
      * @param preferredResolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"}).
      * @param model               The monitor model.
      * @param productSerialNumber The display product serial number (the serial-number descriptor text, distinct from
-     *                            {@code serialNo}), or {@code null} if not available.
+     *                            {@code serialNo}); {@code null} or empty if not available.
      */
     @SuppressWarnings("java:S107") // value holder mirroring the EdidUtil field set
     public DisplayInfoImpl(String manufacturerID, String productID, String serialNo, byte week, int year,
@@ -101,22 +101,22 @@ public class DisplayInfoImpl implements DisplayInfo {
         this.vcm = vcm;
         this.preferredResolution = preferredResolution;
         this.model = model;
-        this.productSerialNumber = productSerialNumber;
+        // Normalize to empty so getProductSerialNumber never returns null, matching getSerialNo/getModel
+        this.productSerialNumber = productSerialNumber == null ? "" : productSerialNumber;
     }
 
     @Override
     public byte[] getEdid() {
-        byte[] result = this.edid;
-        if (result == null) {
-            synchronized (this) {
-                result = this.edid;
-                if (result == null) {
-                    result = synthesizeEdid();
-                    this.edid = result;
-                }
-            }
-        }
+        byte[] result = cachedEdid();
         return Arrays.copyOf(result, result.length);
+    }
+
+    private synchronized byte[] cachedEdid() {
+        // For a real EDID this is set in the constructor; for a synthetic instance it is synthesized once on first use.
+        if (this.edid == null) {
+            this.edid = synthesizeEdid();
+        }
+        return this.edid;
     }
 
     @Override
@@ -197,7 +197,7 @@ public class DisplayInfoImpl implements DisplayInfo {
         EdidUtil.setVcm(e, this.vcm);
         EdidUtil.setPreferredResolution(e, this.preferredResolution);
         EdidUtil.setModel(e, this.model);
-        if (this.productSerialNumber != null) {
+        if (!this.productSerialNumber.isEmpty()) {
             EdidUtil.setProductSerialNumber(e, this.productSerialNumber);
         }
         EdidUtil.updateChecksum(e);
@@ -222,7 +222,7 @@ public class DisplayInfoImpl implements DisplayInfo {
                 this.vcm / 2.54));
         sb.append(String.format(Locale.ROOT, "%n  Preferred Resolution: %s", this.preferredResolution));
         sb.append(String.format(Locale.ROOT, "%n  Monitor Name: %s", this.model));
-        if (this.productSerialNumber != null) {
+        if (!this.productSerialNumber.isEmpty()) {
             sb.append(String.format(Locale.ROOT, "%n  Serial Number: %s", this.productSerialNumber));
         }
         return sb.toString();

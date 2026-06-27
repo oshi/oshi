@@ -6,6 +6,7 @@ package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -102,6 +103,22 @@ class EdidUtilTest {
     }
 
     @Test
+    void testGetModelAbsent() {
+        // An EDID with no monitor-name (0xFC) descriptor returns an empty string rather than throwing
+        assertThat("absent model", EdidUtil.getModel(EdidUtil.newEdidTemplate()), is(""));
+    }
+
+    @Test
+    void testToStringNegativeDescriptorType() {
+        // A descriptor whose type decodes to a negative int falls through to the preferred-timing branch
+        byte[] edid = EdidUtil.newEdidTemplate();
+        byte[] desc = new byte[18];
+        desc[0] = (byte) 0x80; // high bit set so getDescriptorType is negative
+        EdidUtil.setDescriptor(edid, 1, desc);
+        assertThat("preferred timing", EdidUtil.toString(edid), containsString("Preferred Timing"));
+    }
+
+    @Test
     void testFieldRoundTrip() {
         // Synthesize an EDID from field values, then confirm each set* encoder inverts its get*/is* parser
         byte[] edid = EdidUtil.newEdidTemplate();
@@ -184,12 +201,62 @@ class EdidUtilTest {
     }
 
     @Test
+    void testEncoderEdgeCases() {
+        byte[] edid = EdidUtil.newEdidTemplate();
+        // Version with no minor component defaults the minor to 0
+        EdidUtil.setVersion(edid, "2");
+        assertThat("major-only version", EdidUtil.getVersion(edid), is("2.0"));
+        // Analog (non-digital) display clears the digital bit
+        EdidUtil.setDigital(edid, false);
+        assertThat("analog", EdidUtil.isDigital(edid), is(false));
+        // High unsigned byte values round-trip (guards against signed-byte sign extension)
+        EdidUtil.setHcm(edid, 200);
+        assertThat("hcm 200", EdidUtil.getHcm(edid), is(200));
+        EdidUtil.setVcm(edid, 255);
+        assertThat("vcm 255", EdidUtil.getVcm(edid), is(255));
+        EdidUtil.setYear(edid, 2200);
+        assertThat("year 2200", EdidUtil.getYear(edid), is(2200));
+        // Descriptor text longer than 13 characters is truncated with no terminator/padding
+        EdidUtil.setDescriptorText(edid, 3, 0xFE, "ThisIsAVeryLongName");
+        assertThat("truncated descriptor", EdidUtil.getDescriptorText(EdidUtil.getDescriptors(edid)[3]),
+                is("ThisIsAVeryLo"));
+        // No serial-number descriptor present returns an empty string (never null), like getSerialNo/getModel
+        assertThat("absent serial", EdidUtil.getProductSerialNumber(EdidUtil.newEdidTemplate()), is(""));
+    }
+
+    @Test
+    void testEncoderValidation() {
+        byte[] edid = EdidUtil.newEdidTemplate();
+        // Manufacturer ID must be exactly three uppercase A-Z letters
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setManufacturerID(edid, "AB"));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setManufacturerID(edid, "auo"));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setManufacturerID(edid, "A1B"));
+        // Product ID must be a hex value within 0-FFFF
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setProductID(edid, "10000"));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setProductID(edid, "GG"));
+        // Year must be within 1990-2245
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setYear(edid, 1989));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setYear(edid, 2246));
+        // Size in cm must be within 0-255
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setHcm(edid, 256));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setHcm(edid, -1));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setVcm(edid, 256));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setVcm(edid, -1));
+        // A negative descriptor slot is rejected
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setDescriptor(edid, -1, new byte[18]));
+    }
+
+    @Test
     void testSetSerialNo() {
-        // A 4-character all-printable serial also round-trips
+        // A 4-character all-alphanumeric serial round-trips
         byte[] edid = EdidUtil.newEdidTemplate();
         EdidUtil.setSerialNo(edid, "AB12");
-        assertThat("printable serial", EdidUtil.getSerialNo(edid), is("AB12"));
-        // Ambiguous lengths are rejected
+        assertThat("alphanumeric serial", EdidUtil.getSerialNo(edid), is("AB12"));
+        // Wrong length is rejected
         assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, "ABC"));
+        // Hex-looking ASCII whose bytes are letters does not round-trip (getSerialNo would render "ABCD")
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, "41424344"));
+        // Non-alphanumeric 4-character value does not round-trip
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, "AB-1"));
     }
 }
