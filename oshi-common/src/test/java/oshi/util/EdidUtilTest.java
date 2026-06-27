@@ -259,4 +259,29 @@ class EdidUtilTest {
         // Non-alphanumeric 4-character value does not round-trip
         assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, "AB-1"));
     }
+
+    @Test
+    void testSetSerialNoNumeric() {
+        // The numeric overload writes the raw 32-bit serial little-endian into bytes 12-15
+        byte[] edid = EdidUtil.newEdidTemplate();
+        EdidUtil.setSerialNo(edid, 0x162C0C25L);
+        assertThat("numeric serial", EdidUtil.getSerialNo(edid), is("162C0C25"));
+        // The full unsigned 32-bit range is accepted
+        EdidUtil.setSerialNo(edid, 0xFFFFFFFFL);
+        assertThat("max serial", EdidUtil.getSerialNo(edid), is("FFFFFFFF"));
+        // Values outside the unsigned 32-bit range are rejected rather than truncated
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, -1L));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, 0x1_0000_0000L));
+    }
+
+    @Test
+    void testSetPreferredResolutionNoSeparator() {
+        byte[] edid = EdidUtil.newEdidTemplate();
+        // A string with no 'x' separator is a no-op rather than throwing
+        EdidUtil.setPreferredResolution(edid, "");
+        assertThat("no separator", EdidUtil.getPreferredResolution(edid), is("0x0"));
+        // A valid resolution still encodes normally
+        EdidUtil.setPreferredResolution(edid, "1920x1080");
+        assertThat("valid resolution", EdidUtil.getPreferredResolution(edid), is("1920x1080"));
+    }
 }
