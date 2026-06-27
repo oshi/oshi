@@ -31,6 +31,13 @@ jobs:
   # dispatched branch (possibly from a fork) on workflow_dispatch. Retries
   # once for the occasional junit-platform-maven-test flake.
   testsolaris_sparc:
+    # The cfarm hosts are a shared physical resource and the concurrency group
+    # above is per-repository, so it can't serialize an upstream push against a
+    # fork's push run -- which fire together whenever a fork's master is synced.
+    # Two runs then share ~/git/oshi and clobber each other's target/classes
+    # (e.g. "package oshi.driver.common.X does not exist" on the loser). Only the
+    # canonical repo runs on push; forks keep workflow_dispatch for branch tests.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 17, Solaris SPARC
     concurrency: solaris_cfarm216
     runs-on: ubuntu-latest
@@ -84,6 +91,9 @@ jobs:
   # JNA's library is pre-extracted to ~/.cache/jna so the test JVM loads it
   # directly via System.load(); the JAR-unpack step is the flaky one on OpenJ9.
   testaix:
+    # See testsolaris_sparc: skip fork push runs (they race the upstream run on
+    # the shared box); forks keep workflow_dispatch for branch tests.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 25, AIX
     concurrency: aix_cfarm119
     runs-on: ubuntu-latest
