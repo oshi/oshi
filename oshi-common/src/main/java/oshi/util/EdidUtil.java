@@ -376,6 +376,25 @@ public final class EdidUtil {
     }
 
     /**
+     * Sets the numeric ID serial number into bytes 12-15 (little-endian), an alternative to
+     * {@link #setSerialNo(byte[], String)} for callers that have the raw 32-bit value (e.g. a synthesized EDID).
+     * {@link #getSerialNo(byte[])} renders the resulting bytes as alphanumeric characters or hex digits per byte.
+     *
+     * @param edid   The EDID byte array to modify
+     * @param serial The ID serial number, an unsigned 32-bit value (0 to 4294967295)
+     * @throws IllegalArgumentException if {@code serial} does not fit in an unsigned 32-bit value
+     */
+    public static void setSerialNo(byte[] edid, long serial) {
+        if (serial < 0 || serial > 0xFFFFFFFFL) {
+            throw new IllegalArgumentException(
+                    "Serial number must be an unsigned 32-bit value (0-4294967295): " + serial);
+        }
+        for (int i = 0; i < 4; i++) {
+            edid[SERIAL_NUMBER_OFFSET + i] = (byte) (serial >> 8 * i & 0xFF);
+        }
+    }
+
+    /**
      * Sets the week of manufacture into byte 16, the inverse of {@link #getWeek(byte[])}.
      *
      * @param edid The EDID byte array to modify
@@ -457,10 +476,14 @@ public final class EdidUtil {
      * fields are left unchanged.
      *
      * @param edid       The EDID byte array to modify
-     * @param resolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"})
+     * @param resolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"}); a string
+     *                   without an {@code 'x'} separator leaves the descriptor unchanged
      */
     public static void setPreferredResolution(byte[] edid, String resolution) {
         int x = resolution.indexOf('x');
+        if (x < 0) {
+            return; // no WIDTHxHEIGHT to encode; leave the detailed timing descriptor unchanged
+        }
         int horizontal = ParseUtil.parseIntOrDefault(resolution.substring(0, x), 0);
         int vertical = ParseUtil.parseIntOrDefault(resolution.substring(x + 1), 0);
         int dtd = DESCRIPTOR_OFFSET;
