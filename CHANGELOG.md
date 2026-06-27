@@ -1,4 +1,10 @@
-# 7.3.3 (in progress)
+# 7.4.0 (in progress)
+
+##### New Features
+
+* [#3415](https://github.com/oshi/oshi/pull/3415): Add `Display.getDisplayInfo()` and `Display.isEdidSynthetic()`, a new `DisplayInfo` interface, and EDID-encoding methods in `EdidUtil`, allowing display attributes to be exposed without a raw EDID - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug Fixes and Improvements
 
 * Your contribution here!
 
