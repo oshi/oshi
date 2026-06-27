@@ -7,6 +7,9 @@ package oshi.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +57,7 @@ class EdidUtilTest {
         assertThat("vcm", EdidUtil.getVcm(EDID), is(34));
         assertThat("preferredResolution", EdidUtil.getPreferredResolution(EDID), is("2560x1440"));
         assertThat("model", EdidUtil.getModel(EDID), is("Thunderbolt"));
+        assertThat("productSerialNumber", EdidUtil.getProductSerialNumber(EDID), is("C02JM2PFF2GC"));
     }
 
     @Test
@@ -95,5 +99,97 @@ class EdidUtilTest {
         assertThat("edid toString", EdidUtil.toString(EDID).split("\\n"), is(arrayWithSize(6)));
         assertThat("edid2 toString", EdidUtil.toString(ParseUtil.hexStringToByteArray(EDID_STR2)).split("\\n"),
                 is(arrayWithSize(6)));
+    }
+
+    @Test
+    void testFieldRoundTrip() {
+        // Synthesize an EDID from field values, then confirm each set* encoder inverts its get*/is* parser
+        byte[] edid = EdidUtil.newEdidTemplate();
+        EdidUtil.setManufacturerID(edid, "AUO");
+        EdidUtil.setProductID(edid, "9227");
+        EdidUtil.setSerialNo(edid, "162C0C25");
+        EdidUtil.setWeek(edid, (byte) 44);
+        EdidUtil.setYear(edid, 2012);
+        EdidUtil.setVersion(edid, "1.4");
+        EdidUtil.setDigital(edid, true);
+        EdidUtil.setHcm(edid, 60);
+        EdidUtil.setVcm(edid, 34);
+        EdidUtil.setPreferredResolution(edid, "2560x1440");
+        EdidUtil.setModel(edid, "Thunderbolt");
+        EdidUtil.setProductSerialNumber(edid, "C02JM2PFF2GC");
+        EdidUtil.updateChecksum(edid);
+
+        assertThat("manufacturerId", EdidUtil.getManufacturerID(edid), is("AUO"));
+        assertThat("productId", EdidUtil.getProductID(edid), is("9227"));
+        assertThat("serialNo", EdidUtil.getSerialNo(edid), is("162C0C25"));
+        assertThat("week", EdidUtil.getWeek(edid), is((byte) 44));
+        assertThat("year", EdidUtil.getYear(edid), is(2012));
+        assertThat("version", EdidUtil.getVersion(edid), is("1.4"));
+        assertThat("digital", EdidUtil.isDigital(edid), is(true));
+        assertThat("hcm", EdidUtil.getHcm(edid), is(60));
+        assertThat("vcm", EdidUtil.getVcm(edid), is(34));
+        assertThat("preferredResolution", EdidUtil.getPreferredResolution(edid), is("2560x1440"));
+        assertThat("model", EdidUtil.getModel(edid), is("Thunderbolt"));
+        assertThat("productSerialNumber", EdidUtil.getProductSerialNumber(edid), is("C02JM2PFF2GC"));
+
+        // A valid EDID's 128 bytes sum to zero modulo 256
+        int sum = 0;
+        for (byte b : edid) {
+            sum += b & 0xFF;
+        }
+        assertThat("checksum", sum % 256, is(0));
+    }
+
+    @Test
+    void testByteRoundTrip() {
+        // For injective fields, set*(template, get*(EDID)) reproduces the original EDID bytes exactly
+        byte[] edid = EdidUtil.newEdidTemplate();
+        EdidUtil.setManufacturerID(edid, EdidUtil.getManufacturerID(EDID));
+        EdidUtil.setProductID(edid, EdidUtil.getProductID(EDID));
+        EdidUtil.setSerialNo(edid, EdidUtil.getSerialNo(EDID));
+        EdidUtil.setWeek(edid, EdidUtil.getWeek(EDID));
+        EdidUtil.setYear(edid, EdidUtil.getYear(EDID));
+        EdidUtil.setVersion(edid, EdidUtil.getVersion(EDID));
+        EdidUtil.setHcm(edid, EdidUtil.getHcm(EDID));
+        EdidUtil.setVcm(edid, EdidUtil.getVcm(EDID));
+
+        assertThat("manufacturer bytes 8-9", Arrays.copyOfRange(edid, 8, 10), is(Arrays.copyOfRange(EDID, 8, 10)));
+        assertThat("product bytes 10-11", Arrays.copyOfRange(edid, 10, 12), is(Arrays.copyOfRange(EDID, 10, 12)));
+        assertThat("serial bytes 12-15", Arrays.copyOfRange(edid, 12, 16), is(Arrays.copyOfRange(EDID, 12, 16)));
+        assertThat("week byte 16", edid[16], is(EDID[16]));
+        assertThat("year byte 17", edid[17], is(EDID[17]));
+        assertThat("version bytes 18-19", Arrays.copyOfRange(edid, 18, 20), is(Arrays.copyOfRange(EDID, 18, 20)));
+        assertThat("hcm byte 21", edid[21], is(EDID[21]));
+        assertThat("vcm byte 22", edid[22], is(EDID[22]));
+    }
+
+    @Test
+    void testSetDescriptors() {
+        byte[] edid = EdidUtil.newEdidTemplate();
+        // Text descriptors can be written into any of the four slots, including the fourth
+        EdidUtil.setDescriptorText(edid, 3, 0xFE, "Extra Text");
+        byte[][] descs = EdidUtil.getDescriptors(edid);
+        assertThat("slot 3 type", EdidUtil.getDescriptorType(descs[3]), is(0xFE));
+        assertThat("slot 3 text", EdidUtil.getDescriptorText(descs[3]), is("Extra Text"));
+
+        // A raw 18-byte descriptor round-trips through getDescriptors
+        byte[] raw = descs[3];
+        byte[] edid2 = EdidUtil.newEdidTemplate();
+        EdidUtil.setDescriptor(edid2, 0, raw);
+        assertThat("raw descriptor", EdidUtil.getDescriptors(edid2)[0], is(raw));
+
+        // Out-of-range slot and wrong-size descriptor are rejected
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setDescriptorText(edid, 4, 0xFE, "x"));
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setDescriptor(edid, 0, new byte[10]));
+    }
+
+    @Test
+    void testSetSerialNo() {
+        // A 4-character all-printable serial also round-trips
+        byte[] edid = EdidUtil.newEdidTemplate();
+        EdidUtil.setSerialNo(edid, "AB12");
+        assertThat("printable serial", EdidUtil.getSerialNo(edid), is("AB12"));
+        // Ambiguous lengths are rejected
+        assertThrows(IllegalArgumentException.class, () -> EdidUtil.setSerialNo(edid, "ABC"));
     }
 }
