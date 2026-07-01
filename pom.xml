@@ -621,6 +621,14 @@
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
+                    <configuration>
+                        <!-- Treat cached NVD data as fresh for a week so a warm
+                             cache skips the update; delay/retries ride out NVD
+                             API throttling. See the NVD Cache Warmer workflow. -->
+                        <nvdApiDelay>6000</nvdApiDelay>
+                        <nvdMaxRetryCount>25</nvdMaxRetryCount>
+                        <nvdValidForHours>168</nvdValidForHours>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>com.github.siom79.japicmp</groupId>
@@ -1019,6 +1027,14 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <!-- Reporting plugins do not inherit build/pluginManagement
+                         config, so repeat the NVD resilience settings here so the
+                         site report reuses a warm cache instead of re-downloading. -->
+                    <nvdApiDelay>6000</nvdApiDelay>
+                    <nvdMaxRetryCount>25</nvdMaxRetryCount>
+                    <nvdValidForHours>168</nvdValidForHours>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
