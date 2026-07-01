@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -39,8 +40,10 @@ import org.junit.jupiter.api.Test;
 class VoidInvokeExactSourceTest {
 
     // run(OrLog|Silently)(() -> ... invokeExact with no '{' before invokeExact is an expression lambda -- the bug.
+    // Scanned against whole-file content, so a lambda wrapped across lines is still caught. [^{};]* stays within the
+    // single statement (no brace/semicolon crossing) to avoid matching an unrelated later invokeExact.
     private static final Pattern EXPRESSION_LAMBDA_INVOKE_EXACT = Pattern
-            .compile("run(?:OrLog|Silently)\\(\\(\\)\\s*->[^{]*invokeExact");
+            .compile("run(?:OrLog|Silently)\\(\\(\\)\\s*->[^{};]*invokeExact");
 
     @Test
     void noVoidInvokeExactInExpressionLambda() throws IOException {
@@ -51,11 +54,11 @@ class VoidInvokeExactSourceTest {
         try (Stream<Path> paths = Files.walk(srcRoot)) {
             paths.filter(p -> p.toString().endsWith(".java")).forEach(p -> {
                 try {
-                    List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
-                    for (int i = 0; i < lines.size(); i++) {
-                        if (EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(lines.get(i)).find()) {
-                            offenders.add(p + ":" + (i + 1) + "  " + lines.get(i).strip());
-                        }
+                    String content = Files.readString(p, StandardCharsets.UTF_8);
+                    Matcher matcher = EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(content);
+                    while (matcher.find()) {
+                        long line = content.substring(0, matcher.start()).chars().filter(c -> c == '\n').count() + 1;
+                        offenders.add(p + ":" + line + "  " + matcher.group().replaceAll("\\s+", " "));
                     }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);

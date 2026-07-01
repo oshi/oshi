@@ -6,6 +6,7 @@
 
 ##### Bug Fixes and Improvements
 
+* [#3424](https://github.com/oshi/oshi/pull/3424): Fix `WrongMethodTypeException` when freeing BSTR strings on the Windows FFM WMI path, caused by a void `invokeExact` in an expression lambda inferring an `Object` return - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11), 7.3.2 (2026-06-26)
