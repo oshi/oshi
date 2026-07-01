@@ -69,7 +69,12 @@ public final class BStrFFM extends WindowsForeignFunctions {
         if (bstr == null || bstr.equals(MemorySegment.NULL)) {
             return;
         }
-        runOrLog(() -> SysFreeString.invokeExact(bstr), LOG, "BStrFFM.free failed");
+        // Block lambda (not an expression lambda) so invokeExact() on this void
+        // handle is in a statement context and its return type is inferred as
+        // void; an expression lambda infers Object -> WrongMethodTypeException.
+        runOrLog(() -> {
+            SysFreeString.invokeExact(bstr);
+        }, LOG, "BStrFFM.free failed");
     }
 
     // SysStringLen
