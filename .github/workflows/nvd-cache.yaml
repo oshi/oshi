@@ -37,9 +37,19 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5
         with:
-          cache: maven
           distribution: temurin
           java-version: 25
+      # Cache Maven artifacts but exclude the NVD data dir -- it has its own
+      # rolling cache below, and setup-java's built-in `cache: maven` would
+      # otherwise store the ~1.5 GB database a second time.
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/owasp/dependency-check-data
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-
       # Rolling cache: restore the newest previous snapshot via the prefix, and
       # always save under a unique key (actions/cache never overwrites a key).
       # Old snapshots LRU-evict; this keeps the DB fresh and incremental.
@@ -63,10 +73,11 @@ jobs:
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: nvd-db-${{ github.run_id }}
-      # Scan against the now-warm DB (nvdValidForHours in the pom keeps this from
-      # re-hitting the network). A CVE at or above the threshold fails the run,
-      # which is the alert. Tune the threshold to taste (11 disables it).
+      # Scan against the cached DB only (-DautoUpdate=false): the update step
+      # above owns the network fetch, so the scan can't launch a second full
+      # download under the remaining job budget. A CVE at or above the threshold
+      # fails the run, which is the alert. Tune the threshold to taste (11 off).
       - name: Scan dependencies for vulnerabilities
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: ./mvnw install dependency-check:aggregate -DskipTests -Djacoco.skip=true -Dmaven.gitcommitid.skip=true -DfailBuildOnCVSS=7 -B --settings ./.mvn/settings.xml
+        run: ./mvnw install dependency-check:aggregate -DskipTests -Djacoco.skip=true -Dmaven.gitcommitid.skip=true -DautoUpdate=false -DfailBuildOnCVSS=7 -B --settings ./.mvn/settings.xml

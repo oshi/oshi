@@ -17,15 +17,25 @@ jobs:
   build:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Setup Java
         uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5
         with:
-          cache: maven
           distribution: temurin
           java-version: 25
+      # Cache Maven artifacts but exclude the NVD data dir -- it has its own
+      # rolling cache below, and setup-java's built-in `cache: maven` would
+      # otherwise store the ~1.5 GB database a second time.
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/owasp/dependency-check-data
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-
       # Rolling cache: restore the newest snapshot the NVD Cache Warmer saved on
       # master (default-branch caches are readable from every branch). The old
       # static `nvd-db` key never updated and evicted between releases, forcing a
@@ -51,8 +61,11 @@ jobs:
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: nvd-db-${{ github.run_id }}
+      # -DautoUpdate=false: the update step above owns the NVD fetch, so the
+      # dependency-check site report uses only the cached DB and never launches
+      # its own (potentially multi-hour) download on the release path.
       - name: Build site
-        run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -B --settings ./.mvn/settings.xml
+        run: ./mvnw site site:stage -Djacoco.skip=true -DskipTests -DautoUpdate=false -B --settings ./.mvn/settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
