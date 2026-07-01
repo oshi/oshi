@@ -102,7 +102,10 @@ public final class ProcessPerformanceData {
 
         for (int inst = 0; inst < instances.size(); inst++) {
             int pid = pidList.get(inst).intValue();
-            if (pids == null || pids.contains(pid)) {
+            // Skip PID 0: PDH reports it as the "ID Process" sentinel for the _Total aggregate, the Idle
+            // pseudo-process, and any instance whose real PID is not yet available (starting/exiting). Keying
+            // the map on 0 would clobber one such entry with another, and no real Windows process has PID 0.
+            if (pid != 0 && (pids == null || pids.contains(pid))) {
                 long ctime = elapsedTimeList.get(inst);
                 if (ctime > now) {
                     ctime = ParseUtil.filetimeToUtcMs(ctime, false);
