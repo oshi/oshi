@@ -142,6 +142,11 @@
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
         <dependency-check-maven.version>12.2.2</dependency-check-maven.version>
+        <!-- OWASP dependency-check NVD tuning: treat cached data as fresh for a week (skips updates on a
+             warm cache) and ride out NVD API throttling. See the NVD Cache Warmer and Site workflows. -->
+        <dependency-check.nvdApiDelay>6000</dependency-check.nvdApiDelay>
+        <dependency-check.nvdMaxRetryCount>25</dependency-check.nvdMaxRetryCount>
+        <dependency-check.nvdValidForHours>168</dependency-check.nvdValidForHours>
         <japicmp-maven-plugin.version>0.26.1</japicmp-maven-plugin.version>
         <puppycrawl.checkstyle.version>13.7.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
@@ -621,6 +626,11 @@
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
+                    <configuration>
+                        <nvdApiDelay>${dependency-check.nvdApiDelay}</nvdApiDelay>
+                        <nvdMaxRetryCount>${dependency-check.nvdMaxRetryCount}</nvdMaxRetryCount>
+                        <nvdValidForHours>${dependency-check.nvdValidForHours}</nvdValidForHours>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>com.github.siom79.japicmp</groupId>
@@ -1019,6 +1029,14 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <!-- Reporting plugins do not inherit build/pluginManagement
+                         config, so repeat the NVD resilience settings here so the
+                         site report reuses a warm cache instead of re-downloading. -->
+                    <nvdApiDelay>${dependency-check.nvdApiDelay}</nvdApiDelay>
+                    <nvdMaxRetryCount>${dependency-check.nvdMaxRetryCount}</nvdMaxRetryCount>
+                    <nvdValidForHours>${dependency-check.nvdValidForHours}</nvdValidForHours>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -1179,9 +1197,9 @@
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
                         <configuration>
-                            <nvdMaxRetryCount>25</nvdMaxRetryCount>
-                            <nvdApiDelay>6000</nvdApiDelay>
-                            <nvdValidForHours>168</nvdValidForHours>
+                            <nvdMaxRetryCount>${dependency-check.nvdMaxRetryCount}</nvdMaxRetryCount>
+                            <nvdApiDelay>${dependency-check.nvdApiDelay}</nvdApiDelay>
+                            <nvdValidForHours>${dependency-check.nvdValidForHours}</nvdValidForHours>
                         </configuration>
                         <executions>
                             <execution>
