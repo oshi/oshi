@@ -25,8 +25,8 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.driver.mac.net.NetStat;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.driver.mac.net.NetStat.IFdata;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.mac.IFdata;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.driver.mac.net.NetStat;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.mac.MacNetworkIF;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.mac.SystemConfiguration;
@@ -96,18 +96,18 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateNetworkStats(Map&lt;Integer, IFdata&gt; data) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">int</strong> index = queryNetworkInterface().getIndex();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">if</strong> (data.containsKey(index)) {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              IFdata ifData = data.get(index);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <a name="IFdata" href="../../../../oshi/driver/common/mac/IFdata.html#IFdata">IFdata</a> ifData = data.get(index);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>              setIfType(ifData.getIfType());
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              setBytesSent(ifData.getOBytes());
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              setBytesRecv(ifData.getIBytes());
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>              setPacketsSent(ifData.getOPackets());
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              setPacketsRecv(ifData.getIPackets());
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              setOutErrors(ifData.getOErrors());
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              setInErrors(ifData.getIErrors());
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              setCollisions(ifData.getCollisions());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             setInDrops(ifData.getIDrops());
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             setSpeed(ifData.getSpeed());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             setTimeStamp(ifData.getTimeStamp());
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <strong class="jxr_keyword">this</strong>.bytesSent = ifData.getOBytes();
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">this</strong>.bytesRecv = ifData.getIBytes();
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">this</strong>.packetsSent = ifData.getOPackets();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">this</strong>.packetsRecv = ifData.getIPackets();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">this</strong>.outErrors = ifData.getOErrors();
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">this</strong>.inErrors = ifData.getIErrors();
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">this</strong>.collisions = ifData.getCollisions();
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">this</strong>.inDrops = ifData.getIDrops();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             <strong class="jxr_keyword">this</strong>.speed = ifData.getSpeed();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">this</strong>.timeStamp = ifData.getTimeStamp();
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> false;

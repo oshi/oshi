@@ -353,34 +353,33 @@
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>                         MemorySegment envAddress = upp.get(ADDRESS, UPP_ENVIRONMENT_OFFSET);
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>                         <strong class="jxr_keyword">if</strong> (envAddress.address() != 0) {
 <a class="jxr_linenumber" name="L347" href="#L347">347</a>                             MemorySegment envBuffer = arena.allocate((<strong class="jxr_keyword">int</strong>) envSize);
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>                             <strong class="jxr_keyword">if</strong> (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>                                 <strong class="jxr_keyword">if</strong> (bytesRead.get(JAVA_LONG, 0) &gt; 0) {
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>                                     <strong class="jxr_keyword">char</strong>[] env = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[(<strong class="jxr_keyword">int</strong>) (envSize / 2)];
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>                                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; env.length; i++) {
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                                         env[i] = envBuffer.get(JAVA_CHAR, (<strong class="jxr_keyword">long</strong>) i * 2);
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                                     }
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>                                     Map&lt;String, String&gt; envMap = ParseUtil.parseCharArrayToStringMap(env);
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                                     envMap.remove(<span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>                                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.unmodifiableMap(envMap));
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>                                 }
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>                             }
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                         }
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.emptyMap());
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 }
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>             }
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         }
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>     }
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isWow(MemorySegment h, Arena arena) {
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         MemorySegment wow64 = arena.allocate(JAVA_INT);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">if</strong> (Kernel32FFM.IsWow64Process(h, wow64)) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>             <strong class="jxr_keyword">return</strong> wow64.get(JAVA_INT, 0) != 0;
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         }
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                             <strong class="jxr_keyword">if</strong> (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                                     &amp;&amp; bytesRead.get(JAVA_LONG, 0) &gt; 0) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                                 <strong class="jxr_keyword">char</strong>[] env = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[(<strong class="jxr_keyword">int</strong>) (envSize / 2)];
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; env.length; i++) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                                     env[i] = envBuffer.get(JAVA_CHAR, (<strong class="jxr_keyword">long</strong>) i * 2);
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                                 }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                                 Map&lt;String, String&gt; envMap = ParseUtil.parseCharArrayToStringMap(env);
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                                 envMap.remove(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.unmodifiableMap(envMap));
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                             }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                         }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     }
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(cwd, cl, Collections.emptyMap());
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>             }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         }
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">return</strong> defaultCwdCommandlineEnvironment();
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> 
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isWow(MemorySegment h, Arena arena) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         MemorySegment wow64 = arena.allocate(JAVA_INT);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">if</strong> (Kernel32FFM.IsWow64Process(h, wow64)) {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>             <strong class="jxr_keyword">return</strong> wow64.get(JAVA_INT, 0) != 0;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

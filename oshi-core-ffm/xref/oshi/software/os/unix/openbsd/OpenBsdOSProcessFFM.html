@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                  MemorySegment buf = arena.allocate(ARGMAX);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, (<strong class="jxr_keyword">long</strong>) ARGMAX);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, ARGMAX);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">if</strong> (OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, buf, sizeSeg, MemorySegment.NULL,
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>                          0L) == 0) {
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                     mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>                 }
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>                 MemorySegment buf = arena.allocate(ARGMAX);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, (<strong class="jxr_keyword">long</strong>) ARGMAX);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, ARGMAX);
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                 MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>                 <strong class="jxr_keyword">if</strong> (OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, buf, sizeSeg, MemorySegment.NULL,
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>                         0L) == 0) {

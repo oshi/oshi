@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                 checkSuccess(rc);
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>             }
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         } <strong class="jxr_keyword">catch</strong> (<a name="Win32Exception" href="../../../../oshi/ffm/platform/windows/Win32Exception.html#Win32Exception">Win32Exception</a> e) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>             LOG.trace(<span class="jxr_string">"Unable to access "</span> + path + <span class="jxr_string">" with flag "</span> + accessFlag + <span class="jxr_string">": "</span> + e.getMessage());
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             LOG.trace(<span class="jxr_string">"Unable to access {} with flag {}: {}"</span>, path, accessFlag, e.getMessage());
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     }

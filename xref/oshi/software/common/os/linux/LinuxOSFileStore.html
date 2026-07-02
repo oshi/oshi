@@ -23,63 +23,92 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxOSFileStore" href="../../../../../oshi/software/common/os/linux/LinuxOSFileStore.html#LinuxOSFileStore">LinuxOSFileStore</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSFileStore" href="../../../../../oshi/software/common/AbstractOSFileStore.html#AbstractOSFileStore">AbstractOSFileStore</a> {
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="LinuxFileSystem" href="../../../../../oshi/software/common/os/linux/LinuxFileSystem.html#LinuxFileSystem">LinuxFileSystem</a> fs;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">     * Creates a LinuxOSFileStore.</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * @param name          the name</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * @param volume        the volume</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * @param label         the label</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * @param mount         the mount point</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @param options       the mount options</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * @param uuid          the UUID</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @param local         whether local</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @param logicalVolume the logical volume</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @param description   the description</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @param fsType        the filesystem type</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param freeSpace     free space in bytes</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @param usableSpace   usable space in bytes</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param totalSpace    total space in bytes</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param freeInodes    free inodes</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param totalInodes   total inodes</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @param fs            the parent filesystem</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <a name="LinuxOSFileStore" href="../../../../../oshi/software/common/os/linux/LinuxOSFileStore.html#LinuxOSFileStore">LinuxOSFileStore</a>(String name, String volume, String label, String mount, String options, String uuid,
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">boolean</strong> local, String logicalVolume, String description, String fsType, <strong class="jxr_keyword">long</strong> freeSpace, <strong class="jxr_keyword">long</strong> usableSpace,
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">long</strong> totalSpace, <strong class="jxr_keyword">long</strong> freeInodes, <strong class="jxr_keyword">long</strong> totalInodes, <a name="LinuxFileSystem" href="../../../../../oshi/software/common/os/linux/LinuxFileSystem.html#LinuxFileSystem">LinuxFileSystem</a> fs) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">super</strong>(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  usableSpace, totalSpace, freeInodes, totalInodes);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">this</strong>.fs = fs;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      @Override
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <em class="jxr_comment">// Fast path: query space/inode stats directly on the known mount point</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">long</strong>[] vfs = fs.queryStatvfs(getMount());
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">if</strong> (vfs != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">long</strong> ts = vfs[2];
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">long</strong> us = vfs[3];
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">long</strong> frs = vfs[4];
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// If native methods failed use JVM methods</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">if</strong> (ts == 0L) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  java.io.File f = <strong class="jxr_keyword">new</strong> java.io.File(getMount());
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  ts = f.getTotalSpace();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  us = f.getUsableSpace();
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  frs = f.getFreeSpace();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              updateSpaceAndInodes(frs, us, ts, vfs[1], vfs[0]);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Fall back to full enumeration if the direct call failed</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(), isLocal())) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">if</strong> (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  updateFrom(fileStore);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  }
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_comment">// True if this store was created for an NFS mount whose server was unreachable during</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <em class="jxr_comment">// enumeration. The flag is final, so it is permanent for the life of this object:</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <em class="jxr_comment">// updateAttributes() always re-enumerates (re-running the reachability probe) instead of</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_comment">// taking the direct statvfs fast-path, even after the server recovers. To get an object</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_comment">// that uses the fast-path again, re-query the full list via FileSystem.getFileStores().</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> unreachable;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * Creates a LinuxOSFileStore.</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @param name          the name</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @param volume        the volume</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @param label         the label</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @param mount         the mount point</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param options       the mount options</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @param uuid          the UUID</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param local         whether local</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param logicalVolume the logical volume</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param description   the description</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @param fsType        the filesystem type</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @param freeSpace     free space in bytes</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @param usableSpace   usable space in bytes</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @param totalSpace    total space in bytes</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @param freeInodes    free inodes</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @param totalInodes   total inodes</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @param fs            the parent filesystem</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <a name="LinuxOSFileStore" href="../../../../../oshi/software/common/os/linux/LinuxOSFileStore.html#LinuxOSFileStore">LinuxOSFileStore</a>(String name, String volume, String label, String mount, String options, String uuid,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">boolean</strong> local, String logicalVolume, String description, String fsType, <strong class="jxr_keyword">long</strong> freeSpace, <strong class="jxr_keyword">long</strong> usableSpace,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">long</strong> totalSpace, <strong class="jxr_keyword">long</strong> freeInodes, <strong class="jxr_keyword">long</strong> totalInodes, <a name="LinuxFileSystem" href="../../../../../oshi/software/common/os/linux/LinuxFileSystem.html#LinuxFileSystem">LinuxFileSystem</a> fs) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">this</strong>(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  usableSpace, totalSpace, freeInodes, totalInodes, fs, false);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <a name="LinuxOSFileStore" href="../../../../../oshi/software/common/os/linux/LinuxOSFileStore.html#LinuxOSFileStore">LinuxOSFileStore</a>(String name, String volume, String label, String mount, String options, String uuid, <strong class="jxr_keyword">boolean</strong> local,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              String logicalVolume, String description, String fsType, <strong class="jxr_keyword">long</strong> freeSpace, <strong class="jxr_keyword">long</strong> usableSpace, <strong class="jxr_keyword">long</strong> totalSpace,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">long</strong> freeInodes, <strong class="jxr_keyword">long</strong> totalInodes, <a name="LinuxFileSystem" href="../../../../../oshi/software/common/os/linux/LinuxFileSystem.html#LinuxFileSystem">LinuxFileSystem</a> fs, <strong class="jxr_keyword">boolean</strong> unreachable) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">super</strong>(name, volume, label, mount, options, uuid, local, logicalVolume, description, fsType, freeSpace,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  usableSpace, totalSpace, freeInodes, totalInodes);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.fs = fs;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.unreachable = unreachable;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      @Override
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">if</strong> (unreachable) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// Skip queryStatvfs — it would hang on a still-stale NFS mount. Delegate to full</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// enumeration so the reachability guard in getFileStoreMatching() runs again; if the</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">// server is back the returned store will have correct metrics. This object keeps using</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// this slower path on every refresh (see the unreachable field); re-query the full list</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// to obtain a store that resumes the direct statvfs fast-path.</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(),
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      isLocal())) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  <strong class="jxr_keyword">if</strong> (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      updateFrom(fileStore);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// Fast path: query space/inode stats directly on the known mount point</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">long</strong>[] vfs = fs.queryStatvfs(getMount());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">if</strong> (vfs != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">long</strong> ts = vfs[2];
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">long</strong> us = vfs[3];
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">long</strong> frs = vfs[4];
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <em class="jxr_comment">// If native methods failed use JVM methods</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">if</strong> (ts == 0L) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  java.io.File f = <strong class="jxr_keyword">new</strong> java.io.File(getMount());
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  ts = f.getTotalSpace();
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  us = f.getUsableSpace();
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  frs = f.getFreeSpace();
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              updateSpaceAndInodes(frs, us, ts, vfs[1], vfs[0]);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <em class="jxr_comment">// Fall back to full enumeration if the direct call failed</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../../../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fileStore : fs.getFileStoreMatching(getName(), LinuxFileSystem.buildUuidMap(), isLocal())) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">if</strong> (getVolume().equals(fileStore.getVolume()) &amp;&amp; getMount().equals(fileStore.getMount())) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  updateFrom(fileStore);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -135,10 +135,10 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern whitespaces = Pattern.compile(<span class="jxr_string">"&#92;&#92;s+"</span>);
 <a class="jxr_linenumber" name="L128" href="#L128">128</a> 
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     <em class="jxr_javadoccomment">/** Constant &lt;code&gt;notDigits&lt;/code&gt; */</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern notDigits = Pattern.compile(<span class="jxr_string">"[^0-9]+"</span>);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern notDigits = Pattern.compile(<span class="jxr_string">"&#92;&#92;D+"</span>);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/** Constant &lt;code&gt;startWithNotDigits&lt;/code&gt; */</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern startWithNotDigits = Pattern.compile(<span class="jxr_string">"^[^0-9]*"</span>);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern startWithNotDigits = Pattern.compile(<span class="jxr_string">"^&#92;&#92;D*"</span>);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a> 
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     <em class="jxr_javadoccomment">/** Constant &lt;code&gt;forwardSlash&lt;/code&gt; */</em>
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern slash = Pattern.compile(<span class="jxr_string">"&#92;&#92;/"</span>);
@@ -1003,7 +1003,7 @@
 <a class="jxr_linenumber" name="L995" href="#L995">995</a>             }
 <a class="jxr_linenumber" name="L996" href="#L996">996</a>         }
 <a class="jxr_linenumber" name="L997" href="#L997">997</a>         <strong class="jxr_keyword">long</strong> capacity = ParseUtil.parseLongOrDefault(mem[0], 0L);
-<a class="jxr_linenumber" name="L998" href="#L998">998</a>         <strong class="jxr_keyword">if</strong> (mem.length == 2 &amp;&amp; mem[1].length() &gt; 0) {
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>         <strong class="jxr_keyword">if</strong> (mem.length == 2 &amp;&amp; !mem[1].isEmpty()) {
 <a class="jxr_linenumber" name="L999" href="#L999">999</a>             <strong class="jxr_keyword">switch</strong> (mem[1].charAt(0)) {
 <a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>                 <strong class="jxr_keyword">case</strong> 'T':
 <a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>                     capacity &lt;&lt;= 40;

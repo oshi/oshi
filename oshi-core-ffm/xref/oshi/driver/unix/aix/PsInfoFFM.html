@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  <strong class="jxr_keyword">long</strong> argp = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, argv - bufStart, increment);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <strong class="jxr_keyword">if</strong> (argp &gt; 0) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; argc; i++) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          <strong class="jxr_keyword">long</strong> offset = argp + (<strong class="jxr_keyword">long</strong>) i * increment;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          <strong class="jxr_keyword">long</strong> offset = argp + i * increment;
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                          bufStart = conditionallyReadPage(fd, buffer, bufStart, offset);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                          argPtr[i] = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, offset - bufStart, increment);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                      }

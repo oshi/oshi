@@ -36,6 +36,7 @@ oshi.nativefree
 oshi.software.common
 oshi.software.common.os.linux
 oshi.software.common.os.mac
+oshi.software.common.os.unix
 oshi.software.common.os.unix.aix
 oshi.software.common.os.unix.bsd
 oshi.software.common.os.unix.dragonflybsd

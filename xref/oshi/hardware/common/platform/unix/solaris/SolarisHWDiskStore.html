@@ -60,18 +60,18 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      @Override
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          DiskStats stats = queryStats();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">if</strong> (stats == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          setReads(stats.reads);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          setWrites(stats.writes);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          setReadBytes(stats.readBytes);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          setWriteBytes(stats.writeBytes);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          setCurrentQueueLength(stats.currentQueueLength);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          setTransferTime(stats.transferTime);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          setTimeStamp(stats.timeStamp);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.reads = stats.reads;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.writes = stats.writes;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>.readBytes = stats.readBytes;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.writeBytes = stats.writeBytes;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.currentQueueLength = stats.currentQueueLength;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.transferTime = stats.transferTime;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.timeStamp = stats.timeStamp;
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  

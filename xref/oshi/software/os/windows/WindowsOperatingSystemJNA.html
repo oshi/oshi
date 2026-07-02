@@ -551,7 +551,7 @@
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L544" href="#L544">544</a>         }
 <a class="jxr_linenumber" name="L545" href="#L545">545</a>         HANDLE h = Kernel32.INSTANCE.GetCurrentProcess();
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">return</strong> (h == <strong class="jxr_keyword">null</strong>) ? false : isWow(h);
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">return</strong> h != <strong class="jxr_keyword">null</strong> &amp;&amp; isWow(h);
 <a class="jxr_linenumber" name="L547" href="#L547">547</a>     }
 <a class="jxr_linenumber" name="L548" href="#L548">548</a> }
 </pre>

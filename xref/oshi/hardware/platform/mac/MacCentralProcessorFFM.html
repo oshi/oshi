@@ -140,10 +140,10 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                             procInfoPtr.getAtIndex(ValueLayout.JAVA_INT, (<strong class="jxr_keyword">long</strong>) offset + MacSystem.CPU_STATE_IDLE));
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                 }
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 runOrLog(() -&gt; {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                     MacSystemFunctions.vm_deallocate(MacSystemFunctions.mach_task_self(), rawProcInfoPtr.address(),
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                             (<strong class="jxr_keyword">long</strong>) procInfoCount * MacSystem.INT_SIZE);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 }, LOG, <span class="jxr_string">"Failed to vm_deallocate processor info buffer"</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 runOrLog(
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                         () -&gt; MacSystemFunctions.vm_deallocate(MacSystemFunctions.mach_task_self(),
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                                 rawProcInfoPtr.address(), (<strong class="jxr_keyword">long</strong>) procInfoCount * MacSystem.INT_SIZE),
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                         LOG, <span class="jxr_string">"Failed to vm_deallocate processor info buffer"</span>);
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>             }
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         } <strong class="jxr_keyword">catch</strong> (Throwable e) {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             LOG.error(<span class="jxr_string">"Failed to update CPU Load"</span>, e);

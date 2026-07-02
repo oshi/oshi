@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          Triplet&lt;String, Character, Map&lt;PidStat, Long&gt;&gt; stats = ProcessStat.getPidStats(pid);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertNotNull(stats);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          State procState = ProcessStat.getState(stats.getB());
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> stats.getA().length() &gt; 0 <em class="jxr_comment">// at least one process should have nonempty name</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> !stats.getA().isEmpty() <em class="jxr_comment">// at least one process should have nonempty name</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <em class="jxr_comment">// At least one process should be running or sleeping</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  &amp;&amp; (procState.equals(OSProcess.State.RUNNING) || procState.equals(OSProcess.State.SLEEPING))
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <em class="jxr_comment">// Have keys at least up to RSS</em>

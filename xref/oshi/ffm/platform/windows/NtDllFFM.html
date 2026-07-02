@@ -131,10 +131,10 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> NtQueryInformationProcess(MemorySegment processHandle, <strong class="jxr_keyword">int</strong> processInformationClass,
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             MemorySegment processInformation, <strong class="jxr_keyword">int</strong> processInformationLength, MemorySegment returnLength) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) NtQueryInformationProcess.invokeExact(processHandle, processInformationClass,
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     processInformation, processInformationLength, returnLength);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         }, -1, LOG, <span class="jxr_string">"NtDllFFM.NtQueryInformationProcess failed"</span>);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 () -&gt; (<strong class="jxr_keyword">int</strong>) NtQueryInformationProcess.invokeExact(processHandle, processInformationClass,
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                         processInformation, processInformationLength, returnLength),
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 -1, LOG, <span class="jxr_string">"NtDllFFM.NtQueryInformationProcess failed"</span>);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> 
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/**</em>

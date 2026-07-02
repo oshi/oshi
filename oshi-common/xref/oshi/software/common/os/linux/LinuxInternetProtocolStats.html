@@ -50,9 +50,9 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">protected</strong> <a name="LinuxInternetProtocolStats" href="../../../../../oshi/software/common/os/linux/LinuxInternetProtocolStats.html#LinuxInternetProtocolStats">LinuxInternetProtocolStats</a>() {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      }
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String tcpColon = <span class="jxr_string">"Tcp:"</span>;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String udpColon = <span class="jxr_string">"Udp:"</span>;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String udp6 = <span class="jxr_string">"Udp6"</span>;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TCP_COLON = <span class="jxr_string">"Tcp:"</span>;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UDP_COLON = <span class="jxr_string">"Udp:"</span>;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UDP6 = <span class="jxr_string">"Udp6"</span>;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> enum TcpStat {
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          RtoAlgorithm, RtoMin, RtoMax, MaxConn, ActiveOpens, PassiveOpens, AttemptFails, EstabResets, CurrEstab, InSegs,
@@ -70,9 +70,9 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          Map&lt;TcpStat, Long&gt; tcpData = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(TcpStat.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> line = 0; line &lt; lines.size() - 1; line += 2) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(tcpColon) &amp;&amp; lines.get(line + 1).startsWith(tcpColon)) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(TCP_COLON) &amp;&amp; lines.get(line + 1).startsWith(TCP_COLON)) {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  Map&lt;TcpStat, String&gt; parsedData = ParseUtil.stringToEnumMap(TcpStat.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          lines.get(line + 1).substring(tcpColon.length()).trim(), ' ');
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          lines.get(line + 1).substring(TCP_COLON.length()).trim(), ' ');
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">for</strong> (Map.Entry&lt;TcpStat, String&gt; entry : parsedData.entrySet()) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      tcpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  }
@@ -94,9 +94,9 @@
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          Map&lt;UdpStat, Long&gt; udpData = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(UdpStat.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> line = 0; line &lt; lines.size() - 1; line += 2) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(udpColon) &amp;&amp; lines.get(line + 1).startsWith(udpColon)) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(UDP_COLON) &amp;&amp; lines.get(line + 1).startsWith(UDP_COLON)) {
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  Map&lt;UdpStat, String&gt; parsedData = ParseUtil.stringToEnumMap(UdpStat.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          lines.get(line + 1).substring(udpColon.length()).trim(), ' ');
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          lines.get(line + 1).substring(UDP_COLON.length()).trim(), ' ');
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <strong class="jxr_keyword">for</strong> (Map.Entry&lt;UdpStat, String&gt; entry : parsedData.entrySet()) {
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                      udpData.put(entry.getKey(), ParseUtil.parseLongOrDefault(entry.getValue(), 0L));
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                  }
@@ -120,9 +120,9 @@
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">int</strong> foundUDPv6StatsCount = 0;
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> 
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// Traverse bottom-to-top for efficiency as the /etc/proc/snmp6 file follows sequential format -&gt; ip6, icmp6,</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <em class="jxr_comment">// udp6, udplite6 stats</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <em class="jxr_comment">// UDP6, udplite6 stats</em>
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> line = lines.size() - 1; line &gt;= 0 &amp;&amp; foundUDPv6StatsCount &lt; 4; line--) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(udp6)) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(UDP6)) {
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                 String[] parts = lines.get(line).split(<span class="jxr_string">"&#92;&#92;s+"</span>);
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">switch</strong> (parts[0]) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Udp6InDatagrams"</span>:

@@ -81,9 +81,10 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Test
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">void</strong> testNullCloserThrows() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThrows(NullPointerException.<strong class="jxr_keyword">class</strong>, () -&gt; NativeHandle.of(MemorySegment.ofAddress(0x1), <strong class="jxr_keyword">null</strong>));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          MemorySegment segment = MemorySegment.ofAddress(0x1);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertThrows(NullPointerException.<strong class="jxr_keyword">class</strong>, () -&gt; NativeHandle.of(segment, <strong class="jxr_keyword">null</strong>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

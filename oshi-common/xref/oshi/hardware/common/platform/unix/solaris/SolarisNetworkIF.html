@@ -59,21 +59,21 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      @Override
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <em class="jxr_comment">// Initialize to a sane default value</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>          IfStats stats = queryStats();
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">if</strong> (stats == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> false;
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          setBytesSent(stats.bytesSent);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          setBytesRecv(stats.bytesRecv);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          setPacketsSent(stats.packetsSent);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          setPacketsRecv(stats.packetsRecv);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          setOutErrors(stats.outErrors);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          setInErrors(stats.inErrors);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          setCollisions(stats.collisions);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          setInDrops(stats.inDrops);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          setSpeed(stats.speed);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          setTimeStamp(stats.timeStamp);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.bytesSent = stats.bytesSent;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.bytesRecv = stats.bytesRecv;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.packetsSent = stats.packetsSent;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>.packetsRecv = stats.packetsRecv;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.outErrors = stats.outErrors;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.inErrors = stats.inErrors;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.collisions = stats.collisions;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.inDrops = stats.inDrops;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.speed = stats.speed;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.timeStamp = stats.timeStamp;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  

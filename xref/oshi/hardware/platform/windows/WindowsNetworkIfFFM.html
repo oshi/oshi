@@ -105,15 +105,15 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">this</strong>.ndisPhysicalMediumType = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_PHYSICAL_MEDIUM_TYPE);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              byte flags = ifRow.get(ValueLayout.JAVA_BYTE, IPHlpAPIFFM.OFFSET_FLAGS);
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">this</strong>.connectorPresent = (flags &amp; CONNECTOR_PRESENT_BIT) &gt; 0;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             setSpeed(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED));
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>             setBytesRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS));
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             setPacketsRecv(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS));
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             setInErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS));
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             setInDrops(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             setBytesSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS));
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             setPacketsSent(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS));
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>             setOutErrors(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS));
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             setCollisions(ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS));
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">this</strong>.speed = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             <strong class="jxr_keyword">this</strong>.bytesRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">this</strong>.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">this</strong>.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">this</strong>.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">this</strong>.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">this</strong>.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <strong class="jxr_keyword">this</strong>.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">this</strong>.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>             <em class="jxr_comment">// Alias is WCHAR[257] at OFFSET_ALIAS</em>
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>             MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>             <strong class="jxr_keyword">this</strong>.ifAlias = readWideString(aliasSlice);
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         }, LOG, ERROR, <span class="jxr_string">"Failed to retrieve data for interface "</span> + queryNetworkInterface().getIndex() + <span class="jxr_string">", "</span> + getName(),
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>                 false);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">if</strong> (success) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> success;
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     }

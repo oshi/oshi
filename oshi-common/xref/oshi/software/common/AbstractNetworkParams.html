@@ -75,7 +75,7 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              String line = resolv.get(i);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(key)) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String value = line.substring(key.length()).replaceFirst(<span class="jxr_string">"^[ \t]+"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">if</strong> (value.length() != 0 &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">if</strong> (!value.isEmpty() &amp;&amp; value.charAt(0) != '#' &amp;&amp; value.charAt(0) != ';') {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                      String val = value.split(<span class="jxr_string">"[ \t#;]"</span>, 2)[0];
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                      servers.add(val);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  }

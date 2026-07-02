@@ -40,7 +40,7 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] XPROP_NET_WM_PID_ID = ParseUtil.whitespaces.split(<span class="jxr_string">"xprop _NET_WM_PID -id"</span>);
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern WINDOW_PATTERN = Pattern.compile(
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>              <span class="jxr_string">"(0x&#92;&#92;S+) (?:\&quot;(.+)\&quot;)?.*: &#92;&#92;((?:\&quot;(.+)\&quot; \&quot;.+\&quot;)?&#92;&#92;)  (&#92;&#92;d+)x(&#92;&#92;d+)&#92;&#92;+.+  &#92;&#92;+(-?&#92;&#92;d+)&#92;&#92;+(-?&#92;&#92;d+)"</span>);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              <span class="jxr_string">"(0x&#92;&#92;S+) (?:\&quot;(.+)\&quot;)?.*: &#92;&#92;((?:\&quot;(.+)\&quot; \&quot;.+\&quot;)?&#92;&#92;) {2}(&#92;&#92;d+)x(&#92;&#92;d+)&#92;&#92;+.+ {2}&#92;&#92;+(-?&#92;&#92;d+)&#92;&#92;+(-?&#92;&#92;d+)"</span>);
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <a name="Xwininfo" href="../../../../oshi/util/driver/unix/Xwininfo.html#Xwininfo">Xwininfo</a>() {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      }

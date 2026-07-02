@@ -55,10 +55,10 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; HWMON_NAME_PRIORITY = Stream.of(<a name="GlobalConfig" href="../../../../../oshi/util/GlobalConfig.html#GlobalConfig">GlobalConfig</a>
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>              .get(OSHI_HWMON_NAME_PRIORITY, <span class="jxr_string">"coretemp,k10temp,zenpower,k8temp,via-cputemp,acpitz"</span>).split(<span class="jxr_string">","</span>))
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              .filter((s) -&gt; !s.isEmpty()).collect(Collectors.toList());
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              .filter(s -&gt; !s.isEmpty()).collect(Collectors.toList());
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; THERMAL_ZONE_TYPE_PRIORITY = Stream
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>              .of(GlobalConfig.get(OSHI_THERMAL_ZONE_TYPE_PRIORITY, <span class="jxr_string">"cpu-thermal,x86_pkg_temp"</span>).split(<span class="jxr_string">","</span>))
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              .filter((s) -&gt; !s.isEmpty()).collect(Collectors.toList());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              .filter(s -&gt; !s.isEmpty()).collect(Collectors.toList());
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TYPE = <span class="jxr_string">"type"</span>;
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String NAME = <span class="jxr_string">"/name"</span>;
@@ -172,7 +172,7 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         getSensorFilesFromPath(thermalZonePath, TEMP, f -&gt; f.getName().equals(TYPE) || f.getName().equals(TEMP),
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>                 files -&gt; Stream.of(files).filter(f -&gt; TYPE.equals(f.getName())).findFirst().map(File::getPath)
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                         .map(FileUtil::getStringFromFile).map(THERMAL_ZONE_TYPE_PRIORITY::indexOf)
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         .filter((index) -&gt; index &gt;= 0).orElse(THERMAL_ZONE_TYPE_PRIORITY.size()));
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                         .filter(index -&gt; index &gt;= 0).orElse(THERMAL_ZONE_TYPE_PRIORITY.size()));
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
@@ -183,7 +183,7 @@
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * @param sensorFileFilter A FileFilter for detecting valid sensor files</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> getSensorFilesFromPath(String sensorPath, String sensor, FileFilter sensorFileFilter) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         getSensorFilesFromPath(sensorPath, sensor, sensorFileFilter, (files) -&gt; 0);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         getSensorFilesFromPath(sensorPath, sensor, sensorFileFilter, files -&gt; 0);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
 <a class="jxr_linenumber" name="L180" href="#L180">180</a> 
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     <em class="jxr_javadoccomment">/**</em>

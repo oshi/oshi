@@ -139,7 +139,7 @@
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(nfTicks).hasSameSizeAs(jnaTicks);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">long</strong>[][] jnaProc = jna.getProcessorCpuLoadTicks();
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">long</strong>[][] nfProc = nf.getProcessorCpuLoadTicks();
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(nfProc.length).isEqualTo(jnaProc.length);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(nfProc).hasSameDimensionsAs(jnaProc);
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
 <a class="jxr_linenumber" name="L136" href="#L136">136</a> 
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_comment">// ---- Hardware: Memory ----</em>
@@ -202,7 +202,7 @@
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>             }
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>             assertThat(n.getSize()).isEqualTo(j.getSize());
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             assertThat(n.getReads()).as(<span class="jxr_string">"reads(%s)"</span>, j.getName()).isGreaterThanOrEqualTo(j.getReads());
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             assertThat(n.getPartitions().size()).as(<span class="jxr_string">"partitions(%s)"</span>, j.getName()).isEqualTo(j.getPartitions().size());
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             assertThat(n.getPartitions()).as(<span class="jxr_string">"partitions(%s)"</span>, j.getName()).hasSameSizeAs(j.getPartitions());
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>         }
 <a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
 <a class="jxr_linenumber" name="L200" href="#L200">200</a> 

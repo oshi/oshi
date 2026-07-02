@@ -81,7 +81,7 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getRegString(String keyPath, String valueName) {
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          Object val = Advapi32UtilFFM.registryGetValue(HKLM, keyPath, valueName);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> val instanceof String ? (String) val : <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> val instanceof String string ? string : <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
 </pre>

@@ -66,129 +66,130 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;List&lt;NetworkIF&gt;&gt; networkIFSupplier;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> InternetProtocolStats ipStats;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">// Strong reference to prevent GC of NetworkIF objects used by FunctionCounter</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> List&lt;NetworkIF&gt; networkIFs;
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_comment">// Connection count cache to avoid repeated getConnections() calls per scrape</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> cacheTimestamp;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> AtomicReference&lt;Map&lt;TcpState, Long&gt;&gt; tcpCounts = <strong class="jxr_keyword">new</strong> AtomicReference&lt;&gt;(Collections.emptyMap());
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> udpCount;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     * Creates a new {@code NetworkMetrics} binder.</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * @param networkIFSupplier supplier that returns the current list of {@link NetworkIF} instances</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * @param ipStats           the {@link InternetProtocolStats} instance for connection counting</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> <a name="NetworkMetrics" href="../../oshi/metrics/NetworkMetrics.html#NetworkMetrics">NetworkMetrics</a>(Supplier&lt;List&lt;NetworkIF&gt;&gt; networkIFSupplier, InternetProtocolStats ipStats) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">this</strong>.networkIFSupplier = networkIFSupplier;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.ipStats = ipStats;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      @Override
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> bindTo(MeterRegistry registry) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">this</strong>.networkIFs = networkIFSupplier.get();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">for</strong> (NetworkIF net : networkIFs) {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              String device = net.getName();
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              <em class="jxr_comment">// system.network.io — Counter, unit "By", attrs: network.io.direction, system.device</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              FunctionCounter.builder(NET_IO, net, n -&gt; {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  n.updateAttributes();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <strong class="jxr_keyword">return</strong> n.getBytesRecv();
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network bytes transferred"</span>)
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                      .baseUnit(<span class="jxr_string">"By"</span>).register(registry);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>              FunctionCounter.builder(NET_IO, net, n -&gt; {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  n.updateAttributes();
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  <strong class="jxr_keyword">return</strong> n.getBytesSent();
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>              }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network bytes transferred"</span>)
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      .baseUnit(<span class="jxr_string">"By"</span>).register(registry);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <em class="jxr_comment">// system.network.packet.count — Counter, unit "{packet}", attrs: network.io.direction, system.device</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             FunctionCounter.builder(NET_PACKETS, net, n -&gt; {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 n.updateAttributes();
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 <strong class="jxr_keyword">return</strong> n.getPacketsRecv();
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network packets transferred"</span>)
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             FunctionCounter.builder(NET_PACKETS, net, n -&gt; {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 n.updateAttributes();
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">return</strong> n.getPacketsSent();
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network packets transferred"</span>)
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             <em class="jxr_comment">// system.network.packet.dropped — Counter, unit "{packet}", attrs: network.io.direction, system.device</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             FunctionCounter.builder(NET_DROPPED, net, n -&gt; {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 n.updateAttributes();
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">return</strong> n.getInDrops();
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Count of packets dropped"</span>)
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <em class="jxr_comment">// system.network.errors — Counter, unit "{error}", attrs: network.io.direction, system.device</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             FunctionCounter.builder(NET_ERRORS, net, n -&gt; {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 n.updateAttributes();
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 <strong class="jxr_keyword">return</strong> n.getInErrors();
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network errors"</span>).baseUnit(<span class="jxr_string">"{error}"</span>)
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                     .register(registry);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>             FunctionCounter.builder(NET_ERRORS, net, n -&gt; {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 n.updateAttributes();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <strong class="jxr_keyword">return</strong> n.getOutErrors();
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network errors"</span>).baseUnit(<span class="jxr_string">"{error}"</span>)
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                     .register(registry);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <em class="jxr_comment">// system.network.connection.count — UpDownCounter (Gauge), unit "{connection}",</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <em class="jxr_comment">// attrs: network.transport, network.connection.state</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         registerConnectionCountGauges(registry);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> registerConnectionCountGauges(MeterRegistry registry) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">for</strong> (TcpState state : TcpState.values()) {
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">if</strong> (state == TcpState.NONE) {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             String stateValue = state.name().toLowerCase(Locale.ROOT);
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>             Gauge.builder(NET_CONNECTIONS, <strong class="jxr_keyword">this</strong>, self -&gt; self.getCachedTcpCount(state)).tag(TRANSPORT_KEY, <span class="jxr_string">"tcp"</span>)
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>                     .tag(STATE_KEY, stateValue).description(<span class="jxr_string">"Total number of connections in each state"</span>)
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     .baseUnit(<span class="jxr_string">"{connection}"</span>).strongReference(<strong class="jxr_keyword">true</strong>).register(registry);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         Gauge.builder(NET_CONNECTIONS, <strong class="jxr_keyword">this</strong>, self -&gt; self.getCachedUdpCount()).tag(TRANSPORT_KEY, <span class="jxr_string">"udp"</span>)
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 .description(<span class="jxr_string">"Total number of UDP connections"</span>).baseUnit(<span class="jxr_string">"{connection}"</span>).strongReference(<strong class="jxr_keyword">true</strong>)
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 .register(registry);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> refreshCache() {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">if</strong> (System.currentTimeMillis() - cacheTimestamp &gt; CACHE_TTL_MS) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">synchronized</strong> (<strong class="jxr_keyword">this</strong>) {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 <strong class="jxr_keyword">if</strong> (now - cacheTimestamp &gt; CACHE_TTL_MS) {
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                     List&lt;IPConnection&gt; connections = ipStats.getConnections();
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                     Map&lt;TcpState, Long&gt; tcp = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(TcpState.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>                     <strong class="jxr_keyword">long</strong> udp = 0;
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>                     <strong class="jxr_keyword">for</strong> (IPConnection conn : connections) {
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>                         <strong class="jxr_keyword">if</strong> (conn.getType().startsWith(<span class="jxr_string">"tcp"</span>)) {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                             tcp.merge(conn.getState(), 1L, Long::sum);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (conn.getType().startsWith(<span class="jxr_string">"udp"</span>)) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                             udp++;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                         }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>                     }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>                     <strong class="jxr_keyword">this</strong>.tcpCounts.set(Collections.unmodifiableMap(tcp));
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                     <strong class="jxr_keyword">this</strong>.udpCount = udp;
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                     <strong class="jxr_keyword">this</strong>.cacheTimestamp = now;
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 }
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>             }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getCachedTcpCount(TcpState state) {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         refreshCache();
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">return</strong> tcpCounts.get().getOrDefault(state, 0L);
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getCachedUdpCount() {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         refreshCache();
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">return</strong> udpCount;
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">// Strong reference to prevent GC of NetworkIF objects used by FunctionCounter (Micrometer holds them weakly)</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      @SuppressWarnings(<span class="jxr_string">"java:S1450"</span>) <em class="jxr_comment">// deliberate GC root; must outlive bindTo(), not a method-local</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> List&lt;NetworkIF&gt; networkIFs;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <em class="jxr_comment">// Connection count cache to avoid repeated getConnections() calls per scrape</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> cacheTimestamp;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> AtomicReference&lt;Map&lt;TcpState, Long&gt;&gt; tcpCounts = <strong class="jxr_keyword">new</strong> AtomicReference&lt;&gt;(Collections.emptyMap());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> udpCount;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * Creates a new {@code NetworkMetrics} binder.</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * @param networkIFSupplier supplier that returns the current list of {@link NetworkIF} instances</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * @param ipStats           the {@link InternetProtocolStats} instance for connection counting</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> <a name="NetworkMetrics" href="../../oshi/metrics/NetworkMetrics.html#NetworkMetrics">NetworkMetrics</a>(Supplier&lt;List&lt;NetworkIF&gt;&gt; networkIFSupplier, InternetProtocolStats ipStats) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.networkIFSupplier = networkIFSupplier;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">this</strong>.ipStats = ipStats;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Override
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> bindTo(MeterRegistry registry) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">this</strong>.networkIFs = networkIFSupplier.get();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">for</strong> (NetworkIF net : networkIFs) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              String device = net.getName();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <em class="jxr_comment">// system.network.io — Counter, unit "By", attrs: network.io.direction, system.device</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              FunctionCounter.builder(NET_IO, net, n -&gt; {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  n.updateAttributes();
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">return</strong> n.getBytesRecv();
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network bytes transferred"</span>)
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                      .baseUnit(<span class="jxr_string">"By"</span>).register(registry);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>              FunctionCounter.builder(NET_IO, net, n -&gt; {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  n.updateAttributes();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  <strong class="jxr_keyword">return</strong> n.getBytesSent();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network bytes transferred"</span>)
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                      .baseUnit(<span class="jxr_string">"By"</span>).register(registry);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <em class="jxr_comment">// system.network.packet.count — Counter, unit "{packet}", attrs: network.io.direction, system.device</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             FunctionCounter.builder(NET_PACKETS, net, n -&gt; {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 n.updateAttributes();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 <strong class="jxr_keyword">return</strong> n.getPacketsRecv();
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network packets transferred"</span>)
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             FunctionCounter.builder(NET_PACKETS, net, n -&gt; {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 n.updateAttributes();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 <strong class="jxr_keyword">return</strong> n.getPacketsSent();
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network packets transferred"</span>)
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             <em class="jxr_comment">// system.network.packet.dropped — Counter, unit "{packet}", attrs: network.io.direction, system.device</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             FunctionCounter.builder(NET_DROPPED, net, n -&gt; {
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 n.updateAttributes();
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <strong class="jxr_keyword">return</strong> n.getInDrops();
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Count of packets dropped"</span>)
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                     .baseUnit(<span class="jxr_string">"{packet}"</span>).register(registry);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <em class="jxr_comment">// system.network.errors — Counter, unit "{error}", attrs: network.io.direction, system.device</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>             FunctionCounter.builder(NET_ERRORS, net, n -&gt; {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 n.updateAttributes();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <strong class="jxr_keyword">return</strong> n.getInErrors();
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"receive"</span>).description(<span class="jxr_string">"Network errors"</span>).baseUnit(<span class="jxr_string">"{error}"</span>)
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                     .register(registry);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             FunctionCounter.builder(NET_ERRORS, net, n -&gt; {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 n.updateAttributes();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 <strong class="jxr_keyword">return</strong> n.getOutErrors();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, <span class="jxr_string">"transmit"</span>).description(<span class="jxr_string">"Network errors"</span>).baseUnit(<span class="jxr_string">"{error}"</span>)
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                     .register(registry);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <em class="jxr_comment">// system.network.connection.count — UpDownCounter (Gauge), unit "{connection}",</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <em class="jxr_comment">// attrs: network.transport, network.connection.state</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         registerConnectionCountGauges(registry);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> registerConnectionCountGauges(MeterRegistry registry) {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">for</strong> (TcpState state : TcpState.values()) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">if</strong> (state == TcpState.NONE) {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             String stateValue = state.name().toLowerCase(Locale.ROOT);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             Gauge.builder(NET_CONNECTIONS, <strong class="jxr_keyword">this</strong>, self -&gt; self.getCachedTcpCount(state)).tag(TRANSPORT_KEY, <span class="jxr_string">"tcp"</span>)
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                     .tag(STATE_KEY, stateValue).description(<span class="jxr_string">"Total number of connections in each state"</span>)
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                     .baseUnit(<span class="jxr_string">"{connection}"</span>).strongReference(<strong class="jxr_keyword">true</strong>).register(registry);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         Gauge.builder(NET_CONNECTIONS, <strong class="jxr_keyword">this</strong>, self -&gt; self.getCachedUdpCount()).tag(TRANSPORT_KEY, <span class="jxr_string">"udp"</span>)
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 .description(<span class="jxr_string">"Total number of UDP connections"</span>).baseUnit(<span class="jxr_string">"{connection}"</span>).strongReference(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                 .register(registry);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> refreshCache() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">if</strong> (System.currentTimeMillis() - cacheTimestamp &gt; CACHE_TTL_MS) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">synchronized</strong> (<strong class="jxr_keyword">this</strong>) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 <strong class="jxr_keyword">if</strong> (now - cacheTimestamp &gt; CACHE_TTL_MS) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                     List&lt;IPConnection&gt; connections = ipStats.getConnections();
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                     Map&lt;TcpState, Long&gt; tcp = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(TcpState.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                     <strong class="jxr_keyword">long</strong> udp = 0;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                     <strong class="jxr_keyword">for</strong> (IPConnection conn : connections) {
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                         <strong class="jxr_keyword">if</strong> (conn.getType().startsWith(<span class="jxr_string">"tcp"</span>)) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                             tcp.merge(conn.getState(), 1L, Long::sum);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>                         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (conn.getType().startsWith(<span class="jxr_string">"udp"</span>)) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                             udp++;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                         }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                     }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                     <strong class="jxr_keyword">this</strong>.tcpCounts.set(Collections.unmodifiableMap(tcp));
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>                     <strong class="jxr_keyword">this</strong>.udpCount = udp;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                     <strong class="jxr_keyword">this</strong>.cacheTimestamp = now;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getCachedTcpCount(TcpState state) {
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         refreshCache();
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> tcpCounts.get().getOrDefault(state, 0L);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong> getCachedUdpCount() {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         refreshCache();
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">return</strong> udpCount;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

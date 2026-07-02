@@ -69,10 +69,10 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                  List&lt;String&gt; args = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(numArgs);
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <em class="jxr_comment">// Reinterpret the pointer array with proper size</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  MemorySegment argvArray = argvPtr.reinterpret((<strong class="jxr_keyword">long</strong>) numArgs * ADDRESS.byteSize());
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  MemorySegment argvArray = argvPtr.reinterpret(numArgs * ADDRESS.byteSize());
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; numArgs; i++) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      MemorySegment argPtr = argvArray.get(ADDRESS, (<strong class="jxr_keyword">long</strong>) i * ADDRESS.byteSize());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      MemorySegment argPtr = argvArray.get(ADDRESS, i * ADDRESS.byteSize());
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">if</strong> (argPtr != <strong class="jxr_keyword">null</strong> &amp;&amp; argPtr.address() != 0) {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                          <em class="jxr_comment">// Calculate string length by finding null terminator</em>
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                          <em class="jxr_comment">// Reinterpret with large size to scan for null</em>

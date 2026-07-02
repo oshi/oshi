@@ -178,7 +178,7 @@
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>                 rc = RegCloseKey(hKey);
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>                 <strong class="jxr_keyword">if</strong> (rc != ERROR_SUCCESS) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="Win32Exception" href="../../../../../oshi/ffm/platform/windows/Win32Exception.html#Win32Exception">Win32Exception</a>(rc);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                     LOG.warn(<span class="jxr_string">"Failed to close registry key, error code: {}"</span>, rc);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>                 }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>             }
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
@@ -250,7 +250,7 @@
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>                 <strong class="jxr_keyword">case</strong> REG_SZ, REG_EXPAND_SZ -&gt; registryGetString(hKey, valueName, size);
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <strong class="jxr_keyword">case</strong> REG_DWORD -&gt; registryGetDword(hKey, valueName);
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>                 <strong class="jxr_keyword">default</strong> -&gt; {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>                     LOG.warn(<span class="jxr_string">"Unsupported registry data type "</span> + type + <span class="jxr_string">" for "</span> + valueName);
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                     LOG.warn(<span class="jxr_string">"Unsupported registry data type {} for {}"</span>, type, valueName);
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>                     yield <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>                 }
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>             };
@@ -411,9 +411,9 @@
 <a class="jxr_linenumber" name="L403" href="#L403">403</a> 
 <a class="jxr_linenumber" name="L404" href="#L404">404</a>             <strong class="jxr_keyword">long</strong> event6005Time = 0L;
 <a class="jxr_linenumber" name="L405" href="#L405">405</a> 
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>             <strong class="jxr_keyword">long</strong> OFFSET_EVENTID = WinNTFFM.OFFSET_EVENTID;
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>             <strong class="jxr_keyword">long</strong> OFFSET_TIME_GENERATED = WinNTFFM.OFFSET_TIME_GENERATED;
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>             <strong class="jxr_keyword">long</strong> OFFSET_LENGTH = WinNTFFM.OFFSET_LENGTH;
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             <strong class="jxr_keyword">long</strong> offsetEventId = WinNTFFM.OFFSET_EVENTID;
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             <strong class="jxr_keyword">long</strong> offsetTimeGenerated = WinNTFFM.OFFSET_TIME_GENERATED;
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>             <strong class="jxr_keyword">long</strong> offsetLength = WinNTFFM.OFFSET_LENGTH;
 <a class="jxr_linenumber" name="L409" href="#L409">409</a> 
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>             <strong class="jxr_keyword">while</strong> (Advapi32FFM.ReadEventLog(hEventLog,
 <a class="jxr_linenumber" name="L411" href="#L411">411</a>                     WinNTFFM.EVENTLOG_BACKWARDS_READ | WinNTFFM.EVENTLOG_SEQUENTIAL_READ, buffer, bufSize, bytesRead,
@@ -423,10 +423,10 @@
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>                 <strong class="jxr_keyword">int</strong> offset = 0;
 <a class="jxr_linenumber" name="L416" href="#L416">416</a> 
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>                 <strong class="jxr_keyword">while</strong> (offset &lt; read) {
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>                     MemorySegment record = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>                     MemorySegment eventRecord = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> 
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     <strong class="jxr_keyword">int</strong> eventId = record.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) OFFSET_EVENTID);
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                     <strong class="jxr_keyword">long</strong> timeGenerated = Integer.toUnsignedLong(record.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) OFFSET_TIME_GENERATED));
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     <strong class="jxr_keyword">int</strong> eventId = eventRecord.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) offsetEventId);
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                     <strong class="jxr_keyword">long</strong> timeGenerated = Integer.toUnsignedLong(eventRecord.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) offsetTimeGenerated));
 <a class="jxr_linenumber" name="L422" href="#L422">422</a> 
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>                     <strong class="jxr_keyword">if</strong> (eventId == 12) { <em class="jxr_comment">// system boot</em>
 <a class="jxr_linenumber" name="L424" href="#L424">424</a>                         Advapi32FFM.CloseEventLog(hEventLog);
@@ -440,7 +440,7 @@
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>                     }
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> 
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>                     <em class="jxr_comment">// Advance to next record</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">int</strong> length = record.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) OFFSET_LENGTH);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">int</strong> length = eventRecord.get(JAVA_INT, (<strong class="jxr_keyword">int</strong>) offsetLength);
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>                     offset += length;
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>                 }
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>             }

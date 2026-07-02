@@ -403,11 +403,11 @@
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>         <strong class="jxr_keyword">for</strong> (<a name="OSFileStore" href="../../oshi/software/os/OSFileStore.html#OSFileStore">OSFileStore</a> fs : fileSystem.getFileStores(<strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>             <strong class="jxr_keyword">long</strong> usable = fs.getUsableSpace();
 <a class="jxr_linenumber" name="L397" href="#L397">397</a>             <strong class="jxr_keyword">long</strong> total = fs.getTotalSpace();
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>             lines.add(String.format(Locale.ROOT,
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>                     <span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "</span>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>                             + (fs.getLogicalVolume() != <strong class="jxr_keyword">null</strong> &amp;&amp; fs.getLogicalVolume().length() &gt; 0 ? <span class="jxr_string">"[%s]"</span> : <span class="jxr_string">"%s"</span>)
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>                             + <span class="jxr_string">" and is mounted at %s"</span>,
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>                     fs.getName(), fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>             String fmt = <span class="jxr_string">" %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "</span>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                     + (fs.getLogicalVolume() != <strong class="jxr_keyword">null</strong> &amp;&amp; !fs.getLogicalVolume().isEmpty() ? <span class="jxr_string">"[%s]"</span> : <span class="jxr_string">"%s"</span>)
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                     + <span class="jxr_string">" and is mounted at %s"</span>;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             lines.add(String.format(Locale.ROOT, fmt, fs.getName(),
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                     fs.getDescription().isEmpty() ? <span class="jxr_string">"file system"</span> : fs.getDescription(), fs.getType(),
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,
 <a class="jxr_linenumber" name="L404" href="#L404">404</a>                     FormatUtil.formatValue(fs.getFreeInodes(), <span class="jxr_string">""</span>), FormatUtil.formatValue(fs.getTotalInodes(), <span class="jxr_string">""</span>),
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>                     100d * fs.getFreeInodes() / fs.getTotalInodes(), fs.getVolume(), fs.getLogicalVolume(),
@@ -498,7 +498,7 @@
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>             lines.add(<span class="jxr_string">" None detected."</span>);
 <a class="jxr_linenumber" name="L491" href="#L491">491</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>             <strong class="jxr_keyword">for</strong> (<a name="BluetoothDevice" href="../../oshi/hardware/BluetoothDevice.html#BluetoothDevice">BluetoothDevice</a> device : list) {
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>                 lines.add(<span class="jxr_string">" "</span> + String.valueOf(device));
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                 lines.add(<span class="jxr_string">" "</span> + device);
 <a class="jxr_linenumber" name="L494" href="#L494">494</a>             }
 <a class="jxr_linenumber" name="L495" href="#L495">495</a>         }
 <a class="jxr_linenumber" name="L496" href="#L496">496</a>     }
@@ -512,7 +512,7 @@
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> printSoundCards(List&lt;String&gt; lines, List&lt;SoundCard&gt; list) {
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>         lines.add(<span class="jxr_string">"Sound Cards:"</span>);
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>         <strong class="jxr_keyword">for</strong> (<a name="SoundCard" href="../../oshi/hardware/SoundCard.html#SoundCard">SoundCard</a> card : list) {
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             lines.add(<span class="jxr_string">" "</span> + String.valueOf(card));
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>             lines.add(<span class="jxr_string">" "</span> + card);
 <a class="jxr_linenumber" name="L508" href="#L508">508</a>         }
 <a class="jxr_linenumber" name="L509" href="#L509">509</a>     }
 <a class="jxr_linenumber" name="L510" href="#L510">510</a> 
@@ -528,7 +528,7 @@
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>             lines.add(<span class="jxr_string">" None detected."</span>);
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>             <strong class="jxr_keyword">for</strong> (<a name="GraphicsCard" href="../../oshi/hardware/GraphicsCard.html#GraphicsCard">GraphicsCard</a> card : list) {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>                 lines.add(<span class="jxr_string">" "</span> + String.valueOf(card));
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>                 lines.add(<span class="jxr_string">" "</span> + card);
 <a class="jxr_linenumber" name="L524" href="#L524">524</a>             }
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>         }
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
@@ -545,7 +545,7 @@
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>             lines.add(<span class="jxr_string">" None detected."</span>);
 <a class="jxr_linenumber" name="L538" href="#L538">538</a>         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L539" href="#L539">539</a>             <strong class="jxr_keyword">for</strong> (<a name="Printer" href="../../oshi/hardware/Printer.html#Printer">Printer</a> printer : list) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>                 lines.add(<span class="jxr_string">" "</span> + String.valueOf(printer));
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>                 lines.add(<span class="jxr_string">" "</span> + printer);
 <a class="jxr_linenumber" name="L541" href="#L541">541</a>             }
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>         }
 <a class="jxr_linenumber" name="L543" href="#L543">543</a>     }

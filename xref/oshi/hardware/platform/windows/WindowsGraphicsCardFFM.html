@@ -287,8 +287,8 @@
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> 
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String registryString(String keyPath, String valueName) {
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>         Object val = Advapi32UtilFFM.registryGetValue(HKLM, keyPath, valueName);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (val instanceof String) {
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">return</strong> (String) val;
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">if</strong> (val instanceof String string) {
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             <strong class="jxr_keyword">return</strong> string;
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>         }
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>     }

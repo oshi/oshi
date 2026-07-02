@@ -111,15 +111,15 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                 <strong class="jxr_keyword">this</strong>.ifType = ifRow.Type;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>                 <strong class="jxr_keyword">this</strong>.ndisPhysicalMediumType = ifRow.PhysicalMediumType;
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>                 <strong class="jxr_keyword">this</strong>.connectorPresent = (ifRow.InterfaceAndOperStatusFlags &amp; CONNECTOR_PRESENT_BIT) &gt; 0;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 setBytesSent(ifRow.OutOctets);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 setBytesRecv(ifRow.InOctets);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 setPacketsSent(ifRow.OutUcastPkts);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 setPacketsRecv(ifRow.InUcastPkts);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 setOutErrors(ifRow.OutErrors);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 setInErrors(ifRow.InErrors);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 setCollisions(ifRow.OutDiscards);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 setInDrops(ifRow.InDiscards);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 setSpeed(ifRow.ReceiveLinkSpeed);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">this</strong>.bytesSent = ifRow.OutOctets;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">this</strong>.bytesRecv = ifRow.InOctets;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 <strong class="jxr_keyword">this</strong>.packetsSent = ifRow.OutUcastPkts;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 <strong class="jxr_keyword">this</strong>.packetsRecv = ifRow.InUcastPkts;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 <strong class="jxr_keyword">this</strong>.outErrors = ifRow.OutErrors;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 <strong class="jxr_keyword">this</strong>.inErrors = ifRow.InErrors;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <strong class="jxr_keyword">this</strong>.collisions = ifRow.OutDiscards;
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">this</strong>.inDrops = ifRow.InDiscards;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">this</strong>.speed = ifRow.ReceiveLinkSpeed;
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <strong class="jxr_keyword">this</strong>.ifAlias = Native.toString(ifRow.Alias);
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <strong class="jxr_keyword">this</strong>.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             }
@@ -135,20 +135,20 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 <strong class="jxr_keyword">this</strong>.ifType = ifRow.dwType;
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                 <em class="jxr_comment">// These are unsigned ints. Widen them to longs.</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 setBytesSent(ParseUtil.unsignedIntToLong(ifRow.dwOutOctets));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 setBytesRecv(ParseUtil.unsignedIntToLong(ifRow.dwInOctets));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 setPacketsSent(ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 setPacketsRecv(ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts));
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 setOutErrors(ParseUtil.unsignedIntToLong(ifRow.dwOutErrors));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 setInErrors(ParseUtil.unsignedIntToLong(ifRow.dwInErrors));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 setCollisions(ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards));
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 setInDrops(ParseUtil.unsignedIntToLong(ifRow.dwInDiscards));
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 setSpeed(ParseUtil.unsignedIntToLong(ifRow.dwSpeed));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 <strong class="jxr_keyword">this</strong>.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">this</strong>.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <strong class="jxr_keyword">this</strong>.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <strong class="jxr_keyword">this</strong>.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">this</strong>.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">this</strong>.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <strong class="jxr_keyword">this</strong>.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 <strong class="jxr_keyword">this</strong>.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <strong class="jxr_keyword">this</strong>.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>                 <strong class="jxr_keyword">this</strong>.ifAlias = <span class="jxr_string">""</span>; <em class="jxr_comment">// not supported by MIB_IFROW</em>
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>                 <strong class="jxr_keyword">this</strong>.ifOperStatus = IfOperStatus.UNKNOWN; <em class="jxr_comment">// not supported</em>
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             }
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         setTimeStamp(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> }
