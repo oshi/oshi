@@ -1019,6 +1019,13 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <!-- TEMPORARY (site branch only; overwritten by the next release's force-push): a gentler NVD
+                         request pace and more retries so a cold-cache full download can ride out NVD's 503
+                         (server-overload) responses. Durable fix is the NVD cache warmer in PR #3423. -->
+                    <nvdApiDelay>8000</nvdApiDelay>
+                    <nvdMaxRetryCount>50</nvdMaxRetryCount>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
