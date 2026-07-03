@@ -44,13 +44,13 @@ public final class PerfmonDisabledFFM {
             Object disabled = Advapi32UtilFFM.registryGetValue(hklm, key, value);
             if (disabled instanceof Integer disabledValue) {
                 if (disabledValue > 0) {
-                    LOG.warn("{} counters are disabled and won't return data: {}\\{}\\{} > 0.", service,
+                    LOG.warn("{} counters are disabled and won't return data: {}\\\\{}\\\\{} > 0.", service,
                             "HKEY_LOCAL_MACHINE", key, value);
                     return true;
                 }
             } else if (disabled != null) {
                 LOG.warn(
-                        "Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}\\{}\\{}.",
+                        "Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}\\\\{}\\\\{}.",
                         service, "HKEY_LOCAL_MACHINE", key, value);
             }
             return false;
