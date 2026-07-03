@@ -1,25 +1,14 @@
 name: NVD Cache Warmer
 
-# Keeps the OWASP dependency-check NVD database warm and alerts on newly
-# disclosed vulnerabilities in current dependencies.
-#
-# The Site (release) build is the only other NVD consumer and it runs at most
-# every few weeks -- longer than BOTH GitHub's 7-day cache-eviction window and
-# dependency-check's 7-day incremental-update window. Without this warmer every
-# release faces a cold, multi-hour full NVD download that is exposed to NVD API
-# throttling (which once ran into the 6-hour job cap and was killed).
-#
-# Running on a schedule keeps the cached database inside both windows, so the
-# release build restores a warm cache and only does a fast incremental update
-# (or none at all). GitHub makes caches created on the default branch readable
-# from every branch, so the cache this builds on master is available to the
-# `site` branch build. A run that fails on a CVE is the vulnerability alert.
+# Keeps the OWASP dependency-check NVD database warm so the Site (release) build
+# never has to do a cold full download -- that repeatedly failed on NVD 503s and
+# timed out. Running every ~3 days stays inside both GitHub's 7-day cache-eviction
+# window and dependency-check's 7-day incremental window, so each run is a fast
+# incremental. A failing run (a CVE at or above the threshold) is the vuln alert.
 
 on:
   workflow_dispatch:
   schedule:
-    # Every 3 days at 07:00 UTC -- comfortably inside the 7-day windows even if
-    # a scheduled run is skipped (GitHub drops scheduled runs under high load).
     - cron: '0 7 */3 * *'
 
 permissions:
@@ -29,7 +18,9 @@ jobs:
   update-and-scan:
     if: github.repository_owner == 'oshi'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Generous ceiling only ever reached by the first (cold) seed at the gentle NVD
+    # pace; warm runs finish in minutes.
+    timeout-minutes: 210
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
@@ -37,47 +28,35 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5
         with:
+          cache: maven
           distribution: temurin
           java-version: 25
-      # Cache Maven artifacts but exclude the NVD data dir -- it has its own
-      # rolling cache below, and setup-java's built-in `cache: maven` would
-      # otherwise store the ~1.5 GB database a second time.
-      - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/owasp/dependency-check-data
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: maven-
-      # Rolling cache: restore the newest previous snapshot via the prefix, and
-      # always save under a unique key (actions/cache never overwrites a key).
-      # Old snapshots LRU-evict; this keeps the DB fresh and incremental.
+      # Restore the newest previous snapshot. The key is per-run (github.run_id)
+      # because GitHub caches are immutable per key -- a static key could never be
+      # refreshed -- so each run reads the latest via restore-keys and writes a new
+      # snapshot. Default-branch caches are readable from every branch, so the Site
+      # build restores this one too; superseded snapshots evict after 7 idle days.
       - name: Restore NVD database cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: nvd-db-${{ github.run_id }}
           restore-keys: nvd-db-
-      # Warm the DB. Bounded and non-fatal so a bad NVD day can't fail the alert
-      # or burn the job budget -- whatever downloaded is still saved below.
       - name: Update NVD database
-        timeout-minutes: 30
-        continue-on-error: true
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: ./mvnw dependency-check:update-only -B --settings ./.mvn/settings.xml -Dmaven.gitcommitid.skip=true
+      # Only reached when the update above succeeded (default success() gating), so
+      # the cache never holds a partial/incomplete DB.
       - name: Save NVD database cache
-        if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: nvd-db-${{ github.run_id }}
-      # Scan against the cached DB only (-DautoUpdate=false): the update step
-      # above owns the network fetch, so the scan can't launch a second full
-      # download under the remaining job budget. A CVE at or above the threshold
-      # fails the run, which is the alert. Tune the threshold to taste (11 off).
+      # Alert: scan against the just-updated DB (fresh, so no network) and fail on a
+      # CVE at or above the threshold. Runs after the save, so a CVE never blocks the
+      # cache refresh. Tune the threshold to taste (11 disables it).
       - name: Scan dependencies for vulnerabilities
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: ./mvnw install dependency-check:aggregate -DskipTests -Djacoco.skip=true -Dmaven.gitcommitid.skip=true -DautoUpdate=false -DfailBuildOnCVSS=7 -B --settings ./.mvn/settings.xml
+        run: ./mvnw install dependency-check:aggregate -DskipTests -Djacoco.skip=true -Dmaven.gitcommitid.skip=true -DfailBuildOnCVSS=7 -B --settings ./.mvn/settings.xml

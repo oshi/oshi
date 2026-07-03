@@ -144,8 +144,8 @@
         <dependency-check-maven.version>12.2.2</dependency-check-maven.version>
         <!-- OWASP dependency-check NVD tuning: treat cached data as fresh for a week (skips updates on a
              warm cache) and ride out NVD API throttling. See the NVD Cache Warmer and Site workflows. -->
-        <dependency-check.nvdApiDelay>6000</dependency-check.nvdApiDelay>
-        <dependency-check.nvdMaxRetryCount>25</dependency-check.nvdMaxRetryCount>
+        <dependency-check.nvdApiDelay>7500</dependency-check.nvdApiDelay>
+        <dependency-check.nvdMaxRetryCount>50</dependency-check.nvdMaxRetryCount>
         <dependency-check.nvdValidForHours>168</dependency-check.nvdValidForHours>
         <japicmp-maven-plugin.version>0.26.1</japicmp-maven-plugin.version>
         <puppycrawl.checkstyle.version>13.7.0</puppycrawl.checkstyle.version>
