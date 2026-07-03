@@ -150,6 +150,7 @@ public class SystemInfo implements SystemInfoProvider {
      *
      * @return A new platform-specific instance implementing {@link OperatingSystem}.
      */
+    @Override
     public OperatingSystem getOperatingSystem() {
         return os.get();
     }
@@ -159,6 +160,7 @@ public class SystemInfo implements SystemInfoProvider {
      *
      * @return A new platform-specific instance implementing {@link HardwareAbstractionLayer}.
      */
+    @Override
     public HardwareAbstractionLayer getHardware() {
         return hardware.get();
     }

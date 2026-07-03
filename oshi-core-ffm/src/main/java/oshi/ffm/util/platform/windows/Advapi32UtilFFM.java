@@ -371,11 +371,11 @@ public final class Advapi32UtilFFM {
             } finally {
                 int closeRc = RegCloseKey(hKey);
                 if (closeRc != ERROR_SUCCESS) {
-                    LOG.debug("Failed to close registry key {}\\{}: error {}", keyPath, valueName, closeRc);
+                    LOG.debug("Failed to close registry key {}\\\\{}: error {}", keyPath, valueName, closeRc);
                 }
             }
         } catch (Throwable t) {
-            LOG.warn("Failed to read registry string array {}\\{}: {}", keyPath, valueName, t.getMessage());
+            LOG.warn("Failed to read registry string array {}\\\\{}: {}", keyPath, valueName, t.getMessage());
             return new String[0];
         }
     }

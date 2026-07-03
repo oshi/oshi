@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +48,7 @@ class LinuxFileSystemTest {
                 break;
             }
         }
-        assertThat("Root mount should be present", root != null, is(true));
+        assertNotNull(root, "Root mount should be present");
         assertThat(root.getMount(), is("/"));
         assertThat(root.getType(), is(not(emptyString())));
         assertThat(root.getTotalSpace(), is(greaterThan(0L)));

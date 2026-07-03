@@ -105,6 +105,7 @@ public class SystemInfo implements SystemInfoProvider {
      *
      * @return A new instance of {@link oshi.software.os.OperatingSystem}.
      */
+    @Override
     public OperatingSystem getOperatingSystem() {
         return os.get();
     }
@@ -140,6 +141,7 @@ public class SystemInfo implements SystemInfoProvider {
      *
      * @return A new instance of {@link oshi.hardware.HardwareAbstractionLayer}.
      */
+    @Override
     public HardwareAbstractionLayer getHardware() {
         return hardware.get();
     }
