@@ -14,6 +14,13 @@ on:
 permissions:
   contents: read
 
+# Serialize all runs (scheduled + manual dispatch) so two warmers never hit the
+# NVD API or write the cache at the same time. Queue rather than cancel, so a
+# manual run can't abort an in-progress (possibly long cold-seed) scheduled one.
+concurrency:
+  group: nvd-cache-warmer
+  cancel-in-progress: false
+
 jobs:
   update-and-scan:
     if: github.repository_owner == 'oshi'
