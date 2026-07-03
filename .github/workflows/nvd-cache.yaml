@@ -59,4 +59,5 @@ jobs:
       - name: Scan dependencies for vulnerabilities
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          SONATYPE_GUIDE_TOKEN: ${{ secrets.SONATYPE_GUIDE_TOKEN }}
         run: ./mvnw install dependency-check:aggregate -DskipTests -Djacoco.skip=true -Dmaven.gitcommitid.skip=true -DfailBuildOnCVSS=7 -B --settings ./.mvn/settings.xml

@@ -25,5 +25,10 @@
             <id>github</id>
             <password>${env.GITHUB_TOKEN}</password>
         </server>
+        <!-- Sonatype OSS Index / Guide: the Guide API token is the password; username is optional. -->
+        <server>
+            <id>ossindex</id>
+            <password>${env.SONATYPE_GUIDE_TOKEN}</password>
+        </server>
     </servers>
 </settings>

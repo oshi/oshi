@@ -630,6 +630,10 @@
                         <nvdApiDelay>${dependency-check.nvdApiDelay}</nvdApiDelay>
                         <nvdMaxRetryCount>${dependency-check.nvdMaxRetryCount}</nvdMaxRetryCount>
                         <nvdValidForHours>${dependency-check.nvdValidForHours}</nvdValidForHours>
+                        <!-- Sonatype OSS Index auth via the `ossindex` server in .mvn/settings.xml
+                             (Guide token as password). Warn-only so an OSS Index outage never fails a build. -->
+                        <ossIndexServerId>ossindex</ossIndexServerId>
+                        <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -1031,11 +1035,12 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <configuration>
                     <!-- Reporting plugins do not inherit build/pluginManagement
-                         config, so repeat the NVD resilience settings here so the
-                         site report reuses a warm cache instead of re-downloading. -->
+                         config, so repeat the NVD + OSS Index settings here. -->
                     <nvdApiDelay>${dependency-check.nvdApiDelay}</nvdApiDelay>
                     <nvdMaxRetryCount>${dependency-check.nvdMaxRetryCount}</nvdMaxRetryCount>
                     <nvdValidForHours>${dependency-check.nvdValidForHours}</nvdValidForHours>
+                    <ossIndexServerId>ossindex</ossIndexServerId>
+                    <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
                 </configuration>
                 <reportSets>
                     <reportSet>
