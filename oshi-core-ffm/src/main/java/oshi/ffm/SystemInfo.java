@@ -92,7 +92,10 @@ public class SystemInfo implements SystemInfoProvider {
 
     @Override
     public boolean isAvailable() {
-        return true;
+        // Report unavailable only on Android, where java.lang.foreign is absent (ART), so the SPI falls back to the
+        // JNA/command-line provider. Any other (unsupported) platform stays "available" and errors out in the switch
+        // below rather than silently falling back.
+        return PlatformEnum.getCurrentPlatform() != PlatformEnum.ANDROID;
     }
 
     private static OperatingSystem createOperatingSystem() {
@@ -115,6 +118,10 @@ public class SystemInfo implements SystemInfoProvider {
                 return new SolarisOperatingSystemFFM();
             case AIX:
                 return new AixOperatingSystemFFM();
+            case ANDROID:
+                // Android's ART has no java.lang.foreign; isAvailable() reports this provider unavailable on Android,
+                // so the SPI falls back to the JNA/command-line provider before reaching here.
+                // falls through
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }
@@ -140,6 +147,10 @@ public class SystemInfo implements SystemInfoProvider {
                 return new SolarisHardwareAbstractionLayerFFM();
             case AIX:
                 return new AixHardwareAbstractionLayerFFM();
+            case ANDROID:
+                // Android's ART has no java.lang.foreign; isAvailable() reports this provider unavailable on Android,
+                // so the SPI falls back to the JNA/command-line provider before reaching here.
+                // falls through
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED);
         }
