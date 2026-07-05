@@ -78,6 +78,13 @@ public class SystemInfoTest {
         assertNotNull(new SystemInfo().getHardware());
     }
 
+    @Test
+    void testIsAvailable() {
+        // This suite only runs on JDK 25+ where the FFM API is present, so the provider must report available.
+        assertThat("FFM provider should be available when java.lang.foreign is present", new SystemInfo().isAvailable(),
+                is(true));
+    }
+
     public static void main(String[] args) {
         logger.info("------------------------------------------------------------------------");
         logger.info("Using FFM");
