@@ -158,46 +158,38 @@ public final class PerfDataUtil {
         return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());
     }
 
-    private static boolean isEnabled(Level level) {
-        switch (level) {
-            case ERROR:
-                return LOG.isErrorEnabled();
-            case WARN:
-                return LOG.isWarnEnabled();
-            case INFO:
-                return LOG.isInfoEnabled();
-            case TRACE:
-                return LOG.isTraceEnabled();
-            case DEBUG:
-            default:
-                return LOG.isDebugEnabled();
-        }
-    }
-
-    private static void logAtLevel(Level level, String format, Object... args) {
-        switch (level) {
-            case ERROR:
-                LOG.error(format, args);
-                break;
-            case WARN:
-                LOG.warn(format, args);
-                break;
-            case INFO:
-                LOG.info(format, args);
-                break;
-            case TRACE:
-                LOG.trace(format, args);
-                break;
-            case DEBUG:
-            default:
-                LOG.debug(format, args);
-                break;
-        }
+    private static String formatErrorMessage(String message, int ret) {
+        return message + " Error code: " + String.format(Locale.ROOT, FormatUtil.formatError(ret));
     }
 
     static <T> T handleError(int ret, Level level, String message, T defaultValue) {
-        if (isEnabled(level)) {
-            logAtLevel(level, "{} Error code: {}", message, String.format(Locale.ROOT, FormatUtil.formatError(ret)));
+        switch (level) {
+            case ERROR:
+                if (LOG.isErrorEnabled()) {
+                    LOG.error(formatErrorMessage(message, ret));
+                }
+                break;
+            case WARN:
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn(formatErrorMessage(message, ret));
+                }
+                break;
+            case INFO:
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(formatErrorMessage(message, ret));
+                }
+                break;
+            case TRACE:
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(formatErrorMessage(message, ret));
+                }
+                break;
+            case DEBUG:
+            default:
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(formatErrorMessage(message, ret));
+                }
+                break;
         }
         return defaultValue;
     }
