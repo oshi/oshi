@@ -7,7 +7,6 @@ package oshi.ffm;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static oshi.util.SystemInfoHelper.printBluetoothDevices;
 import static oshi.util.SystemInfoHelper.printComputerSystem;
@@ -60,12 +59,6 @@ public class SystemInfoTest {
     void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
         main(null);
-    }
-
-    @Test
-    void testGetCurrentPlatform() {
-        assertNotNull(PlatformEnum.getCurrentPlatform(), "Platform should not be null");
-        assertNotEquals(PlatformEnum.UNKNOWN, PlatformEnum.getCurrentPlatform(), "Platform should be recognized");
     }
 
     @Test
