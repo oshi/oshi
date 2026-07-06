@@ -484,6 +484,24 @@ public abstract class ForeignFunctions {
     private static void logThrowable(Logger logger, Level level, String message, Throwable t) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
-        logger.atLevel(level).setCause(t).log(message + ": {}", t.getMessage());
+        String format = message + ": {}";
+        switch (level) {
+            case ERROR:
+                logger.error(format, t.getMessage(), t);
+                break;
+            case WARN:
+                logger.warn(format, t.getMessage(), t);
+                break;
+            case INFO:
+                logger.info(format, t.getMessage(), t);
+                break;
+            case TRACE:
+                logger.trace(format, t.getMessage(), t);
+                break;
+            case DEBUG:
+            default:
+                logger.debug(format, t.getMessage(), t);
+                break;
+        }
     }
 }

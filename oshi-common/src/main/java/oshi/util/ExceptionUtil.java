@@ -24,6 +24,37 @@ public final class ExceptionUtil {
     }
 
     /**
+     * Logs a throwable at the given level using only SLF4J 1.x-compatible {@link Logger} methods (no {@code atLevel}
+     * fluent API). Relies on SLF4J's implicit-cause handling: when the last of the extra arguments is a
+     * {@link Throwable}, it is attached as the log event's cause rather than substituted into the format string.
+     *
+     * @param log   the logger to use
+     * @param level the level at which to log
+     * @param msg   the log message (use {} for the exception message placeholder)
+     * @param t     the throwable to log
+     */
+    private static void logAtLevel(Logger log, Level level, String msg, Throwable t) {
+        switch (level) {
+            case ERROR:
+                log.error(msg, t.getMessage(), t);
+                break;
+            case WARN:
+                log.warn(msg, t.getMessage(), t);
+                break;
+            case INFO:
+                log.info(msg, t.getMessage(), t);
+                break;
+            case TRACE:
+                log.trace(msg, t.getMessage(), t);
+                break;
+            case DEBUG:
+            default:
+                log.debug(msg, t.getMessage(), t);
+                break;
+        }
+    }
+
+    /**
      * A supplier that may throw any {@link Throwable}, including checked exceptions.
      *
      * @param <T> the type of result supplied
@@ -156,7 +187,7 @@ public final class ExceptionUtil {
         try {
             return supplier.get();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return defaultValue;
         }
     }
@@ -206,7 +237,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsInt();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return defaultValue;
         }
     }
@@ -256,7 +287,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsLong();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return defaultValue;
         }
     }
@@ -307,7 +338,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsBoolean();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return defaultValue;
         }
     }
@@ -358,7 +389,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsDouble();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return defaultValue;
         }
     }
@@ -391,7 +422,7 @@ public final class ExceptionUtil {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return Optional.empty();
         }
     }
@@ -423,7 +454,7 @@ public final class ExceptionUtil {
         try {
             return OptionalInt.of(supplier.getAsInt());
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return OptionalInt.empty();
         }
     }
@@ -455,7 +486,7 @@ public final class ExceptionUtil {
         try {
             return OptionalLong.of(supplier.getAsLong());
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
             return OptionalLong.empty();
         }
     }
@@ -496,7 +527,7 @@ public final class ExceptionUtil {
         try {
             runnable.run();
         } catch (Throwable t) {
-            log.atLevel(level).setCause(t).log(msg, t.getMessage());
+            logAtLevel(log, level, msg, t);
         }
     }
 }

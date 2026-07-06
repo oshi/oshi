@@ -158,11 +158,29 @@ public final class PerfDataUtil {
         return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());
     }
 
-    static <T> T handleError(int ret, Level level, String message, T defaultValue) {
-        if (LOG.isEnabledForLevel(level)) {
-            LOG.atLevel(level).log("{} Error code: {}", message,
-                    String.format(Locale.ROOT, FormatUtil.formatError(ret)));
+    private static void logAtLevel(Level level, String format, Object... args) {
+        switch (level) {
+            case ERROR:
+                LOG.error(format, args);
+                break;
+            case WARN:
+                LOG.warn(format, args);
+                break;
+            case INFO:
+                LOG.info(format, args);
+                break;
+            case TRACE:
+                LOG.trace(format, args);
+                break;
+            case DEBUG:
+            default:
+                LOG.debug(format, args);
+                break;
         }
+    }
+
+    static <T> T handleError(int ret, Level level, String message, T defaultValue) {
+        logAtLevel(level, "{} Error code: {}", message, String.format(Locale.ROOT, FormatUtil.formatError(ret)));
         return defaultValue;
     }
 }
