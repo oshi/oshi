@@ -38,6 +38,8 @@ jobs:
         run: ./mvnw forbiddenapis:check forbiddenapis:testCheck
       - name: Javadoc
         run: ./mvnw javadoc:javadoc -DskipTests
+      - name: Verify SLF4J 1.7 API compatibility
+        run: ./mvnw -Pverify-slf4j-17 clean compile
 
   test:
     runs-on: ${{ matrix.os }}

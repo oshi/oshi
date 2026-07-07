@@ -1136,6 +1136,16 @@
                 <module>oshi-dist</module>
             </modules>
         </profile>
+        <!-- Compiles against the oldest supported SLF4J 1.x API to catch accidental
+             use of SLF4J 2.0-only Logger methods (atLevel, isEnabledForLevel, etc.)
+             that would break consumers pinning an older slf4j-api on the runtime
+             classpath. Use: mvnw -Pverify-slf4j-17 clean compile -->
+        <profile>
+            <id>verify-slf4j-17</id>
+            <properties>
+                <slf4j.version>1.7.36</slf4j.version>
+            </properties>
+        </profile>
         <profile>
             <!-- Activates oshi-benchmark tests and aggregate JaCoCo report.
                  Use: mvnw test -Paggregate-coverage
