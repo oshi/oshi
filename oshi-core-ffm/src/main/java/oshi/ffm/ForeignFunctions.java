@@ -22,6 +22,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
+import oshi.util.ExceptionUtil;
+
 /**
  * Base class providing utility methods for working with the Java Foreign Function and Memory (FFM) API.
  * <p>
@@ -484,24 +486,6 @@ public abstract class ForeignFunctions {
     private static void logThrowable(Logger logger, Level level, String message, Throwable t) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
-        String format = message + ": {}";
-        switch (level) {
-            case ERROR:
-                logger.error(format, t.getMessage(), t);
-                break;
-            case WARN:
-                logger.warn(format, t.getMessage(), t);
-                break;
-            case INFO:
-                logger.info(format, t.getMessage(), t);
-                break;
-            case TRACE:
-                logger.trace(format, t.getMessage(), t);
-                break;
-            case DEBUG:
-            default:
-                logger.debug(format, t.getMessage(), t);
-                break;
-        }
+        ExceptionUtil.logAtLevel(logger, level, message + ": {}", t);
     }
 }

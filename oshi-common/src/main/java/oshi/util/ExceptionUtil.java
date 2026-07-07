@@ -27,13 +27,15 @@ public final class ExceptionUtil {
      * Logs a throwable at the given level using only SLF4J 1.x-compatible {@link Logger} methods (no {@code atLevel}
      * fluent API). Relies on SLF4J's implicit-cause handling: when the last of the extra arguments is a
      * {@link Throwable}, it is attached as the log event's cause rather than substituted into the format string.
+     * <p>
+     * Public so other modules (e.g., {@code oshi-core-ffm}) can share this dispatch instead of duplicating it.
      *
      * @param log   the logger to use
      * @param level the level at which to log
      * @param msg   the log message (use {} for the exception message placeholder)
      * @param t     the throwable to log
      */
-    private static void logAtLevel(Logger log, Level level, String msg, Throwable t) {
+    public static void logAtLevel(Logger log, Level level, String msg, Throwable t) {
         switch (level) {
             case ERROR:
                 log.error(msg, t.getMessage(), t);
