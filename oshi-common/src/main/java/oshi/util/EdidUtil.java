@@ -480,6 +480,9 @@ public final class EdidUtil {
      *                   without an {@code 'x'} separator leaves the descriptor unchanged
      */
     public static void setPreferredResolution(byte[] edid, String resolution) {
+        if (resolution == null) {
+            return;
+        }
         int x = resolution.indexOf('x');
         if (x < 0) {
             return; // no WIDTHxHEIGHT to encode; leave the detailed timing descriptor unchanged
@@ -580,6 +583,87 @@ public final class EdidUtil {
             sum += edid[i] & 0xFF;
         }
         edid[CHECKSUM_OFFSET] = (byte) ((256 - sum % 256) % 256);
+    }
+
+    /**
+     * Decodes a packed 16-bit manufacturer ID into the EDID three-letter manufacturer code. This is the inverse of
+     * {@link #getManufacturerID(byte[])}: three 5-bit values (1=A .. 26=Z) packed into the low 15 bits. For example
+     * {@code 1552} decodes to {@code "APP"} (Apple).
+     *
+     * @param packed the packed manufacturer id
+     * @return the three-letter code, or {@code null} if any field is not an A-Z letter
+     */
+    public static String decodeManufacturerId(long packed) {
+        int v = (int) packed;
+        int[] codes = { (v >> 10) & 0x1F, (v >> 5) & 0x1F, v & 0x1F };
+        StringBuilder sb = new StringBuilder(3);
+        for (int code : codes) {
+            if (code < 1 || code > 26) {
+                return null;
+            }
+            sb.append((char) ('A' - 1 + code));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Builds a synthetic {@link oshi.hardware.DisplayInfo DisplayInfo} from individual display properties, for displays
+     * that report their attributes without providing an EDID (such as Apple Silicon built-in panels). Fields that are
+     * absent are defaulted; the result is flagged synthetic so callers can distinguish it from a real EDID via
+     * {@link oshi.hardware.DisplayInfo#isEdidSynthetic()}.
+     *
+     * @param legacyManufacturerId packed manufacturer id, or {@code null}
+     * @param modelNumber          the 16-bit model/product number, or {@code null}
+     * @param serialNumber         the 32-bit serial number, or {@code null}
+     * @param week                 week of manufacture, or {@code null}
+     * @param year                 year of manufacture, or {@code null}
+     * @param model                the product name / model, or {@code null}
+     * @param productSerial        the alphanumeric serial number, or {@code null}
+     * @param displayWidth         native pixel width, or {@code null}
+     * @param displayHeight        native pixel height, or {@code null}
+     * @param fallbackName         a fallback display name if {@code model} and {@code displayName} are both null, or
+     *                             {@code null}
+     * @param screenWidthMm        physical width in mm, or {@code null}
+     * @param screenHeightMm       physical height in mm, or {@code null}
+     * @param displayName          the localized display name, or {@code null}
+     * @return a synthetic {@link oshi.hardware.DisplayInfo DisplayInfo}, or {@code null} if the manufacturer id can not
+     *         be decoded
+     */
+    @SuppressWarnings("java:S107")
+    public static oshi.hardware.DisplayInfo synthesizeDisplayInfo(Long legacyManufacturerId, Integer modelNumber,
+            Integer serialNumber, Integer week, Integer year, String model, String productSerial, Long displayWidth,
+            Long displayHeight, String fallbackName, Double screenWidthMm, Double screenHeightMm, String displayName) {
+        if (legacyManufacturerId == null) {
+            return null;
+        }
+        String manufacturer = decodeManufacturerId(legacyManufacturerId);
+        if (manufacturer == null) {
+            return null;
+        }
+        String product = Integer.toHexString(modelNumber == null ? 0 : modelNumber & 0xFFFF);
+        byte wk = (byte) (week == null ? 0 : week);
+        int yr = year == null ? 1990 : year;
+        String serialNo = serialNumber != null ? String.format(Locale.ROOT, "%08X", serialNumber) : "00000000";
+        String resolution = null;
+        if (displayWidth != null && displayHeight != null && displayWidth > 0 && displayHeight > 0) {
+            resolution = displayWidth + "x" + displayHeight;
+        }
+        int hcm = screenWidthMm != null ? (int) Math.round(screenWidthMm / 10.0) : 0;
+        int vcm = screenHeightMm != null ? (int) Math.round(screenHeightMm / 10.0) : 0;
+        String modelName = model;
+        if (modelName == null) {
+            modelName = displayName;
+        }
+        if (modelName == null) {
+            modelName = fallbackName;
+        }
+        // Use the numeric serial as the product serial descriptor if no alphanumeric serial was provided.
+        String serialDescriptor = productSerial;
+        if (serialDescriptor == null && serialNumber != null) {
+            serialDescriptor = serialNo;
+        }
+        return new oshi.hardware.DisplayInfoImpl(manufacturer, product, serialNo, wk, yr, "1.4", true, hcm, vcm,
+                resolution, modelName == null ? "" : modelName, serialDescriptor == null ? "" : serialDescriptor);
     }
 
     /**

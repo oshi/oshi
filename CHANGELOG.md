@@ -3,6 +3,7 @@
 ##### New Features
 
 * [#3415](https://github.com/oshi/oshi/pull/3415): Add `Display.getDisplayInfo()` and `Display.isEdidSynthetic()`, a new `DisplayInfo` interface, and EDID-encoding methods in `EdidUtil`, allowing display attributes to be exposed without a raw EDID - [@dbwiddis](https://github.com/dbwiddis).
+* [#3436](https://github.com/oshi/oshi/pull/3436): Detect the Apple Silicon built-in Retina display via `IOMobileFramebuffer` and synthesize a `DisplayInfo` from CoreGraphics and NSScreen properties (resolution, physical size, serial, model name) - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

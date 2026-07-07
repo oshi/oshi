@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.EdidUtil;
+import oshi.util.ParseUtil;
 
 /**
  * The default {@link DisplayInfo} implementation. This is not part of the OSHI public API and may change between minor
@@ -188,7 +189,7 @@ public class DisplayInfoImpl implements DisplayInfo {
         byte[] e = EdidUtil.newEdidTemplate();
         EdidUtil.setManufacturerID(e, this.manufacturerID);
         EdidUtil.setProductID(e, this.productID);
-        EdidUtil.setSerialNo(e, this.serialNo);
+        setSerialNoSafe(e, this.serialNo);
         EdidUtil.setWeek(e, this.week);
         EdidUtil.setYear(e, this.year);
         EdidUtil.setVersion(e, this.version);
@@ -202,6 +203,25 @@ public class DisplayInfoImpl implements DisplayInfo {
         }
         EdidUtil.updateChecksum(e);
         return e;
+    }
+
+    // Sets the serial number into EDID bytes 12-15. Tries the string form first (which validates round-trip); if that
+    // fails (e.g. bytes happen to be printable ASCII causing getSerialNo to interpret differently), falls back to the
+    // numeric long form which writes the bytes directly.
+    private static void setSerialNoSafe(byte[] edid, String serialNo) {
+        if (serialNo == null || serialNo.isEmpty()) {
+            return;
+        }
+        try {
+            EdidUtil.setSerialNo(edid, serialNo);
+        } catch (IllegalArgumentException e) {
+            if (serialNo.length() == 8) {
+                long numeric = ParseUtil.hexStringToLong(serialNo, 0L);
+                if (numeric != 0L) {
+                    EdidUtil.setSerialNo(edid, numeric);
+                }
+            }
+        }
     }
 
     @Override
