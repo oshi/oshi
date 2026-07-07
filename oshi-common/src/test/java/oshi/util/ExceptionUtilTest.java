@@ -381,4 +381,14 @@ class ExceptionUtilTest {
         String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", LOG, Level.WARN, "Should not log");
         assertThat(result, is(equalTo("ok")));
     }
+
+    @Test
+    void testLogsAndReturnsDefaultAtEveryLevel() {
+        for (Level level : Level.values()) {
+            String result = ExceptionUtil.getOrDefault(() -> {
+                throw new IllegalStateException("boom");
+            }, "no exception", LOG, level, "failed: {}");
+            assertThat(result, is("no exception"));
+        }
+    }
 }
