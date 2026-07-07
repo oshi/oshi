@@ -48,7 +48,7 @@
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
                     <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
-                    Import-Package: ${osgi.slf4j.import.packages}, *
+                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
                     Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                     -snapshot: SNAPSHOT]]></bnd>
                 </configuration>
