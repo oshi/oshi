@@ -10,6 +10,7 @@
 * [#3425](https://github.com/oshi/oshi/pull/3425): Fix the Windows perf-counter process and thread maps occasionally mis-keying a real process/thread under ID 0, when PDH reports its "ID Process"/"ID Thread" sentinel for one that is starting or exiting - [@dbwiddis](https://github.com/dbwiddis).
 * [#3432](https://github.com/oshi/oshi/pull/3432): Replace `Logger#atLevel`/`setCause`/`isEnabledForLevel` usage in `ExceptionUtil`, `PerfDataUtil`, and `ForeignFunctions` with level-switches to the classic SLF4J methods, so oshi no longer requires slf4j-api 2.x at runtime - [@wolfs](https://github.com/wolfs).
 * [#3431](https://github.com/oshi/oshi/pull/3431): Declare the optional jlibrehardwaremonitor OSGi package imports as optional, so oshi-common resolves in OSGi environments that do not provide it - [@MrEasy](https://github.com/MrEasy).
+* [#3433](https://github.com/oshi/oshi/pull/3433): Restore optional JNA native access for NetBSD, falling back to the command-line implementation when the JNA native library is not installed - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11), 7.3.2 (2026-06-26)

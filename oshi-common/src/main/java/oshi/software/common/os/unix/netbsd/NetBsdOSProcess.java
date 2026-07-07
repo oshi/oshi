@@ -59,7 +59,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
-    private final NetBsdOperatingSystem os;
+    protected final NetBsdOperatingSystem os;
 
     public NetBsdOSProcess(int pid, Map<BsdPsKeyword, String> psMap, NetBsdOperatingSystem os) {
         super(pid);

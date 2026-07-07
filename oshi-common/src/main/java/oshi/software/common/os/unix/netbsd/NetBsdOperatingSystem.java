@@ -80,11 +80,23 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
                     proc.trim(), ' ');
             // Check if last (thus all) value populated
             if (psMap.containsKey(BsdPsKeyword.ARGS)) {
-                procs.add(new NetBsdOSProcess(
-                        pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PID), 0) : pid, psMap, this));
+                procs.add(createProcess(pid < 0 ? ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PID), 0) : pid,
+                        psMap));
             }
         }
         return procs;
+    }
+
+    /**
+     * Creates a process object from parsed {@code ps} output. Overridden by the JNA subclass to return a native-capable
+     * {@link NetBsdOSProcess} implementation.
+     *
+     * @param pid   the process ID
+     * @param psMap the parsed {@code ps} columns for the process
+     * @return a new {@link OSProcess}
+     */
+    protected OSProcess createProcess(int pid, Map<BsdPsKeyword, String> psMap) {
+        return new NetBsdOSProcess(pid, psMap, this);
     }
 
     @Override

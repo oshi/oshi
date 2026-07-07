@@ -32,7 +32,7 @@ import oshi.hardware.common.platform.unix.UnixDisplay;
  * NetBsdHardwareAbstractionLayer class.
  */
 @ThreadSafe
-public final class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
+public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
