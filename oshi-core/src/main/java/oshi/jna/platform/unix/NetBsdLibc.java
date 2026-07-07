@@ -60,6 +60,13 @@ public interface NetBsdLibc extends CLibrary {
     }
 
     /**
+     * NetBSD's {@code RLIMIT_NOFILE} from {@code <sys/resource.h>} is 8, not 7 like Linux. JNA's inherited
+     * {@code Resource.RLIMIT_NOFILE} from the platform module is the Linux value, so calling
+     * {@code getrlimit(Resource.RLIMIT_NOFILE, …)} on NetBSD would query the wrong resource.
+     */
+    int RLIMIT_NOFILE = 8;
+
+    /**
      * Returns the LWP (lightweight process/thread) ID of the calling thread.
      *
      * @return the LWP ID of the calling thread.

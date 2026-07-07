@@ -147,9 +147,10 @@ jobs:
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true
 
-  # Runs on NetBSD 10.1 x86 VM without JNA native library
+  # Runs on NetBSD 10.1 x86 VM WITHOUT the JNA native library (java-jna not installed), exercising the
+  # command-line fallback path (NetBsdSysctlUtil.JNA_AVAILABLE == false).
   testnetbsd:
-    name: Test JDK 21, NetBSD
+    name: Test JDK 21, NetBSD (no JNA)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -167,5 +168,31 @@ jobs:
           run: |
             export JAVA_HOME=/usr/pkg/java/openjdk21
             export PATH=$JAVA_HOME/bin:$PATH
+            mount -t procfs procfs /proc 2>/dev/null || true
+            ./mvnw clean test -B -Djacoco.skip=true
+
+  # Runs on NetBSD 10.1 x86 VM WITH the JNA native library (pkgsrc java-jna), exercising the native path
+  # (NetBsdSysctlUtil.JNA_AVAILABLE == true). jna.boot.library.path points JNA at the pkgsrc libjnidispatch.
+  testnetbsdjna:
+    name: Test JDK 21, NetBSD (JNA)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - name: Test in NetBSD
+        id: test-netbsd-jna
+        uses: vmactions/netbsd-vm@1d9767765fd3f986e6de3aff4b1148f0c3a45f01 # v1
+        with:
+          release: "10.1"
+          usesh: true
+          prepare: |
+            pkg_add curl
+            pkg_add openjdk21
+            pkg_add java-jna
+          run: |
+            export JAVA_HOME=/usr/pkg/java/openjdk21
+            export PATH=$JAVA_HOME/bin:$PATH
+            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
             ./mvnw clean test -B -Djacoco.skip=true

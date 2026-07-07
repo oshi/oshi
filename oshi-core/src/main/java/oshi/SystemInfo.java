@@ -10,22 +10,22 @@ import java.util.function.Supplier;
 
 import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.common.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerJNA;
+import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayerJNA;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerJNA;
-import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 import oshi.software.os.mac.MacOperatingSystemJNA;
 import oshi.software.os.unix.aix.AixOperatingSystemJNA;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemJNA;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemJNA;
+import oshi.software.os.unix.netbsd.NetBsdOperatingSystemJNA;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemJNA;
 import oshi.software.os.unix.solaris.SolarisOperatingSystemJNA;
 import oshi.software.os.windows.WindowsOperatingSystemJNA;
@@ -130,7 +130,7 @@ public class SystemInfo implements SystemInfoProvider {
             case DRAGONFLYBSD:
                 return new DragonFlyBsdOperatingSystemJNA();
             case NETBSD:
-                return new NetBsdOperatingSystem();
+                return new NetBsdOperatingSystemJNA();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
@@ -166,7 +166,7 @@ public class SystemInfo implements SystemInfoProvider {
             case DRAGONFLYBSD:
                 return new DragonFlyBsdHardwareAbstractionLayerJNA();
             case NETBSD:
-                return new NetBsdHardwareAbstractionLayer();
+                return new NetBsdHardwareAbstractionLayerJNA();
             default:
                 throw new UnsupportedOperationException(NOT_SUPPORTED + PlatformEnum.getCurrentPlatform().getName());
         }
