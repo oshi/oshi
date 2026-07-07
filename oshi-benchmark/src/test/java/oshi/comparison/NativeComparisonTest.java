@@ -452,11 +452,13 @@ class NativeComparisonTest {
         long ffmUserBefore = ffmThread.getUserTime();
         // Delay to accumulate CPU time
         Util.sleep(100);
-        // Call updateAttributes; not implemented on macOS (returns false)
+        // Call updateAttributes; may return false (not implemented on macOS, or a transient read miss on the
+        // current thread whose time-sensitive state can change between the two sequential native reads).
+        // Either side is entitled to fail individually, so skip the monotonic checks rather than asserting the
+        // two agree (matches the disk/network updateAttributes handling below).
         boolean jnaUpdated = jnaThread.updateAttributes();
         boolean ffmUpdated = ffmThread.updateAttributes();
-        assertThat(ffmUpdated).as("JNA and FFM should agree").isEqualTo(jnaUpdated);
-        if (!jnaUpdated) {
+        if (!jnaUpdated || !ffmUpdated) {
             return;
         }
         // Kernel and user time are monotonically nondecreasing

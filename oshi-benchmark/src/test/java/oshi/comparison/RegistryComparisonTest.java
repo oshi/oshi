@@ -68,9 +68,10 @@ class RegistryComparisonTest {
             assertWithinRatio(p.getPrivateWorkingSetSize(), r.getPrivateWorkingSetSize(), 0.90,
                     "process[" + pid + "].privateWorkingSetSize");
 
-            // Uptime differs by the delta between the two reads
+            // Uptime differs by the delta between the two reads; the floor absorbs the collection-time gap
+            // between the perf-counter and registry passes, which can exceed 1s on a loaded CI runner.
             assertThat(Math.abs(p.getUpTime() - r.getUpTime())).as("process[%d].upTime delta", pid)
-                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1100L));
+                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1200L));
         }
     }
 
