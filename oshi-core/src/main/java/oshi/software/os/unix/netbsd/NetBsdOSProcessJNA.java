@@ -22,6 +22,7 @@ import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.netbsd.NetBsdOSProcess;
 import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
+import oshi.util.ParseUtil;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
@@ -94,19 +95,15 @@ public class NetBsdOSProcessJNA extends NetBsdOSProcess {
         int[] mib = { NetBsdLibc.CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ENV };
         try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
             if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
+                // The payload is a NUL-delimited byte buffer of KEY=VALUE entries. Parse by raw bytes rather than
+                // Memory.getString/String.length, which would misalign the offset on a multibyte charset.
+                byte[] envBytes = m.getByteArray(0, (int) size.getValue().longValue());
                 Map<String, String> env = new LinkedHashMap<>();
-                long bytesReturned = size.getValue().longValue();
-                long offset = 0;
-                while (offset < bytesReturned) {
-                    String envStr = m.getString(offset);
-                    if (envStr.isEmpty()) {
-                        break;
-                    }
+                for (String envStr : ParseUtil.parseByteArrayToStrings(envBytes)) {
                     int idx = envStr.indexOf('=');
                     if (idx > 0) {
                         env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
                     }
-                    offset += envStr.length() + 1;
                 }
                 if (!env.isEmpty()) {
                     return Collections.unmodifiableMap(env);
