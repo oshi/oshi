@@ -12,6 +12,7 @@ import static org.slf4j.event.Level.WARN;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.slf4j.event.Level;
 
 import com.sun.jna.platform.win32.PdhMsg;
 
@@ -34,5 +35,12 @@ class PerfDataUtilTest {
     void testHandleErrorStringDefault() {
         assertThat(PerfDataUtil.handleError(PdhMsg.PDH_INVALID_HANDLE, WARN, "Failed to get counter.", "default"),
                 is("default"));
+    }
+
+    @Test
+    void testHandleErrorAtEveryLevel() {
+        for (Level level : Level.values()) {
+            assertThat(PerfDataUtil.handleError(PdhMsg.PDH_INVALID_HANDLE, level, "Failed.", "default"), is("default"));
+        }
     }
 }
