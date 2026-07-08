@@ -8,11 +8,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
+
+import oshi.hardware.DisplayInfo;
 
 /*
  * Tests EdidUtil
@@ -283,5 +286,123 @@ class EdidUtilTest {
         // A valid resolution still encodes normally
         EdidUtil.setPreferredResolution(edid, "1920x1080");
         assertThat("valid resolution", EdidUtil.getPreferredResolution(edid), is("1920x1080"));
+    }
+
+    @Test
+    void testSetPreferredResolutionNull() {
+        byte[] edid = EdidUtil.newEdidTemplate();
+        EdidUtil.setPreferredResolution(edid, null);
+        assertThat("null resolution", EdidUtil.getPreferredResolution(edid), is("0x0"));
+    }
+
+    @Test
+    void testDecodeManufacturerIdApple() {
+        assertThat(EdidUtil.decodeManufacturerId(0x610), is("APP"));
+    }
+
+    @Test
+    void testDecodeManufacturerIdDell() {
+        assertThat(EdidUtil.decodeManufacturerId(0x10AC), is("DEL"));
+    }
+
+    @Test
+    void testDecodeManufacturerIdZero() {
+        assertThat(EdidUtil.decodeManufacturerId(0), is(nullValue()));
+    }
+
+    @Test
+    void testDecodeManufacturerIdOutOfRange() {
+        assertThat(EdidUtil.decodeManufacturerId(0x7C00), is(nullValue()));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoNullManufacturer() {
+        assertThat(EdidUtil.synthesizeDisplayInfo(null, null, null, null, null, null, null, null, null, null, null,
+                null, null), is(nullValue()));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoInvalidManufacturer() {
+        assertThat(EdidUtil.synthesizeDisplayInfo(0L, null, null, null, null, null, null, null, null, null, null, null,
+                null), is(nullValue()));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoMinimalFields() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
+                null, null, null);
+        assertThat(info.getManufacturerID(), is("APP"));
+        assertThat(info.getProductID(), is("0"));
+        assertThat(info.getSerialNo(), is("00000000"));
+        assertThat(info.getWeek(), is((byte) 0));
+        assertThat(info.getYear(), is(1990));
+        assertThat(info.getHcm(), is(0));
+        assertThat(info.getVcm(), is(0));
+        assertThat(info.getModel(), is(""));
+        assertThat(info.isEdidSynthetic(), is(true));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoFullFields() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, 0xa050, 0x12345678, 10, 2023, "Retina", "ABC123",
+                3456L, 2234L, "disp0 (Built-in Display)", 344.2, 222.5, "Built-in Retina Display");
+        assertThat(info.getManufacturerID(), is("APP"));
+        assertThat(info.getProductID(), is("a050"));
+        assertThat(info.getSerialNo(), is("12345678"));
+        assertThat(info.getWeek(), is((byte) 10));
+        assertThat(info.getYear(), is(2023));
+        assertThat(info.getHcm(), is(34));
+        assertThat(info.getVcm(), is(22));
+        assertThat(info.getPreferredResolution(), is("3456x2234"));
+        assertThat(info.getModel(), is("Retina"));
+        assertThat(info.getProductSerialNumber(), is("ABC123"));
+        assertThat(info.isEdidSynthetic(), is(true));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoFallbackName() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null,
+                "disp0 (Built-in Display)", null, null, null);
+        assertThat(info.getModel(), is("disp0 (Built-in Display)"));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoDisplayNamePreferred() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null,
+                "disp0 (Built-in Display)", null, null, "Built-in Retina Display");
+        assertThat(info.getModel(), is("Built-in Retina Display"));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoNullResolutionWhenDimensionsZero() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, 0L, 0L, null,
+                null, null, null);
+        assertThat(info.getPreferredResolution(), is(nullValue()));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoDimensionRounding() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
+                344.2, 225.9, null);
+        assertThat(info.getHcm(), is(34));
+        assertThat(info.getVcm(), is(23));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoSerialFallbackToDescriptor() {
+        // When productSerial is null but serialNumber is present, the numeric serial populates both fields
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, 0xFD626D62, null, null, null, null, null, null,
+                null, null, null, null);
+        assertThat(info.getSerialNo(), is("FD626D62"));
+        assertThat(info.getProductSerialNumber(), is("FD626D62"));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoProductSerialTakesPrecedence() {
+        // When productSerial is explicitly provided, it takes precedence over the numeric fallback
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, 0xFD626D62, null, null, null, "ABC123", null,
+                null, null, null, null, null);
+        assertThat(info.getSerialNo(), is("FD626D62"));
+        assertThat(info.getProductSerialNumber(), is("ABC123"));
     }
 }

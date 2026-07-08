@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -83,13 +82,81 @@ class DisplayInfoImplTest {
 
     @Test
     void testSyntheticToStringDoesNotSynthesize() {
-        // A serial number that EdidUtil.setSerialNo rejects: toString must still work (it formats from the decoded
-        // fields), while getEdid (which synthesizes) fails. This proves toString does not encode the EDID.
+        // A serial number that EdidUtil.setSerialNo string form rejects: toString must still work (it formats from the
+        // decoded fields) without triggering EDID synthesis. getEdid gracefully falls back to zeroed bytes 12-15.
         DisplayInfo info = new DisplayInfoImpl("AUO", "9227", "BADSERIAL", (byte) 1, 2020, "1.4", true, 50, 30,
                 "1920x1080", "Acme", "SN12345");
         assertThat("toString model", info.toString(), containsString("Acme"));
         assertThat("toString serial", info.toString(), containsString("SN12345"));
-        assertThrows(IllegalArgumentException.class, info::getEdid);
+        // getEdid no longer throws; it falls back to zero serial bytes
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+    }
+
+    @Test
+    void testSyntheticNumericSerialFallback() {
+        // A serial like "FD626D62" fails EdidUtil.setSerialNo(String) because byte 0xFD is not alphanumeric while
+        // 0x62/'b' and 0x6D/'m' are, causing getSerialNo to return a mixed-format string that doesn't match.
+        // setSerialNoSafe falls back to the numeric overload, writing the bytes directly.
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", "FD626D62", (byte) 0, 1990, "1.4", true, 34, 22,
+                "3456x2234", "Built-in Retina Display", "");
+        assertThat("serialNo field", info.getSerialNo(), is("FD626D62"));
+        // getEdid succeeds (no exception) and produces a valid 128-byte EDID
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+        // Bytes 12-15 contain the numeric serial in little-endian
+        assertThat("edid[12]", edid[12] & 0xFF, is(0x62));
+        assertThat("edid[13]", edid[13] & 0xFF, is(0x6D));
+        assertThat("edid[14]", edid[14] & 0xFF, is(0x62));
+        assertThat("edid[15]", edid[15] & 0xFF, is(0xFD));
+    }
+
+    @Test
+    void testSyntheticNullPreferredResolution() {
+        // A null preferred resolution should not cause an NPE during EDID synthesis
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", "00000000", (byte) 0, 1990, "1.4", true, 34, 22, null,
+                "Built-in Retina Display", "");
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+    }
+
+    @Test
+    void testSyntheticNullSerialNo() {
+        // A null serialNo is treated as absent — bytes 12-15 stay zeroed
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", null, (byte) 0, 1990, "1.4", true, 0, 0, "3456x2234",
+                "Test", "");
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+        assertThat("edid[12]", edid[12], is((byte) 0));
+        assertThat("edid[13]", edid[13], is((byte) 0));
+        assertThat("edid[14]", edid[14], is((byte) 0));
+        assertThat("edid[15]", edid[15], is((byte) 0));
+    }
+
+    @Test
+    void testSyntheticEmptySerialNo() {
+        // An empty serialNo is treated as absent — bytes 12-15 stay zeroed
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", "", (byte) 0, 1990, "1.4", true, 0, 0, "3456x2234",
+                "Test", "");
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+        assertThat("edid[12]", edid[12], is((byte) 0));
+        assertThat("edid[13]", edid[13], is((byte) 0));
+        assertThat("edid[14]", edid[14], is((byte) 0));
+        assertThat("edid[15]", edid[15], is((byte) 0));
+    }
+
+    @Test
+    void testSyntheticNonHexSerialNoFallsBackToZero() {
+        // A non-hex 8-char serial that also fails the string form falls back to zeroed bytes
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", "NOTAHEX!", (byte) 0, 1990, "1.4", true, 0, 0,
+                "3456x2234", "Test", "");
+        byte[] edid = info.getEdid();
+        assertThat("edid length", edid.length, is(128));
+        assertThat("edid[12]", edid[12], is((byte) 0));
+        assertThat("edid[13]", edid[13], is((byte) 0));
+        assertThat("edid[14]", edid[14], is((byte) 0));
+        assertThat("edid[15]", edid[15], is((byte) 0));
     }
 
     @Test
