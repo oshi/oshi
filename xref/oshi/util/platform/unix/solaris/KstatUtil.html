@@ -314,30 +314,33 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>             Kstat2Handle handle = <strong class="jxr_keyword">new</strong> Kstat2Handle();
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>                 <strong class="jxr_keyword">for</strong> (s = 0; consecutiveMisses &lt; 256; s++) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>                         Object[] result = <strong class="jxr_keyword">new</strong> Object[names.length];
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>                         Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; names.length; i++) {
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                             result[i] = map.getValue(names[i]);
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                         }
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                         results.add(result);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>                         consecutiveMisses = 0;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                     } <strong class="jxr_keyword">catch</strong> (Kstat2StatusException e) {
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>                         consecutiveMisses++;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>                     }
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 }
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>             } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>                 handle.close();
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>             }
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         } <strong class="jxr_keyword">catch</strong> (Kstat2StatusException e) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>             LOG.debug(<span class="jxr_string">"Failed to initialize kstat2 handle for {}: {}"</span>, beforeStr + <span class="jxr_string">"*"</span> + afterStr, e.getMessage());
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>             KstatUtil.CHAIN.unlock();
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>             matchers.free();
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>         }
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">return</strong> results;
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                     <strong class="jxr_keyword">boolean</strong> hit = false;
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                         Object[] result = <strong class="jxr_keyword">new</strong> Object[names.length];
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                         Kstat2Map map = handle.lookupMap(beforeStr + s + afterStr);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; names.length; i++) {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                             result[i] = map.getValue(names[i]);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                         }
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                         results.add(result);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                         hit = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                     } <strong class="jxr_keyword">catch</strong> (Kstat2StatusException e) {
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                         <em class="jxr_comment">// Instance s is not present</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>                     <em class="jxr_comment">// Update the miss counter in normal control flow so the loop has a normal termination condition</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>                     consecutiveMisses = hit ? 0 : consecutiveMisses + 1;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 handle.close();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>             }
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         } <strong class="jxr_keyword">catch</strong> (Kstat2StatusException e) {
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>             LOG.debug(<span class="jxr_string">"Failed to initialize kstat2 handle for {}: {}"</span>, beforeStr + <span class="jxr_string">"*"</span> + afterStr, e.getMessage());
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             KstatUtil.CHAIN.unlock();
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             matchers.free();
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         }
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         <strong class="jxr_keyword">return</strong> results;
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     }
+<a class="jxr_linenumber" name="L335" href="#L335">335</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

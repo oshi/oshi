@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>VoidInvokeExactSourceTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../testapidocs/oshi/ffm/VoidInvokeExactSourceTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.ffm;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assumptions.assumeTrue;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.io.UncheckedIOException;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.StandardCharsets;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Stream;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * Source-policy guard for a footgun that has already regressed twice (issues #3301 / #3422): a &lt;em&gt;void&lt;/em&gt;</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * {@link java.lang.invoke.MethodHandle#invokeExact} invoked from an expression-bodied lambda passed to a void-returning</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * helper such as {@code ExceptionUtil.runOrLog}.</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * {@code invokeExact} is signature-polymorphic: its return type is inferred from the call site. In an expression lambda</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * targeting a void functional interface, javac infers {@code Object} instead of {@code void}, so the call site</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * ({@code (X)Object}) does not match the handle ({@code (X)void}) and throws {@code WrongMethodTypeException} at</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * runtime. The failure only surfaces on the native platform and is swallowed by the logging helper, so a normal unit</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * test can't see it. A block lambda ({@code () -&gt; { handle.invokeExact(...); }}) keeps the call in a statement context</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * where the return type is correctly {@code void}.</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * Scanning the sources catches the regression on every build (not only on the platform where the call runs), which</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * matters because the fix keeps getting lost whenever the FFM code is moved between packages.</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">class</strong> <a name="VoidInvokeExactSourceTest" href="../../oshi/ffm/VoidInvokeExactSourceTest.html#VoidInvokeExactSourceTest">VoidInvokeExactSourceTest</a> {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <em class="jxr_comment">// run(OrLog|Silently)(() -&gt; ... invokeExact with no '{' before invokeExact is an expression lambda -- the bug.</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <em class="jxr_comment">// Scanned against whole-file content, so a lambda wrapped across lines is still caught. [^{};]* stays within the</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_comment">// single statement (no brace/semicolon crossing) to avoid matching an unrelated later invokeExact.</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern EXPRESSION_LAMBDA_INVOKE_EXACT = Pattern
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              .compile(<span class="jxr_string">"run(?:OrLog|Silently)&#92;&#92;(&#92;&#92;(&#92;&#92;)&#92;&#92;s*-&gt;[^{};]*invokeExact"</span>);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">void</strong> noVoidInvokeExactInExpressionLambda() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          Path srcRoot = Path.of(<span class="jxr_string">"src"</span>, <span class="jxr_string">"main"</span>, <span class="jxr_string">"java"</span>);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assumeTrue(Files.isDirectory(srcRoot), <span class="jxr_string">"FFM source tree not on the working directory; skipping source scan"</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          List&lt;String&gt; offenders = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; paths = Files.walk(srcRoot)) {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              paths.filter(p -&gt; p.toString().endsWith(<span class="jxr_string">".java"</span>)).forEach(p -&gt; {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                      String content = Files.readString(p, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                      Matcher matcher = EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(content);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      <strong class="jxr_keyword">while</strong> (matcher.find()) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                          <strong class="jxr_keyword">long</strong> line = content.substring(0, matcher.start()).chars().filter(c -&gt; c == '\n').count() + 1;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                          offenders.add(p + <span class="jxr_string">":"</span> + line + <span class="jxr_string">"  "</span> + matcher.group().replaceAll(<span class="jxr_string">"&#92;&#92;s+"</span>, <span class="jxr_string">" "</span>));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UncheckedIOException(e);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              });
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(<span class="jxr_string">"void invokeExact in an expression lambda infers Object and throws WrongMethodTypeException at "</span>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  + <span class="jxr_string">"runtime; use a block lambda instead: () -&gt; { handle.invokeExact(...); }. Offenders: "</span> + offenders,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  offenders, is(empty()));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

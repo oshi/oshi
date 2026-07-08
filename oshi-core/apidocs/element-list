@@ -3,6 +3,7 @@ oshi
 oshi.util.gpu
 oshi.util.platform.mac
 oshi.util.platform.unix.freebsd
+oshi.util.platform.unix.netbsd
 oshi.util.platform.unix.openbsd
 oshi.util.platform.unix.solaris
 oshi.util.platform.windows

@@ -110,25 +110,28 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> inst = 0; inst &lt; instances.size(); inst++) {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">int</strong> pid = pidList.get(inst).intValue();
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">if</strong> (pids == <strong class="jxr_keyword">null</strong> || pids.contains(pid)) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">long</strong> ctime = elapsedTimeList.get(inst);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">if</strong> (ctime &gt; now) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                     ctime = ParseUtil.filetimeToUtcMs(ctime, false);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 <strong class="jxr_keyword">long</strong> upTime = now - ctime;
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 <strong class="jxr_keyword">if</strong> (upTime &lt; 1L) {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                     upTime = 1L;
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 processMap.put(pid,
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                         <strong class="jxr_keyword">new</strong> <a name="ProcessPerfCounterBlock" href="../../../../../oshi/driver/common/windows/registry/ProcessPerfCounterBlock.html#ProcessPerfCounterBlock">ProcessPerfCounterBlock</a>(instances.get(inst), ppidList.get(inst).intValue(),
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                 priorityList.get(inst).intValue(), privateWorkingSetList.get(inst),
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                 workingSetList.get(inst), ctime, upTime, ioReadList.get(inst), ioWriteList.get(inst),
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                                 pageFaultsList.get(inst).longValue()));
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> processMap;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <em class="jxr_comment">// Skip PID 0: PDH reports it as the "ID Process" sentinel for the _Total aggregate, the Idle</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             <em class="jxr_comment">// pseudo-process, and any instance whose real PID is not yet available (starting/exiting). Keying</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <em class="jxr_comment">// the map on 0 would clobber one such entry with another, and no real Windows process has PID 0.</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">if</strong> (pid != 0 &amp;&amp; (pids == <strong class="jxr_keyword">null</strong> || pids.contains(pid))) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 <strong class="jxr_keyword">long</strong> ctime = elapsedTimeList.get(inst);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 <strong class="jxr_keyword">if</strong> (ctime &gt; now) {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                     ctime = ParseUtil.filetimeToUtcMs(ctime, false);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">long</strong> upTime = now - ctime;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <strong class="jxr_keyword">if</strong> (upTime &lt; 1L) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                     upTime = 1L;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 processMap.put(pid,
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                         <strong class="jxr_keyword">new</strong> <a name="ProcessPerfCounterBlock" href="../../../../../oshi/driver/common/windows/registry/ProcessPerfCounterBlock.html#ProcessPerfCounterBlock">ProcessPerfCounterBlock</a>(instances.get(inst), ppidList.get(inst).intValue(),
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                 priorityList.get(inst).intValue(), privateWorkingSetList.get(inst),
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                                 workingSetList.get(inst), ctime, upTime, ioReadList.get(inst), ioWriteList.get(inst),
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                 pageFaultsList.get(inst).longValue()));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>             }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">return</strong> processMap;
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

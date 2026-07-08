@@ -379,11 +379,11 @@
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>             } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L372" href="#L372">372</a>                 <strong class="jxr_keyword">int</strong> closeRc = RegCloseKey(hKey);
 <a class="jxr_linenumber" name="L373" href="#L373">373</a>                 <strong class="jxr_keyword">if</strong> (closeRc != ERROR_SUCCESS) {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     LOG.debug(<span class="jxr_string">"Failed to close registry key {}&#92;&#92;{}: error {}"</span>, keyPath, valueName, closeRc);
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     LOG.debug(<span class="jxr_string">"Failed to close registry key {}&#92;&#92;&#92;&#92;{}: error {}"</span>, keyPath, valueName, closeRc);
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>                 }
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>             }
 <a class="jxr_linenumber" name="L377" href="#L377">377</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>             LOG.warn(<span class="jxr_string">"Failed to read registry string array {}&#92;&#92;{}: {}"</span>, keyPath, valueName, t.getMessage());
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>             LOG.warn(<span class="jxr_string">"Failed to read registry string array {}&#92;&#92;&#92;&#92;{}: {}"</span>, keyPath, valueName, t.getMessage());
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String[0];
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>         }
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>     }

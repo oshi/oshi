@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>             }
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>             <em class="jxr_comment">// Based on the smbTypeID we are processing for</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             Integer colonDelimiterIndex = checkLine.indexOf(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">int</strong> colonDelimiterIndex = checkLine.indexOf(<span class="jxr_string">":"</span>);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">if</strong> (smbTypeId != <strong class="jxr_keyword">null</strong> &amp;&amp; colonDelimiterIndex &gt;= 0) {
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                 String key = checkLine.substring(0, colonDelimiterIndex).trim();
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                 String val = checkLine.substring(colonDelimiterIndex + 1).trim();

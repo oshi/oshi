@@ -754,10 +754,10 @@
 <a class="jxr_linenumber" name="L746" href="#L746">746</a>         <strong class="jxr_keyword">int</strong>[] loopback = { 0, 0, 0, 1 };
 <a class="jxr_linenumber" name="L747" href="#L747">747</a>         String v6test = <span class="jxr_string">"2001:db8:85a3::8a2e:370:7334"</span>;
 <a class="jxr_linenumber" name="L748" href="#L748">748</a>         <strong class="jxr_keyword">int</strong>[] v6 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>         v6[0] = Integer.parseUnsignedInt(<span class="jxr_string">"20010db8"</span>, 16);
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>         v6[1] = Integer.parseUnsignedInt(<span class="jxr_string">"85a30000"</span>, 16);
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>         v6[2] = Integer.parseUnsignedInt(<span class="jxr_string">"00008a2e"</span>, 16);
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>         v6[3] = Integer.parseUnsignedInt(<span class="jxr_string">"03707334"</span>, 16);
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>         v6[0] = (<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(<span class="jxr_string">"20010db8"</span>, 0L);
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>         v6[1] = (<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(<span class="jxr_string">"85a30000"</span>, 0L);
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>         v6[2] = (<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(<span class="jxr_string">"00008a2e"</span>, 0L);
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>         v6[3] = (<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(<span class="jxr_string">"03707334"</span>, 0L);
 <a class="jxr_linenumber" name="L753" href="#L753">753</a>         String v4test = <span class="jxr_string">"127.0.0.1"</span>;
 <a class="jxr_linenumber" name="L754" href="#L754">754</a>         <strong class="jxr_keyword">int</strong>[] v4 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[4];
 <a class="jxr_linenumber" name="L755" href="#L755">755</a>         v4[0] = (127 &lt;&lt; 24) + 1;
@@ -999,7 +999,26 @@
 <a class="jxr_linenumber" name="L991" href="#L991">991</a> 
 <a class="jxr_linenumber" name="L992" href="#L992">992</a>         assertThat(<span class="jxr_string">"Parse invalid date format"</span>, ParseUtil.parseDateToEpoch(<span class="jxr_string">"invalid-date"</span>, <span class="jxr_string">"yyyyMMdd"</span>), is(0L));
 <a class="jxr_linenumber" name="L993" href="#L993">993</a>     }
-<a class="jxr_linenumber" name="L994" href="#L994">994</a> }
+<a class="jxr_linenumber" name="L994" href="#L994">994</a> 
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>     @Test
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>     <strong class="jxr_keyword">void</strong> testDecodeIntOrDefault() {
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>         assertThat(ParseUtil.decodeIntOrDefault(<span class="jxr_string">"0x1A"</span>, -1), is(26));
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>         assertThat(ParseUtil.decodeIntOrDefault(<span class="jxr_string">"26"</span>, -1), is(26));
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>         assertThat(ParseUtil.decodeIntOrDefault(<span class="jxr_string">"032"</span>, -1), is(26));
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>         assertThat(ParseUtil.decodeIntOrDefault(<strong class="jxr_keyword">null</strong>, -1), is(-1));
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>         assertThat(ParseUtil.decodeIntOrDefault(<span class="jxr_string">"notanumber"</span>, -1), is(-1));
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>     }
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a> 
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>     @Test
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>     <strong class="jxr_keyword">void</strong> testDecodeLongOrDefault() {
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>         assertThat(ParseUtil.decodeLongOrDefault(<span class="jxr_string">"0x1A"</span>, -1L), is(26L));
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>         assertThat(ParseUtil.decodeLongOrDefault(<span class="jxr_string">"26"</span>, -1L), is(26L));
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>         assertThat(ParseUtil.decodeLongOrDefault(<span class="jxr_string">"032"</span>, -1L), is(26L));
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         assertThat(ParseUtil.decodeLongOrDefault(<strong class="jxr_keyword">null</strong>, -1L), is(-1L));
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>         assertThat(ParseUtil.decodeLongOrDefault(<span class="jxr_string">"notanumber"</span>, -1L), is(-1L));
+<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>         assertThat(ParseUtil.decodeLongOrDefault(<span class="jxr_string">"0x7FFFFFFFFFFFFFFF"</span>, -1L), is(Long.MAX_VALUE));
+<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>     }
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

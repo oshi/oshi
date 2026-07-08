@@ -36,10 +36,11 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>          SystemInfo si = <strong class="jxr_keyword">new</strong> SystemInfo();
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          List&lt;Display&gt; displays = si.getHardware().getDisplays();
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">for</strong> (Display d : displays) {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>              assertThat(<span class="jxr_string">"EDID Byte length should be at least 128"</span>, d.getEdid().length, is(greaterThanOrEqualTo(128)));
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          }
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              assertThat(<span class="jxr_string">"EDID Byte length should be at least 128"</span>, d.getDisplayInfo().getEdid().length,
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                      is(greaterThanOrEqualTo(128)));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

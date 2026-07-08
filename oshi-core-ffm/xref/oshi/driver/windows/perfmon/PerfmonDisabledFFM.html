@@ -52,13 +52,13 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              Object disabled = Advapi32UtilFFM.registryGetValue(hklm, key, value);
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">if</strong> (disabled instanceof Integer disabledValue) {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <strong class="jxr_keyword">if</strong> (disabledValue &gt; 0) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                      LOG.warn(<span class="jxr_string">"{} counters are disabled and won't return data: {}&#92;&#92;{}&#92;&#92;{} &gt; 0."</span>, service,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                      LOG.warn(<span class="jxr_string">"{} counters are disabled and won't return data: {}&#92;&#92;&#92;&#92;{}&#92;&#92;&#92;&#92;{} &gt; 0."</span>, service,
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>                              <span class="jxr_string">"HKEY_LOCAL_MACHINE"</span>, key, value);
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                  }
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (disabled != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                  LOG.warn(
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                          <span class="jxr_string">"Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}&#92;&#92;{}&#92;&#92;{}."</span>,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                          <span class="jxr_string">"Invalid registry value type detected for {} counters. Should be REG_DWORD. Ignoring: {}&#92;&#92;&#92;&#92;{}&#92;&#92;&#92;&#92;{}."</span>,
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>                          service, <span class="jxr_string">"HKEY_LOCAL_MACHINE"</span>, key, value);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              }
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">return</strong> false;

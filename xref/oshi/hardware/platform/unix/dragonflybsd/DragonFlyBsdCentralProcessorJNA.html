@@ -36,8 +36,8 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      @Override
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          FreeBsdLibc.CpTime cpTime = <strong class="jxr_keyword">new</strong> FreeBsdLibc.CpTime();
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">try</strong> (CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(cpTime.size())) {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">try</strong> (FreeBsdLibc.CpTime cpTime = <strong class="jxr_keyword">new</strong> FreeBsdLibc.CpTime();
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                  CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(cpTime.size())) {
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>              <strong class="jxr_keyword">if</strong> (0 == DragonFlyBsdLibc.INSTANCE.sysctlbyname(<span class="jxr_string">"kern.cp_time"</span>, cpTime.getPointer(), size, <strong class="jxr_keyword">null</strong>,
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>                      size_t.ZERO)) {
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>                  cpTime.read();

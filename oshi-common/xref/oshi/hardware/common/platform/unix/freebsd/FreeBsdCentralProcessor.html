@@ -85,15 +85,15 @@
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>                  Matcher m = identifierPattern.matcher(line);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">if</strong> (m.matches()) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                      cpuVendor = m.group(1);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      processorIdBits |= Long.decode(m.group(2));
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      cpuFamily = Integer.decode(m.group(3)).toString();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      cpuModel = Integer.decode(m.group(4)).toString();
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      cpuStepping = Integer.decode(m.group(5)).toString();
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                      processorIdBits |= ParseUtil.decodeLongOrDefault(m.group(2), 0L);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      cpuFamily = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(3), 0));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      cpuModel = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(4), 0));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      cpuStepping = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(5), 0));
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"Features="</span>)) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  Matcher m = featuresPattern.matcher(line);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      processorIdBits |= Long.decode(m.group(1)) &lt;&lt; 32;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      processorIdBits |= ParseUtil.decodeLongOrDefault(m.group(1), 0L) &lt;&lt; 32;
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <em class="jxr_comment">// No further interest in this file</em>
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <strong class="jxr_keyword">break</strong>;
