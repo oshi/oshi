@@ -36,6 +36,7 @@ public abstract class AbstractDisplay implements Display {
         this.displayInfo = displayInfo;
     }
 
+    @Deprecated
     @Override
     public byte[] getEdid() {
         return this.displayInfo.getEdid();
@@ -44,11 +45,6 @@ public abstract class AbstractDisplay implements Display {
     @Override
     public DisplayInfo getDisplayInfo() {
         return this.displayInfo;
-    }
-
-    @Override
-    public boolean isEdidSynthetic() {
-        return this.displayInfo.isEdidSynthetic();
     }
 
     @Override

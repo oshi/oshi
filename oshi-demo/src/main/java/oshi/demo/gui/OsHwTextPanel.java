@@ -147,7 +147,7 @@ public class OsHwTextPanel extends OshiJPanel { // NOSONAR squid:S110
         } else {
             int i = 0;
             for (Display display : displays) {
-                byte[] edid = display.getEdid();
+                byte[] edid = display.getDisplayInfo().getEdid();
                 byte[][] desc = EdidUtil.getDescriptors(edid);
                 String name = "Display " + i;
                 for (byte[] b : desc) {
