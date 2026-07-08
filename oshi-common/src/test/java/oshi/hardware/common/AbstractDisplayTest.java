@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.DisplayInfoImpl;
 
+@SuppressWarnings("deprecation") // exercises the deprecated Display.getEdid() until its removal
 class AbstractDisplayTest {
 
     @Test
@@ -45,7 +46,7 @@ class AbstractDisplayTest {
         AbstractDisplay display = new AbstractDisplay(new byte[128]) {
         };
         assertThat(display.getDisplayInfo(), is(notNullValue()));
-        assertThat(display.isEdidSynthetic(), is(false));
+        assertThat(display.getDisplayInfo().isEdidSynthetic(), is(false));
     }
 
     @Test
@@ -54,7 +55,7 @@ class AbstractDisplayTest {
         AbstractDisplay display = new AbstractDisplay(info) {
         };
         assertThat(display.getDisplayInfo(), is(sameInstance(info)));
-        assertThat(display.isEdidSynthetic(), is(false));
+        assertThat(display.getDisplayInfo().isEdidSynthetic(), is(false));
         assertThat(display.getEdid(), is(new byte[128]));
     }
 
@@ -64,7 +65,7 @@ class AbstractDisplayTest {
                 "2560x1440", "Thunderbolt", "C02JM2PFF2GC");
         AbstractDisplay display = new AbstractDisplay(info) {
         };
-        assertThat(display.isEdidSynthetic(), is(true));
+        assertThat(display.getDisplayInfo().isEdidSynthetic(), is(true));
         assertThat(display.getDisplayInfo().getModel(), is("Thunderbolt"));
     }
 }

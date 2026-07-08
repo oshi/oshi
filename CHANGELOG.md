@@ -2,7 +2,7 @@
 
 ##### New Features
 
-* [#3415](https://github.com/oshi/oshi/pull/3415): Add `Display.getDisplayInfo()` and `Display.isEdidSynthetic()`, a new `DisplayInfo` interface, and EDID-encoding methods in `EdidUtil`, allowing display attributes to be exposed without a raw EDID - [@dbwiddis](https://github.com/dbwiddis).
+* [#3415](https://github.com/oshi/oshi/pull/3415): Add `Display.getDisplayInfo()` and a new `DisplayInfo` interface (exposing decoded attributes including `isEdidSynthetic()`), plus EDID-encoding methods in `EdidUtil`, allowing display attributes to be exposed without a raw EDID - [@dbwiddis](https://github.com/dbwiddis).
 * [#3436](https://github.com/oshi/oshi/pull/3436): Detect the Apple Silicon built-in Retina display via `IOMobileFramebuffer` and synthesize a `DisplayInfo` from CoreGraphics and NSScreen properties (resolution, physical size, serial, model name) - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
@@ -13,6 +13,7 @@
 * [#3431](https://github.com/oshi/oshi/pull/3431): Declare the optional jlibrehardwaremonitor OSGi package imports as optional, so oshi-common resolves in OSGi environments that do not provide it - [@MrEasy](https://github.com/MrEasy).
 * [#3433](https://github.com/oshi/oshi/pull/3433): Restore optional JNA native access for NetBSD, falling back to the command-line implementation when the JNA native library is not installed - [@dbwiddis](https://github.com/dbwiddis).
 * [#3437](https://github.com/oshi/oshi/pull/3437): Add `ParseUtil.decodeIntOrDefault`/`decodeLongOrDefault` and forbid direct use of `Integer.decode`, `Long.decode`, `parseUnsignedInt`, and `parseUnsignedLong` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3438](https://github.com/oshi/oshi/pull/3438): Deprecate `Display.getEdid()` (for removal in the next major version) in favor of `Display.getDisplayInfo().getEdid()`, and remove the redundant `Display.isEdidSynthetic()` in favor of `DisplayInfo.isEdidSynthetic()`, consolidating display data access under `DisplayInfo` - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11), 7.3.2 (2026-06-26)
