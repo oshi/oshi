@@ -105,13 +105,16 @@ To print a full report of your own system, clone the repository and run the `Sys
 ```sh
 git clone https://github.com/oshi/oshi.git && cd oshi
 
+# Build and install the modules first, so the shared oshi-common classes resolve
+./mvnw install -DskipTests
+
 # JNA (oshi-core), JDK 8+
-./mvnw test-compile -pl oshi-core exec:java \
+./mvnw exec:java -pl oshi-core \
   -Dexec.mainClass="oshi.SystemInfoTest" \
   -Dexec.classpathScope="test"
 
 # FFM (oshi-core-ffm), JDK 25+
-./mvnw test-compile -pl oshi-core-ffm exec:java \
+./mvnw exec:java -pl oshi-core-ffm \
   -Dexec.mainClass="oshi.ffm.SystemInfoTest" \
   -Dexec.classpathScope="test"
 ```
