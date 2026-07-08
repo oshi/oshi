@@ -528,6 +528,40 @@ public final class ParseUtil {
     }
 
     /**
+     * Attempts to decode a string to an int using {@link Integer#decode(String)}. Handles decimal, hex (0x/0X/#), and
+     * octal (0) prefixes. If it fails, returns the default.
+     *
+     * @param s          The string to decode
+     * @param defaultInt The value to return if decoding fails
+     * @return The decoded int, or the default if decoding failed
+     */
+    public static int decodeIntOrDefault(String s, int defaultInt) {
+        try {
+            return Integer.decode(s);
+        } catch (NullPointerException | NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return defaultInt;
+        }
+    }
+
+    /**
+     * Attempts to decode a string to a long using {@link Long#decode(String)}. Handles decimal, hex (0x/0X/#), and
+     * octal (0) prefixes. If it fails, returns the default.
+     *
+     * @param s           The string to decode
+     * @param defaultLong The value to return if decoding fails
+     * @return The decoded long, or the default if decoding failed
+     */
+    public static long decodeLongOrDefault(String s, long defaultLong) {
+        try {
+            return Long.decode(s);
+        } catch (NullPointerException | NumberFormatException e) {
+            LOG.trace(DEFAULT_LOG_MSG, s, e);
+            return defaultLong;
+        }
+    }
+
+    /**
      * Attempts to parse a string to a double. If it fails, returns the default
      *
      * @param s             The string to parse
