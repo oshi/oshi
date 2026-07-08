@@ -47,12 +47,12 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.3.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.3.2)
-  * FFM: [oshi-core-ffm-7.3.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.3.2)
+  * JNA: [oshi-core-7.4.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.0)
+  * FFM: [oshi-core-ffm-7.4.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.0)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.4.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.0-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.4.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.0-SNAPSHOT/)
+  * JNA: [oshi-core-7.4.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.1-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.4.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.1-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -97,6 +97,26 @@ OperatingSystem os = si.getOperatingSystem();
 ```
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
+
+Sample Output for Your System
+-----------------------------
+To print a full report of your own system, clone the repository and run the `SystemInfoTest` main method. Both native implementations provide one:
+
+```sh
+git clone https://github.com/oshi/oshi.git && cd oshi
+
+# JNA (oshi-core), JDK 8+
+./mvnw test-compile -pl oshi-core exec:java \
+  -Dexec.mainClass="oshi.SystemInfoTest" \
+  -Dexec.classpathScope="test"
+
+# FFM (oshi-core-ffm), JDK 25+
+./mvnw test-compile -pl oshi-core-ffm exec:java \
+  -Dexec.mainClass="oshi.ffm.SystemInfoTest" \
+  -Dexec.classpathScope="test"
+```
+
+See [SystemInfoTest.java](oshi-core/src/test/java/oshi/SystemInfoTest.java) for the source, or the pre-generated [Sample Output](src/site/markdown/SampleOutput.md) for an example report.
 
 Documentation
 -------------
