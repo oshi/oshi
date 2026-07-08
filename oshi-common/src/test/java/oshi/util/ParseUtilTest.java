@@ -746,10 +746,10 @@ class ParseUtilTest {
         int[] loopback = { 0, 0, 0, 1 };
         String v6test = "2001:db8:85a3::8a2e:370:7334";
         int[] v6 = new int[4];
-        v6[0] = Integer.parseUnsignedInt("20010db8", 16);
-        v6[1] = Integer.parseUnsignedInt("85a30000", 16);
-        v6[2] = Integer.parseUnsignedInt("00008a2e", 16);
-        v6[3] = Integer.parseUnsignedInt("03707334", 16);
+        v6[0] = (int) ParseUtil.hexStringToLong("20010db8", 0L);
+        v6[1] = (int) ParseUtil.hexStringToLong("85a30000", 0L);
+        v6[2] = (int) ParseUtil.hexStringToLong("00008a2e", 0L);
+        v6[3] = (int) ParseUtil.hexStringToLong("03707334", 0L);
         String v4test = "127.0.0.1";
         int[] v4 = new int[4];
         v4[0] = (127 << 24) + 1;
@@ -990,5 +990,24 @@ class ParseUtilTest {
         assertThat("Parse UNKNOWN constant", ParseUtil.parseDateToEpoch(Constants.UNKNOWN, "yyyyMMdd"), is(0L));
 
         assertThat("Parse invalid date format", ParseUtil.parseDateToEpoch("invalid-date", "yyyyMMdd"), is(0L));
+    }
+
+    @Test
+    void testDecodeIntOrDefault() {
+        assertThat(ParseUtil.decodeIntOrDefault("0x1A", -1), is(26));
+        assertThat(ParseUtil.decodeIntOrDefault("26", -1), is(26));
+        assertThat(ParseUtil.decodeIntOrDefault("032", -1), is(26));
+        assertThat(ParseUtil.decodeIntOrDefault(null, -1), is(-1));
+        assertThat(ParseUtil.decodeIntOrDefault("notanumber", -1), is(-1));
+    }
+
+    @Test
+    void testDecodeLongOrDefault() {
+        assertThat(ParseUtil.decodeLongOrDefault("0x1A", -1L), is(26L));
+        assertThat(ParseUtil.decodeLongOrDefault("26", -1L), is(26L));
+        assertThat(ParseUtil.decodeLongOrDefault("032", -1L), is(26L));
+        assertThat(ParseUtil.decodeLongOrDefault(null, -1L), is(-1L));
+        assertThat(ParseUtil.decodeLongOrDefault("notanumber", -1L), is(-1L));
+        assertThat(ParseUtil.decodeLongOrDefault("0x7FFFFFFFFFFFFFFF", -1L), is(Long.MAX_VALUE));
     }
 }

@@ -30,6 +30,7 @@ import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
 
 class AbstractCentralProcessorTest {
@@ -126,14 +127,14 @@ class AbstractCentralProcessorTest {
         String id = AbstractCentralProcessor.createProcessorID("1", "2", "3", new String[] { "fpu", "sse" });
         assertThat(id, is(notNullValue()));
         assertThat(id.length(), is(16));
-        assertDoesNotThrow(() -> Long.parseUnsignedLong(id, 16));
+        assertDoesNotThrow(() -> ParseUtil.hexStringToLong(id, 0L));
     }
 
     @Test
     void testCreateProcessorIDWithHwcap() {
         String id = AbstractCentralProcessor.createProcessorID("1", "2", "3", new String[0], 0xFFL);
         assertThat(id.length(), is(16));
-        long parsed = Long.parseUnsignedLong(id, 16);
+        long parsed = ParseUtil.hexStringToLong(id, 0L);
         assertThat(parsed >>> 32, is(0xFFL));
     }
 
@@ -142,7 +143,7 @@ class AbstractCentralProcessorTest {
         long hwcap = 0x80000000L;
         String id = AbstractCentralProcessor.createProcessorID("1", "2", "3", new String[0], hwcap);
         assertThat(id.length(), is(16));
-        long parsed = Long.parseUnsignedLong(id, 16);
+        long parsed = ParseUtil.hexStringToLong(id, 0L);
         assertThat(parsed >>> 32, is(hwcap));
     }
 

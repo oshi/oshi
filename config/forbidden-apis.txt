@@ -8,4 +8,14 @@ java.lang.Long#parseLong(java.lang.String)
 java.lang.Long#parseLong(java.lang.String,int)
 java.lang.Long#parseLong(java.lang.CharSequence,int,int,int)
 
+java.lang.Integer#parseUnsignedInt(java.lang.String)
+java.lang.Integer#parseUnsignedInt(java.lang.String,int)
+java.lang.Integer#parseUnsignedInt(java.lang.CharSequence,int,int,int)
+java.lang.Integer#decode(java.lang.String)
+
+java.lang.Long#parseUnsignedLong(java.lang.String)
+java.lang.Long#parseUnsignedLong(java.lang.String,int)
+java.lang.Long#parseUnsignedLong(java.lang.CharSequence,int,int,int)
+java.lang.Long#decode(java.lang.String)
+
 java.lang.Double#parseDouble(java.lang.String)
