@@ -33,6 +33,7 @@ import oshi.hardware.common.AbstractDisplay;
 import oshi.jna.platform.mac.CoreGraphicsExt;
 import oshi.jna.platform.mac.ObjCRuntime;
 import oshi.util.EdidUtil;
+import oshi.util.ExceptionUtil;
 
 /**
  * A Display
@@ -277,52 +278,60 @@ final class MacDisplayJNA extends AbstractDisplay {
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.
     private static String getLocalizedDisplayName(int targetDisplayId) {
-        try {
+        return ExceptionUtil.getOrDefault(() -> {
             ObjCRuntime objc = ObjCRuntime.INSTANCE;
-            Pointer nsScreenClass = objc.objc_getClass("NSScreen");
-            if (nsScreenClass == null) {
-                return null;
-            }
-            Pointer selScreens = objc.sel_registerName("screens");
-            Pointer selCount = objc.sel_registerName("count");
-            Pointer selObjectAt = objc.sel_registerName("objectAtIndex:");
-            Pointer selDeviceDesc = objc.sel_registerName("deviceDescription");
-            Pointer selLocalizedName = objc.sel_registerName("localizedName");
-
-            Pointer screensArray = objc.objc_msgSend(nsScreenClass, selScreens);
-            if (screensArray == null) {
-                return null;
-            }
-            long count = Pointer.nativeValue(objc.objc_msgSend(screensArray, selCount));
-            CFStringRef cfKey = CFStringRef.createCFString("NSScreenNumber");
+            // Autorelease pool is thread-local; concurrent callers each get their own pool
+            Pointer pool = objc.objc_autoreleasePoolPush();
             try {
-                for (long i = 0; i < count; i++) {
-                    Pointer screen = objc.objc_msgSend(screensArray, selObjectAt, i);
-                    if (screen == null) {
-                        continue;
-                    }
-                    Pointer deviceDesc = objc.objc_msgSend(screen, selDeviceDesc);
-                    if (deviceDesc == null) {
-                        continue;
-                    }
-                    Pointer cfNum = CF.CFDictionaryGetValue(new CFDictionaryRef(deviceDesc), cfKey);
-                    if (cfNum == null) {
-                        continue;
-                    }
-                    LongByReference outId = new LongByReference();
-                    if (CF.CFNumberGetValue(new CFNumberRef(cfNum), K_CF_NUMBER_SINT64, outId) != 0
-                            && (int) outId.getValue() == targetDisplayId) {
-                        Pointer nsName = objc.objc_msgSend(screen, selLocalizedName);
-                        if (nsName != null) {
-                            return new CFStringRef(nsName).stringValue();
-                        }
+                return queryLocalizedDisplayName(objc, targetDisplayId);
+            } finally {
+                objc.objc_autoreleasePoolPop(pool);
+            }
+        }, null, LOG, "Failed to get localized display name: {}");
+    }
+
+    private static String queryLocalizedDisplayName(ObjCRuntime objc, int targetDisplayId) {
+        Pointer nsScreenClass = objc.objc_getClass("NSScreen");
+        if (nsScreenClass == null) {
+            return null;
+        }
+        Pointer selScreens = objc.sel_registerName("screens");
+        Pointer selCount = objc.sel_registerName("count");
+        Pointer selObjectAt = objc.sel_registerName("objectAtIndex:");
+        Pointer selDeviceDesc = objc.sel_registerName("deviceDescription");
+        Pointer selLocalizedName = objc.sel_registerName("localizedName");
+
+        Pointer screensArray = objc.objc_msgSend(nsScreenClass, selScreens);
+        if (screensArray == null) {
+            return null;
+        }
+        long count = Pointer.nativeValue(objc.objc_msgSend(screensArray, selCount));
+        CFStringRef cfKey = CFStringRef.createCFString("NSScreenNumber");
+        try {
+            for (long i = 0; i < count; i++) {
+                Pointer screen = objc.objc_msgSend(screensArray, selObjectAt, i);
+                if (screen == null) {
+                    continue;
+                }
+                Pointer deviceDesc = objc.objc_msgSend(screen, selDeviceDesc);
+                if (deviceDesc == null) {
+                    continue;
+                }
+                Pointer cfNum = CF.CFDictionaryGetValue(new CFDictionaryRef(deviceDesc), cfKey);
+                if (cfNum == null) {
+                    continue;
+                }
+                LongByReference outId = new LongByReference();
+                if (CF.CFNumberGetValue(new CFNumberRef(cfNum), K_CF_NUMBER_SINT64, outId) != 0
+                        && (int) outId.getValue() == targetDisplayId) {
+                    Pointer nsName = objc.objc_msgSend(screen, selLocalizedName);
+                    if (nsName != null) {
+                        return new CFStringRef(nsName).stringValue();
                     }
                 }
-            } finally {
-                cfKey.release();
             }
-        } catch (Exception e) {
-            LOG.debug("Failed to get localized display name", e);
+        } finally {
+            cfKey.release();
         }
         return null;
     }

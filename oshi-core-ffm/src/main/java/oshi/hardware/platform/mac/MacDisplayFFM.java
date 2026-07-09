@@ -5,12 +5,8 @@
 package oshi.hardware.platform.mac;
 
 import java.lang.foreign.Arena;
-import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
-import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,14 +19,17 @@ import oshi.ffm.platform.mac.CoreFoundation.CFDataRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+import oshi.ffm.platform.mac.CoreFoundationFunctions;
 import oshi.ffm.platform.mac.CoreGraphicsFunctions;
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.ObjCFunctions;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.common.AbstractDisplay;
 import oshi.util.EdidUtil;
+import oshi.util.ExceptionUtil;
 
 /**
  * A Display
@@ -207,115 +206,88 @@ final class MacDisplayFFM extends AbstractDisplay {
 
     // Returns the CGDirectDisplayID of the built-in display, or -1 if not found.
     private static int findBuiltInDisplayId() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment countSeg = arena.allocate(ValueLayout.JAVA_INT);
-            if (CoreGraphicsFunctions.CGGetActiveDisplayList(0, MemorySegment.NULL, countSeg) != 0) {
-                return -1;
-            }
-            int count = countSeg.get(ValueLayout.JAVA_INT, 0);
-            if (count == 0) {
-                return -1;
-            }
-            MemorySegment idsSeg = arena.allocate(ValueLayout.JAVA_INT, count);
-            if (CoreGraphicsFunctions.CGGetActiveDisplayList(count, idsSeg, countSeg) != 0) {
-                return -1;
-            }
-            for (int i = 0; i < count; i++) {
-                int id = idsSeg.getAtIndex(ValueLayout.JAVA_INT, i);
-                if (CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0) {
-                    return id;
+        return ExceptionUtil.getIntOrDefault(() -> {
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment countSeg = arena.allocate(ValueLayout.JAVA_INT);
+                if (CoreGraphicsFunctions.CGGetActiveDisplayList(0, MemorySegment.NULL, countSeg) != 0) {
+                    return -1;
+                }
+                int count = countSeg.get(ValueLayout.JAVA_INT, 0);
+                if (count == 0) {
+                    return -1;
+                }
+                MemorySegment idsSeg = arena.allocate(ValueLayout.JAVA_INT, count);
+                if (CoreGraphicsFunctions.CGGetActiveDisplayList(count, idsSeg, countSeg) != 0) {
+                    return -1;
+                }
+                for (int i = 0; i < count; i++) {
+                    int id = idsSeg.getAtIndex(ValueLayout.JAVA_INT, i);
+                    if (CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0) {
+                        return id;
+                    }
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to find built-in display ID", t);
-        }
-        return -1;
+            return -1;
+        }, -1, LOG, "Failed to find built-in display ID: {}");
     }
-
-    // ObjC runtime handles for NSScreen.localizedName lookup.
-    private static final SymbolLookup OBJC_LOOKUP = SymbolLookup.libraryLookup("libobjc.dylib", Arena.global());
-    private static final SymbolLookup CF_LOOKUP = SymbolLookup
-            .libraryLookup("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation", Arena.global());
-    private static final MethodHandle OBJC_GET_CLASS = Linker.nativeLinker().downcallHandle(
-            OBJC_LOOKUP.find("objc_getClass").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-    private static final MethodHandle SEL_REGISTER_NAME = Linker.nativeLinker().downcallHandle(
-            OBJC_LOOKUP.find("sel_registerName").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-    private static final MethodHandle MSG_SEND = Linker.nativeLinker().downcallHandle(
-            OBJC_LOOKUP.find("objc_msgSend").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-    private static final MethodHandle MSG_SEND_LONG = Linker.nativeLinker()
-            .downcallHandle(OBJC_LOOKUP.find("objc_msgSend").orElseThrow(), FunctionDescriptor.of(ValueLayout.ADDRESS,
-                    ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
-    private static final MethodHandle MSG_SEND_COUNT = Linker.nativeLinker().downcallHandle(
-            OBJC_LOOKUP.find("objc_msgSend").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-    private static final MethodHandle CF_DICTIONARY_GET_VALUE = Linker.nativeLinker().downcallHandle(
-            CF_LOOKUP.find("CFDictionaryGetValue").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS));
-    private static final MethodHandle CF_NUMBER_GET_VALUE = Linker.nativeLinker()
-            .downcallHandle(CF_LOOKUP.find("CFNumberGetValue").orElseThrow(), FunctionDescriptor
-                    .of(ValueLayout.JAVA_BOOLEAN, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-    private static final MethodHandle CF_STRING_GET_CSTRING = Linker.nativeLinker().downcallHandle(
-            CF_LOOKUP.find("CFStringGetCString").orElseThrow(), FunctionDescriptor.of(ValueLayout.JAVA_BOOLEAN,
-                    ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT));
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.
     private static String getLocalizedDisplayName(int targetDisplayId) {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment nsScreenClass = (MemorySegment) OBJC_GET_CLASS.invokeExact(arena.allocateFrom("NSScreen"));
-            if (nsScreenClass.address() == 0) {
-                return null;
+        return ExceptionUtil.getOrDefault(() -> {
+            try (Arena arena = Arena.ofConfined()) {
+                // Autorelease pool is thread-local; concurrent callers each get their own pool
+                MemorySegment pool = ObjCFunctions.objc_autoreleasePoolPush();
+                try {
+                    return queryLocalizedDisplayName(arena, targetDisplayId);
+                } finally {
+                    ObjCFunctions.objc_autoreleasePoolPop(pool);
+                }
             }
-            MemorySegment selScreens = (MemorySegment) SEL_REGISTER_NAME.invokeExact(arena.allocateFrom("screens"));
-            MemorySegment selCount = (MemorySegment) SEL_REGISTER_NAME.invokeExact(arena.allocateFrom("count"));
-            MemorySegment selObjectAt = (MemorySegment) SEL_REGISTER_NAME
-                    .invokeExact(arena.allocateFrom("objectAtIndex:"));
-            MemorySegment selDeviceDesc = (MemorySegment) SEL_REGISTER_NAME
-                    .invokeExact(arena.allocateFrom("deviceDescription"));
-            MemorySegment selLocalizedName = (MemorySegment) SEL_REGISTER_NAME
-                    .invokeExact(arena.allocateFrom("localizedName"));
+        }, null, LOG, "Failed to get localized display name: {}");
+    }
 
-            MemorySegment screensArray = (MemorySegment) MSG_SEND.invokeExact(nsScreenClass, selScreens);
-            if (screensArray.address() == 0) {
-                return null;
-            }
-            long count = (long) MSG_SEND_COUNT.invokeExact(screensArray, selCount);
+    private static String queryLocalizedDisplayName(Arena arena, int targetDisplayId) throws Throwable {
+        MemorySegment nsScreenClass = ObjCFunctions.objc_getClass(arena.allocateFrom("NSScreen"));
+        if (nsScreenClass.address() == 0) {
+            return null;
+        }
+        MemorySegment selScreens = ObjCFunctions.sel_registerName(arena.allocateFrom("screens"));
+        MemorySegment selCount = ObjCFunctions.sel_registerName(arena.allocateFrom("count"));
+        MemorySegment selObjectAt = ObjCFunctions.sel_registerName(arena.allocateFrom("objectAtIndex:"));
+        MemorySegment selDeviceDesc = ObjCFunctions.sel_registerName(arena.allocateFrom("deviceDescription"));
+        MemorySegment selLocalizedName = ObjCFunctions.sel_registerName(arena.allocateFrom("localizedName"));
 
-            try (CFStringRef cfKey = CFStringRef.createCFString("NSScreenNumber")) {
-                for (long i = 0; i < count; i++) {
-                    MemorySegment screen = (MemorySegment) MSG_SEND_LONG.invokeExact(screensArray, selObjectAt, i);
-                    if (screen.address() == 0) {
-                        continue;
-                    }
-                    MemorySegment deviceDesc = (MemorySegment) MSG_SEND.invokeExact(screen, selDeviceDesc);
-                    if (deviceDesc.address() == 0) {
-                        continue;
-                    }
-                    MemorySegment cfNum = (MemorySegment) CF_DICTIONARY_GET_VALUE.invokeExact(deviceDesc,
-                            cfKey.segment());
-                    if (cfNum.address() == 0) {
-                        continue;
-                    }
-                    MemorySegment outId = arena.allocate(ValueLayout.JAVA_INT);
-                    // kCFNumberSInt32Type = 3
-                    boolean ok = (boolean) CF_NUMBER_GET_VALUE.invokeExact(cfNum, 3L, outId);
-                    if (ok && outId.get(ValueLayout.JAVA_INT, 0) == targetDisplayId) {
-                        MemorySegment nsName = (MemorySegment) MSG_SEND.invokeExact(screen, selLocalizedName);
-                        if (nsName.address() != 0) {
-                            MemorySegment buf = arena.allocate(256);
-                            // kCFStringEncodingUTF8 = 0x08000100
-                            boolean got = (boolean) CF_STRING_GET_CSTRING.invokeExact(nsName, buf, 256L, 0x08000100);
-                            if (got) {
-                                return buf.getString(0);
-                            }
-                        }
+        MemorySegment screensArray = ObjCFunctions.objc_msgSend(nsScreenClass, selScreens);
+        if (screensArray.address() == 0) {
+            return null;
+        }
+        long count = ObjCFunctions.objc_msgSend_long(screensArray, selCount);
+
+        try (CFStringRef cfKey = CFStringRef.createCFString("NSScreenNumber")) {
+            for (long i = 0; i < count; i++) {
+                MemorySegment screen = ObjCFunctions.objc_msgSend(screensArray, selObjectAt, i);
+                if (screen.address() == 0) {
+                    continue;
+                }
+                MemorySegment deviceDesc = ObjCFunctions.objc_msgSend(screen, selDeviceDesc);
+                if (deviceDesc.address() == 0) {
+                    continue;
+                }
+                MemorySegment cfNum = CoreFoundationFunctions.CFDictionaryGetValue(deviceDesc, cfKey.segment());
+                if (cfNum.address() == 0) {
+                    continue;
+                }
+                MemorySegment outId = arena.allocate(ValueLayout.JAVA_INT);
+                // kCFNumberSInt32Type = 3
+                boolean ok = CoreFoundationFunctions.CFNumberGetValue(cfNum, 3, outId);
+                if (ok && outId.get(ValueLayout.JAVA_INT, 0) == targetDisplayId) {
+                    MemorySegment nsName = ObjCFunctions.objc_msgSend(screen, selLocalizedName);
+                    if (nsName.address() != 0) {
+                        // Borrowed autoreleased reference — do not close/release
+                        return new CFStringRef(nsName).stringValue();
                     }
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to get localized display name", t);
         }
         return null;
     }

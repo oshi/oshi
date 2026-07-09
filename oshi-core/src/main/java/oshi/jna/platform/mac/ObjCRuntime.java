@@ -26,4 +26,8 @@ public interface ObjCRuntime extends Library {
     Pointer objc_msgSend(Pointer receiver, Pointer selector);
 
     Pointer objc_msgSend(Pointer receiver, Pointer selector, long index);
+
+    Pointer objc_autoreleasePoolPush();
+
+    void objc_autoreleasePoolPop(Pointer pool);
 }

@@ -402,4 +402,5 @@ public final class CoreFoundationFunctions extends MacForeignFunctions {
             throw new ExceptionInInitializerError(e);
         }
     }
+
 }
