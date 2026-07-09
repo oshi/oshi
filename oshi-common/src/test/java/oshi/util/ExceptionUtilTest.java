@@ -386,7 +386,9 @@ class ExceptionUtilTest {
     void testLogsAndReturnsDefaultAtEveryLevel() {
         for (Level level : Level.values()) {
             String result = ExceptionUtil.getOrDefault(() -> {
-                throw new IllegalStateException("boom");
+                // Intentional: exercises the exception-logging path at each level. The stack trace this logs is
+                // expected test output, not a real failure.
+                throw new IllegalStateException("expected test exception, stack trace is intentional");
             }, "no exception", LOG, level, "failed: {}");
             assertThat(result, is("no exception"));
         }

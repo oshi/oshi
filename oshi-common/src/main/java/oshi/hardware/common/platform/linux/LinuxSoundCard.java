@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
@@ -23,8 +20,6 @@ import oshi.util.linux.ProcPath;
  */
 @Immutable
 class LinuxSoundCard extends AbstractSoundCard {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxSoundCard.class);
 
     private static final String CARD_FOLDER = "card";
     private static final String CARDS_FILE = "cards";
@@ -58,9 +53,9 @@ class LinuxSoundCard extends AbstractSoundCard {
                     cardFolders.add(card);
                 }
             }
-        } else {
-            LOG.warn("No Audio Cards Found");
         }
+        // An absent /proc/asound directory (headless systems, containers, VMs) is a normal empty result, not a
+        // warning — consistent with the other hardware collectors, which return an empty list silently.
         return cardFolders;
     }
 
