@@ -1,6 +1,8 @@
 # 7.4.1 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3441](https://github.com/oshi/oshi/pull/3441): Wrap AppKit/Cocoa display-name calls in an autorelease pool, extract `ObjCFunctions` FFM bindings, and use `ExceptionUtil` for consistent error handling - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08)
 
