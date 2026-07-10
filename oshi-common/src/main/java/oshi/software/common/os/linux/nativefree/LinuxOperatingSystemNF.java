@@ -4,7 +4,6 @@
  */
 package oshi.software.common.os.linux.nativefree;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -14,6 +13,7 @@ import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
+import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -99,12 +99,11 @@ public class LinuxOperatingSystemNF extends LinuxOperatingSystem {
 
     @Override
     public int getThreadId() {
-        try {
-            return ParseUtil.parseIntOrDefault(
-                    Files.readSymbolicLink(Paths.get(ProcPath.THREAD_SELF)).getFileName().toString(), 0);
-        } catch (IOException e) {
-            return 0;
-        }
+        return ExceptionUtil
+                .getIntOrDefault(
+                        () -> ParseUtil.parseIntOrDefault(
+                                Files.readSymbolicLink(Paths.get(ProcPath.THREAD_SELF)).getFileName().toString(), 0),
+                        0);
     }
 
     @Override

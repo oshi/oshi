@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.util.Constants;
+import oshi.util.ExceptionUtil;
 import oshi.util.FileUtil;
 import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
@@ -150,24 +151,15 @@ public abstract class AbstractNetworkIF implements NetworkIF {
      * @return A list of network interfaces
      */
     private static List<NetworkInterface> getAllNetworkInterfaces() {
-        try {
+        return ExceptionUtil.getOrDefault(() -> {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             return interfaces == null ? Collections.emptyList() : Collections.list(interfaces);
-        } catch (SocketException ex) {
-            LOG.error("Socket exception when retrieving interfaces: {}", ex.getMessage());
-        }
-        return Collections.emptyList();
+        }, Collections.emptyList(), LOG, "Socket exception when retrieving interfaces: {}");
     }
 
     private static boolean isLocalInterface(NetworkInterface networkInterface) {
-        try {
-            // getHardwareAddress also checks for loopback
-            return networkInterface.getHardwareAddress() == null;
-        } catch (SocketException e) {
-            LOG.error("Socket exception when retrieving interface information for {}: {}", networkInterface,
-                    e.getMessage());
-        }
-        return false;
+        return ExceptionUtil.getBooleanOrDefault(() -> networkInterface.getHardwareAddress() == null, false, LOG,
+                "Socket exception when retrieving interface information: {}");
     }
 
     @Override

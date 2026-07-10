@@ -5,7 +5,6 @@
 package oshi.software.os.linux;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
+import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
@@ -143,12 +143,10 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
             return HAS_GETTID ? LinuxLibc.INSTANCE.gettid()
                     : LinuxLibc.INSTANCE.syscall(LinuxLibc.SYS_GETTID).intValue();
         }
-        try {
-            return ParseUtil.parseIntOrDefault(
-                    Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).getFileName().toString(), 0);
-        } catch (IOException e) {
-            return 0;
-        }
+        return ExceptionUtil.getIntOrDefault(
+                () -> ParseUtil.parseIntOrDefault(
+                        Files.readSymbolicLink(new File(ProcPath.THREAD_SELF).toPath()).getFileName().toString(), 0),
+                0);
     }
 
     /**

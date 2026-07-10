@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
+import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
@@ -286,11 +287,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         if (split.length == 0) {
             return 0;
         }
-        try {
-            return new BigInteger(split[split.length - 1], 16).longValue();
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return ExceptionUtil.getLongOrDefault(() -> new BigInteger(split[split.length - 1], 16).longValue(), 0);
     }
 
     @Override

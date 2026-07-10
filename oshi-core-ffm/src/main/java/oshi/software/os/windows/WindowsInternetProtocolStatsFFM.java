@@ -17,9 +17,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.platform.windows.Win32Exception;
 import oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM;
 import oshi.software.common.AbstractInternetProtocolStats;
+import oshi.util.ExceptionUtil;
 
 public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolStats {
 
@@ -37,41 +37,25 @@ public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolSta
 
     @Override
     public TcpStats getTCPv4Stats() {
-        try {
-            return IPHlpAPIUtilFFM.getTcpStats(AF_INET);
-        } catch (Win32Exception e) {
-            LOG.error("Failed to read TCPv4 stats: {}", e.getMessage());
-            return null;
-        }
+        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET), null, LOG,
+                "Failed to read TCPv4 stats: {}");
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-        try {
-            return IPHlpAPIUtilFFM.getTcpStats(AF_INET6);
-        } catch (Win32Exception e) {
-            LOG.error("Failed to read TCPv6 stats: {}", e.getMessage());
-            return null;
-        }
+        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET6), null, LOG,
+                "Failed to read TCPv6 stats: {}");
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-        try {
-            return IPHlpAPIUtilFFM.getUdpStats(AF_INET);
-        } catch (Win32Exception e) {
-            LOG.error("Failed to read UDPv4 stats: {}", e.getMessage());
-            return null;
-        }
+        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET), null, LOG,
+                "Failed to read UDPv4 stats: {}");
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        try {
-            return IPHlpAPIUtilFFM.getUdpStats(AF_INET6);
-        } catch (Win32Exception e) {
-            LOG.error("Failed to read UDPv6 stats: {}", e.getMessage());
-            return null;
-        }
+        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET6), null, LOG,
+                "Failed to read UDPv6 stats: {}");
     }
 }
