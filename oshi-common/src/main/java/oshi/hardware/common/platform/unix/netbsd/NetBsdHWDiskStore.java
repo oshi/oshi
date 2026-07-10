@@ -29,10 +29,12 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat;
 
-    private NetBsdHWDiskStore(String name, String model, String serial, long size) {
+    private NetBsdHWDiskStore(String name, String model, String serial, long size,
+            Supplier<List<String>> iostatSupplier) {
         super(name, model, serial, size);
+        this.iostat = iostatSupplier;
     }
 
     /**
@@ -43,6 +45,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
     public static List<HWDiskStore> getDisks() {
         List<HWDiskStore> diskList = new ArrayList<>();
         List<String> dmesg = null;
+        Supplier<List<String>> iostatSupplier = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
 
         // Get list of disks from sysctl
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
@@ -86,7 +89,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                 }
             }
-            store = new NetBsdHWDiskStore(diskName, model, diskdata.getB(), size);
+            store = new NetBsdHWDiskStore(diskName, model, diskdata.getB(), size, iostatSupplier);
             store.setPartitionList(diskdata.getD());
             store.updateAttributes();
 
