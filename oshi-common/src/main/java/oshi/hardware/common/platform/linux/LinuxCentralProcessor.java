@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -292,11 +293,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static ProcessorCache.Type parseCacheType(String type) {
-        try {
-            return ProcessorCache.Type.valueOf(type.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException e) {
-            return ProcessorCache.Type.UNIFIED;
-        }
+        return ExceptionUtil.getOrDefault(() -> ProcessorCache.Type.valueOf(type.toUpperCase(Locale.ROOT)),
+                ProcessorCache.Type.UNIFIED);
     }
 
     private static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromCpuinfo() {

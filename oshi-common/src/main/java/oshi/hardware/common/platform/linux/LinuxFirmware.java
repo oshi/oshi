@@ -7,7 +7,6 @@ package oshi.hardware.common.platform.linux;
 import static oshi.util.Memoizer.memoize;
 
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -15,6 +14,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
+import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.driver.linux.Dmidecode;
@@ -127,11 +127,9 @@ final class LinuxFirmware extends AbstractFirmware {
 
         if (vcgencmd.size() >= 3) {
             // First line is date
-            try {
-                vcReleaseDate = DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0)));
-            } catch (DateTimeParseException e) {
-                vcReleaseDate = Constants.UNKNOWN;
-            }
+            vcReleaseDate = ExceptionUtil.getOrDefault(
+                    () -> DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0))),
+                    Constants.UNKNOWN);
             // Second line is copyright
             String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));
             vcManufacturer = copyright.length > 0 && !copyright[copyright.length - 1].isEmpty()
