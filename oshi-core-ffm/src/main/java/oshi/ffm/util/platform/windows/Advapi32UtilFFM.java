@@ -58,7 +58,8 @@ public final class Advapi32UtilFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(Advapi32UtilFFM.class);
 
-    private static Supplier<String> systemLog = memoize(Advapi32UtilFFM::querySystemLog, TimeUnit.HOURS.toNanos(1));
+    private static final Supplier<String> SYSTEM_LOG = memoize(Advapi32UtilFFM::querySystemLog,
+            TimeUnit.HOURS.toNanos(1));
 
     /**
      * Checks whether the current process is running with elevated privileges.
@@ -386,7 +387,7 @@ public final class Advapi32UtilFFM {
      * @return the boot time as a Unix epoch timestamp in seconds
      */
     public static long querySystemBootTime() {
-        String eventLog = systemLog.get();
+        String eventLog = SYSTEM_LOG.get();
         try (Arena arena = Arena.ofConfined()) {
             Optional<MemorySegment> hEventLogOpt = Advapi32FFM.OpenEventLog(arena, eventLog);
             if (hEventLogOpt.isEmpty()) {
