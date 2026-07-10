@@ -30,7 +30,7 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return MacSoundCard.getSoundCards();
     }
 

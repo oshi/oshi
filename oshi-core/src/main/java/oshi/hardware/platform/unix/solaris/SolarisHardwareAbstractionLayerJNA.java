@@ -65,7 +65,7 @@ public final class SolarisHardwareAbstractionLayerJNA extends AbstractHardwareAb
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return UnixDisplay.getDisplays();
     }
 
@@ -75,17 +75,17 @@ public final class SolarisHardwareAbstractionLayerJNA extends AbstractHardwareAb
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return SolarisUsbDevice.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return SolarisUsbDevice.getUsbDevices(true);
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return SolarisSoundCard.getSoundCards();
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return SolarisGraphicsCard.getGraphicsCards();
     }
 

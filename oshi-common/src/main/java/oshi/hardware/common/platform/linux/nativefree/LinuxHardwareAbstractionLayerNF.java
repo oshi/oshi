@@ -52,12 +52,12 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return LinuxUsbDeviceNF.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return LinuxUsbDeviceNF.getUsbDevices(true);
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return LinuxGraphicsCardNF.getGraphicsCards();
     }
 }

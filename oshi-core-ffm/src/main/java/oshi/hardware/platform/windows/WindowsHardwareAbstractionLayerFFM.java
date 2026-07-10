@@ -56,7 +56,7 @@ public final class WindowsHardwareAbstractionLayerFFM extends AbstractHardwareAb
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return WindowsGraphicsCardFFM.getGraphicsCards();
     }
 
@@ -71,13 +71,13 @@ public final class WindowsHardwareAbstractionLayerFFM extends AbstractHardwareAb
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return WindowsDisplayFFM.getDisplays();
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return WindowsUsbDeviceFFM.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return WindowsUsbDeviceFFM.getUsbDevices(true);
     }
 
     @Override
@@ -86,7 +86,7 @@ public final class WindowsHardwareAbstractionLayerFFM extends AbstractHardwareAb
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return WindowsSoundCardFFM.getSoundCards();
     }
 

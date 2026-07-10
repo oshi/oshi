@@ -5,17 +5,23 @@
 package oshi.hardware.common;
 
 import static oshi.util.Memoizer.memoize;
+import static oshi.util.Memoizer.slowExpiration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
+import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.GraphicsCard;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.Sensors;
+import oshi.hardware.SoundCard;
+import oshi.hardware.UsbDevice;
 
 /**
  * Common fields or methods used by platform-specific implementations of HardwareAbstractionLayer
@@ -36,6 +42,14 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
     private final Supplier<GlobalMemory> memory = memoize(this::createMemory);
 
     private final Supplier<Sensors> sensors = memoize(this::createSensors);
+
+    private final Supplier<List<Display>> displays = memoize(this::createDisplays, slowExpiration());
+
+    private final Supplier<List<SoundCard>> soundCards = memoize(this::createSoundCards, slowExpiration());
+
+    private final Supplier<List<GraphicsCard>> graphicsCards = memoize(this::createGraphicsCards, slowExpiration());
+
+    private final Supplier<List<UsbDevice>> usbDevicesTree = memoize(this::createUsbDevices, slowExpiration());
 
     @Override
     public ComputerSystem getComputerSystem() {
@@ -84,6 +98,69 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
      * @return platform-specific {@link Sensors} object
      */
     protected abstract Sensors createSensors();
+
+    @Override
+    public List<Display> getDisplays() {
+        return displays.get();
+    }
+
+    /**
+     * Instantiates the platform-specific list of {@link Display} objects
+     *
+     * @return platform-specific list of {@link Display} objects
+     */
+    protected abstract List<Display> createDisplays();
+
+    @Override
+    public List<SoundCard> getSoundCards() {
+        return soundCards.get();
+    }
+
+    /**
+     * Instantiates the platform-specific list of {@link SoundCard} objects
+     *
+     * @return platform-specific list of {@link SoundCard} objects
+     */
+    protected abstract List<SoundCard> createSoundCards();
+
+    @Override
+    public List<GraphicsCard> getGraphicsCards() {
+        return graphicsCards.get();
+    }
+
+    /**
+     * Instantiates the platform-specific list of {@link GraphicsCard} objects
+     *
+     * @return platform-specific list of {@link GraphicsCard} objects
+     */
+    protected abstract List<GraphicsCard> createGraphicsCards();
+
+    @Override
+    public List<UsbDevice> getUsbDevices(boolean tree) {
+        List<UsbDevice> devices = usbDevicesTree.get();
+        if (tree) {
+            return devices;
+        }
+        List<UsbDevice> deviceList = new ArrayList<>();
+        for (UsbDevice device : devices) {
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
+        return deviceList;
+    }
+
+    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
+        for (UsbDevice device : list) {
+            deviceList.add(device);
+            addDevicesToList(deviceList, device.getConnectedDevices());
+        }
+    }
+
+    /**
+     * Instantiates the platform-specific list of {@link UsbDevice} objects in tree form
+     *
+     * @return platform-specific list of {@link UsbDevice} objects
+     */
+    protected abstract List<UsbDevice> createUsbDevices();
 
     @Override
     public List<NetworkIF> getNetworkIFs() {

@@ -27,6 +27,15 @@ public final class Memoizer {
     }
 
     /**
+     * Expiration for slowly-changing hardware state (e.g., connected displays) in nanoseconds. Default is 3 seconds.
+     *
+     * @return The number of nanoseconds to keep memoized values before refreshing
+     */
+    public static long slowExpiration() {
+        return TimeUnit.SECONDS.toNanos(3);
+    }
+
+    /**
      * Gets the expiration for installed apps cache.
      *
      * @return the expiration in nanoseconds

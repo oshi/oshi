@@ -65,7 +65,7 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return UnixDisplay.getDisplays();
     }
 
@@ -75,17 +75,17 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return BsdUsbDevice.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return BsdUsbDevice.getUsbDevices(true);
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return BsdSoundCard.getSoundCards();
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return BsdGraphicsCard.getGraphicsCards();
     }
 

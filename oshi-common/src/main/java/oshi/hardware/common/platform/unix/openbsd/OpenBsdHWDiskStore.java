@@ -29,10 +29,12 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private final Supplier<List<String>> iostat = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat;
 
-    protected OpenBsdHWDiskStore(String name, String model, String serial, long size) {
+    protected OpenBsdHWDiskStore(String name, String model, String serial, long size,
+            Supplier<List<String>> iostatSupplier) {
         super(name, model, serial, size);
+        this.iostat = iostatSupplier;
     }
 
     /**
@@ -47,6 +49,7 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
             DiskStoreFactory<T> factory) {
         List<HWDiskStore> diskList = new ArrayList<>();
         List<String> dmesg = null;
+        Supplier<List<String>> iostatSupplier = memoize(OpenBsdHWDiskStore::querySystatIostat, defaultExpiration());
 
         String disknames = sysctlStr.apply("hw.disknames", "");
         if (disknames.isEmpty()) {
@@ -89,7 +92,7 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
                     }
                 }
             }
-            store = factory.create(diskName, model, diskdata.getB(), size);
+            store = factory.create(diskName, model, diskdata.getB(), size, iostatSupplier);
             store.setPartitionList(diskdata.getD());
             store.updateAttributes();
 
@@ -128,6 +131,6 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
      */
     @FunctionalInterface
     protected interface DiskStoreFactory<T extends OpenBsdHWDiskStore> {
-        T create(String name, String model, String serial, long size);
+        T create(String name, String model, String serial, long size, Supplier<List<String>> iostatSupplier);
     }
 }
