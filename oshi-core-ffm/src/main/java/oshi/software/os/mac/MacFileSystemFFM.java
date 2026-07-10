@@ -190,17 +190,7 @@ public class MacFileSystemFFM extends MacFileSystem {
     }
 
     @Override
-    public long getOpenFileDescriptors() {
-        return SysctlUtilFFM.sysctl("kern.num_files", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return SysctlUtilFFM.sysctl("kern.maxfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return SysctlUtilFFM.sysctl("kern.maxfilesperproc", 0);
+    protected long querySysctl(String name) {
+        return SysctlUtilFFM.sysctl(name, 0);
     }
 }

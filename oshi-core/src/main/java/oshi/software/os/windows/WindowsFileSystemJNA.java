@@ -24,7 +24,7 @@ import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.ProcessInformationJNA;
 import oshi.driver.windows.wmi.Win32LogicalDiskJNA;
 import oshi.jna.ByRef.CloseableIntByReference;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.os.windows.WindowsFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 
@@ -34,7 +34,7 @@ import oshi.util.ParseUtil;
  * represented by a drive letter, e.g., "A:\" and "C:\"
  */
 @ThreadSafe
-public class WindowsFileSystemJNA extends AbstractFileSystem {
+public class WindowsFileSystemJNA extends WindowsFileSystem {
 
     private static final int BUFSIZE = 255;
 
@@ -76,18 +76,6 @@ public class WindowsFileSystemJNA extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_UNICODE_ON_DISK, "unicode");
         OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
-    }
-
-    static final long MAX_WINDOWS_HANDLES;
-    static {
-        // Determine whether 32-bit or 64-bit handle limit, although both are
-        // essentially infinite for practical purposes. See
-        // https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/
-        if (System.getenv("ProgramFiles(x86)") == null) {
-            MAX_WINDOWS_HANDLES = 16_777_216L - 32_768L;
-        } else {
-            MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
-        }
     }
 
     /**
@@ -268,17 +256,7 @@ public class WindowsFileSystemJNA extends AbstractFileSystem {
     }
 
     @Override
-    public long getOpenFileDescriptors() {
-        return ProcessInformationJNA.queryHandles().getOrDefault(HandleCountProperty.HANDLECOUNT, 0L);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return MAX_WINDOWS_HANDLES;
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return MAX_WINDOWS_HANDLES;
+    protected Map<HandleCountProperty, Long> queryHandles() {
+        return ProcessInformationJNA.queryHandles();
     }
 }

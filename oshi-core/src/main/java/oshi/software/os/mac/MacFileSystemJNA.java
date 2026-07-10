@@ -174,17 +174,7 @@ public class MacFileSystemJNA extends MacFileSystem {
     }
 
     @Override
-    public long getOpenFileDescriptors() {
-        return SysctlUtil.sysctl("kern.num_files", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return SysctlUtil.sysctl("kern.maxfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return SysctlUtil.sysctl("kern.maxfilesperproc", 0);
+    protected long querySysctl(String name) {
+        return SysctlUtil.sysctl(name, 0);
     }
 }

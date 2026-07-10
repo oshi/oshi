@@ -38,6 +38,29 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         return getFileStoreMatching(null, localOnly);
     }
 
+    @Override
+    public long getOpenFileDescriptors() {
+        return querySysctl("kern.nfiles");
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return querySysctl("kern.maxfiles");
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return querySysctl("kern.maxfilesperproc");
+    }
+
+    /**
+     * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).
+     *
+     * @param name the sysctl name to query
+     * @return the value, or 0 if unavailable
+     */
+    protected abstract long querySysctl(String name);
+
     /**
      * Gets file stores matching the given name (or all if null).
      *
