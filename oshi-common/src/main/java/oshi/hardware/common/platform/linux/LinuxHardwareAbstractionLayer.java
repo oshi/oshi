@@ -48,7 +48,7 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         List<byte[]> edids = DrmEdid.getEdidArrays();
         if (!edids.isEmpty()) {
             return edids.stream().map(UnixDisplay::new).collect(Collectors.toList());
@@ -57,7 +57,7 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return LinuxSoundCard.getSoundCards();
     }
 

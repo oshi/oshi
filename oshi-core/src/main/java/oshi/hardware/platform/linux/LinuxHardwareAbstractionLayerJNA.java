@@ -54,12 +54,12 @@ public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstrac
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return LinuxUsbDeviceJNA.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return LinuxUsbDeviceJNA.getUsbDevices(true);
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return LinuxGraphicsCardJNA.getGraphicsCards();
     }
 

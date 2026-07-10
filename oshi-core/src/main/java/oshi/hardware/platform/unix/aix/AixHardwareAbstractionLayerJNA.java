@@ -77,7 +77,7 @@ public final class AixHardwareAbstractionLayerJNA extends AbstractHardwareAbstra
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return UnixDisplay.getDisplays();
     }
 
@@ -87,17 +87,17 @@ public final class AixHardwareAbstractionLayerJNA extends AbstractHardwareAbstra
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return AixUsbDevice.getUsbDevices(tree, lscfg);
+    protected List<UsbDevice> createUsbDevices() {
+        return AixUsbDevice.getUsbDevices(true, lscfg);
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return AixSoundCard.getSoundCards(lscfg);
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return AixGraphicsCard.getGraphicsCards(lscfg);
     }
 

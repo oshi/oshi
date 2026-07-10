@@ -54,7 +54,7 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return LinuxGraphicsCardFFM.getGraphicsCards();
     }
 
@@ -69,7 +69,7 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return LinuxUsbDeviceFFM.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return LinuxUsbDeviceFFM.getUsbDevices(true);
     }
 }

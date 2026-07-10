@@ -65,7 +65,7 @@ public final class FreeBsdHardwareAbstractionLayerFFM extends AbstractHardwareAb
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return UnixDisplay.getDisplays();
     }
 
@@ -75,17 +75,17 @@ public final class FreeBsdHardwareAbstractionLayerFFM extends AbstractHardwareAb
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return FreeBsdUsbDevice.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return FreeBsdUsbDevice.getUsbDevices(true);
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return FreeBsdSoundCard.getSoundCards();
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return FreeBsdGraphicsCard.getGraphicsCards();
     }
 

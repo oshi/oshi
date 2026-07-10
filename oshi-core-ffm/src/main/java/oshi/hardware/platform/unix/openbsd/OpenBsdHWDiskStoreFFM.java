@@ -5,6 +5,7 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
@@ -17,8 +18,9 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdHWDiskStore;
 @ThreadSafe
 public final class OpenBsdHWDiskStoreFFM extends OpenBsdHWDiskStore {
 
-    private OpenBsdHWDiskStoreFFM(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
+    private OpenBsdHWDiskStoreFFM(String name, String model, String serial, long size,
+            Supplier<List<String>> iostatSupplier) {
+        super(name, model, serial, size, iostatSupplier);
     }
 
     /**

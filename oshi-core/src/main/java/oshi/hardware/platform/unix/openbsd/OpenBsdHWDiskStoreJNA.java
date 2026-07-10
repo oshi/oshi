@@ -5,6 +5,7 @@
 package oshi.hardware.platform.unix.openbsd;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
@@ -17,8 +18,9 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 @ThreadSafe
 public final class OpenBsdHWDiskStoreJNA extends OpenBsdHWDiskStore {
 
-    private OpenBsdHWDiskStoreJNA(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
+    private OpenBsdHWDiskStoreJNA(String name, String model, String serial, long size,
+            Supplier<List<String>> iostatSupplier) {
+        super(name, model, serial, size, iostatSupplier);
     }
 
     /**

@@ -58,7 +58,7 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return MacDisplayJNA.getDisplays();
     }
 
@@ -68,12 +68,12 @@ public final class MacHardwareAbstractionLayerJNA extends MacHardwareAbstraction
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return MacUsbDeviceJNA.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return MacUsbDeviceJNA.getUsbDevices(true);
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return MacGraphicsCardJNA.getGraphicsCards();
     }
 

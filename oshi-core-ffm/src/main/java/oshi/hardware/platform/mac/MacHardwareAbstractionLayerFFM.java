@@ -59,7 +59,7 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return MacDisplayFFM.getDisplays();
     }
 
@@ -69,12 +69,12 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return MacUsbDeviceFFM.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return MacUsbDeviceFFM.getUsbDevices(true);
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return MacGraphicsCardFFM.getGraphicsCards();
     }
 }

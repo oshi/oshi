@@ -65,7 +65,7 @@ public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstract
     }
 
     @Override
-    public List<Display> getDisplays() {
+    protected List<Display> createDisplays() {
         return WindowsDisplayJNA.getDisplays();
     }
 
@@ -75,17 +75,17 @@ public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstract
     }
 
     @Override
-    public List<UsbDevice> getUsbDevices(boolean tree) {
-        return WindowsUsbDeviceJNA.getUsbDevices(tree);
+    protected List<UsbDevice> createUsbDevices() {
+        return WindowsUsbDeviceJNA.getUsbDevices(true);
     }
 
     @Override
-    public List<SoundCard> getSoundCards() {
+    protected List<SoundCard> createSoundCards() {
         return WindowsSoundCardJNA.getSoundCards();
     }
 
     @Override
-    public List<GraphicsCard> getGraphicsCards() {
+    protected List<GraphicsCard> createGraphicsCards() {
         return WindowsGraphicsCardJNA.getGraphicsCards();
     }
 
