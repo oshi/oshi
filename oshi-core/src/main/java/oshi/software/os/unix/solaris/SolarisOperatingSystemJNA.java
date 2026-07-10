@@ -29,7 +29,6 @@ import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
-import oshi.util.tuples.Pair;
 
 /**
  * JNA-backed Solaris OperatingSystem. Uses Kstat2 (Solaris 11.4+) where available, falling back to the legacy
@@ -90,10 +89,10 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
         return false;
     }
 
-    private static final Supplier<Pair<Long, Long>> BOOT_UPTIME = Memoizer
-            .memoize(SolarisOperatingSystemJNA::queryBootAndUptime, defaultExpiration());
-
     private static final long BOOTTIME = querySystemBootTime();
+
+    private final Supplier<Long> uptimeSupplier = Memoizer.memoize(SolarisOperatingSystemJNA::queryUptime,
+            defaultExpiration());
 
     @Override
     public FileSystem getFileSystem() {
@@ -127,22 +126,7 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return querySystemUptime();
-    }
-
-    private static long querySystemUptime() {
-        if (HAS_KSTAT2) {
-            // Use Kstat2 implementation
-            return BOOT_UPTIME.get().getB();
-        }
-        try (KstatChain kc = KstatUtil.openChain()) {
-            Kstat ksp = kc.lookup("unix", 0, "system_misc");
-            if (ksp != null && kc.read(ksp)) {
-                // Snap Time is in nanoseconds; divide for seconds
-                return ksp.ks_snaptime / 1_000_000_000L;
-            }
-        }
-        return 0L;
+        return uptimeSupplier.get();
     }
 
     @Override
@@ -152,8 +136,10 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
 
     private static long querySystemBootTime() {
         if (HAS_KSTAT2) {
-            // Use Kstat2 implementation
-            return BOOT_UPTIME.get().getA();
+            Object[] results = KstatUtil.queryKstat2("kstat:/misc/unix/system_misc", "boot_time");
+            if (results[0] != null) {
+                return (long) results[0];
+            }
         }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = kc.lookup("unix", 0, "system_misc");
@@ -161,18 +147,25 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
                 return KstatUtil.dataLookupLong(ksp, "boot_time");
             }
         }
-        return System.currentTimeMillis() / 1000L - querySystemUptime();
+        return System.currentTimeMillis() / 1000L;
     }
 
-    private static Pair<Long, Long> queryBootAndUptime() {
-        Object[] results = KstatUtil.queryKstat2("kstat:/misc/unix/system_misc", "boot_time", "snaptime");
-
-        // boot_time is epoch seconds; keep the fallback in seconds to match getSystemBootTime()
-        long boot = results[0] == null ? System.currentTimeMillis() / 1000L : (long) results[0];
-        // Snap Time is in nanoseconds; divide for seconds
-        long snap = results[1] == null ? 0L : (long) results[1] / 1_000_000_000L;
-
-        return new Pair<>(boot, snap);
+    private static long queryUptime() {
+        if (HAS_KSTAT2) {
+            Object[] results = KstatUtil.queryKstat2("kstat:/misc/unix/system_misc", "snaptime");
+            if (results[0] != null) {
+                // Snap Time is in nanoseconds; divide for seconds
+                return (long) results[0] / 1_000_000_000L;
+            }
+        }
+        try (KstatChain kc = KstatUtil.openChain()) {
+            Kstat ksp = kc.lookup("unix", 0, "system_misc");
+            if (ksp != null && kc.read(ksp)) {
+                // Snap Time is in nanoseconds; divide for seconds
+                return ksp.ks_snaptime / 1_000_000_000L;
+            }
+        }
+        return 0L;
     }
 
     @Override

@@ -29,7 +29,7 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
-    private static final Supplier<List<String>> IOSTAT = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
+    private final Supplier<List<String>> iostat = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
 
     private NetBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
@@ -99,7 +99,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
     public boolean updateAttributes() {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
-        for (String line : IOSTAT.get()) {
+        for (String line : iostat.get()) {
             String[] split = ParseUtil.whitespaces.split(line.trim());
             // iostat -x -I output (cumulative totals, 9 fields):
             // device read KB/t xfr time MB write KB/t xfr time MB

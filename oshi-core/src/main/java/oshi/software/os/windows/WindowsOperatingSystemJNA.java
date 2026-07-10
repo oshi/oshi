@@ -98,7 +98,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     /*
      * Windows event log name
      */
-    private static Supplier<String> systemLog = memoize(WindowsOperatingSystemJNA::querySystemLog,
+    private static final Supplier<String> SYSTEM_LOG = memoize(WindowsOperatingSystemJNA::querySystemLog,
             TimeUnit.HOURS.toNanos(1));
 
     private static final long BOOTTIME = querySystemBootTime();
@@ -357,7 +357,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     }
 
     private static long querySystemBootTime() {
-        String eventLog = systemLog.get();
+        String eventLog = SYSTEM_LOG.get();
         if (eventLog != null) {
             try {
                 EventLogIterator iter = new EventLogIterator(null, eventLog, WinNT.EVENTLOG_BACKWARDS_READ);

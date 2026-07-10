@@ -24,14 +24,14 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class SolarisFileSystemJNA extends SolarisFileSystem {
 
-    private static final Supplier<Pair<Long, Long>> FILE_DESC = Memoizer
-            .memoize(SolarisFileSystemJNA::queryFileDescriptors, defaultExpiration());
+    private final Supplier<Pair<Long, Long>> fileDesc = Memoizer.memoize(SolarisFileSystemJNA::queryFileDescriptors,
+            defaultExpiration());
 
     @Override
     public long getOpenFileDescriptors() {
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
-            return FILE_DESC.get().getA();
+            return fileDesc.get().getA();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = kc.lookup(null, -1, "file_cache");
@@ -47,7 +47,7 @@ public final class SolarisFileSystemJNA extends SolarisFileSystem {
     public long getMaxFileDescriptors() {
         if (HAS_KSTAT2) {
             // Use Kstat2 implementation
-            return FILE_DESC.get().getB();
+            return fileDesc.get().getB();
         }
         try (KstatChain kc = KstatUtil.openChain()) {
             Kstat ksp = kc.lookup(null, -1, "file_cache");

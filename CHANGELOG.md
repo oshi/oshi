@@ -3,6 +3,7 @@
 ##### Bug Fixes and Improvements
 
 * [#3441](https://github.com/oshi/oshi/pull/3441): Wrap AppKit/Cocoa display-name calls in an autorelease pool, extract `ObjCFunctions` FFM bindings, and use `ExceptionUtil` for consistent error handling - [@dbwiddis](https://github.com/dbwiddis).
+* [#3442](https://github.com/oshi/oshi/pull/3442): Convert static memoized suppliers to instance fields, allowing cached data to be reclaimed when users create new `SystemInfo` instances - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08)
 
