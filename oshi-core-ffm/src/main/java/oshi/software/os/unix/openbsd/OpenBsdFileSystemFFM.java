@@ -16,17 +16,7 @@ import oshi.software.common.os.unix.openbsd.OpenBsdFileSystem;
 public final class OpenBsdFileSystemFFM extends OpenBsdFileSystem {
 
     @Override
-    public long getOpenFileDescriptors() {
-        return OpenBsdSysctlUtilFFM.sysctl("kern.nfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return OpenBsdSysctlUtilFFM.sysctl("kern.maxfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return OpenBsdSysctlUtilFFM.sysctl("kern.maxfilesperproc", 0);
+    protected long querySysctl(String name) {
+        return OpenBsdSysctlUtilFFM.sysctl(name, 0);
     }
 }

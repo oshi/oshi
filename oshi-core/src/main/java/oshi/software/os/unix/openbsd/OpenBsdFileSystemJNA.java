@@ -16,17 +16,7 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 public class OpenBsdFileSystemJNA extends OpenBsdFileSystem {
 
     @Override
-    public long getOpenFileDescriptors() {
-        return OpenBsdSysctlUtil.sysctl("kern.nfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return OpenBsdSysctlUtil.sysctl("kern.maxfiles", 0);
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return OpenBsdSysctlUtil.sysctl("kern.maxfilesperproc", 0);
+    protected long querySysctl(String name) {
+        return OpenBsdSysctlUtil.sysctl(name, 0);
     }
 }

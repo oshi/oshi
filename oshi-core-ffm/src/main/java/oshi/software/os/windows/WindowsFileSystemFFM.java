@@ -30,12 +30,12 @@ import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.windows.Kernel32FFM;
-import oshi.software.common.AbstractFileSystem;
+import oshi.software.common.os.windows.WindowsFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
 
 @ThreadSafe
-public class WindowsFileSystemFFM extends AbstractFileSystem {
+public class WindowsFileSystemFFM extends WindowsFileSystem {
 
     private static final int BUFSIZE = 255;
 
@@ -78,9 +78,6 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
         OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
         OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
     }
-
-    // Maximum file handles: 2^24 - 2^16 (assumes 64-bit Windows per FileSystem javadoc)
-    static final long MAX_WINDOWS_HANDLES = 16_777_216L - 65_536L;
 
     private static final int DRIVE_REMOVABLE = 2;
     private static final int DRIVE_FIXED = 3;
@@ -300,17 +297,7 @@ public class WindowsFileSystemFFM extends AbstractFileSystem {
     }
 
     @Override
-    public long getOpenFileDescriptors() {
-        return ProcessInformationFFM.queryHandles().getOrDefault(HandleCountProperty.HANDLECOUNT, 0L);
-    }
-
-    @Override
-    public long getMaxFileDescriptors() {
-        return MAX_WINDOWS_HANDLES;
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return MAX_WINDOWS_HANDLES;
+    protected Map<HandleCountProperty, Long> queryHandles() {
+        return ProcessInformationFFM.queryHandles();
     }
 }

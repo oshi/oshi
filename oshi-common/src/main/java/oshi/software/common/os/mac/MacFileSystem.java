@@ -121,4 +121,27 @@ public abstract class MacFileSystem extends AbstractFileSystem {
         OPTIONS_MAP.put(MNT_MULTILABEL, "multilabel");
         OPTIONS_MAP.put(MNT_NOATIME, "noatime");
     }
+
+    @Override
+    public long getOpenFileDescriptors() {
+        return querySysctl("kern.num_files");
+    }
+
+    @Override
+    public long getMaxFileDescriptors() {
+        return querySysctl("kern.maxfiles");
+    }
+
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return querySysctl("kern.maxfilesperproc");
+    }
+
+    /**
+     * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).
+     *
+     * @param name the sysctl name to query
+     * @return the value, or 0 if unavailable
+     */
+    protected abstract long querySysctl(String name);
 }
