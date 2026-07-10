@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 
 /**
@@ -22,6 +23,31 @@ public abstract class AbstractOSThread implements OSThread {
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
 
     private final int owningProcessId;
+
+    /** The thread id (OS-dependent meaning). */
+    protected int threadId;
+    /** The thread name; defaults to empty and is never returned as {@code null}. */
+    protected String name = "";
+    /** The thread execution state. */
+    protected OSProcess.State state = OSProcess.State.INVALID;
+    /** Minor (soft) page faults; populated on Linux/BSD only. */
+    protected long minorFaults;
+    /** Major (hard) page faults; populated on Linux/BSD only. */
+    protected long majorFaults;
+    /** The start memory address. */
+    protected long startMemoryAddress;
+    /** Voluntary + involuntary context switches. */
+    protected long contextSwitches;
+    /** Kernel (privileged) time in milliseconds. */
+    protected long kernelTime;
+    /** User time in milliseconds. */
+    protected long userTime;
+    /** Start time in milliseconds since the epoch. */
+    protected long startTime;
+    /** Elapsed up-time in milliseconds. */
+    protected long upTime;
+    /** OS-dependent priority. */
+    protected int priority;
 
     /**
      * Creates an AbstractOSThread for the given owning process ID.
@@ -35,6 +61,66 @@ public abstract class AbstractOSThread implements OSThread {
     @Override
     public int getOwningProcessId() {
         return this.owningProcessId;
+    }
+
+    @Override
+    public int getThreadId() {
+        return this.threadId;
+    }
+
+    @Override
+    public String getName() {
+        return this.name != null ? this.name : "";
+    }
+
+    @Override
+    public OSProcess.State getState() {
+        return this.state;
+    }
+
+    @Override
+    public long getStartMemoryAddress() {
+        return this.startMemoryAddress;
+    }
+
+    @Override
+    public long getContextSwitches() {
+        return this.contextSwitches;
+    }
+
+    @Override
+    public long getMinorFaults() {
+        return this.minorFaults;
+    }
+
+    @Override
+    public long getMajorFaults() {
+        return this.majorFaults;
+    }
+
+    @Override
+    public long getKernelTime() {
+        return this.kernelTime;
+    }
+
+    @Override
+    public long getUserTime() {
+        return this.userTime;
+    }
+
+    @Override
+    public long getUpTime() {
+        return this.upTime;
+    }
+
+    @Override
+    public long getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public int getPriority() {
+        return this.priority;
     }
 
     @Override

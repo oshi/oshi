@@ -17,42 +17,16 @@ class AbstractOSThreadTest {
 
     private static AbstractOSThread createThread(int ownerPid, int threadId, long kernelTime, long userTime,
             long upTime) {
-        return new AbstractOSThread(ownerPid) {
-            @Override
-            public int getThreadId() {
-                return threadId;
-            }
-
-            @Override
-            public State getState() {
-                return State.RUNNING;
-            }
-
-            @Override
-            public long getKernelTime() {
-                return kernelTime;
-            }
-
-            @Override
-            public long getUserTime() {
-                return userTime;
-            }
-
-            @Override
-            public long getUpTime() {
-                return upTime;
-            }
-
-            @Override
-            public long getStartTime() {
-                return 0L;
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
+        // AbstractOSThread now provides the field-backed getters, so set the protected fields directly (this test is
+        // in the same package) rather than overriding getters.
+        AbstractOSThread thread = new AbstractOSThread(ownerPid) {
         };
+        thread.threadId = threadId;
+        thread.state = State.RUNNING;
+        thread.kernelTime = kernelTime;
+        thread.userTime = userTime;
+        thread.upTime = upTime;
+        return thread;
     }
 
     @Test

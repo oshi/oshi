@@ -23,81 +23,8 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class BsdOSThread extends AbstractOSThread {
 
-    protected int threadId;
-    protected String name = "";
-    protected OSProcess.State state = OSProcess.State.INVALID;
-    protected long minorFaults;
-    protected long majorFaults;
-    protected long startMemoryAddress;
-    protected long contextSwitches;
-    protected long kernelTime;
-    protected long userTime;
-    protected long startTime;
-    protected long upTime;
-    protected int priority;
-
     protected BsdOSThread(int processId) {
         super(processId);
-    }
-
-    @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public OSProcess.State getState() {
-        return this.state;
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return this.startMemoryAddress;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
     }
 
     @Override
