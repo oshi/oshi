@@ -14,7 +14,6 @@ import oshi.driver.common.unix.solaris.PsInfo;
 import oshi.driver.common.unix.solaris.SolarisLwpsInfo;
 import oshi.driver.common.unix.solaris.SolarisPrUsage;
 import oshi.software.common.AbstractOSThread;
-import oshi.software.os.OSProcess;
 import oshi.util.Util;
 
 /**
@@ -25,17 +24,6 @@ public abstract class SolarisOSThread extends AbstractOSThread {
 
     private final Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
     private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
-
-    private String name;
-    private final int threadId;
-    private OSProcess.State state = OSProcess.State.INVALID;
-    private long startMemoryAddress;
-    private long contextSwitches;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private int priority;
 
     protected SolarisOSThread(int pid, int lwpid) {
         super(pid);
@@ -49,56 +37,6 @@ public abstract class SolarisOSThread extends AbstractOSThread {
 
     private SolarisPrUsage queryPrUsage() {
         return PsInfo.queryPrUsage(this.getOwningProcessId(), this.getThreadId());
-    }
-
-    @Override
-    public String getName() {
-        return this.name != null ? name : "";
-    }
-
-    @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
-    public OSProcess.State getState() {
-        return this.state;
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return this.startMemoryAddress;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
     }
 
     @Override

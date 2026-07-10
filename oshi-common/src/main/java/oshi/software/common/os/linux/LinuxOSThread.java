@@ -30,19 +30,7 @@ public class LinuxOSThread extends AbstractOSThread {
         }
     }
 
-    private final int threadId;
     private final LinuxOperatingSystem os;
-    private String name;
-    private State state = State.INVALID;
-    private long minorFaults;
-    private long majorFaults;
-    private long startMemoryAddress;
-    private long contextSwitches;
-    private long kernelTime;
-    private long userTime;
-    private long startTime;
-    private long upTime;
-    private int priority;
 
     /**
      * Creates a LinuxOSThread.
@@ -56,66 +44,6 @@ public class LinuxOSThread extends AbstractOSThread {
         this.threadId = tid;
         this.os = os;
         updateAttributes();
-    }
-
-    @Override
-    public int getThreadId() {
-        return this.threadId;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public State getState() {
-        return this.state;
-    }
-
-    @Override
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    @Override
-    public long getStartMemoryAddress() {
-        return this.startMemoryAddress;
-    }
-
-    @Override
-    public long getContextSwitches() {
-        return this.contextSwitches;
-    }
-
-    @Override
-    public long getMinorFaults() {
-        return this.minorFaults;
-    }
-
-    @Override
-    public long getMajorFaults() {
-        return this.majorFaults;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return this.kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return this.userTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return this.upTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return this.priority;
     }
 
     @Override

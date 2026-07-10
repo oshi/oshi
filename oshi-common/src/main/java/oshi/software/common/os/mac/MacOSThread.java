@@ -14,14 +14,6 @@ import oshi.software.os.OSProcess.State;
 @ThreadSafe
 public class MacOSThread extends AbstractOSThread {
 
-    private final int threadId;
-    private final State state;
-    private final long kernelTime;
-    private final long userTime;
-    private final long startTime;
-    private final long upTime;
-    private final int priority;
-
     /**
      * Creates a MacOSThread with full parameters.
      *
@@ -55,38 +47,4 @@ public class MacOSThread extends AbstractOSThread {
         this(processId, 0, State.INVALID, 0L, 0L, 0L, 0L, 0);
     }
 
-    @Override
-    public int getThreadId() {
-        return threadId;
-    }
-
-    @Override
-    public State getState() {
-        return state;
-    }
-
-    @Override
-    public long getKernelTime() {
-        return kernelTime;
-    }
-
-    @Override
-    public long getUserTime() {
-        return userTime;
-    }
-
-    @Override
-    public long getStartTime() {
-        return startTime;
-    }
-
-    @Override
-    public long getUpTime() {
-        return upTime;
-    }
-
-    @Override
-    public int getPriority() {
-        return priority;
-    }
 }

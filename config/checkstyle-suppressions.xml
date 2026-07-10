@@ -67,11 +67,12 @@
          FFM stat computations read identically. -->
     <suppress checks="MemberName" files="MacInternetProtocolStats\.java"/>
 
-    <!-- AbstractOSProcess holds the common OSProcess attribute fields as protected so each platform's
-         updateAttributes() can assign them directly (the alternative, private fields + protected setters,
+    <!-- AbstractOSProcess/AbstractOSThread hold the common OSProcess/OSThread attribute fields as protected so each
+         platform's updateAttributes() can assign them directly (the alternative, private fields + protected setters,
          would churn every native refresh method). -->
     <suppress checks="VisibilityModifier" files="AbstractOSProcess\.java"/>
     <suppress checks="VisibilityModifier" files="AbstractProcOSProcess\.java"/>
+    <suppress checks="VisibilityModifier" files="AbstractOSThread\.java"/>
 
     <!-- Mutable hardware/software value bases follow the AbstractOSProcess model: attribute fields are
          protected so each platform's updateAttributes()/updateNetworkStats() assigns them directly, rather
@@ -80,10 +81,10 @@
     <suppress checks="VisibilityModifier" files="AbstractHWDiskStore\.java"/>
     <suppress checks="VisibilityModifier" files="AbstractOSFileStore\.java"/>
 
-    <!-- BsdOSProcess/BsdOSThread/MacOSProcess are shared OSProcess/OSThread bases; their protected fields are
-         populated by the per-backend native updateAttributes() in the subclasses (and the thread id / version are
-         set by the per-platform constructors), so they can't be private with accessors. -->
-    <suppress checks="VisibilityModifier" files="(BsdOSProcess|BsdOSThread|MacOSProcess)\.java"/>
+    <!-- BsdOSProcess/MacOSProcess are shared OSProcess bases; their protected fields are populated by the per-backend
+         native updateAttributes() in the subclasses (and the version is set by the per-platform constructors), so they
+         can't be private with accessors. -->
+    <suppress checks="VisibilityModifier" files="(BsdOSProcess|MacOSProcess)\.java"/>
 
     <!-- Solaris shared HAL abstract bases use public data POJOs (DiskStats, IfStats, BatteryReadings)
          for the kstat I/O, interface, and battery counters that the JNA and FFM subclasses populate. -->
