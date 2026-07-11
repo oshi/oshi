@@ -74,7 +74,7 @@ public final class OpenBsdHardwareAbstractionLayerFFM extends AbstractHardwareAb
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return BsdUsbDevice.getUsbDevices(true);
+        return BsdUsbDevice.getUsbDevices();
     }
 
     @Override

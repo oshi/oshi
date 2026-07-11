@@ -70,7 +70,7 @@ public final class MacHardwareAbstractionLayerFFM extends MacHardwareAbstraction
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return MacUsbDeviceFFM.getUsbDevices(true);
+        return MacUsbDeviceFFM.getUsbDevices();
     }
 
     @Override

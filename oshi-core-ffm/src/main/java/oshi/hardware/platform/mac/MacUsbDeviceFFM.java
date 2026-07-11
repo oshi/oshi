@@ -43,23 +43,12 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
     private static final Logger LOG = LoggerFactory.getLogger(MacUsbDeviceFFM.class);
 
     /**
-     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
-     * (including internal devices).
+     * Instantiates the USB controller device tree. The flat form is derived by the caller (the HAL).
      *
-     * @param tree If true, returns a list of controllers with their device tree. If false, returns a flat list of
-     *             devices excluding controllers.
-     * @return a list of {@link oshi.hardware.UsbDevice} objects.
+     * @return a list of USB controllers, each with its connected-device tree.
      */
-    public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = queryUsbDevices();
-        if (tree) {
-            return devices;
-        }
-        List<UsbDevice> deviceList = new ArrayList<>();
-        for (UsbDevice device : devices) {
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-        return deviceList;
+    public static List<UsbDevice> getUsbDevices() {
+        return queryUsbDevices();
     }
 
     private static List<UsbDevice> queryUsbDevices() {

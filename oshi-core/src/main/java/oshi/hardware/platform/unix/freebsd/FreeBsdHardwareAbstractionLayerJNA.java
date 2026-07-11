@@ -75,7 +75,7 @@ public final class FreeBsdHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return FreeBsdUsbDevice.getUsbDevices(true);
+        return FreeBsdUsbDevice.getUsbDevices();
     }
 
     @Override

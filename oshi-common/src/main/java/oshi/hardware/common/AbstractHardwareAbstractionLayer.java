@@ -143,16 +143,9 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
         }
         List<UsbDevice> deviceList = new ArrayList<>();
         for (UsbDevice device : devices) {
-            addDevicesToList(deviceList, device.getConnectedDevices());
+            AbstractUsbDevice.addDevicesToList(deviceList, device.getConnectedDevices());
         }
         return deviceList;
-    }
-
-    private static void addDevicesToList(List<UsbDevice> deviceList, List<UsbDevice> list) {
-        for (UsbDevice device : list) {
-            deviceList.add(device);
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
     }
 
     /**

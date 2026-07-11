@@ -81,7 +81,7 @@ public final class DragonFlyBsdHardwareAbstractionLayerFFM extends AbstractHardw
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return FreeBsdUsbDevice.getUsbDevices(true);
+        return FreeBsdUsbDevice.getUsbDevices();
     }
 
     @Override
