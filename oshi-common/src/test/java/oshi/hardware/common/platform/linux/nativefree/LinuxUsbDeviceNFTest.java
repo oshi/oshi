@@ -21,13 +21,15 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.UsbDevice;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 
 @EnabledOnOs(OS.LINUX)
 class LinuxUsbDeviceNFTest {
 
     @Test
     void testQueryUsbDevicesNonexistentPath(@TempDir Path tempDir) {
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(tempDir.resolve("missing").toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(tempDir.resolve("missing").toString() + "/"));
         assertThat(devices, is(empty()));
     }
 
@@ -35,7 +37,8 @@ class LinuxUsbDeviceNFTest {
     void testQueryUsbDevicesEmptyDir(@TempDir Path tempDir) throws IOException {
         Path usbDir = tempDir.resolve("usb");
         Files.createDirectories(usbDir);
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/"));
         assertThat(devices, is(empty()));
     }
 
@@ -44,7 +47,8 @@ class LinuxUsbDeviceNFTest {
         Path usbDir = tempDir.resolve("usb");
         Path dev = usbDir.resolve("usb1");
         Files.createDirectories(dev);
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/"));
         assertThat(devices, is(empty()));
     }
 
@@ -60,7 +64,8 @@ class LinuxUsbDeviceNFTest {
         writeFile(usb1.resolve("idProduct"), "0003");
         writeFile(usb1.resolve("serial"), "0000:00:14.0");
 
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/"));
         assertThat(devices, hasSize(1));
         assertThat(devices.get(0).getName(), is("xHCI Host Controller"));
         assertThat(devices.get(0).getVendor(), is("Linux Foundation"));
@@ -88,7 +93,8 @@ class LinuxUsbDeviceNFTest {
         writeFile(child.resolve("idVendor"), "046d");
         writeFile(child.resolve("idProduct"), "c077");
 
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/"));
         assertThat(devices, hasSize(1));
         assertThat(devices.get(0).getConnectedDevices(), hasSize(1));
         assertThat(devices.get(0).getConnectedDevices().get(0).getName(), is("USB Mouse"));
@@ -118,7 +124,8 @@ class LinuxUsbDeviceNFTest {
         writeFile(device.resolve("idVendor"), "04f2");
         writeFile(device.resolve("idProduct"), "0112");
 
-        List<UsbDevice> devices = LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/");
+        List<UsbDevice> devices = LinuxUsbDevice
+                .getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices(usbDir.toString() + "/"));
         assertThat(devices, hasSize(1));
         UsbDevice root = devices.get(0);
         assertThat(root.getConnectedDevices(), hasSize(1));

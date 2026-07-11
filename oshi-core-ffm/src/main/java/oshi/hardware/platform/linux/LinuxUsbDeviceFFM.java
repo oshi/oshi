@@ -11,22 +11,20 @@ import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.linux.UdevFunctions;
-import oshi.hardware.UsbDevice;
-import oshi.hardware.common.platform.linux.LinuxUsbDevice;
+import oshi.hardware.common.platform.linux.UdevUsbDevice;
 
 /**
- * Linux USB device helper using FFM/udev. Instantiates {@link LinuxUsbDevice} objects.
+ * Enumerates Linux USB devices via FFM/libudev, returning raw {@link UdevUsbDevice} attributes for
+ * {@link oshi.hardware.common.platform.linux.LinuxUsbDevice} to assemble into a device tree.
  */
-public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
+public final class LinuxUsbDeviceFFM {
 
     private LinuxUsbDeviceFFM() {
     }
@@ -42,31 +40,20 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
     private static final String ATTR_SERIAL = "serial";
 
     /**
-     * Instantiates the USB controller device tree. The flat form is derived by the caller (the HAL).
+     * Enumerates all {@code usb_device} entries via libudev.
      *
-     * @return a list of USB controllers, each with its connected-device tree.
+     * @return the raw USB device attributes, or an empty list if libudev is unavailable
      */
-    public static List<UsbDevice> getUsbDevices() {
-        return queryUsbDevices();
-    }
-
-    private static List<UsbDevice> queryUsbDevices() {
+    public static List<UdevUsbDevice> queryUsbDevices() {
         if (!HAS_UDEV) {
             LOG.warn("USB Device information requires libudev, which is not present.");
             return emptyList();
         }
         return callInArenaOrDefault(arena -> {
-            List<String> usbControllers = new ArrayList<>();
-            Map<String, String> nameMap = new HashMap<>();
-            Map<String, String> vendorMap = new HashMap<>();
-            Map<String, String> vendorIdMap = new HashMap<>();
-            Map<String, String> productIdMap = new HashMap<>();
-            Map<String, String> serialMap = new HashMap<>();
-            Map<String, List<String>> hubMap = new HashMap<>();
-
+            List<UdevUsbDevice> devices = new ArrayList<>();
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
-                return emptyList();
+                return devices;
             }
             // wrapped only to release the native handle on close
             try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {
@@ -75,12 +62,10 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
                 try (var _ = NativeHandle.of(enumerate, UdevFunctions::udev_enumerate_unref)) {
                     UdevFunctions.addMatchSubsystem(enumerate, SUBSYSTEM_USB, arena);
                     UdevFunctions.udev_enumerate_scan_devices(enumerate);
-
                     for (MemorySegment entry = UdevFunctions
                             .udev_enumerate_get_list_entry(enumerate); !MemorySegment.NULL
                                     .equals(entry); entry = UdevFunctions.udev_list_entry_get_next(entry)) {
-                        MemorySegment namePtr = UdevFunctions.udev_list_entry_get_name(entry);
-                        String syspath = UdevFunctions.getString(namePtr, arena);
+                        String syspath = UdevFunctions.getString(UdevFunctions.udev_list_entry_get_name(entry), arena);
                         if (syspath == null) {
                             continue;
                         }
@@ -95,48 +80,21 @@ public final class LinuxUsbDeviceFFM extends LinuxUsbDevice {
                             if (!DEVTYPE_USB_DEVICE.equals(devtype)) {
                                 continue;
                             }
-                            String value = UdevFunctions.getSysattrValue(device, ATTR_PRODUCT, arena);
-                            if (value != null) {
-                                nameMap.put(syspath, value);
-                            }
-                            value = UdevFunctions.getSysattrValue(device, ATTR_MANUFACTURER, arena);
-                            if (value != null) {
-                                vendorMap.put(syspath, value);
-                            }
-                            value = UdevFunctions.getSysattrValue(device, ATTR_VENDOR_ID, arena);
-                            if (value != null) {
-                                vendorIdMap.put(syspath, value);
-                            }
-                            value = UdevFunctions.getSysattrValue(device, ATTR_PRODUCT_ID, arena);
-                            if (value != null) {
-                                productIdMap.put(syspath, value);
-                            }
-                            value = UdevFunctions.getSysattrValue(device, ATTR_SERIAL, arena);
-                            if (value != null) {
-                                serialMap.put(syspath, value);
-                            }
                             MemorySegment parent = UdevFunctions.getParentWithSubsystemDevtype(device, SUBSYSTEM_USB,
                                     DEVTYPE_USB_DEVICE, arena);
-                            if (MemorySegment.NULL.equals(parent)) {
-                                usbControllers.add(syspath);
-                            } else {
-                                String parentPath = UdevFunctions
-                                        .getString(UdevFunctions.udev_device_get_syspath(parent), arena);
-                                if (parentPath != null) {
-                                    hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(syspath);
-                                }
-                            }
+                            String parentPath = MemorySegment.NULL.equals(parent) ? null
+                                    : UdevFunctions.getString(UdevFunctions.udev_device_get_syspath(parent), arena);
+                            devices.add(new UdevUsbDevice(syspath,
+                                    UdevFunctions.getSysattrValue(device, ATTR_PRODUCT, arena),
+                                    UdevFunctions.getSysattrValue(device, ATTR_MANUFACTURER, arena),
+                                    UdevFunctions.getSysattrValue(device, ATTR_VENDOR_ID, arena),
+                                    UdevFunctions.getSysattrValue(device, ATTR_PRODUCT_ID, arena),
+                                    UdevFunctions.getSysattrValue(device, ATTR_SERIAL, arena), parentPath));
                         }
                     }
                 }
             }
-
-            List<UsbDevice> controllerDevices = new ArrayList<>();
-            for (String controller : usbControllers) {
-                controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                        productIdMap, serialMap, hubMap));
-            }
-            return controllerDevices;
+            return devices;
         }, LOG, WARN, "Error enumerating USB devices", emptyList());
     }
 }
