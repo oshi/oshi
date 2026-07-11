@@ -53,7 +53,7 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return LinuxUsbDeviceNF.getUsbDevices(true);
+        return LinuxUsbDeviceNF.getUsbDevices();
     }
 
     @Override

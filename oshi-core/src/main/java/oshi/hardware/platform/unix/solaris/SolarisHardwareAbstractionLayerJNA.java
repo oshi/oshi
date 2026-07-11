@@ -76,7 +76,7 @@ public final class SolarisHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return SolarisUsbDevice.getUsbDevices(true);
+        return SolarisUsbDevice.getUsbDevices();
     }
 
     @Override

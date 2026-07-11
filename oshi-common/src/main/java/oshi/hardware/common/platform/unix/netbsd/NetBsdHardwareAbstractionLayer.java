@@ -76,7 +76,7 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return BsdUsbDevice.getUsbDevices(true);
+        return BsdUsbDevice.getUsbDevices();
     }
 
     @Override

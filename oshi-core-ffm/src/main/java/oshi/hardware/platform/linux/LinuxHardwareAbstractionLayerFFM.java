@@ -70,6 +70,6 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return LinuxUsbDeviceFFM.getUsbDevices(true);
+        return LinuxUsbDeviceFFM.getUsbDevices();
     }
 }

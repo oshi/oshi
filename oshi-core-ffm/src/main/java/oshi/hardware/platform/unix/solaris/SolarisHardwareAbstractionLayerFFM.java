@@ -73,7 +73,7 @@ public final class SolarisHardwareAbstractionLayerFFM extends AbstractHardwareAb
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return SolarisUsbDevice.getUsbDevices(true);
+        return SolarisUsbDevice.getUsbDevices();
     }
 
     @Override

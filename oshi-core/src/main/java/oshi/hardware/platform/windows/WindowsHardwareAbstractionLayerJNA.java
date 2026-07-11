@@ -6,7 +6,10 @@ package oshi.hardware.platform.windows;
 
 import java.util.List;
 
+import com.sun.jna.platform.win32.Guid.GUID;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.windows.DeviceTree;
 import oshi.hardware.BluetoothDevice;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
@@ -22,6 +25,7 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
+import oshi.hardware.common.platform.windows.WindowsUsbDevice;
 
 /**
  * WindowsHardwareAbstractionLayer class.
@@ -74,9 +78,12 @@ public class WindowsHardwareAbstractionLayerJNA extends AbstractHardwareAbstract
         return WindowsNetworkIfJNA.getNetworks(includeLocalInterfaces);
     }
 
+    private static final GUID GUID_DEVINTERFACE_USB_HOST_CONTROLLER = new GUID(
+            "{3ABF6F2D-71C4-462A-8A92-1E6861E6AF27}");
+
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return WindowsUsbDeviceJNA.getUsbDevices(true);
+        return WindowsUsbDevice.getUsbDevices(() -> DeviceTree.queryDeviceTree(GUID_DEVINTERFACE_USB_HOST_CONTROLLER));
     }
 
     @Override

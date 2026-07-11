@@ -28,19 +28,12 @@ public class AixUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
-     * (including internal devices).
-     * <p>
-     * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
-     * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, USB devices (not controllers) are listed in a single flat list.
+     * Instantiates the USB controller device tree. The flat form is derived by the caller (the HAL).
      *
-     * @param tree  If true, returns a list of controllers, which requires recursive iteration of connected devices. If
-     *              false, returns a flat list of devices excluding controllers.
      * @param lscfg A memoized lscfg list
-     * @return a list of {@link oshi.hardware.UsbDevice} objects.
+     * @return a list containing the USB controller with its connected devices.
      */
-    public static List<UsbDevice> getUsbDevices(boolean tree, Supplier<List<String>> lscfg) {
+    public static List<UsbDevice> getUsbDevices(Supplier<List<String>> lscfg) {
         List<UsbDevice> deviceList = new ArrayList<>();
         for (String line : lscfg.get()) {
             String s = line.trim();
@@ -52,9 +45,6 @@ public class AixUsbDevice extends AbstractUsbDevice {
                 }
             }
         }
-        if (tree) {
-            return Arrays.asList(new AixUsbDevice("USB Controller", "", "0000", "0000", "", "", deviceList));
-        }
-        return deviceList;
+        return Arrays.asList(new AixUsbDevice("USB Controller", "", "0000", "0000", "", "", deviceList));
     }
 }

@@ -26,21 +26,12 @@ public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
     }
 
     /**
-     * Gets USB devices on this machine.
+     * Gets the USB controller device tree on this machine. The flat form is derived by the caller (the HAL).
      *
-     * @param tree if true, returns controllers with device tree; if false, flat list excluding controllers
-     * @return a list of {@link UsbDevice} objects
+     * @return a list of USB controllers, each with its connected-device tree
      */
-    public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = queryUsbDevices(SYS_USB);
-        if (tree) {
-            return devices;
-        }
-        List<UsbDevice> deviceList = new ArrayList<>();
-        for (UsbDevice device : devices) {
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-        return deviceList;
+    public static List<UsbDevice> getUsbDevices() {
+        return queryUsbDevices(SYS_USB);
     }
 
     /**

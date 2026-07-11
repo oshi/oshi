@@ -87,7 +87,7 @@ public final class AixHardwareAbstractionLayerFFM extends AbstractHardwareAbstra
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return AixUsbDevice.getUsbDevices(true, lscfg);
+        return AixUsbDevice.getUsbDevices(lscfg);
     }
 
     @Override

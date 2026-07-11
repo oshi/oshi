@@ -32,30 +32,11 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     }
 
     /**
-     * Instantiates a list of {@link oshi.hardware.UsbDevice} objects, representing devices connected via a usb port
-     * (including internal devices).
-     * <p>
-     * If the value of {@code tree} is true, the top level devices returned from this method are the USB Controllers;
-     * connected hubs and devices in its device tree share that controller's bandwidth. If the value of {@code tree} is
-     * false, USB devices (not controllers) are listed in a single flat list.
+     * Instantiates the USB controller device tree. The flat form is derived by the caller (the HAL).
      *
-     * @param tree If true, returns a list of controllers, which requires recursive iteration of connected devices. If
-     *             false, returns a flat list of devices excluding controllers.
-     * @return a list of {@link oshi.hardware.UsbDevice} objects.
+     * @return a list of USB controllers, each with its connected-device tree.
      */
-    public static List<UsbDevice> getUsbDevices(boolean tree) {
-        List<UsbDevice> devices = getUsbDevices();
-        if (tree) {
-            return devices;
-        }
-        List<UsbDevice> deviceList = new ArrayList<>();
-        for (UsbDevice device : devices) {
-            addDevicesToList(deviceList, device.getConnectedDevices());
-        }
-        return deviceList;
-    }
-
-    private static List<UsbDevice> getUsbDevices() {
+    public static List<UsbDevice> getUsbDevices() {
         // Maps to store information using node # as the key
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
