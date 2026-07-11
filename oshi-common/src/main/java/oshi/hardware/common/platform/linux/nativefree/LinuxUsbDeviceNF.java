@@ -4,21 +4,21 @@
  */
 package oshi.hardware.common.platform.linux.nativefree;
 
+import static java.util.Collections.emptyList;
+
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import oshi.hardware.UsbDevice;
-import oshi.hardware.common.platform.linux.LinuxUsbDevice;
+import oshi.hardware.common.platform.linux.UdevUsbDevice;
 import oshi.util.FileUtil;
 import oshi.util.linux.SysPath;
 
 /**
- * Native-free Linux USB device enumeration from {@code /sys/bus/usb/devices/}.
+ * Native-free Linux USB device enumeration from {@code /sys/bus/usb/devices/}, returning raw {@link UdevUsbDevice}
+ * attributes for {@link oshi.hardware.common.platform.linux.LinuxUsbDevice} to assemble into a device tree.
  */
-public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
+public final class LinuxUsbDeviceNF {
 
     private static final String SYS_USB = SysPath.SYS + "bus/usb/devices/";
 
@@ -26,89 +26,59 @@ public final class LinuxUsbDeviceNF extends LinuxUsbDevice {
     }
 
     /**
-     * Gets the USB controller device tree on this machine. The flat form is derived by the caller (the HAL).
+     * Enumerates USB devices from sysfs.
      *
-     * @return a list of USB controllers, each with its connected-device tree
+     * @return the raw USB device attributes
      */
-    public static List<UsbDevice> getUsbDevices() {
+    public static List<UdevUsbDevice> queryUsbDevices() {
         return queryUsbDevices(SYS_USB);
     }
 
     /**
-     * Queries USB devices from the specified sysfs path.
+     * Enumerates USB devices from the specified sysfs path.
      *
      * @param sysUsbPath the path to the USB devices directory (e.g., /sys/bus/usb/devices/)
-     * @return a list of USB device trees rooted at controllers
+     * @return the raw USB device attributes
      */
-    static List<UsbDevice> queryUsbDevices(String sysUsbPath) {
+    static List<UdevUsbDevice> queryUsbDevices(String sysUsbPath) {
         if (!sysUsbPath.endsWith(File.separator)) {
             sysUsbPath += File.separator;
         }
-        File usbDir = new File(sysUsbPath);
-        File[] deviceDirs = usbDir.listFiles();
+        File[] deviceDirs = new File(sysUsbPath).listFiles();
         if (deviceDirs == null) {
-            return new ArrayList<>();
+            return emptyList();
         }
 
-        List<String> usbControllers = new ArrayList<>();
-        Map<String, String> nameMap = new HashMap<>();
-        Map<String, String> vendorMap = new HashMap<>();
-        Map<String, String> vendorIdMap = new HashMap<>();
-        Map<String, String> productIdMap = new HashMap<>();
-        Map<String, String> serialMap = new HashMap<>();
-        Map<String, List<String>> hubMap = new HashMap<>();
-
+        List<UdevUsbDevice> devices = new ArrayList<>();
         for (File devDir : deviceDirs) {
             String syspath = devDir.getAbsolutePath();
-            String devtype = FileUtil.getStringFromFile(syspath + "/devnum").trim();
-            if (devtype.isEmpty()) {
+            if (FileUtil.getStringFromFile(syspath + "/devnum").trim().isEmpty()) {
                 continue;
             }
+            String product = emptyToNull(FileUtil.getStringFromFile(syspath + "/product").trim());
+            String manufacturer = emptyToNull(FileUtil.getStringFromFile(syspath + "/manufacturer").trim());
+            String idVendor = emptyToNull(FileUtil.getStringFromFile(syspath + "/idVendor").trim());
+            String idProduct = emptyToNull(FileUtil.getStringFromFile(syspath + "/idProduct").trim());
+            String serial = emptyToNull(FileUtil.getStringFromFile(syspath + "/serial").trim());
 
-            String product = FileUtil.getStringFromFile(syspath + "/product").trim();
-            if (!product.isEmpty()) {
-                nameMap.put(syspath, product);
-            }
-            String manufacturer = FileUtil.getStringFromFile(syspath + "/manufacturer").trim();
-            if (!manufacturer.isEmpty()) {
-                vendorMap.put(syspath, manufacturer);
-            }
-            String idVendor = FileUtil.getStringFromFile(syspath + "/idVendor").trim();
-            if (!idVendor.isEmpty()) {
-                vendorIdMap.put(syspath, idVendor);
-            }
-            String idProduct = FileUtil.getStringFromFile(syspath + "/idProduct").trim();
-            if (!idProduct.isEmpty()) {
-                productIdMap.put(syspath, idProduct);
-            }
-            String serial = FileUtil.getStringFromFile(syspath + "/serial").trim();
-            if (!serial.isEmpty()) {
-                serialMap.put(syspath, serial);
-            }
-
-            // Determine parent: USB root hubs have names like "usbN", children have "N-N.N..."
+            // Determine the parent from the device name: USB root hubs are "usbN", children are "N-N.N..."
             String name = devDir.getName();
+            String parentSyspath;
             if (name.startsWith("usb")) {
-                usbControllers.add(syspath);
+                parentSyspath = null;
+            } else if (name.contains(".")) {
+                parentSyspath = sysUsbPath + name.substring(0, name.lastIndexOf('.'));
+            } else if (name.contains("-")) {
+                parentSyspath = sysUsbPath + "usb" + name.substring(0, name.indexOf('-'));
             } else {
-                String parentName;
-                if (name.contains(".")) {
-                    parentName = name.substring(0, name.lastIndexOf('.'));
-                } else if (name.contains("-")) {
-                    parentName = "usb" + name.substring(0, name.indexOf('-'));
-                } else {
-                    parentName = name;
-                }
-                String parentPath = sysUsbPath + parentName;
-                hubMap.computeIfAbsent(parentPath, x -> new ArrayList<>()).add(syspath);
+                parentSyspath = sysUsbPath + name;
             }
+            devices.add(new UdevUsbDevice(syspath, product, manufacturer, idVendor, idProduct, serial, parentSyspath));
         }
+        return devices;
+    }
 
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        return controllerDevices;
+    private static String emptyToNull(String value) {
+        return value.isEmpty() ? null : value;
     }
 }

@@ -17,6 +17,7 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
 import oshi.hardware.common.platform.linux.LinuxPowerSource;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 import oshi.software.common.os.linux.nativefree.LinuxOperatingSystemNF;
 
 /**
@@ -53,7 +54,7 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return LinuxUsbDeviceNF.getUsbDevices();
+        return LinuxUsbDevice.getUsbDevices(LinuxUsbDeviceNF.queryUsbDevices());
     }
 
     @Override

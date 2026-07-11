@@ -18,6 +18,7 @@ import oshi.hardware.Printer;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterFFM;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 
@@ -70,6 +71,6 @@ public final class LinuxHardwareAbstractionLayerFFM extends LinuxHardwareAbstrac
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return LinuxUsbDeviceFFM.getUsbDevices();
+        return LinuxUsbDevice.getUsbDevices(LinuxUsbDeviceFFM.queryUsbDevices());
     }
 }

@@ -18,6 +18,7 @@ import oshi.hardware.Printer;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.common.platform.linux.LinuxUsbDevice;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
 
@@ -55,7 +56,7 @@ public final class LinuxHardwareAbstractionLayerJNA extends LinuxHardwareAbstrac
 
     @Override
     protected List<UsbDevice> createUsbDevices() {
-        return LinuxUsbDeviceJNA.getUsbDevices();
+        return LinuxUsbDevice.getUsbDevices(LinuxUsbDeviceJNA.queryUsbDevices());
     }
 
     @Override
