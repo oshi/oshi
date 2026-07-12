@@ -23,9 +23,12 @@ import oshi.util.tuples.Triplet;
 
 /**
  * Memory obtained by Performance Info.
+ * <p>
+ * Not {@code final} so that tests can subclass it to force the {@link #isWindows10OrGreater()} version gate and
+ * exercise the pre-Windows-10 fallback query path against the real system.
  */
 @ThreadSafe
-final class WindowsGlobalMemoryJNA extends WindowsGlobalMemory {
+class WindowsGlobalMemoryJNA extends WindowsGlobalMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGlobalMemoryJNA.class);
 
