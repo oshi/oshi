@@ -6,14 +6,11 @@ package oshi.hardware.platform.windows;
 
 import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
-import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +22,7 @@ import oshi.driver.windows.perfmon.MemoryInformationFFM;
 import oshi.driver.windows.perfmon.PagingFileFFM;
 import oshi.ffm.platform.windows.Kernel32FFM;
 import oshi.ffm.platform.windows.PsapiFFM;
-import oshi.hardware.common.AbstractVirtualMemory;
+import oshi.hardware.common.platform.windows.WindowsVirtualMemory;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -33,59 +30,21 @@ import oshi.util.tuples.Triplet;
  * Virtual memory obtained from Performance Info using FFM.
  */
 @ThreadSafe
-final class WindowsVirtualMemoryFFM extends AbstractVirtualMemory {
+final class WindowsVirtualMemoryFFM extends WindowsVirtualMemory {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsVirtualMemoryFFM.class);
 
-    private final WindowsGlobalMemoryFFM global;
-
-    private final Supplier<Long> used = memoize(WindowsVirtualMemoryFFM::querySwapUsed, defaultExpiration());
-
-    private final Supplier<Triplet<Long, Long, Long>> totalVmaxVused = memoize(
-            WindowsVirtualMemoryFFM::querySwapTotalVirtMaxVirtUsed, defaultExpiration());
-
-    private final Supplier<Pair<Long, Long>> swapInOut = memoize(WindowsVirtualMemoryFFM::queryPageSwaps,
-            defaultExpiration());
-
     WindowsVirtualMemoryFFM(WindowsGlobalMemoryFFM windowsGlobalMemory) {
-        this.global = windowsGlobalMemory;
+        super(windowsGlobalMemory);
     }
 
     @Override
-    public long getSwapUsed() {
-        return this.global.getPageSize() * used.get();
-    }
-
-    @Override
-    public long getSwapTotal() {
-        return this.global.getPageSize() * totalVmaxVused.get().getA();
-    }
-
-    @Override
-    public long getVirtualMax() {
-        return this.global.getPageSize() * totalVmaxVused.get().getB();
-    }
-
-    @Override
-    public long getVirtualInUse() {
-        return this.global.getPageSize() * totalVmaxVused.get().getC();
-    }
-
-    @Override
-    public long getSwapPagesIn() {
-        return swapInOut.get().getA();
-    }
-
-    @Override
-    public long getSwapPagesOut() {
-        return swapInOut.get().getB();
-    }
-
-    private static long querySwapUsed() {
+    protected long querySwapUsed() {
         return PagingFileFFM.querySwapUsed().getOrDefault(PagingPercentProperty.PERCENTUSAGE, 0L);
     }
 
-    private static Triplet<Long, Long, Long> querySwapTotalVirtMaxVirtUsed() {
+    @Override
+    protected Triplet<Long, Long, Long> querySwapTotalVirtMaxVirtUsed() {
         return callInArenaOrDefault(arena -> {
             MemorySegment perfInfo = arena.allocate(PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT);
             int size = (int) PsapiFFM.PERFORMANCE_INFORMATION_LAYOUT.byteSize();
@@ -103,7 +62,8 @@ final class WindowsVirtualMemoryFFM extends AbstractVirtualMemory {
         }, LOG, ERROR, "Failed to get Performance Info", new Triplet<>(0L, 0L, 0L));
     }
 
-    private static Pair<Long, Long> queryPageSwaps() {
+    @Override
+    protected Pair<Long, Long> queryPageSwaps() {
         Map<PageSwapProperty, Long> valueMap = MemoryInformationFFM.queryPageSwaps();
         return new Pair<>(valueMap.getOrDefault(PageSwapProperty.PAGESINPUTPERSEC, 0L),
                 valueMap.getOrDefault(PageSwapProperty.PAGESOUTPUTPERSEC, 0L));
