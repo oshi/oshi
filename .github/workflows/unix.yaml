@@ -158,7 +158,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-netbsd
-        uses: vmactions/netbsd-vm@1d9767765fd3f986e6de3aff4b1148f0c3a45f01 # v1
+        uses: vmactions/netbsd-vm@0c26a4c4a5e234038862a4a53a00c905b8a107c9 # v1
         with:
           release: "10.1"
           usesh: true
@@ -182,7 +182,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-netbsd-jna
-        uses: vmactions/netbsd-vm@1d9767765fd3f986e6de3aff4b1148f0c3a45f01 # v1
+        uses: vmactions/netbsd-vm@0c26a4c4a5e234038862a4a53a00c905b8a107c9 # v1
         with:
           release: "10.1"
           usesh: true
