@@ -5,7 +5,6 @@
 package oshi.hardware.common.platform.mac;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.sort;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,14 +122,14 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         if (root == null) {
             return emptyList();
         }
-        // Maps to store information using the RegistryEntryID as the key
-        Map<Long, String> nameMap = new HashMap<>();
-        Map<Long, String> vendorMap = new HashMap<>();
-        Map<Long, String> vendorIdMap = new HashMap<>();
-        Map<Long, String> productIdMap = new HashMap<>();
-        Map<Long, String> serialMap = new HashMap<>();
-        Map<Long, List<Long>> hubMap = new HashMap<>();
-        Set<Long> usbControllers = new LinkedHashSet<>();
+        // Maps to store information using the RegistryEntryID (as a "0x"-prefixed hex string) as the key
+        Map<String, String> nameMap = new HashMap<>();
+        Map<String, String> vendorMap = new HashMap<>();
+        Map<String, String> vendorIdMap = new HashMap<>();
+        Map<String, String> productIdMap = new HashMap<>();
+        Map<String, String> serialMap = new HashMap<>();
+        Map<String, List<String>> hubMap = new HashMap<>();
+        Set<String> usbControllers = new LinkedHashSet<>();
 
         // Iterate over children of root in the IOUSB plane. This does not include the controllers, so we check each
         // device's parent in the IOService plane.
@@ -138,16 +137,17 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         if (iter != null) {
             RegistryEntry device = iter.next();
             while (device != null) {
-                long id = 0L;
+                // Anonymous catch-all controller key when the parent can't be identified
+                String id = toKey(0L);
                 // The parent of this device in the IOService plane is the controller
                 RegistryEntry controller = device.getParentEntry(IOSERVICE);
                 if (controller != null) {
-                    id = controller.getRegistryEntryID();
+                    id = toKey(controller.getRegistryEntryID());
                     // Devices sharing a controller yield the same deterministic name/vid/pid, so only read them the
                     // first time this controller is seen; later devices still register under it via usbControllers.
                     if (!usbControllers.contains(id)) {
-                        // Skip a null name so getDeviceAndChildren can fall back to vid:pid (getOrDefault only
-                        // substitutes for absent keys, not null values)
+                        // Skip a null name so buildDeviceTree can fall back to vid:pid (getOrDefault only substitutes
+                        // for absent keys, not null values)
                         String controllerName = controller.getName();
                         if (controllerName != null) {
                             nameMap.put(id, controllerName);
@@ -164,8 +164,8 @@ public final class MacUsbDevice extends AbstractUsbDevice {
                     }
                     controller.release();
                 }
-                // If controller is null, id remains 0L, acting as an anonymous catch-all controller so that devices
-                // whose parent cannot be identified are not lost.
+                // If controller is null, id remains the toKey(0L) catch-all controller so that devices whose parent
+                // cannot be identified are not lost.
                 usbControllers.add(id);
                 // Recursively add this device and its children to the maps, keyed under the controller id
                 addDeviceAndChildrenToMaps(device, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
@@ -178,11 +178,21 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         root.release();
 
         List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (Long controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
+        for (String controller : usbControllers) {
+            controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
+                    productIdMap, serialMap, hubMap, MacUsbDevice::new));
         }
         return controllerDevices;
+    }
+
+    /**
+     * Formats a registry entry ID as the {@code "0x"}-prefixed hex string used as the map key and unique device ID.
+     *
+     * @param registryEntryId the registry entry ID
+     * @return the formatted key
+     */
+    private static String toKey(long registryEntryId) {
+        return "0x" + Long.toHexString(registryEntryId);
     }
 
     /**
@@ -197,15 +207,15 @@ public final class MacUsbDevice extends AbstractUsbDevice {
      * @param serialMap    the map of serial numbers
      * @param hubMap       the map of hubs
      */
-    private static void addDeviceAndChildrenToMaps(RegistryEntry device, long parentId, Map<Long, String> nameMap,
-            Map<Long, String> vendorMap, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap,
-            Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
+    private static void addDeviceAndChildrenToMaps(RegistryEntry device, String parentId, Map<String, String> nameMap,
+            Map<String, String> vendorMap, Map<String, String> vendorIdMap, Map<String, String> productIdMap,
+            Map<String, String> serialMap, Map<String, List<String>> hubMap) {
         // Unique global identifier for this device
-        long id = device.getRegistryEntryID();
+        String id = toKey(device.getRegistryEntryID());
         // Store id as a child of parent in the hub map
         hubMap.computeIfAbsent(parentId, x -> new ArrayList<>()).add(id);
         // Get device name and store in map (skip if null so the walk isn't aborted before native handles are released
-        // and getDeviceAndChildren can fall back to vid:pid)
+        // and buildDeviceTree can fall back to vid:pid)
         String name = device.getName();
         if (name != null) {
             nameMap.put(id, name.trim());
@@ -245,34 +255,4 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         }
     }
 
-    /**
-     * Recursively creates MacUsbDevices by fetching information from maps to populate fields.
-     *
-     * @param registryEntryId the device's unique registry id
-     * @param vid             the default (parent) vendor ID
-     * @param pid             the default (parent) product ID
-     * @param nameMap         the map of names
-     * @param vendorMap       the map of vendors
-     * @param vendorIdMap     the map of vendorIds
-     * @param productIdMap    the map of productIds
-     * @param serialMap       the map of serial numbers
-     * @param hubMap          the map of hubs
-     * @return a MacUsbDevice corresponding to this device
-     */
-    private static MacUsbDevice getDeviceAndChildren(Long registryEntryId, String vid, String pid,
-            Map<Long, String> nameMap, Map<Long, String> vendorMap, Map<Long, String> vendorIdMap,
-            Map<Long, String> productIdMap, Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
-        String vendorId = vendorIdMap.getOrDefault(registryEntryId, vid);
-        String productId = productIdMap.getOrDefault(registryEntryId, pid);
-        List<Long> childIds = hubMap.getOrDefault(registryEntryId, new ArrayList<>());
-        List<UsbDevice> usbDevices = new ArrayList<>();
-        for (Long childId : childIds) {
-            usbDevices.add(getDeviceAndChildren(childId, vendorId, productId, nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        sort(usbDevices);
-        return new MacUsbDevice(nameMap.getOrDefault(registryEntryId, vendorId + ":" + productId),
-                vendorMap.getOrDefault(registryEntryId, ""), vendorId, productId,
-                serialMap.getOrDefault(registryEntryId, ""), "0x" + Long.toHexString(registryEntryId), usbDevices);
-    }
 }

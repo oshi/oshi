@@ -5,7 +5,7 @@
 package oshi.hardware.common.platform.unix.solaris;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.sort;
+import static java.util.Collections.emptyMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,37 +106,10 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             // Only do controllers that are USB device type
             if (PCI_TYPE_USB.equals(deviceTypeMap.getOrDefault(controller, ""))
                     || "usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
-                controllerDevices.add(
-                        getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorIdMap, productIdMap, hubMap));
+                controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, emptyMap(), vendorIdMap,
+                        productIdMap, emptyMap(), hubMap, SolarisUsbDevice::new));
             }
         }
         return controllerDevices;
-    }
-
-    /**
-     * Recursively creates SolarisUsbDevices by fetching information from maps to populate fields
-     *
-     * @param devPath      The device node path.
-     * @param vid          The default (parent) vendor ID
-     * @param pid          The default (parent) product ID
-     * @param nameMap      the map of names
-     * @param vendorIdMap  the map of vendorIds
-     * @param productIdMap the map of productIds
-     * @param hubMap       the map of hubs
-     * @return A SolarisUsbDevice corresponding to this device
-     */
-    private static SolarisUsbDevice getDeviceAndChildren(String devPath, String vid, String pid,
-            Map<String, String> nameMap, Map<String, String> vendorIdMap, Map<String, String> productIdMap,
-            Map<String, List<String>> hubMap) {
-        String vendorId = vendorIdMap.getOrDefault(devPath, vid);
-        String productId = productIdMap.getOrDefault(devPath, pid);
-        List<String> childPaths = hubMap.getOrDefault(devPath, new ArrayList<>());
-        List<UsbDevice> usbDevices = new ArrayList<>();
-        for (String path : childPaths) {
-            usbDevices.add(getDeviceAndChildren(path, vendorId, productId, nameMap, vendorIdMap, productIdMap, hubMap));
-        }
-        sort(usbDevices);
-        return new SolarisUsbDevice(nameMap.getOrDefault(devPath, vendorId + ":" + productId), "", vendorId, productId,
-                "", devPath, usbDevices);
     }
 }

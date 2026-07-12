@@ -24,7 +24,11 @@ import oshi.util.tuples.Triplet;
 /**
  * Windows USB device. The controller device tree (controller ids + parent/name/deviceId/manufacturer maps) is queried
  * by the backend — JNA {@code DeviceTree} or FFM {@code DeviceTreeFFM} — and supplied to {@link #getUsbDevices}; the
- * recursive tree assembly is shared here.
+ * recursive tree assembly is shared between those backends here.
+ * <p>
+ * This intentionally does not use the shared {@code AbstractUsbDevice.buildDeviceTree}: the Windows model keys each
+ * child to its parent (rather than parent-to-children), parses vendor/product/serial from PnP device-id strings, and
+ * inherits serials from the parent.
  */
 @Immutable
 public final class WindowsUsbDevice extends AbstractUsbDevice {
