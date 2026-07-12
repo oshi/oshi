@@ -143,7 +143,12 @@ public final class MacUsbDevice extends AbstractUsbDevice {
                 RegistryEntry controller = device.getParentEntry(IOSERVICE);
                 if (controller != null) {
                     id = controller.getRegistryEntryID();
-                    nameMap.put(id, controller.getName());
+                    // Skip a null name so getDeviceAndChildren can fall back to vid:pid (getOrDefault only substitutes
+                    // for absent keys, not null values)
+                    String controllerName = controller.getName();
+                    if (controllerName != null) {
+                        nameMap.put(id, controllerName);
+                    }
                     // The only controller info in the registry is its locationID; use it to find the matching PCI
                     // device and pull vendor/product IDs.
                     String[] vidPid = controller.lookupControllerVidPid();
@@ -195,8 +200,12 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         long id = device.getRegistryEntryID();
         // Store id as a child of parent in the hub map
         hubMap.computeIfAbsent(parentId, x -> new ArrayList<>()).add(id);
-        // Get device name and store in map
-        nameMap.put(id, device.getName().trim());
+        // Get device name and store in map (skip if null so the walk isn't aborted before native handles are released
+        // and getDeviceAndChildren can fall back to vid:pid)
+        String name = device.getName();
+        if (name != null) {
+            nameMap.put(id, name.trim());
+        }
         // Get vendor and store in map
         String vendor = device.getStringProperty("USB Vendor Name");
         if (vendor != null) {
