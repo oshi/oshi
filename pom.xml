@@ -148,7 +148,7 @@
         <dependency-check.nvdMaxRetryCount>50</dependency-check.nvdMaxRetryCount>
         <dependency-check.nvdValidForHours>168</dependency-check.nvdValidForHours>
         <japicmp-maven-plugin.version>0.26.1</japicmp-maven-plugin.version>
-        <puppycrawl.checkstyle.version>13.7.0</puppycrawl.checkstyle.version>
+        <puppycrawl.checkstyle.version>13.8.0</puppycrawl.checkstyle.version>
         <m2e.lifecycle-mapping.version>1.0.0</m2e.lifecycle-mapping.version>
     </properties>
 
