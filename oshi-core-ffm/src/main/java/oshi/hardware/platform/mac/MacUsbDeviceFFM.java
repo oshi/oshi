@@ -1,20 +1,14 @@
 /*
- * Copyright 2026 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.hardware.platform.mac;
 
-import static java.util.Collections.emptyList;
 import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +25,14 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.mac.MacUsbDevice;
 
 /**
- * Mac USB device helper using FFM/IOKit. Instantiates {@link MacUsbDevice} objects.
+ * Enumerates Mac USB devices via FFM/IOKit, adapting the FFM registry-entry wrapper to {@link MacUsbDevice}'s
+ * backend-neutral view so the tree-building logic is shared.
  */
-public final class MacUsbDeviceFFM extends MacUsbDevice {
+public final class MacUsbDeviceFFM {
 
     private MacUsbDeviceFFM() {
     }
 
-    private static final String IOUSB = "IOUSB";
     private static final String IOSERVICE = "IOService";
     private static final Logger LOG = LoggerFactory.getLogger(MacUsbDeviceFFM.class);
 
@@ -48,139 +42,143 @@ public final class MacUsbDeviceFFM extends MacUsbDevice {
      * @return a list of USB controllers, each with its connected-device tree.
      */
     public static List<UsbDevice> getUsbDevices() {
-        return queryUsbDevices();
+        IORegistryEntry root = IOKitUtilFFM.getRoot();
+        return MacUsbDevice.getUsbDevices(root == null ? null : new FfmRegistryEntry(root));
     }
 
-    private static List<UsbDevice> queryUsbDevices() {
-        Map<Long, String> nameMap = new HashMap<>();
-        Map<Long, String> vendorMap = new HashMap<>();
-        Map<Long, String> vendorIdMap = new HashMap<>();
-        Map<Long, String> productIdMap = new HashMap<>();
-        Map<Long, String> serialMap = new HashMap<>();
-        Map<Long, List<Long>> hubMap = new HashMap<>();
+    /**
+     * Adapts an FFM {@link IORegistryEntry} to {@link MacUsbDevice.RegistryEntry}.
+     */
+    private static final class FfmRegistryEntry implements MacUsbDevice.RegistryEntry {
+        private final IORegistryEntry entry;
 
-        Set<Long> usbControllers = new LinkedHashSet<>();
-        IORegistryEntry root = IOKitUtilFFM.getRoot();
-        if (root == null) {
-            return emptyList();
+        FfmRegistryEntry(IORegistryEntry entry) {
+            this.entry = entry;
         }
-        IOIterator iter = root.getChildIterator(IOUSB);
-        if (iter != null) {
+
+        @Override
+        public long getRegistryEntryID() {
+            return entry.getRegistryEntryID();
+        }
+
+        @Override
+        public String getName() {
+            return entry.getName();
+        }
+
+        @Override
+        public String getStringProperty(String key) {
+            return entry.getStringProperty(key);
+        }
+
+        @Override
+        public Long getLongProperty(String key) {
+            return entry.getLongProperty(key);
+        }
+
+        @Override
+        public MacUsbDevice.RegistryEntry getParentEntry(String plane) {
+            IORegistryEntry parent = entry.getParentEntry(plane);
+            return parent == null ? null : new FfmRegistryEntry(parent);
+        }
+
+        @Override
+        public MacUsbDevice.RegistryIterator getChildIterator(String plane) {
+            IOIterator iter = entry.getChildIterator(plane);
+            return iter == null ? null : new FfmRegistryIterator(iter);
+        }
+
+        @Override
+        public String[] lookupControllerVidPid() {
+            String[] result = new String[2];
             CFStringRef locationIDKey = CFStringRef.createCFString("locationID");
             CFStringRef ioPropertyMatchKey = CFStringRef.createCFString("IOPropertyMatch");
-            try (iter; locationIDKey; ioPropertyMatchKey) {
-                IORegistryEntry device = iter.next();
-                while (device != null) {
-                    long id = 0L;
-                    IORegistryEntry controller = device.getParentEntry(IOSERVICE);
-                    if (controller != null) {
-                        id = controller.getRegistryEntryID();
-                        nameMap.put(id, controller.getName());
-                        MemorySegment ref = controller.createCFProperty(locationIDKey.segment());
-                        if (ref != null && !ref.equals(MemorySegment.NULL)) {
-                            CFTypeRef locationId = new CFTypeRef(ref);
-                            getControllerIdByLocation(id, locationId, locationIDKey, ioPropertyMatchKey, vendorIdMap,
-                                    productIdMap);
-                            locationId.release();
+            try (locationIDKey; ioPropertyMatchKey) {
+                MemorySegment ref = entry.createCFProperty(locationIDKey.segment());
+                if (ref == null || ref.equals(MemorySegment.NULL)) {
+                    return result;
+                }
+                CFTypeRef locationId = new CFTypeRef(ref);
+                try (locationId) {
+                    // Build matching dict: { IOPropertyMatch: { locationID: <locationId> } }
+                    runOrLog(() -> {
+                        CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
+                        CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(CoreFoundationFunctions
+                                .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
+                        propertyDict.setValue(locationIDKey, locationId);
+                        CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(CoreFoundationFunctions
+                                .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
+                        matchingDict.setValue(ioPropertyMatchKey, propertyDict);
+
+                        IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(matchingDict.segment());
+                        propertyDict.release();
+                        readVidPid(serviceIterator, result);
+                    }, LOG, "Failed to retrieve controller vendor/product IDs");
+                }
+            }
+            return result;
+        }
+
+        /**
+         * Iterates matching services, reading vendor-id/device-id from the first parent that carries them.
+         *
+         * @param serviceIterator the iterator of matching services, or {@code null}
+         * @param result          the two-element {@code {vendorId, productId}} array to populate
+         */
+        private static void readVidPid(IOIterator serviceIterator, String[] result) {
+            if (serviceIterator == null) {
+                return;
+            }
+            try (serviceIterator) {
+                boolean found = false;
+                IORegistryEntry matchingService = serviceIterator.next();
+                while (matchingService != null && !found) {
+                    // The parent holds the vendor-id/device-id keys, each a 4-byte array
+                    IORegistryEntry parent = matchingService.getParentEntry(IOSERVICE);
+                    if (parent != null) {
+                        byte[] vid = parent.getByteArrayProperty("vendor-id");
+                        if (vid != null && vid.length >= 2) {
+                            result[0] = String.format(Locale.ROOT, "%02x%02x", vid[1], vid[0]);
+                            found = true;
                         }
-                        controller.release();
+                        byte[] pid = parent.getByteArrayProperty("device-id");
+                        if (pid != null && pid.length >= 2) {
+                            result[1] = String.format(Locale.ROOT, "%02x%02x", pid[1], pid[0]);
+                            found = true;
+                        }
+                        parent.release();
                     }
-                    // If controller is null, id remains 0L, acting as an anonymous catch-all
-                    // controller so that devices whose parent cannot be identified are not lost.
-                    usbControllers.add(id);
-                    addDeviceAndChildrenToMaps(device, id, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap,
-                            hubMap);
-                    device.release();
-                    device = iter.next();
+                    matchingService.release();
+                    matchingService = serviceIterator.next();
                 }
             }
         }
-        root.release();
 
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (Long controller : usbControllers) {
-            controllerDevices.add(getDeviceAndChildren(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap));
-        }
-        return controllerDevices;
-    }
-
-    private static void addDeviceAndChildrenToMaps(IORegistryEntry device, long parentId, Map<Long, String> nameMap,
-            Map<Long, String> vendorMap, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap,
-            Map<Long, String> serialMap, Map<Long, List<Long>> hubMap) {
-        long id = device.getRegistryEntryID();
-        hubMap.computeIfAbsent(parentId, x -> new ArrayList<>()).add(id);
-        nameMap.put(id, device.getName().trim());
-        String vendor = device.getStringProperty("USB Vendor Name");
-        if (vendor != null) {
-            vendorMap.put(id, vendor.trim());
-        }
-        Long vendorId = device.getLongProperty("idVendor");
-        if (vendorId != null) {
-            vendorIdMap.put(id, String.format(Locale.ROOT, "%04x", 0xffff & vendorId));
-        }
-        Long productId = device.getLongProperty("idProduct");
-        if (productId != null) {
-            productIdMap.put(id, String.format(Locale.ROOT, "%04x", 0xffff & productId));
-        }
-        String serial = device.getStringProperty("USB Serial Number");
-        if (serial != null) {
-            serialMap.put(id, serial.trim());
-        }
-
-        IOIterator childIter = device.getChildIterator(IOUSB);
-        if (childIter != null) {
-            try (childIter) {
-                IORegistryEntry childDevice = childIter.next();
-                while (childDevice != null) {
-                    addDeviceAndChildrenToMaps(childDevice, id, nameMap, vendorMap, vendorIdMap, productIdMap,
-                            serialMap, hubMap);
-                    childDevice.release();
-                    childDevice = childIter.next();
-                }
-            }
+        @Override
+        public void release() {
+            entry.release();
         }
     }
 
-    private static void getControllerIdByLocation(long id, CFTypeRef locationId, CFStringRef locationIDKey,
-            CFStringRef ioPropertyMatchKey, Map<Long, String> vendorIdMap, Map<Long, String> productIdMap) {
-        // Build matching dict: { IOPropertyMatch: { locationID: <locationId> } }
-        runOrLog(() -> {
-            CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
-            CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(CoreFoundationFunctions
-                    .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
-            propertyDict.setValue(locationIDKey, locationId);
-            CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(CoreFoundationFunctions
-                    .CFDictionaryCreateMutable(alloc.segment(), 0, MemorySegment.NULL, MemorySegment.NULL));
-            matchingDict.setValue(ioPropertyMatchKey, propertyDict);
+    /**
+     * Adapts an FFM {@link IOIterator} to {@link MacUsbDevice.RegistryIterator}.
+     */
+    private static final class FfmRegistryIterator implements MacUsbDevice.RegistryIterator {
+        private final IOIterator iter;
 
-            IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(matchingDict.segment());
-            propertyDict.release();
+        FfmRegistryIterator(IOIterator iter) {
+            this.iter = iter;
+        }
 
-            boolean found = false;
-            if (serviceIterator != null) {
-                try (serviceIterator) {
-                    IORegistryEntry matchingService = serviceIterator.next();
-                    while (matchingService != null && !found) {
-                        IORegistryEntry parent = matchingService.getParentEntry(IOSERVICE);
-                        if (parent != null) {
-                            byte[] vid = parent.getByteArrayProperty("vendor-id");
-                            if (vid != null && vid.length >= 2) {
-                                vendorIdMap.put(id, String.format(Locale.ROOT, "%02x%02x", vid[1], vid[0]));
-                                found = true;
-                            }
-                            byte[] pid = parent.getByteArrayProperty("device-id");
-                            if (pid != null && pid.length >= 2) {
-                                productIdMap.put(id, String.format(Locale.ROOT, "%02x%02x", pid[1], pid[0]));
-                                found = true;
-                            }
-                            parent.release();
-                        }
-                        matchingService.release();
-                        matchingService = serviceIterator.next();
-                    }
-                }
-            }
-        }, LOG, "Failed to retrieve controller vendor/product IDs for id {}");
+        @Override
+        public MacUsbDevice.RegistryEntry next() {
+            IORegistryEntry next = iter.next();
+            return next == null ? null : new FfmRegistryEntry(next);
+        }
+
+        @Override
+        public void release() {
+            iter.release();
+        }
     }
 }
