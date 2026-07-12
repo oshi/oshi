@@ -17,7 +17,8 @@ import oshi.util.Constants;
 import oshi.util.ParseUtil;
 
 /**
- * AIX Usb Device
+ * AIX Usb Device. Builds a flat single-controller list directly from {@code lscfg} output; this intentionally does not
+ * use the shared {@code AbstractUsbDevice.buildDeviceTree}, as {@code lscfg} exposes no parent/child device tree.
  */
 @Immutable
 public class AixUsbDevice extends AbstractUsbDevice {
