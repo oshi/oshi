@@ -143,20 +143,24 @@ public final class MacUsbDevice extends AbstractUsbDevice {
                 RegistryEntry controller = device.getParentEntry(IOSERVICE);
                 if (controller != null) {
                     id = controller.getRegistryEntryID();
-                    // Skip a null name so getDeviceAndChildren can fall back to vid:pid (getOrDefault only substitutes
-                    // for absent keys, not null values)
-                    String controllerName = controller.getName();
-                    if (controllerName != null) {
-                        nameMap.put(id, controllerName);
-                    }
-                    // The only controller info in the registry is its locationID; use it to find the matching PCI
-                    // device and pull vendor/product IDs.
-                    String[] vidPid = controller.lookupControllerVidPid();
-                    if (vidPid[0] != null) {
-                        vendorIdMap.put(id, vidPid[0]);
-                    }
-                    if (vidPid[1] != null) {
-                        productIdMap.put(id, vidPid[1]);
+                    // Devices sharing a controller yield the same deterministic name/vid/pid, so only read them the
+                    // first time this controller is seen; later devices still register under it via usbControllers.
+                    if (!usbControllers.contains(id)) {
+                        // Skip a null name so getDeviceAndChildren can fall back to vid:pid (getOrDefault only
+                        // substitutes for absent keys, not null values)
+                        String controllerName = controller.getName();
+                        if (controllerName != null) {
+                            nameMap.put(id, controllerName);
+                        }
+                        // The only controller info in the registry is its locationID; use it to find the matching PCI
+                        // device and pull vendor/product IDs.
+                        String[] vidPid = controller.lookupControllerVidPid();
+                        if (vidPid[0] != null) {
+                            vendorIdMap.put(id, vidPid[0]);
+                        }
+                        if (vidPid[1] != null) {
+                            productIdMap.put(id, vidPid[1]);
+                        }
                     }
                     controller.release();
                 }
