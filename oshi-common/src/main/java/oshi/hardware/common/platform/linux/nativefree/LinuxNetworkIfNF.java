@@ -5,11 +5,7 @@
 package oshi.hardware.common.platform.linux.nativefree;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
@@ -20,8 +16,6 @@ import oshi.hardware.common.platform.linux.LinuxNetworkIF;
  */
 @ThreadSafe
 public final class LinuxNetworkIfNF extends LinuxNetworkIF {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIfNF.class);
 
     LinuxNetworkIfNF(NetworkInterface netint) throws InstantiationException {
         super(netint, queryIfModelFromSysfs(netint.getName()));
@@ -34,14 +28,6 @@ public final class LinuxNetworkIfNF extends LinuxNetworkIF {
      * @return a list of {@link NetworkIF} objects
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new LinuxNetworkIfNF(ni));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.toString());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, LinuxNetworkIfNF::new);
     }
 }

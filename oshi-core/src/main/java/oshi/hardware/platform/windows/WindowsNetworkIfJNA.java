@@ -5,7 +5,6 @@
 package oshi.hardware.platform.windows;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -51,15 +50,7 @@ public final class WindowsNetworkIfJNA extends AbstractNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new WindowsNetworkIfJNA(ni));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, WindowsNetworkIfJNA::new);
     }
 
     @Override

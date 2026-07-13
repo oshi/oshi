@@ -10,7 +10,6 @@ import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterf
 
 import java.lang.foreign.MemorySegment;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,16 +65,8 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
     }
 
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        final Map<Integer, IFdata> data = NetStatFFM.queryIFdata(-1);
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new MacNetworkIfFFM(ni, data));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        Map<Integer, IFdata> data = NetStatFFM.queryIFdata(-1);
+        return getNetworks(includeLocalInterfaces, ni -> new MacNetworkIfFFM(ni, data));
     }
 
     @Override
