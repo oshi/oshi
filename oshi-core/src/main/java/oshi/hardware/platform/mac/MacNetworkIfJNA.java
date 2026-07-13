@@ -66,28 +66,7 @@ public final class MacNetworkIfJNA extends MacNetworkIF {
     }
 
     @Override
-    public boolean updateAttributes() {
-        int index = queryNetworkInterface().getIndex();
-        return updateNetworkStats(NetStat.queryIFdata(index));
-    }
-
-    private boolean updateNetworkStats(Map<Integer, IFdata> data) {
-        int index = queryNetworkInterface().getIndex();
-        if (data.containsKey(index)) {
-            IFdata ifData = data.get(index);
-            setIfType(ifData.getIfType());
-            this.bytesSent = ifData.getOBytes();
-            this.bytesRecv = ifData.getIBytes();
-            this.packetsSent = ifData.getOPackets();
-            this.packetsRecv = ifData.getIPackets();
-            this.outErrors = ifData.getOErrors();
-            this.inErrors = ifData.getIErrors();
-            this.collisions = ifData.getCollisions();
-            this.inDrops = ifData.getIDrops();
-            this.speed = ifData.getSpeed();
-            this.timeStamp = ifData.getTimeStamp();
-            return true;
-        }
-        return false;
+    protected Map<Integer, IFdata> queryIFdata(int index) {
+        return NetStat.queryIFdata(index);
     }
 }

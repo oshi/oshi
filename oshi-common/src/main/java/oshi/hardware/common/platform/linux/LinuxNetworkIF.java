@@ -49,15 +49,25 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
 
     static String queryIfModelFromSysfs(String name, String netPath) {
         Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(netPath + name + "/uevent", "=");
-        String devVendor = uevent.get("ID_VENDOR_FROM_DATABASE");
-        String devModel = uevent.get("ID_MODEL_FROM_DATABASE");
-        if (!Util.isBlank(devModel)) {
-            if (!Util.isBlank(devVendor)) {
-                return devVendor + " " + devModel;
+        return formatModel(uevent.get("ID_VENDOR_FROM_DATABASE"), uevent.get("ID_MODEL_FROM_DATABASE"), name);
+    }
+
+    /**
+     * Formats a vendor/model pair into a display string, falling back to the interface name when no model is present.
+     *
+     * @param vendor   the vendor string, may be {@code null} or blank
+     * @param model    the model string, may be {@code null} or blank
+     * @param fallback the value to return when {@code model} is blank (typically the interface name)
+     * @return {@code "vendor model"}, {@code "model"}, or {@code fallback}
+     */
+    protected static String formatModel(String vendor, String model, String fallback) {
+        if (!Util.isBlank(model)) {
+            if (!Util.isBlank(vendor)) {
+                return vendor + " " + model;
             }
-            return devModel;
+            return model;
         }
-        return name;
+        return fallback;
     }
 
     @Override

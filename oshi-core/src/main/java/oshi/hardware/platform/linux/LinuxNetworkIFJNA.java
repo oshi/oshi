@@ -16,7 +16,6 @@ import com.sun.jna.platform.linux.Udev.UdevDevice;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.linux.LinuxNetworkIF;
-import oshi.util.Util;
 import oshi.util.linux.SysPath;
 
 /**
@@ -42,12 +41,7 @@ public final class LinuxNetworkIFJNA extends LinuxNetworkIF {
                     try {
                         String devVendor = device.getPropertyValue("ID_VENDOR_FROM_DATABASE");
                         String devModel = device.getPropertyValue("ID_MODEL_FROM_DATABASE");
-                        if (!Util.isBlank(devModel)) {
-                            if (!Util.isBlank(devVendor)) {
-                                return devVendor + " " + devModel;
-                            }
-                            return devModel;
-                        }
+                        return formatModel(devVendor, devModel, name);
                     } finally {
                         device.unref();
                     }

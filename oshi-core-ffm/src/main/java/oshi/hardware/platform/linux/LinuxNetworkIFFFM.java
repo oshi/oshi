@@ -20,7 +20,6 @@ import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.common.platform.linux.LinuxNetworkIF;
-import oshi.util.Util;
 import oshi.util.linux.SysPath;
 
 /**
@@ -53,12 +52,7 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
                     try (var _ = NativeHandle.of(device, UdevFunctions::udev_device_unref)) {
                         String devVendor = UdevFunctions.getPropertyValue(device, "ID_VENDOR_FROM_DATABASE", arena);
                         String devModel = UdevFunctions.getPropertyValue(device, "ID_MODEL_FROM_DATABASE", arena);
-                        if (!Util.isBlank(devModel)) {
-                            if (!Util.isBlank(devVendor)) {
-                                return devVendor + " " + devModel;
-                            }
-                            return devModel;
-                        }
+                        return formatModel(devVendor, devModel, name);
                     }
                 }
             }

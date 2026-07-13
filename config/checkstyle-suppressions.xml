@@ -90,6 +90,10 @@
          for the kstat I/O, interface, and battery counters that the JNA and FFM subclasses populate. -->
     <suppress checks="VisibilityModifier" files="(SolarisHWDiskStore|SolarisNetworkIF|SolarisPowerSource)\.java"/>
 
+    <!-- Windows NetworkIF shared base uses a public IfStats data POJO for the IP Helper API counters that the JNA and
+         FFM subclasses populate. -->
+    <suppress checks="VisibilityModifier" files="WindowsNetworkIF\.java"/>
+
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 
