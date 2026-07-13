@@ -7,11 +7,7 @@ package oshi.hardware.platform.linux;
 import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.linux.Udev;
 import com.sun.jna.platform.linux.Udev.UdevContext;
@@ -28,8 +24,6 @@ import oshi.util.linux.SysPath;
  */
 @ThreadSafe
 public final class LinuxNetworkIFJNA extends LinuxNetworkIF {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkIFJNA.class);
 
     LinuxNetworkIFJNA(NetworkInterface netint) throws InstantiationException {
         super(netint, queryIfModel(netint));
@@ -72,14 +66,6 @@ public final class LinuxNetworkIFJNA extends LinuxNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new LinuxNetworkIFJNA(ni));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, LinuxNetworkIFJNA::new);
     }
 }

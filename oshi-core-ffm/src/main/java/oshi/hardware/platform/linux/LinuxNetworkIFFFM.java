@@ -10,7 +10,6 @@ import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
 
 import java.lang.foreign.MemorySegment;
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -74,14 +73,6 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new LinuxNetworkIFFFM(ni));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.toString());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, LinuxNetworkIFFFM::new);
     }
 }

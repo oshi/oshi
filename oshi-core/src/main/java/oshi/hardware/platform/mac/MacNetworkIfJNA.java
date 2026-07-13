@@ -5,12 +5,8 @@
 package oshi.hardware.platform.mac;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -29,8 +25,6 @@ import oshi.jna.platform.mac.SystemConfiguration.SCNetworkInterfaceRef;
  */
 @ThreadSafe
 public final class MacNetworkIfJNA extends MacNetworkIF {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MacNetworkIfJNA.class);
 
     public MacNetworkIfJNA(NetworkInterface netint, Map<Integer, IFdata> data) throws InstantiationException {
         super(netint, queryIfDisplayName(netint));
@@ -67,16 +61,8 @@ public final class MacNetworkIfJNA extends MacNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        final Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new MacNetworkIfJNA(ni, data));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        Map<Integer, IFdata> data = NetStat.queryIFdata(-1);
+        return getNetworks(includeLocalInterfaces, ni -> new MacNetworkIfJNA(ni, data));
     }
 
     @Override

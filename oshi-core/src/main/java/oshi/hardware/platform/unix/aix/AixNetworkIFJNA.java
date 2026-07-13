@@ -8,12 +8,8 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
@@ -28,8 +24,6 @@ import oshi.hardware.common.platform.unix.aix.AixNetworkIF;
  */
 @ThreadSafe
 public final class AixNetworkIFJNA extends AixNetworkIF {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AixNetworkIFJNA.class);
 
     private final Supplier<perfstat_netinterface_t[]> netstats;
 
@@ -49,15 +43,7 @@ public final class AixNetworkIFJNA extends AixNetworkIF {
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
         Supplier<perfstat_netinterface_t[]> netstats = memoize(PerfstatNetInterfaceJNA::queryNetInterfaces,
                 defaultExpiration());
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new AixNetworkIFJNA(ni, netstats));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, ni -> new AixNetworkIFJNA(ni, netstats));
     }
 
     @Override

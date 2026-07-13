@@ -5,11 +5,7 @@
 package oshi.hardware.common.platform.unix;
 
 import java.net.NetworkInterface;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
@@ -23,8 +19,6 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class BsdNetworkIF extends AbstractNetworkIF {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BsdNetworkIF.class);
-
     public BsdNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();
@@ -37,15 +31,7 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
      * @return A list of {@link NetworkIF} objects representing the interfaces
      */
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
-        List<NetworkIF> ifList = new ArrayList<>();
-        for (NetworkInterface ni : getNetworkInterfaces(includeLocalInterfaces)) {
-            try {
-                ifList.add(new BsdNetworkIF(ni));
-            } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
-            }
-        }
-        return ifList;
+        return getNetworks(includeLocalInterfaces, BsdNetworkIF::new);
     }
 
     @Override
