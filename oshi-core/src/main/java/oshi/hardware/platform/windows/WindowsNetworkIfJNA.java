@@ -33,7 +33,6 @@ public class WindowsNetworkIfJNA extends WindowsNetworkIF {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkIfJNA.class);
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
-    private static final byte CONNECTOR_PRESENT_BIT = 0b00000100;
 
     public WindowsNetworkIfJNA(NetworkInterface netint) throws InstantiationException {
         super(netint);

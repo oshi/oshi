@@ -29,8 +29,6 @@ public final class WindowsNetworkIfFFM extends WindowsNetworkIF {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkIfFFM.class);
 
-    private static final byte CONNECTOR_PRESENT_BIT = 0b00000100;
-
     public WindowsNetworkIfFFM(NetworkInterface netint) throws InstantiationException {
         super(netint);
     }
