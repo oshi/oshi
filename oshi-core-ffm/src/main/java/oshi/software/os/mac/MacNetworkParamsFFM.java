@@ -20,7 +20,6 @@ import static oshi.ffm.platform.mac.MacSystemFunctions.gethostname;
 import java.lang.foreign.MemorySegment;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,20 +27,15 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.mac.MacSystemFunctions;
-import oshi.software.common.AbstractNetworkParams;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.software.common.os.mac.MacNetworkParams;
 
 /**
  * MacNetworkParams implementation using FFM (no JNA dependency).
  */
 @ThreadSafe
-final class MacNetworkParamsFFM extends AbstractNetworkParams {
+final class MacNetworkParamsFFM extends MacNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacNetworkParamsFFM.class);
-
-    private static final String IPV6_ROUTE_HEADER = "Internet6:";
-    private static final String DEFAULT_GATEWAY = "default";
 
     @Override
     public String getDomainName() {
@@ -92,27 +86,5 @@ final class MacNetworkParamsFFM extends AbstractNetworkParams {
             return null;
         }, LOG, DEBUG, "Failed gethostname()", null);
         return hostname == null ? super.getHostName() : hostname;
-    }
-
-    @Override
-    public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -n get default"));
-    }
-
-    @Override
-    public String getIpv6DefaultGateway() {
-        List<String> lines = ExecutingCommand.runNative("netstat -nr");
-        boolean v6Table = false;
-        for (String line : lines) {
-            if (v6Table && line.startsWith(DEFAULT_GATEWAY)) {
-                String[] fields = ParseUtil.whitespaces.split(line);
-                if (fields.length > 2 && fields[2].contains("G")) {
-                    return fields[1].split("%")[0];
-                }
-            } else if (line.startsWith(IPV6_ROUTE_HEADER)) {
-                v6Table = true;
-            }
-        }
-        return "";
     }
 }
