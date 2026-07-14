@@ -4,6 +4,7 @@
  */
 package oshi.hardware.common.platform.unix.openbsd;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,6 +26,14 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
     private static final int HW_MACHINE = 1;
     private static final int HW_MODEL = 2;
     private static final int HW_CPUSPEED = 12;
+
+    // OpenBSD CPU state indices into the kern.cptime / kern.cptime2 arrays
+    private static final int CP_USER = 0;
+    private static final int CP_NICE = 1;
+    private static final int CP_SYS = 2;
+    private static final int CP_INTR = 3;
+    private static final int CP_IDLE = 4;
+    private static final int CPUSTATES = 5;
 
     /**
      * Reads a string sysctl value by name.
@@ -109,5 +118,77 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
             }
         }
         return new Pair<>(contextSwitches, interrupts);
+    }
+
+    /**
+     * Reads the system-wide CPU time counters ({@code kern.cptime}) as an array of 5 or 6 {@code long} values.
+     *
+     * @return the CPU state ticks, or a shorter/empty array if unavailable
+     */
+    protected abstract long[] querySystemCpTime();
+
+    /**
+     * Reads a single processor's CPU time counters ({@code kern.cptime2}) as an array of 5 or 6 {@code long} values.
+     *
+     * @param cpu the logical processor index
+     * @return the CPU state ticks, or a shorter/empty array if unavailable
+     */
+    protected abstract long[] queryProcessorCpTime(int cpu);
+
+    /**
+     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.
+     *
+     * @param loadavg the array to populate
+     * @param nelem   the number of elements requested
+     * @return the number of samples retrieved
+     */
+    protected abstract int getloadavgNative(double[] loadavg, int nelem);
+
+    /**
+     * Maps a 5- or 6-element OpenBSD CPU-state array to the corresponding {@link TickType} slots of {@code ticks}.
+     * OpenBSD 6.4+ adds a spin-time element, giving a 6-element array; the extra element shifts IRQ and IDLE by one.
+     *
+     * @param ticks   the destination tick array
+     * @param cpTicks the source CPU-state values (5 or 6 longs)
+     */
+    private static void fillTicks(long[] ticks, long[] cpTicks) {
+        if (cpTicks.length < CPUSTATES) {
+            return;
+        }
+        ticks[TickType.USER.getIndex()] = cpTicks[CP_USER];
+        ticks[TickType.NICE.getIndex()] = cpTicks[CP_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpTicks[CP_SYS];
+        int offset = cpTicks.length > CPUSTATES ? 1 : 0;
+        ticks[TickType.IRQ.getIndex()] = cpTicks[CP_INTR + offset];
+        ticks[TickType.IDLE.getIndex()] = cpTicks[CP_IDLE + offset];
+    }
+
+    @Override
+    protected long[] querySystemCpuLoadTicks() {
+        long[] ticks = new long[TickType.values().length];
+        fillTicks(ticks, querySystemCpTime());
+        return ticks;
+    }
+
+    @Override
+    protected long[][] queryProcessorCpuLoadTicks() {
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
+            fillTicks(ticks[cpu], queryProcessorCpTime(cpu));
+        }
+        return ticks;
+    }
+
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        double[] average = new double[nelem];
+        int retval = getloadavgNative(average, nelem);
+        if (retval < nelem) {
+            Arrays.fill(average, -1d);
+        }
+        return average;
     }
 }
