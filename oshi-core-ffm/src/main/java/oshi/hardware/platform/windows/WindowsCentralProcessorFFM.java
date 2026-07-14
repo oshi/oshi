@@ -33,12 +33,10 @@ import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.windows.Advapi32FFM;
 import oshi.ffm.platform.windows.Kernel32FFM;
-import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.ffm.platform.windows.WinNTFFM;
 import oshi.ffm.platform.windows.WinRegFFM;
 import oshi.ffm.platform.windows.WindowsForeignFunctions;
 import oshi.hardware.common.platform.windows.WindowsCentralProcessor;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
@@ -206,66 +204,17 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
     }
 
     @Override
-    public long[] queryCurrentFreq() {
-        if (VersionHelpersFFM.IsWindows7OrGreater()) {
-            long maxFreq = this.getMaxFreq();
-            if (maxFreq > 0) {
-                // Prefer % Processor Performance from WMI formatted table (Win8+, reports >100% with turbo)
-                Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> perfPair = ProcessorInformationFFM
-                        .queryProcessorPerformanceCounters();
-                List<Long> perfList = perfPair.getB().get(ProcessorPerformanceProperty.PERCENTPROCESSORPERFORMANCE);
-                long[] freqs = mapPercentToFreqs(perfPair.getA(), perfList, maxFreq);
-                if (freqs != null) {
-                    return freqs;
-                }
-                // Fall back to % of Maximum Frequency (Win7, caps at 100%)
-                Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> freqPair = ProcessorInformationFFM
-                        .queryFrequencyCounters();
-                List<Long> percentMaxList = freqPair.getB().get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
-                freqs = mapPercentToFreqs(freqPair.getA(), percentMaxList, maxFreq);
-                if (freqs != null) {
-                    return freqs;
-                }
-            }
-        }
-        return queryNTPower(2);
-    }
-
-    private long[] mapPercentToFreqs(List<String> instances, List<Long> percentList, long maxFreq) {
-        if (instances.isEmpty() || percentList == null) {
-            return null;
-        }
-        long[] freqs = new long[getLogicalProcessorCount()];
-        boolean populated = false;
-        for (int i = 0; i < instances.size(); i++) {
-            String instance = instances.get(i);
-            int cpu;
-            if (instance.contains(",")) {
-                if (!getNumaNodeProcToLogicalProcMap().containsKey(instance)) {
-                    continue;
-                }
-                cpu = getNumaNodeProcToLogicalProcMap().get(instance);
-            } else {
-                cpu = ParseUtil.parseIntOrDefault(instance, -1);
-            }
-            if (cpu < 0 || cpu >= getLogicalProcessorCount() || i >= percentList.size()) {
-                continue;
-            }
-            freqs[cpu] = percentList.get(i) * maxFreq / 100L;
-            if (freqs[cpu] > 0) {
-                populated = true;
-            }
-        }
-        return populated ? freqs : null;
+    protected Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> queryProcessorPerformanceCounters() {
+        return ProcessorInformationFFM.queryProcessorPerformanceCounters();
     }
 
     @Override
-    public long queryMaxFreq() {
-        long[] freqs = queryNTPower(1);
-        return Arrays.stream(freqs).max().orElse(-1L);
+    protected Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> queryFrequencyCounters() {
+        return ProcessorInformationFFM.queryFrequencyCounters();
     }
 
-    private long[] queryNTPower(int fieldIndex) {
+    @Override
+    protected long[] queryNTPower(int fieldIndex) {
         long[] freqs = new long[getLogicalProcessorCount()];
         int totalSize = PPI_SIZE * freqs.length;
         try (Arena arena = Arena.ofConfined()) {

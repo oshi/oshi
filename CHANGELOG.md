@@ -6,6 +6,7 @@
 * [#3442](https://github.com/oshi/oshi/pull/3442): Convert static memoized suppliers to instance fields, allowing cached data to be reclaimed when users create new `SystemInfo` instances - [@dbwiddis](https://github.com/dbwiddis).
 * [#3443](https://github.com/oshi/oshi/pull/3443): Share memoized iostat supplier across disk instances; cache pluggable hardware lists (displays, USB, sound cards, graphics cards) in the HAL with a 3-second TTL - [@dbwiddis](https://github.com/dbwiddis).
 * [#3444](https://github.com/oshi/oshi/pull/3444): Consolidate try/catch-log-return-default patterns to use `ExceptionUtil` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3459](https://github.com/oshi/oshi/pull/3459): Deduplicate the Windows `CentralProcessor` frequency queries into the shared base, and fix the JNA per-processor current-frequency numbering, which mis-assigned frequencies to logical processors on multi-processor-group/NUMA systems - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08)
 
