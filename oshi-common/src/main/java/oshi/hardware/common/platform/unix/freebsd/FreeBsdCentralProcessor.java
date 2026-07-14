@@ -30,6 +30,14 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern CPUMASK = Pattern
             .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
+    // FreeBSD CPU state indices into the kern.cp_time / kern.cp_times uint64 arrays
+    private static final int CP_USER = 0;
+    private static final int CP_NICE = 1;
+    private static final int CP_SYS = 2;
+    private static final int CP_INTR = 3;
+    private static final int CP_IDLE = 4;
+    private static final int CPUSTATES = 5;
+
     /**
      * Reads a string sysctl value.
      *
@@ -47,6 +55,99 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * @return the sysctl long value or the default
      */
     protected abstract long sysctlLong(String name, long def);
+
+    /**
+     * Reads an int sysctl value.
+     *
+     * @param name the sysctl name
+     * @param def  the default value
+     * @return the sysctl int value or the default
+     */
+    protected abstract int sysctlInt(String name, int def);
+
+    /**
+     * Reads a sysctl whose value is an array of {@code uint64} values, e.g. {@code kern.cp_time} (per-system) or
+     * {@code kern.cp_times} (per-CPU).
+     *
+     * @param name the sysctl name
+     * @return the values as a {@code long[]}, or {@code null} if the query failed
+     */
+    protected abstract long[] queryCpTimes(String name);
+
+    /**
+     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.
+     *
+     * @param loadavg the array to populate
+     * @param nelem   the number of elements requested
+     * @return the number of samples retrieved
+     */
+    protected abstract int getloadavgNative(double[] loadavg, int nelem);
+
+    /**
+     * Maps the five FreeBSD CPU-state values starting at {@code offset} in {@code cpTimeArray} to the corresponding
+     * {@link TickType} slots of {@code ticks}.
+     *
+     * @param ticks       the destination tick array
+     * @param cpTimeArray the source uint64 values
+     * @param offset      the starting index of this CPU's states within {@code cpTimeArray}
+     */
+    private static void fillTicks(long[] ticks, long[] cpTimeArray, int offset) {
+        ticks[TickType.USER.getIndex()] = cpTimeArray[offset + CP_USER];
+        ticks[TickType.NICE.getIndex()] = cpTimeArray[offset + CP_NICE];
+        ticks[TickType.SYSTEM.getIndex()] = cpTimeArray[offset + CP_SYS];
+        ticks[TickType.IRQ.getIndex()] = cpTimeArray[offset + CP_INTR];
+        ticks[TickType.IDLE.getIndex()] = cpTimeArray[offset + CP_IDLE];
+    }
+
+    @Override
+    public long[] querySystemCpuLoadTicks() {
+        long[] ticks = new long[TickType.values().length];
+        long[] cpTime = queryCpTimes("kern.cp_time");
+        if (cpTime == null || cpTime.length < CPUSTATES) {
+            return ticks;
+        }
+        fillTicks(ticks, cpTime, 0);
+        return ticks;
+    }
+
+    @Override
+    public long[][] queryProcessorCpuLoadTicks() {
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        long[] cpTimes = queryCpTimes("kern.cp_times");
+        if (cpTimes == null) {
+            return ticks;
+        }
+        int cpus = Math.min(getLogicalProcessorCount(), cpTimes.length / CPUSTATES);
+        for (int cpu = 0; cpu < cpus; cpu++) {
+            fillTicks(ticks[cpu], cpTimes, cpu * CPUSTATES);
+        }
+        return ticks;
+    }
+
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        double[] average = new double[nelem];
+        int retval = getloadavgNative(average, nelem);
+        if (retval < nelem) {
+            for (int i = Math.max(retval, 0); i < average.length; i++) {
+                average[i] = -1d;
+            }
+        }
+        return average;
+    }
+
+    @Override
+    public long queryContextSwitches() {
+        return ParseUtil.unsignedIntToLong(sysctlInt("vm.stats.sys.v_swtch", 0));
+    }
+
+    @Override
+    public long queryInterrupts() {
+        return ParseUtil.unsignedIntToLong(sysctlInt("vm.stats.sys.v_intr", 0));
+    }
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
