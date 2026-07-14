@@ -42,7 +42,6 @@ import oshi.jna.platform.windows.Kernel32;
 import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
@@ -181,65 +180,17 @@ final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     }
 
     @Override
-    public long[] queryCurrentFreq() {
-        if (VersionHelpers.IsWindows7OrGreater()) {
-            long maxFreq = this.getMaxFreq();
-            if (maxFreq > 0) {
-                // Prefer % Processor Performance from WMI formatted table (Win8+, reports >100% with turbo)
-                Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> perfPair = ProcessorInformationJNA
-                        .queryProcessorPerformanceCounters();
-                List<Long> perfList = perfPair.getB().get(ProcessorPerformanceProperty.PERCENTPROCESSORPERFORMANCE);
-                long[] freqs = mapPercentToFreqs(perfPair.getA(), perfList, maxFreq);
-                if (freqs != null) {
-                    return freqs;
-                }
-                // Fall back to % of Maximum Frequency (Win7, caps at 100%)
-                Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> freqPair = ProcessorInformationJNA
-                        .queryFrequencyCounters();
-                List<Long> percentMaxList = freqPair.getB().get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
-                freqs = mapPercentToFreqs(freqPair.getA(), percentMaxList, maxFreq);
-                if (freqs != null) {
-                    return freqs;
-                }
-            }
-        }
-        // If <Win7 or anything failed in PDH/WMI, use the native call
-        return queryNTPower(2); // Current is field index 2
-    }
-
-    private long[] mapPercentToFreqs(List<String> instances, List<Long> percentList, long maxFreq) {
-        if (instances.isEmpty() || percentList == null) {
-            return null;
-        }
-        long[] freqs = new long[getLogicalProcessorCount()];
-        boolean populated = false;
-        for (String instance : instances) {
-            int cpu = instance.contains(",") ? getNumaNodeProcToLogicalProcMap().getOrDefault(instance, 0)
-                    : ParseUtil.parseIntOrDefault(instance, 0);
-            if (cpu >= getLogicalProcessorCount()) {
-                continue;
-            }
-            freqs[cpu] = percentList.get(cpu) * maxFreq / 100L;
-            if (freqs[cpu] > 0) {
-                populated = true;
-            }
-        }
-        return populated ? freqs : null;
+    protected Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> queryProcessorPerformanceCounters() {
+        return ProcessorInformationJNA.queryProcessorPerformanceCounters();
     }
 
     @Override
-    public long queryMaxFreq() {
-        long[] freqs = queryNTPower(1); // Max is field index 1
-        return Arrays.stream(freqs).max().orElse(-1L);
+    protected Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> queryFrequencyCounters() {
+        return ProcessorInformationJNA.queryFrequencyCounters();
     }
 
-    /**
-     * Call CallNTPowerInformation for Processor information and return an array of the specified index
-     *
-     * @param fieldIndex The field, in order as defined in the {@link PowrProf#PROCESSOR_INFORMATION} structure.
-     * @return The array of values.
-     */
-    private long[] queryNTPower(int fieldIndex) {
+    @Override
+    protected long[] queryNTPower(int fieldIndex) {
         ProcessorPowerInformation ppi = new ProcessorPowerInformation();
         ProcessorPowerInformation[] ppiArray = (ProcessorPowerInformation[]) ppi.toArray(getLogicalProcessorCount());
         long[] freqs = new long[getLogicalProcessorCount()];

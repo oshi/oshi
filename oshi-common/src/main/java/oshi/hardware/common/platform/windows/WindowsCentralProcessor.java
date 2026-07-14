@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.windows;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +16,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
+import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerformanceProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -61,20 +64,30 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             : null;
 
     /**
-     * Checks whether the OS version is Windows 8 or greater using system property 'os.version'.
+     * Checks whether the OS version is at least the given Windows {@code major.minor} using system property
+     * 'os.version', without requiring native access.
+     *
+     * @param major the minimum major version
+     * @param minor the minimum minor version
+     * @return true if the OS version is at least {@code major.minor}
+     */
+    private static boolean isWindowsVersionOrGreater(int major, int minor) {
+        String[] parts = System.getProperty("os.version", "").split("\\.");
+        if (parts.length >= 2) {
+            int osMajor = ParseUtil.parseIntOrDefault(parts[0], 0);
+            int osMinor = ParseUtil.parseIntOrDefault(parts[1], 0);
+            return osMajor > major || (osMajor == major && osMinor >= minor);
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether the OS version is Windows 8 or greater.
      *
      * @return true if Windows 8 or greater
      */
     private static boolean isWindows8OrGreater() {
-        // Use system property check that works without native access
-        String osVersion = System.getProperty("os.version", "");
-        String[] parts = osVersion.split("\\.");
-        if (parts.length >= 2) {
-            int major = ParseUtil.parseIntOrDefault(parts[0], 0);
-            int minor = ParseUtil.parseIntOrDefault(parts[1], 0);
-            return major > 6 || (major == 6 && minor >= 2);
-        }
-        return false;
+        return isWindowsVersionOrGreater(6, 2);
     }
 
     /**
@@ -194,6 +207,99 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the instance names and processor tick counter values
      */
     protected abstract Pair<List<String>, Map<ProcessorTickCountProperty, List<Long>>> queryProcessorCounters();
+
+    /**
+     * Subclasses query the Processor Performance (% Processor Performance) counters via their JNA or FFM driver.
+     *
+     * @return the instance names and processor performance counter values
+     */
+    protected abstract Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> queryProcessorPerformanceCounters();
+
+    /**
+     * Subclasses query the Processor Frequency (% of Maximum Frequency) counters via their JNA or FFM driver.
+     *
+     * @return the instance names and processor frequency counter values
+     */
+    protected abstract Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> queryFrequencyCounters();
+
+    /**
+     * Subclasses call {@code CallNtPowerInformation} for Processor information, returning the requested field for each
+     * logical processor.
+     *
+     * @param fieldIndex the field index (1 = max MHz, 2 = current MHz)
+     * @return the array of frequency values, in Hz
+     */
+    protected abstract long[] queryNTPower(int fieldIndex);
+
+    /**
+     * Checks whether the OS version is Windows 7 or greater.
+     *
+     * @return true if Windows 7 or greater
+     */
+    private static boolean isWindows7OrGreater() {
+        return isWindowsVersionOrGreater(6, 1);
+    }
+
+    @Override
+    public long[] queryCurrentFreq() {
+        if (isWindows7OrGreater()) {
+            long maxFreq = this.getMaxFreq();
+            if (maxFreq > 0) {
+                // Prefer % Processor Performance from WMI formatted table (Win8+, reports >100% with turbo)
+                Pair<List<String>, Map<ProcessorPerformanceProperty, List<Long>>> perfPair = queryProcessorPerformanceCounters();
+                List<Long> perfList = perfPair.getB().get(ProcessorPerformanceProperty.PERCENTPROCESSORPERFORMANCE);
+                long[] freqs = mapPercentToFreqs(perfPair.getA(), perfList, maxFreq);
+                if (freqs != null) {
+                    return freqs;
+                }
+                // Fall back to % of Maximum Frequency (Win7, caps at 100%)
+                Pair<List<String>, Map<ProcessorFrequencyProperty, List<Long>>> freqPair = queryFrequencyCounters();
+                List<Long> percentMaxList = freqPair.getB().get(ProcessorFrequencyProperty.PERCENTOFMAXIMUMFREQUENCY);
+                freqs = mapPercentToFreqs(freqPair.getA(), percentMaxList, maxFreq);
+                if (freqs != null) {
+                    return freqs;
+                }
+            }
+        }
+        // If <Win7 or anything failed in PDH/WMI, use the native call
+        return queryNTPower(2); // Current is field index 2
+    }
+
+    private long[] mapPercentToFreqs(List<String> instances, List<Long> percentList, long maxFreq) {
+        if (instances.isEmpty() || percentList == null) {
+            return null;
+        }
+        long[] freqs = new long[getLogicalProcessorCount()];
+        boolean populated = false;
+        // instances and percentList are parallel lists; read by position i and map the instance name to the logical
+        // processor index the same way processTickData does (numa "group,proc" via the map, else the plain number).
+        for (int i = 0; i < instances.size(); i++) {
+            String instance = instances.get(i);
+            int cpu;
+            if (instance.contains(",")) {
+                if (!getNumaNodeProcToLogicalProcMap().containsKey(instance)) {
+                    continue;
+                }
+                cpu = getNumaNodeProcToLogicalProcMap().get(instance);
+            } else {
+                cpu = ParseUtil.parseIntOrDefault(instance, -1);
+            }
+            if (cpu < 0 || cpu >= getLogicalProcessorCount() || i >= percentList.size()) {
+                continue;
+            }
+            freqs[cpu] = percentList.get(i) * maxFreq / 100L;
+            if (freqs[cpu] > 0) {
+                populated = true;
+            }
+        }
+        return populated ? freqs : null;
+    }
+
+    @Override
+    public long queryMaxFreq() {
+        long[] freqs = queryNTPower(1); // Max is field index 1
+        return Arrays.stream(freqs).max().orElse(-1L);
+    }
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
