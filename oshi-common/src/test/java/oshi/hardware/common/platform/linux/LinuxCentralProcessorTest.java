@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
@@ -136,6 +138,55 @@ class LinuxCentralProcessorTest {
     void testGetSystemLoadAverageInvalidNelem() {
         assertThrows(IllegalArgumentException.class, () -> LinuxCentralProcessor.getSystemLoadAverage(0, "1 2 3"));
         assertThrows(IllegalArgumentException.class, () -> LinuxCentralProcessor.getSystemLoadAverage(4, "1 2 3"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX) // constructing a LinuxCentralProcessor initializes Linux-only SysPath
+    void testGetSystemLoadAverageNativeFullResult() {
+        StubLinuxCentralProcessor cpu = new StubLinuxCentralProcessor(new double[] { 1.0, 5.0, 15.0 }, 3);
+        double[] avg = cpu.getSystemLoadAverage(3);
+        assertThat(avg[0], closeTo(1.0, EPS));
+        assertThat(avg[1], closeTo(5.0, EPS));
+        assertThat(avg[2], closeTo(15.0, EPS));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX) // constructing a LinuxCentralProcessor initializes Linux-only SysPath
+    void testGetSystemLoadAverageNativePartialResultFillsNegative() {
+        // Native call returns fewer samples than requested: all-or-nothing, whole array becomes -1
+        StubLinuxCentralProcessor cpu = new StubLinuxCentralProcessor(new double[] { 1.0, 5.0, 15.0 }, 2);
+        double[] avg = cpu.getSystemLoadAverage(3);
+        assertThat(avg[0], closeTo(-1d, EPS));
+        assertThat(avg[1], closeTo(-1d, EPS));
+        assertThat(avg[2], closeTo(-1d, EPS));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX) // constructing a LinuxCentralProcessor initializes Linux-only SysPath
+    void testGetSystemLoadAverageNativeInvalidNelem() {
+        StubLinuxCentralProcessor cpu = new StubLinuxCentralProcessor(new double[0], 0);
+        assertThrows(IllegalArgumentException.class, () -> cpu.getSystemLoadAverage(0));
+        assertThrows(IllegalArgumentException.class, () -> cpu.getSystemLoadAverage(4));
+    }
+
+    // -------------------------------------------------------------------------
+    // cpuSyspathsFromSysfs
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testCpuSyspathsFromSysfs(@TempDir Path tempDir) throws IOException {
+        Files.createDirectories(tempDir.resolve("cpu0"));
+        Files.createDirectories(tempDir.resolve("cpu1"));
+        Files.createDirectories(tempDir.resolve("cpufreq")); // not a cpuN entry
+        List<String> syspaths = LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.toString());
+        assertThat(syspaths, hasSize(2));
+        assertThat(syspaths.stream().anyMatch(p -> p.endsWith("cpu0")), is(true));
+        assertThat(syspaths.stream().anyMatch(p -> p.endsWith("cpu1")), is(true));
+    }
+
+    @Test
+    void testCpuSyspathsFromSysfsNonexistentPath(@TempDir Path tempDir) {
+        assertThat(LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.resolve("missing").toString()), is(empty()));
     }
 
     // -------------------------------------------------------------------------
@@ -447,5 +498,33 @@ class LinuxCentralProcessorTest {
     void testMapCachesFromLscpuEmpty() {
         Set<ProcessorCache> result = LinuxCentralProcessor.mapCachesFromLscpu(Collections.emptyList());
         assertThat(result, is(empty()));
+    }
+
+    /**
+     * Minimal stub supplying native load-average samples without native calls and no udev enumeration.
+     */
+    static class StubLinuxCentralProcessor extends LinuxCentralProcessor {
+
+        private final double[] loadavgValues;
+        private final int loadavgRetval;
+
+        StubLinuxCentralProcessor(double[] loadavgValues, int loadavgRetval) {
+            super(100L);
+            this.loadavgValues = loadavgValues;
+            this.loadavgRetval = loadavgRetval;
+        }
+
+        @Override
+        protected List<String> enumerateCpuSyspathsViaUdev() {
+            return null;
+        }
+
+        @Override
+        protected int getloadavgNative(double[] loadavg, int nelem) {
+            for (int i = 0; i < nelem && i < loadavgValues.length; i++) {
+                loadavg[i] = loadavgValues[i];
+            }
+            return loadavgRetval;
+        }
     }
 }

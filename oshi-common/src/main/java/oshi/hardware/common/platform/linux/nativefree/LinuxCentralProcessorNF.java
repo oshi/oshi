@@ -5,17 +5,16 @@
 package oshi.hardware.common.platform.linux.nativefree;
 
 import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Quartet;
 
 /**
- * Native-free Linux central processor implementation. Extends {@link LinuxCentralProcessor}, overriding udev-dependent
- * methods with sysfs-based alternatives.
+ * Native-free Linux central processor implementation. Extends {@link LinuxCentralProcessor}, using only sysfs and
+ * {@code /proc} sources: it has no udev enumeration and no native {@code getloadavg}, so the base falls back to a sysfs
+ * directory scan and {@code /proc/loadavg} respectively.
  */
 @ThreadSafe
 public final class LinuxCentralProcessorNF extends LinuxCentralProcessor {
@@ -35,17 +34,14 @@ public final class LinuxCentralProcessorNF extends LinuxCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev() {
-        return readTopologyFromSysfs();
+    protected List<String> enumerateCpuSyspathsViaUdev() {
+        // No udev; the base falls back to a sysfs directory scan
+        return null;
     }
 
     @Override
-    protected boolean queryCurrentFreqFromUdev(long[] freqs) {
-        return queryCurrentFreqFromSysfs(freqs);
-    }
-
-    @Override
-    protected long queryMaxFreqFromUdev() {
-        return queryMaxFreqFromSysfs();
+    protected int getloadavgNative(double[] loadavg, int nelem) {
+        // No native getloadavg; the base falls back to /proc/loadavg
+        return -1;
     }
 }
