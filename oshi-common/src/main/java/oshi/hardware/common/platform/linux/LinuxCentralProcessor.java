@@ -204,42 +204,73 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Reads processor topology using udev.
+     * Reads processor topology, using udev to enumerate CPUs when available and falling back to a sysfs directory scan.
      *
      * @return a quartet of logical processors, caches, efficiency map, and modalias map
      */
-    protected abstract Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev();
+    protected Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyWithUdev() {
+        return buildTopology(cpuSyspaths());
+    }
 
     /**
-     * Reads processor topology from sysfs using the default CPU path.
+     * Enumerates the sysfs paths of all CPUs (e.g. {@code /sys/devices/system/cpu/cpuN}) via udev, or returns
+     * {@code null} if udev is unavailable so the caller can fall back to a sysfs directory scan.
      *
-     * @return a quartet of logical processors, caches, efficiency map, and modalias map
+     * @return the CPU syspaths from udev, or {@code null} if udev is unavailable
      */
-    protected static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs() {
-        return readTopologyFromSysfs(SysPath.CPU);
+    protected abstract List<String> enumerateCpuSyspathsViaUdev();
+
+    /**
+     * Enumerates the sysfs paths of all CPUs, preferring udev and falling back to a sysfs directory scan.
+     *
+     * @return the CPU syspaths
+     */
+    private List<String> cpuSyspaths() {
+        List<String> viaUdev = enumerateCpuSyspathsViaUdev();
+        return viaUdev != null ? viaUdev : cpuSyspathsFromSysfs(SysPath.CPU);
+    }
+
+    /**
+     * Enumerates the sysfs paths of all CPUs by scanning a sysfs cpu directory for {@code cpuN} entries.
+     *
+     * @param cpuPath the sysfs cpu directory to scan
+     * @return the CPU syspaths, or an empty list if the path cannot be read
+     */
+    protected static List<String> cpuSyspathsFromSysfs(String cpuPath) {
+        List<String> syspaths = new ArrayList<>();
+        // Only immediate children (the cpuN entries); avoid walking each CPU's topology/cache/cpufreq subtree
+        try (Stream<Path> cpuFiles = Files.find(Paths.get(cpuPath), 1,
+                (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+"))) {
+            cpuFiles.forEach(cpu -> syspaths.add(cpu.toString()));
+        } catch (IOException e) {
+            // No udev and no cpu info in sysfs? Bad.
+            LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
+        }
+        return syspaths;
     }
 
     static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> readTopologyFromSysfs(
             String cpuPath) {
+        return buildTopology(cpuSyspathsFromSysfs(cpuPath));
+    }
+
+    /**
+     * Builds processor topology from a list of CPU syspaths, reading each CPU's MODALIAS from its {@code uevent} file.
+     *
+     * @param syspaths the CPU syspaths (e.g. {@code /sys/devices/system/cpu/cpuN})
+     * @return a quartet of logical processors, caches, efficiency map, and modalias map
+     */
+    static Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> buildTopology(
+            List<String> syspaths) {
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Set<ProcessorCache> caches = new HashSet<>();
         Map<Integer, Integer> coreEfficiencyMap = new HashMap<>();
         Map<Integer, String> modAliasMap = new HashMap<>();
-        try {
-            try (Stream<Path> cpuFiles = Files.find(Paths.get(cpuPath), Integer.MAX_VALUE,
-                    (path, basicFileAttributes) -> path.toFile().getName().matches("cpu\\d+"))) {
-                cpuFiles.forEach(cpu -> {
-                    String syspath = cpu.toString(); // /sys/devices/system/cpu/cpuX
-                    Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
-                    String modAlias = uevent.get("MODALIAS");
-                    // updates caches as a side-effect
-                    logProcs.add(
-                            getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
-                });
-            }
-        } catch (IOException e) {
-            // No udev and no cpu info in sysfs? Bad.
-            LOG.warn("Unable to find CPU information in sysfs at path {}", cpuPath);
+        for (String syspath : syspaths) {
+            Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(syspath + "/uevent", "=");
+            String modAlias = uevent.get("MODALIAS");
+            // updates caches as a side-effect
+            logProcs.add(getLogicalProcessorFromSyspath(syspath, caches, modAlias, coreEfficiencyMap, modAliasMap));
         }
         return new Quartet<>(logProcs, orderedProcCaches(caches), coreEfficiencyMap, modAliasMap);
     }
@@ -468,39 +499,25 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fills the freqs array from udev cpu-freq source. Returns true if successful (max > 0). Subclasses provide the
-     * implementation.
+     * Fills the freqs array with per-logical-processor current frequencies in Hz, reading each CPU's cpufreq sysfs
+     * files. CPUs are enumerated via udev when available, otherwise via a sysfs directory scan.
      *
      * @param freqs array to fill with per-logical-processor frequencies in Hz
-     * @return true if frequencies were successfully read
+     * @return true if frequencies were successfully read (max &gt; 0)
      */
-    protected abstract boolean queryCurrentFreqFromUdev(long[] freqs);
-
-    /**
-     * queryCurrentFreqFromSysfs.
-     *
-     * @param freqs the freqs
-     * @return the result
-     */
-    protected static boolean queryCurrentFreqFromSysfs(long[] freqs) {
+    protected boolean queryCurrentFreqFromUdev(long[] freqs) {
         long max = 0L;
-        try (Stream<Path> cpuFiles = Files.find(Paths.get(SysPath.CPU), 1,
-                (path, attr) -> path.toFile().getName().matches("cpu\\d+"))) {
-            for (Path cpu : (Iterable<Path>) cpuFiles::iterator) {
-                String syspath = cpu.toString();
-                int cpuIdx = ParseUtil.getFirstIntValue(syspath);
-                if (cpuIdx >= 0 && cpuIdx < freqs.length) {
-                    freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + "/cpufreq/scaling_cur_freq");
-                    if (freqs[cpuIdx] == 0) {
-                        freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + "/cpufreq/cpuinfo_cur_freq");
-                    }
-                    if (max < freqs[cpuIdx]) {
-                        max = freqs[cpuIdx];
-                    }
+        for (String syspath : cpuSyspaths()) {
+            int cpuIdx = ParseUtil.getFirstIntValue(syspath);
+            if (cpuIdx >= 0 && cpuIdx < freqs.length) {
+                freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + "/cpufreq/scaling_cur_freq");
+                if (freqs[cpuIdx] == 0) {
+                    freqs[cpuIdx] = FileUtil.getLongFromFile(syspath + "/cpufreq/cpuinfo_cur_freq");
+                }
+                if (max < freqs[cpuIdx]) {
+                    max = freqs[cpuIdx];
                 }
             }
-        } catch (IOException e) {
-            // ignore
         }
         if (max > 0L) {
             for (int i = 0; i < freqs.length; i++) {
@@ -520,19 +537,18 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Queries the maximum frequency from udev.
+     * Queries the maximum (policy) frequency from the cpufreq sysfs tree, enumerating CPUs via udev when available and
+     * otherwise via a sysfs directory scan.
      *
      * @return the maximum frequency in Hz
      */
-    protected abstract long queryMaxFreqFromUdev();
-
-    /**
-     * Queries the maximum frequency from sysfs.
-     *
-     * @return the maximum frequency in Hz
-     */
-    protected static long queryMaxFreqFromSysfs() {
-        return queryMaxFreqFromCpuFreqPath(SysPath.CPU.substring(0, SysPath.CPU.length() - 1) + "/cpufreq");
+    protected long queryMaxFreqFromUdev() {
+        List<String> syspaths = cpuSyspaths();
+        if (!syspaths.isEmpty()) {
+            String syspath = syspaths.get(0);
+            return queryMaxFreqFromCpuFreqPath(syspath.substring(0, syspath.lastIndexOf('/')) + "/cpufreq");
+        }
+        return -1L;
     }
 
     /**
@@ -562,7 +578,20 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public double[] getSystemLoadAverage(int nelem) {
-        return getSystemLoadAverage(nelem, FileUtil.getStringFromFile(LOADAVG));
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        double[] average = new double[nelem];
+        int retval = getloadavgNative(average, nelem);
+        if (retval < 0) {
+            // Native call unavailable or failed; fall back to /proc/loadavg
+            return getSystemLoadAverage(nelem, FileUtil.getStringFromFile(LOADAVG));
+        }
+        if (retval < nelem) {
+            // All-or-nothing: a partial result is more likely a misread than a real load average
+            Arrays.fill(average, -1d);
+        }
+        return average;
     }
 
     static double[] getSystemLoadAverage(int nelem, String loadavgContent) {
@@ -576,6 +605,15 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         return average;
     }
+
+    /**
+     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.
+     *
+     * @param loadavg the array to populate
+     * @param nelem   the number of elements requested
+     * @return the number of samples retrieved, or a negative value if the native call is unavailable or failed
+     */
+    protected abstract int getloadavgNative(double[] loadavg, int nelem);
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
