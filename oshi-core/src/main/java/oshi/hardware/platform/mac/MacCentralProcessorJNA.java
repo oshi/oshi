@@ -4,8 +4,6 @@
  */
 package oshi.hardware.platform.mac;
 
-import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +16,6 @@ import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.Struct.CloseableHostCpuLoadInfo;
-import oshi.util.FormatUtil;
 
 /**
  * A CPU using JNA.
@@ -34,37 +31,22 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
     }
 
     @Override
-    public long[] querySystemCpuLoadTicks() {
-        long[] ticks = new long[TickType.values().length];
+    protected int[] queryHostCpuLoadTicks() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         try (CloseableHostCpuLoadInfo cpuLoadInfo = new CloseableHostCpuLoadInfo();
                 CloseableIntByReference size = new CloseableIntByReference(cpuLoadInfo.size())) {
             int ret = SystemB.INSTANCE.host_statistics(machPort, SystemB.HOST_CPU_LOAD_INFO, cpuLoadInfo, size);
             if (0 != ret) {
                 LOG.error("Failed to get System CPU ticks. Error code: {} ", ret);
-                return ticks;
+                return new int[0];
             }
-
-            ticks[TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_USER]);
-            ticks[TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_NICE]);
-            ticks[TickType.SYSTEM.getIndex()] = FormatUtil
-                    .getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_SYSTEM]);
-            ticks[TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuLoadInfo.cpu_ticks[SystemB.CPU_STATE_IDLE]);
+            return cpuLoadInfo.cpu_ticks;
         }
-        return ticks;
     }
 
     @Override
-    public double[] getSystemLoadAverage(int nelem) {
-        if (nelem < 1 || nelem > 3) {
-            throw new IllegalArgumentException("Must include from one to three elements.");
-        }
-        double[] average = new double[nelem];
-        int retval = SystemB.INSTANCE.getloadavg(average, nelem);
-        if (retval < nelem) {
-            Arrays.fill(average, -1d);
-        }
-        return average;
+    protected int getloadavgNative(double[] loadavg, int nelem) {
+        return SystemB.INSTANCE.getloadavg(loadavg, nelem);
     }
 
     @Override
@@ -73,9 +55,7 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
     }
 
     @Override
-    public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-
+    protected int[] queryProcessorCpuTicks() {
         int machPort = SystemB.INSTANCE.mach_host_self();
         try (CloseableIntByReference procCount = new CloseableIntByReference();
                 CloseablePointerByReference procCpuLoadInfo = new CloseablePointerByReference();
@@ -84,21 +64,10 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
                     procCpuLoadInfo, procInfoCount);
             if (0 != ret) {
                 LOG.error("Failed to update CPU Load. Error code: {}", ret);
-                return ticks;
+                return new int[0];
             }
             try {
-                int[] cpuTicks = procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
-                for (int cpu = 0; cpu < procCount.getValue(); cpu++) {
-                    int offset = cpu * SystemB.CPU_STATE_MAX;
-                    ticks[cpu][TickType.USER.getIndex()] = FormatUtil
-                            .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_USER]);
-                    ticks[cpu][TickType.NICE.getIndex()] = FormatUtil
-                            .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_NICE]);
-                    ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil
-                            .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_SYSTEM]);
-                    ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil
-                            .getUnsignedInt(cpuTicks[offset + SystemB.CPU_STATE_IDLE]);
-                }
+                return procCpuLoadInfo.getValue().getIntArray(0, procInfoCount.getValue());
             } finally {
                 try {
                     SystemB.INSTANCE.vm_deallocate(SystemB.INSTANCE.mach_task_self(),
@@ -109,7 +78,6 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
                 }
             }
         }
-        return ticks;
     }
 
 }
