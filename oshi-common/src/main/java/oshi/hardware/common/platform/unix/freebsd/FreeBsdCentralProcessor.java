@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.unix.freebsd;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -132,9 +133,8 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         double[] average = new double[nelem];
         int retval = getloadavgNative(average, nelem);
         if (retval < nelem) {
-            for (int i = Math.max(retval, 0); i < average.length; i++) {
-                average[i] = -1d;
-            }
+            // All-or-nothing: a partial result is more likely a misread than a real load average
+            Arrays.fill(average, -1d);
         }
         return average;
     }
