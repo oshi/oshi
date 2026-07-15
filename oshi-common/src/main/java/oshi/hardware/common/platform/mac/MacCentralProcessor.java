@@ -22,10 +22,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
+import oshi.util.FormatUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
@@ -36,6 +40,15 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 public abstract class MacCentralProcessor extends AbstractCentralProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MacCentralProcessor.class);
+
+    // Indices into the Mach cpu_ticks arrays (host_cpu_load_info / processor_cpu_load_info)
+    private static final int CPU_STATE_MAX = 4;
+    private static final int CPU_STATE_USER = 0;
+    private static final int CPU_STATE_SYSTEM = 1;
+    private static final int CPU_STATE_IDLE = 2;
+    private static final int CPU_STATE_NICE = 3;
 
     /**
      * Default constructor.
@@ -408,5 +421,77 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             return ParseUtil.byteArrayToLong(freqData, 4, false);
         }
         return DEFAULT_FREQUENCY;
+    }
+
+    /**
+     * Reads the system-wide {@code host_cpu_load_info} CPU-tick counters.
+     *
+     * @return the {@code CPU_STATE_MAX} raw tick values, or a shorter/empty array on failure
+     */
+    protected abstract int[] queryHostCpuLoadTicks();
+
+    /**
+     * Reads the per-processor {@code processor_cpu_load_info} CPU-tick counters as a flat array of
+     * {@code processorCount * CPU_STATE_MAX} values. Implementations copy the values out of native memory and release
+     * the kernel-allocated buffer before returning.
+     *
+     * @return the flat per-processor tick values, or an empty array on failure
+     */
+    protected abstract int[] queryProcessorCpuTicks();
+
+    /**
+     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.
+     *
+     * @param loadavg the array to populate
+     * @param nelem   the number of elements requested
+     * @return the number of samples retrieved, or a negative value on failure
+     */
+    protected abstract int getloadavgNative(double[] loadavg, int nelem);
+
+    @Override
+    public long[] querySystemCpuLoadTicks() {
+        long[] ticks = new long[TickType.values().length];
+        int[] cpuTicks = queryHostCpuLoadTicks();
+        if (cpuTicks.length < CPU_STATE_MAX) {
+            return ticks;
+        }
+        ticks[TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_USER]);
+        ticks[TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_NICE]);
+        ticks[TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_SYSTEM]);
+        ticks[TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_IDLE]);
+        return ticks;
+    }
+
+    @Override
+    public long[][] queryProcessorCpuLoadTicks() {
+        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
+        int[] cpuTicks = queryProcessorCpuTicks();
+        int procCount = cpuTicks.length / CPU_STATE_MAX;
+        if (procCount > ticks.length) {
+            LOG.warn("processor_cpu_load_info returned {} CPUs but expected {}; capping iteration", procCount,
+                    ticks.length);
+        }
+        int cpuLimit = Math.min(procCount, ticks.length);
+        for (int cpu = 0; cpu < cpuLimit; cpu++) {
+            int offset = cpu * CPU_STATE_MAX;
+            ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_USER]);
+            ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_NICE]);
+            ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_SYSTEM]);
+            ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_IDLE]);
+        }
+        return ticks;
+    }
+
+    @Override
+    public double[] getSystemLoadAverage(int nelem) {
+        if (nelem < 1 || nelem > 3) {
+            throw new IllegalArgumentException("Must include from one to three elements.");
+        }
+        double[] average = new double[nelem];
+        int retval = getloadavgNative(average, nelem);
+        if (retval < nelem) {
+            Arrays.fill(average, -1d);
+        }
+        return average;
     }
 }

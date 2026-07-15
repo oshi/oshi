@@ -8,12 +8,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import oshi.hardware.CentralProcessor.TickType;
 
 class MacCentralProcessorTest {
 
@@ -38,16 +41,107 @@ class MacCentralProcessorTest {
         assertThat(flags, is(empty()));
     }
 
+    @Test
+    void testQuerySystemCpuLoadTicks() {
+        // Mach cpu_ticks order: user, system, idle, nice
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[] { 10, 30, 50, 20 },
+                new int[0], new double[0], 0);
+        long[] ticks = cpu.querySystemCpuLoadTicks();
+        assertThat(ticks[TickType.USER.getIndex()], is(10L));
+        assertThat(ticks[TickType.NICE.getIndex()], is(20L));
+        assertThat(ticks[TickType.SYSTEM.getIndex()], is(30L));
+        assertThat(ticks[TickType.IDLE.getIndex()], is(50L));
+    }
+
+    @Test
+    void testQuerySystemCpuLoadTicksShortArrayLeavesZeros() {
+        // Fewer than CPU_STATE_MAX values: mapping is skipped, ticks stay zero
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[] { 10, 30, 50 }, new int[0],
+                new double[0], 0);
+        long[] ticks = cpu.querySystemCpuLoadTicks();
+        for (long tick : ticks) {
+            assertThat(tick, is(0L));
+        }
+    }
+
+    @Test
+    void testQueryProcessorCpuLoadTicks() {
+        // One processor (the stub reports a single logical processor): user, system, idle, nice
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[0],
+                new int[] { 10, 30, 50, 20 }, new double[0], 0);
+        long[][] ticks = cpu.queryProcessorCpuLoadTicks();
+        assertThat(ticks.length, is(1));
+        assertThat(ticks[0][TickType.USER.getIndex()], is(10L));
+        assertThat(ticks[0][TickType.SYSTEM.getIndex()], is(30L));
+        assertThat(ticks[0][TickType.IDLE.getIndex()], is(50L));
+        assertThat(ticks[0][TickType.NICE.getIndex()], is(20L));
+    }
+
+    @Test
+    void testQueryProcessorCpuLoadTicksCapsExtraProcessors() {
+        // Native reports two processors but only one is expected: mapping caps to the expected count without error
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[0],
+                new int[] { 10, 30, 50, 20, 11, 31, 51, 21 }, new double[0], 0);
+        long[][] ticks = cpu.queryProcessorCpuLoadTicks();
+        assertThat(ticks.length, is(1));
+        assertThat(ticks[0][TickType.USER.getIndex()], is(10L));
+        assertThat(ticks[0][TickType.IDLE.getIndex()], is(50L));
+    }
+
+    @Test
+    void testLoadAverageRejectsBelowOne() {
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>());
+        assertThrows(IllegalArgumentException.class, () -> cpu.getSystemLoadAverage(0));
+    }
+
+    @Test
+    void testLoadAverageRejectsAboveThree() {
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>());
+        assertThrows(IllegalArgumentException.class, () -> cpu.getSystemLoadAverage(4));
+    }
+
+    @Test
+    void testLoadAveragePreservesFullResult() {
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[0], new int[0],
+                new double[] { 1.0, 5.0, 15.0 }, 3);
+        double[] avg = cpu.getSystemLoadAverage(3);
+        assertThat(avg[0], is(1.0));
+        assertThat(avg[1], is(5.0));
+        assertThat(avg[2], is(15.0));
+    }
+
+    @Test
+    void testLoadAveragePartialResultFillsNegative() {
+        // Native call returns fewer samples than requested: all-or-nothing, whole array becomes -1
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>(), new int[0], new int[0],
+                new double[] { 1.0, 5.0, 15.0 }, 2);
+        double[] avg = cpu.getSystemLoadAverage(3);
+        assertThat(avg[0], is(-1.0));
+        assertThat(avg[1], is(-1.0));
+        assertThat(avg[2], is(-1.0));
+    }
+
     /**
-     * Minimal stub providing sysctl values without native calls.
+     * Minimal stub providing sysctl values and raw Mach CPU-tick / load-average values without native calls. The
+     * abstract superclass eagerly derives processor counts during construction, so the stub reports a single logical
+     * processor; per-processor tests are written against that.
      */
     static class StubMacCentralProcessor extends MacCentralProcessor {
 
         private final Map<String, Integer> sysctlInts = new HashMap<>();
         private final Map<String, Long> sysctlLongs = new HashMap<>();
         private final Map<String, String> sysctlStrings;
+        private final int[] hostCpuTicks;
+        private final int[] processorCpuTicks;
+        private final double[] loadavgValues;
+        private final int loadavgRetval;
 
         StubMacCentralProcessor(Map<String, String> extraStrings) {
+            this(extraStrings, new int[0], new int[0], new double[0], 0);
+        }
+
+        StubMacCentralProcessor(Map<String, String> extraStrings, int[] hostCpuTicks, int[] processorCpuTicks,
+                double[] loadavgValues, int loadavgRetval) {
             Map<String, String> defaults = new HashMap<>();
             defaults.put("machdep.cpu.brand_string", "Test CPU");
             defaults.putAll(extraStrings);
@@ -56,6 +150,10 @@ class MacCentralProcessorTest {
             sysctlInts.put("hw.physicalcpu", 1);
             sysctlInts.put("hw.packages", 1);
             sysctlInts.put("hw.cpu64bit_capable", 1);
+            this.hostCpuTicks = hostCpuTicks;
+            this.processorCpuTicks = processorCpuTicks;
+            this.loadavgValues = loadavgValues;
+            this.loadavgRetval = loadavgRetval;
         }
 
         @Override
@@ -108,13 +206,21 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected long[] querySystemCpuLoadTicks() {
-            return new long[8];
+        protected int[] queryHostCpuLoadTicks() {
+            return hostCpuTicks;
         }
 
         @Override
-        protected long[][] queryProcessorCpuLoadTicks() {
-            return new long[1][8];
+        protected int[] queryProcessorCpuTicks() {
+            return processorCpuTicks;
+        }
+
+        @Override
+        protected int getloadavgNative(double[] loadavg, int nelem) {
+            for (int i = 0; i < nelem && i < loadavgValues.length; i++) {
+                loadavg[i] = loadavgValues[i];
+            }
+            return loadavgRetval;
         }
 
         @Override
@@ -135,11 +241,6 @@ class MacCentralProcessorTest {
         @Override
         public long queryInterrupts() {
             return 0L;
-        }
-
-        @Override
-        public double[] getSystemLoadAverage(int nelem) {
-            return new double[nelem];
         }
     }
 }
