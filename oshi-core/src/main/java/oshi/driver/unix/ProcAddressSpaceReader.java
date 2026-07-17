@@ -34,6 +34,7 @@ public final class ProcAddressSpaceReader implements AutoCloseable {
     private final Memory buffer;
     private final size_t bufSize;
     private long bufStart;
+    private boolean bufValid;
 
     private ProcAddressSpaceReader(CLibrary libc, int fd, long pageSize) {
         this.libc = libc;
@@ -42,6 +43,7 @@ public final class ProcAddressSpaceReader implements AutoCloseable {
         this.buffer = new Memory(pageSize * 2);
         this.bufSize = new size_t(this.buffer.size());
         this.bufStart = 0L;
+        this.bufValid = false;
     }
 
     /**
@@ -97,17 +99,22 @@ public final class ProcAddressSpaceReader implements AutoCloseable {
      * @return {@code true} if the page is available, {@code false} on read failure
      */
     private boolean ensurePage(long addr) {
-        // If we don't have the right page buffered, read it
-        if (addr < this.bufStart || addr - this.bufStart > this.pageSize) {
-            long newStart = Math.floorDiv(addr, this.pageSize) * this.pageSize;
-            ssize_t result = this.libc.pread(this.fd, this.buffer, this.bufSize, new NativeLong(newStart));
-            // May return less than asked but should be at least a full page
-            if (result.longValue() < this.pageSize) {
-                LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
-                return false;
-            }
-            this.bufStart = newStart;
+        // Reuse the buffer only if it holds a valid page covering addr
+        if (this.bufValid && addr >= this.bufStart && addr - this.bufStart <= this.pageSize) {
+            return true;
         }
+        // pread overwrites the buffer, so invalidate the cached page before reading: a short read would otherwise
+        // leave bufStart pointing at a page the buffer no longer fully holds.
+        this.bufValid = false;
+        long newStart = Math.floorDiv(addr, this.pageSize) * this.pageSize;
+        ssize_t result = this.libc.pread(this.fd, this.buffer, this.bufSize, new NativeLong(newStart));
+        // May return less than asked but should be at least a full page
+        if (result.longValue() < this.pageSize) {
+            LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
+            return false;
+        }
+        this.bufStart = newStart;
+        this.bufValid = true;
         return true;
     }
 
