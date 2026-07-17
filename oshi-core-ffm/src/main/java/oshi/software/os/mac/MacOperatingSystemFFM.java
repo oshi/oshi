@@ -45,7 +45,6 @@ import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary graphical operating systems developed and
@@ -92,17 +91,13 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     }
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
-                : System.getProperty("os.name");
-        String codeName = parseCodeName();
-        String buildNumber = SysctlUtilFFM.sysctl("kern.osversion", "");
-        return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
+    protected String querySysctl(String name, String def) {
+        return SysctlUtilFFM.sysctl(name, def);
     }
 
     @Override
-    public List<OSSession> getSessions() {
-        return USE_WHO_COMMAND ? super.getSessions() : WhoFFM.queryUtxent();
+    protected List<OSSession> queryWhoSessions() {
+        return WhoFFM.queryUtxent();
     }
 
     @Override
