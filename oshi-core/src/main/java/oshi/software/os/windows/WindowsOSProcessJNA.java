@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,63 +178,52 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
 
     @Override
     protected Pair<String, String> queryUserInfo() {
-        Pair<String, String> pair = null;
-        final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
-        if (pHandle != null) {
-            try (CloseableHANDLEByReference phToken = new CloseableHANDLEByReference()) {
-                try {
-                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_QUERY, phToken)) {
-                        Account account = Advapi32Util.getTokenAccount(phToken.getValue());
-                        pair = new Pair<>(account.name, account.sidString);
-                    } else {
-                        int error = Kernel32.INSTANCE.GetLastError();
-                        // Access denied errors are common. Fail silently.
-                        if (error != WinError.ERROR_ACCESS_DENIED) {
-                            LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
-                        }
-                    }
-                } catch (Win32Exception e) {
-                    LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
-                            e.getMessage());
-                } finally {
-                    final HANDLE token = phToken.getValue();
-                    if (token != null) {
-                        Kernel32.INSTANCE.CloseHandle(token);
-                    }
-                    Kernel32.INSTANCE.CloseHandle(pHandle);
-                }
-            }
-        }
-        return pair != null ? pair : defaultPair();
+        return queryTokenAccount(Advapi32Util::getTokenAccount, "user");
     }
 
     @Override
     protected Pair<String, String> queryGroupInfo() {
+        return queryTokenAccount(Advapi32Util::getTokenPrimaryGroup, "group");
+    }
+
+    /**
+     * Opens this process's access token and resolves an account (name and SID) from it. Shared by the user- and
+     * group-info queries, which differ only in how the account is extracted from the token.
+     *
+     * @param accountFromToken extracts the {@link Account} from the process token (e.g. token user or primary group)
+     * @param infoType         a short label ({@code "user"}/{@code "group"}) for log messages
+     * @return a pair of (account name, SID string), or {@link #defaultPair()} if the token can't be read
+     */
+    private Pair<String, String> queryTokenAccount(Function<HANDLE, Account> accountFromToken, String infoType) {
         Pair<String, String> pair = null;
         final HANDLE pHandle = Kernel32.INSTANCE.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, getProcessID());
         if (pHandle != null) {
-            try (CloseableHANDLEByReference phToken = new CloseableHANDLEByReference()) {
-                try {
-                    if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_QUERY, phToken)) {
-                        Account account = Advapi32Util.getTokenPrimaryGroup(phToken.getValue());
-                        pair = new Pair<>(account.name, account.sidString);
-                    } else {
-                        int error = Kernel32.INSTANCE.GetLastError();
-                        // Access denied errors are common. Fail silently.
-                        if (error != WinError.ERROR_ACCESS_DENIED) {
-                            LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
+            try {
+                try (CloseableHANDLEByReference phToken = new CloseableHANDLEByReference()) {
+                    try {
+                        if (Advapi32.INSTANCE.OpenProcessToken(pHandle, WinNT.TOKEN_QUERY, phToken)) {
+                            Account account = accountFromToken.apply(phToken.getValue());
+                            pair = new Pair<>(account.name, account.sidString);
+                        } else {
+                            int error = Kernel32.INSTANCE.GetLastError();
+                            // Access denied errors are common. Fail silently.
+                            if (error != WinError.ERROR_ACCESS_DENIED) {
+                                LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
+                            }
+                        }
+                    } catch (Win32Exception e) {
+                        LOG.warn("Failed to query {} info for process {} ({}): {}", infoType, getProcessID(), getName(),
+                                e.getMessage());
+                    } finally {
+                        final HANDLE token = phToken.getValue();
+                        if (token != null) {
+                            Kernel32.INSTANCE.CloseHandle(token);
                         }
                     }
-                } catch (Win32Exception e) {
-                    LOG.warn("Failed to query group info for process {} ({}): {}", getProcessID(), getName(),
-                            e.getMessage());
-                } finally {
-                    final HANDLE token = phToken.getValue();
-                    if (token != null) {
-                        Kernel32.INSTANCE.CloseHandle(token);
-                    }
-                    Kernel32.INSTANCE.CloseHandle(pHandle);
                 }
+            } finally {
+                // Close pHandle even if constructing the CloseableHANDLEByReference above fails
+                Kernel32.INSTANCE.CloseHandle(pHandle);
             }
         }
         return pair != null ? pair : defaultPair();

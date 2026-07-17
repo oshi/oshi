@@ -20,43 +20,17 @@ import oshi.software.common.os.linux.LinuxOperatingSystem;
 @ThreadSafe
 public class LinuxOSProcessJNA extends LinuxOSProcess {
 
-    private boolean rusagePopulated;
-    private long cachedVoluntaryContextSwitches;
-    private long cachedInvoluntaryContextSwitches;
-
     public LinuxOSProcessJNA(int pid, LinuxOperatingSystem os) {
         super(pid, os);
     }
 
     @Override
-    public boolean updateAttributes() {
-        boolean result = super.updateAttributes();
-        if (getProcessID() == getOs().getProcessId()) {
-            this.rusagePopulated = false;
-            LinuxLibc.Rusage rusage = new LinuxLibc.Rusage();
-            if (0 == LinuxLibc.INSTANCE.getrusage(RUSAGE_SELF, rusage)) {
-                this.cachedVoluntaryContextSwitches = rusage.ru_nvcsw.longValue();
-                this.cachedInvoluntaryContextSwitches = rusage.ru_nivcsw.longValue();
-                this.rusagePopulated = true;
-            }
+    protected long[] queryContextSwitches() {
+        LinuxLibc.Rusage rusage = new LinuxLibc.Rusage();
+        if (0 == LinuxLibc.INSTANCE.getrusage(RUSAGE_SELF, rusage)) {
+            return new long[] { rusage.ru_nvcsw.longValue(), rusage.ru_nivcsw.longValue() };
         }
-        return result;
-    }
-
-    @Override
-    public long getVoluntaryContextSwitches() {
-        if (rusagePopulated) {
-            return cachedVoluntaryContextSwitches;
-        }
-        return super.getVoluntaryContextSwitches();
-    }
-
-    @Override
-    public long getInvoluntaryContextSwitches() {
-        if (rusagePopulated) {
-            return cachedInvoluntaryContextSwitches;
-        }
-        return super.getInvoluntaryContextSwitches();
+        return null;
     }
 
     @Override
