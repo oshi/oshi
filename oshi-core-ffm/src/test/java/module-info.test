@@ -21,6 +21,8 @@
 --add-opens
   com.github.oshi.ffm/oshi.ffm.platform.windows.com=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.hardware.platform.windows=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.driver.windows.perfmon=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.driver.windows.registry=org.junit.platform.commons
