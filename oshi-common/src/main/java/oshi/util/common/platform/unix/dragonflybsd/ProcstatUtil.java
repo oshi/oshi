@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -24,24 +22,6 @@ import oshi.util.ParseUtil;
 public final class ProcstatUtil {
 
     private ProcstatUtil() {
-    }
-
-    /**
-     * Gets a map containing current working directory info
-     *
-     * @param pid a process ID, optional
-     * @return a map of process IDs to their current working directory. If {@code pid} is a negative number, all
-     *         processes are returned; otherwise the map may contain only a single element for {@code pid}
-     */
-    public static Map<Integer, String> getCwdMap(int pid) {
-        Map<Integer, String> cwdMap = new HashMap<>();
-        if (pid >= 0) {
-            String cwd = getCwd(pid);
-            if (!cwd.isEmpty()) {
-                cwdMap.put(pid, cwd);
-            }
-        }
-        return cwdMap;
     }
 
     /**
