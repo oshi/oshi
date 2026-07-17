@@ -4,13 +4,12 @@
  */
 package oshi.driver.unix.aix.perfstat;
 
-import java.util.Arrays;
-
 import com.sun.jna.platform.unix.aix.Perfstat;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_id_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixPerfstatProcess;
 
 /**
  * Utility to query performance stats for processes
@@ -36,7 +35,7 @@ public final class PerfstatProcessJNA {
      *
      * @return an array of usage statistics
      */
-    public static perfstat_process_t[] queryProcesses() {
+    public static AixPerfstatProcess[] queryProcesses() {
         perfstat_process_t process = new perfstat_process_t();
         // With null, null, ..., 0, returns total # of elements
         int procCount = PERF.perfstat_process(null, null, process.size(), 0);
@@ -46,9 +45,22 @@ public final class PerfstatProcessJNA {
             perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""
             int ret = PERF.perfstat_process(firstprocess, proct, process.size(), padded);
             if (ret > 0) {
-                return Arrays.copyOf(proct, ret);
+                AixPerfstatProcess[] result = new AixPerfstatProcess[ret];
+                for (int i = 0; i < ret; i++) {
+                    perfstat_process_t stat = proct[i];
+                    AixPerfstatProcess p = new AixPerfstatProcess();
+                    p.pid = stat.pid;
+                    p.num_threads = stat.num_threads;
+                    p.proc_real_mem_data = stat.proc_real_mem_data;
+                    p.proc_real_mem_text = stat.proc_real_mem_text;
+                    p.real_inuse = stat.real_inuse;
+                    p.ucpu_time = stat.ucpu_time;
+                    p.scpu_time = stat.scpu_time;
+                    result[i] = p;
+                }
+                return result;
             }
         }
-        return new perfstat_process_t[0];
+        return new AixPerfstatProcess[0];
     }
 }

@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
+import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.common.unix.aix.PsInfo;
 import oshi.software.common.os.unix.AbstractProcOSProcess;
@@ -36,9 +37,15 @@ import oshi.util.tuples.Quartet;
 public abstract class AixOSProcess extends AbstractProcOSProcess {
 
     private final Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfoMemo, defaultExpiration());
+    private final Supplier<AixPerfstatProcess[]> procCpu;
+    private final AixOperatingSystem os;
 
-    protected AixOSProcess(int pid) {
+    protected AixOSProcess(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<AixPerfstatProcess[]> procCpu,
+            AixOperatingSystem os) {
         super(pid);
+        this.procCpu = procCpu;
+        this.os = os;
+        updateAttributes(cpuMem);
     }
 
     private AixPsInfo queryPsInfoMemo() {
@@ -50,17 +57,24 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
         return queryArgsEnv(getProcessID(), psinfo.get());
     }
 
-    /**
-     * Allows subclasses to set this process's state to {@link State#INVALID} when their perfstat lookup can't find the
-     * process. Mirrors the original pre-split {@code AixOSProcess.updateAttributes()} behavior so a stale
-     * {@code perfstat_process_t[]} array that briefly omits the pid leaves the OSProcess marked invalid rather than
-     * silently retaining whatever fields were last assigned.
-     *
-     * @param newState the new state
-     */
-    protected final void setState(State newState) {
-        this.state = newState;
+    @Override
+    public long getSoftOpenFileLimit() {
+        return getProcessID() == this.os.getProcessId() ? queryRlimitNofile(true) : -1L;
     }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        return getProcessID() == this.os.getProcessId() ? queryRlimitNofile(false) : -1L;
+    }
+
+    /**
+     * Reads the current process's soft or hard open-file limit via {@code getrlimit(RLIMIT_NOFILE)}. Only called when
+     * this process is the current one.
+     *
+     * @param soft {@code true} for the soft limit, {@code false} for the hard limit
+     * @return the limit, or {@code -1} if unavailable
+     */
+    protected abstract long queryRlimitNofile(boolean soft);
 
     @Override
     protected OSThread createThread(int lwpid) {
@@ -84,6 +98,18 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
         }
         mask &= getCpuAffinityMask();
         return mask;
+    }
+
+    @Override
+    public boolean updateAttributes() {
+        for (AixPerfstatProcess stat : procCpu.get()) {
+            if ((int) stat.pid == getProcessID()) {
+                return updateAttributes(new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
+                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
+            }
+        }
+        this.state = INVALID;
+        return false;
     }
 
     /**

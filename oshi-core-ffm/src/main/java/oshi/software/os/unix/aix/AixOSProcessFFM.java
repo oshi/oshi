@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.unix.aix.PsInfoFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatCpuFFM;
-import oshi.driver.unix.aix.perfstat.PerfstatProcessFFM;
 import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixOSProcess;
 import oshi.util.tuples.Pair;
@@ -32,27 +32,10 @@ import oshi.util.tuples.Quartet;
 public final class AixOSProcessFFM extends AixOSProcess {
 
     private final Supplier<Long> affinityMask = memoize(PerfstatCpuFFM::queryCpuAffinityMask, defaultExpiration());
-    private final Supplier<PerfstatProcessFFM.ProcessInfo[]> procCpu;
-    private final AixOperatingSystemFFM os;
 
-    public AixOSProcessFFM(int pid, Quartet<Long, Long, Long, Long> cpuMem,
-            Supplier<PerfstatProcessFFM.ProcessInfo[]> procCpu, AixOperatingSystemFFM os) {
-        super(pid);
-        this.procCpu = procCpu;
-        this.os = os;
-        updateAttributes(cpuMem);
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        for (PerfstatProcessFFM.ProcessInfo stat : procCpu.get()) {
-            if ((int) stat.pid == getProcessID()) {
-                return updateAttributes(new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
-                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
-            }
-        }
-        setState(State.INVALID);
-        return false;
+    public AixOSProcessFFM(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<AixPerfstatProcess[]> procCpu,
+            AixOperatingSystemFFM os) {
+        super(pid, cpuMem, procCpu, os);
     }
 
     @Override
@@ -66,31 +49,14 @@ public final class AixOSProcessFFM extends AixOSProcess {
     }
 
     @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
-                if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
-                    return AixLibcFunctions.rlimitCur(rlim);
-                }
-            } catch (Throwable _) {
-                // fall through
+    protected long queryRlimitNofile(boolean soft) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
+            if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
+                return soft ? AixLibcFunctions.rlimitCur(rlim) : AixLibcFunctions.rlimitMax(rlim);
             }
-        }
-        return -1L;
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
-                if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
-                    return AixLibcFunctions.rlimitMax(rlim);
-                }
-            } catch (Throwable _) {
-                // fall through
-            }
+        } catch (Throwable _) {
+            // fall through
         }
         return -1L;
     }
