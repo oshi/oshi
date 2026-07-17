@@ -91,6 +91,17 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * Whether the legacy {@code GetSystemTimes} path is used for system CPU load ticks rather than the per-processor
+     * perfmon sum. Overridable so tests can force the legacy path independently of the
+     * {@link #USE_LEGACY_SYSTEM_COUNTERS} static capture.
+     *
+     * @return true to use the legacy {@code GetSystemTimes} path
+     */
+    protected boolean useLegacySystemCounters() {
+        return USE_LEGACY_SYSTEM_COUNTERS;
+    }
+
+    /**
      * Gets the numaNodeProcToLogicalProcMap.
      *
      * @return the map

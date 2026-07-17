@@ -49,8 +49,10 @@ import oshi.util.tuples.Triplet;
 /**
  * A CPU, representing all of a system's processors. It may contain multiple individual Physical and Logical processors.
  */
+// Not final so tests can subclass it to force the useLegacySystemCounters() gate and exercise the legacy GetSystemTimes
+// path against the real system.
 @ThreadSafe
-final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
+class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessorJNA.class);
 
@@ -135,7 +137,7 @@ final class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        if (USE_LEGACY_SYSTEM_COUNTERS) {
+        if (useLegacySystemCounters()) {
             WinBase.FILETIME lpIdleTime = new WinBase.FILETIME();
             WinBase.FILETIME lpKernelTime = new WinBase.FILETIME();
             WinBase.FILETIME lpUserTime = new WinBase.FILETIME();

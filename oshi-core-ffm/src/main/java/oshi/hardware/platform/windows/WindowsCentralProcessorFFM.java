@@ -44,8 +44,10 @@ import oshi.util.tuples.Triplet;
 /**
  * FFM-based Windows Central Processor implementation.
  */
+// Not final so tests can subclass it to force the useLegacySystemCounters() gate and exercise the legacy GetSystemTimes
+// path against the real system.
 @ThreadSafe
-final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
+class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsCentralProcessorFFM.class);
 
@@ -167,7 +169,7 @@ final class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
     @Override
     public long[] querySystemCpuLoadTicks() {
         long[] ticks = new long[TickType.values().length];
-        if (USE_LEGACY_SYSTEM_COUNTERS) {
+        if (useLegacySystemCounters()) {
             try (Arena arena = Arena.ofConfined()) {
                 // FILETIME is 8 bytes (dwLowDateTime + dwHighDateTime)
                 MemorySegment lpIdleTime = arena.allocate(8);
