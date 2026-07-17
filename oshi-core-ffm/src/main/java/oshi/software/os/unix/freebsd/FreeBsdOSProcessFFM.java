@@ -28,7 +28,6 @@ import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.freebsd.FreeBsdOSProcess;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.freebsd.ProcstatUtil;
 
 /**
  * FFM-backed FreeBSD OSProcess.
@@ -102,32 +101,12 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return ProcstatUtil.getCwd(getProcessID());
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
     }
 
     @Override
-    public long getOpenFiles() {
-        return ProcstatUtil.getOpenFiles(getProcessID());
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return rlimitNofile(true);
-        }
-        return getProcessOpenFileLimit(getProcessID(), 1);
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return rlimitNofile(false);
-        }
-        return getProcessOpenFileLimit(getProcessID(), 2);
-    }
-
-    private static long rlimitNofile(boolean soft) {
+    protected long queryRlimitNofile(boolean soft) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
             if (FreeBsdLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
@@ -150,13 +129,7 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             if (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L)) {
                 return 0;
             }
-            String elf = buf.getString(0);
-            if (elf.contains("ELF32")) {
-                return 32;
-            } else if (elf.contains("ELF64")) {
-                return 64;
-            }
-            return 0;
+            return elfBitness(buf.getString(0));
         }, LOG, org.slf4j.event.Level.WARN, "queryBitness failed", 0);
     }
 }

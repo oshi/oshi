@@ -32,7 +32,6 @@ import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
-import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 @ThreadSafe
 public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.OpenBsdOSProcess {
@@ -132,32 +131,12 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return FstatUtil.getCwd(getProcessID());
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
     }
 
     @Override
-    public long getOpenFiles() {
-        return FstatUtil.getOpenFiles(getProcessID());
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return rlimitNofile(true);
-        }
-        return -1L;
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return rlimitNofile(false);
-        }
-        return -1L;
-    }
-
-    private long rlimitNofile(boolean soft) {
+    protected long queryRlimitNofile(boolean soft) {
         return ForeignFunctions.callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(OpenBsdLibcFunctions.RLIMIT_LAYOUT);
             if (OpenBsdLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {

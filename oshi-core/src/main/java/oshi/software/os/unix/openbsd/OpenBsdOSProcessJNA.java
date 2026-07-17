@@ -24,7 +24,6 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess;
-import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 /**
  * OSProcess implementation
@@ -142,35 +141,15 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return FstatUtil.getCwd(getProcessID());
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
     }
 
     @Override
-    public long getOpenFiles() {
-        return FstatUtil.getOpenFiles(getProcessID());
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return -1L; // not supported
-        }
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return -1L; // not supported
-        }
+    protected long queryRlimitNofile(boolean soft) {
+        Resource.Rlimit rlimit = new Resource.Rlimit();
+        OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit);
+        return soft ? rlimit.rlim_cur : rlimit.rlim_max;
     }
 
 }

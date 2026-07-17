@@ -262,6 +262,71 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         }
     }
 
+    @Override
+    public long getSoftOpenFileLimit() {
+        if (getProcessID() == queryOwnProcessId()) {
+            return queryRlimitNofile(true);
+        }
+        return otherProcessOpenFileLimit(1);
+    }
+
+    @Override
+    public long getHardOpenFileLimit() {
+        if (getProcessID() == queryOwnProcessId()) {
+            return queryRlimitNofile(false);
+        }
+        return otherProcessOpenFileLimit(2);
+    }
+
+    /**
+     * Returns the open-file limit for another (non-current) process. The default reads {@code /proc/<pid>/limits} where
+     * a procfs is available; platforms without one (OpenBSD) override this to return {@code -1}.
+     *
+     * @param index {@code 1} for the soft limit, {@code 2} for the hard limit
+     * @return the limit, or {@code -1} if unavailable
+     */
+    protected long otherProcessOpenFileLimit(int index) {
+        return getProcessOpenFileLimit(getProcessID(), index);
+    }
+
+    /**
+     * Returns the process ID of the current (JVM) process. {@code getrlimit} only reports the calling process, so the
+     * open-file-limit methods use this to decide whether they can query it natively. The default returns {@code -1} (so
+     * the process is never treated as the current one); the native subclasses override it with the operating system's
+     * own process ID.
+     *
+     * @return the current process ID, or {@code -1} if unknown
+     */
+    protected int queryOwnProcessId() {
+        return -1;
+    }
+
+    /**
+     * Reads the current process's soft or hard open-file limit via {@code getrlimit(RLIMIT_NOFILE)}. Only called when
+     * this process is the current one. The default returns {@code -1}; the native subclasses override it.
+     *
+     * @param soft {@code true} for the soft limit, {@code false} for the hard limit
+     * @return the limit, or {@code -1} if unavailable
+     */
+    protected long queryRlimitNofile(boolean soft) {
+        return -1L;
+    }
+
+    /**
+     * Derives process bitness from a {@code kern.proc.sv_name} system-call ABI string.
+     *
+     * @param svName the ABI name (e.g. {@code "FreeBSD ELF64"})
+     * @return {@code 32} or {@code 64}, or {@code 0} if not recognized
+     */
+    protected static int elfBitness(String svName) {
+        if (svName.contains("ELF32")) {
+            return 32;
+        } else if (svName.contains("ELF64")) {
+            return 64;
+        }
+        return 0;
+    }
+
     /**
      * Parses the soft or hard open-file limit for another process from {@code /proc/<pid>/limits}.
      *

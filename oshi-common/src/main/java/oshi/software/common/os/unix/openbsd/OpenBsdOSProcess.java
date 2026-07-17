@@ -38,6 +38,7 @@ import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
@@ -63,6 +64,22 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
     @Override
     protected String psCommandArgs() {
         return PS_COMMAND_ARGS;
+    }
+
+    @Override
+    public String getCurrentWorkingDirectory() {
+        return FstatUtil.getCwd(getProcessID());
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return FstatUtil.getOpenFiles(getProcessID());
+    }
+
+    @Override
+    protected long otherProcessOpenFileLimit(int index) {
+        // OpenBSD has no procfs; open-file limits for other processes are unavailable
+        return -1L;
     }
 
     @Override

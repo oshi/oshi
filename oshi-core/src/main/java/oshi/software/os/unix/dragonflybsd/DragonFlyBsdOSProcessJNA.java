@@ -21,7 +21,6 @@ import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.dragonflybsd.ProcstatUtil;
 
 /**
  * OSProcess implementation
@@ -58,35 +57,15 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return ProcstatUtil.getCwd(getProcessID());
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
     }
 
     @Override
-    public long getOpenFiles() {
-        return ProcstatUtil.getOpenFiles(getProcessID());
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            DragonFlyBsdLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_cur;
-        } else {
-            return getProcessOpenFileLimit(getProcessID(), 1);
-        }
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            DragonFlyBsdLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit);
-            return rlimit.rlim_max;
-        } else {
-            return getProcessOpenFileLimit(getProcessID(), 2);
-        }
+    protected long queryRlimitNofile(boolean soft) {
+        Resource.Rlimit rlimit = new Resource.Rlimit();
+        DragonFlyBsdLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit);
+        return soft ? rlimit.rlim_cur : rlimit.rlim_max;
     }
 
     @Override
@@ -101,12 +80,7 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
         try (Memory abi = new Memory(32); CloseableSizeTByReference size = new CloseableSizeTByReference(32)) {
             // Fetch abi vector
             if (0 == DragonFlyBsdLibc.INSTANCE.sysctl(mib, mib.length, abi, size, null, size_t.ZERO)) {
-                String elf = abi.getString(0);
-                if (elf.contains("ELF32")) {
-                    return 32;
-                } else if (elf.contains("ELF64")) {
-                    return 64;
-                }
+                return elfBitness(abi.getString(0));
             }
         }
         return 0;
