@@ -25,8 +25,9 @@ import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_memory_total_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_partition_config_t;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
+
+import oshi.driver.common.unix.aix.AixPerfstatProcess;
 
 @EnabledOnOs(OS.AIX)
 class PerfstatJNATest {
@@ -82,9 +83,9 @@ class PerfstatJNATest {
 
     @Test
     void testQueryProcesses() {
-        perfstat_process_t[] procs = PerfstatProcessJNA.queryProcesses();
+        AixPerfstatProcess[] procs = PerfstatProcessJNA.queryProcesses();
         assertThat("Should have at least one process", procs.length, greaterThan(0));
-        for (perfstat_process_t proc : procs) {
+        for (AixPerfstatProcess proc : procs) {
             assertThat("Should have at least one thread", proc.num_threads, greaterThan(0L));
         }
     }

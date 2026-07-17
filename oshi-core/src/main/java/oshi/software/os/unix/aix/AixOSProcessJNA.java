@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.sun.jna.platform.unix.Resource;
-import com.sun.jna.platform.unix.aix.Perfstat.perfstat_process_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.unix.aix.PsInfoJNA;
 import oshi.driver.unix.aix.perfstat.PerfstatCpuJNA;
@@ -31,27 +31,10 @@ import oshi.util.tuples.Quartet;
 public final class AixOSProcessJNA extends AixOSProcess {
 
     private final Supplier<Long> affinityMask = memoize(PerfstatCpuJNA::queryCpuAffinityMask, defaultExpiration());
-    private final Supplier<perfstat_process_t[]> procCpu;
-    private final AixOperatingSystemJNA os;
 
-    public AixOSProcessJNA(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<perfstat_process_t[]> procCpu,
+    public AixOSProcessJNA(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<AixPerfstatProcess[]> procCpu,
             AixOperatingSystemJNA os) {
-        super(pid);
-        this.procCpu = procCpu;
-        this.os = os;
-        updateAttributes(cpuMem);
-    }
-
-    @Override
-    public boolean updateAttributes() {
-        for (perfstat_process_t stat : procCpu.get()) {
-            if ((int) stat.pid == getProcessID()) {
-                return updateAttributes(new Quartet<>((long) stat.ucpu_time, (long) stat.scpu_time,
-                        stat.real_inuse * 1024L, (stat.proc_real_mem_data + stat.proc_real_mem_text) * 1024L));
-            }
-        }
-        setState(State.INVALID);
-        return false;
+        super(pid, cpuMem, procCpu, os);
     }
 
     @Override
@@ -65,23 +48,10 @@ public final class AixOSProcessJNA extends AixOSProcess {
     }
 
     @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            if (AixLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit) == 0) {
-                return rlimit.rlim_cur;
-            }
-        }
-        return -1L;
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            final Resource.Rlimit rlimit = new Resource.Rlimit();
-            if (AixLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit) == 0) {
-                return rlimit.rlim_max;
-            }
+    protected long queryRlimitNofile(boolean soft) {
+        Resource.Rlimit rlimit = new Resource.Rlimit();
+        if (AixLibc.INSTANCE.getrlimit(RLIMIT_NOFILE, rlimit) == 0) {
+            return soft ? rlimit.rlim_cur : rlimit.rlim_max;
         }
         return -1L;
     }

@@ -51,9 +51,10 @@
     <suppress checks="JavadocMethod" files="PerfstatFunctions\.java"/>
 
     <!-- AIX FFM driver POJOs mirror libperfstat struct field names verbatim (snake_case) so the
-         JNA and FFM consumer code reads identically. -->
-    <suppress checks="MemberName" files="Perfstat[a-zA-Z]+FFM\.java"/>
-    <suppress checks="VisibilityModifier" files="Perfstat[a-zA-Z]+FFM\.java"/>
+         JNA and FFM consumer code reads identically. AixPerfstatProcess is the shared (oshi-common)
+         carrier for those fields, populated by both the JNA and FFM perfstat drivers. -->
+    <suppress checks="MemberName" files="(Perfstat[a-zA-Z]+FFM|AixPerfstatProcess)\.java"/>
+    <suppress checks="VisibilityModifier" files="(Perfstat[a-zA-Z]+FFM|AixPerfstatProcess)\.java"/>
     <suppress checks="JavadocMethod" files="PsInfoFFM\.java"/>
 
     <!-- AIX shared HAL/OS abstract bases use public data POJOs (CpuTickRow, CpuTotalRow,
