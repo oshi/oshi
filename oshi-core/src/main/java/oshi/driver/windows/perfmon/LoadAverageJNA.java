@@ -29,35 +29,12 @@ public final class LoadAverageJNA extends LoadAverage {
     }
 
     @Override
-    protected Pair<Long, Long> queryNonIdleTicks() {
-        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleValues = ProcessInformationJNA
-                .queryIdleProcessCounters();
-        List<String> instances = idleValues.getA();
-        Map<IdleProcessorTimeProperty, List<Long>> valueMap = idleValues.getB();
-        List<Long> proctimeTicks = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME);
-        List<Long> proctimeBase = valueMap.get(IdleProcessorTimeProperty.ELAPSEDTIME);
-        if (proctimeTicks == null || proctimeBase == null) {
-            return new Pair<>(0L, 0L);
-        }
-        long nonIdleTicks = 0L;
-        long nonIdleBase = 0L;
-        for (int i = 0; i < instances.size(); i++) {
-            if (i >= proctimeTicks.size() || i >= proctimeBase.size()) {
-                break;
-            }
-            if ("_Total".equals(instances.get(i))) {
-                nonIdleTicks += proctimeTicks.get(i);
-                nonIdleBase += proctimeBase.get(i);
-            } else if ("Idle".equals(instances.get(i))) {
-                nonIdleTicks -= proctimeTicks.get(i);
-            }
-        }
-        return new Pair<>(nonIdleTicks, nonIdleBase);
+    protected Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> queryIdleProcessCounters() {
+        return ProcessInformationJNA.queryIdleProcessCounters();
     }
 
     @Override
-    protected long queryQueueLength() {
-        return SystemInformationJNA.queryProcessorQueueLength()
-                .getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);
+    protected Map<ProcessorQueueLengthProperty, Long> queryProcessorQueueLength() {
+        return SystemInformationJNA.queryProcessorQueueLength();
     }
 }

@@ -5,8 +5,12 @@
 package oshi.driver.common.windows.perfmon;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
+import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
 import oshi.util.tuples.Pair;
 
 /**
@@ -31,18 +35,59 @@ public abstract class LoadAverage {
             Math.exp(-5d / 60d), Math.exp(-5d / 300d), Math.exp(-5d / 900d) };
 
     /**
-     * Query the non-idle ticks from performance counters.
+     * Queries the raw idle-process performance counters. Implemented per-backend (JNA/FFM); the aggregation into
+     * non-idle ticks is shared in {@link #queryNonIdleTicks()}.
+     *
+     * @return a pair of (instance names, counter values keyed by property)
+     */
+    protected abstract Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> queryIdleProcessCounters();
+
+    /**
+     * Queries the raw processor-queue-length performance counter. Implemented per-backend (JNA/FFM).
+     *
+     * @return the counter values keyed by property
+     */
+    protected abstract Map<ProcessorQueueLengthProperty, Long> queryProcessorQueueLength();
+
+    /**
+     * Computes the non-idle ticks from the idle-process performance counters by summing the {@code _Total} instance and
+     * subtracting the {@code Idle} instance.
      *
      * @return A pair of (nonIdleTicks, nonIdleBase) values
      */
-    protected abstract Pair<Long, Long> queryNonIdleTicks();
+    protected Pair<Long, Long> queryNonIdleTicks() {
+        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleValues = queryIdleProcessCounters();
+        List<String> instances = idleValues.getA();
+        Map<IdleProcessorTimeProperty, List<Long>> valueMap = idleValues.getB();
+        List<Long> proctimeTicks = valueMap.get(IdleProcessorTimeProperty.PERCENTPROCESSORTIME);
+        List<Long> proctimeBase = valueMap.get(IdleProcessorTimeProperty.ELAPSEDTIME);
+        if (proctimeTicks == null || proctimeBase == null) {
+            return new Pair<>(0L, 0L);
+        }
+        long nonIdleTicks = 0L;
+        long nonIdleBase = 0L;
+        for (int i = 0; i < instances.size(); i++) {
+            if (i >= proctimeTicks.size() || i >= proctimeBase.size()) {
+                break;
+            }
+            if ("_Total".equals(instances.get(i))) {
+                nonIdleTicks += proctimeTicks.get(i);
+                nonIdleBase += proctimeBase.get(i);
+            } else if ("Idle".equals(instances.get(i))) {
+                nonIdleTicks -= proctimeTicks.get(i);
+            }
+        }
+        return new Pair<>(nonIdleTicks, nonIdleBase);
+    }
 
     /**
-     * Query the processor queue length from performance counters.
+     * Returns the processor queue length from the raw performance counter.
      *
      * @return The processor queue length
      */
-    protected abstract long queryQueueLength();
+    protected long queryQueueLength() {
+        return queryProcessorQueueLength().getOrDefault(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 0L);
+    }
 
     /**
      * Queries the load average values.
