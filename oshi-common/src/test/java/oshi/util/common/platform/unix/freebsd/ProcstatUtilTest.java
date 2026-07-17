@@ -5,7 +5,6 @@
 package oshi.util.common.platform.unix.freebsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -16,7 +15,6 @@ import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,27 +29,6 @@ class ProcstatUtilTest {
 
     // FreeBSD `procstat -f <pid>` columns (10 total):
     // PID COMM FD T V FLAGS REF OFFSET PRO NAME
-
-    @Test
-    void testParseCwdMapCollectsCwdRows() {
-        List<String> procstat = Arrays.asList("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME",
-                "1234 bash            text v r r---- 1 0 - /usr/local/bin/bash",
-                "1234 bash             cwd v d r---- 1 0 - /home/dan",
-                "5678 sshd             cwd v d r---- 1 0 - /var/empty",
-                "1234 bash               0 t s rw--- 1 0 - /dev/tty");
-        Map<Integer, String> map = ProcstatUtil.parseCwdMap(procstat);
-        assertThat(map.size(), is(2));
-        assertThat(map.get(1234), is("/home/dan"));
-        assertThat(map.get(5678), is("/var/empty"));
-    }
-
-    @Test
-    void testParseCwdMapNoCwd() {
-        assertThat(
-                ProcstatUtil.parseCwdMap(
-                        Collections.singletonList("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME")),
-                is(anEmptyMap()));
-    }
 
     @Test
     void testParseCwdReturnsFirstCwdPath() {
@@ -97,9 +74,6 @@ class ProcstatUtilTest {
             int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], -1);
             assertThat("RuntimeMXBean#getName() should yield a positive PID, got " + pid, pid, is(greaterThan(0)));
             assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
-            assertThat("CwdMap should have at least one element", ProcstatUtil.getCwdMap(-1), is(not(anEmptyMap())));
-            assertThat("CwdMap with pid should have at least one element", ProcstatUtil.getCwdMap(pid),
-                    is(not(anEmptyMap())));
             assertThat("Cwd should be nonempty", ProcstatUtil.getCwd(pid), is(not(emptyString())));
         }
     }

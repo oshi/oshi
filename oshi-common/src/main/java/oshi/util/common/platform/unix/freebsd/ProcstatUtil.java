@@ -4,50 +4,19 @@
  */
 package oshi.util.common.platform.unix.freebsd;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Reads from procstat into a map
+ * Reads process working-directory and open-file information from {@code procstat}.
  */
 @ThreadSafe
 public final class ProcstatUtil {
 
     private ProcstatUtil() {
-    }
-
-    /**
-     * Gets a map containing current working directory info
-     *
-     * @param pid a process ID, optional
-     * @return a map of process IDs to their current working directory. If {@code pid} is a negative number, all
-     *         processes are returned; otherwise the map may contain only a single element for {@code pid}
-     */
-    public static Map<Integer, String> getCwdMap(int pid) {
-        return parseCwdMap(ExecutingCommand.runNative("procstat -f " + (pid < 0 ? "-a" : pid)));
-    }
-
-    /**
-     * Parses {@code procstat -f} output into a map of PID to current working directory by selecting rows whose third
-     * column is {@code cwd}.
-     *
-     * @param procstatLines lines returned by {@code procstat -f}
-     * @return a map of PID to working directory
-     */
-    public static Map<Integer, String> parseCwdMap(List<String> procstatLines) {
-        Map<Integer, String> cwdMap = new HashMap<>();
-        for (String line : procstatLines) {
-            String[] split = ParseUtil.whitespaces.split(line.trim(), 10);
-            if (split.length == 10 && split[2].equals("cwd")) {
-                cwdMap.put(ParseUtil.parseIntOrDefault(split[0], -1), split[9]);
-            }
-        }
-        return cwdMap;
     }
 
     /**

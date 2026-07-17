@@ -27,7 +27,6 @@ import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.dragonflybsd.ProcstatUtil;
 
 /**
  * FFM-backed DragonFly BSD OS process.
@@ -68,32 +67,12 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     }
 
     @Override
-    public String getCurrentWorkingDirectory() {
-        return ProcstatUtil.getCwd(getProcessID());
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
     }
 
     @Override
-    public long getOpenFiles() {
-        return ProcstatUtil.getOpenFiles(getProcessID());
-    }
-
-    @Override
-    public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return queryRlimitNofile(true);
-        }
-        return getProcessOpenFileLimit(getProcessID(), 1);
-    }
-
-    @Override
-    public long getHardOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            return queryRlimitNofile(false);
-        }
-        return getProcessOpenFileLimit(getProcessID(), 2);
-    }
-
-    private long queryRlimitNofile(boolean soft) {
+    protected long queryRlimitNofile(boolean soft) {
         return callInArenaOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(FreeBsdLibcFunctions.RLIMIT_LAYOUT);
             if (FreeBsdLibcFunctions.getrlimit(FreeBsdLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
@@ -117,13 +96,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
                 return 0;
             }
             byte[] bytes = buf.asSlice(0, Math.min(size.get(JAVA_LONG, 0), 32L)).toArray(JAVA_BYTE);
-            String elf = new String(bytes, StandardCharsets.UTF_8).trim();
-            if (elf.contains("ELF32")) {
-                return 32;
-            } else if (elf.contains("ELF64")) {
-                return 64;
-            }
-            return 0;
+            return elfBitness(new String(bytes, StandardCharsets.UTF_8).trim());
         }, LOG, Level.WARN, "queryBitness failed", 0);
     }
 

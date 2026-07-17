@@ -79,12 +79,6 @@ class ProcstatUtilTest {
     }
 
     @Test
-    void testGetCwdMapNegativePidReturnsEmptyMap() {
-        // No live command is run for a negative pid; the map is empty.
-        assertThat(ProcstatUtil.getCwdMap(-1).size(), is(0));
-    }
-
-    @Test
     @EnabledIfSystemProperty(named = "os.name", matches = "(?i)dragonfly")
     void testProcstatLive() {
         // RuntimeMXBean#getName() returns "<pid>@<host>" — use it to avoid pulling oshi-core's SystemInfo into a

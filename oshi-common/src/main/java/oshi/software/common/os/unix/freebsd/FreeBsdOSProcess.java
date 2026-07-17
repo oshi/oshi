@@ -40,6 +40,7 @@ import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.freebsd.ProcstatUtil;
 
 public abstract class FreeBsdOSProcess extends BsdOSProcess {
 
@@ -66,6 +67,16 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
     @Override
     protected String psCommandArgs() {
         return PS_COMMAND_ARGS;
+    }
+
+    @Override
+    public String getCurrentWorkingDirectory() {
+        return ProcstatUtil.getCwd(getProcessID());
+    }
+
+    @Override
+    public long getOpenFiles() {
+        return ProcstatUtil.getOpenFiles(getProcessID());
     }
 
     @Override
