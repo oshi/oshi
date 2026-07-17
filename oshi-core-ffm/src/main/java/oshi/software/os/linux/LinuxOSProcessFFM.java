@@ -7,7 +7,7 @@ package oshi.software.os.linux;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.WARN;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
-import static oshi.ffm.ForeignFunctions.runInArenaCatchingThrowable;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -28,47 +28,20 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOSProcessFFM.class);
 
-    private boolean rusagePopulated;
-    private long cachedVoluntaryContextSwitches;
-    private long cachedInvoluntaryContextSwitches;
-
     public LinuxOSProcessFFM(int pid, LinuxOperatingSystem os) {
         super(pid, os);
     }
 
     @Override
-    public boolean updateAttributes() {
-        boolean result = super.updateAttributes();
-        if (getProcessID() == getOs().getProcessId()) {
-            this.rusagePopulated = false;
-            runInArenaCatchingThrowable(arena -> {
-                MemorySegment rusage = arena.allocate(LinuxLibcFunctions.RUSAGE_SIZE);
-                if (0 == LinuxLibcFunctions.getrusage(LinuxLibcFunctions.RUSAGE_SELF, rusage)) {
-                    this.cachedVoluntaryContextSwitches = rusage.get(ValueLayout.JAVA_LONG,
-                            LinuxLibcFunctions.RUSAGE_NVCSW_OFFSET);
-                    this.cachedInvoluntaryContextSwitches = rusage.get(ValueLayout.JAVA_LONG,
-                            LinuxLibcFunctions.RUSAGE_NIVCSW_OFFSET);
-                    this.rusagePopulated = true;
-                }
-            }, LOG, DEBUG, "FFM getrusage failed");
-        }
-        return result;
-    }
-
-    @Override
-    public long getVoluntaryContextSwitches() {
-        if (rusagePopulated) {
-            return cachedVoluntaryContextSwitches;
-        }
-        return super.getVoluntaryContextSwitches();
-    }
-
-    @Override
-    public long getInvoluntaryContextSwitches() {
-        if (rusagePopulated) {
-            return cachedInvoluntaryContextSwitches;
-        }
-        return super.getInvoluntaryContextSwitches();
+    protected long[] queryContextSwitches() {
+        return callInArenaOrDefault(arena -> {
+            MemorySegment rusage = arena.allocate(LinuxLibcFunctions.RUSAGE_SIZE);
+            if (0 == LinuxLibcFunctions.getrusage(LinuxLibcFunctions.RUSAGE_SELF, rusage)) {
+                return new long[] { rusage.get(ValueLayout.JAVA_LONG, LinuxLibcFunctions.RUSAGE_NVCSW_OFFSET),
+                        rusage.get(ValueLayout.JAVA_LONG, LinuxLibcFunctions.RUSAGE_NIVCSW_OFFSET) };
+            }
+            return null;
+        }, LOG, DEBUG, "FFM getrusage failed", null);
     }
 
     @Override

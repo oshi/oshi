@@ -92,6 +92,12 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     private long voluntaryContextSwitches;
     private long involuntaryContextSwitches;
 
+    // Context-switch counts from getrusage for the current process, which are more accurate than the /proc values.
+    // Populated by updateAttributes() via the queryContextSwitches() hook; the native-free build leaves these unset.
+    private boolean rusagePopulated;
+    private long cachedVoluntaryContextSwitches;
+    private long cachedInvoluntaryContextSwitches;
+
     /**
      * Creates a LinuxOSProcess.
      *
@@ -206,12 +212,12 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public long getVoluntaryContextSwitches() {
-        return this.voluntaryContextSwitches;
+        return this.rusagePopulated ? this.cachedVoluntaryContextSwitches : this.voluntaryContextSwitches;
     }
 
     @Override
     public long getInvoluntaryContextSwitches() {
-        return this.involuntaryContextSwitches;
+        return this.rusagePopulated ? this.cachedInvoluntaryContextSwitches : this.involuntaryContextSwitches;
     }
 
     @Override
@@ -292,6 +298,34 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
+        boolean result = updateAttributesFromProc();
+        // getrusage reports more accurate context-switch counts than /proc, but only for the current process and only
+        // when its /proc attributes were read successfully
+        if (result && getProcessID() == getOs().getProcessId()) {
+            long[] contextSwitches = queryContextSwitches();
+            if (contextSwitches != null) {
+                this.cachedVoluntaryContextSwitches = contextSwitches[0];
+                this.cachedInvoluntaryContextSwitches = contextSwitches[1];
+                this.rusagePopulated = true;
+            } else {
+                this.rusagePopulated = false;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Reads this (current) process's voluntary and involuntary context-switch counts via native {@code getrusage}. The
+     * default returns {@code null} (the native-free build has no {@code getrusage}); the JNA and FFM subclasses
+     * override it.
+     *
+     * @return a two-element array {@code {voluntary, involuntary}}, or {@code null} if unavailable
+     */
+    protected long[] queryContextSwitches() {
+        return null;
+    }
+
+    private boolean updateAttributesFromProc() {
         String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
         try {
             Path link = Paths.get(procPidExe);
