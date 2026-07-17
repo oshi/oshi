@@ -12,13 +12,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
-import com.sun.jna.platform.unix.LibCAPI.size_t;
-import com.sun.jna.platform.unix.LibCAPI.ssize_t;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.solaris.SolarisPsInfo;
+import oshi.driver.unix.ProcAddressSpaceReader;
 import oshi.jna.platform.unix.SolarisLibc;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -89,109 +85,56 @@ public final class PsInfoJNA {
         // Get the arg count and list of env vars
         Quartet<Integer, Long, Long, Byte> addrs = queryArgsEnvAddrs(pid, psinfo);
         if (addrs != null) {
-            // Open a file descriptor to the address space
-            String procas = "/proc/" + pid + "/as";
-            int fd = LIBC.open(procas, 0);
-            if (fd < 0) {
-                LOG.trace("No permission to read file: {} ", procas);
-                return new Pair<>(args, env);
-            }
-            try {
+            // Open the address space for reading (buffered a page at a time)
+            try (ProcAddressSpaceReader reader = ProcAddressSpaceReader.open(LIBC, pid, PAGE_SIZE)) {
+                if (reader == null) {
+                    return new Pair<>(args, env);
+                }
                 // Non-null addrs means argc > 0
                 int argc = addrs.getA();
                 long argv = addrs.getB();
                 long envp = addrs.getC();
                 long increment = addrs.getD() * 4L;
 
-                // Reusable buffer
-                long bufStart = 0;
-                try (Memory buffer = new Memory(PAGE_SIZE * 2)) {
-                    size_t bufSize = new size_t(buffer.size());
+                // Read the pointers to the arg strings. We know argc so we can count them.
+                long[] argp = new long[argc];
+                long offset = argv;
+                for (int i = 0; i < argc; i++) {
+                    argp[i] = reader.readPointer(offset, increment);
+                    offset += increment;
+                }
 
-                    // Read the pointers to the arg strings
-                    // We know argc so we can count them
-                    long[] argp = new long[argc];
-                    long offset = argv;
-                    for (int i = 0; i < argc; i++) {
-                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                        argp[i] = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                        offset += increment;
+                // Also read the pointers to the env strings. We don't know how many, so stop at the null pointer.
+                List<Long> envPtrList = new ArrayList<>();
+                offset = envp;
+                long addr = 0;
+                int limit = 500; // sane max env strings to stop at
+                do {
+                    addr = reader.readPointer(offset, increment);
+                    if (addr != 0) {
+                        envPtrList.add(addr);
                     }
+                    offset += increment;
+                } while (addr != 0 && --limit > 0);
 
-                    // Also read the pointers to the env strings
-                    // We don't know how many, so stop when we get to null pointer
-                    List<Long> envPtrList = new ArrayList<>();
-                    offset = envp;
-                    long addr = 0;
-                    int limit = 500; // sane max env strings to stop at
-                    do {
-                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, offset);
-                        addr = bufStart == 0 ? 0 : getOffsetFromBuffer(buffer, offset - bufStart, increment);
-                        if (addr != 0) {
-                            envPtrList.add(addr);
-                        }
-                        offset += increment;
-                    } while (addr != 0 && --limit > 0);
-
-                    // Now read the arg strings from the buffer
-                    for (int i = 0; i < argp.length && argp[i] != 0; i++) {
-                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, argp[i]);
-                        if (bufStart != 0) {
-                            String argStr = buffer.getString(argp[i] - bufStart);
-                            if (!argStr.isEmpty()) {
-                                args.add(argStr);
-                            }
-                        }
-                    }
-
-                    // And now read the env strings from the buffer
-                    for (Long envPtr : envPtrList) {
-                        bufStart = conditionallyReadBufferFromStartOfPage(fd, buffer, bufSize, bufStart, envPtr);
-                        if (bufStart != 0) {
-                            String envStr = buffer.getString(envPtr - bufStart);
-                            int idx = envStr.indexOf('=');
-                            if (idx > 0) {
-                                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
-                            }
-                        }
+                // Now read the arg strings
+                for (int i = 0; i < argp.length && argp[i] != 0; i++) {
+                    String argStr = reader.readString(argp[i]);
+                    if (!argStr.isEmpty()) {
+                        args.add(argStr);
                     }
                 }
-            } finally {
-                LIBC.close(fd);
+
+                // And now read the env strings
+                for (Long envPtr : envPtrList) {
+                    String envStr = reader.readString(envPtr);
+                    int idx = envStr.indexOf('=');
+                    if (idx > 0) {
+                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+                    }
+                }
             }
         }
         return new Pair<>(args, env);
-    }
-
-    /**
-     * Reads the page containing addr into buffer, unless the buffer already contains that page (as indicated by the
-     * bufStart address), in which case nothing is changed.
-     *
-     * @param fd       The file descriptor for the address space
-     * @param buffer   An allocated buffer, possibly with data reread from bufStart
-     * @param bufSize  The size of the buffer
-     * @param bufStart The start of data currently in bufStart, or 0 if uninitialized
-     * @param addr     THe address whose page to read into the buffer
-     * @return The new starting pointer for the buffer
-     */
-    private static long conditionallyReadBufferFromStartOfPage(int fd, Memory buffer, size_t bufSize, long bufStart,
-            long addr) {
-        // If we don't have the right buffer, update it
-        if (addr < bufStart || addr - bufStart > PAGE_SIZE) {
-            long newStart = Math.floorDiv(addr, PAGE_SIZE) * PAGE_SIZE;
-            ssize_t result = LIBC.pread(fd, buffer, bufSize, new NativeLong(newStart));
-            // May return less than asked but should be at least a full page
-            if (result.longValue() < PAGE_SIZE) {
-                LOG.debug("Failed to read page from address space: {} bytes read", result.longValue());
-                return 0;
-            }
-            return newStart;
-        }
-        return bufStart;
-    }
-
-    private static long getOffsetFromBuffer(Memory buffer, long offset, long increment) {
-        // For 32-bit processes read the pointer as unsigned so high addresses (>= 0x80000000) aren't sign-extended
-        return increment == 8 ? buffer.getLong(offset) : Integer.toUnsignedLong(buffer.getInt(offset));
     }
 }
