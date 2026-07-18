@@ -102,13 +102,17 @@ public final class SessionWtsData {
                                         } finally {
                                             WTS.WTSFreeMemory(pBuffer);
                                         }
-                                        // HOST
+                                        // HOST. A session that can't report a client address (some service/console
+                                        // sessions) is still valid; record it with a "::" host rather than dropping
+                                        // it. Matches SessionWtsDataFFM.
                                         if (!WTS.WTSQuerySessionInformation(Wtsapi32.WTS_CURRENT_SERVER_HANDLE,
                                                 session.SessionId, WTS_CLIENTADDRESS, ppBuffer, pBytes)) {
+                                            sessions.add(new OSSession(userName, device, logonTime, "::"));
                                             continue;
                                         }
                                         pBuffer = ppBuffer.getValue();
                                         if (pBuffer == null) {
+                                            sessions.add(new OSSession(userName, device, logonTime, "::"));
                                             continue;
                                         }
                                         WTS_CLIENT_ADDRESS addr;
