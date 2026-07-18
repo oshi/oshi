@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.WmiQueryExecutor;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.ffm.platform.windows.com.FfmComException;
 import oshi.ffm.platform.windows.com.IEnumWbemClassObjectFFM;
 import oshi.ffm.platform.windows.com.IUnknownFFM;
@@ -149,7 +150,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                 Optional<MemorySegment> pServicesOpt = IWbemLocatorFFM.connectServer(pLocator, query.getNameSpace(),
                         arena);
                 if (pServicesOpt.isEmpty()) {
-                    failedWmiClassNames.add(query.getWmiClassName());
+                    if (shouldCacheFailure(query.getNameSpace())) {
+                        failedWmiClassNames.add(query.getWmiClassName());
+                    }
                     return result;
                 }
                 MemorySegment pServices = pServicesOpt.get();
@@ -169,7 +172,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
 
                     Optional<MemorySegment> pEnumOpt = IWbemServicesFFM.execQuery(pServices, sb.toString(), arena);
                     if (pEnumOpt.isEmpty()) {
-                        failedWmiClassNames.add(query.getWmiClassName());
+                        if (shouldCacheFailure(query.getNameSpace())) {
+                            failedWmiClassNames.add(query.getWmiClassName());
+                        }
                         return result;
                     }
                     MemorySegment pEnum = pEnumOpt.get();
@@ -178,6 +183,12 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                         while (true) {
                             IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum,
                                     wmiTimeout, arena);
+                            if (nextResult.isTimedOut()) {
+                                // Match the JNA backend, which returns an empty result on timeout rather than the
+                                // rows collected so far.
+                                LOG.warn("WMI query timed out after {} ms for {}", wmiTimeout, query.getWmiClassName());
+                                return new WbemcliUtilFFM.WmiResult<>(query.getPropertyEnum());
+                            }
                             if (nextResult.isComplete() || !nextResult.hasObject()) {
                                 break;
                             }
@@ -198,22 +209,26 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                 IUnknownFFM.safeRelease(pLocator, arena);
             }
         } catch (FfmComException e) {
-            int hresult = e.getHresult();
-            switch (hresult) {
-                case WbemcliFFM.WBEM_E_INVALID_NAMESPACE:
-                    LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                    break;
-                case WbemcliFFM.WBEM_E_INVALID_CLASS:
-                    LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                    break;
-                case WbemcliFFM.WBEM_E_INVALID_QUERY:
-                    LOG.warn("COM exception: Invalid Query for {}", query.getWmiClassName());
-                    break;
-                default:
-                    handleComException(query, e);
-                    break;
+            // Ignore any exceptions with OpenHardwareMonitor or LibreHardwareMonitor, which are frequently not
+            // running at query time and should be retried rather than cached as failed.
+            if (shouldCacheFailure(query.getNameSpace())) {
+                int hresult = e.getHresult();
+                switch (hresult) {
+                    case WbemcliFFM.WBEM_E_INVALID_NAMESPACE:
+                        LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
+                        break;
+                    case WbemcliFFM.WBEM_E_INVALID_CLASS:
+                        LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
+                        break;
+                    case WbemcliFFM.WBEM_E_INVALID_QUERY:
+                        LOG.warn("COM exception: Invalid Query for {}", query.getWmiClassName());
+                        break;
+                    default:
+                        handleComException(query, e);
+                        break;
+                }
+                failedWmiClassNames.add(query.getWmiClassName());
             }
-            failedWmiClassNames.add(query.getWmiClassName());
         } catch (Exception e) {
             LOG.debug("WMI query failed for {}: {}", query.getWmiClassName(), e.getMessage());
         } finally {
@@ -305,7 +320,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             try {
                 Optional<MemorySegment> pServicesOpt = IWbemLocatorFFM.connectServer(pLocator, namespace, arena);
                 if (pServicesOpt.isEmpty()) {
-                    failedWmiClassNames.add(wmiClassName);
+                    if (shouldCacheFailure(namespace)) {
+                        failedWmiClassNames.add(wmiClassName);
+                    }
                     return results;
                 }
                 MemorySegment pServices = pServicesOpt.get();
@@ -318,7 +335,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                     }
                     Optional<MemorySegment> pEnumOpt = IWbemServicesFFM.execQuery(pServices, query, arena);
                     if (pEnumOpt.isEmpty()) {
-                        failedWmiClassNames.add(wmiClassName);
+                        if (shouldCacheFailure(namespace)) {
+                            failedWmiClassNames.add(wmiClassName);
+                        }
                         return results;
                     }
                     MemorySegment pEnum = pEnumOpt.get();
@@ -326,6 +345,12 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                         while (true) {
                             IEnumWbemClassObjectFFM.NextResult nextResult = IEnumWbemClassObjectFFM.next(pEnum,
                                     wmiTimeout, arena);
+                            if (nextResult.isTimedOut()) {
+                                // Match the JNA backend, which returns an empty result on timeout rather than the
+                                // rows collected so far.
+                                LOG.warn("WMI query timed out after {} ms for {}", wmiTimeout, wmiClassName);
+                                return new ArrayList<>();
+                            }
                             if (nextResult.isComplete() || !nextResult.hasObject()) {
                                 break;
                             }
@@ -348,7 +373,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                 IUnknownFFM.safeRelease(pLocator, arena);
             }
         } catch (FfmComException _) {
-            failedWmiClassNames.add(wmiClassName);
+            if (shouldCacheFailure(namespace)) {
+                failedWmiClassNames.add(wmiClassName);
+            }
         } catch (Exception e) {
             LOG.debug("WMI query failed for {}: {}", wmiClassName, e.getMessage());
         } finally {
@@ -357,6 +384,18 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             }
         }
         return results;
+    }
+
+    /**
+     * Whether a failed query for this class should be cached to avoid retrying it. Failures against the optional
+     * OpenHardwareMonitor / LibreHardwareMonitor namespaces are not cached, because those services are frequently
+     * started after OSHI and must remain queryable. Matches {@code WmiQueryHandler} (JNA backend).
+     *
+     * @param namespace the query namespace to check
+     * @return true if a failure should be cached, false for the hardware-monitor namespaces
+     */
+    private static boolean shouldCacheFailure(String namespace) {
+        return !WmiUtil.OHM_NAMESPACE.equals(namespace) && !WmiUtil.LHM_NAMESPACE.equals(namespace);
     }
 
     /**
