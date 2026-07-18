@@ -83,14 +83,15 @@ class OperatingSystemTest {
         OSVersionInfo versionInfo = os.getVersionInfo();
         assertThat("OS version info shouldn't be null", versionInfo, is(notNullValue()));
 
-        assertThat("OS uptime in seconds should be greater than 0", os.getSystemUptime(), is(greaterThan(0L)));
+        // The DragonFly BSD CI VM has a known clock bug that reports a future boot time, which breaks both the uptime
+        // and boot-time assertions below: https://bugs.dragonflybsd.org/issues/3299
         if (!(Platform.isDragonFlyBSD() && "true".equals(System.getenv("CI")))) {
-            // DragonFly BSD VM has a known clock bug: https://bugs.dragonflybsd.org/issues/3299
+            assertThat("OS uptime in seconds should be greater than 0", os.getSystemUptime(), is(greaterThan(0L)));
             assertThat("OS boot time in seconds since Unix epoch should be greater than 0", os.getSystemBootTime(),
                     is(greaterThan(0L)));
+            assertThat("OS boot time in seconds since Unix epoch should be before the current time",
+                    os.getSystemBootTime(), is(lessThan(System.currentTimeMillis() / 1000L)));
         }
-        assertThat("OS boot time in seconds since Unix epoch should be before the current time", os.getSystemBootTime(),
-                is(lessThan(System.currentTimeMillis() / 1000L)));
 
         assertThat("OS should have 1 or more currently running processes", os.getProcessCount(), is(greaterThan(0)));
         assertThat("OS should have 1 or more currently running threads", os.getThreadCount(), is(greaterThan(0)));
