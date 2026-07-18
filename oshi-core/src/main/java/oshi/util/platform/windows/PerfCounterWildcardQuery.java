@@ -189,6 +189,11 @@ public final class PerfCounterWildcardQuery {
                     }
                     valuesMap.put(prop, values);
                 }
+            } else {
+                // The PDH data collection failed. Return an empty pair (per this method's contract) so the caller
+                // falls back to WMI, rather than a populated instance list paired with an empty value map, which
+                // would NPE downstream consumers that index the value map by the returned instances.
+                return new Pair<>(Collections.emptyList(), Collections.emptyMap());
             }
         }
         return new Pair<>(instances, valuesMap);
