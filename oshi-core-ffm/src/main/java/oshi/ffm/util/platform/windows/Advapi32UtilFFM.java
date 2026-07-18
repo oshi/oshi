@@ -445,52 +445,53 @@ public final class Advapi32UtilFFM {
             }
 
             MemorySegment hEventLog = hEventLogOpt.get();
+            try {
+                int bufSize = 64 * 1024;
+                MemorySegment buffer = arena.allocate(bufSize);
+                MemorySegment bytesRead = arena.allocate(JAVA_INT);
+                MemorySegment minBytesNeeded = arena.allocate(JAVA_INT);
 
-            int bufSize = 64 * 1024;
-            MemorySegment buffer = arena.allocate(bufSize);
-            MemorySegment bytesRead = arena.allocate(JAVA_INT);
-            MemorySegment minBytesNeeded = arena.allocate(JAVA_INT);
+                long event6005Time = 0L;
 
-            long event6005Time = 0L;
+                long offsetEventId = WinNTFFM.OFFSET_EVENTID;
+                long offsetTimeGenerated = WinNTFFM.OFFSET_TIME_GENERATED;
+                long offsetLength = WinNTFFM.OFFSET_LENGTH;
 
-            long offsetEventId = WinNTFFM.OFFSET_EVENTID;
-            long offsetTimeGenerated = WinNTFFM.OFFSET_TIME_GENERATED;
-            long offsetLength = WinNTFFM.OFFSET_LENGTH;
+                while (Advapi32FFM.ReadEventLog(hEventLog,
+                        WinNTFFM.EVENTLOG_BACKWARDS_READ | WinNTFFM.EVENTLOG_SEQUENTIAL_READ, buffer, bufSize,
+                        bytesRead, minBytesNeeded)) {
 
-            while (Advapi32FFM.ReadEventLog(hEventLog,
-                    WinNTFFM.EVENTLOG_BACKWARDS_READ | WinNTFFM.EVENTLOG_SEQUENTIAL_READ, buffer, bufSize, bytesRead,
-                    minBytesNeeded)) {
+                    int read = bytesRead.get(JAVA_INT, 0);
+                    int offset = 0;
 
-                int read = bytesRead.get(JAVA_INT, 0);
-                int offset = 0;
+                    while (offset < read) {
+                        MemorySegment eventRecord = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
 
-                while (offset < read) {
-                    MemorySegment eventRecord = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
+                        int eventId = eventRecord.get(JAVA_INT, (int) offsetEventId);
+                        long timeGenerated = Integer
+                                .toUnsignedLong(eventRecord.get(JAVA_INT, (int) offsetTimeGenerated));
 
-                    int eventId = eventRecord.get(JAVA_INT, (int) offsetEventId);
-                    long timeGenerated = Integer.toUnsignedLong(eventRecord.get(JAVA_INT, (int) offsetTimeGenerated));
-
-                    if (eventId == 12) { // system boot
-                        Advapi32FFM.CloseEventLog(hEventLog);
-                        return timeGenerated;
-                    } else if (eventId == 6005) { // event log startup
-                        if (event6005Time > 0) {
-                            Advapi32FFM.CloseEventLog(hEventLog);
-                            return event6005Time;
+                        if (eventId == 12) { // system boot
+                            return timeGenerated;
+                        } else if (eventId == 6005) { // event log startup
+                            if (event6005Time > 0) {
+                                return event6005Time;
+                            }
+                            event6005Time = timeGenerated;
                         }
-                        event6005Time = timeGenerated;
+
+                        // Advance to next record
+                        int length = eventRecord.get(JAVA_INT, (int) offsetLength);
+                        offset += length;
                     }
-
-                    // Advance to next record
-                    int length = eventRecord.get(JAVA_INT, (int) offsetLength);
-                    offset += length;
                 }
-            }
 
-            Advapi32FFM.CloseEventLog(hEventLog);
-
-            if (event6005Time > 0) {
-                return event6005Time;
+                if (event6005Time > 0) {
+                    return event6005Time;
+                }
+            } finally {
+                // Close on every path, including a Throwable from a malformed record (matches the fallback contract).
+                Advapi32FFM.CloseEventLog(hEventLog);
             }
         } catch (Throwable t) {
             LOG.error("Exception while querying system boottime, fallback to boot time from uptime", t);
@@ -520,6 +521,8 @@ public final class Advapi32UtilFFM {
                 return null;
             }
 
+            // Opened only to validate the configured log name; close it so the handle is not leaked.
+            Advapi32FFM.CloseEventLog(hEventLog.get());
             return systemLog;
         } catch (Throwable t) {
             LOG.error("Exception while opening system event log", t);

@@ -480,6 +480,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
                     systemLog);
             return null;
         }
+        // Opened only to validate the configured log name; close it so the handle is not leaked.
+        Advapi32.INSTANCE.CloseEventLog(h);
         return systemLog;
     }
 
