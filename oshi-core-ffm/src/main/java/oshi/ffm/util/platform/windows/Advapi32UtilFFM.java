@@ -6,7 +6,9 @@ package oshi.ffm.util.platform.windows;
 
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
@@ -21,9 +23,11 @@ import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_MORE_DATA;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.platform.windows.WinNTFFM.KEY_READ;
+import static oshi.ffm.platform.windows.WinNTFFM.REG_BINARY;
 import static oshi.ffm.platform.windows.WinNTFFM.REG_DWORD;
 import static oshi.ffm.platform.windows.WinNTFFM.REG_EXPAND_SZ;
 import static oshi.ffm.platform.windows.WinNTFFM.REG_MULTI_SZ;
+import static oshi.ffm.platform.windows.WinNTFFM.REG_QWORD;
 import static oshi.ffm.platform.windows.WinNTFFM.REG_SZ;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
@@ -199,6 +203,49 @@ public final class Advapi32UtilFFM {
     }
 
     /**
+     * Reads a REG_QWORD value from an open registry key.
+     *
+     * @param hKey      handle to an open registry key
+     * @param valueName the value name to read
+     * @return the QWORD value
+     * @throws Throwable if the native call fails
+     */
+    public static long registryGetQword(MemorySegment hKey, String valueName) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment pData = arena.allocate(JAVA_LONG);
+            MemorySegment lpType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+            lpcbData.set(JAVA_INT, 0, Long.BYTES);
+
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+            checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
+            return pData.get(JAVA_LONG, 0);
+        }
+    }
+
+    /**
+     * Reads a REG_BINARY value from an open registry key.
+     *
+     * @param hKey      handle to an open registry key
+     * @param valueName the value name to read
+     * @param size      the buffer size in bytes
+     * @return the raw bytes
+     * @throws Throwable if the native call fails
+     */
+    public static byte[] registryGetBinary(MemorySegment hKey, String valueName, int size) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment data = arena.allocate(Math.max(size, 1));
+            MemorySegment lpType = arena.allocate(JAVA_INT);
+            MemorySegment lpcbData = arena.allocate(JAVA_INT);
+            lpcbData.set(JAVA_INT, 0, size);
+
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+            checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
+            return data.asSlice(0, lpcbData.get(JAVA_INT, 0)).toArray(JAVA_BYTE);
+        }
+    }
+
+    /**
      * Reads a REG_SZ string value from an open registry key.
      *
      * @param hKey      handle to an open registry key
@@ -242,6 +289,8 @@ public final class Advapi32UtilFFM {
             return switch (type) {
                 case REG_SZ, REG_EXPAND_SZ -> registryGetString(hKey, valueName, size);
                 case REG_DWORD -> registryGetDword(hKey, valueName);
+                case REG_QWORD -> registryGetQword(hKey, valueName);
+                case REG_BINARY -> registryGetBinary(hKey, valueName, size);
                 default -> {
                     LOG.warn("Unsupported registry data type {} for {}", type, valueName);
                     yield null;

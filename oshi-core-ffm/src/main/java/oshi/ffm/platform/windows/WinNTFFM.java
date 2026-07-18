@@ -23,8 +23,10 @@ public interface WinNTFFM {
     int KEY_WOW64_32KEY = 0x0200;
     int REG_SZ = 1;
     int REG_EXPAND_SZ = 2;
+    int REG_BINARY = 3;
     int REG_DWORD = 4;
     int REG_MULTI_SZ = 7;
+    int REG_QWORD = 11;
     int SE_PRIVILEGE_ENABLED = 0x00000002;
     int TOKEN_QUERY = 0x0008;
     int TOKEN_ADJUST_PRIVILEGES = 0x0020;
