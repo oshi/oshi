@@ -364,6 +364,9 @@ class ParseUtilTest {
                 ParseUtil.getStringBetween("hello = $hello $ is $", '$'), is("hello $ is"));
         assertThat("parse Single quotes between Multiple quotes",
                 ParseUtil.getStringBetween("pci.device = 'Realtek AC'97 Audio'", '\''), is("Realtek AC'97 Audio"));
+        // A single, unmatched delimiter must yield "" rather than throwing StringIndexOutOfBoundsException
+        assertThat("single unmatched delimiter", ParseUtil.getStringBetween("key = 'value", '\''), is(""));
+        assertThat("no delimiter", ParseUtil.getStringBetween("key = value", '\''), is(""));
     }
 
     /**

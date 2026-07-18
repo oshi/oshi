@@ -661,10 +661,13 @@ public final class ParseUtil {
      */
     public static String getStringBetween(String line, char c) {
         int firstOcc = line.indexOf(c);
-        if (firstOcc < 0) {
+        int lastOcc = line.lastIndexOf(c);
+        // Absent, or a single unmatched delimiter (firstOcc == lastOcc): nothing is enclosed. Returning "" avoids a
+        // StringIndexOutOfBoundsException from substring(firstOcc + 1, lastOcc) when the two indexes cross.
+        if (firstOcc < 0 || firstOcc == lastOcc) {
             return "";
         }
-        return line.substring(firstOcc + 1, line.lastIndexOf(c)).trim();
+        return line.substring(firstOcc + 1, lastOcc).trim();
     }
 
     /**
