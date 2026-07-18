@@ -272,7 +272,8 @@ public final class Advapi32UtilFFM {
      *
      * @param hKey      handle to an open registry key
      * @param valueName the value name to read
-     * @return the value (Integer for REG_DWORD, String for REG_SZ/REG_EXPAND_SZ), or null if unsupported
+     * @return the value (Integer for REG_DWORD, Long for REG_QWORD, byte[] for REG_BINARY, String for
+     *         REG_SZ/REG_EXPAND_SZ), or null if unsupported
      * @throws Throwable if the native call fails
      */
     public static Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
@@ -305,7 +306,8 @@ public final class Advapi32UtilFFM {
      * @param rootKey   The root key handle (e.g., HKEY_LOCAL_MACHINE)
      * @param keyPath   The registry key path
      * @param valueName The value name to read
-     * @return The value object (Integer for REG_DWORD, String for REG_SZ/REG_EXPAND_SZ), or null on failure
+     * @return The value object (Integer for REG_DWORD, Long for REG_QWORD, byte[] for REG_BINARY, String for
+     *         REG_SZ/REG_EXPAND_SZ), or null on failure
      */
     public static Object registryGetValue(MemorySegment rootKey, String keyPath, String valueName) {
         return callInArenaOrDefault(arena -> {

@@ -29,6 +29,9 @@ public final class NetSessionDataFFM {
     private static final long OFFSET_CNAME = 0;
     private static final long OFFSET_USERNAME = 8;
     private static final long OFFSET_TIME = 16;
+    // A Windows username can be up to UNLEN (256) characters; bound the wide-string reads to the longest name plus its
+    // UTF-16 null terminator so readWideString cannot run past the reinterpreted segment on a maximum-length name.
+    private static final long MAX_NAME_BYTES = (256L + 1L) * 2L;
 
     private NetSessionDataFFM() {
     }
@@ -55,8 +58,10 @@ public final class NetSessionDataFFM {
                             int time = buf.get(JAVA_INT, base + OFFSET_TIME);
                             // A NULL cname/username (e.g. an anonymous session) must not be dereferenced, or
                             // readWideString would fault on native address 0 (matches ProcessWtsDataFFM).
-                            String cname = pCname.equals(NULL) ? "" : readWideString(pCname.reinterpret(512));
-                            String username = pUsername.equals(NULL) ? "" : readWideString(pUsername.reinterpret(512));
+                            String cname = pCname.equals(NULL) ? ""
+                                    : readWideString(pCname.reinterpret(MAX_NAME_BYTES));
+                            String username = pUsername.equals(NULL) ? ""
+                                    : readWideString(pUsername.reinterpret(MAX_NAME_BYTES));
                             long logonTime = System.currentTimeMillis() - (1000L * time);
                             sessions.add(new OSSession(username, "Network session", logonTime, cname));
                         }
