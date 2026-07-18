@@ -20,6 +20,7 @@ public class PdhFFM extends WindowsForeignFunctions {
     private static final SymbolLookup Pdh = lib("Pdh");
 
     public static final int PDH_MORE_DATA = 0x800007D2;
+    public static final int PDH_NO_DATA = 0x800007D5;
 
     private static final MethodHandle PdhOpenQuery = downcall(Pdh, "PdhOpenQueryW", JAVA_INT, ADDRESS, ADDRESS,
             ADDRESS);
