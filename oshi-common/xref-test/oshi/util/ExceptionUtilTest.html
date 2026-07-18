@@ -394,12 +394,14 @@
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>     <strong class="jxr_keyword">void</strong> testLogsAndReturnsDefaultAtEveryLevel() {
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">for</strong> (Level level : Level.values()) {
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>             String result = ExceptionUtil.getOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>             }, <span class="jxr_string">"no exception"</span>, LOG, level, <span class="jxr_string">"failed: {}"</span>);
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>             assertThat(result, is(<span class="jxr_string">"no exception"</span>));
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> }
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <em class="jxr_comment">// Intentional: exercises the exception-logging path at each level. The stack trace this logs is</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                 <em class="jxr_comment">// expected test output, not a real failure.</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"expected test exception, stack trace is intentional"</span>);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             }, <span class="jxr_string">"no exception"</span>, LOG, level, <span class="jxr_string">"failed: {}"</span>);
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             assertThat(result, is(<span class="jxr_string">"no exception"</span>));
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

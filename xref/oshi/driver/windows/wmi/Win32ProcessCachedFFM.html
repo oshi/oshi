@@ -14,82 +14,42 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.locks.ReentrantLock;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.GuardedBy;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * Utility to query WMI class {@code Win32_Process} using cache (FFM).</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> {
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32ProcessCached;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * Utility to query WMI class {@code Win32_Process} using cache (FFM).</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> <strong class="jxr_keyword">extends</strong> <a name="Win32ProcessCached" href="../../../../oshi/driver/common/windows/wmi/Win32ProcessCached.html#Win32ProcessCached">Win32ProcessCached</a> {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Win32ProcessCachedFFM&gt; INSTANCE = memoize(Win32ProcessCachedFFM::createInstance);
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a>() {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      }
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Win32ProcessCachedFFM&gt; INSTANCE = memoize(Win32ProcessCachedFFM::createInstance);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      @GuardedBy(<span class="jxr_string">"commandLineCacheLock"</span>)
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Integer, Pair&lt;Long, String&gt;&gt; commandLineCache = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ReentrantLock commandLineCacheLock = <strong class="jxr_keyword">new</strong> ReentrantLock();
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a>() {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * Get the singleton instance of this class.</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @return the singleton instance</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> getInstance() {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">return</strong> INSTANCE.get();
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * Get the singleton instance of this class.</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @return the singleton instance</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> getInstance() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">return</strong> INSTANCE.get();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> createInstance() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a>();
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Override
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">protected</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines() {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">return</strong> Win32ProcessFFM.queryCommandLines(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      }
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a> createInstance() {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="Win32ProcessCachedFFM" href="../../../../oshi/driver/windows/wmi/Win32ProcessCachedFFM.html#Win32ProcessCachedFFM">Win32ProcessCachedFFM</a>();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * Gets the process command line, while also querying and caching command lines for all running processes if the</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * specified process is not in the cache.</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @param processId The process ID for which to return the command line.</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * @param startTime The start time of the process, in milliseconds since the 1970 epoch.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @return The command line of the specified process.</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> String getCommandLine(<strong class="jxr_keyword">int</strong> processId, <strong class="jxr_keyword">long</strong> startTime) {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          commandLineCacheLock.lock();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              Pair&lt;Long, String&gt; pair = commandLineCache.get(processId);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">if</strong> (pair != <strong class="jxr_keyword">null</strong> &amp;&amp; startTime &lt; pair.getA()) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">return</strong> pair.getB();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  WmiResult&lt;CommandLineProperty&gt; commandLineAllProcs = Win32ProcessFFM.queryCommandLines(<strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">if</strong> (commandLineCache.size() &gt; commandLineAllProcs.getResultCount() * 2) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      commandLineCache.clear();
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  String result = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; commandLineAllProcs.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">int</strong> pid = WmiUtil.getUint32(commandLineAllProcs, CommandLineProperty.PROCESSID, i);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      String cl = WmiUtil.getString(commandLineAllProcs, CommandLineProperty.COMMANDLINE, i);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      commandLineCache.put(pid, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(now, cl));
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">if</strong> (pid == processId) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          result = cl;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              commandLineCacheLock.unlock();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

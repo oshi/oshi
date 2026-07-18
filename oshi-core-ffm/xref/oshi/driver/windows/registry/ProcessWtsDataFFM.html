@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_NUMBER_OF_THREADS;
@@ -101,7 +101,7 @@
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                          <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                      }
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                      MemorySegment pName = pProcessInfo.get(ADDRESS, base + PROCESS_INFO_EX_PROCESS_NAME);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      String name = pName.equals(MemorySegment.NULL) ? <span class="jxr_string">""</span> : readWideString(pName.reinterpret(512));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      String name = readWideStringFromPointer(pName);
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <strong class="jxr_keyword">int</strong> threads = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_NUMBER_OF_THREADS);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                      <strong class="jxr_keyword">long</strong> pagefileUsage = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_PAGEFILE_USAGE)
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>                              &amp; 0xffff_ffffL;

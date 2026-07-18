@@ -267,7 +267,7 @@
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         }
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">try</strong> (CloseableVnodePathInfo vpi = <strong class="jxr_keyword">new</strong> CloseableVnodePathInfo()) {
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>             <strong class="jxr_keyword">if</strong> (0 &lt; SystemB.INSTANCE.proc_pidinfo(getProcessID(), PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 <strong class="jxr_keyword">this</strong>.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 <strong class="jxr_keyword">this</strong>.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.UTF_8);
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>             }
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>         }
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;

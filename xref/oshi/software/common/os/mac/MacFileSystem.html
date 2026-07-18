@@ -129,7 +129,30 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         OPTIONS_MAP.put(MNT_MULTILABEL, <span class="jxr_string">"multilabel"</span>);
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         OPTIONS_MAP.put(MNT_NOATIME, <span class="jxr_string">"noatime"</span>);
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     @Override
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getOpenFileDescriptors() {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">return</strong> querySysctl(<span class="jxr_string">"kern.num_files"</span>);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     @Override
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptors() {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">return</strong> querySysctl(<span class="jxr_string">"kern.maxfiles"</span>);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     @Override
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getMaxFileDescriptorsPerProcess() {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">return</strong> querySysctl(<span class="jxr_string">"kern.maxfilesperproc"</span>);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @param name the sysctl name to query</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @return the value, or 0 if unavailable</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> querySysctl(String name);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

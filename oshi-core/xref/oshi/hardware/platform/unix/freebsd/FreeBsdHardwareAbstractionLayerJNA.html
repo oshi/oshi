@@ -72,7 +72,7 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Override
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> List&lt;Display&gt; getDisplays() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">protected</strong> List&lt;Display&gt; createDisplays() {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> UnixDisplay.getDisplays();
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  
@@ -82,17 +82,17 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Override
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> List&lt;UsbDevice&gt; getUsbDevices(<strong class="jxr_keyword">boolean</strong> tree) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> FreeBsdUsbDevice.getUsbDevices(tree);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">protected</strong> List&lt;UsbDevice&gt; createUsbDevices() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> FreeBsdUsbDevice.getUsbDevices();
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Override
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">public</strong> List&lt;SoundCard&gt; getSoundCards() {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">protected</strong> List&lt;SoundCard&gt; createSoundCards() {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> FreeBsdSoundCard.getSoundCards();
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      @Override
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> List&lt;GraphicsCard&gt; getGraphicsCards() {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">protected</strong> List&lt;GraphicsCard&gt; createGraphicsCards() {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">return</strong> FreeBsdGraphicsCard.getGraphicsCards();
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  

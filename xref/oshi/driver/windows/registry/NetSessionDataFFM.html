@@ -15,7 +15,7 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.MemorySegment.NULL;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.Arena;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
@@ -58,25 +58,27 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                          buf = buf.reinterpret(SESSION_INFO_10_SIZE * count);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; count; i++) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                              <strong class="jxr_keyword">long</strong> base = i * SESSION_INFO_10_SIZE;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                              MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME).reinterpret(512);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>                              MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME).reinterpret(512);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                              MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                              MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>                              <strong class="jxr_keyword">int</strong> time = buf.get(JAVA_INT, base + OFFSET_TIME);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                              String cname = readWideString(pCname);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                              String username = readWideString(pUsername);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                              <strong class="jxr_keyword">long</strong> logonTime = System.currentTimeMillis() - (1000L * time);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                              sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(username, <span class="jxr_string">"Network session"</span>, logonTime, cname));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                          }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                      }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      Netapi32FFM.NetApiBufferFree(buf);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// Silently return what we have</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> sessions;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                              <em class="jxr_comment">// readWideStringFromPointer null-checks the pointer (anonymous sessions have a NULL</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                              <em class="jxr_comment">// cname/username) and bounds the read so a maximum-length name cannot overrun.</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                              String cname = readWideStringFromPointer(pCname);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                              String username = readWideStringFromPointer(pUsername);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                              <strong class="jxr_keyword">long</strong> logonTime = System.currentTimeMillis() - (1000L * time);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                              sessions.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(username, <span class="jxr_string">"Network session"</span>, logonTime, cname));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                          }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      Netapi32FFM.NetApiBufferFree(buf);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <em class="jxr_comment">// Silently return what we have</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> sessions;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

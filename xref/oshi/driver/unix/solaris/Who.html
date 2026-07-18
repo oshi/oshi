@@ -52,9 +52,9 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              <em class="jxr_comment">// Iterate</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>              <strong class="jxr_keyword">while</strong> ((ut = LIBC.getutxent()) != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <strong class="jxr_keyword">if</strong> (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                      String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                      String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                      String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                      String user = Native.toString(ut.ut_user, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                      String device = Native.toString(ut.ut_line, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                      String host = Native.toString(ut.ut_host, StandardCharsets.UTF_8);
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                      <strong class="jxr_keyword">long</strong> loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>                      <em class="jxr_comment">// Sanity check. If errors, default to who command line</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                      <strong class="jxr_keyword">if</strong> (!isSessionValid(user, device, loginTime)) {

@@ -137,9 +137,9 @@
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">int</strong> result = smcReadKey(conn, key, val);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">if</strong> (result == 0 &amp;&amp; val.dataSize &gt; 0) {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_SP78) &amp;&amp; val.dataSize == 2) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     <em class="jxr_comment">// First bit is sign, next 7 bits are integer portion, last 8 bits are</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     <em class="jxr_comment">// fractional portion</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <strong class="jxr_keyword">return</strong> val.bytes[0] + val.bytes[1] / 256d;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                     <em class="jxr_comment">// First bit is sign, next 7 bits are integer portion, last 8 bits are the</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                     <em class="jxr_comment">// (unsigned) fractional portion</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <strong class="jxr_keyword">return</strong> val.bytes[0] + (val.bytes[1] &amp; 0xFF) / 256d;
 <a class="jxr_linenumber" name="L135" href="#L135">135</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (Arrays.equals(val.dataType, DATATYPE_FPE2) &amp;&amp; val.dataSize == 2) {
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                     <em class="jxr_comment">// First E (14) bits are integer portion last 2 bits are fractional portion</em>
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                     <strong class="jxr_keyword">return</strong> ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);
