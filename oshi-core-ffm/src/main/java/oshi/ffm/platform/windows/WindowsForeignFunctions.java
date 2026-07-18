@@ -77,6 +77,25 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
         return sb.toString();
     }
 
+    // Bound for reading a UTF-16 string from a raw pointer: 512 characters, comfortably covering identifier-length
+    // strings such as a Windows username (UNLEN = 256). A fixed bound fails safe (catchable) on non-terminated data.
+    private static final long WIDE_POINTER_STRING_BYTES = 1024;
+
+    /**
+     * Reads a null-terminated UTF-16 wide string from a raw native pointer, sizing the read to accommodate
+     * identifier-length strings (e.g. a Windows username up to {@code UNLEN} characters) plus a null terminator. This
+     * is the wide-string counterpart to {@link oshi.ffm.ForeignFunctions#getStringFromNativePointer}.
+     *
+     * @param pointer the native pointer to a wide string
+     * @return the decoded Java string, or {@code ""} if the pointer is null or {@link MemorySegment#NULL}
+     */
+    public static String readWideStringFromPointer(MemorySegment pointer) {
+        if (pointer == null || pointer.equals(MemorySegment.NULL)) {
+            return "";
+        }
+        return readWideString(pointer.reinterpret(WIDE_POINTER_STRING_BYTES));
+    }
+
     /**
      * Reads a null-terminated ANSI (single-byte) string from the given memory segment.
      *
