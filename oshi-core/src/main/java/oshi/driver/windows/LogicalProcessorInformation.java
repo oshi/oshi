@@ -121,27 +121,36 @@ public final class LogicalProcessorInformation {
 
         List<LogicalProcessor> logProcs = new ArrayList<>();
         Map<Integer, Integer> corePkgMap = new HashMap<>();
-        Map<Integer, String> pkgCpuidMap = new HashMap<>();
+        Map<Integer, String> coreCpuidMap = new HashMap<>();
         for (NUMA_NODE_RELATIONSHIP node : numaNodes) {
             int nodeNum = node.nodeNumber;
-            int group = node.groupMask.group;
-            long mask = node.groupMask.mask.longValue();
-            // Processor numbers are uniquely identified by processor group and processor
-            // number on that group, which matches the bitmask.
-            int lowBit = Long.numberOfTrailingZeros(mask);
-            int hiBit = 63 - Long.numberOfLeadingZeros(mask);
-            for (int lp = lowBit; lp <= hiBit; lp++) {
-                if ((mask & (1L << lp)) != 0) {
-                    int coreId = getMatchingCore(cores, group, lp);
-                    int pkgId = getMatchingPackage(packages, group, lp);
-                    corePkgMap.put(coreId, pkgId);
-                    pkgCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, ""));
-                    LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, group);
-                    logProcs.add(logProc);
+            // A NUMA node spanning more than 64 logical processors reports one GROUP_AFFINITY per group in
+            // groupMasks (with groupCount > 1); single-group nodes use the groupMask union member. Bound the
+            // iteration to groupCount because JNA may over-allocate groupMasks with padding entries, and fall back
+            // to the single groupMask when groupMasks is unpopulated. Matches LogicalProcessorInformationFFM.
+            boolean multiGroup = node.groupCount > 1 && node.groupMasks != null && node.groupMasks.length > 0;
+            int nodeGroupCount = multiGroup ? Math.min(node.groupCount, node.groupMasks.length) : 1;
+            for (int g = 0; g < nodeGroupCount; g++) {
+                GROUP_AFFINITY groupAffinity = multiGroup ? node.groupMasks[g] : node.groupMask;
+                int group = groupAffinity.group;
+                long mask = groupAffinity.mask.longValue();
+                // Processor numbers are uniquely identified by processor group and processor
+                // number on that group, which matches the bitmask.
+                int lowBit = Long.numberOfTrailingZeros(mask);
+                int hiBit = 63 - Long.numberOfLeadingZeros(mask);
+                for (int lp = lowBit; lp <= hiBit; lp++) {
+                    if ((mask & (1L << lp)) != 0) {
+                        int coreId = getMatchingCore(cores, group, lp);
+                        int pkgId = getMatchingPackage(packages, group, lp);
+                        corePkgMap.put(coreId, pkgId);
+                        coreCpuidMap.put(coreId, processorIdMap.getOrDefault(pkgId, ""));
+                        LogicalProcessor logProc = new LogicalProcessor(lp, coreId, pkgId, nodeNum, group);
+                        logProcs.add(logProc);
+                    }
                 }
             }
         }
-        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, pkgCpuidMap);
+        List<PhysicalProcessor> physProcs = getPhysProcs(cores, coreEfficiencyMap, corePkgMap, coreCpuidMap);
         return new Triplet<>(logProcs, physProcs, orderedProcCaches(caches));
     }
 
