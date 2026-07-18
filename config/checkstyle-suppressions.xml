@@ -99,7 +99,7 @@
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
 
     <!-- Protected final fields initialized in constructor -->
-    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="54-61"/>
+    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="56-63"/>
 
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>

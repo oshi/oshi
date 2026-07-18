@@ -31,9 +31,6 @@ import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsFFM;
 import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsFFM;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
-import oshi.util.tuples.Pair;
 
 /**
  * FFM-backed DragonFly BSD operating system.
@@ -44,14 +41,8 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
     private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOperatingSystemFFM.class);
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = BsdSysctlUtilFFM.sysctl("kern.ostype", "DragonFly");
-
-        String version = BsdSysctlUtilFFM.sysctl("kern.osrelease", "");
-        String versionInfo = BsdSysctlUtilFFM.sysctl("kern.version", "");
-        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
-
-        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
+    protected String querySysctl(String name, String def) {
+        return BsdSysctlUtilFFM.sysctl(name, def);
     }
 
     @Override
@@ -70,8 +61,8 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
     }
 
     @Override
-    public List<OSSession> getSessions() {
-        return USE_WHO_COMMAND ? super.getSessions() : WhoFFM.queryUtxent();
+    protected List<OSSession> queryWhoSessions() {
+        return WhoFFM.queryUtxent();
     }
 
     @Override
@@ -92,7 +83,7 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
     }
 
     @Override
-    protected long queryBootTime() {
+    protected long queryKernBoottimeSeconds() {
         try (Arena arena = Arena.ofConfined()) {
             // struct timeval: two longs (tv_sec, tv_usec) = 16 bytes on LP64 BSD.
             MemorySegment tv = arena.allocate(JAVA_LONG.byteSize() * 2);
@@ -100,9 +91,6 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
                 return tv.get(JAVA_LONG, 0);
             }
         }
-        // Fall back to text parsing: "{ sec = 1779823319, nsec = 0 } ..."
-        return ParseUtil.parseLongOrDefault(
-                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                System.currentTimeMillis() / 1000);
+        return 0L;
     }
 }

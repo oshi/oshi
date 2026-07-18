@@ -15,9 +15,11 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Abstract base shared by the FreeBSD OperatingSystem implementations (JNA and FFM). The cross-BSD-common pieces live
@@ -54,6 +56,23 @@ public abstract class FreeBsdOperatingSystem extends BsdOperatingSystem {
                 .orElse(new FreeBsdOSThread(proc.getProcessID(), tid));
     }
 
+    @Override
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
+        return buildFamilyVersionInfo(querySysctl("kern.ostype", "FreeBSD"), querySysctl("kern.osrelease", ""),
+                querySysctl("kern.version", ""));
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return USE_WHO_COMMAND ? super.getSessions() : queryWhoSessions();
+    }
+
+    @Override
+    protected long queryBootTime() {
+        long bootSeconds = queryKernBoottimeSeconds();
+        return bootSeconds > 0 ? bootSeconds : queryBootTimeFromCommand();
+    }
+
     /**
      * Creates a backend-specific {@link OSProcess} from a parsed {@code ps} row.
      *
@@ -62,4 +81,27 @@ public abstract class FreeBsdOperatingSystem extends BsdOperatingSystem {
      * @return a new OSProcess
      */
     protected abstract OSProcess createProcess(int pid, Map<BsdPsKeyword, String> psMap);
+
+    /**
+     * Reads a string-valued sysctl by name.
+     *
+     * @param name the sysctl name (e.g. {@code "kern.ostype"})
+     * @param def  the default value if the sysctl can't be read
+     * @return the sysctl value, or {@code def}
+     */
+    protected abstract String querySysctl(String name, String def);
+
+    /**
+     * Reads the login sessions natively via {@code getutxent}.
+     *
+     * @return the sessions
+     */
+    protected abstract List<OSSession> queryWhoSessions();
+
+    /**
+     * Reads the boot time (seconds since the epoch) from the native {@code kern.boottime} sysctl.
+     *
+     * @return the boot time in seconds, or {@code 0} if the sysctl is unavailable
+     */
+    protected abstract long queryKernBoottimeSeconds();
 }

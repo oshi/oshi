@@ -20,10 +20,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
-import oshi.util.tuples.Pair;
 
 /**
  * JNA-backed FreeBSD operating system.
@@ -32,14 +29,8 @@ import oshi.util.tuples.Pair;
 public class FreeBsdOperatingSystemJNA extends FreeBsdOperatingSystem {
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = BsdSysctlUtil.sysctl("kern.ostype", "FreeBSD");
-
-        String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
-        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
-        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
-
-        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
+    protected String querySysctl(String name, String def) {
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
@@ -58,8 +49,8 @@ public class FreeBsdOperatingSystemJNA extends FreeBsdOperatingSystem {
     }
 
     @Override
-    public List<OSSession> getSessions() {
-        return USE_WHO_COMMAND ? super.getSessions() : Who.queryUtxent();
+    protected List<OSSession> queryWhoSessions() {
+        return Who.queryUtxent();
     }
 
     @Override
@@ -82,14 +73,10 @@ public class FreeBsdOperatingSystemJNA extends FreeBsdOperatingSystem {
     }
 
     @Override
-    protected long queryBootTime() {
+    protected long queryKernBoottimeSeconds() {
         Timeval tv = new Timeval();
         if (!BsdSysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec == 0) {
-            // Usually this works. If it doesn't, fall back to text parsing.
-            // Boot time will be the first consecutive string of digits.
-            return ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                    System.currentTimeMillis() / 1000);
+            return 0L;
         }
         // tv now points to a 128-bit timeval structure for boot time.
         // First 8 bytes are seconds, second 8 bytes are microseconds (we ignore)

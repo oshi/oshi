@@ -17,6 +17,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Abstract base shared by the OpenBSD OperatingSystem implementations (JNA and FFM). The cross-BSD-common pieces live
@@ -27,6 +28,28 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public abstract class OpenBsdOperatingSystem extends BsdOperatingSystem {
+
+    // OpenBSD sysctl(2) MIB identifiers (from <sys/sysctl.h>)
+    private static final int CTL_KERN = 1;
+    private static final int KERN_OSTYPE = 1;
+    private static final int KERN_OSRELEASE = 2;
+    private static final int KERN_VERSION = 4;
+
+    @Override
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
+        return buildFamilyVersionInfo(querySysctl(new int[] { CTL_KERN, KERN_OSTYPE }, "OpenBSD"),
+                querySysctl(new int[] { CTL_KERN, KERN_OSRELEASE }, ""),
+                querySysctl(new int[] { CTL_KERN, KERN_VERSION }, ""));
+    }
+
+    /**
+     * Reads a string-valued sysctl by its MIB identifier array.
+     *
+     * @param mib the sysctl MIB (e.g. {@code {CTL_KERN, KERN_OSTYPE}})
+     * @param def the default value if the sysctl can't be read
+     * @return the sysctl value, or {@code def}
+     */
+    protected abstract String querySysctl(int[] mib, String def);
 
     @Override
     public InternetProtocolStats getInternetProtocolStats() {

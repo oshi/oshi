@@ -25,6 +25,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * Abstract base shared by the BSD-family OperatingSystem implementations (FreeBSD, OpenBSD, DragonFly, NetBSD). Holds
@@ -141,6 +142,35 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Directory: /etc/rc.d does not exist");
         }
         return services;
+    }
+
+    /**
+     * Builds the family/version info from the raw {@code kern.ostype}/{@code kern.osrelease}/{@code kern.version}
+     * sysctl values. Shared by the FreeBSD, DragonFly, and OpenBSD subclasses, which differ only in how those three
+     * strings are fetched (string-named vs. MIB-based sysctl).
+     *
+     * @param family      the {@code kern.ostype} value (e.g. {@code "FreeBSD"})
+     * @param version     the {@code kern.osrelease} value
+     * @param versionInfo the {@code kern.version} value
+     * @return the family name paired with the parsed version info
+     */
+    protected static Pair<String, OSVersionInfo> buildFamilyVersionInfo(String family, String version,
+            String versionInfo) {
+        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
+        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
+    }
+
+    /**
+     * Parses the boot time (seconds since the epoch) from the {@code sysctl -n kern.boottime} command output. Used as a
+     * fallback by the BSD subclasses when the native {@code kern.boottime} sysctl is unavailable.
+     *
+     * @return the boot time in seconds, or the current time if it can't be parsed
+     */
+    protected static long queryBootTimeFromCommand() {
+        // Boot time will be the first consecutive string of digits.
+        return ParseUtil.parseLongOrDefault(
+                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                System.currentTimeMillis() / 1000);
     }
 
     /**

@@ -28,12 +28,14 @@ import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.ApplicationInfo;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Pair;
 
 /**
  * macOS, previously Mac OS X and later OS X) is a series of proprietary graphical operating systems developed and
@@ -115,6 +117,36 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
         }
         return codeName;
     }
+
+    @Override
+    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
+        String family = this.major > 10 || (this.major == 10 && this.minor >= 12) ? "macOS"
+                : System.getProperty("os.name");
+        String codeName = parseCodeName();
+        String buildNumber = querySysctl("kern.osversion", "");
+        return new Pair<>(family, new OSVersionInfo(this.osXVersion, codeName, buildNumber));
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return USE_WHO_COMMAND ? super.getSessions() : queryWhoSessions();
+    }
+
+    /**
+     * Reads a string-valued sysctl by name.
+     *
+     * @param name the sysctl name (e.g. {@code "kern.osversion"})
+     * @param def  the default value if the sysctl can't be read
+     * @return the sysctl value, or {@code def}
+     */
+    protected abstract String querySysctl(String name, String def);
+
+    /**
+     * Reads the login sessions natively via {@code getutxent}.
+     *
+     * @return the sessions
+     */
+    protected abstract List<OSSession> queryWhoSessions();
 
     @Override
     protected int queryBitness(int jvmBitness) {

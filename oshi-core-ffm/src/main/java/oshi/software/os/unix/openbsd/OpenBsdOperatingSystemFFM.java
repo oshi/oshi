@@ -4,11 +4,6 @@
  */
 package oshi.software.os.unix.openbsd;
 
-import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
-import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_OSRELEASE;
-import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_OSTYPE;
-import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_VERSION;
-
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,7 +18,6 @@ import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
-import oshi.util.tuples.Pair;
 
 /**
  * FFM-backed OpenBSD operating system.
@@ -34,18 +28,8 @@ public class OpenBsdOperatingSystemFFM extends OpenBsdOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystemFFM.class);
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        int[] mibType = { CTL_KERN, KERN_OSTYPE };
-        String family = OpenBsdSysctlUtilFFM.sysctl(mibType, "OpenBSD");
-
-        int[] mibRelease = { CTL_KERN, KERN_OSRELEASE };
-        String version = OpenBsdSysctlUtilFFM.sysctl(mibRelease, "");
-
-        int[] mibVersion = { CTL_KERN, KERN_VERSION };
-        String versionInfo = OpenBsdSysctlUtilFFM.sysctl(mibVersion, "");
-        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
-
-        return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
+    protected String querySysctl(int[] mib, String def) {
+        return OpenBsdSysctlUtilFFM.sysctl(mib, def);
     }
 
     @Override
