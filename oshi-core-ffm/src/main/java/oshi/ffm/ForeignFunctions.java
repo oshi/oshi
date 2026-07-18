@@ -17,6 +17,7 @@ import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -435,6 +436,25 @@ public abstract class ForeignFunctions {
         byte[] result = new byte[(int) length];
         MemorySegment.copy(bytesSegment, JAVA_BYTE, 0, result, 0, (int) length);
         return result;
+    }
+
+    /**
+     * Decodes a fixed-width native {@code char} field as UTF-8, stopping at the first NUL or the field boundary. A
+     * field that exactly fills its width carries no NUL terminator, so an unbounded {@code getString} would scan past
+     * it.
+     *
+     * @param segment the segment containing the field
+     * @param offset  the field offset within the segment
+     * @param size    the field width in bytes
+     * @return the decoded string
+     */
+    public static String readFixedWidthString(MemorySegment segment, long offset, int size) {
+        byte[] bytes = segment.asSlice(offset, size).toArray(JAVA_BYTE);
+        int len = 0;
+        while (len < size && bytes[len] != 0) {
+            len++;
+        }
+        return new String(bytes, 0, len, StandardCharsets.UTF_8);
     }
 
     /**

@@ -13,6 +13,7 @@ import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+import static oshi.ffm.ForeignFunctions.readFixedWidthString;
 import static oshi.ffm.platform.mac.MacSystem.GROUP;
 import static oshi.ffm.platform.mac.MacSystem.MAXCOMLEN;
 import static oshi.ffm.platform.mac.MacSystem.MAXPATHLEN;
@@ -262,7 +263,7 @@ public class MacOSProcessFFM extends MacOSProcess {
             }
             if (this.name.isEmpty()) {
                 // pbi_comm contains first 16 characters of name
-                this.name = pbsd.asSlice(PROC_BSD_INFO.byteOffset(PBI_COMM), MAXCOMLEN).getString(0);
+                this.name = readFixedWidthString(pbsd, PROC_BSD_INFO.byteOffset(PBI_COMM), MAXCOMLEN);
             }
 
             // Get Process state based on status

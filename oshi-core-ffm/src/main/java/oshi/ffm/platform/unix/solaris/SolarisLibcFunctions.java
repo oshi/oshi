@@ -250,7 +250,7 @@ public final class SolarisLibcFunctions extends ForeignFunctions {
      * @return the username string
      */
     public static String utmpxUser(MemorySegment ut) {
-        return ut.asSlice(UTMPX_USER_OFFSET, UTX_USERSIZE).getString(0);
+        return readFixedWidthString(ut, UTMPX_USER_OFFSET, UTX_USERSIZE);
     }
 
     /**
@@ -260,7 +260,7 @@ public final class SolarisLibcFunctions extends ForeignFunctions {
      * @return the device name string
      */
     public static String utmpxLine(MemorySegment ut) {
-        return ut.asSlice(UTMPX_LINE_OFFSET, UTX_LINESIZE).getString(0);
+        return readFixedWidthString(ut, UTMPX_LINE_OFFSET, UTX_LINESIZE);
     }
 
     /**
@@ -270,7 +270,7 @@ public final class SolarisLibcFunctions extends ForeignFunctions {
      * @return the host name string
      */
     public static String utmpxHost(MemorySegment ut) {
-        return ut.asSlice(UTMPX_HOST_OFFSET, UTX_HOSTSIZE).getString(0);
+        return readFixedWidthString(ut, UTMPX_HOST_OFFSET, UTX_HOSTSIZE);
     }
 
     /**
