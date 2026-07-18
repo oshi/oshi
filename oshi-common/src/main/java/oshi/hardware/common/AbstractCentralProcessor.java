@@ -219,6 +219,10 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     @Override
     public double getSystemCpuLoadBetweenTicks(long[] oldTicks, long[] ticks) {
+        if (oldTicks.length != ticks.length) {
+            throw new IllegalArgumentException("Tick arrays must have the same length, but were " + oldTicks.length
+                    + " and " + ticks.length + ".");
+        }
         // Calculate total
         long total = 0;
         for (int i = 0; i < ticks.length; i++) {
