@@ -51,15 +51,13 @@ final class WindowsSoundCardJNA extends AbstractSoundCard {
             String fullKey = REGISTRY_SOUNDCARDS + key;
             try {
                 if (Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, fullKey, "Driver")) {
+                    // Read each sub-value defensively; a driver key missing DriverVersion/ProviderName/DriverDesc
+                    // must not throw ERROR_FILE_NOT_FOUND and abort the whole enumeration. Matches
+                    // WindowsSoundCardFFM.
                     soundCards.add(new WindowsSoundCardJNA(
-                            Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, "Driver") + " "
-                                    + Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
-                                            "DriverVersion"),
-                            Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, "ProviderName")
-                                    + " "
-                                    + Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey,
-                                            "DriverDesc"),
-                            Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, fullKey, "DriverDesc")));
+                            getRegString(fullKey, "Driver") + " " + getRegString(fullKey, "DriverVersion"),
+                            getRegString(fullKey, "ProviderName") + " " + getRegString(fullKey, "DriverDesc"),
+                            getRegString(fullKey, "DriverDesc")));
                 }
             } catch (Win32Exception e) {
                 if (e.getErrorCode() != WinError.ERROR_ACCESS_DENIED) {
@@ -69,5 +67,13 @@ final class WindowsSoundCardJNA extends AbstractSoundCard {
             }
         }
         return soundCards;
+    }
+
+    private static String getRegString(String keyPath, String valueName) {
+        if (!Advapi32Util.registryValueExists(WinReg.HKEY_LOCAL_MACHINE, keyPath, valueName)) {
+            return "";
+        }
+        Object val = Advapi32Util.registryGetValue(WinReg.HKEY_LOCAL_MACHINE, keyPath, valueName);
+        return val instanceof String ? (String) val : "";
     }
 }

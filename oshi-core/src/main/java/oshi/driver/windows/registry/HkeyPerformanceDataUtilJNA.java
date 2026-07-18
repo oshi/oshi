@@ -173,6 +173,13 @@ public final class HkeyPerformanceDataUtilJNA extends HkeyPerformanceDataUtil {
                 ret = Advapi32.INSTANCE.RegQueryValueEx(WinReg.HKEY_PERFORMANCE_DATA, objectIndexStr, 0, null,
                         pPerfData, lpcbData);
             }
+            // The buffer-grow retry can exit on a hard error rather than ERROR_SUCCESS; return null instead of an
+            // unvalidated buffer. Matches HkeyPerformanceDataUtilFFM.
+            if (ret != WinError.ERROR_SUCCESS) {
+                LOG.error("Error reading performance data from registry for {}.", objectName);
+                pPerfData.close();
+                return null;
+            }
             return pPerfData;
         }
     }

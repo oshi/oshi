@@ -153,58 +153,59 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                         if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
                                                                 IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
                                                                 bqi.size(), bi.getPointer(), bi.size(), dwOut, null)) {
-                                                            // Only non-UPS system batteries count
+                                                            // Only non-UPS system batteries count; skip UPS and
+                                                            // short-term batteries entirely so they don't terminate
+                                                            // the search with placeholder data.
                                                             bi.read();
+                                                            if (0 == (bi.Capabilities & BATTERY_SYSTEM_BATTERY)
+                                                                    || 0 != (bi.Capabilities & BATTERY_IS_SHORT_TERM)) {
+                                                                continue;
+                                                            }
                                                             int maxCapacitySafe = 1;
-                                                            if (0 != (bi.Capabilities & BATTERY_SYSTEM_BATTERY)
-                                                                    && 0 == (bi.Capabilities & BATTERY_IS_SHORT_TERM)) {
-                                                                // Capabilities flags non-mWh units
-                                                                if (0 == (bi.Capabilities
-                                                                        & BATTERY_CAPACITY_RELATIVE)) {
-                                                                    psCapacityUnits = CapacityUnits.MWH;
-                                                                }
-                                                                psChemistry = Native.toString(bi.Chemistry,
-                                                                        StandardCharsets.US_ASCII);
-                                                                psDesignCapacity = bi.DesignedCapacity;
-                                                                psMaxCapacity = bi.FullChargedCapacity;
-                                                                psCycleCount = bi.CycleCount;
-                                                                if (psMaxCapacity > 0) {
-                                                                    maxCapacitySafe = psMaxCapacity;
-                                                                } else if (psDesignCapacity > 0) {
-                                                                    maxCapacitySafe = psDesignCapacity;
-                                                                } else {
-                                                                    maxCapacitySafe = 1;
-                                                                }
+                                                            // Capabilities flags non-mWh units
+                                                            if (0 == (bi.Capabilities & BATTERY_CAPACITY_RELATIVE)) {
+                                                                psCapacityUnits = CapacityUnits.MWH;
+                                                            }
+                                                            psChemistry = Native.toString(bi.Chemistry,
+                                                                    StandardCharsets.US_ASCII);
+                                                            psDesignCapacity = bi.DesignedCapacity;
+                                                            psMaxCapacity = bi.FullChargedCapacity;
+                                                            psCycleCount = bi.CycleCount;
+                                                            if (psMaxCapacity > 0) {
+                                                                maxCapacitySafe = psMaxCapacity;
+                                                            } else if (psDesignCapacity > 0) {
+                                                                maxCapacitySafe = psDesignCapacity;
+                                                            } else {
+                                                                maxCapacitySafe = 1;
+                                                            }
 
-                                                                // Query the battery status.
-                                                                bws.BatteryTag = bqi.BatteryTag;
-                                                                bws.write();
-                                                                if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
-                                                                        IOCTL_BATTERY_QUERY_STATUS, bws.getPointer(),
-                                                                        bws.size(), bs.getPointer(), bs.size(), dwOut,
-                                                                        null)) {
-                                                                    bs.read();
-                                                                    if (0 != (bs.PowerState & BATTERY_POWER_ON_LINE)) {
-                                                                        psPowerOnLine = true;
-                                                                    }
-                                                                    if (0 != (bs.PowerState & BATTERY_DISCHARGING)) {
-                                                                        psDischarging = true;
-                                                                    }
-                                                                    if (0 != (bs.PowerState & BATTERY_CHARGING)) {
-                                                                        psCharging = true;
-                                                                        psTimeRemainingEstimated = -2d;
-                                                                    }
-                                                                    psCurrentCapacity = bs.Capacity;
-                                                                    psVoltage = bs.Voltage > 0 ? bs.Voltage / 1000d
-                                                                            : bs.Voltage;
-                                                                    psPowerUsageRate = bs.Rate;
-                                                                    if (psVoltage > 0) {
-                                                                        psAmperage = psPowerUsageRate / psVoltage;
-                                                                    }
-                                                                    psRemainingCapacityPercent = Math.min(1d,
-                                                                            (double) psCurrentCapacity
-                                                                                    / maxCapacitySafe);
+                                                            // Query the battery status.
+                                                            bws.BatteryTag = bqi.BatteryTag;
+                                                            bws.write();
+                                                            if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
+                                                                    IOCTL_BATTERY_QUERY_STATUS, bws.getPointer(),
+                                                                    bws.size(), bs.getPointer(), bs.size(), dwOut,
+                                                                    null)) {
+                                                                bs.read();
+                                                                if (0 != (bs.PowerState & BATTERY_POWER_ON_LINE)) {
+                                                                    psPowerOnLine = true;
                                                                 }
+                                                                if (0 != (bs.PowerState & BATTERY_DISCHARGING)) {
+                                                                    psDischarging = true;
+                                                                }
+                                                                if (0 != (bs.PowerState & BATTERY_CHARGING)) {
+                                                                    psCharging = true;
+                                                                    psTimeRemainingEstimated = -2d;
+                                                                }
+                                                                psCurrentCapacity = bs.Capacity;
+                                                                psVoltage = bs.Voltage > 0 ? bs.Voltage / 1000d
+                                                                        : bs.Voltage;
+                                                                psPowerUsageRate = bs.Rate;
+                                                                if (psVoltage > 0) {
+                                                                    psAmperage = psPowerUsageRate / psVoltage;
+                                                                }
+                                                                psRemainingCapacityPercent = Math.min(1d,
+                                                                        (double) psCurrentCapacity / maxCapacitySafe);
                                                             }
 
                                                             try (Memory nameBuf = new Memory(1024)) {
