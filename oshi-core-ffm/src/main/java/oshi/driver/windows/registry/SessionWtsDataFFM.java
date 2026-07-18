@@ -9,6 +9,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -122,7 +123,7 @@ public final class SessionWtsDataFFM {
                         if (protocolType <= 0) {
                             continue;
                         }
-                        String device = readWideString(pWinStation.reinterpret(256));
+                        String device = readWideStringFromPointer(pWinStation);
 
                         // Query WTSINFO for username and logon time
                         if (!Wtsapi32FFM.WTSQuerySessionInformation(Wtsapi32FFM.WTS_CURRENT_SERVER_HANDLE, sessionId,

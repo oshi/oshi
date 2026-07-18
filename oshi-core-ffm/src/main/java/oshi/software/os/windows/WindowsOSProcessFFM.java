@@ -26,6 +26,7 @@ import static oshi.ffm.platform.windows.WinNTFFM.PROCESS_QUERY_INFORMATION;
 import static oshi.ffm.platform.windows.WinNTFFM.PROCESS_VM_READ;
 import static oshi.ffm.platform.windows.WinNTFFM.TOKEN_QUERY;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -279,7 +280,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         if (Advapi32FFM.ConvertSidToStringSid(sidPtr, sidStringPtr)) {
             MemorySegment strPtr = sidStringPtr.get(ADDRESS, 0);
             if (strPtr.address() != 0) {
-                sidString = readWideString(strPtr.reinterpret(512));
+                sidString = readWideStringFromPointer(strPtr);
                 Kernel32FFM.LocalFree(strPtr);
             }
         }
