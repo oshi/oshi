@@ -8,12 +8,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import com.sun.jna.Memory;
 
 /**
  * Tests the pointer decoding shared by the Solaris and AIX JNA {@code PsInfo} address-space readers.
+ * <p>
+ * Allocating a JNA {@link Memory} requires the JNA native dispatch library, so this test is disabled on the NetBSD CI
+ * runner that intentionally runs without it.
  */
+@DisabledIfSystemProperty(named = "os.name", matches = "(?i)netbsd")
 class ProcAddressSpaceReaderTest {
 
     @Test
