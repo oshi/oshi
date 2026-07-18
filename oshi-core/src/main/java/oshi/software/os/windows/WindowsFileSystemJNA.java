@@ -161,9 +161,15 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                 systemFreeBytes = new WinNT.LARGE_INTEGER(0L);
 
                 volume = Native.toString(aVolume);
-                Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, pFlags, fstype, 16);
+                // Skip the volume entirely if a native query fails, rather than emitting a phantom file store with a
+                // blank name and zero size. Matches WindowsFileSystemFFM.
+                if (!Kernel32.INSTANCE.GetVolumeInformation(volume, name, BUFSIZE, null, null, pFlags, fstype, 16)) {
+                    continue;
+                }
                 final int flags = pFlags.getValue();
-                Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null);
+                if (!Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null)) {
+                    continue;
+                }
 
                 strMount = Native.toString(mount);
                 if (!strMount.isEmpty() && (volumeToMatch == null || volumeToMatch.equals(volume))) {
@@ -176,7 +182,9 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                     if (!moreOptions.isEmpty()) {
                         options.append(',').append(moreOptions);
                     }
-                    Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes);
+                    if (!Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes)) {
+                        continue;
+                    }
                     // Parse uuid from volume name
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
