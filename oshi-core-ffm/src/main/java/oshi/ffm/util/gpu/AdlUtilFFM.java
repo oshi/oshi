@@ -6,6 +6,7 @@ package oshi.ffm.util.gpu;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -70,6 +71,8 @@ public final class AdlUtilFFM {
     private static final MethodHandle ADL2_OVERDRIVE6_CURRENT_POWER_GET;
     // Upcall stub for malloc callback
     private static final MemorySegment MALLOC_STUB;
+    // Native C malloc, so memory handed to ADL can be released by ADL's free()
+    private static final MethodHandle MALLOC;
 
     static {
         boolean available = false;
@@ -82,6 +85,7 @@ public final class AdlUtilFFM {
         MethodHandle hPerf = null;
         MethodHandle hFan = null;
         MethodHandle hPower = null;
+        MethodHandle malloc = null;
         MemorySegment mallocStub = MemorySegment.NULL;
         try {
             SymbolLookup adl;
@@ -91,6 +95,9 @@ public final class AdlUtilFFM {
                 adl = SymbolLookup.libraryLookup("atiadlxy", Arena.global());
             }
             Linker linker = Linker.nativeLinker();
+            // Native C malloc so the buffer ADL later free()s is a genuine C-heap pointer
+            malloc = linker.downcallHandle(linker.defaultLookup().find("malloc").orElseThrow(),
+                    FunctionDescriptor.of(ADDRESS, JAVA_LONG));
 
             // Create malloc upcall: int (*)(int size) -> Pointer
             // ADL expects __stdcall on Windows but FFM uses default calling convention which works for x64
@@ -133,6 +140,7 @@ public final class AdlUtilFFM {
         ADL2_OVERDRIVEN_FAN_CONTROL_GET = hFan;
         ADL2_OVERDRIVE6_CURRENT_POWER_GET = hPower;
         MALLOC_STUB = mallocStub;
+        MALLOC = malloc;
     }
 
     private AdlUtilFFM() {
@@ -151,10 +159,15 @@ public final class AdlUtilFFM {
      */
     @SuppressWarnings("unused")
     private static MemorySegment adlMalloc(int size) {
-        if (size <= 0) {
+        if (size <= 0 || MALLOC == null) {
             return MemorySegment.NULL;
         }
-        return Arena.global().allocate(size);
+        try {
+            // Allocate from the C heap (not a JVM Arena) so the pointer ADL later passes to free() is valid.
+            return (MemorySegment) MALLOC.invokeExact((long) size);
+        } catch (Throwable t) {
+            return MemorySegment.NULL;
+        }
     }
 
     private static MemorySegment adlInit(Arena arena) {

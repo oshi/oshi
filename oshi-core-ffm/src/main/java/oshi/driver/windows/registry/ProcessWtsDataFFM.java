@@ -7,7 +7,7 @@ package oshi.driver.windows.registry;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_NUMBER_OF_THREADS;
@@ -93,7 +93,7 @@ public final class ProcessWtsDataFFM {
                         continue;
                     }
                     MemorySegment pName = pProcessInfo.get(ADDRESS, base + PROCESS_INFO_EX_PROCESS_NAME);
-                    String name = pName.equals(MemorySegment.NULL) ? "" : readWideString(pName.reinterpret(512));
+                    String name = readWideStringFromPointer(pName);
                     int threads = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_NUMBER_OF_THREADS);
                     long pagefileUsage = pProcessInfo.get(JAVA_INT, base + PROCESS_INFO_EX_PAGEFILE_USAGE)
                             & 0xffff_ffffL;

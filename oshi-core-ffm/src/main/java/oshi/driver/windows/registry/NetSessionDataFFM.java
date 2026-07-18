@@ -7,7 +7,7 @@ package oshi.driver.windows.registry;
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
+import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -50,11 +50,13 @@ public final class NetSessionDataFFM {
                         buf = buf.reinterpret(SESSION_INFO_10_SIZE * count);
                         for (int i = 0; i < count; i++) {
                             long base = i * SESSION_INFO_10_SIZE;
-                            MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME).reinterpret(512);
-                            MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME).reinterpret(512);
+                            MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME);
+                            MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME);
                             int time = buf.get(JAVA_INT, base + OFFSET_TIME);
-                            String cname = readWideString(pCname);
-                            String username = readWideString(pUsername);
+                            // readWideStringFromPointer null-checks the pointer (anonymous sessions have a NULL
+                            // cname/username) and bounds the read so a maximum-length name cannot overrun.
+                            String cname = readWideStringFromPointer(pCname);
+                            String username = readWideStringFromPointer(pUsername);
                             long logonTime = System.currentTimeMillis() - (1000L * time);
                             sessions.add(new OSSession(username, "Network session", logonTime, cname));
                         }
