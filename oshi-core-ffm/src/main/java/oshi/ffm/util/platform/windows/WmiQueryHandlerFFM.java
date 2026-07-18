@@ -133,10 +133,10 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
         boolean comInit = false;
         try (Arena arena = Arena.ofConfined()) {
             if (initCom) {
+                // initCOM() returns false when COM was already initialized in a different apartment model
+                // (RPC_E_CHANGED_MODE). COM is still usable, so proceed with the query rather than returning empty
+                // (matches the JNA backend). comInit stays false so we do not uninitialize COM we did not initialize.
                 comInit = initCOM();
-                if (!comInit) {
-                    return result;
-                }
             }
 
             Optional<MemorySegment> pLocatorOpt = IWbemLocatorFFM.create(arena);
@@ -308,10 +308,10 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
         List<T> results = new ArrayList<>();
         boolean comInit = false;
         try (Arena arena = Arena.ofConfined()) {
+            // initCOM() returns false when COM was already initialized in a different apartment model
+            // (RPC_E_CHANGED_MODE). COM is still usable, so proceed with the query rather than returning empty
+            // (matches the JNA backend). comInit stays false so we do not uninitialize COM we did not initialize.
             comInit = initCOM();
-            if (!comInit) {
-                return results;
-            }
             Optional<MemorySegment> pLocatorOpt = IWbemLocatorFFM.create(arena);
             if (pLocatorOpt.isEmpty()) {
                 return results;

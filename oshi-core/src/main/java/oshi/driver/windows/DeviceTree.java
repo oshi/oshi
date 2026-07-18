@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows;
@@ -69,8 +69,10 @@ public final class DeviceTree {
         // Get device IDs for the top level devices
         HANDLE hDevInfo = SA.SetupDiGetClassDevs(guidDevInterface, null, null, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
         if (!INVALID_HANDLE_VALUE.equals(hDevInfo)) {
-            try (Memory buf = new Memory(MAX_PATH);
-                    CloseableIntByReference size = new CloseableIntByReference(MAX_PATH);
+            // MAX_PATH is a character count; the registry properties are UTF-16, so allocate 2 bytes per character to
+            // avoid truncating device names/descriptions longer than ~130 characters (matches the FFM backend).
+            try (Memory buf = new Memory(MAX_PATH * 2L);
+                    CloseableIntByReference size = new CloseableIntByReference(MAX_PATH * 2);
                     CloseableIntByReference child = new CloseableIntByReference();
                     CloseableIntByReference sibling = new CloseableIntByReference();
                     CloseableSpDevinfoData devInfoData = new CloseableSpDevinfoData()) {

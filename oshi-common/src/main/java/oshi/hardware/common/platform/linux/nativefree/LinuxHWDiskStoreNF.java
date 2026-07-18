@@ -59,13 +59,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
             String serial = FileUtil.getStringFromFile(sysPath + "device/serial").trim();
             long size = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(sysPath + SIZE).trim(), 0L)
                     * SECTORSIZE;
-            String rotational = FileUtil.getStringFromFile(sysPath + "queue/rotational").trim();
-            String diskType = "";
-            if ("1".equals(rotational)) {
-                diskType = "HDD";
-            } else if ("0".equals(rotational)) {
-                diskType = "SSD";
-            }
+            String diskType = detectDiskType(sysPath);
 
             LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + name, model, serial, size, diskType);
 
@@ -101,6 +95,26 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
         }
         finalizePartitions(result);
         return result;
+    }
+
+    /**
+     * Detects the disk type from sysfs attributes, mirroring the udev-based backends' {@code detectDiskType}.
+     *
+     * @param sysPath the {@code /sys/block/<device>/} path for the device
+     * @return {@code "Removable"}, {@code "SSD"}, {@code "HDD"}, or {@code "Unknown"}
+     */
+    private static String detectDiskType(String sysPath) {
+        String removable = FileUtil.getStringFromFile(sysPath + "removable").trim();
+        if ("1".equals(removable)) {
+            return "Removable";
+        }
+        String rotational = FileUtil.getStringFromFile(sysPath + "queue/rotational").trim();
+        if ("0".equals(rotational)) {
+            return "SSD";
+        } else if ("1".equals(rotational)) {
+            return "HDD";
+        }
+        return "Unknown";
     }
 
     @Override

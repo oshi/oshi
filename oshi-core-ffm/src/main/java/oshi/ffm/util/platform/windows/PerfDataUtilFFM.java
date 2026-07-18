@@ -13,6 +13,7 @@ import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_CSTATUS_NEW_DATA;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_CSTATUS_VALID_DATA;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_MORE_DATA;
+import static oshi.ffm.platform.windows.PdhFFM.PDH_NO_DATA;
 import static oshi.ffm.platform.windows.PdhFFM.PDH_RAW_COUNTER_LAYOUT;
 import static oshi.ffm.platform.windows.PdhFFM.PdhAddEnglishCounter;
 import static oshi.ffm.platform.windows.PdhFFM.PdhCloseQuery;
@@ -107,8 +108,8 @@ public final class PerfDataUtilFFM {
                     return valueMap;
                 }
 
-                // Collect once
-                checkSuccess(PdhCollectQueryData(query));
+                // Collect, retrying the initial-sample PDH_NO_DATA race
+                collectQueryDataWithRetry(query);
 
                 // Read all values, skipping any that fail
                 for (var entry : counterHandles.entrySet()) {
@@ -141,6 +142,18 @@ public final class PerfDataUtilFFM {
         }
         path.append('\\').append(counter);
         return path.toString();
+    }
+
+    private static void collectQueryDataWithRetry(MemorySegment query) throws Throwable {
+        int ret = PdhCollectQueryData(query);
+        // Due to a race condition, the initial collection may fail with PDH_NO_DATA; retry with exponential backoff
+        // (matches the JNA PerfDataUtil backend).
+        int retries = 0;
+        while (ret == PDH_NO_DATA && retries++ < 3) {
+            Util.sleep(1L << retries);
+            ret = PdhCollectQueryData(query);
+        }
+        checkSuccess(ret);
     }
 
     private static MemorySegment addEnglishCounter(Arena arena, MemorySegment query, String path) throws Throwable {
@@ -325,8 +338,8 @@ public final class PerfDataUtilFFM {
                     }
                 }
 
-                // Collect once
-                checkSuccess(PdhCollectQueryData(query));
+                // Collect, retrying the initial-sample PDH_NO_DATA race
+                collectQueryDataWithRetry(query);
 
                 // Read values; use SecondValue for _Base counters
                 for (int p = 1; p < props.length; p++) {
