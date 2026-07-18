@@ -22,6 +22,10 @@
         <native.access.modules>ALL-UNNAMED</native.access.modules>
         <shade.phase>none</shade.phase>
         <uberjar.name>benchmarks</uberjar.name>
+        <!-- Exclude this benchmark/comparison module from SonarCloud: it is not published, and its comparison tests
+        only compile under the native-comparison profile, so the default Sonar build has no test binaries for it (the
+        source of a "sonar.java.test.binaries" warning). -->
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>
