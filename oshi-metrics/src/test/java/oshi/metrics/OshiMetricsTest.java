@@ -44,7 +44,11 @@ class OshiMetricsTest {
     void systemUptimeRegistered() {
         Gauge uptime = registry.find("system.uptime").gauge();
         assertNotNull(uptime, "system.uptime should be registered");
-        assertTrue(uptime.value() > 0, "System uptime should be positive");
+        // The DragonFly BSD CI VM has a known clock bug that reports a bogus (often future) boot time, which makes the
+        // derived uptime non-positive: https://bugs.dragonflybsd.org/issues/3299
+        if (!(PlatformEnum.getCurrentPlatform() == DRAGONFLYBSD && "true".equals(System.getenv("CI")))) {
+            assertTrue(uptime.value() > 0, "System uptime should be positive");
+        }
     }
 
     @Test
