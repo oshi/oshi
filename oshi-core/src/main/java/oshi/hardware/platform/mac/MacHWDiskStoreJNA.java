@@ -91,6 +91,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
             IOIterator driveListIter = IOKitUtil.getMatchingServices(matchingDict);
             if (driveListIter != null) {
                 // getMatchingServices releases matchingDict
+                boolean updated = false;
                 IORegistryEntry drive = driveListIter.next();
                 // Should only match one drive
                 if (drive != null) {
@@ -220,13 +221,14 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                         if (parent != null) {
                             parent.release();
                         }
+                        updated = true;
                     } else {
                         LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                     }
                     drive.release();
                 }
                 driveListIter.release();
-                return true;
+                return updated;
             }
         }
         return false;

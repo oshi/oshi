@@ -54,7 +54,7 @@ final class MacNetworkParamsJNA extends MacNetworkParams {
                 return "";
             }
             try (Addrinfo info = new Addrinfo(ptr.getValue())) { // NOSONAR
-                String canonname = info.ai_canonname.trim();
+                String canonname = info.ai_canonname == null ? "" : info.ai_canonname.trim();
                 SYS.freeaddrinfo(ptr.getValue());
                 return canonname;
             }

@@ -129,9 +129,9 @@ public final class SmcUtil {
             int result = smcReadKey(conn, key, val);
             if (result == 0 && val.dataSize > 0) {
                 if (Arrays.equals(val.dataType, DATATYPE_SP78) && val.dataSize == 2) {
-                    // First bit is sign, next 7 bits are integer portion, last 8 bits are
-                    // fractional portion
-                    return val.bytes[0] + val.bytes[1] / 256d;
+                    // First bit is sign, next 7 bits are integer portion, last 8 bits are the
+                    // (unsigned) fractional portion
+                    return val.bytes[0] + (val.bytes[1] & 0xFF) / 256d;
                 } else if (Arrays.equals(val.dataType, DATATYPE_FPE2) && val.dataSize == 2) {
                     // First E (14) bits are integer portion last 2 bits are fractional portion
                     return ParseUtil.byteArrayToFloat(val.bytes, val.dataSize, 2);

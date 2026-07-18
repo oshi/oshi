@@ -259,7 +259,7 @@ public class MacOSProcessJNA extends MacOSProcess {
         }
         try (CloseableVnodePathInfo vpi = new CloseableVnodePathInfo()) {
             if (0 < SystemB.INSTANCE.proc_pidinfo(getProcessID(), PROC_PIDVNODEPATHINFO, 0, vpi, vpi.size())) {
-                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.US_ASCII);
+                this.currentWorkingDirectory = Native.toString(vpi.pvi_cdir.vip_path, StandardCharsets.UTF_8);
             }
         }
         return true;

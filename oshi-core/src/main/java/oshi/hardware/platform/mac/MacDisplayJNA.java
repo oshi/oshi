@@ -114,7 +114,9 @@ final class MacDisplayJNA extends AbstractDisplay {
                                 // EDID is a byte array of 128 bytes (or more)
                                 int length = edid.getLength();
                                 Pointer p = edid.getBytePtr();
-                                displays.add(new MacDisplayJNA(p.getByteArray(0, length)));
+                                if (length > 0) {
+                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length)));
+                                }
                             } finally {
                                 edid.release();
                             }

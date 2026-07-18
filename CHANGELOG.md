@@ -7,6 +7,7 @@
 * [#3443](https://github.com/oshi/oshi/pull/3443): Share memoized iostat supplier across disk instances; cache pluggable hardware lists (displays, USB, sound cards, graphics cards) in the HAL with a 3-second TTL - [@dbwiddis](https://github.com/dbwiddis).
 * [#3444](https://github.com/oshi/oshi/pull/3444): Consolidate try/catch-log-return-default patterns to use `ExceptionUtil` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3459](https://github.com/oshi/oshi/pull/3459): Deduplicate the Windows `CentralProcessor` frequency queries into the shared base, and fix the JNA per-processor current-frequency numbering, which mis-assigned frequencies to logical processors on multi-processor-group/NUMA systems - [@dbwiddis](https://github.com/dbwiddis).
+* [#3473](https://github.com/oshi/oshi/pull/3473): Fix several macOS bugs in the default JNA backend to match the FFM backend: correct Intel Mac sensor temperatures that were under-reported by the SP78 fractional byte, decode process working directories and login sessions as UTF-8, and add missing null/bounds guards on native results - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08)
 
