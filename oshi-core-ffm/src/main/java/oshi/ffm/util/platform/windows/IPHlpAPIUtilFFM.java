@@ -113,6 +113,10 @@ public final class IPHlpAPIUtilFFM {
                 if (dnsServerList.address() == 0) {
                     break;
                 }
+                // A pointer read yields a zero-length segment; give it the struct's extent so the next iteration can
+                // slice the IpAddress and Next fields instead of throwing IndexOutOfBoundsException (which was being
+                // swallowed, returning no DNS servers on any machine with two or more configured).
+                dnsServerList = dnsServerList.reinterpret(IP_ADDR_STRING_LAYOUT.byteSize());
             }
 
             return dnsServers.toArray(new String[0]);
