@@ -49,6 +49,8 @@
 --add-opens
   com.github.oshi.common/oshi.driver.common.windows.gpu=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.driver.common.windows.registry=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.driver.common.unix.bsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.driver.common.unix.bsd.disk=org.junit.platform.commons
