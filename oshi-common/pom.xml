@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.oshi</groupId>
         <artifactId>oshi-parent</artifactId>
-        <version>7.4.1</version>
+        <version>7.4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>oshi-common</artifactId>
