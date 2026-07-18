@@ -44,9 +44,9 @@ public final class Who {
             // Iterate
             while ((ut = LIBC.getutxent()) != null) {
                 if (ut.ut_type == USER_PROCESS || ut.ut_type == LOGIN_PROCESS) {
-                    String user = Native.toString(ut.ut_user, StandardCharsets.US_ASCII);
-                    String device = Native.toString(ut.ut_line, StandardCharsets.US_ASCII);
-                    String host = Native.toString(ut.ut_host, StandardCharsets.US_ASCII);
+                    String user = Native.toString(ut.ut_user, StandardCharsets.UTF_8);
+                    String device = Native.toString(ut.ut_line, StandardCharsets.UTF_8);
+                    String host = Native.toString(ut.ut_host, StandardCharsets.UTF_8);
                     long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec.longValue() / 1000L;
                     // Sanity check. If errors, default to who command line
                     if (!isSessionValid(user, device, loginTime)) {

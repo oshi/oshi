@@ -7,6 +7,7 @@ package oshi.driver.mac;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static oshi.ffm.ForeignFunctions.readFixedWidthString;
 import static oshi.ffm.platform.mac.MacSystem.LOGIN_PROCESS;
 import static oshi.ffm.platform.mac.MacSystem.USER_PROCESS;
 import static oshi.ffm.platform.mac.MacSystem.UTMPX;
@@ -56,9 +57,9 @@ public final class WhoFFM {
                     MemorySegment ut = utPtr.reinterpret(UTMPX.byteSize(), arena, null);
                     short type = ut.get(JAVA_SHORT, UTMPX.byteOffset(UT_TYPE));
                     if (type == USER_PROCESS || type == LOGIN_PROCESS) {
-                        String user = ut.asSlice(UTMPX.byteOffset(UT_USER), UTX_USERSIZE).getString(0);
-                        String device = ut.asSlice(UTMPX.byteOffset(UT_LINE), UTX_LINESIZE).getString(0);
-                        String host = ut.asSlice(UTMPX.byteOffset(UT_HOST), UTX_HOSTSIZE).getString(0);
+                        String user = readFixedWidthString(ut, UTMPX.byteOffset(UT_USER), UTX_USERSIZE);
+                        String device = readFixedWidthString(ut, UTMPX.byteOffset(UT_LINE), UTX_LINESIZE);
+                        String host = readFixedWidthString(ut, UTMPX.byteOffset(UT_HOST), UTX_HOSTSIZE);
                         long tvSec = ut.get(JAVA_LONG, UTMPX.byteOffset(UT_TV_SEC));
                         int tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
                         long loginTime = tvSec * 1000L + tvUsec / 1000L;

@@ -5,12 +5,14 @@
 package oshi.software.os.unix.solaris;
 
 import java.lang.foreign.MemorySegment;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.solaris.WhoFFM;
 import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
@@ -20,6 +22,7 @@ import oshi.software.common.os.unix.solaris.SolarisOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 
 /**
@@ -89,5 +92,10 @@ public class SolarisOperatingSystemFFM extends SolarisOperatingSystem {
     @Override
     public NetworkParams getNetworkParams() {
         return new SolarisNetworkParamsFFM();
+    }
+
+    @Override
+    public List<OSSession> getSessions() {
+        return USE_WHO_COMMAND ? super.getSessions() : WhoFFM.queryUtxent();
     }
 }
