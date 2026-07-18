@@ -29,16 +29,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.driver.common.windows.registry.RegistryValueUtil;
 import oshi.ffm.platform.windows.Win32Exception;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.software.os.ApplicationInfo;
-import oshi.util.ParseUtil;
 
 public final class InstalledAppsDataFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstalledAppsDataFFM.class);
-
-    private static final long THIRTY_YEARS_IN_SECS = 30L * 365 * 24 * 60 * 60;
 
     private static final Map<MemorySegment, List<String>> REGISTRY_PATHS = new LinkedHashMap<>();
     private static final int[] ACCESS_FLAGS = { KEY_WOW64_64KEY, KEY_WOW64_32KEY };
@@ -68,20 +66,20 @@ public final class InstalledAppsDataFFM {
                         for (String key : keys) {
                             String fullPath = registryPath + "\\" + key;
                             try {
-                                String name = registryValueToString(
+                                String name = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayName", accessFlag));
                                 if (name == null) {
                                     continue;
                                 }
-                                String version = registryValueToString(
+                                String version = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayVersion", accessFlag));
-                                String publisher = registryValueToString(
+                                String publisher = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "Publisher", accessFlag));
-                                long installDate = registryValueToLong(
+                                long installDate = RegistryValueUtil.registryValueToLong(
                                         getRegistryValueOrNull(rootKey, fullPath, "InstallDate", accessFlag));
-                                String installLocation = registryValueToString(
+                                String installLocation = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "InstallLocation", accessFlag));
-                                String installSource = registryValueToString(
+                                String installSource = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "InstallSource", accessFlag));
 
                                 Map<String, String> additionalInfo = new LinkedHashMap<>();
@@ -104,36 +102,6 @@ public final class InstalledAppsDataFFM {
         }
 
         return new ArrayList<>(appInfoSet);
-    }
-
-    private static String registryValueToString(Object registryValueOrNull) {
-        if (registryValueOrNull instanceof Integer i) {
-            return Integer.toString(i);
-        }
-        return registryValueOrNull instanceof String s ? s.trim() : null;
-    }
-
-    private static long registryValueToLong(Object registryValueOrNull) {
-        if (registryValueOrNull == null) {
-            return 0L;
-        }
-        long currentTimeSecs = System.currentTimeMillis() / 1000L;
-        long minSaneTimestamp = currentTimeSecs - THIRTY_YEARS_IN_SECS;
-
-        if (registryValueOrNull instanceof Integer i) {
-            if (i > minSaneTimestamp && i < currentTimeSecs) {
-                return i * 1000L;
-            }
-            return i;
-        } else if (registryValueOrNull instanceof String s) {
-            String dateStr = s.trim();
-            long epoch = ParseUtil.parseDateToEpoch(dateStr, "yyyyMMdd");
-            if (epoch == 0) {
-                epoch = ParseUtil.parseDateToEpoch(dateStr, "MM/dd/yyyy");
-            }
-            return epoch;
-        }
-        return 0L;
     }
 
     private static Object getRegistryValueOrNull(MemorySegment rootKey, String path, String key, int accessFlag)

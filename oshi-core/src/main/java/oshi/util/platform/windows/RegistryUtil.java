@@ -6,7 +6,6 @@ package oshi.util.platform.windows;
 
 import static com.sun.jna.platform.win32.WinError.ERROR_SUCCESS;
 import static com.sun.jna.platform.win32.WinNT.KEY_READ;
-import static oshi.util.ParseUtil.decodeBinaryToString;
 
 import java.util.Objects;
 
@@ -19,7 +18,7 @@ import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 
-import oshi.util.ParseUtil;
+import oshi.driver.common.windows.registry.RegistryValueUtil;
 
 /**
  * Utility for reading values from the Windows Registry.
@@ -27,8 +26,6 @@ import oshi.util.ParseUtil;
 public final class RegistryUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegistryUtil.class);
-
-    private static final long THIRTY_YEARS_IN_SECS = 30L * 365 * 24 * 60 * 60;
 
     private static final Advapi32 ADV = Advapi32.INSTANCE;
 
@@ -46,7 +43,7 @@ public final class RegistryUtil {
      */
     public static long getLongValue(HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
-        return registryValueToLong(val);
+        return RegistryValueUtil.registryValueToLong(val);
     }
 
     /**
@@ -78,41 +75,7 @@ public final class RegistryUtil {
     }
 
     /**
-     * Returns a registry value as a long. Supports Integer and String dates. Converts Unix timestamps (seconds) into
-     * milliseconds.
-     *
-     * @param val the registry value
-     * @return the value as a long
-     */
-    static long registryValueToLong(Object val) {
-        if (val == null) {
-            return 0L;
-        }
-
-        // Calculate reasonable timestamp bounds (current time to 30 years ago)
-        long currentTimeSecs = System.currentTimeMillis() / 1000L;
-        long minSaneTimestamp = currentTimeSecs - THIRTY_YEARS_IN_SECS;
-        if (val instanceof Integer) {
-            int value = (Integer) val;
-            if (value > minSaneTimestamp && value < currentTimeSecs) {
-                return value * 1000L;
-            }
-            return value;
-        } else if (val instanceof String) {
-            String dateStr = ((String) val).trim();
-            // Try yyyyMMdd first
-            long epoch = ParseUtil.parseDateToEpoch(dateStr, "yyyyMMdd");
-            if (epoch == 0) {
-                // If that fails, try MM/dd/yyyy
-                epoch = ParseUtil.parseDateToEpoch(dateStr, "MM/dd/yyyy");
-            }
-            return epoch;
-        }
-        return 0L;
-    }
-
-    /**
-     * Returns a registry value as a String. (with access flag) Currently supports String and Binary
+     * Returns a registry value as a String. (with access flag) Currently supports String, Integer, and Binary
      *
      * @param root       the registry root
      * @param path       the registry path
@@ -122,31 +85,7 @@ public final class RegistryUtil {
      */
     public static String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
-        return registryValueToString(val);
-    }
-
-    /**
-     * Decodes registry value to String using multiple fallback encodings.
-     *
-     * @param val the registry value
-     * @return the decoded string
-     */
-    static String registryValueToString(Object val) {
-        if (val == null) {
-            return null;
-        }
-
-        // Already a string (REG_SZ or REG_EXPAND_SZ)
-        if (val instanceof String) {
-            return ((String) val).trim();
-        }
-
-        // handle binary (REG_BINARY)
-        if (val instanceof byte[]) {
-            return decodeBinaryToString((byte[]) val);
-        }
-
-        return null;
+        return RegistryValueUtil.registryValueToString(val);
     }
 
 }
