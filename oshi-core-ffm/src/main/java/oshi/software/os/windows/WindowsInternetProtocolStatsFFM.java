@@ -41,25 +41,29 @@ public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolSta
 
     @Override
     public TcpStats getTCPv4Stats() {
-        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET), ZERO_TCP_STATS, LOG,
+        TcpStats stats = ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET), ZERO_TCP_STATS, LOG,
                 "Failed to read TCPv4 stats: {}");
+        return stats == null ? ZERO_TCP_STATS : stats;
     }
 
     @Override
     public TcpStats getTCPv6Stats() {
-        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET6), ZERO_TCP_STATS, LOG,
+        TcpStats stats = ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getTcpStats(AF_INET6), ZERO_TCP_STATS, LOG,
                 "Failed to read TCPv6 stats: {}");
+        return stats == null ? ZERO_TCP_STATS : stats;
     }
 
     @Override
     public UdpStats getUDPv4Stats() {
-        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET), ZERO_UDP_STATS, LOG,
+        UdpStats stats = ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET), ZERO_UDP_STATS, LOG,
                 "Failed to read UDPv4 stats: {}");
+        return stats == null ? ZERO_UDP_STATS : stats;
     }
 
     @Override
     public UdpStats getUDPv6Stats() {
-        return ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET6), ZERO_UDP_STATS, LOG,
+        UdpStats stats = ExceptionUtil.getOrDefault(() -> IPHlpAPIUtilFFM.getUdpStats(AF_INET6), ZERO_UDP_STATS, LOG,
                 "Failed to read UDPv6 stats: {}");
+        return stats == null ? ZERO_UDP_STATS : stats;
     }
 }
