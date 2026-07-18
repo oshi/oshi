@@ -396,24 +396,37 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                                 try {
                                     CFMutableDictionaryRef props = device.createCFProperties();
                                     if (props != null) {
-                                        Pointer charDict = props
-                                                .getValue(CFStringRef.createCFString("Device Characteristics"));
-                                        if (charDict != null) {
-                                            CFDictionaryRef characteristics = new CFDictionaryRef(charDict);
-                                            Pointer mediumType = characteristics
-                                                    .getValue(CFStringRef.createCFString("Medium Type"));
-                                            if (mediumType != null) {
-                                                String type = CFUtil.cfPointerToString(mediumType);
-                                                if (type != null) {
-                                                    if (type.contains("Solid State") || type.contains("SSD")) {
-                                                        return "SSD";
-                                                    } else if (type.contains("Rotational")) {
-                                                        return "HDD";
+                                        try {
+                                            CFStringRef devCharKey = CFStringRef
+                                                    .createCFString("Device Characteristics");
+                                            try {
+                                                Pointer charDict = props.getValue(devCharKey);
+                                                if (charDict != null) {
+                                                    CFDictionaryRef characteristics = new CFDictionaryRef(charDict);
+                                                    CFStringRef medTypeKey = CFStringRef.createCFString("Medium Type");
+                                                    try {
+                                                        Pointer mediumType = characteristics.getValue(medTypeKey);
+                                                        if (mediumType != null) {
+                                                            String type = CFUtil.cfPointerToString(mediumType);
+                                                            if (type != null) {
+                                                                if (type.contains("Solid State")
+                                                                        || type.contains("SSD")) {
+                                                                    return "SSD";
+                                                                } else if (type.contains("Rotational")) {
+                                                                    return "HDD";
+                                                                }
+                                                            }
+                                                        }
+                                                    } finally {
+                                                        medTypeKey.release();
                                                     }
                                                 }
+                                            } finally {
+                                                devCharKey.release();
                                             }
+                                        } finally {
+                                            props.release();
                                         }
-                                        props.release();
                                     }
                                 } finally {
                                     device.release();
