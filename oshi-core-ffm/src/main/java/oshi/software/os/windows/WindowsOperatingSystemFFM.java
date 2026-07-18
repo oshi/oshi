@@ -6,6 +6,7 @@ package oshi.software.os.windows;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.platform.windows.Kernel32FFM.GetLastError;
@@ -453,7 +454,17 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     private static boolean isCurrentX86() {
-        String arch = System.getenv("PROCESSOR_ARCHITECTURE");
-        return "x86".equalsIgnoreCase(arch);
+        // Query the true machine architecture via GetNativeSystemInfo, matching the JNA backend. The
+        // PROCESSOR_ARCHITECTURE environment variable reflects the process (WOW64) architecture and would
+        // misreport a 32-bit JVM on 64-bit Windows as x86.
+        try (Arena arena = Arena.ofConfined()) {
+            // SYSTEM_INFO is 48 bytes on x64; wProcessorArchitecture is a WORD at offset 0.
+            MemorySegment sysInfo = arena.allocate(48);
+            if (Kernel32FFM.GetNativeSystemInfo(sysInfo)) {
+                // PROCESSOR_ARCHITECTURE_INTEL == 0
+                return Short.toUnsignedInt(sysInfo.get(JAVA_SHORT, 0)) == 0;
+            }
+        }
+        return false;
     }
 }
