@@ -62,6 +62,18 @@ class RegistryValueUtilTest {
     }
 
     @Test
+    void testRegistryValueToStringIntegerHighBit() {
+        // REG_DWORD is unsigned: 0xFFFFFFFF renders as 4294967295, not -1
+        assertThat(RegistryValueUtil.registryValueToString(-1), is("4294967295"));
+    }
+
+    @Test
+    void testRegistryValueToLongIntegerHighBit() {
+        // A high-bit REG_DWORD is treated as unsigned; outside the sane timestamp range it returns the unsigned value
+        assertThat(RegistryValueUtil.registryValueToLong(-1), is(4294967295L));
+    }
+
+    @Test
     void testRegistryValueToStringByteArray() {
         // Windows-1252 with null terminator
         byte[] cp1252 = new byte[] { 't', 'e', 's', 't', 0x00 };

@@ -32,9 +32,9 @@ public final class RegistryValueUtil {
         if (val instanceof String) {
             return ((String) val).trim();
         }
-        // REG_DWORD
+        // REG_DWORD (unsigned 32-bit)
         if (val instanceof Integer) {
-            return Integer.toString((Integer) val);
+            return Integer.toUnsignedString((Integer) val);
         }
         // REG_BINARY
         if (val instanceof byte[]) {
@@ -59,7 +59,9 @@ public final class RegistryValueUtil {
         long currentTimeSecs = System.currentTimeMillis() / 1000L;
         long minSaneTimestamp = currentTimeSecs - THIRTY_YEARS_IN_SECS;
         if (val instanceof Integer) {
-            int value = (Integer) val;
+            // REG_DWORD is unsigned; interpret it as such so timestamps past 2038 (high bit set) are not treated as
+            // negative.
+            long value = Integer.toUnsignedLong((Integer) val);
             if (value > minSaneTimestamp && value < currentTimeSecs) {
                 return value * 1000L;
             }
