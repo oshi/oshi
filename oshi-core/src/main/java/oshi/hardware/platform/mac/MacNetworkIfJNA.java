@@ -44,7 +44,9 @@ public final class MacNetworkIfJNA extends MacNetworkIF {
                     if (cfName != null && name.equals(cfName.stringValue())) {
                         CFStringRef cfDisplayName = SystemConfiguration.INSTANCE
                                 .SCNetworkInterfaceGetLocalizedDisplayName(scNetIf);
-                        return cfDisplayName.stringValue();
+                        if (cfDisplayName != null) {
+                            return cfDisplayName.stringValue();
+                        }
                     }
                 }
             } finally {
