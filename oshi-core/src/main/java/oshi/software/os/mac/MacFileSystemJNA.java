@@ -126,9 +126,11 @@ public class MacFileSystemJNA extends MacFileSystem {
                         if (disk != null) {
                             CFDictionaryRef diskInfo = DiskArbitration.INSTANCE.DADiskCopyDescription(disk);
                             if (diskInfo != null) {
-                                // get volume name from its key
+                                // get volume name from its key; keep the mount-derived name if absent
                                 Pointer result = diskInfo.getValue(daVolumeNameKey);
-                                name = CFUtil.cfPointerToString(result);
+                                if (result != null) {
+                                    name = CFUtil.cfPointerToString(result);
+                                }
                                 diskInfo.release();
                             }
                             disk.release();
