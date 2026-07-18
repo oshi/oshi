@@ -50,11 +50,13 @@ public final class NetSessionDataFFM {
                         buf = buf.reinterpret(SESSION_INFO_10_SIZE * count);
                         for (int i = 0; i < count; i++) {
                             long base = i * SESSION_INFO_10_SIZE;
-                            MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME).reinterpret(512);
-                            MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME).reinterpret(512);
+                            MemorySegment pCname = buf.get(ADDRESS, base + OFFSET_CNAME);
+                            MemorySegment pUsername = buf.get(ADDRESS, base + OFFSET_USERNAME);
                             int time = buf.get(JAVA_INT, base + OFFSET_TIME);
-                            String cname = readWideString(pCname);
-                            String username = readWideString(pUsername);
+                            // A NULL cname/username (e.g. an anonymous session) must not be dereferenced, or
+                            // readWideString would fault on native address 0 (matches ProcessWtsDataFFM).
+                            String cname = pCname.equals(NULL) ? "" : readWideString(pCname.reinterpret(512));
+                            String username = pUsername.equals(NULL) ? "" : readWideString(pUsername.reinterpret(512));
                             long logonTime = System.currentTimeMillis() - (1000L * time);
                             sessions.add(new OSSession(username, "Network session", logonTime, cname));
                         }
