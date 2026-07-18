@@ -6,6 +6,7 @@ package oshi.hardware.platform.mac;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sun.jna.Pointer;
@@ -58,6 +59,12 @@ public final class MacPowerSourceJNA extends MacPowerSource {
         // Get the blob containing current power source state
         CFTypeRef powerSourcesInfo = IO.IOPSCopyPowerSourcesInfo();
         CFArrayRef powerSourcesList = IO.IOPSCopyPowerSourcesList(powerSourcesInfo);
+        if (powerSourcesList == null) {
+            if (powerSourcesInfo != null) {
+                powerSourcesInfo.release();
+            }
+            return Collections.emptyList();
+        }
         int powerSourcesCount = powerSourcesList.getCount();
 
         // Get time remaining
