@@ -60,6 +60,10 @@ public final class IEnumWbemClassObjectFFM extends ComObjectFFM {
         public boolean isComplete() {
             return hresult == WbemcliFFM.WBEM_S_FALSE;
         }
+
+        public boolean isTimedOut() {
+            return hresult == WbemcliFFM.WBEM_S_TIMEDOUT;
+        }
     }
 
     /**

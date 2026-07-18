@@ -118,7 +118,7 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
                 int idx = result.indexOf(volume);
                 WindowsOSFileStoreFFM updated = new WindowsOSFileStoreFFM(wmiVolume.getName(), volume.getVolume(),
                         volume.getLabel().isEmpty() ? wmiVolume.getLabel() : volume.getLabel(), volume.getMount(),
-                        volume.getOptions(), volume.getUUID(), true, "",
+                        volume.getOptions(), volume.getUUID(), volume.isLocal(), "",
                         volume.getDescription().isEmpty() ? wmiVolume.getDescription() : volume.getDescription(),
                         volume.getType(), volume.getFreeSpace(), volume.getUsableSpace(), volume.getTotalSpace(), 0, 0);
                 if (idx >= 0) {
@@ -271,6 +271,10 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
                 String label = WmiUtil.getString(drives, LogicalDiskProperty.VOLUMENAME, i);
                 String options = WmiUtil.getUint16(drives, LogicalDiskProperty.ACCESS, i) == 1 ? "ro" : "rw";
                 int type = WmiUtil.getUint32(drives, LogicalDiskProperty.DRIVETYPE, i);
+                // A drive is "local" only if removable (2), fixed (3), or RAM (6). CD-ROM (5) is intentionally not
+                // treated as local (matches the JNA backend, per a customer latency request). Network drives (4) are
+                // handled by the branch below.
+                boolean local = type == 2 || type == 3 || type == 6;
                 String volume;
 
                 if (type != 4) {
@@ -289,7 +293,7 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
                 }
 
                 fs.add(new WindowsOSFileStoreFFM(String.format(Locale.ROOT, "%s (%s)", description, name), volume,
-                        label, name + "\\", options, "", type != 4, "", getDriveTypeString(type),
+                        label, name + "\\", options, "", local, "", getDriveTypeString(type),
                         WmiUtil.getString(drives, LogicalDiskProperty.FILESYSTEM, i), free, free, total, 0, 0));
             }
         }
