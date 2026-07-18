@@ -47,12 +47,12 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.4.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.0)
-  * FFM: [oshi-core-ffm-7.4.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.0)
+  * JNA: [oshi-core-7.4.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.1)
+  * FFM: [oshi-core-ffm-7.4.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.1)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.4.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.1-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.4.1-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.1-SNAPSHOT/)
+  * JNA: [oshi-core-7.4.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.2-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.4.2-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.2-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
