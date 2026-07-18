@@ -165,7 +165,7 @@ public final class AdlUtilFFM {
         try {
             // Allocate from the C heap (not a JVM Arena) so the pointer ADL later passes to free() is valid.
             return (MemorySegment) MALLOC.invokeExact((long) size);
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             return MemorySegment.NULL;
         }
     }

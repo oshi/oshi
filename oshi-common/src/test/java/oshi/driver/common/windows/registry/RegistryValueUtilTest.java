@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,8 @@ class RegistryValueUtilTest {
     @Test
     void testRegistryValueToLongDateString() {
         // yyyyMMdd is parsed at midnight in the system default zone
-        long expected = LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long expected = LocalDate.of(2020, Month.JANUARY, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+                .toEpochMilli();
         assertThat(RegistryValueUtil.registryValueToLong("20200101"), is(expected));
     }
 
