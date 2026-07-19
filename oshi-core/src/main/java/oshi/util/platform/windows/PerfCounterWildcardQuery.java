@@ -49,8 +49,7 @@ public final class PerfCounterWildcardQuery {
     }
 
     /**
-     * Query the a Performance Counter using PDH, with WMI backup on failure, for values corresponding to the property
-     * enum.
+     * Query a Performance Counter using PDH, with WMI backup on failure, for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
      * @param propertyEnum An enum which implements {@link PdhCounterWildcardProperty} and contains the WMI field (Enum
@@ -67,8 +66,7 @@ public final class PerfCounterWildcardQuery {
     }
 
     /**
-     * Query the a Performance Counter using PDH, with WMI backup on failure, for values corresponding to the property
-     * enum.
+     * Query a Performance Counter using PDH, with WMI backup on failure, for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
      * @param propertyEnum An enum which implements {@link PdhCounterWildcardProperty} and contains the WMI field (Enum
@@ -103,7 +101,7 @@ public final class PerfCounterWildcardQuery {
     }
 
     /**
-     * Query the a Performance Counter using PDH for values corresponding to the property enum.
+     * Query a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
      * @param propertyEnum An enum which implements {@link PdhCounterWildcardProperty} and contains the WMI field (Enum
@@ -119,7 +117,7 @@ public final class PerfCounterWildcardQuery {
     }
 
     /**
-     * Query the a Performance Counter using PDH for values corresponding to the property enum.
+     * Query a Performance Counter using PDH for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
      * @param propertyEnum An enum which implements {@link PdhCounterWildcardProperty} and contains the WMI field (Enum
@@ -200,7 +198,7 @@ public final class PerfCounterWildcardQuery {
     }
 
     /**
-     * Query the a Performance Counter using WMI for values corresponding to the property enum.
+     * Query a Performance Counter using WMI for values corresponding to the property enum.
      *
      * @param <T>          The enum type of {@code propertyEnum}
      * @param propertyEnum An enum which implements {@link PdhCounterWildcardProperty} and contains the WMI field (Enum

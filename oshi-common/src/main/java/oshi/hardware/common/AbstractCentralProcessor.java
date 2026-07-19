@@ -211,7 +211,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     @Override
     public double getSystemCpuLoadBetweenTicks(long[] oldTicks) {
         if (oldTicks.length != TickType.values().length) {
-            throw new IllegalArgumentException("Provited tick array length " + oldTicks.length + " should have "
+            throw new IllegalArgumentException("Provided tick array length " + oldTicks.length + " should have "
                     + TickType.values().length + " elements");
         }
         return getSystemCpuLoadBetweenTicks(oldTicks, getSystemCpuLoadTicks());

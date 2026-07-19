@@ -222,7 +222,7 @@ Many thanks to the following companies for providing free support of Open Source
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [CircleCI](https://circleci.com/) for continuous integration testing
 * [CodeRabbit](https://www.coderabbit.ai/) for automated AI code review
-* The [jProfile Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
+* The [jProfiler Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
 
 License
 -------
