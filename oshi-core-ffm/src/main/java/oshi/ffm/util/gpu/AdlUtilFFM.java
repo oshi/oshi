@@ -38,6 +38,7 @@ public final class AdlUtilFFM {
 
     private static final int ADL_OK = 0;
     private static final int ADL_OVERDRIVE_VERSION_N = 8;
+    private static final int ADL_OVERDRIVE_VERSION_6 = 6;
     private static final int ADL_FAN_SPEED_MODE_PERCENT = 1;
     private static final int ADL_OVERDRIVE_TEMPERATURE_EDGE = 1;
 
@@ -147,6 +148,7 @@ public final class AdlUtilFFM {
     }
 
     // Lazy adapter enumeration
+    private static final Object ENUM_LOCK = new Object();
     private static volatile boolean adaptersEnumerated = false;
     private static final AtomicReference<Map<Integer, Integer>> BUS_TO_INDEX = new AtomicReference<>(
             Collections.emptyMap());
@@ -199,11 +201,17 @@ public final class AdlUtilFFM {
         if (adaptersEnumerated) {
             return;
         }
-        Map<Integer, Integer> result = enumerateAdapters(context, arena);
-        if (result != null) {
-            BUS_TO_INDEX.set(result);
-            adaptersEnumerated = true;
-            LOG.debug("ADL (FFM) enumerated {} adapter(s)", BUS_TO_INDEX.get().size());
+        // Double-checked locking so concurrent callers enumerate at most once
+        synchronized (ENUM_LOCK) {
+            if (adaptersEnumerated) {
+                return;
+            }
+            Map<Integer, Integer> result = enumerateAdapters(context, arena);
+            if (result != null) {
+                BUS_TO_INDEX.set(result);
+                adaptersEnumerated = true;
+                LOG.debug("ADL (FFM) enumerated {} adapter(s)", BUS_TO_INDEX.get().size());
+            }
         }
     }
 
@@ -215,6 +223,12 @@ public final class AdlUtilFFM {
             }
             int num = numRef.get(JAVA_INT, 0);
             if (num <= 0) {
+                return Collections.emptyMap();
+            }
+            // Guard against overflow: the buffer size is passed to the native call as a 32-bit int, so a huge
+            // adapter count could wrap. This is implausible in practice but keeps the int multiplication below safe.
+            if ((long) ADAPTER_INFO_SIZE * num > Integer.MAX_VALUE) {
+                LOG.warn("ADL reported an implausible adapter count {}; skipping enumeration", num);
                 return Collections.emptyMap();
             }
             MemorySegment infos = arena.allocate((long) ADAPTER_INFO_SIZE * num);
@@ -243,12 +257,21 @@ public final class AdlUtilFFM {
     }
 
     private static boolean supportsOverdriveN(MemorySegment context, int adapterIndex, Arena arena) {
+        return supportsOverdriveVersion(context, adapterIndex, arena, ADL_OVERDRIVE_VERSION_N);
+    }
+
+    private static boolean supportsOverdrive6(MemorySegment context, int adapterIndex, Arena arena) {
+        return supportsOverdriveVersion(context, adapterIndex, arena, ADL_OVERDRIVE_VERSION_6);
+    }
+
+    private static boolean supportsOverdriveVersion(MemorySegment context, int adapterIndex, Arena arena,
+            int minVersion) {
         try {
             MemorySegment supported = arena.allocate(JAVA_INT);
             MemorySegment enabled = arena.allocate(JAVA_INT);
             MemorySegment version = arena.allocate(JAVA_INT);
             if ((int) ADL2_OVERDRIVE_CAPS.invokeExact(context, adapterIndex, supported, enabled, version) == ADL_OK) {
-                return version.get(JAVA_INT, 0) >= ADL_OVERDRIVE_VERSION_N;
+                return version.get(JAVA_INT, 0) >= minVersion;
             }
         } catch (Throwable t) {
             LOG.debug("ADL Overdrive_Caps failed: {}", t.getMessage());
@@ -406,7 +429,9 @@ public final class AdlUtilFFM {
                 return -1d;
             }
             try {
-                if (!supportsOverdriveN(ctx, adapterIndex, arena)) {
+                // Power draw uses the Overdrive 6 API, so gate on OD6 (or newer) rather than Overdrive N. This
+                // no longer rejects OD6-only cards; the return code still guards cards that don't implement the call.
+                if (!supportsOverdrive6(ctx, adapterIndex, arena)) {
                     return -1d;
                 }
                 MemorySegment power = arena.allocate(JAVA_INT);
