@@ -110,20 +110,6 @@ public abstract class ForeignFunctions {
         boolean call(Arena arena) throws Throwable;
     }
 
-    /**
-     * Represents an operation that uses a confined {@link Arena} and does not return a value.
-     */
-    @FunctionalInterface
-    public interface ArenaRunnable {
-        /**
-         * Executes this operation with the provided arena.
-         *
-         * @param arena the confined arena scoped to this operation
-         * @throws Throwable if the operation fails
-         */
-        void run(Arena arena) throws Throwable;
-    }
-
     /** The native linker for the current platform. */
     protected static final Linker LINKER = Linker.nativeLinker();
 
@@ -270,26 +256,6 @@ public abstract class ForeignFunctions {
         } catch (Throwable t) {
             logThrowable(logger, level, message, t);
             return defaultValue;
-        }
-    }
-
-    /**
-     * Executes an operation in a confined arena, logging and swallowing any thrown failure.
-     * <p>
-     * This helper is intended for FFM operations whose useful result is a side effect. The provided arena is closed
-     * before this method returns.
-     *
-     * @param runnable the operation to execute
-     * @param logger   the logger for the calling class
-     * @param level    the level at which to log thrown failures
-     * @param message  the message to log if the operation throws
-     */
-    public static void runInArenaCatchingThrowable(ArenaRunnable runnable, Logger logger, Level level, String message) {
-        Objects.requireNonNull(runnable, "runnable");
-        try (Arena arena = Arena.ofConfined()) {
-            runnable.run(arena);
-        } catch (Throwable t) {
-            logThrowable(logger, level, message, t);
         }
     }
 

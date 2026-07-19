@@ -65,59 +65,78 @@ public final class MacPowerSourceJNA extends MacPowerSource {
             }
             return Collections.emptyList();
         }
-        int powerSourcesCount = powerSourcesList.getCount();
+        // Keys start null so the finally block releases only what was actually created, even if an exception
+        // is thrown partway through, so the CF references above are never leaked.
+        CFStringRef nameKey = null;
+        CFStringRef isPresentKey = null;
+        CFStringRef currentCapacityKey = null;
+        CFStringRef maxCapacityKey = null;
+        try {
+            int powerSourcesCount = powerSourcesList.getCount();
 
-        // Get time remaining
-        // -1 = unknown, -2 = unlimited
-        double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();
+            // Get time remaining
+            // -1 = unknown, -2 = unlimited
+            double psTimeRemainingEstimated = IO.IOPSGetTimeRemainingEstimate();
 
-        CFStringRef nameKey = CFStringRef.createCFString("Name");
-        CFStringRef isPresentKey = CFStringRef.createCFString("Is Present");
-        CFStringRef currentCapacityKey = CFStringRef.createCFString("Current Capacity");
-        CFStringRef maxCapacityKey = CFStringRef.createCFString("Max Capacity");
-        // For each power source, capture the present ones for the shared computation
-        List<PowerSourceData> sources = new ArrayList<>(powerSourcesCount);
-        for (int ps = 0; ps < powerSourcesCount; ps++) {
-            // Get the dictionary for that Power Source
-            Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);
-            CFTypeRef powerSource = new CFTypeRef();
-            powerSource.setPointer(pwrSrcPtr);
-            CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
+            nameKey = CFStringRef.createCFString("Name");
+            isPresentKey = CFStringRef.createCFString("Is Present");
+            currentCapacityKey = CFStringRef.createCFString("Current Capacity");
+            maxCapacityKey = CFStringRef.createCFString("Max Capacity");
+            // For each power source, capture the present ones for the shared computation
+            List<PowerSourceData> sources = new ArrayList<>(powerSourcesCount);
+            for (int ps = 0; ps < powerSourcesCount; ps++) {
+                // Get the dictionary for that Power Source
+                Pointer pwrSrcPtr = powerSourcesList.getValueAtIndex(ps);
+                CFTypeRef powerSource = new CFTypeRef();
+                powerSource.setPointer(pwrSrcPtr);
+                CFDictionaryRef dictionary = IO.IOPSGetPowerSourceDescription(powerSourcesInfo, powerSource);
 
-            // Get values from dictionary (See IOPSKeys.h)
-            // Skip if not present
-            Pointer result = dictionary.getValue(isPresentKey);
-            if (result != null) {
-                CFBooleanRef isPresentRef = new CFBooleanRef(result);
-                if (0 != CF.CFBooleanGetValue(isPresentRef)) {
-                    // Get name
-                    result = dictionary.getValue(nameKey);
-                    String psName = CFUtil.cfPointerToString(result);
-                    // Remaining Capacity = current / max
-                    double currentCapacity = 0d;
-                    if (dictionary.getValueIfPresent(currentCapacityKey, null)) {
-                        result = dictionary.getValue(currentCapacityKey);
-                        CFNumberRef cap = new CFNumberRef(result);
-                        currentCapacity = cap.intValue();
+                // Get values from dictionary (See IOPSKeys.h)
+                // Skip if not present
+                Pointer result = dictionary.getValue(isPresentKey);
+                if (result != null) {
+                    CFBooleanRef isPresentRef = new CFBooleanRef(result);
+                    if (0 != CF.CFBooleanGetValue(isPresentRef)) {
+                        // Get name
+                        result = dictionary.getValue(nameKey);
+                        String psName = CFUtil.cfPointerToString(result);
+                        // Remaining Capacity = current / max
+                        double currentCapacity = 0d;
+                        if (dictionary.getValueIfPresent(currentCapacityKey, null)) {
+                            result = dictionary.getValue(currentCapacityKey);
+                            CFNumberRef cap = new CFNumberRef(result);
+                            currentCapacity = cap.intValue();
+                        }
+                        double maxCapacity = 1d;
+                        if (dictionary.getValueIfPresent(maxCapacityKey, null)) {
+                            result = dictionary.getValue(maxCapacityKey);
+                            CFNumberRef cap = new CFNumberRef(result);
+                            maxCapacity = cap.intValue();
+                        }
+                        sources.add(new PowerSourceData(psName, currentCapacity, maxCapacity));
                     }
-                    double maxCapacity = 1d;
-                    if (dictionary.getValueIfPresent(maxCapacityKey, null)) {
-                        result = dictionary.getValue(maxCapacityKey);
-                        CFNumberRef cap = new CFNumberRef(result);
-                        maxCapacity = cap.intValue();
-                    }
-                    sources.add(new PowerSourceData(psName, currentCapacity, maxCapacity));
                 }
             }
+            return buildPowerSources(IOKitProviderJNA.INSTANCE, psTimeRemainingEstimated, sources,
+                    MacPowerSourceJNA::new);
+        } finally {
+            if (isPresentKey != null) {
+                isPresentKey.release();
+            }
+            if (nameKey != null) {
+                nameKey.release();
+            }
+            if (currentCapacityKey != null) {
+                currentCapacityKey.release();
+            }
+            if (maxCapacityKey != null) {
+                maxCapacityKey.release();
+            }
+            // Release the blob
+            powerSourcesList.release();
+            if (powerSourcesInfo != null) {
+                powerSourcesInfo.release();
+            }
         }
-        isPresentKey.release();
-        nameKey.release();
-        currentCapacityKey.release();
-        maxCapacityKey.release();
-        // Release the blob
-        powerSourcesList.release();
-        powerSourcesInfo.release();
-
-        return buildPowerSources(IOKitProviderJNA.INSTANCE, psTimeRemainingEstimated, sources, MacPowerSourceJNA::new);
     }
 }
