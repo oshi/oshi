@@ -4,10 +4,14 @@
  */
 package oshi.benchmark;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
 
 /**
@@ -111,5 +115,44 @@ public final class MonitoringFootprintReport {
             double result = resultKb(m.read());
             System.out.printf("%-14s %22.1f %18.1f%n", m.name(), graph, result);
         }
+
+        double all = cacheEverythingKb();
+        System.out.printf("%nHolding everything a SystemInfo returns (all subsystems + one snapshot each): %.0f KB%n",
+                all);
+    }
+
+    // Retained bytes when holding a SystemInfo and one snapshot of every subsystem it exposes (upper bound of "cache
+    // everything"); dominated by the process-list snapshot.
+    private static double cacheEverythingKb() {
+        List<Object> hold = new ArrayList<>();
+        long before = usedBytes();
+        for (int i = 0; i < GRAPH_COPIES; i++) {
+            SystemInfo si = new SystemInfo();
+            HardwareAbstractionLayer hw = si.getHardware();
+            OperatingSystem os = si.getOperatingSystem();
+            hold.add(si);
+            hold.add(hw.getComputerSystem());
+            hold.add(hw.getProcessor().getSystemCpuLoadTicks());
+            hold.add(hw.getMemory());
+            hold.add(hw.getSensors());
+            hold.add(hw.getPowerSources());
+            hold.add(hw.getDisplays());
+            hold.add(hw.getDiskStores());
+            hold.add(hw.getUsbDevices(true));
+            hold.add(hw.getSoundCards());
+            hold.add(hw.getGraphicsCards());
+            hold.add(hw.getNetworkIFs());
+            hold.add(os.getFileSystem().getFileStores());
+            hold.add(os.getNetworkParams());
+            hold.add(os.getInternetProtocolStats());
+            hold.add(os.getServices());
+            hold.add(os.getSessions());
+            hold.add(os.getProcesses());
+        }
+        long after = usedBytes();
+        if (hold.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        return (after - before) / 1024.0 / GRAPH_COPIES;
     }
 }
