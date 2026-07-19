@@ -271,7 +271,7 @@ public final class AdlUtilFFM {
             MemorySegment enabled = arena.allocate(JAVA_INT);
             MemorySegment version = arena.allocate(JAVA_INT);
             if ((int) ADL2_OVERDRIVE_CAPS.invokeExact(context, adapterIndex, supported, enabled, version) == ADL_OK) {
-                return version.get(JAVA_INT, 0) >= minVersion;
+                return supported.get(JAVA_INT, 0) != 0 && version.get(JAVA_INT, 0) >= minVersion;
             }
         } catch (Throwable t) {
             LOG.debug("ADL Overdrive_Caps failed: {}", t.getMessage());
