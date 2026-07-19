@@ -25,29 +25,29 @@ public abstract class AbstractOSThread implements OSThread {
     private final int owningProcessId;
 
     /** The thread id (OS-dependent meaning). */
-    protected int threadId;
+    protected volatile int threadId;
     /** The thread name; defaults to empty and is never returned as {@code null}. */
-    protected String name = "";
+    protected volatile String name = "";
     /** The thread execution state. */
-    protected OSProcess.State state = OSProcess.State.INVALID;
+    protected volatile OSProcess.State state = OSProcess.State.INVALID;
     /** Minor (soft) page faults; populated on Linux/BSD only. */
-    protected long minorFaults;
+    protected volatile long minorFaults;
     /** Major (hard) page faults; populated on Linux/BSD only. */
-    protected long majorFaults;
+    protected volatile long majorFaults;
     /** The start memory address. */
-    protected long startMemoryAddress;
+    protected volatile long startMemoryAddress;
     /** Voluntary + involuntary context switches. */
-    protected long contextSwitches;
+    protected volatile long contextSwitches;
     /** Kernel (privileged) time in milliseconds. */
-    protected long kernelTime;
+    protected volatile long kernelTime;
     /** User time in milliseconds. */
-    protected long userTime;
+    protected volatile long userTime;
     /** Start time in milliseconds since the epoch. */
-    protected long startTime;
+    protected volatile long startTime;
     /** Elapsed up-time in milliseconds. */
-    protected long upTime;
+    protected volatile long upTime;
     /** OS-dependent priority. */
-    protected int priority;
+    protected volatile int priority;
 
     /**
      * Creates an AbstractOSThread for the given owning process ID.

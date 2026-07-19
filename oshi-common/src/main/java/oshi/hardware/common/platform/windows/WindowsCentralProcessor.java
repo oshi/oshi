@@ -40,7 +40,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     // populated by initProcessorCounts called by the parent constructor
-    private Map<String, Integer> numaNodeProcToLogicalProcMap;
+    private volatile Map<String, Integer> numaNodeProcToLogicalProcMap;
 
     /** Whether to use legacy Processor counters rather than Processor Information counters. */
     protected static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
@@ -56,7 +56,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Previous sample for utility base multiplier calculation
     private final AtomicReference<Map<ProcessorUtilityTickCountProperty, List<Long>>> initialUtilityCounters = new AtomicReference<>();
     // Lazily initialized
-    private Long utilityBaseMultiplier;
+    private volatile Long utilityBaseMultiplier;
 
     // This tick query is memoized to enforce a minimum elapsed time for determining the capacity base multiplier
     private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY

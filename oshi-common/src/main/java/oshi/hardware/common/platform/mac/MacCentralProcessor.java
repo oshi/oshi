@@ -80,8 +80,8 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<String> vendor = memoize(this::platformExpert);
     private final boolean isArmCpu = isArmCpu();
 
-    private long performanceCoreFrequency = DEFAULT_FREQUENCY;
-    private long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
+    private volatile long performanceCoreFrequency = DEFAULT_FREQUENCY;
+    private volatile long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
 
     /**
      * Returns the sysctl provider for this implementation.

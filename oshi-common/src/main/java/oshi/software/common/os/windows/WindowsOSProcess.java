@@ -55,20 +55,20 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     private final OperatingSystem os;
 
-    private Supplier<Pair<String, String>> userInfo = memoize(this::queryUserInfo);
-    private Supplier<Pair<String, String>> groupInfo = memoize(this::queryGroupInfo);
-    private Supplier<String> currentWorkingDirectory = memoize(this::queryCwd);
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<List<String>> args = memoize(this::queryArguments);
-    private Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
+    private final Supplier<Pair<String, String>> userInfo = memoize(this::queryUserInfo);
+    private final Supplier<Pair<String, String>> groupInfo = memoize(this::queryGroupInfo);
+    private final Supplier<String> currentWorkingDirectory = memoize(this::queryCwd);
+    private final Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private final Supplier<List<String>> args = memoize(this::queryArguments);
+    private final Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
-    private Map<Integer, ThreadPerfCounterBlock> tcb;
+    private volatile Map<Integer, ThreadPerfCounterBlock> tcb;
 
-    private long workingSetSize;
-    private long privateWorkingSetSize;
-    private long openFiles;
-    private int bitness;
-    private long pageFaults;
+    private volatile long workingSetSize;
+    private volatile long privateWorkingSetSize;
+    private volatile long openFiles;
+    private volatile int bitness;
+    private volatile long pageFaults;
 
     /**
      * Constructor.

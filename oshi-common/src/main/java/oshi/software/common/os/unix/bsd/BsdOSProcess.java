@@ -41,16 +41,16 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> arguments = memoize(this::queryArguments);
     private final Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
-    protected String user;
-    protected String userID;
-    protected String group;
-    protected String groupID;
-    protected long residentSetSize;
-    protected long minorFaults;
-    protected long majorFaults;
-    protected long voluntaryContextSwitches;
-    protected long involuntaryContextSwitches;
-    protected String commandLineBackup;
+    protected volatile String user;
+    protected volatile String userID;
+    protected volatile String group;
+    protected volatile String groupID;
+    protected volatile long residentSetSize;
+    protected volatile long minorFaults;
+    protected volatile long majorFaults;
+    protected volatile long voluntaryContextSwitches;
+    protected volatile long involuntaryContextSwitches;
+    protected volatile String commandLineBackup;
 
     protected BsdOSProcess(int pid) {
         super(pid);

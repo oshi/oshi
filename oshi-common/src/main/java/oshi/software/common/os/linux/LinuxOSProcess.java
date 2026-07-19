@@ -76,27 +76,27 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         return this.os;
     }
 
-    private Supplier<Integer> bitness = memoize(this::queryBitness);
-    private Supplier<String> commandLine = memoize(this::queryCommandLine);
-    private Supplier<List<String>> arguments = memoize(this::queryArguments);
-    private Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
-    private Supplier<String> user = memoize(this::queryUser);
-    private Supplier<String> group = memoize(this::queryGroup);
+    private final Supplier<Integer> bitness = memoize(this::queryBitness);
+    private final Supplier<String> commandLine = memoize(this::queryCommandLine);
+    private final Supplier<List<String>> arguments = memoize(this::queryArguments);
+    private final Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
+    private final Supplier<String> user = memoize(this::queryUser);
+    private final Supplier<String> group = memoize(this::queryGroup);
 
-    private String userID;
-    private String groupID;
-    private long residentSetSize;
-    private long privateResidentMemory;
-    private long minorFaults;
-    private long majorFaults;
-    private long voluntaryContextSwitches;
-    private long involuntaryContextSwitches;
+    private volatile String userID;
+    private volatile String groupID;
+    private volatile long residentSetSize;
+    private volatile long privateResidentMemory;
+    private volatile long minorFaults;
+    private volatile long majorFaults;
+    private volatile long voluntaryContextSwitches;
+    private volatile long involuntaryContextSwitches;
 
     // Context-switch counts from getrusage for the current process, which are more accurate than the /proc values.
     // Populated by updateAttributes() via the queryContextSwitches() hook; the native-free build leaves these unset.
-    private boolean rusagePopulated;
-    private long cachedVoluntaryContextSwitches;
-    private long cachedInvoluntaryContextSwitches;
+    private volatile boolean rusagePopulated;
+    private volatile long cachedVoluntaryContextSwitches;
+    private volatile long cachedInvoluntaryContextSwitches;
 
     /**
      * Creates a LinuxOSProcess.
