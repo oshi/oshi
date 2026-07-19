@@ -33,6 +33,15 @@ Pass a regex matching the benchmark class or method name:
 | `FileStoreBenchmark` | `getFileStores()` — filesystem enumeration and stats |
 | `NetworkIFBenchmark` | `getNetworkIFs()` — network interface enumeration |
 | `ProcessesBenchmark` | `getProcesses()` — process list retrieval |
+| `ReuseVsRecreateBenchmark` | Reusing a held `SystemInfo` vs. constructing a new one for every poll (CPU ticks, memory, process list). Unlike the others, this measures the reuse-vs-recreate trade-off, not JNA vs. FFM; pair it with `-prof gc` for per-poll allocation. |
+
+The non-JMH `MonitoringFootprintReport` reports the retained memory of the held object graph (the memory dimension of `ReuseVsRecreateBenchmark`, which JMH cannot measure per-operation):
+
+```sh
+java -cp oshi-benchmark/target/benchmarks.jar oshi.benchmark.MonitoringFootprintReport
+```
+
+Both feed the "CPU/memory trade-offs" section of [`PERFORMANCE.md`](../PERFORMANCE.md).
 
 ## Custom JMH Options
 

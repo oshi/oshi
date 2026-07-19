@@ -111,6 +111,21 @@ OSHI avoids caching large amount of information, leaving caching to the user.  L
 
 Users with memory constraints can ensure the existing cached information is disposed of by using a new instance of `SystemInfo` and the subordinate classes when collecting data.
 
+### Reusing vs. recreating `SystemInfo` when polling
+
+A monitoring agent that samples the same metrics repeatedly (e.g., once per second) should **hold a single `SystemInfo` and its subordinate objects** rather than constructing a new `SystemInfo` for each poll. Realistic poll intervals are far longer than the sub-second memoizer TTL, so the memoizer never helps *across* polls; the real trade-off is the memory retained by the held object graph versus the CPU to reconstruct it each time.
+
+`ReuseVsRecreateBenchmark` (CPU time, with `-prof gc` for per-poll allocation) and `MonitoringFootprintReport` (retained memory of the held graph) measure this with memoization disabled so every poll is a real query. Illustrative numbers (macOS, JDK 25):
+
+| Polled metric | Reuse / poll | Recreate / poll | Retained (held) | Alloc / poll (reuse) |
+|---------------|-------------:|----------------:|----------------:|---------------------:|
+| CPU load ticks    | ~4 µs   | ~5 ms   | ~10 KB | ~2 KB   |
+| Available memory  | ~4 µs   | ~6 µs   | ~1 KB  | ~1 KB   |
+| Process list      | ~29 ms  | ~29 ms  | —      | ~490 KB |
+
+- **CPU ticks / memory:** recreating a `SystemInfo` rebuilds the `CentralProcessor` (CPU topology and identifier queries) on every poll — about 5 ms — versus ~4 µs to read from a held instance, a ~1000× difference, while the retained object graph is only ~10 KB (recreating also churns ~130 KB/poll of allocation instead of ~2 KB). Reusing is almost pure win: negligible retained memory for a large CPU saving.
+- **Process list:** `getProcesses()` is a live full query, so reusing `SystemInfo` saves nothing (~29 ms either way) and the ~490 KB result — plus ~20 MB of transient parsing garbage — is allocated on every poll regardless. To monitor specific processes, hold the individual `OSProcess` objects and call `updateAttributes()` rather than re-querying the whole list (see below).
+
 ## Updating statistics on objects in a list
 
 Many of the individual objects returned by lists, such as `OSProcess`, `NetworkIF`, `OSFileStore`, and others, have an `updateAttributes()` method that operates only on that object. These are intended for use primarily if that individual process is the only one being monitored/updated.  In many cases, the entire list must be queried to provide the information, so users updating multiple objects in a list should simply re-query the entire list once and then correlate the new set of results to the old ones in their own application.
