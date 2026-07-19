@@ -4,6 +4,8 @@
  */
 package oshi.util.platform.windows;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,19 @@ public final class RegistryUtil {
             // registryGetValues opens the key with KEY_READ | accessFlag, so the WOW64 access flag (e.g.
             // KEY_WOW64_32KEY/KEY_WOW64_64KEY) is honored when reading the value. Reading the value separately via
             // registryGetValue(root, path, key) re-opened the key with the default view, ignoring accessFlag.
-            return Advapi32Util.registryGetValues(root, path, accessFlag).get(key);
+            Map<String, Object> values = Advapi32Util.registryGetValues(root, path, accessFlag);
+            // A null key requests the (Default) value, which registryGetValues stores under the empty name.
+            String valueName = key == null ? "" : key;
+            Object value = values.get(valueName);
+            if (value == null) {
+                // Registry value names are case-insensitive; fall back to a case-insensitive match.
+                for (Map.Entry<String, Object> entry : values.entrySet()) {
+                    if (entry.getKey().equalsIgnoreCase(valueName)) {
+                        return entry.getValue();
+                    }
+                }
+            }
+            return value;
         } catch (Win32Exception e) {
             LOG.trace("Unable to access {} with flag {}: {}", path, accessFlag, e.getMessage());
         }
