@@ -42,8 +42,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Populated by initProcessorCounts, which the parent constructor calls before this class's field initializers
     // run; that ordering rules out an AtomicReference holder (its initializer would not have run yet), so this stays
     // a volatile reference to a swap-published immutable snapshot, for which volatile publication is sufficient.
-    @SuppressWarnings("java:S3077")
-    private volatile Map<String, Integer> numaNodeProcToLogicalProcMap;
+    private volatile Map<String, Integer> numaNodeProcToLogicalProcMap; // NOSONAR squid:S3077
 
     /** Whether to use legacy Processor counters rather than Processor Information counters. */
     protected static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
