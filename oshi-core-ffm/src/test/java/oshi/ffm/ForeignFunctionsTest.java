@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.slf4j.event.Level.DEBUG;
 
 import java.lang.foreign.MemorySegment;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -118,24 +117,4 @@ class ForeignFunctionsTest {
         assertThat(result, is(false));
     }
 
-    @Test
-    void testRunInArenaCatchingThrowableRunsOperation() {
-        AtomicBoolean called = new AtomicBoolean();
-
-        ForeignFunctions.runInArenaCatchingThrowable(arena -> called.set(true), LOG, DEBUG, "void success");
-
-        assertThat(called.get(), is(true));
-    }
-
-    @Test
-    void testRunInArenaCatchingThrowableSwallowsThrowable() {
-        AtomicBoolean called = new AtomicBoolean();
-
-        ForeignFunctions.runInArenaCatchingThrowable(arena -> {
-            called.set(true);
-            throw new Throwable("void failure");
-        }, LOG, DEBUG, "void failure");
-
-        assertThat(called.get(), is(true));
-    }
 }

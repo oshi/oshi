@@ -135,10 +135,11 @@ public final class PerfCounterWildcardQuery {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
                     + " must have at least two elements, an instance filter and a counter.");
         }
-        String instanceFilter = Util.isBlank(customFilter)
+        // Lowercase the filter (matching the built-in default below) since instance names are compared
+        // case-insensitively via toLowerCase at the wildcardMatch call.
+        String instanceFilter = (Util.isBlank(customFilter)
                 ? ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
-                        .toLowerCase(Locale.ROOT)
-                : customFilter;
+                : customFilter).toLowerCase(Locale.ROOT);
         // Localize the perfObject using different variable for the EnumObjectItems
         // Will still use unlocalized perfObject for the query
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, true);

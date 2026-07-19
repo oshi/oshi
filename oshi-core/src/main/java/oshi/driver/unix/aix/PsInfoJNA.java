@@ -13,9 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.common.unix.aix.PsInfo;
@@ -30,8 +27,6 @@ import oshi.util.tuples.Triplet;
  */
 @ThreadSafe
 public final class PsInfoJNA {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PsInfoJNA.class);
 
     private static final AixLibc LIBC = AixLibc.INSTANCE;
 
