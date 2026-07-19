@@ -60,20 +60,20 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     private final Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(
             this::queryArgsAndEnvironment);
 
-    protected String currentWorkingDirectory;
-    protected String user;
-    protected String userID;
-    protected String group;
-    protected String groupID;
-    protected long residentSetSize;
-    protected long memoryFootprint;
-    protected long openFiles;
-    protected int bitness;
-    protected long minorFaults;
-    protected long majorFaults;
-    protected long contextSwitches;
-    protected long voluntaryContextSwitches;
-    protected long involuntaryContextSwitches;
+    protected volatile String currentWorkingDirectory;
+    protected volatile String user;
+    protected volatile String userID;
+    protected volatile String group;
+    protected volatile String groupID;
+    protected volatile long residentSetSize;
+    protected volatile long memoryFootprint;
+    protected volatile long openFiles;
+    protected volatile int bitness;
+    protected volatile long minorFaults;
+    protected volatile long majorFaults;
+    protected volatile long contextSwitches;
+    protected volatile long voluntaryContextSwitches;
+    protected volatile long involuntaryContextSwitches;
 
     protected MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);

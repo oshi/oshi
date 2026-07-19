@@ -20,11 +20,11 @@ public abstract class WindowsNetworkIF extends AbstractNetworkIF {
     /** Bit in the interface flags indicating a connector is present. */
     protected static final byte CONNECTOR_PRESENT_BIT = 0b00000100;
 
-    private int ifType;
-    private int ndisPhysicalMediumType;
-    private boolean connectorPresent;
-    private String ifAlias = "";
-    private IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
+    private volatile int ifType;
+    private volatile int ndisPhysicalMediumType;
+    private volatile boolean connectorPresent;
+    private volatile String ifAlias = "";
+    private volatile IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     /**
      * Creates a WindowsNetworkIF.

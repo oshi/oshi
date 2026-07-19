@@ -20,10 +20,10 @@ import oshi.util.linux.SysPath;
 @ThreadSafe
 public abstract class LinuxNetworkIF extends AbstractNetworkIF {
 
-    private int ifType;
-    private boolean connectorPresent;
-    private String ifAlias = "";
-    private IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
+    private volatile int ifType;
+    private volatile boolean connectorPresent;
+    private volatile String ifAlias = "";
+    private volatile IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     /**
      * Creates a LinuxNetworkIF.

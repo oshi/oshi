@@ -41,29 +41,29 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
 
-    private NetworkInterface networkInterface;
-    private String name;
-    private String displayName;
-    private int index;
-    private long mtu;
-    private String mac;
-    private String[] ipv4;
-    private Short[] subnetMasks;
-    private String[] ipv6;
-    private Short[] prefixLengths;
+    private final NetworkInterface networkInterface;
+    private final String name;
+    private final String displayName;
+    private final int index;
+    private final long mtu;
+    private final String mac;
+    private final String[] ipv4;
+    private final Short[] subnetMasks;
+    private final String[] ipv6;
+    private final Short[] prefixLengths;
 
     // Refreshed by each platform's updateNetworkStats(); protected so subclasses assign directly (see the
     // VisibilityModifier suppression for this file), matching the AbstractOSProcess model.
-    protected long bytesRecv;
-    protected long bytesSent;
-    protected long packetsRecv;
-    protected long packetsSent;
-    protected long inErrors;
-    protected long outErrors;
-    protected long inDrops;
-    protected long collisions;
-    protected long speed;
-    protected long timeStamp;
+    protected volatile long bytesRecv;
+    protected volatile long bytesSent;
+    protected volatile long packetsRecv;
+    protected volatile long packetsSent;
+    protected volatile long inErrors;
+    protected volatile long outErrors;
+    protected volatile long inDrops;
+    protected volatile long collisions;
+    protected volatile long speed;
+    protected volatile long timeStamp;
 
     private final Supplier<Properties> vmMacAddrProps = memoize(AbstractNetworkIF::queryVmMacAddrProps);
 

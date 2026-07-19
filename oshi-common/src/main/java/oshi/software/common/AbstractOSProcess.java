@@ -22,24 +22,24 @@ public abstract class AbstractOSProcess implements OSProcess {
 
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
 
-    private int processID;
+    private final int processID;
 
     // Common attributes populated by each platform's updateAttributes(). Declared protected (rather than private with
     // setters) so the platform subclasses can assign them directly in their native refresh methods; see the
     // VisibilityModifier suppression for this file.
-    protected String name;
-    protected String path = "";
-    protected State state = State.INVALID;
-    protected int parentProcessID;
-    protected int threadCount;
-    protected int priority;
-    protected long virtualSize;
-    protected long kernelTime;
-    protected long userTime;
-    protected long startTime;
-    protected long upTime;
-    protected long bytesRead;
-    protected long bytesWritten;
+    protected volatile String name;
+    protected volatile String path = "";
+    protected volatile State state = State.INVALID;
+    protected volatile int parentProcessID;
+    protected volatile int threadCount;
+    protected volatile int priority;
+    protected volatile long virtualSize;
+    protected volatile long kernelTime;
+    protected volatile long userTime;
+    protected volatile long startTime;
+    protected volatile long upTime;
+    protected volatile long bytesRead;
+    protected volatile long bytesWritten;
 
     /**
      * Creates an AbstractOSProcess for the given process ID.

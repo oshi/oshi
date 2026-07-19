@@ -18,7 +18,7 @@ import oshi.hardware.common.AbstractNetworkIF;
 @ThreadSafe
 public abstract class MacNetworkIF extends AbstractNetworkIF {
 
-    private int ifType;
+    private volatile int ifType;
 
     /**
      * Creates a MacNetworkIF.

@@ -39,10 +39,10 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     private final Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
     private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
-    private long minorFaults;
-    private long majorFaults;
-    private long voluntaryContextSwitches;
-    private long involuntaryContextSwitches;
+    private volatile long minorFaults;
+    private volatile long majorFaults;
+    private volatile long voluntaryContextSwitches;
+    private volatile long involuntaryContextSwitches;
 
     protected SolarisOSProcess(int pid) {
         super(pid);
