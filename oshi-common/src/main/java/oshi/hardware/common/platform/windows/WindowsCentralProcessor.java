@@ -56,7 +56,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Previous sample for utility base multiplier calculation
     private final AtomicReference<Map<ProcessorUtilityTickCountProperty, List<Long>>> initialUtilityCounters = new AtomicReference<>();
     // Lazily initialized
-    private volatile Long utilityBaseMultiplier;
+    private Long utilityBaseMultiplier;
 
     // This tick query is memoized to enforce a minimum elapsed time for determining the capacity base multiplier
     private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
@@ -136,13 +136,15 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     protected void buildNumaNodeProcMap(List<LogicalProcessor> logProcs) {
         Map<Integer, Integer> nextProcIndexByNode = new HashMap<>();
         int lp = 0;
-        this.numaNodeProcToLogicalProcMap = new HashMap<>();
+        Map<String, Integer> map = new HashMap<>();
         for (LogicalProcessor logProc : logProcs) {
             int node = logProc.getNumaNode();
             int procNum = nextProcIndexByNode.getOrDefault(node, 0);
-            numaNodeProcToLogicalProcMap.put(String.format(Locale.ROOT, "%d,%d", node, procNum), lp++);
+            map.put(String.format(Locale.ROOT, "%d,%d", node, procNum), lp++);
             nextProcIndexByNode.put(node, procNum + 1);
         }
+        // Publish the fully-built map as the final step so readers never observe a partial map
+        this.numaNodeProcToLogicalProcMap = map;
     }
 
     /**

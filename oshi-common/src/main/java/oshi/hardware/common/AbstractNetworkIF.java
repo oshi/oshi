@@ -41,16 +41,16 @@ public abstract class AbstractNetworkIF implements NetworkIF {
 
     private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
 
-    private volatile NetworkInterface networkInterface;
-    private volatile String name;
-    private volatile String displayName;
-    private volatile int index;
-    private volatile long mtu;
-    private volatile String mac;
-    private volatile String[] ipv4;
-    private volatile Short[] subnetMasks;
-    private volatile String[] ipv6;
-    private volatile Short[] prefixLengths;
+    private final NetworkInterface networkInterface;
+    private final String name;
+    private final String displayName;
+    private final int index;
+    private final long mtu;
+    private final String mac;
+    private final String[] ipv4;
+    private final Short[] subnetMasks;
+    private final String[] ipv6;
+    private final Short[] prefixLengths;
 
     // Refreshed by each platform's updateNetworkStats(); protected so subclasses assign directly (see the
     // VisibilityModifier suppression for this file), matching the AbstractOSProcess model.

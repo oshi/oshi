@@ -22,7 +22,7 @@ public abstract class AbstractOSProcess implements OSProcess {
 
     private final Supplier<Double> cumulativeCpuLoad = memoize(this::queryCumulativeCpuLoad, defaultExpiration());
 
-    private volatile int processID;
+    private final int processID;
 
     // Common attributes populated by each platform's updateAttributes(). Declared protected (rather than private with
     // setters) so the platform subclasses can assign them directly in their native refresh methods; see the
