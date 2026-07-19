@@ -42,9 +42,11 @@ public final class AdlUtilFFM {
     private static final int ADL_FAN_SPEED_MODE_PERCENT = 1;
     private static final int ADL_OVERDRIVE_TEMPERATURE_EDGE = 1;
 
-    // AdapterInfo struct: iSize(4) + iAdapterIndex(4) + strUDID(256) + iBusNumber(4) + iDeviceNumber(4)
+    // ADL AdapterInfo struct layout for the OverdriveN queries below. All fields are int or fixed char[256], so the
+    // size is stable across x86/x64; re-verify ADAPTER_INFO_SIZE and the AI_*_OFFSET values if the ADL SDK changes.
+    // iSize(4) + iAdapterIndex(4) + strUDID(256) + iBusNumber(4) + iDeviceNumber(4)
     // + iFunctionNumber(4) + iVendorID(4) + strAdapterName(256) + strDisplayName(256) + iPresent(4)
-    // + iExist(4) + strDriverPath(256) + strDriverPathExt(256) + strPNPString(256) + iOSDisplayIndex(4)
+    // + iExist(4) + strDriverPath(256) + strDriverPathExt(256) + strPNPString(256) + iOSDisplayIndex(4) = 1572
     private static final int ADAPTER_INFO_SIZE = 1572;
     private static final long AI_ADAPTER_INDEX_OFFSET = 4;
     private static final long AI_BUS_NUMBER_OFFSET = 264;
@@ -54,6 +56,8 @@ public final class AdlUtilFFM {
     private static final int PERF_STATUS_SIZE = 72;
     private static final long PERF_CORE_CLOCK_OFFSET = 0;
     private static final long PERF_MEMORY_CLOCK_OFFSET = 4;
+    // ADLODNPerformanceStatus clock values are reported in 10 kHz units; divide by this to get MHz.
+    private static final long ADL_ODN_CLOCK_UNITS_PER_MHZ = 100L;
 
     // ADLODNFanControl: 8 ints = 32 bytes
     private static final int FAN_CONTROL_SIZE = 32;
@@ -226,17 +230,18 @@ public final class AdlUtilFFM {
                 return Collections.emptyMap();
             }
             // Guard against overflow: the buffer size is passed to the native call as a 32-bit int, so a huge
-            // adapter count could wrap. This is implausible in practice but keeps the int multiplication below safe.
-            if ((long) ADAPTER_INFO_SIZE * num > Integer.MAX_VALUE) {
+            // adapter count could wrap. This is implausible in practice but keeps the int cast below safe.
+            long totalInfoSize = (long) ADAPTER_INFO_SIZE * num;
+            if (totalInfoSize > Integer.MAX_VALUE) {
                 LOG.warn("ADL reported an implausible adapter count {}; skipping enumeration", num);
                 return Collections.emptyMap();
             }
-            MemorySegment infos = arena.allocate((long) ADAPTER_INFO_SIZE * num);
+            MemorySegment infos = arena.allocate(totalInfoSize);
             // Set iSize for each entry
             for (int i = 0; i < num; i++) {
                 infos.set(JAVA_INT, (long) i * ADAPTER_INFO_SIZE, ADAPTER_INFO_SIZE);
             }
-            if ((int) ADL2_ADAPTER_ADAPTER_INFO_GET.invokeExact(ctx, infos, ADAPTER_INFO_SIZE * num) != ADL_OK) {
+            if ((int) ADL2_ADAPTER_ADAPTER_INFO_GET.invokeExact(ctx, infos, (int) totalInfoSize) != ADL_OK) {
                 return null;
             }
             Map<Integer, Integer> map = new HashMap<>();
@@ -370,7 +375,7 @@ public final class AdlUtilFFM {
                 }
                 MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
                 if ((int) ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
-                    return perf.get(JAVA_INT, PERF_CORE_CLOCK_OFFSET) / 100L;
+                    return perf.get(JAVA_INT, PERF_CORE_CLOCK_OFFSET) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
                 }
             } finally {
                 adlUninit(ctx);
@@ -402,7 +407,7 @@ public final class AdlUtilFFM {
                 }
                 MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
                 if ((int) ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
-                    return perf.get(JAVA_INT, PERF_MEMORY_CLOCK_OFFSET) / 100L;
+                    return perf.get(JAVA_INT, PERF_MEMORY_CLOCK_OFFSET) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
                 }
             } finally {
                 adlUninit(ctx);
