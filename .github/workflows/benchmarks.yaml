@@ -210,7 +210,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Benchmark on OpenIndiana
-        uses: vmactions/openindiana-vm@3248e8c61485588528c034a4285242f77efd8b97 # v1
+        uses: vmactions/openindiana-vm@3af32bfaa450c7c53b35b1da080564c85cac4ae8 # v1
         with:
           # Bumped above the 8 GB used by the regular CI job because JMH forks
           # a fresh JVM per benchmark and illumos's native malloc pool is the
