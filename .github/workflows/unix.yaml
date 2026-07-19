@@ -88,7 +88,7 @@ jobs:
           persist-credentials: false
       - name: Test on OpenIndiana
         id: test-openindiana
-        uses: vmactions/openindiana-vm@3248e8c61485588528c034a4285242f77efd8b97 # v1
+        uses: vmactions/openindiana-vm@3af32bfaa450c7c53b35b1da080564c85cac4ae8 # v1
         with:
           mem: 12288
           # Cap below the runner's core count: shrinks libumem's per-CPU arenas and
