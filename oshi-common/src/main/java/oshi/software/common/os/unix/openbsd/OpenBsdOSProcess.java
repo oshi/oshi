@@ -85,12 +85,13 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
     @Override
     protected void updateThreadCount() {
         List<String> threadList = ExecutingCommand.runNative("ps -axHo tid -p " + getProcessID());
+        int count = this.threadCount;
         if (!threadList.isEmpty()) {
             // Subtract 1 for header
-            this.threadCount = threadList.size() - 1;
+            count = threadList.size() - 1;
         }
         // A live process always has at least one thread
-        this.threadCount = Math.max(this.threadCount, 1);
+        this.threadCount = Math.max(count, 1);
     }
 
     @Override

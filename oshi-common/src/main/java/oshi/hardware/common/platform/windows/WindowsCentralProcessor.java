@@ -40,7 +40,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     // populated by initProcessorCounts called by the parent constructor
-    private volatile Map<String, Integer> numaNodeProcToLogicalProcMap;
+    private final AtomicReference<Map<String, Integer>> numaNodeProcToLogicalProcMap = new AtomicReference<>();
 
     /** Whether to use legacy Processor counters rather than Processor Information counters. */
     protected static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
@@ -107,7 +107,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the map
      */
     protected Map<String, Integer> getNumaNodeProcToLogicalProcMap() {
-        return this.numaNodeProcToLogicalProcMap;
+        return this.numaNodeProcToLogicalProcMap.get();
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             nextProcIndexByNode.put(node, procNum + 1);
         }
         // Publish the fully-built map as the final step so readers never observe a partial map
-        this.numaNodeProcToLogicalProcMap = map;
+        this.numaNodeProcToLogicalProcMap.set(map);
     }
 
     /**

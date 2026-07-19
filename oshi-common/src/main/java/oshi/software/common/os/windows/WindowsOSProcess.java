@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> args = memoize(this::queryArguments);
     private final Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
-    private volatile Map<Integer, ThreadPerfCounterBlock> tcb;
+    private final AtomicReference<Map<Integer, ThreadPerfCounterBlock>> tcb = new AtomicReference<>();
 
     private volatile long workingSetSize;
     private volatile long privateWorkingSetSize;
@@ -84,7 +85,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         super(pid);
         this.os = os;
         this.bitness = os.getBitness();
-        this.tcb = threadMap;
+        this.tcb.set(threadMap);
         updateAttributes(processMap.get(pid), processWtsMap.get(pid));
     }
 
@@ -183,9 +184,10 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        Map<Integer, ThreadPerfCounterBlock> threads = tcb == null
-                ? queryMatchingThreads(Collections.singleton(this.getProcessID()))
-                : tcb;
+        Map<Integer, ThreadPerfCounterBlock> threads = this.tcb.get();
+        if (threads == null) {
+            threads = queryMatchingThreads(Collections.singleton(this.getProcessID()));
+        }
         if (threads == null) {
             threads = Collections.emptyMap();
         }
@@ -239,9 +241,10 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         }
 
         this.state = RUNNING;
-        if (this.tcb != null) {
+        Map<Integer, ThreadPerfCounterBlock> threadBlocks = this.tcb.get();
+        if (threadBlocks != null) {
             int pid = this.getProcessID();
-            for (ThreadPerfCounterBlock tpd : this.tcb.values()) {
+            for (ThreadPerfCounterBlock tpd : threadBlocks.values()) {
                 if (tpd.getOwningProcessID() == pid) {
                     if (tpd.getThreadWaitReason() == 5) {
                         this.state = SUSPENDED;
@@ -298,7 +301,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param tcb the thread performance counter block map
      */
     protected void setTcb(Map<Integer, ThreadPerfCounterBlock> tcb) {
-        this.tcb = tcb;
+        this.tcb.set(tcb);
     }
 
     /**
