@@ -72,6 +72,18 @@ public final class LinuxGlobalMemory extends AbstractGlobalMemory {
      * @return A pair containing available and total memory in bytes
      */
     private static Pair<Long, Long> readMemInfo() {
+        return parseMemInfo(FileUtil.readFile(ProcPath.MEMINFO));
+    }
+
+    /**
+     * Parses {@code /proc/meminfo} into a pair of (available, total) bytes. Uses {@code MemAvailable} when present,
+     * otherwise estimates it from {@code MemFree + Active(file) + Inactive(file) + SReclaimable}. Package-private for
+     * testing.
+     *
+     * @param procMemInfo the lines of {@code /proc/meminfo}
+     * @return a pair of (available, total) memory in bytes
+     */
+    static Pair<Long, Long> parseMemInfo(List<String> procMemInfo) {
         long memFree = 0L;
         long activeFile = 0L;
         long inactiveFile = 0L;
@@ -80,7 +92,6 @@ public final class LinuxGlobalMemory extends AbstractGlobalMemory {
         long memTotal = 0L;
         long memAvailable;
 
-        List<String> procMemInfo = FileUtil.readFile(ProcPath.MEMINFO);
         for (String checkLine : procMemInfo) {
             String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);
             if (memorySplit.length > 1) {

@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.linux;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,8 +47,19 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
      * @return map of VG name to set of PV device paths
      */
     protected static Map<String, Set<String>> queryPhysicalVolumes() {
+        return parsePhysicalVolumes(ExecutingCommand.runNative("pvs -o vg_name,pv_name"));
+    }
+
+    /**
+     * Parses {@code pvs -o vg_name,pv_name} output into a map of volume-group name to physical-volume device paths.
+     * Package-private for testing.
+     *
+     * @param pvs the lines of {@code pvs -o vg_name,pv_name} output
+     * @return map of VG name to set of PV device paths
+     */
+    static Map<String, Set<String>> parsePhysicalVolumes(List<String> pvs) {
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
-        for (String s : ExecutingCommand.runNative("pvs -o vg_name,pv_name")) {
+        for (String s : pvs) {
             String[] split = ParseUtil.whitespaces.split(s.trim());
             if (split.length == 2 && split[1].startsWith(DevPath.DEV)) {
                 physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
