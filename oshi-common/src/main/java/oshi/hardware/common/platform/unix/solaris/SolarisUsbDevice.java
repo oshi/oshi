@@ -37,14 +37,22 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
      * @return a list of USB controllers, each with its connected-device tree.
      */
     public static List<UsbDevice> getUsbDevices() {
+        return parsePrtconf(ExecutingCommand.runNative("prtconf -pv"));
+    }
+
+    /**
+     * Parses the output of {@code prtconf -pv} to build the USB device tree.
+     *
+     * @param devices the lines emitted by {@code prtconf -pv}
+     * @return a list of USB controller devices, each with its connected-device tree
+     */
+    static List<UsbDevice> parsePrtconf(List<String> devices) {
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
         Map<String, String> productIdMap = new HashMap<>();
         Map<String, List<String>> hubMap = new HashMap<>();
         Map<String, String> deviceTypeMap = new HashMap<>();
 
-        // Enumerate all usb devices and build information maps
-        List<String> devices = ExecutingCommand.runNative("prtconf -pv");
         if (devices.isEmpty()) {
             return emptyList();
         }
