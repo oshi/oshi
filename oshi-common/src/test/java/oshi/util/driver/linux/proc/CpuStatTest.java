@@ -44,9 +44,14 @@ class CpuStatTest {
 
     @Test
     void testParseSystemCpuLoadTicksEmptyOrShort() {
-        // Empty input and a too-short line both yield all-zero ticks
+        // Empty input and a too-short line (caught by the user/nice/system/idle guard) both yield all-zero ticks
         assertThat(CpuStat.parseSystemCpuLoadTicks(Collections.emptyList())[TickType.USER.getIndex()], is(0L));
         assertThat(CpuStat.parseSystemCpuLoadTicks(Arrays.asList("cpu 1 2"))[TickType.USER.getIndex()], is(0L));
+        // A line that clears the guard but is still truncated must not overrun: present fields parse, rest stay 0
+        long[] ticks = CpuStat.parseSystemCpuLoadTicks(Arrays.asList("cpu 1 2 3 4"));
+        assertThat(ticks[TickType.IDLE.getIndex()], is(4L));
+        assertThat(ticks[TickType.IOWAIT.getIndex()], is(0L));
+        assertThat(ticks[TickType.STEAL.getIndex()], is(0L));
     }
 
     @Test
@@ -82,7 +87,7 @@ class CpuStatTest {
 
     @Test
     @EnabledOnOs(OS.LINUX)
-    void testSystemCpuLoadTicks() {
+    void testGetSystemCpuLoadTicks() {
         long[] systemCpuLoadTicks = CpuStat.getSystemCpuLoadTicks();
         for (long systemCpuTick : systemCpuLoadTicks) {
             assertThat("CPU tick should be greater than or equal to 0", systemCpuTick, greaterThanOrEqualTo(0L));

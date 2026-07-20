@@ -16,7 +16,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+// parsePhysicalVolumes dereferences DevPath.DEV, whose static initializer validates that the configured /dev path
+// exists. That holds on Linux, macOS, and the BSD/illumos CI hosts, but not on Windows, where class init throws.
+@DisabledOnOs(OS.WINDOWS)
 class LinuxLogicalVolumeGroupTest {
 
     @Test
