@@ -46,14 +46,21 @@ public class FreeBsdFirmware extends AbstractFirmware {
 
     private static Triplet<String, String, String> readDmiDecode() {
         // Only works with root permissions but it's all we've got
-        return parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+        Triplet<String, String, String> dmi = parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+        String manufacturer = dmi.getA();
+        String version = dmi.getB();
+        String releaseDate = dmi.getC();
+        return new Triplet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 
     /**
-     * Parses the output of {@code dmidecode -t bios} into its manufacturer, version, and release date fields.
+     * Parses the output of {@code dmidecode -t bios} into its manufacturer, version, and release date fields. Any field
+     * not present in the output is returned as {@code null} (or an empty date); the caller applies fallbacks.
      *
      * @param dmidecode the lines emitted by {@code dmidecode -t bios}
-     * @return a {@link Triplet} of manufacturer, version, and release date (each {@link Constants#UNKNOWN} if absent)
+     * @return a {@link Triplet} of manufacturer, version, and release date
      */
     static Triplet<String, String, String> parseDmiDecode(List<String> dmidecode) {
         String manufacturer = null;
@@ -88,8 +95,6 @@ public class FreeBsdFirmware extends AbstractFirmware {
             }
         }
         releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
-        return new Triplet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return new Triplet<>(manufacturer, version, releaseDate);
     }
 }

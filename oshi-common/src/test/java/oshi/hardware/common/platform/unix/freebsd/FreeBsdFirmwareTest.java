@@ -5,7 +5,9 @@
 package oshi.hardware.common.platform.unix.freebsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +15,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
 class FreeBsdFirmwareTest {
@@ -37,10 +38,11 @@ class FreeBsdFirmwareTest {
 
     @Test
     void testParseDmiDecodeEmpty() {
-        // No output (e.g. dmidecode not available / not root): every field is UNKNOWN.
+        // No output (e.g. dmidecode not available / not root): the parser returns raw absent values (null
+        // manufacturer/version, empty date); readDmiDecode applies the Constants.UNKNOWN fallbacks.
         Triplet<String, String, String> fw = FreeBsdFirmware.parseDmiDecode(Collections.emptyList());
-        assertThat(fw.getA(), is(Constants.UNKNOWN));
-        assertThat(fw.getB(), is(Constants.UNKNOWN));
-        assertThat(fw.getC(), is(Constants.UNKNOWN));
+        assertThat(fw.getA(), is(nullValue()));
+        assertThat(fw.getB(), is(nullValue()));
+        assertThat(fw.getC(), is(emptyString()));
     }
 }
