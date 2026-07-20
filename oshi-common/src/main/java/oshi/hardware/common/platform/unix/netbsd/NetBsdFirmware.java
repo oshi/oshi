@@ -70,7 +70,8 @@ public class NetBsdFirmware extends AbstractFirmware {
                 version = ParseUtil.getStringBetween(line, '"');
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));
                 String afterVendor = line.split("vendor")[1].trim();
-                vendor = afterVendor.split("\\s+")[0];
+                int versionIdx = afterVendor.indexOf(" version ");
+                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx) : afterVendor.split("\\s+")[0];
             }
         }
         return new Triplet<>(vendor, version, releaseDate);

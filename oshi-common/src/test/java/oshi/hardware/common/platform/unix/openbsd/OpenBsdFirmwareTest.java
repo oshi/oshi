@@ -21,13 +21,12 @@ class OpenBsdFirmwareTest {
 
     @Test
     void testParseDmesg() {
-        // Representative OpenBSD dmesg bios0 output
+        // Representative OpenBSD dmesg bios0 output with multi-word vendor
         List<String> dmesg = Arrays.asList(//
                 "bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)", //
                 "bios0: vendor American Megatrends Inc. version \"F5\" date 03/18/2016");
         Triplet<String, String, String> fw = OpenBsdFirmware.parseDmesg(dmesg);
-        // The full remainder after "vendor" is captured — existing behavior preserved
-        assertThat(fw.getA(), is("American Megatrends Inc. version \"F5\" date 03/18/2016"));
+        assertThat(fw.getA(), is("American Megatrends Inc."));
         assertThat(fw.getB(), is("F5"));
         assertThat(fw.getC(), is("2016-03-18"));
     }

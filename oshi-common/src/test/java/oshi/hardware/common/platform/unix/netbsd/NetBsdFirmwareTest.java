@@ -41,6 +41,16 @@ class NetBsdFirmwareTest {
     }
 
     @Test
+    void testParseDmesgMultiWordVendor() {
+        List<String> dmesg = Arrays.asList(//
+                "bios0: vendor Phoenix Technologies LTD version \"6.00\" date 04/14/2014");
+        Triplet<String, String, String> fw = NetBsdFirmware.parseDmesg(dmesg);
+        assertThat(fw.getA(), is("Phoenix Technologies LTD"));
+        assertThat(fw.getB(), is("6.00"));
+        assertThat(fw.getC(), is("2014-04-14"));
+    }
+
+    @Test
     void testParseDmesgNoMatch() {
         List<String> dmesg = Arrays.asList(//
                 "cpu0 at mainbus0: AMD EPYC 7313P", //
