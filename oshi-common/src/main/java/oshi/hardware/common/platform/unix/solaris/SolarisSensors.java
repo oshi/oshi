@@ -60,17 +60,12 @@ public final class SolarisSensors extends AbstractSensors {
      */
     static int[] parseFanSpeeds(List<String> prtpicl) {
         List<Integer> speedList = new ArrayList<>();
-        // Return max found temp
         for (String line : prtpicl) {
             if (line.trim().startsWith("Speed:")) {
                 speedList.add(ParseUtil.parseLastInt(line, 0));
             }
         }
-        int[] fans = new int[speedList.size()];
-        for (int i = 0; i < speedList.size(); i++) {
-            fans[i] = speedList.get(i);
-        }
-        return fans;
+        return speedList.stream().mapToInt(Integer::intValue).toArray();
     }
 
     @Override
