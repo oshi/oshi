@@ -34,19 +34,7 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        Map<Integer, String> dmesg = new HashMap<>();
-        // Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r)
-        // CPU J3455 @ 1.50GHz
-        // but NOT: Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid
-        // 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
-        Pattern p = Pattern.compile(".* cpu(\\d+): ((ARM|AMD|Intel).+)");
-        for (String s : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = p.matcher(s);
-            if (m.matches()) {
-                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                dmesg.put(coreId, m.group(2).trim());
-            }
-        }
+        Map<Integer, String> dmesg = parseDmesgCpuInfo(ExecutingCommand.runNative("dmesg"));
         if (dmesg.isEmpty()) {
             return new Quartet<>(logProcs, null, null, Collections.emptyList());
         }
@@ -70,23 +58,13 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        long swtch = 0;
         // Shell-escaped pipe: Java \\\\| -> shell \\| -> kstat regex \| -> matches literal pipe.
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/");
-        for (String s : kstat) {
-            swtch += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swtch;
+        return sumKstatLong(ExecutingCommand.runNative("kstat -p cpu_stat:::/pswitch\\\\|inv_swtch/"));
     }
 
     @Override
     public long queryInterrupts() {
-        long intr = 0;
-        List<String> kstat = ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/");
-        for (String s : kstat) {
-            intr += ParseUtil.parseLastLong(s, 0L);
-        }
-        return intr;
+        return sumKstatLong(ExecutingCommand.runNative("kstat -p cpu_stat:::/intr/"));
     }
 
     /**
@@ -102,10 +80,56 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
      * @return a map of processor id to NUMA node
      */
     protected static Map<Integer, Integer> mapNumaNodes() {
+        return parseNumaNodes(ExecutingCommand.runNative("lgrpinfo -c leaves"));
+    }
+
+    /**
+     * Fetches the ProcessorID by encoding the stepping, model, family, and feature flags.
+     *
+     * @param stepping the stepping
+     * @param model    the model
+     * @param family   the family
+     * @return the Processor ID string
+     */
+    protected static String getProcessorID(String stepping, String model, String family) {
+        String[] flags = parseIsainfoFlags(ExecutingCommand.runNative("isainfo -v"));
+        return createProcessorID(stepping, model, family, flags);
+    }
+
+    /**
+     * Parses the output of {@code dmesg} to extract CPU name strings keyed by core id.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a map of core id to CPU name string
+     */
+    static Map<Integer, String> parseDmesgCpuInfo(List<String> dmesg) {
+        Map<Integer, String> cpuMap = new HashMap<>();
+        // Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r)
+        // CPU J3455 @ 1.50GHz
+        // but NOT: Jan 9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid
+        // 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
+        Pattern p = Pattern.compile(".* cpu(\\d+): ((ARM|AMD|Intel).+)");
+        for (String s : dmesg) {
+            Matcher m = p.matcher(s);
+            if (m.matches()) {
+                int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                cpuMap.put(coreId, m.group(2).trim());
+            }
+        }
+        return cpuMap;
+    }
+
+    /**
+     * Parses the output of {@code lgrpinfo -c leaves} into a map of CPU id to NUMA node.
+     *
+     * @param lgrpinfo the lines emitted by {@code lgrpinfo -c leaves}
+     * @return a map of processor id to NUMA node number
+     */
+    static Map<Integer, Integer> parseNumaNodes(List<String> lgrpinfo) {
         // Get numa node info from lgrpinfo
         Map<Integer, Integer> numaNodeMap = new HashMap<>();
         int lgroup = 0;
-        for (String line : ExecutingCommand.runNative("lgrpinfo -c leaves")) {
+        for (String line : lgrpinfo) {
             // Format:
             // lgroup 0 (root):
             // CPUs: 0 1
@@ -125,15 +149,12 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Fetches the ProcessorID by encoding the stepping, model, family, and feature flags.
+     * Parses the output of {@code isainfo -v} to extract the 64-bit feature flags.
      *
-     * @param stepping the stepping
-     * @param model    the model
-     * @param family   the family
-     * @return the Processor ID string
+     * @param isainfo the lines emitted by {@code isainfo -v}
+     * @return an array of feature flag strings (lowercase)
      */
-    protected static String getProcessorID(String stepping, String model, String family) {
-        List<String> isainfo = ExecutingCommand.runNative("isainfo -v");
+    static String[] parseIsainfoFlags(List<String> isainfo) {
         StringBuilder flags = new StringBuilder();
         for (String line : isainfo) {
             if (line.startsWith("32-bit")) {
@@ -142,7 +163,20 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
                 flags.append(' ').append(line.trim());
             }
         }
-        return createProcessorID(stepping, model, family,
-                ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT)));
+        return ParseUtil.whitespaces.split(flags.toString().toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Sums the last long value from each line of {@code kstat -p} output.
+     *
+     * @param kstat the lines emitted by a {@code kstat -p} command
+     * @return the sum of the trailing long values across all lines
+     */
+    static long sumKstatLong(List<String> kstat) {
+        long total = 0L;
+        for (String s : kstat) {
+            total += ParseUtil.parseLastLong(s, 0L);
+        }
+        return total;
     }
 }

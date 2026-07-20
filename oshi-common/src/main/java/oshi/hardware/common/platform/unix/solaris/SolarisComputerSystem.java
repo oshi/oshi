@@ -12,6 +12,7 @@ import static oshi.util.ParseUtil.getValueOrUnknown;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -79,6 +80,39 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
     }
 
     private static SmbiosStrings readSmbios() {
+        EnumMap<SmbType, Map<String, String>> smbTypesMap = parseSmbios(ExecutingCommand.runNative("smbios"));
+
+        Map<String, String> smbTypeBIOSMap = smbTypesMap.get(SMB_TYPE_BIOS);
+        Map<String, String> smbTypeSystemMap = smbTypesMap.get(SMB_TYPE_SYSTEM);
+        Map<String, String> smbTypeBaseboardMap = smbTypesMap.get(SMB_TYPE_BASEBOARD);
+
+        final String serialNumMarker = "Serial Number";
+        // If we get to end and haven't assigned, use fallback
+        if (!smbTypeSystemMap.containsKey(serialNumMarker) || Util.isBlank(smbTypeSystemMap.get(serialNumMarker))) {
+            smbTypeSystemMap.put(serialNumMarker, readSerialNumber());
+        }
+        return new SmbiosStrings(smbTypeBIOSMap, smbTypeSystemMap, smbTypeBaseboardMap);
+    }
+
+    private static SmbType getSmbType(String checkLine) {
+        for (SmbType smbType : SmbType.values()) {
+            if (checkLine.contains(smbType.name())) {
+                return smbType;
+            }
+        }
+        // First 3 SMB_TYPEs are what we need. After that no need to
+        // continue processing the output
+        return null;
+    }
+
+    /**
+     * Parses the output of the {@code smbios} command into an {@link EnumMap} keyed by SMBIOS type, where each value is
+     * a map of field names to their string values.
+     *
+     * @param smbios the lines emitted by the {@code smbios} command
+     * @return an {@link EnumMap} of {@link SmbType} to field key-value maps
+     */
+    static EnumMap<SmbType, Map<String, String>> parseSmbios(List<String> smbios) {
         // $ smbios
         // ID SIZE TYPE
         // 0 87 SMB_TYPE_BIOS (BIOS Information)
@@ -115,8 +149,6 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
         // ID SIZE TYPE
         // 3 .... <snip> ...
 
-        final String serialNumMarker = "Serial Number";
-
         SmbType smbTypeId = null;
 
         EnumMap<SmbType, Map<String, String>> smbTypesMap = new EnumMap<>(SmbType.class);
@@ -124,8 +156,7 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
         smbTypesMap.put(SMB_TYPE_SYSTEM, new HashMap<>());
         smbTypesMap.put(SMB_TYPE_BASEBOARD, new HashMap<>());
 
-        // Only works with root permissions but it's all we've got
-        for (final String checkLine : ExecutingCommand.runNative("smbios")) {
+        for (final String checkLine : smbios) {
             // Change the smbTypeId when hitting a new header
             if (checkLine.contains("SMB_TYPE_") && (smbTypeId = getSmbType(checkLine)) == null) {
                 // If we get past what we need, stop iterating
@@ -139,27 +170,7 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
                 smbTypesMap.get(smbTypeId).put(key, val);
             }
         }
-
-        Map<String, String> smbTypeBIOSMap = smbTypesMap.get(SMB_TYPE_BIOS);
-        Map<String, String> smbTypeSystemMap = smbTypesMap.get(SMB_TYPE_SYSTEM);
-        Map<String, String> smbTypeBaseboardMap = smbTypesMap.get(SMB_TYPE_BASEBOARD);
-
-        // If we get to end and haven't assigned, use fallback
-        if (!smbTypeSystemMap.containsKey(serialNumMarker) || Util.isBlank(smbTypeSystemMap.get(serialNumMarker))) {
-            smbTypeSystemMap.put(serialNumMarker, readSerialNumber());
-        }
-        return new SmbiosStrings(smbTypeBIOSMap, smbTypeSystemMap, smbTypeBaseboardMap);
-    }
-
-    private static SmbType getSmbType(String checkLine) {
-        for (SmbType smbType : SmbType.values()) {
-            if (checkLine.contains(smbType.name())) {
-                return smbType;
-            }
-        }
-        // First 3 SMB_TYPEs are what we need. After that no need to
-        // continue processing the output
-        return null;
+        return smbTypesMap;
     }
 
     private static String readSerialNumber() {
@@ -167,15 +178,25 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
         String serialNumber = ExecutingCommand.getFirstAnswer("sneep");
         // if that didn't work, try...
         if (serialNumber.isEmpty()) {
-            String marker = "chassis-sn:";
-            for (String checkLine : ExecutingCommand.runNative("prtconf -pv")) {
-                if (checkLine.contains(marker)) {
-                    serialNumber = ParseUtil.getSingleQuoteStringValue(checkLine);
-                    break;
-                }
-            }
+            serialNumber = parseSerialFromPrtconf(ExecutingCommand.runNative("prtconf -pv"));
         }
         return serialNumber;
+    }
+
+    /**
+     * Parses the output of {@code prtconf -pv} to extract the chassis serial number.
+     *
+     * @param prtconf the lines emitted by {@code prtconf -pv}
+     * @return the serial number string, or empty string if not found
+     */
+    static String parseSerialFromPrtconf(List<String> prtconf) {
+        String marker = "chassis-sn:";
+        for (String checkLine : prtconf) {
+            if (checkLine.contains(marker)) {
+                return ParseUtil.getSingleQuoteStringValue(checkLine);
+            }
+        }
+        return "";
     }
 
     private static final class SmbiosStrings {
