@@ -31,6 +31,16 @@ public final class GeomDiskList {
      * @return A map with disk name as the key and a Triplet of model, serial, and size as the value
      */
     public static Map<String, Triplet<String, String, Long>> queryDisks() {
+        return parseGeomDiskList(ExecutingCommand.runNative(GEOM_DISK_LIST));
+    }
+
+    /**
+     * Parses the output of {@code geom disk list} into a map of disk parameters.
+     *
+     * @param geom the lines of output from {@code geom disk list}
+     * @return A map with disk name as the key and a Triplet of model, serial, and size as the value
+     */
+    static Map<String, Triplet<String, String, Long>> parseGeomDiskList(List<String> geom) {
         // Map of device name to disk, to be returned
         Map<String, Triplet<String, String, Long>> diskMap = new HashMap<>();
         // Parameters needed.
@@ -39,7 +49,6 @@ public final class GeomDiskList {
         String ident = Constants.UNKNOWN;
         long mediaSize = 0L;
 
-        List<String> geom = ExecutingCommand.runNative(GEOM_DISK_LIST);
         for (String line : geom) {
             line = line.trim();
             // Marks the DiskStore device

@@ -24,18 +24,36 @@ public final class Prtvtoc {
     private Prtvtoc() {
     }
 
+    /**
+     * Query prtvtoc to get partition information for a disk.
+     *
+     * @param mount the mount point identifier for the disk
+     * @param major the block device major number
+     * @return A list of partitions for the specified disk
+     */
     public static List<HWPartition> queryPartitions(String mount, int major) {
-        List<HWPartition> partList = new ArrayList<>();
         // This requires sudo permissions; will result in "permission denied"
         // otherwise in which case we return empty partition list
-        List<String> prtvotc = ExecutingCommand.runNative(PRTVTOC_DEV_DSK + mount);
+        return parsePrtvtoc(ExecutingCommand.runNative(PRTVTOC_DEV_DSK + mount), mount, major);
+    }
+
+    /**
+     * Parses the output of {@code prtvtoc} into a list of partitions.
+     *
+     * @param prtvtoc the lines of output from {@code prtvtoc /dev/dsk/<mount>}
+     * @param mount   the mount point identifier for the disk
+     * @param major   the block device major number
+     * @return A list of partitions parsed from the prtvtoc output
+     */
+    static List<HWPartition> parsePrtvtoc(List<String> prtvtoc, String mount, int major) {
+        List<HWPartition> partList = new ArrayList<>();
         // Sample output - see man prtvtoc
-        if (prtvotc.size() > 1) {
+        if (prtvtoc.size() > 1) {
             int bytesPerSector = 0;
             String volumeName = "";
             String[] split;
             // We have a result, parse partition table
-            for (String line : prtvotc) {
+            for (String line : prtvtoc) {
                 // If line starts with asterisk we ignore except for the one
                 // specifying bytes per sector
                 if (line.startsWith("*")) {

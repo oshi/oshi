@@ -30,8 +30,17 @@ public final class Lshal {
      *         otherwise
      */
     public static Map<String, Integer> queryDiskToMajorMap() {
+        return parseLshal(ExecutingCommand.runNative(LSHAL_CMD));
+    }
+
+    /**
+     * Parses the output of {@code lshal} into a map of disk names to block device major numbers.
+     *
+     * @param lshal the lines of output from {@code lshal}
+     * @return A map with disk names as the key and block device major as the value
+     */
+    static Map<String, Integer> parseLshal(List<String> lshal) {
         Map<String, Integer> majorMap = new HashMap<>();
-        List<String> lshal = ExecutingCommand.runNative(LSHAL_CMD);
         String diskName = null;
         for (String line : lshal) {
             if (line.startsWith("udi ")) {

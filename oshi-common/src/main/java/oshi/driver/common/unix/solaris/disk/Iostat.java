@@ -50,14 +50,24 @@ public final class Iostat {
      * @return A map with partitions as the key and mount points as the value
      */
     public static Map<String, String> queryPartitionToMountMap() {
-        // Create map to correlate disk name with block device mount point for
-        // later use in partition info
-        Map<String, String> deviceMap = new HashMap<>();
-
         // First, run iostat -er to enumerate disks by name.
         List<String> mountNames = ExecutingCommand.runNative(IOSTAT_ER);
         // Also run iostat -ern to get the same list by mount point.
         List<String> mountPoints = ExecutingCommand.runNative(IOSTAT_ERN);
+        return parsePartitionToMountMap(mountNames, mountPoints);
+    }
+
+    /**
+     * Parses the output of {@code iostat -er} and {@code iostat -ern} into a partition-to-mount-point map.
+     *
+     * @param mountNames  the lines of output from {@code iostat -er} (device name in first column)
+     * @param mountPoints the lines of output from {@code iostat -ern} (device name in last column)
+     * @return A map with partitions as the key and mount points as the value
+     */
+    static Map<String, String> parsePartitionToMountMap(List<String> mountNames, List<String> mountPoints) {
+        // Create map to correlate disk name with block device mount point for
+        // later use in partition info
+        Map<String, String> deviceMap = new HashMap<>();
 
         String disk;
         for (int i = 0; i < mountNames.size() && i < mountPoints.size(); i++) {
@@ -82,9 +92,19 @@ public final class Iostat {
      * @return A map with disk name as the key and a quintet of model, vendor, product, serial, size as the value
      */
     public static Map<String, Quintet<String, String, String, String, Long>> queryDeviceStrings(Set<String> diskSet) {
+        return parseDeviceStrings(ExecutingCommand.runNative(IOSTAT_ER_DETAIL), diskSet);
+    }
+
+    /**
+     * Parses the output of {@code iostat -Er} into a map of detailed drive information.
+     *
+     * @param iostat  the lines of output from {@code iostat -Er}
+     * @param diskSet A set of valid disk names; others will be ignored
+     * @return A map with disk name as the key and a quintet of model, vendor, product, serial, size as the value
+     */
+    static Map<String, Quintet<String, String, String, String, Long>> parseDeviceStrings(List<String> iostat,
+            Set<String> diskSet) {
         Map<String, Quintet<String, String, String, String, Long>> deviceParamMap = new HashMap<>();
-        // Run iostat -Er to get model, etc.
-        List<String> iostat = ExecutingCommand.runNative(IOSTAT_ER_DETAIL);
         // We'll use Model if available, otherwise Vendor+Product
         String diskName = null;
         String model = "";
