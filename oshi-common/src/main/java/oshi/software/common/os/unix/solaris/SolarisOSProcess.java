@@ -92,21 +92,23 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
 
     @Override
     public long getAffinityMask() {
+        long mask = parsePbindOutput(ExecutingCommand.getFirstAnswer("pbind -q " + getProcessID()));
+        return mask != 0L ? mask : parsePsrinfo(ExecutingCommand.runNative("psrinfo"));
+    }
+
+    /**
+     * Parses the output of {@code pbind -q <pid>} to determine the processor affinity bitmask.
+     *
+     * @param cpuset the single-line output from {@code pbind -q}
+     * @return the bitmask of bound processors, or 0 if not bound or empty
+     */
+    static long parsePbindOutput(String cpuset) {
         long bitMask = 0L;
-        String cpuset = ExecutingCommand.getFirstAnswer("pbind -q " + getProcessID());
         // Sample output:
         // <empty string if no binding>
         // pid 101048 strongly bound to processor(s) 0 1 2 3.
         if (cpuset.isEmpty()) {
-            List<String> allProcs = ExecutingCommand.runNative("psrinfo");
-            for (String proc : allProcs) {
-                String[] split = ParseUtil.whitespaces.split(proc);
-                int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
-                if (bitToSet >= 0) {
-                    bitMask |= 1L << bitToSet;
-                }
-            }
-            return bitMask;
+            return 0L;
         } else if (cpuset.endsWith(".") && cpuset.contains("strongly bound to processor(s)")) {
             String parse = cpuset.substring(0, cpuset.length() - 1);
             String[] split = ParseUtil.whitespaces.split(parse);
@@ -118,6 +120,24 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
                     // Once we run into the word processor(s) we're done
                     break;
                 }
+            }
+        }
+        return bitMask;
+    }
+
+    /**
+     * Parses the output of {@code psrinfo} to build a bitmask of all available processors.
+     *
+     * @param psrinfo the lines emitted by {@code psrinfo}
+     * @return a bitmask with a bit set for each processor listed
+     */
+    static long parsePsrinfo(List<String> psrinfo) {
+        long bitMask = 0L;
+        for (String proc : psrinfo) {
+            String[] split = ParseUtil.whitespaces.split(proc);
+            int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
+            if (bitToSet >= 0) {
+                bitMask |= 1L << bitToSet;
             }
         }
         return bitMask;
@@ -207,11 +227,21 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
      * @return the limit, or {@code -1} if unavailable
      */
     protected static long getProcessOpenFileLimit(long processId, int index) {
-        final List<String> output = ExecutingCommand.runNative("plimit " + processId);
-        if (output.isEmpty()) {
+        return parseOpenFileLimit(ExecutingCommand.runNative("plimit " + processId), index);
+    }
+
+    /**
+     * Parses the output of {@code plimit <pid>} to extract the open-file limit.
+     *
+     * @param plimitOutput the lines emitted by {@code plimit <pid>}
+     * @param index        {@code 1} for the soft limit, {@code 2} for the hard limit
+     * @return the limit value, or {@code -1} if unavailable
+     */
+    static long parseOpenFileLimit(List<String> plimitOutput, int index) {
+        if (plimitOutput.isEmpty()) {
             return -1; // not supported
         }
-        final Optional<String> nofilesLine = output.stream().filter(line -> line.trim().startsWith("nofiles"))
+        final Optional<String> nofilesLine = plimitOutput.stream().filter(line -> line.trim().startsWith("nofiles"))
                 .findFirst();
         if (!nofilesLine.isPresent()) {
             return -1;

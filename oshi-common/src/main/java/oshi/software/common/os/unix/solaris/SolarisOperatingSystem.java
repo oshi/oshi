@@ -143,7 +143,6 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSService> getServices() {
-        List<OSService> services = new ArrayList<>();
         // Get legacy RC service name possibilities
         List<String> legacySvcs = new ArrayList<>();
         File dir = new File("/etc/init.d");
@@ -155,6 +154,18 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
         }
         // Iterate service list
         List<String> svcs = ExecutingCommand.runNative("svcs -p");
+        return parseSvcs(svcs, legacySvcs);
+    }
+
+    /**
+     * Parses the output of {@code svcs -p} to build a list of OS services.
+     *
+     * @param svcs       the lines emitted by {@code svcs -p}
+     * @param legacySvcs the list of legacy service names from {@code /etc/init.d}
+     * @return a list of {@link OSService} objects
+     */
+    static List<OSService> parseSvcs(List<String> svcs, List<String> legacySvcs) {
+        List<OSService> services = new ArrayList<>();
         /*-
          Output:
          STATE          STIME    FRMI
