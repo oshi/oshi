@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.freebsd;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -65,6 +66,35 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
     protected abstract String queryHostUuid();
 
     private Quintet<String, String, String, String, String> readDmiDecode() {
+        // Only works with root permissions but it's all we've got
+        Quintet<String, String, String, String, String> dmi = parseDmiDecode(
+                ExecutingCommand.runNative("dmidecode -t system"));
+        String manufacturer = dmi.getA();
+        String model = dmi.getB();
+        String serialNumber = dmi.getC();
+        String uuid = dmi.getD();
+        String version = dmi.getE();
+        // If we get to end and haven't assigned, use fallback
+        if (Util.isBlank(serialNumber)) {
+            serialNumber = querySystemSerialNumber();
+        }
+        if (Util.isBlank(uuid)) {
+            uuid = queryHostUuid();
+        }
+        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
+                Util.isBlank(model) ? Constants.UNKNOWN : model,
+                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
+                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);
+    }
+
+    /**
+     * Parses the output of {@code dmidecode -t system} into its manufacturer, model, serial number, UUID, and version
+     * fields. Any field not present in the output is returned as {@code null}; the caller applies fallbacks.
+     *
+     * @param dmidecode the lines emitted by {@code dmidecode -t system}
+     * @return a {@link Quintet} of manufacturer, model, serial number, UUID, and version
+     */
+    static Quintet<String, String, String, String, String> parseDmiDecode(List<String> dmidecode) {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;
@@ -77,8 +107,7 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
         final String uuidMarker = "UUID:";
         final String versionMarker = "Version:";
 
-        // Only works with root permissions but it's all we've got
-        for (final String checkLine : ExecutingCommand.runNative("dmidecode -t system")) {
+        for (final String checkLine : dmidecode) {
             if (checkLine.contains(manufacturerMarker)) {
                 manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             } else if (checkLine.contains(productNameMarker)) {
@@ -91,17 +120,7 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
                 version = checkLine.split(versionMarker)[1].trim();
             }
         }
-        // If we get to end and haven't assigned, use fallback
-        if (Util.isBlank(serialNumber)) {
-            serialNumber = querySystemSerialNumber();
-        }
-        if (Util.isBlank(uuid)) {
-            uuid = queryHostUuid();
-        }
-        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(model) ? Constants.UNKNOWN : model,
-                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
-                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);
+        return new Quintet<>(manufacturer, model, serialNumber, uuid, version);
     }
 
     private static String querySystemSerialNumber() {

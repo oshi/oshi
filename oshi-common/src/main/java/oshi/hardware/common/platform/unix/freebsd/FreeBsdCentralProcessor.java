@@ -20,6 +20,7 @@ import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -151,26 +152,83 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
+        // Parsing dmesg.boot is apparently the only reliable source for processor identification in FreeBSD. Read
+        // quietly (reportError=false): its absence is tolerated (we fall back to sysctl), and warning on every
+        // CentralProcessor construction would spam callers that recreate one.
+        DmesgProcessorId id = parseProcessorIdFromDmesg(FileUtil.readFile("/var/run/dmesg.boot", false),
+                sysctlString("hw.model", ""));
+        long cpuFreq = sysctlLong("hw.clockrate", 0L) * 1_000_000L;
+        boolean cpu64bit = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
+        String processorID = getProcessorIDfromDmiDecode(id.processorIdBits());
+        return new ProcessorIdentifier(id.vendor(), id.name(), id.family(), id.model(), id.stepping(), processorID,
+                cpu64bit, cpuFreq);
+    }
+
+    /** Immutable holder for the identifier fields parsed from {@code dmesg.boot}. Package-private for testing. */
+    static final class DmesgProcessorId {
+        private final String vendor;
+        private final String name;
+        private final String family;
+        private final String model;
+        private final String stepping;
+        private final long processorIdBits;
+
+        DmesgProcessorId(String vendor, String name, String family, String model, String stepping,
+                long processorIdBits) {
+            this.vendor = vendor;
+            this.name = name;
+            this.family = family;
+            this.model = model;
+            this.stepping = stepping;
+            this.processorIdBits = processorIdBits;
+        }
+
+        String vendor() {
+            return vendor;
+        }
+
+        String name() {
+            return name;
+        }
+
+        String family() {
+            return family;
+        }
+
+        String model() {
+            return model;
+        }
+
+        String stepping() {
+            return stepping;
+        }
+
+        long processorIdBits() {
+            return processorIdBits;
+        }
+    }
+
+    /**
+     * Parses the processor identifier fields from {@code dmesg.boot}. Uses {@code initialName} (from
+     * {@code sysctl hw.model}) unless the file supplies a {@code CPU:} line and the initial name is empty.
+     * Package-private for testing.
+     *
+     * @param dmesg       the lines of {@code dmesg.boot}
+     * @param initialName the CPU name from {@code sysctl hw.model}
+     * @return the parsed identifier fields
+     */
+    static DmesgProcessorId parseProcessorIdFromDmesg(List<String> dmesg, String initialName) {
         final Pattern identifierPattern = Pattern
                 .compile("Origin=\"([^\"]*)\".*Id=(\\S+).*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
         final Pattern featuresPattern = Pattern.compile("Features=(\\S+)<.*");
 
         String cpuVendor = "";
-        String cpuName = sysctlString("hw.model", "");
+        String cpuName = initialName;
         String cpuFamily = "";
         String cpuModel = "";
         String cpuStepping = "";
-        String processorID;
-        long cpuFreq = sysctlLong("hw.clockrate", 0L) * 1_000_000L;
-
-        boolean cpu64bit;
-
-        // Parsing dmesg.boot is apparently the only reliable source for processor
-        // identification in FreeBSD. Read quietly (reportError=false): its absence is tolerated (we fall back to
-        // sysctl below), and warning on every CentralProcessor construction would spam callers that recreate one.
         long processorIdBits = 0L;
-        List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot", false);
-        for (String line : cpuInfo) {
+        for (String line : dmesg) {
             line = line.trim();
             // Prefer hw.model to this one
             if (line.startsWith("CPU:") && cpuName.isEmpty()) {
@@ -193,11 +251,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 break;
             }
         }
-        cpu64bit = ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
-        processorID = getProcessorIDfromDmiDecode(processorIdBits);
-
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-                cpuFreq);
+        return new DmesgProcessorId(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorIdBits);
     }
 
     @Override
@@ -207,25 +261,42 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
-        Map<Integer, String> dmesg = new HashMap<>();
+        Pair<Map<Integer, String>, List<String>> modelsAndFlags = parseProcModelsAndFlags(
+                FileUtil.readFile("/var/run/dmesg.boot", false));
+        Map<Integer, String> dmesg = modelsAndFlags.getA();
+        List<String> featureFlags = modelsAndFlags.getB();
+        List<PhysicalProcessor> physProcs = dmesg.isEmpty() ? null : createProcListFromDmesg(logProcs, dmesg);
+        List<ProcessorCache> caches = getCacheInfoFromLscpu();
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
+    }
+
+    /**
+     * Parses the per-core processor model strings and feature flags from {@code dmesg.boot}. Package-private for
+     * testing.
+     *
+     * @param dmesg the lines of {@code dmesg.boot}
+     * @return a pair of (core id to model-string map, feature-flag lines)
+     */
+    static Pair<Map<Integer, String>, List<String>> parseProcModelsAndFlags(List<String> dmesg) {
+        Map<Integer, String> models = new HashMap<>();
         // cpu0: <Open Firmware CPU> on cpulist0
         Pattern normal = Pattern.compile("cpu(\\d+): (.+) on .*");
         // CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0
         Pattern hybrid = Pattern.compile("CPU\\s*(\\d+): (.+) affinity:.*");
         List<String> featureFlags = new ArrayList<>();
         boolean readingFlags = false;
-        for (String s : FileUtil.readFile("/var/run/dmesg.boot", false)) {
+        for (String s : dmesg) {
             Matcher h = hybrid.matcher(s);
             if (h.matches()) {
                 int coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
                 // This always takes priority, overwrite if needed
-                dmesg.put(coreId, h.group(2).trim());
+                models.put(coreId, h.group(2).trim());
             } else {
                 Matcher n = normal.matcher(s);
                 if (n.matches()) {
                     int coreId = ParseUtil.parseIntOrDefault(n.group(1), 0);
                     // Don't overwrite if h matched earlier
-                    dmesg.putIfAbsent(coreId, n.group(2).trim());
+                    models.putIfAbsent(coreId, n.group(2).trim());
                 }
             }
             if (s.contains("Origin=")) {
@@ -238,14 +309,22 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        List<PhysicalProcessor> physProcs = dmesg.isEmpty() ? null : createProcListFromDmesg(logProcs, dmesg);
-        List<ProcessorCache> caches = getCacheInfoFromLscpu();
-        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
+        return new Pair<>(models, featureFlags);
     }
 
     private List<ProcessorCache> getCacheInfoFromLscpu() {
+        return parseCachesFromLscpu(ExecutingCommand.runNative("lscpu"));
+    }
+
+    /**
+     * Parses the CPU cache descriptions from {@code lscpu} output. Package-private for testing.
+     *
+     * @param lscpu the lines of {@code lscpu} output
+     * @return the ordered list of processor caches
+     */
+    static List<ProcessorCache> parseCachesFromLscpu(List<String> lscpu) {
         Set<ProcessorCache> caches = new HashSet<>();
-        for (String checkLine : ExecutingCommand.runNative("lscpu")) {
+        for (String checkLine : lscpu) {
             if (checkLine.contains("L1d cache:")) {
                 caches.add(new ProcessorCache(1, 0, 0,
                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":")[1].trim()), Type.DATA));

@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.freebsd;
 
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
@@ -44,6 +45,17 @@ public class FreeBsdFirmware extends AbstractFirmware {
      */
 
     private static Triplet<String, String, String> readDmiDecode() {
+        // Only works with root permissions but it's all we've got
+        return parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+    }
+
+    /**
+     * Parses the output of {@code dmidecode -t bios} into its manufacturer, version, and release date fields.
+     *
+     * @param dmidecode the lines emitted by {@code dmidecode -t bios}
+     * @return a {@link Triplet} of manufacturer, version, and release date (each {@link Constants#UNKNOWN} if absent)
+     */
+    static Triplet<String, String, String> parseDmiDecode(List<String> dmidecode) {
         String manufacturer = null;
         String version = null;
         String releaseDate = "";
@@ -66,8 +78,7 @@ public class FreeBsdFirmware extends AbstractFirmware {
         final String versionMarker = "Version:";
         final String releaseDateMarker = "Release Date:";
 
-        // Only works with root permissions but it's all we've got
-        for (final String checkLine : ExecutingCommand.runNative("dmidecode -t bios")) {
+        for (final String checkLine : dmidecode) {
             if (checkLine.contains(manufacturerMarker)) {
                 manufacturer = checkLine.split(manufacturerMarker)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
