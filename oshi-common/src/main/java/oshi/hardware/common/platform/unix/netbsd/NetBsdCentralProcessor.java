@@ -44,29 +44,11 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         if (cpuName.isEmpty()) {
             cpuName = NetBsdSysctlUtil.sysctl("hw.model", "");
         }
-        // NetBSD provides family/model/stepping via dmesg
-        // e.g., "cpu0: Intel(R) ... 06-7a-01" or from machdep
-        String cpuFamily = "";
-        String cpuModel = "";
-        String cpuStepping = "";
+        String[] fms = parseFamilyModelStepping(ExecutingCommand.runNative("dmesg"));
+        String cpuFamily = fms[0];
+        String cpuModel = fms[1];
+        String cpuStepping = fms[2];
         String processorID = "";
-        // Try to parse from dmesg "cpu0: ... XX-YY-ZZ"
-        for (String line : ExecutingCommand.runNative("dmesg")) {
-            if (line.startsWith("cpu0:") && line.matches(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*")) {
-                String[] parts = line.split(",");
-                for (String part : parts) {
-                    String trimmed = part.trim();
-                    if (trimmed.matches("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+")) {
-                        String[] fms = trimmed.split("-");
-                        cpuFamily = fms[0];
-                        cpuModel = fms[1];
-                        cpuStepping = fms[2];
-                        break;
-                    }
-                }
-                break;
-            }
-        }
         long cpuFreq = NetBsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
         if (cpuFreq == 0L) {
             cpuFreq = ParseUtil.parseHertz(cpuName);
@@ -96,9 +78,18 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
 
     @Override
     protected Pair<Long, Long> queryVmStats() {
+        return parseVmStats(ExecutingCommand.runNative("vmstat -s"));
+    }
+
+    /**
+     * Parses the output of {@code vmstat -s} to extract context switch and interrupt counts.
+     *
+     * @param vmstat the lines emitted by {@code vmstat -s}
+     * @return a {@link Pair} of (context switches, interrupts)
+     */
+    static Pair<Long, Long> parseVmStats(List<String> vmstat) {
         long contextSwitches = 0L;
         long interrupts = 0L;
-        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
         for (String line : vmstat) {
             if (line.endsWith("CPU context switches")) {
                 contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);
@@ -107,6 +98,28 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
             }
         }
         return new Pair<>(contextSwitches, interrupts);
+    }
+
+    /**
+     * Parses family, model, and stepping from {@code dmesg} output. Looks for lines starting with {@code "cpu0:"} that
+     * contain a hyphen-separated triple like {@code "06-7a-01"}.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a 3-element array of [family, model, stepping], each empty string if not found
+     */
+    static String[] parseFamilyModelStepping(List<String> dmesg) {
+        for (String line : dmesg) {
+            if (line.startsWith("cpu0:") && line.matches(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*")) {
+                String[] parts = line.split(",");
+                for (String part : parts) {
+                    String trimmed = part.trim();
+                    if (trimmed.matches("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+")) {
+                        return trimmed.split("-");
+                    }
+                }
+            }
+        }
+        return new String[] { "", "", "" };
     }
 
     /**
@@ -159,7 +172,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
      * @param cpTimeStr the sysctl output string
      * @return array of [user, nice, sys, intr, idle] tick values
      */
-    private static long[] parseCpTime(String cpTimeStr) {
+    static long[] parseCpTime(String cpTimeStr) {
         long[] ticks = new long[CPUSTATES];
         if (cpTimeStr == null || cpTimeStr.isEmpty()) {
             return ticks;

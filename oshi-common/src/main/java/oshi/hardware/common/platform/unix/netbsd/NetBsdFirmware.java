@@ -40,24 +40,40 @@ public class NetBsdFirmware extends AbstractFirmware {
     }
 
     private static Triplet<String, String, String> readDmesg() {
+        Triplet<String, String, String> dmi = parseDmesg(ExecutingCommand.runNative("dmesg"));
+        String vendor = dmi.getA();
+        String version = dmi.getB();
+        String releaseDate = dmi.getC();
+        return new Triplet<>(Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
+                Util.isBlank(version) ? Constants.UNKNOWN : version,
+                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+    }
+
+    /**
+     * Parses the output of {@code dmesg} for BIOS firmware information. Looks for lines starting with
+     * {@code "bios0: vendor"} to extract manufacturer, version, and release date. Any field not present in the output
+     * is returned as {@code null} (or an empty date); the caller applies fallbacks.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a {@link Triplet} of vendor, version, and release date
+     */
+    static Triplet<String, String, String> parseDmesg(List<String> dmesg) {
         String version = null;
         String vendor = null;
         String releaseDate = "";
 
-        List<String> dmesg = ExecutingCommand.runNative("dmesg");
+        // bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)
+        // bios0: vendor LENOVO version "GLET90WW (2.44 )" date 09/13/2017
+        // bios0: LENOVO 20AWA08J00
         for (String line : dmesg) {
-            // bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)
-            // bios0: vendor LENOVO version "GLET90WW (2.44 )" date 09/13/2017
-            // bios0: LENOVO 20AWA08J00
             if (line.startsWith("bios0: vendor")) {
                 version = ParseUtil.getStringBetween(line, '"');
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));
                 String afterVendor = line.split("vendor")[1].trim();
-                vendor = afterVendor.split("\\s+")[0];
+                int versionIdx = afterVendor.indexOf(" version ");
+                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx) : afterVendor.split("\\s+")[0];
             }
         }
-        return new Triplet<>(Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return new Triplet<>(vendor, version, releaseDate);
     }
 }

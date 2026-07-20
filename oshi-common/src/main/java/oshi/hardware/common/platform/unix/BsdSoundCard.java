@@ -39,7 +39,17 @@ public final class BsdSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
-        List<String> dmesg = ExecutingCommand.runNative("dmesg");
+        return parseDmesg(ExecutingCommand.runNative("dmesg"));
+    }
+
+    /**
+     * Parses {@code dmesg} output to extract sound card information. The parser performs two passes: the first collects
+     * audio device attachment names, the second matches those names against PCI device entries and their codecs.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a list of {@link SoundCard} objects
+     */
+    static List<SoundCard> parseDmesg(List<String> dmesg) {
         Set<String> names = new HashSet<>();
         for (String line : dmesg) {
             Matcher m = AUDIO_AT.matcher(line);
