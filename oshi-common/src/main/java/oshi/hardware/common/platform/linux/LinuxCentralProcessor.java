@@ -43,6 +43,7 @@ import oshi.util.driver.linux.proc.CpuInfo;
 import oshi.util.driver.linux.proc.CpuStat;
 import oshi.util.linux.SysPath;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU as defined in Linux /proc.
@@ -65,37 +66,128 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = "";
-        String cpuName = "";
-        String cpuFamily = "";
-        String cpuModel = "";
-        String cpuStepping = "";
-        String processorID;
-        long cpuFreq = 0L;
-        boolean cpu64bit = false;
+        CpuInfoIdentity id = parseProcessorIdFromCpuinfo(FileUtil.readFile(CPUINFO));
+        String cpuName = id.name();
+        if (cpuName.isEmpty()) {
+            cpuName = FileUtil.getStringFromFile(MODEL).trim();
+        }
+        long cpuFreq = id.freq();
+        if (cpuName.contains("Hz")) {
+            // if Name contains CPU vendor frequency, ignore cpuinfo and use it
+            cpuFreq = -1L;
+        } else {
+            // Try lshw and use it in preference to cpuinfo
+            long cpuCapacity = Lshw.queryCpuCapacity();
+            if (cpuCapacity > cpuFreq) {
+                cpuFreq = cpuCapacity;
+            }
+        }
+        String processorID = getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(),
+                queryHwcap());
+        String cpuVendor = id.vendor();
+        String cpuModel = id.model();
+        if (cpuVendor.startsWith("0x") || cpuModel.isEmpty() || cpuName.isEmpty()) {
+            Triplet<String, String, String> lscpu = parseLscpuIdentity(ExecutingCommand.runNative("lscpu"), cpuVendor,
+                    cpuModel, cpuName);
+            cpuVendor = lscpu.getA();
+            cpuModel = lscpu.getB();
+            cpuName = lscpu.getC();
+        }
+        return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
+                id.cpu64bit(), cpuFreq);
+    }
 
-        StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
+    /** Immutable holder for the identifier fields parsed from {@code /proc/cpuinfo}. Package-private for testing. */
+    static final class CpuInfoIdentity {
+        private final String vendor;
+        private final String name;
+        private final String family;
+        private final String model;
+        private final String stepping;
+        private final String[] flags;
+        private final long freq;
+        private final boolean cpu64bit;
+
+        CpuInfoIdentity(String vendor, String name, String family, String model, String stepping, String[] flags,
+                long freq, boolean cpu64bit) {
+            this.vendor = vendor;
+            this.name = name;
+            this.family = family;
+            this.model = model;
+            this.stepping = stepping;
+            this.flags = flags;
+            this.freq = freq;
+            this.cpu64bit = cpu64bit;
+        }
+
+        String vendor() {
+            return vendor;
+        }
+
+        String name() {
+            return name;
+        }
+
+        String family() {
+            return family;
+        }
+
+        String model() {
+            return model;
+        }
+
+        String stepping() {
+            return stepping;
+        }
+
+        String[] flags() {
+            return flags;
+        }
+
+        long freq() {
+            return freq;
+        }
+
+        boolean cpu64bit() {
+            return cpu64bit;
+        }
+    }
+
+    /**
+     * Parses the processor identifier fields from {@code /proc/cpuinfo} content. Package-private for testing.
+     *
+     * @param cpuInfo the lines of {@code /proc/cpuinfo}
+     * @return the parsed identifier fields
+     */
+    static CpuInfoIdentity parseProcessorIdFromCpuinfo(List<String> cpuInfo) {
+        String vendor = "";
+        String name = "";
+        String family = "";
+        String model = "";
+        String stepping = "";
         String[] flags = new String[0];
-        List<String> cpuInfo = FileUtil.readFile(CPUINFO);
+        long freq = 0L;
+        boolean cpu64bit = false;
+        StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
             if (splitLine.length < 2) {
                 // special case
                 if (line.startsWith("CPU architecture: ")) {
-                    cpuFamily = line.replace("CPU architecture: ", "").trim();
+                    family = line.replace("CPU architecture: ", "").trim();
                 }
                 continue;
             }
             switch (splitLine[0].toLowerCase(Locale.ROOT)) {
                 case "vendor_id":
                 case "cpu implementer":
-                    cpuVendor = splitLine[1];
+                    vendor = splitLine[1];
                     break;
                 case "model name":
                 case "processor": // some ARM chips
                     // Ignore processor number
                     if (!splitLine[1].matches("\\d+")) {
-                        cpuName = splitLine[1];
+                        name = splitLine[1];
                     }
                     break;
                 case "flags":
@@ -108,7 +200,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                     }
                     break;
                 case "stepping":
-                    cpuStepping = splitLine[1];
+                    stepping = splitLine[1];
                     break;
                 case "cpu variant":
                     if (!armStepping.toString().startsWith("r")) {
@@ -124,51 +216,48 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                     break;
                 case "model":
                 case "cpu part":
-                    cpuModel = splitLine[1];
+                    model = splitLine[1];
                     break;
                 case "cpu family":
-                    cpuFamily = splitLine[1];
+                    family = splitLine[1];
                     break;
                 case "cpu mhz":
-                    cpuFreq = ParseUtil.parseHertz(splitLine[1]);
+                    freq = ParseUtil.parseHertz(splitLine[1]);
                     break;
                 default:
                     // Do nothing
             }
         }
-        if (cpuName.isEmpty()) {
-            cpuName = FileUtil.getStringFromFile(MODEL).trim();
+        if (stepping.isEmpty()) {
+            stepping = armStepping.toString();
         }
-        if (cpuName.contains("Hz")) {
-            // if Name contains CPU vendor frequency, ignore cpuinfo and use it
-            cpuFreq = -1L;
-        } else {
-            // Try lshw and use it in preference to cpuinfo
-            long cpuCapacity = Lshw.queryCpuCapacity();
-            if (cpuCapacity > cpuFreq) {
-                cpuFreq = cpuCapacity;
+        return new CpuInfoIdentity(vendor, name, family, model, stepping, flags, freq, cpu64bit);
+    }
+
+    /**
+     * Refines the vendor, model, and name from {@code lscpu} output when {@code /proc/cpuinfo} was insufficient.
+     * Package-private for testing.
+     *
+     * @param lscpu  the lines of {@code lscpu} output
+     * @param vendor the current CPU vendor
+     * @param model  the current CPU model
+     * @param name   the current CPU name
+     * @return a triplet of the refined (vendor, model, name)
+     */
+    static Triplet<String, String, String> parseLscpuIdentity(List<String> lscpu, String vendor, String model,
+            String name) {
+        for (String line : lscpu) {
+            if (line.startsWith("Architecture:") && vendor.startsWith("0x")) {
+                vendor = line.replace("Architecture:", "").trim();
+            } else if (line.startsWith("Vendor ID:")) {
+                vendor = line.replace("Vendor ID:", "").trim();
+            } else if (line.startsWith("Model name:")) {
+                String modelName = line.replace("Model name:", "").trim();
+                model = model.isEmpty() ? modelName : model;
+                name = name.isEmpty() ? modelName : name;
             }
         }
-        if (cpuStepping.isEmpty()) {
-            cpuStepping = armStepping.toString();
-        }
-        processorID = getProcessorID(cpuVendor, cpuStepping, cpuModel, cpuFamily, flags, queryHwcap());
-        if (cpuVendor.startsWith("0x") || cpuModel.isEmpty() || cpuName.isEmpty()) {
-            List<String> lscpu = ExecutingCommand.runNative("lscpu");
-            for (String line : lscpu) {
-                if (line.startsWith("Architecture:") && cpuVendor.startsWith("0x")) {
-                    cpuVendor = line.replace("Architecture:", "").trim();
-                } else if (line.startsWith("Vendor ID:")) {
-                    cpuVendor = line.replace("Vendor ID:", "").trim();
-                } else if (line.startsWith("Model name:")) {
-                    String modelName = line.replace("Model name:", "").trim();
-                    cpuModel = cpuModel.isEmpty() ? modelName : cpuModel;
-                    cpuName = cpuName.isEmpty() ? modelName : cpuName;
-                }
-            }
-        }
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-                cpuFreq);
+        return new Triplet<>(vendor, model, name);
     }
 
     @Override

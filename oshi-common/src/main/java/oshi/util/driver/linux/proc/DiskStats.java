@@ -118,9 +118,19 @@ public final class DiskStats {
      *         {@link IoStat} are mapped to a {@link Long} value.
      */
     public static Map<String, Map<IoStat, Long>> getDiskStats() {
+        return parseDiskStats(FileUtil.readFile(ProcPath.DISKSTATS));
+    }
+
+    /**
+     * Parses {@code /proc/diskstats} into a map of device name to its {@link IoStat} values. Package-private for
+     * testing.
+     *
+     * @param diskStats the lines of {@code /proc/diskstats}
+     * @return map of device name to a map of I/O statistics
+     */
+    static Map<String, Map<IoStat, Long>> parseDiskStats(List<String> diskStats) {
         Map<String, Map<IoStat, Long>> diskStatMap = new HashMap<>();
         IoStat[] enumArray = IoStat.class.getEnumConstants();
-        List<String> diskStats = FileUtil.readFile(ProcPath.DISKSTATS);
         for (String stat : diskStats) {
             String[] split = ParseUtil.whitespaces.split(stat.trim());
             Map<IoStat, Long> statMap = new EnumMap<>(IoStat.class);

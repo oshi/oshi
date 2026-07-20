@@ -30,6 +30,7 @@ import org.junit.jupiter.api.io.TempDir;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 class LinuxCentralProcessorTest {
 
@@ -498,6 +499,94 @@ class LinuxCentralProcessorTest {
     void testMapCachesFromLscpuEmpty() {
         Set<ProcessorCache> result = LinuxCentralProcessor.mapCachesFromLscpu(Collections.emptyList());
         assertThat(result, is(empty()));
+    }
+
+    // -------------------------------------------------------------------------
+    // parseProcessorIdFromCpuinfo
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testParseProcessorIdFromCpuinfoX86() {
+        List<String> cpuinfo = Arrays.asList("processor\t: 0", "vendor_id\t: GenuineIntel", "cpu family\t: 6",
+                "model\t\t: 158", "model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz", "stepping\t: 10",
+                "flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic sep lm constant_tsc");
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.vendor(), is("GenuineIntel"));
+        assertThat(id.name(), is("Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"));
+        assertThat(id.family(), is("6"));
+        assertThat(id.model(), is("158"));
+        assertThat(id.stepping(), is("10"));
+        assertThat(id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoArm() {
+        // Raspberry Pi style aarch64 /proc/cpuinfo: vendor from implementer, family from architecture, model from part,
+        // stepping synthesized from variant (r0) + revision (p3)
+        List<String> cpuinfo = Arrays.asList("processor\t: 0", "BogoMIPS\t: 108.00",
+                "Features\t: fp asimd evtstrm crc32 cpuid", "CPU implementer\t: 0x41", "CPU architecture: 8",
+                "CPU variant\t: 0x0", "CPU part\t: 0xd08", "CPU revision\t: 3");
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.vendor(), is("0x41"));
+        assertThat(id.family(), is("8"));
+        assertThat(id.model(), is("0xd08"));
+        assertThat(id.stepping(), is("r0p3"));
+        assertThat(id.name(), is(""));
+        assertThat(id.cpu64bit(), is(false));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoEmpty() {
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor
+                .parseProcessorIdFromCpuinfo(Collections.emptyList());
+        assertThat(id.vendor(), is(""));
+        assertThat(id.name(), is(""));
+        assertThat(id.family(), is(""));
+        assertThat(id.model(), is(""));
+        assertThat(id.stepping(), is(""));
+        assertThat(id.cpu64bit(), is(false));
+        assertThat(id.flags().length, is(0));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoIgnoresNumericProcessorName() {
+        // The "processor : N" line on ARM must not become the CPU name
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor
+                .parseProcessorIdFromCpuinfo(Arrays.asList("processor\t: 3"));
+        assertThat(id.name(), is(""));
+    }
+
+    // -------------------------------------------------------------------------
+    // parseLscpuIdentity
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testParseLscpuIdentityFillsFromLscpu() {
+        List<String> lscpu = Arrays.asList("Architecture:                    aarch64",
+                "Vendor ID:                       ARM", "Model name:                      Cortex-A72");
+        Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "0x41", "", "");
+        assertThat(id.getA(), is("ARM"));
+        assertThat(id.getB(), is("Cortex-A72"));
+        assertThat(id.getC(), is("Cortex-A72"));
+    }
+
+    @Test
+    void testParseLscpuIdentityArchitectureOnlyOverridesHexVendor() {
+        List<String> lscpu = Arrays.asList("Architecture:                    x86_64");
+        // Non-hex vendor is left alone by the Architecture line
+        assertThat(LinuxCentralProcessor.parseLscpuIdentity(lscpu, "GenuineIntel", "158", "Xeon").getA(),
+                is("GenuineIntel"));
+        // Hex vendor is replaced by the architecture
+        assertThat(LinuxCentralProcessor.parseLscpuIdentity(lscpu, "0x41", "", "").getA(), is("x86_64"));
+    }
+
+    @Test
+    void testParseLscpuIdentityKeepsExistingModelAndName() {
+        List<String> lscpu = Arrays.asList("Model name:                      Ignored");
+        Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "GenuineIntel", "158",
+                "i7");
+        assertThat(id.getB(), is("158"));
+        assertThat(id.getC(), is("i7"));
     }
 
     /**

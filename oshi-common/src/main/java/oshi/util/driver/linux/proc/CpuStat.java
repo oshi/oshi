@@ -27,16 +27,24 @@ public final class CpuStat {
      * @return Array of CPU ticks
      */
     public static long[] getSystemCpuLoadTicks() {
+        return parseSystemCpuLoadTicks(FileUtil.readLines(ProcPath.STAT, 1));
+    }
+
+    /**
+     * Parses the overall CPU ticks from the first line of {@code /proc/stat}. Package-private for testing.
+     *
+     * @param procStat the first line(s) of {@code /proc/stat}
+     * @return array of CPU ticks
+     */
+    static long[] parseSystemCpuLoadTicks(List<String> procStat) {
         long[] ticks = new long[TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle,iowait,irq, etc.
         // cpu 3357 0 4313 1362393 ...
-        String tickStr;
-        List<String> procStat = FileUtil.readLines(ProcPath.STAT, 1);
         if (procStat.isEmpty()) {
             return ticks;
         }
-        tickStr = procStat.get(0);
+        String tickStr = procStat.get(0);
 
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
@@ -61,13 +69,23 @@ public final class CpuStat {
      * @return Array of CPU ticks for each processor
      */
     public static long[][] getProcessorCpuLoadTicks(int logicalProcessorCount) {
+        return parseProcessorCpuLoadTicks(FileUtil.readFile(ProcPath.STAT), logicalProcessorCount);
+    }
+
+    /**
+     * Parses the per-processor CPU ticks from {@code /proc/stat} lines. Package-private for testing.
+     *
+     * @param procStat              the lines of {@code /proc/stat}
+     * @param logicalProcessorCount the number of logical processors
+     * @return array of CPU ticks for each processor
+     */
+    static long[][] parseProcessorCpuLoadTicks(List<String> procStat, int logicalProcessorCount) {
         long[][] ticks = new long[logicalProcessorCount][TickType.values().length];
         // /proc/stat expected format
         // first line is overall user,nice,system,idle, etc.
         // cpu 3357 0 4313 1362393 ...
         // per-processor subsequent lines for cpu0, cpu1, etc.
         int cpu = 0;
-        List<String> procStat = FileUtil.readFile(ProcPath.STAT);
         for (String stat : procStat) {
             if (stat.startsWith("cpu") && !stat.startsWith("cpu ")) {
                 // Split the line. Note the first (0) element is "cpu" so
@@ -97,7 +115,17 @@ public final class CpuStat {
      * @return The number of context switches if available, -1 otherwise
      */
     public static long getContextSwitches() {
-        List<String> procStat = FileUtil.readFile(ProcPath.STAT);
+        return parseContextSwitches(FileUtil.readFile(ProcPath.STAT));
+    }
+
+    /**
+     * Parses the number of context switches from the {@code ctxt} line of {@code /proc/stat}. Package-private for
+     * testing.
+     *
+     * @param procStat the lines of {@code /proc/stat}
+     * @return the number of context switches, or 0 if unavailable
+     */
+    static long parseContextSwitches(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("ctxt ")) {
                 String[] ctxtArr = ParseUtil.whitespaces.split(stat);
@@ -115,7 +143,16 @@ public final class CpuStat {
      * @return The number of interrupts if available, -1 otherwise
      */
     public static long getInterrupts() {
-        List<String> procStat = FileUtil.readFile(ProcPath.STAT);
+        return parseInterrupts(FileUtil.readFile(ProcPath.STAT));
+    }
+
+    /**
+     * Parses the number of interrupts from the {@code intr} line of {@code /proc/stat}. Package-private for testing.
+     *
+     * @param procStat the lines of {@code /proc/stat}
+     * @return the number of interrupts, or 0 if unavailable
+     */
+    static long parseInterrupts(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("intr ")) {
                 String[] intrArr = ParseUtil.whitespaces.split(stat);
@@ -133,8 +170,17 @@ public final class CpuStat {
      * @return The boot time if available, 0 otherwise
      */
     public static long getBootTime() {
+        return parseBootTime(FileUtil.readFile(ProcPath.STAT));
+    }
+
+    /**
+     * Parses the boot time from the {@code btime} line of {@code /proc/stat}. Package-private for testing.
+     *
+     * @param procStat the lines of {@code /proc/stat}
+     * @return the boot time in seconds since the epoch, or 0 if unavailable
+     */
+    static long parseBootTime(List<String> procStat) {
         // Boot time given by btime variable in /proc/stat.
-        List<String> procStat = FileUtil.readFile(ProcPath.STAT);
         for (String stat : procStat) {
             if (stat.startsWith("btime")) {
                 String[] bTime = ParseUtil.whitespaces.split(stat);
