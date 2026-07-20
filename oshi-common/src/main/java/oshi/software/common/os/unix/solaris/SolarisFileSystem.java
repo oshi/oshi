@@ -18,6 +18,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * The Solaris File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
@@ -54,33 +55,10 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeTotalMap = new HashMap<>();
-        String key = null;
-        String total = null;
-        String free = null;
         String command = "df -g" + (localOnly ? " -l" : "");
-        for (String line : ExecutingCommand.runNative(command)) {
-            /*- Sample Output:
-            /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
-            41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
-             2293351 free files     22282240 filesys id
-                 ufs fstype       0x00000004 flag             255 filename length
-            */
-            if (line.startsWith("/")) {
-                key = ParseUtil.whitespaces.split(line)[0];
-                total = null;
-            } else if (line.contains("available") && line.contains("total files")) {
-                total = ParseUtil.getTextBetweenStrings(line, "available", "total files").trim();
-            } else if (line.contains("free files")) {
-                free = ParseUtil.getTextBetweenStrings(line, "", "free files").trim();
-                if (key != null && total != null) {
-                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));
-                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));
-                    key = null;
-                }
-            }
-        }
+        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfgInodes(ExecutingCommand.runNative(command));
+        Map<String, Long> inodeFreeMap = inodes.getA();
+        Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
@@ -136,6 +114,42 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
                     inodeTotalMap.getOrDefault(path, 0L)));
         }
         return fsList;
+    }
+
+    /**
+     * Parses {@code df -g} output into inode free and total maps keyed by mount path.
+     *
+     * @param dfOutput the lines from {@code df -g}
+     * @return a {@link Pair} of (inodeFreeMap, inodeTotalMap) both keyed by mount path
+     */
+    static Pair<Map<String, Long>, Map<String, Long>> parseDfgInodes(List<String> dfOutput) {
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeTotalMap = new HashMap<>();
+        String key = null;
+        String total = null;
+        String free = null;
+        for (String line : dfOutput) {
+            /*- Sample Output:
+            /                  (/dev/md/dsk/d0    ):         8192 block size          1024 frag size
+            41310292 total blocks   18193814 free blocks 17780712 available        2486848 total files
+             2293351 free files     22282240 filesys id
+                 ufs fstype       0x00000004 flag             255 filename length
+            */
+            if (line.startsWith("/")) {
+                key = ParseUtil.whitespaces.split(line)[0];
+                total = null;
+            } else if (line.contains("available") && line.contains("total files")) {
+                total = ParseUtil.getTextBetweenStrings(line, "available", "total files").trim();
+            } else if (line.contains("free files")) {
+                free = ParseUtil.getTextBetweenStrings(line, "", "free files").trim();
+                if (key != null && total != null) {
+                    inodeFreeMap.put(key, ParseUtil.parseLongOrDefault(free, 0L));
+                    inodeTotalMap.put(key, ParseUtil.parseLongOrDefault(total, 0L));
+                    key = null;
+                }
+            }
+        }
+        return new Pair<>(inodeFreeMap, inodeTotalMap);
     }
 
     @Override

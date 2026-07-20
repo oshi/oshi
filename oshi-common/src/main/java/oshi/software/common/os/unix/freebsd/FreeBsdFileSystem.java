@@ -16,6 +16,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 public abstract class FreeBsdFileSystem extends AbstractFileSystem {
 
@@ -37,45 +38,14 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
     public List<OSFileStore> getFileStores(boolean localOnly) {
         // TODO map mount point to UUID?
         // is /etc/fstab useful for this?
-        Map<String, String> uuidMap = new HashMap<>();
-        // Now grab dmssg output
-        String device = "";
-        for (String line : ExecutingCommand.runNative("geom part list")) {
-            if (line.contains("Name: ")) {
-                device = line.substring(line.lastIndexOf(' ') + 1);
-            }
-            // If we aren't working with a current partition, continue
-            if (device.isEmpty()) {
-                continue;
-            }
-            line = line.trim();
-            if (line.startsWith("rawuuid:")) {
-                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));
-                device = "";
-            }
-        }
+        Map<String, String> uuidMap = parseGeomPartList(ExecutingCommand.runNative("geom part list"));
 
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeTotalMap = new HashMap<>();
-        for (String line : ExecutingCommand.runNative("df -i")) {
-            /*- Sample Output:
-            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
-            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
-            */
-            if (line.startsWith("/")) {
-                String[] split = ParseUtil.whitespaces.split(line);
-                if (split.length > 8) {
-                    long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
-                    long iused = ParseUtil.parseLongOrDefault(split[5], 0L);
-                    // Key by mount point (last column) to match later lookup
-                    inodeFreeMap.put(split[8], ifree);
-                    inodeTotalMap.put(split[8], iused + ifree);
-                }
-            }
-        }
+        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative("df -i"));
+        Map<String, Long> inodeFreeMap = inodes.getA();
+        Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -p")) {
@@ -145,6 +115,60 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
     public long getMaxFileDescriptorsPerProcess() {
         // On FreeBSD there is no process-specific system-wide limit, so the general limit is returned.
         return getMaxFileDescriptors();
+    }
+
+    /**
+     * Parses {@code geom part list} output into a map of device-name to rawuuid.
+     *
+     * @param geomOutput the lines from {@code geom part list}
+     * @return a map of device-name to rawuuid
+     */
+    static Map<String, String> parseGeomPartList(List<String> geomOutput) {
+        Map<String, String> uuidMap = new HashMap<>();
+        String device = "";
+        for (String line : geomOutput) {
+            if (line.contains("Name: ")) {
+                device = line.substring(line.lastIndexOf(' ') + 1);
+            }
+            // If we aren't working with a current partition, continue
+            if (device.isEmpty()) {
+                continue;
+            }
+            line = line.trim();
+            if (line.startsWith("rawuuid:")) {
+                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));
+                device = "";
+            }
+        }
+        return uuidMap;
+    }
+
+    /**
+     * Parses {@code df -i} output into inode free and total maps keyed by mount point.
+     *
+     * @param dfOutput the lines from {@code df -i}
+     * @return a {@link Pair} of (inodeFreeMap, inodeTotalMap) both keyed by mount point
+     */
+    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeTotalMap = new HashMap<>();
+        for (String line : dfOutput) {
+            /*- Sample Output:
+            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
+            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
+            */
+            if (!line.startsWith("Filesystem")) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length > 8) {
+                    long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
+                    long iused = ParseUtil.parseLongOrDefault(split[5], 0L);
+                    // Key by mount point (last column) to match later lookup
+                    inodeFreeMap.put(split[8], ifree);
+                    inodeTotalMap.put(split[8], iused + ifree);
+                }
+            }
+        }
+        return new Pair<>(inodeFreeMap, inodeTotalMap);
     }
 
     /**

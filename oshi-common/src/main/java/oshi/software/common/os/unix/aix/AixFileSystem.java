@@ -19,6 +19,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * The AIX File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
@@ -53,37 +54,12 @@ public class AixFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeTotalMap = new HashMap<>();
         // AIX 7.3+ supports POSIX df -i, but AIX 7.1/7.2 only have the native format-specifier
         // syntax. df -F %n %l (%n = Ifree, %l = Iused) works across all three versions.
         String command = "df -F %n %l" + (localOnly ? " -T local" : "");
-        for (String line : ExecutingCommand.runNative(command)) {
-            /*- Sample Output:
-             * $ df -F %n %l
-             * Filesystem    512-blocks     Ifree    Iused
-             * /dev/hd4         4194304   164951    15969
-             * /dev/hd2        52690944  2894117   196692
-             * /dev/hd9var      6291456   605443     2317
-             * /dev/hd3         6291456   450968     1349
-             * /dev/hd1         6291456   550843      110
-             * /dev/hd11admin    2097152   233048        5
-             * /proc                  -        -        -
-             * /dev/hd10opt    16777216   600058    17220
-             * /dev/livedump     524288    58200        4
-             * NFS mounts appear as hostname:/path or ip:/path and are matched by FS_PATTERN
-             */
-            if (FS_PATTERN.matcher(line).find()) {
-                String[] split = ParseUtil.whitespaces.split(line);
-                // Columns: Filesystem, 512-blocks, Ifree (%n), Iused (%l)
-                if (split.length >= 4) {
-                    long free = ParseUtil.parseLongOrDefault(split[split.length - 2], 0L);
-                    long used = ParseUtil.parseLongOrDefault(split[split.length - 1], 0L);
-                    inodeTotalMap.put(split[0], free + used);
-                    inodeFreeMap.put(split[0], free);
-                }
-            }
-        }
+        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
+        Map<String, Long> inodeFreeMap = inodes.getA();
+        Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
@@ -156,6 +132,44 @@ public class AixFileSystem extends AbstractFileSystem {
             }
         }
         return fsList;
+    }
+
+    /**
+     * Parses {@code df -F %n %l} output into inode free and total maps keyed by filesystem.
+     *
+     * @param dfOutput the lines from {@code df -F %n %l}
+     * @return a {@link Pair} of (inodeFreeMap, inodeTotalMap) both keyed by filesystem
+     */
+    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeTotalMap = new HashMap<>();
+        for (String line : dfOutput) {
+            /*- Sample Output:
+             * $ df -F %n %l
+             * Filesystem    512-blocks     Ifree    Iused
+             * /dev/hd4         4194304   164951    15969
+             * /dev/hd2        52690944  2894117   196692
+             * /dev/hd9var      6291456   605443     2317
+             * /dev/hd3         6291456   450968     1349
+             * /dev/hd1         6291456   550843      110
+             * /dev/hd11admin    2097152   233048        5
+             * /proc                  -        -        -
+             * /dev/hd10opt    16777216   600058    17220
+             * /dev/livedump     524288    58200        4
+             * NFS mounts appear as hostname:/path or ip:/path and are matched by FS_PATTERN
+             */
+            if (FS_PATTERN.matcher(line).find()) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                // Columns: Filesystem, 512-blocks, Ifree (%n), Iused (%l)
+                if (split.length >= 4) {
+                    long free = ParseUtil.parseLongOrDefault(split[split.length - 2], 0L);
+                    long used = ParseUtil.parseLongOrDefault(split[split.length - 1], 0L);
+                    inodeTotalMap.put(split[0], free + used);
+                    inodeFreeMap.put(split[0], free);
+                }
+            }
+        }
+        return new Pair<>(inodeFreeMap, inodeTotalMap);
     }
 
     @Override
