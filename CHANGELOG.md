@@ -1,6 +1,8 @@
 # 7.4.2 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3493](https://github.com/oshi/oshi/pull/3493): Document the CPU/memory trade-off of reusing versus recreating `SystemInfo` when polling, with supporting benchmarks - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
 

@@ -111,6 +111,25 @@ OSHI avoids caching large amount of information, leaving caching to the user.  L
 
 Users with memory constraints can ensure the existing cached information is disposed of by using a new instance of `SystemInfo` and the subordinate classes when collecting data.
 
+### Reusing vs. recreating `SystemInfo` when polling
+
+A monitoring agent that samples the same metrics repeatedly should **hold a single `SystemInfo` and its subordinate objects** rather than constructing a new `SystemInfo` for each poll. Realistic poll intervals are far longer than the sub-second memoizer TTL, so the memoizer does not help *across* polls; the trade-off is the CPU to reconstruct the object graph each poll versus the memory retained by holding it.
+
+The dominant reconstruction cost is the `CentralProcessor` (CPU topology and identifier queries). Reading CPU load ticks once per poll, measured by `ReuseVsRecreateBenchmark` with memoization disabled (`-f 3`):
+
+| Platform | Recreate per poll | Reuse (held) per poll | Retained if held |
+|----------|------------------:|----------------------:|-----------------:|
+| Windows  | 10.7 ms | 632 µs  | 3.9 KB |
+| macOS    | 3.8 ms  | 2.4 µs  | 8.5 KB |
+| Linux    | 2.4 ms  | 19.5 µs | 5.0 KB |
+
+Reconstructing costs milliseconds per poll (most on Windows, where CPU identity comes from WMI/registry) for a few KB of retained memory saved — a strongly favorable trade for CPU-derived metrics. Two caveats:
+
+- **Available memory does not benefit:** recreate ≈ reuse on all platforms (`GlobalMemory` is cheap to construct), so the win is specific to the `CentralProcessor`.
+- **The process list does not benefit:** `getProcesses()` is a live full query (~10 ms and 1–15 MB allocated per poll on every platform, reused or not). To track specific processes, hold the individual `OSProcess` objects and call `updateAttributes()` rather than re-querying the whole list (see below).
+
+Holding a `SystemInfo` and one snapshot of *every* subsystem it returns (measured by `MonitoringFootprintReport`) retains roughly **0.65 MB**, dominated by the process-list snapshot; the persistent hardware/OS caches alone are under ~150 KB. Applications with tight memory constraints can release even that by discarding the `SystemInfo` between collections, paying the reconstruction cost above.
+
 ## Updating statistics on objects in a list
 
 Many of the individual objects returned by lists, such as `OSProcess`, `NetworkIF`, `OSFileStore`, and others, have an `updateAttributes()` method that operates only on that object. These are intended for use primarily if that individual process is the only one being monitored/updated.  In many cases, the entire list must be queried to provide the information, so users updating multiple objects in a list should simply re-query the entire list once and then correlate the new set of results to the old ones in their own application.

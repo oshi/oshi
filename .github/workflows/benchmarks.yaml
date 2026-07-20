@@ -36,8 +36,13 @@ jobs:
           cache: 'maven'
       - name: Build benchmark jar
         run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+      # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
+      # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
-        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 10 -f 3 -prof gc
+      # Retained-memory dimension of the reuse-vs-recreate trade-off (not a per-op JMH quantity)
+      - name: Report monitoring footprint
+        run: java --enable-native-access=ALL-UNNAMED -cp oshi-benchmark/target/benchmarks.jar oshi.benchmark.MonitoringFootprintReport
 
   benchmacos:
     name: JMH benchmarks, macOS
@@ -56,8 +61,13 @@ jobs:
           cache: 'maven'
       - name: Build benchmark jar
         run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+      # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
+      # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
-        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 10 -f 3 -prof gc
+      # Retained-memory dimension of the reuse-vs-recreate trade-off (not a per-op JMH quantity)
+      - name: Report monitoring footprint
+        run: java --enable-native-access=ALL-UNNAMED -cp oshi-benchmark/target/benchmarks.jar oshi.benchmark.MonitoringFootprintReport
 
   benchwindows:
     name: JMH benchmarks, Windows
@@ -76,8 +86,13 @@ jobs:
           cache: 'maven'
       - name: Build benchmark jar
         run: ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
+      # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
+      # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
-        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+        run: java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 10 -f 3 -prof gc
+      # Retained-memory dimension of the reuse-vs-recreate trade-off (not a per-op JMH quantity)
+      - name: Report monitoring footprint
+        run: java --enable-native-access=ALL-UNNAMED -cp oshi-benchmark/target/benchmarks.jar oshi.benchmark.MonitoringFootprintReport
 
   benchfreebsd:
     name: JMH benchmarks, FreeBSD
