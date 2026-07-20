@@ -31,6 +31,17 @@ public final class BsdUsbDevice extends AbstractUsbDevice {
      * @return a list of USB controllers, each with its connected-device tree.
      */
     public static List<UsbDevice> getUsbDevices() {
+        return parseUsbDevices(ExecutingCommand.runNative("usbdevs -v"));
+    }
+
+    /**
+     * Parses the output of {@code usbdevs -v} into a USB controller device tree. Each controller becomes a root device
+     * whose children are the attached USB devices, building a hierarchy from the "Controller" and "addr" lines.
+     *
+     * @param usbdevs the lines emitted by {@code usbdevs -v}
+     * @return a list of USB controller devices, each with its connected-device tree
+     */
+    static List<UsbDevice> parseUsbDevices(List<String> usbdevs) {
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
@@ -41,7 +52,7 @@ public final class BsdUsbDevice extends AbstractUsbDevice {
         List<String> rootHubs = new ArrayList<>();
         String key = "";
         String parent = "";
-        for (String line : ExecutingCommand.runNative("usbdevs -v")) {
+        for (String line : usbdevs) {
             if (line.startsWith("Controller ")) {
                 parent = line.substring(11);
             } else if (line.startsWith("addr ")) {

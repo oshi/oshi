@@ -87,7 +87,7 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
                 cpuFreq);
     }
 
-    private static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
+    static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
         // family is bits 27:20 | 11:8
         int family = cpuid >> 16 & 0xff0 | cpuid >> 8 & 0xf;
         // model is bits 19:16 | 7:4
@@ -107,9 +107,18 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
 
     @Override
     protected Pair<Long, Long> queryVmStats() {
+        return parseVmStats(ExecutingCommand.runNative("vmstat -s"));
+    }
+
+    /**
+     * Parses the output of {@code vmstat -s} to extract context switch and interrupt counts.
+     *
+     * @param vmstat the lines emitted by {@code vmstat -s}
+     * @return a {@link Pair} of (context switches, interrupts)
+     */
+    static Pair<Long, Long> parseVmStats(List<String> vmstat) {
         long contextSwitches = 0L;
         long interrupts = 0L;
-        List<String> vmstat = ExecutingCommand.runNative("vmstat -s");
         for (String line : vmstat) {
             if (line.endsWith("cpu context switches")) {
                 contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);

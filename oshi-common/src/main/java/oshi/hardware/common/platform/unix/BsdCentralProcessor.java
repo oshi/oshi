@@ -55,19 +55,11 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
-        // Iterate dmesg, look for lines:
-        // cpu0: smt 0, core 0, package 0
-        // cpu1: smt 0, core 1, package 0
-        Map<Integer, Integer> coreMap = new HashMap<>();
-        Map<Integer, Integer> packageMap = new HashMap<>();
-        for (String line : ExecutingCommand.runNative("dmesg")) {
-            Matcher m = DMESG_CPU.matcher(line);
-            if (m.matches()) {
-                int cpu = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                coreMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(3), 0));
-                packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
-            }
-        }
+        List<String> dmesg = ExecutingCommand.runNative("dmesg");
+        Pair<Map<Integer, Integer>, Map<Integer, Integer>> topology = parseTopology(dmesg);
+        Map<Integer, Integer> coreMap = topology.getA();
+        Map<Integer, Integer> packageMap = topology.getB();
+
         // native call seems to fail here, use fallback
         int logicalProcessorCount = sysctl("hw.ncpuonline", 1);
         // If we found more procs in dmesg, update
@@ -78,44 +70,47 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < logicalProcessorCount; i++) {
             logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
         }
-        Map<Integer, String> cpuMap = new HashMap<>();
-        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A7 r0p5
-        // but NOT: cpu0 at mainbus0: apid 0 (boot processor)
-        // cpu0: AMD GX-412TC SOC, 998.28 MHz, 16-30-01
-        // cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01
-        // cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
-        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
 
+        DmesgStrings parsed = parseDmesgModelsAndCaches(dmesg);
+        List<PhysicalProcessor> physProcs = parsed.getCpuMap().isEmpty() ? null
+                : createProcListFromDmesg(logProcs, parsed.getCpuMap());
+        return new Quartet<>(logProcs, physProcs, orderedProcCaches(parsed.getCaches()),
+                new ArrayList<>(parsed.getFeatureFlags()));
+    }
+
+    /**
+     * Parses topology lines from {@code dmesg} to extract per-CPU core and package mappings.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a {@link Pair} of (cpu-to-core map, cpu-to-package map)
+     */
+    static Pair<Map<Integer, Integer>, Map<Integer, Integer>> parseTopology(List<String> dmesg) {
+        Map<Integer, Integer> coreMap = new HashMap<>();
+        Map<Integer, Integer> packageMap = new HashMap<>();
+        for (String line : dmesg) {
+            Matcher m = DMESG_CPU.matcher(line);
+            if (m.matches()) {
+                int cpu = ParseUtil.parseIntOrDefault(m.group(1), 0);
+                coreMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(3), 0));
+                packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
+            }
+        }
+        return new Pair<>(coreMap, packageMap);
+    }
+
+    /**
+     * Parses {@code dmesg} output for CPU model names, cache descriptions, and feature flags.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return a {@link DmesgStrings} containing the parsed data
+     */
+    static DmesgStrings parseDmesgModelsAndCaches(List<String> dmesg) {
+        Map<Integer, String> cpuMap = new HashMap<>();
+        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
         Set<ProcessorCache> caches = new HashSet<>();
-        // cpu0: 48KB 64b/line 12-way D-cache, 32KB 64b/line 8-way I-cache,
-        // ... 1MB 64b/line 10-way L2 cache, 24MB 64b/line 12-way L3 cache
-        // cpu0: 32KB 64b/line 8-way D-cache, 64KB 64b/line 4-way I-cache,
-        // ... 512KB 64b/line 8-way L2 cache, 4MB 64b/line 16-way L3 cache
-        // cpu0: 32KB 64b/line 2-way I-cache, 32KB 64b/line 8-way D-cache,
-        // ... 2MB 64b/line 16-way L2 cache
-        // cpu0: 32KB 64b/line 8-way I-cache, 32KB 64b/line 8-way D-cache,
-        // ... 512KB 64b/line 8-way L2 cache
-        // cpu0: 256KB 64b/line disabled L2 cache
-        // cpu0: 1MB 64b/line 16-way L2 cache
-        // --- Mac M1 example ---
-        // shows different for icestorm/firestrorm and multiple lines for L1 vs. L2
-        // cpu0 at mainbus0 mpidr 0: Apple Icestorm Pro r2p0
-        // cpu0: 128KB 64b/line 8-way L1 VIPT I-cache, 64KB 64b/line 8-way L1 D-cache
-        // cpu0: 4096KB 128b/line 16-way L2 cache
-        // cpu2 at mainbus0 mpidr 10100: Apple Firestorm Pro r2p0
-        // cpu2: 192KB 64b/line 6-way L1 VIPT I-cache, 128KB 64b/line 8-way L1 D-cache
-        // cpu2: 12288KB 128b/line 12-way L2 cache
-        // --- BIG:little example ---
-        // shows different for A53/A72 and multiple lines for L1 vs. L2
-        // cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4
-        // cpu0: 32KB 64b/line 2-way L1 VIPT I-cache, 32KB 64b/line 4-way L1 D-cache
-        // cpu0: 512KB 64b/line 16-way L2 cache
-        // cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
-        // cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
-        // cpu4: 1024KB 64b/line 16-way L2 cache
         Pattern q = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
         Set<String> featureFlags = new LinkedHashSet<>();
-        for (String s : ExecutingCommand.runNative("dmesg")) {
+        for (String s : dmesg) {
             Matcher m = p.matcher(s);
             if (m.matches()) {
                 int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
@@ -138,11 +133,37 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
                 }
             }
         }
-        List<PhysicalProcessor> physProcs = cpuMap.isEmpty() ? null : createProcListFromDmesg(logProcs, cpuMap);
-        return new Quartet<>(logProcs, physProcs, orderedProcCaches(caches), new ArrayList<>(featureFlags));
+        return new DmesgStrings(cpuMap, caches, featureFlags);
     }
 
-    private ProcessorCache parseCacheStr(String cacheStr) {
+    /**
+     * Holds the results of parsing {@code dmesg} output for CPU models, caches, and feature flags.
+     */
+    static final class DmesgStrings {
+        private final Map<Integer, String> cpuMap;
+        private final Set<ProcessorCache> caches;
+        private final Set<String> featureFlags;
+
+        DmesgStrings(Map<Integer, String> cpuMap, Set<ProcessorCache> caches, Set<String> featureFlags) {
+            this.cpuMap = cpuMap;
+            this.caches = caches;
+            this.featureFlags = featureFlags;
+        }
+
+        Map<Integer, String> getCpuMap() {
+            return cpuMap;
+        }
+
+        Set<ProcessorCache> getCaches() {
+            return caches;
+        }
+
+        Set<String> getFeatureFlags() {
+            return featureFlags;
+        }
+    }
+
+    static ProcessorCache parseCacheStr(String cacheStr) {
         String[] split = ParseUtil.whitespaces.split(cacheStr.trim());
         if (split.length > 3) {
             switch (split[split.length - 1]) {

@@ -36,8 +36,17 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
      * @return List of {@link GraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
+        return parsePciDump(ExecutingCommand.runNative("pcidump -v"));
+    }
+
+    /**
+     * Parses the output of {@code pcidump -v} to extract display-class PCI devices.
+     *
+     * @param devices the lines emitted by {@code pcidump -v}
+     * @return a list of {@link GraphicsCard} objects for each display device found
+     */
+    static List<GraphicsCard> parsePciDump(List<String> devices) {
         List<GraphicsCard> cardList = new ArrayList<>();
-        List<String> devices = ExecutingCommand.runNative("pcidump -v");
         if (devices.isEmpty()) {
             return Collections.emptyList();
         }

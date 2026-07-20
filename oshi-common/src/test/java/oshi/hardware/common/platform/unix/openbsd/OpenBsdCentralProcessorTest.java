@@ -8,10 +8,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Tests the native-free tick-mapping and load-average logic hoisted into {@link OpenBsdCentralProcessor}, using a stub
@@ -86,6 +91,56 @@ class OpenBsdCentralProcessorTest {
         assertThat(avg[0], is(-1.0));
         assertThat(avg[1], is(-1.0));
         assertThat(avg[2], is(-1.0));
+    }
+
+    @Test
+    void testParseVmStats() {
+        // Real OpenBSD vmstat -s: "software interrupts" appears before bare "interrupts"
+        List<String> vmstat = Arrays.asList(//
+                "      142983 cpu context switches", //
+                "           0 software interrupts", //
+                "       28301 interrupts", //
+                "       50000 some other stat");
+        Pair<Long, Long> result = OpenBsdCentralProcessor.parseVmStats(vmstat);
+        assertThat(result.getA(), is(142983L));
+        assertThat(result.getB(), is(28301L));
+    }
+
+    @Test
+    void testParseVmStatsEmpty() {
+        Pair<Long, Long> result = OpenBsdCentralProcessor.parseVmStats(Collections.emptyList());
+        assertThat(result.getA(), is(0L));
+        assertThat(result.getB(), is(0L));
+    }
+
+    @Test
+    void testCpuidToFamilyModelStepping() {
+        // Intel Core i7-8700K: CPUID = 0x000906EA → family=6, model=158, stepping=10
+        Triplet<Integer, Integer, Integer> fms = OpenBsdCentralProcessor.cpuidToFamilyModelStepping(0x000906EA);
+        assertThat(fms.getA(), is(6));
+        assertThat(fms.getB(), is(158));
+        assertThat(fms.getC(), is(10));
+    }
+
+    @Test
+    void testCpuidToFamilyModelSteppingAmd() {
+        // AMD Zen 2 (Ryzen 3600): CPUID = 0x00800F12 → family=143 (0x8F), model=1, stepping=2
+        // formula: family = (cpuid >> 16 & 0xff0) | (cpuid >> 8 & 0xf)
+        // model = (cpuid >> 12 & 0xf0) | (cpuid >> 4 & 0xf)
+        // 0x00800F12 >> 16 = 0x0080, & 0xff0 = 0x80; >> 8 = 0x00800F, & 0xf = 0xF; family = 0x80|0xF = 0x8F = 143
+        // 0x00800F12 >> 12 = 0x00800, & 0xf0 = 0x00; >> 4 = 0x0080_0F1, & 0xf = 0x1; model = 0|1 = 1
+        Triplet<Integer, Integer, Integer> fms = OpenBsdCentralProcessor.cpuidToFamilyModelStepping(0x00800F12);
+        assertThat(fms.getA(), is(143));
+        assertThat(fms.getB(), is(1));
+        assertThat(fms.getC(), is(2));
+    }
+
+    @Test
+    void testCpuidToFamilyModelSteppingZero() {
+        Triplet<Integer, Integer, Integer> fms = OpenBsdCentralProcessor.cpuidToFamilyModelStepping(0);
+        assertThat(fms.getA(), is(0));
+        assertThat(fms.getB(), is(0));
+        assertThat(fms.getC(), is(0));
     }
 
     /**
