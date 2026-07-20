@@ -166,9 +166,10 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         boolean cpu64bit;
 
         // Parsing dmesg.boot is apparently the only reliable source for processor
-        // identification in FreeBSD
+        // identification in FreeBSD. Read quietly (reportError=false): its absence is tolerated (we fall back to
+        // sysctl below), and warning on every CentralProcessor construction would spam callers that recreate one.
         long processorIdBits = 0L;
-        List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot");
+        List<String> cpuInfo = FileUtil.readFile("/var/run/dmesg.boot", false);
         for (String line : cpuInfo) {
             line = line.trim();
             // Prefer hw.model to this one
@@ -213,7 +214,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         Pattern hybrid = Pattern.compile("CPU\\s*(\\d+): (.+) affinity:.*");
         List<String> featureFlags = new ArrayList<>();
         boolean readingFlags = false;
-        for (String s : FileUtil.readFile("/var/run/dmesg.boot")) {
+        for (String s : FileUtil.readFile("/var/run/dmesg.boot", false)) {
             Matcher h = hybrid.matcher(s);
             if (h.matches()) {
                 int coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
