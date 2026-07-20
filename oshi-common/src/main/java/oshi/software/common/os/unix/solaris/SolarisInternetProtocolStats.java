@@ -65,7 +65,7 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
             // Now of form tcpXX = 123
             for (String stat : stats) {
                 if (stat != null) {
-                    String[] split = stat.split("=");
+                    String[] split = stat.split("=", 2);
                     if (split.length == 2) {
                         switch (split[0].trim()) {
                             case "tcpCurrEstab":
@@ -127,7 +127,7 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
             // Now of form udpXX = 123
             for (String stat : stats) {
                 if (stat != null) {
-                    String[] split = stat.split("=");
+                    String[] split = stat.split("=", 2);
                     if (split.length == 2) {
                         switch (split[0].trim()) {
                             case "udpOutDatagrams":

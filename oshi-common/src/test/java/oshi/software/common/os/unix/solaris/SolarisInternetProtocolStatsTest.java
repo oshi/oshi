@@ -42,6 +42,20 @@ class SolarisInternetProtocolStatsTest {
     }
 
     @Test
+    void testParseTcpStatsMixedPrefix() {
+        // Real netstat output: tcpInErr is paired with a non-tcp stat (from IP section),
+        // so splitOnPrefix finds only one "tcp" occurrence and the remainder contains "="
+        List<String> netstat = Arrays.asList(//
+                "tcpCurrEstab =    10   tcpActiveOpens =   100", //
+                "tcpInErr     =     7   udpNoPorts    =    99");
+        TcpStats stats = SolarisInternetProtocolStats.parseTcpStats(netstat);
+        assertThat(stats.getConnectionsEstablished(), is(10L));
+        assertThat(stats.getConnectionsActive(), is(100L));
+        // tcpInErr uses getFirstIntValue so it extracts 7 even with trailing "udpNoPorts = 99"
+        assertThat(stats.getInErrors(), is(7L));
+    }
+
+    @Test
     void testParseTcpStatsEmpty() {
         TcpStats stats = SolarisInternetProtocolStats.parseTcpStats(Collections.emptyList());
         assertThat(stats.getConnectionsEstablished(), is(0L));
