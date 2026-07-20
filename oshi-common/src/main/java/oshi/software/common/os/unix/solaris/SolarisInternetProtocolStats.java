@@ -4,6 +4,7 @@
  */
 package oshi.software.common.os.unix.solaris;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -28,6 +29,26 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
     }
 
     private static TcpStats getTcpStats() {
+        List<String> netstat = new ArrayList<>(ExecutingCommand.runNative("netstat -s -P tcp"));
+        // append IP
+        netstat.addAll(ExecutingCommand.runNative("netstat -s -P ip"));
+        return parseTcpStats(netstat);
+    }
+
+    private static UdpStats getUdpStats() {
+        List<String> netstat = new ArrayList<>(ExecutingCommand.runNative("netstat -s -P udp"));
+        // append IP
+        netstat.addAll(ExecutingCommand.runNative("netstat -s -P ip"));
+        return parseUdpStats(netstat);
+    }
+
+    /**
+     * Parses combined {@code netstat -s -P tcp} and {@code netstat -s -P ip} output into TCP statistics.
+     *
+     * @param netstat the combined lines from both netstat commands
+     * @return a {@link TcpStats} object with the parsed values
+     */
+    static TcpStats parseTcpStats(List<String> netstat) {
         long connectionsEstablished = 0;
         long connectionsActive = 0;
         long connectionsPassive = 0;
@@ -38,9 +59,6 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
         long segmentsRetransmitted = 0;
         long inErrors = 0;
         long outResets = 0;
-        List<String> netstat = ExecutingCommand.runNative("netstat -s -P tcp");
-        // append IP
-        netstat.addAll(ExecutingCommand.runNative("netstat -s -P ip"));
         for (String s : netstat) {
             // Two stats per line. Split the strings by index of "tcp"
             String[] stats = splitOnPrefix(s, "tcp");
@@ -92,14 +110,17 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
                 connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
     }
 
-    private static UdpStats getUdpStats() {
+    /**
+     * Parses combined {@code netstat -s -P udp} and {@code netstat -s -P ip} output into UDP statistics.
+     *
+     * @param netstat the combined lines from both netstat commands
+     * @return a {@link UdpStats} object with the parsed values
+     */
+    static UdpStats parseUdpStats(List<String> netstat) {
         long datagramsSent = 0;
         long datagramsReceived = 0;
         long datagramsNoPort = 0;
         long datagramsReceivedErrors = 0;
-        List<String> netstat = ExecutingCommand.runNative("netstat -s -P udp");
-        // append IP
-        netstat.addAll(ExecutingCommand.runNative("netstat -s -P ip"));
         for (String s : netstat) {
             // Two stats per line. Split the strings by index of "udp"
             String[] stats = splitOnPrefix(s, "udp");
@@ -131,7 +152,15 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
         return new UdpStats(datagramsSent, datagramsReceived, datagramsNoPort, datagramsReceivedErrors);
     }
 
-    private static String[] splitOnPrefix(String s, String prefix) {
+    /**
+     * Splits a line on a given prefix, yielding up to two stat fragments. Each line may contain two stat entries
+     * separated by the prefix (e.g., {@code "tcpFoo = 1   tcpBar = 2"}).
+     *
+     * @param s      the line to split
+     * @param prefix the stat name prefix (e.g., {@code "tcp"} or {@code "udp"})
+     * @return a two-element array where each element is a stat fragment or {@code null}
+     */
+    static String[] splitOnPrefix(String s, String prefix) {
         String[] stats = new String[2];
         int first = s.indexOf(prefix);
         if (first >= 0) {

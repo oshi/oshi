@@ -43,11 +43,21 @@ public class SolarisSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
+        return parseLshal(ExecutingCommand.runNative(LSHAL));
+    }
+
+    /**
+     * Parses the output of {@code lshal} to extract sound card information.
+     *
+     * @param lshal the lines emitted by the {@code lshal} command
+     * @return a list of {@link SoundCard} objects for each audio device found
+     */
+    static List<SoundCard> parseLshal(List<String> lshal) {
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> productMap = new HashMap<>();
         List<String> sounds = new ArrayList<>();
         String key = "";
-        for (String line : ExecutingCommand.runNative(LSHAL)) {
+        for (String line : lshal) {
             line = line.trim();
             if (line.startsWith("udi =")) {
                 // we have the key.

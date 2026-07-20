@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.unix.solaris;
 import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,26 +76,41 @@ public class SolarisVirtualMemory extends AbstractVirtualMemory {
     }
 
     private static long queryPagesIn() {
-        long swapPagesIn = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapin")) {
-            swapPagesIn += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swapPagesIn;
+        return sumKstatLong(ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapin"));
     }
 
     private static long queryPagesOut() {
-        long swapPagesOut = 0L;
-        for (String s : ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapout")) {
-            swapPagesOut += ParseUtil.parseLastLong(s, 0L);
-        }
-        return swapPagesOut;
+        return sumKstatLong(ExecutingCommand.runNative("kstat -p cpu_stat:::pgswapout"));
     }
 
     private static Pair<Long, Long> querySwapInfo() {
+        return parseSwapInfo(ExecutingCommand.getAnswerAt("swap -lk", 1));
+    }
+
+    /**
+     * Sums the last long value from each line of {@code kstat -p} output.
+     *
+     * @param kstat the lines emitted by a {@code kstat -p} command
+     * @return the sum of the trailing long values across all lines
+     */
+    static long sumKstatLong(List<String> kstat) {
+        long total = 0L;
+        for (String s : kstat) {
+            total += ParseUtil.parseLastLong(s, 0L);
+        }
+        return total;
+    }
+
+    /**
+     * Parses a single line of {@code swap -lk} output into swap used and swap total values.
+     *
+     * @param swapLine the line from {@code swap -lk} (typically the second line of output)
+     * @return a {@link Pair} of (swap used, swap total) in bytes
+     */
+    static Pair<Long, Long> parseSwapInfo(String swapLine) {
         long swapTotal = 0L;
         long swapUsed = 0L;
-        String swap = ExecutingCommand.getAnswerAt("swap -lk", 1);
-        Matcher m = SWAP_INFO.matcher(swap);
+        Matcher m = SWAP_INFO.matcher(swapLine);
         if (m.matches()) {
             swapTotal = ParseUtil.parseLongOrDefault(m.group(1), 0L) << 10;
             swapUsed = swapTotal - (ParseUtil.parseLongOrDefault(m.group(2), 0L) << 10);

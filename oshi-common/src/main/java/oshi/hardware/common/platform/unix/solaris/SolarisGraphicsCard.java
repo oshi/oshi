@@ -41,9 +41,17 @@ public class SolarisGraphicsCard extends AbstractGraphicsCard {
      * @return List of {@link SolarisGraphicsCard} objects.
      */
     public static List<GraphicsCard> getGraphicsCards() {
+        return parsePrtconf(ExecutingCommand.runNative("prtconf -pv"));
+    }
+
+    /**
+     * Parses the output of {@code prtconf -pv} to extract display-class PCI devices as graphics cards.
+     *
+     * @param devices the lines emitted by {@code prtconf -pv}
+     * @return a list of {@link GraphicsCard} objects for each display device found
+     */
+    static List<GraphicsCard> parsePrtconf(List<String> devices) {
         List<GraphicsCard> cardList = new ArrayList<>();
-        // Enumerate all devices and add if required
-        List<String> devices = ExecutingCommand.runNative("prtconf -pv");
         if (devices.isEmpty()) {
             return cardList;
         }
