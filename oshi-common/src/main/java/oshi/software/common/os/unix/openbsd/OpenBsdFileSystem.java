@@ -64,7 +64,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeFreeMap = new HashMap<>();
         Map<String, Long> inodeUsedMap = new HashMap<>();
         for (String line : dfOutput) {
-            if (line.startsWith("/")) {
+            if (!line.startsWith("Filesystem")) {
                 String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 6) {
                     inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
@@ -97,7 +97,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         String command = "df -i" + (localOnly ? " -l" : "");
         Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
         Map<String, Long> inodeFreeMap = inodes.getA();
-        Map<String, Long> inodeUsedlMap = inodes.getB();
+        Map<String, Long> inodeUsedMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR squid:S135
@@ -146,7 +146,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
 
                 fsList.add(new OpenBsdOSFileStore(this, name, volume, name, path, options, uuid, isLocal, "",
                         description, type, freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
-                        inodeUsedlMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
+                        inodeUsedMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
             }
         }
         return fsList;

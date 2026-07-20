@@ -157,7 +157,7 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
             Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
             /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
             */
-            if (line.startsWith("/")) {
+            if (!line.startsWith("Filesystem")) {
                 String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 8) {
                     long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);

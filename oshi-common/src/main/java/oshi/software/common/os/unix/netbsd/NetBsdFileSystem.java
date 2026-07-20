@@ -54,7 +54,7 @@ public class NetBsdFileSystem extends AbstractFileSystem {
         String command = "df -i" + (localOnly ? " -l" : "");
         Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
         Map<String, Long> inodeFreeMap = inodes.getA();
-        Map<String, Long> inodeUsedlMap = inodes.getB();
+        Map<String, Long> inodeUsedMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
@@ -115,7 +115,7 @@ public class NetBsdFileSystem extends AbstractFileSystem {
 
                 fsList.add(new NetBsdOSFileStore(name, volume, name, path, options, uuid, isLocal, "", description,
                         type, freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
-                        inodeUsedlMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
+                        inodeUsedMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
             }
         }
         return fsList;
@@ -138,7 +138,7 @@ public class NetBsdFileSystem extends AbstractFileSystem {
             /dev/wd0e      4050876        36   3848300     0%      10  285108     0%   /home
             /dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr
             */
-            if (line.startsWith("/")) {
+            if (!line.startsWith("Filesystem")) {
                 String[] split = ParseUtil.whitespaces.split(line);
                 if (split.length > 6) {
                     inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));

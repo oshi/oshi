@@ -63,13 +63,17 @@ class FreeBsdFileSystemTest {
     }
 
     @Test
-    void testParseDfInodesSkipsHeaderAndNonSlash() {
+    void testParseDfInodesSkipsHeaderIncludesNonDevFs() {
         List<String> lines = Arrays.asList(
                 "Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on",
-                "devfs               1      1       0   100%       0      0  100%   /dev");
+                "devfs               1      1       0   100%       0      0  100%   /dev",
+                "zroot/ROOT    95678456 8234567  87443889     9%  234567 9999999    2%   /");
         Pair<Map<String, Long>, Map<String, Long>> result = FreeBsdFileSystem.parseDfInodes(lines);
-        // Header doesn't start with '/', devfs doesn't start with '/' either
-        assertThat(result.getA(), is(anEmptyMap()));
-        assertThat(result.getB(), is(anEmptyMap()));
+        Map<String, Long> freeMap = result.getA();
+        Map<String, Long> totalMap = result.getB();
+        // Header is skipped; devfs and zroot are both included
+        assertThat(freeMap.get("/dev"), is(0L));
+        assertThat(freeMap.get("/"), is(9999999L));
+        assertThat(totalMap.get("/"), is(234567L + 9999999L));
     }
 }

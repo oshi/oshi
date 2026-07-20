@@ -44,13 +44,15 @@ class OpenBsdFileSystemTest {
     }
 
     @Test
-    void testParseDfInodesSkipsNonDeviceLines() {
+    void testParseDfInodesIncludesMfsAndSkipsHeader() {
         List<String> lines = Arrays.asList(
                 "Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on",
                 "mfs:12345      1048576    10240   1038336     1%       5   65531     0%   /tmp");
         Pair<Map<String, Long>, Map<String, Long>> result = OpenBsdFileSystem.parseDfInodes(lines);
-        // Neither line starts with '/'
-        assertThat(result.getA(), is(anEmptyMap()));
-        assertThat(result.getB(), is(anEmptyMap()));
+        Map<String, Long> freeMap = result.getA();
+        Map<String, Long> usedMap = result.getB();
+        // Header is skipped; mfs entry is included
+        assertThat(freeMap.get("mfs:12345"), is(65531L));
+        assertThat(usedMap.get("mfs:12345"), is(5L));
     }
 }
