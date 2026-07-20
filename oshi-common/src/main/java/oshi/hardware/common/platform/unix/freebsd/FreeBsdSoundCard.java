@@ -43,13 +43,21 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
+        return parseSoundCards(ExecutingCommand.runNative(LSHAL));
+    }
+
+    /**
+     * Parses {@code lshal} output into the list of sound cards (nodes driven by {@code pcm}).
+     *
+     * @param lshal the lines emitted by {@code lshal}
+     * @return a {@link java.util.List} of {@link SoundCard} objects.
+     */
+    static List<SoundCard> parseSoundCards(List<String> lshal) {
         Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> productMap = new HashMap<>();
-        vendorMap.clear();
-        productMap.clear();
         List<String> sounds = new ArrayList<>();
         String key = "";
-        for (String line : ExecutingCommand.runNative(LSHAL)) {
+        for (String line : lshal) {
             line = line.trim();
             if (line.startsWith("udi =")) {
                 // we have the key.

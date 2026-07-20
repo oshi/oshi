@@ -36,6 +36,16 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return a list of USB controllers, each with its connected-device tree.
      */
     public static List<UsbDevice> getUsbDevices() {
+        return parseUsbDevices(ExecutingCommand.runNative("lshal"));
+    }
+
+    /**
+     * Parses {@code lshal} output into the USB controller device tree.
+     *
+     * @param devices the lines emitted by {@code lshal}
+     * @return a list of USB controllers, each with its connected-device tree.
+     */
+    static List<UsbDevice> parseUsbDevices(List<String> devices) {
         // Maps to store information using node # as the key
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> vendorMap = new HashMap<>();
@@ -49,7 +59,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
         // entire device tree; we will identify the controllers as the parents
         // of the usbus entries and eventually only populate the returned
         // results with those
-        List<String> devices = ExecutingCommand.runNative("lshal");
         if (devices.isEmpty()) {
             return emptyList();
         }
