@@ -16,6 +16,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 public abstract class OpenBsdFileSystem extends AbstractFileSystem {
 
@@ -54,6 +55,27 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
     }
 
     /**
+     * Parses {@code df -i} output into inode free and used maps keyed by volume.
+     *
+     * @param dfOutput the lines from {@code df -i}
+     * @return a {@link Pair} of (inodeFreeMap, inodeUsedMap) both keyed by volume
+     */
+    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeUsedMap = new HashMap<>();
+        for (String line : dfOutput) {
+            if (line.startsWith("/")) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length > 6) {
+                    inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
+                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
+                }
+            }
+        }
+        return new Pair<>(inodeFreeMap, inodeUsedMap);
+    }
+
+    /**
      * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).
      *
      * @param name the sysctl name to query
@@ -72,18 +94,10 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeUsedlMap = new HashMap<>();
         String command = "df -i" + (localOnly ? " -l" : "");
-        for (String line : ExecutingCommand.runNative(command)) {
-            if (line.startsWith("/")) {
-                String[] split = ParseUtil.whitespaces.split(line);
-                if (split.length > 6) {
-                    inodeUsedlMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                }
-            }
-        }
+        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
+        Map<String, Long> inodeFreeMap = inodes.getA();
+        Map<String, Long> inodeUsedlMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR squid:S135

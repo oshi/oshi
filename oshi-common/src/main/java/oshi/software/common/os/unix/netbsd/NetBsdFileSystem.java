@@ -18,6 +18,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * The NetBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
@@ -50,25 +51,10 @@ public class NetBsdFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeUsedlMap = new HashMap<>();
         String command = "df -i" + (localOnly ? " -l" : "");
-        for (String line : ExecutingCommand.runNative(command)) {
-            /*- Sample Output:
-             $ df -i
-            Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on
-            /dev/wd0a      2149212    908676   1133076    45%    8355  147163     5%   /
-            /dev/wd0e      4050876        36   3848300     0%      10  285108     0%   /home
-            /dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr
-            */
-            if (line.startsWith("/")) {
-                String[] split = ParseUtil.whitespaces.split(line);
-                if (split.length > 6) {
-                    inodeUsedlMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                }
-            }
-        }
+        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
+        Map<String, Long> inodeFreeMap = inodes.getA();
+        Map<String, Long> inodeUsedlMap = inodes.getB();
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
@@ -133,6 +119,34 @@ public class NetBsdFileSystem extends AbstractFileSystem {
             }
         }
         return fsList;
+    }
+
+    /**
+     * Parses {@code df -i} output into inode free and used maps keyed by volume.
+     *
+     * @param dfOutput the lines from {@code df -i}
+     * @return a {@link Pair} of (inodeFreeMap, inodeUsedMap) both keyed by volume
+     */
+    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
+        Map<String, Long> inodeFreeMap = new HashMap<>();
+        Map<String, Long> inodeUsedMap = new HashMap<>();
+        for (String line : dfOutput) {
+            /*- Sample Output:
+             $ df -i
+            Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on
+            /dev/wd0a      2149212    908676   1133076    45%    8355  147163     5%   /
+            /dev/wd0e      4050876        36   3848300     0%      10  285108     0%   /home
+            /dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr
+            */
+            if (line.startsWith("/")) {
+                String[] split = ParseUtil.whitespaces.split(line);
+                if (split.length > 6) {
+                    inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
+                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
+                }
+            }
+        }
+        return new Pair<>(inodeFreeMap, inodeUsedMap);
     }
 
     @Override

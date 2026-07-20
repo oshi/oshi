@@ -67,6 +67,8 @@
 --add-opens
   com.github.oshi.common/oshi.util.common.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.software.common.os.unix.freebsd=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.hardware.common.platform.unix.netbsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.software.common.os.unix.netbsd=org.junit.platform.commons
