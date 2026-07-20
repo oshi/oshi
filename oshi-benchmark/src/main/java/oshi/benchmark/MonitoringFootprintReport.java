@@ -71,6 +71,7 @@ public final class MonitoringFootprintReport {
     // Retained bytes of `copies` poll results held from a single reused SystemInfo
     private static double resultKb(Function<SystemInfo, Object> read) {
         SystemInfo si = new SystemInfo();
+        read.apply(si); // realize the subsystem graph so only per-result allocations are measured below
         Object[] hold = new Object[RESULT_COPIES];
         long before = usedBytes();
         for (int i = 0; i < RESULT_COPIES; i++) {
@@ -124,7 +125,8 @@ public final class MonitoringFootprintReport {
     // Retained bytes when holding a SystemInfo and one snapshot of every subsystem it exposes (upper bound of "cache
     // everything"); dominated by the process-list snapshot.
     private static double cacheEverythingKb() {
-        List<Object> hold = new ArrayList<>();
+        // 18 snapshots held per iteration; pre-size so the backing array is in the baseline, not the measured delta
+        List<Object> hold = new ArrayList<>(GRAPH_COPIES * 18);
         long before = usedBytes();
         for (int i = 0; i < GRAPH_COPIES; i++) {
             SystemInfo si = new SystemInfo();
