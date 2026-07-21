@@ -66,28 +66,11 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected ProcessorIdentifier queryProcessorId() {
         PartitionInfo info = queryPartitionInfo();
-        String cpuVendor = Constants.UNKNOWN;
-        String cpuName = "";
-        String cpuFamily = "";
-        boolean cpu64bit = false;
-
-        final String nameMarker = "Processor Type:";
-        final String familyMarker = "Processor Version:";
-        final String bitnessMarker = "CPU Type:";
-        for (final String checkLine : ExecutingCommand.runNative("prtconf")) {
-            if (checkLine.startsWith(nameMarker)) {
-                cpuName = checkLine.split(nameMarker)[1].trim();
-                if (cpuName.startsWith("P")) {
-                    cpuVendor = "IBM";
-                } else if (cpuName.startsWith("I")) {
-                    cpuVendor = "Intel";
-                }
-            } else if (checkLine.startsWith(familyMarker)) {
-                cpuFamily = checkLine.split(familyMarker)[1].trim();
-            } else if (checkLine.startsWith(bitnessMarker)) {
-                cpu64bit = checkLine.split(bitnessMarker)[1].contains("64");
-            }
-        }
+        Quartet<String, String, String, Boolean> id = parseProcessorId(ExecutingCommand.runNative("prtconf"));
+        String cpuVendor = id.getA();
+        String cpuName = id.getB();
+        String cpuFamily = id.getC();
+        boolean cpu64bit = id.getD();
 
         String cpuModel = "";
         String cpuStepping = "";
@@ -104,6 +87,39 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, machineId, cpu64bit,
                 (long) (info.processorMHz * 1_000_000L));
+    }
+
+    /**
+     * Parses {@code prtconf} output for the processor vendor, name, family, and 64-bit flag.
+     *
+     * @param prtconf the lines of {@code prtconf} output
+     * @return a {@link Quartet} of vendor, name, family, and 64-bit flag (vendor {@link Constants#UNKNOWN} if the
+     *         processor type is not recognized)
+     */
+    static Quartet<String, String, String, Boolean> parseProcessorId(List<String> prtconf) {
+        String cpuVendor = Constants.UNKNOWN;
+        String cpuName = "";
+        String cpuFamily = "";
+        boolean cpu64bit = false;
+
+        final String nameMarker = "Processor Type:";
+        final String familyMarker = "Processor Version:";
+        final String bitnessMarker = "CPU Type:";
+        for (final String checkLine : prtconf) {
+            if (checkLine.startsWith(nameMarker)) {
+                cpuName = checkLine.split(nameMarker)[1].trim();
+                if (cpuName.startsWith("P")) {
+                    cpuVendor = "IBM";
+                } else if (cpuName.startsWith("I")) {
+                    cpuVendor = "Intel";
+                }
+            } else if (checkLine.startsWith(familyMarker)) {
+                cpuFamily = checkLine.split(familyMarker)[1].trim();
+            } else if (checkLine.startsWith(bitnessMarker)) {
+                cpu64bit = checkLine.split(bitnessMarker)[1].contains("64");
+            }
+        }
+        return new Quartet<>(cpuVendor, cpuName, cpuFamily, cpu64bit);
     }
 
     @Override
@@ -128,8 +144,18 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static List<ProcessorCache> getCachesForModel(int cores) {
+        return cachesForPowerVersion(ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer("uname -n")), cores);
+    }
+
+    /**
+     * Returns the known cache topology for a given POWER version.
+     *
+     * @param powerVersion the POWER generation (e.g. 7, 8, 9), as parsed from {@code uname -n}
+     * @param cores        the number of physical cores, used to size the shared L3 on POWER9
+     * @return the processor caches for that generation, or an empty list if the version is unrecognized
+     */
+    static List<ProcessorCache> cachesForPowerVersion(int powerVersion, int cores) {
         List<ProcessorCache> caches = new ArrayList<>();
-        int powerVersion = ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer("uname -n"));
         switch (powerVersion) {
             case 7:
                 caches.add(new ProcessorCache(3, 8, 128, (2 * 32) << 20, Type.UNIFIED));
@@ -165,11 +191,22 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         // pmcycles may require root; this is best-effort.
-        long[] freqs = new long[getLogicalProcessorCount()];
+        return parseCurrentFreq(ExecutingCommand.runNative("pmcycles -m"), getLogicalProcessorCount());
+    }
+
+    /**
+     * Parses {@code pmcycles -m} output into a per-logical-processor frequency array.
+     *
+     * @param pmcycles the lines of {@code pmcycles -m} output
+     * @param count    the number of logical processors (array length)
+     * @return an array of frequencies in Hz; entries with no corresponding output line remain -1
+     */
+    static long[] parseCurrentFreq(List<String> pmcycles, int count) {
+        long[] freqs = new long[count];
         Arrays.fill(freqs, -1);
         String freqMarker = "runs at";
         int idx = 0;
-        for (final String checkLine : ExecutingCommand.runNative("pmcycles -m")) {
+        for (final String checkLine : pmcycles) {
             if (checkLine.contains(freqMarker)) {
                 freqs[idx++] = ParseUtil.parseHertz(checkLine.split(freqMarker)[1].trim());
                 if (idx >= freqs.length) {
@@ -233,7 +270,17 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static int querySbits() {
-        for (String s : FileUtil.readFile("/usr/include/sys/proc.h")) {
+        return parseSbits(FileUtil.readFile("/usr/include/sys/proc.h"));
+    }
+
+    /**
+     * Parses the {@code SBITS} {@code #define} value from {@code /usr/include/sys/proc.h}, used to scale load averages.
+     *
+     * @param procH the lines of {@code /usr/include/sys/proc.h}
+     * @return the SBITS value, or 16 if not found
+     */
+    static int parseSbits(List<String> procH) {
+        for (String s : procH) {
             if (s.contains("SBITS") && s.contains("#define")) {
                 return ParseUtil.parseLastInt(s, 16);
             }

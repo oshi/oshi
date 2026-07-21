@@ -82,11 +82,22 @@ public final class Lscfg {
      * @return A pair containing the model and serial number for the device, or null if not found
      */
     public static Pair<String, String> queryModelSerial(String device) {
+        return parseModelSerial(ExecutingCommand.runNative("lscfg -vl " + device), device);
+    }
+
+    /**
+     * Parse the output of {@code lscfg -vl device} to get the model and serial number
+     *
+     * @param lscfg  The output of a previous call to {@code lscfg -vl device}
+     * @param device The disk the output describes
+     * @return A pair containing the model and serial number for the device, either of which may be null if not found
+     */
+    public static Pair<String, String> parseModelSerial(List<String> lscfg, String device) {
         String modelMarker = "Machine Type and Model";
         String serialMarker = "Serial Number";
         String model = null;
         String serial = null;
-        for (String s : ExecutingCommand.runNative("lscfg -vl " + device)) {
+        for (String s : lscfg) {
             // Default model to description at end of first line
             if (model == null && s.contains(device)) {
                 String locDesc = s.split(device)[1].trim();

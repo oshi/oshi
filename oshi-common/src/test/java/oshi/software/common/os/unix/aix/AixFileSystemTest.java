@@ -67,4 +67,35 @@ class AixFileSystemTest {
         assertThat(result.getA(), is(anEmptyMap()));
         assertThat(result.getB(), is(anEmptyMap()));
     }
+
+    @Test
+    void testParseOpenFileDescriptors() {
+        // lsof -nl: every row after the COMMAND header counts
+        List<String> lsof = Arrays.asList(//
+                "COMMAND     PID     USER   FD   TYPE             DEVICE  SIZE/OFF  NODE NAME", //
+                "init          1     root  cwd  VDIR              10,  5      256     2 /", //
+                "init          1     root  txt  VREG              10,  6    12345    17 /usr/sbin/init");
+        assertThat(AixFileSystem.parseOpenFileDescriptors(lsof), is(2L));
+    }
+
+    @Test
+    void testParseOpenFileDescriptorsNoHeaderOrEmpty() {
+        // No COMMAND header line: nothing is counted
+        assertThat(AixFileSystem.parseOpenFileDescriptors(Arrays.asList("garbage", "more garbage")), is(0L));
+        assertThat(AixFileSystem.parseOpenFileDescriptors(Collections.emptyList()), is(0L));
+    }
+
+    @Test
+    void testParseMaxFileDescriptorsPerProcess() {
+        List<String> limits = Arrays.asList("default:", "        fsize = -1", "        nofiles = 2000",
+                "        core = 2097151");
+        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(limits), is(2000L));
+    }
+
+    @Test
+    void testParseMaxFileDescriptorsPerProcessMissing() {
+        // No nofiles line: unlimited (Long.MAX_VALUE)
+        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(Arrays.asList("default:", "        fsize = -1")),
+                is(Long.MAX_VALUE));
+    }
 }

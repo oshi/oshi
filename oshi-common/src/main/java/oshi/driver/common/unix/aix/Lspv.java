@@ -52,7 +52,20 @@ public final class Lspv {
 
     private static List<HWPartition> computeLogicalVolumes(String device,
             Map<String, Pair<Integer, Integer>> majMinMap) {
-        List<HWPartition> partitions = new ArrayList<>();
+        long ppSize = parsePpSize(ExecutingCommand.runNative("lspv -L " + device));
+        if (ppSize == 0L) {
+            return new ArrayList<>();
+        }
+        return parsePartitions(ExecutingCommand.runNative("lspv -p " + device), ppSize, majMinMap);
+    }
+
+    /**
+     * Parses {@code lspv -L device} output to get the physical-partition size in bytes.
+     *
+     * @param lspvL the lines of {@code lspv -L device} output
+     * @return the physical-partition size in bytes, or 0 if the volume is not active or no PP size is reported
+     */
+    static long parsePpSize(List<String> lspvL) {
         /*-
          $ lspv -L hdisk0
         PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg
@@ -69,20 +82,30 @@ public final class Lspv {
         String stateMarker = "PV STATE:";
         String sizeMarker = "PP SIZE:";
         long ppSize = 0L; // All physical partitions are the same size
-        for (String s : ExecutingCommand.runNative("lspv -L " + device)) {
+        for (String s : lspvL) {
             if (s.startsWith(stateMarker)) {
                 if (!s.contains("active")) {
-                    return partitions;
+                    return 0L;
                 }
             } else if (s.contains(sizeMarker)) {
                 ppSize = ParseUtil.getFirstIntValue(s);
             }
         }
-        if (ppSize == 0L) {
-            return partitions;
-        }
-        // Convert to megabytes
-        ppSize <<= 20;
+        // Convert megabytes to bytes
+        return ppSize << 20;
+    }
+
+    /**
+     * Parses {@code lspv -p device} output into the list of logical volumes (partitions) on the device.
+     *
+     * @param lspvP     the lines of {@code lspv -p device} output
+     * @param ppSize    the physical-partition size in bytes (from {@link #parsePpSize})
+     * @param majMinMap a map of device name to a pair with major and minor numbers
+     * @return a list of logical volumes (partitions)
+     */
+    static List<HWPartition> parsePartitions(List<String> lspvP, long ppSize,
+            Map<String, Pair<Integer, Integer>> majMinMap) {
+        List<HWPartition> partitions = new ArrayList<>();
         /*-
          $ lspv -p hdisk0
         hdisk0:
@@ -114,7 +137,7 @@ public final class Lspv {
         Map<String, String> mountMap = new HashMap<>();
         Map<String, String> typeMap = new HashMap<>();
         Map<String, Integer> ppMap = new HashMap<>();
-        for (String s : ExecutingCommand.runNative("lspv -p " + device)) {
+        for (String s : lspvP) {
             String[] split = ParseUtil.whitespaces.split(s.trim());
             if (split.length >= 6 && "used".equals(split[1])) {
                 // Region may have two words, so count from end
