@@ -42,6 +42,11 @@ jobs:
     concurrency: solaris_cfarm216
     runs-on: ubuntu-latest
     steps:
+    # Checkout on the runner so codecov-action can read the git context (commit,
+    # branch) for the report the Solaris box produces; the build itself runs remotely.
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        persist-credentials: false
     - name: Test in Solaris SPARC
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
@@ -78,13 +83,38 @@ jobs:
           set +e
           # One wall-clock budget for both attempts, kept under command_timeout
           # so the box self-terminates first and leaves no orphan.
-          BUILD='./mvnw clean test -B -Djacoco.skip=true || { sleep 15; ./mvnw clean test -B -Djacoco.skip=true; }'
+          # jna-aggregate: JDK 17 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo;
+          # the oshi-benchmark aggregator needs JDK 25, unavailable on this SPARC box.
+          BUILD='./mvnw clean test -Pjna-aggregate -B || { sleep 15; ./mvnw clean test -Pjna-aggregate -B; }'
           if command -v timeout >/dev/null 2>&1; then
             timeout --kill-after=30s 20m sh -c "$BUILD"
           else
             sh -c "$BUILD"
           fi
           exit $?
+    # Pull the JDK 17 aggregate JaCoCo report (oshi-common + oshi-core, no FFM) off
+    # the shared box and upload it to Codecov under the `solaris-sparc` flag. Runs on
+    # test failure too, since JaCoCo still emits a report then.
+    - name: Copy back Solaris SPARC coverage
+      if: always()
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        mkdir -p oshi-demo/target/site/jacoco-aggregate
+        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          oshi@cfarm216.cfarm.net:oshi/oshi-demo/target/site/jacoco-aggregate/jacoco.xml \
+          oshi-demo/target/site/jacoco-aggregate/jacoco.xml || echo "No Solaris SPARC coverage report to copy"
+        rm -f "$KEY"
+    - name: Upload Coverage
+      if: always()
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
+        flags: solaris-sparc
 
   # Tests the triggering ref on AIX 7.3: master on push, or the dispatched
   # branch (possibly from a fork) on workflow_dispatch.
