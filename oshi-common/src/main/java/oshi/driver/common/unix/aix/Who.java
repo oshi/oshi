@@ -40,6 +40,16 @@ public final class Who {
         if (s.isEmpty()) {
             s = ExecutingCommand.getFirstAnswer("/usr/bin/who -b");
         }
+        return parseBootTime(s);
+    }
+
+    /**
+     * Parses the {@code who -b} output line into a boot time in milliseconds since the epoch.
+     *
+     * @param s a line of {@code who -b} output
+     * @return boot time in milliseconds since the epoch, or 0 if the line does not match the expected format
+     */
+    public static long parseBootTime(String s) {
         Matcher m = BOOT_FORMAT_AIX.matcher(s);
         if (m.matches()) {
             try {

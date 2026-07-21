@@ -7,10 +7,14 @@ package oshi.driver.common.unix.aix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +26,30 @@ import oshi.hardware.HWPartition;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
-@EnabledOnOs(OS.AIX)
 class LsDevicesTest {
+
     @Test
+    void testParseDeviceMajorMinor() {
+        // ls -l /dev: block devices begin with 'b'; major,minor are the 2nd and 3rd integers, name is the last token
+        Map<String, Pair<Integer, Integer>> map = Ls.parseDeviceMajorMinor(Arrays.asList(//
+                "total 0", //
+                "crw-rw-rw-  1 root system  2,  2 Jun 28  1970 null", // not a block device, skipped
+                "brw-rw----  1 root system 10,  5 Sep 12  2017 hd2", //
+                "brw-------  1 root system 20,  0 Jun 28  1970 hdisk0"));
+        assertThat(map, not(hasKey("null")));
+        assertThat(map.get("hd2").getA(), is(10));
+        assertThat(map.get("hd2").getB(), is(5));
+        assertThat(map.get("hdisk0").getA(), is(20));
+        assertThat(map.get("hdisk0").getB(), is(0));
+    }
+
+    @Test
+    void testParseDeviceMajorMinorEmpty() {
+        assertThat(Ls.parseDeviceMajorMinor(Collections.emptyList()), is(anEmptyMap()));
+    }
+
+    @Test
+    @EnabledOnOs(OS.AIX)
     void testQueryLsDevices() {
         Map<String, Pair<Integer, Integer>> majMinMap = Ls.queryDeviceMajorMinor();
         assertThat("Device Major Minor Map shouldn't be empty", majMinMap, not(anEmptyMap()));
