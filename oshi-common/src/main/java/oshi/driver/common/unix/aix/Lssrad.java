@@ -41,15 +41,26 @@ public final class Lssrad {
                        3        1992.00
                        4         249.00
          */
+        return parseNodesPackages(ExecutingCommand.runNative("lssrad -av"));
+    }
+
+    /**
+     * Parses {@code lssrad -av} output into a map of processor number to its (ref, srad) pair.
+     *
+     * @param lssrad the lines of {@code lssrad -av} output (including the header row)
+     * @return A map of processor number to a pair containing the ref (NUMA equivalent) and srad (package)
+     */
+    public static Map<Integer, Pair<Integer, Integer>> parseNodesPackages(List<String> lssrad) {
         int node = 0;
         int slot = 0;
         Map<Integer, Pair<Integer, Integer>> nodeMap = new HashMap<>();
-        List<String> lssrad = ExecutingCommand.runNative("lssrad -av");
-        // remove header
-        if (!lssrad.isEmpty()) {
-            lssrad.remove(0);
-        }
+        boolean header = true;
         for (String s : lssrad) {
+            // Skip the "REF1 SRAD MEM CPU" header row without mutating the input list
+            if (header) {
+                header = false;
+                continue;
+            }
             String t = s.trim();
             if (!t.isEmpty()) {
                 if (Character.isDigit(s.charAt(0))) {

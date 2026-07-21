@@ -36,7 +36,6 @@ public final class Uptime {
      * @return Up time in milliseconds
      */
     public static long queryUpTime() {
-        long uptime = 0L;
         String s = ExecutingCommand.getFirstAnswer("uptime");
         if (s.isEmpty()) {
             s = ExecutingCommand.getFirstAnswer("w");
@@ -44,6 +43,17 @@ public final class Uptime {
         if (s.isEmpty()) {
             s = ExecutingCommand.getFirstAnswer("/usr/bin/uptime");
         }
+        return parseUpTime(s);
+    }
+
+    /**
+     * Parses the {@code uptime} (or {@code w}) output line into an uptime in milliseconds.
+     *
+     * @param s a line of {@code uptime} output
+     * @return up time in milliseconds, or 0 if the line does not match the expected format
+     */
+    public static long parseUpTime(String s) {
+        long uptime = 0L;
         Matcher m = UPTIME_FORMAT_AIX.matcher(s);
         if (m.matches()) {
             if (m.group(2) != null) {

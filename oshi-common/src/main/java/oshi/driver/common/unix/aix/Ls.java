@@ -5,6 +5,7 @@
 package oshi.driver.common.unix.aix;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -27,6 +28,16 @@ public final class Ls {
      * @return A map of device name to a major-minor pair
      */
     public static Map<String, Pair<Integer, Integer>> queryDeviceMajorMinor() {
+        return parseDeviceMajorMinor(ExecutingCommand.runNative("ls -l /dev"));
+    }
+
+    /**
+     * Parses {@code ls -l /dev} output into a map of block-device name to its major-minor number pair.
+     *
+     * @param ls the lines of {@code ls -l /dev} output
+     * @return A map of device name to a major-minor pair
+     */
+    public static Map<String, Pair<Integer, Integer>> parseDeviceMajorMinor(List<String> ls) {
         // Map major and minor from ls
         /*-
          $ ls -l /dev
@@ -34,7 +45,7 @@ public final class Ls {
         brw-------  1 root system 20,  0 Jun 28  1970 hdisk0
          */
         Map<String, Pair<Integer, Integer>> majMinMap = new HashMap<>();
-        for (String s : ExecutingCommand.runNative("ls -l /dev")) {
+        for (String s : ls) {
             // Filter to block devices
             if (!s.isEmpty() && s.charAt(0) == 'b') {
                 // Device name is last space-delim string

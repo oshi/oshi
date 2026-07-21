@@ -63,6 +63,17 @@ public final class AixComputerSystem extends AbstractComputerSystem {
     }
 
     private static LsattrStrings readLsattr() {
+        return parseLsattr(ExecutingCommand.runNative("lsattr -El sys0"), ExecutingCommand.runNative("lsmcode -c"));
+    }
+
+    /**
+     * Parses {@code lsattr -El sys0} and {@code lsmcode -c} output into the system's firmware and identity strings.
+     *
+     * @param lsattr  the lines of {@code lsattr -El sys0} output
+     * @param lsmcode the lines of {@code lsmcode -c} output
+     * @return the parsed firmware and identity strings (blank fields defaulted to {@link Constants#UNKNOWN})
+     */
+    static LsattrStrings parseLsattr(List<String> lsattr, List<String> lsmcode) {
         String fwVendor = "IBM";
         String fwVersion = null;
         String fwPlatformVersion = null;
@@ -86,7 +97,7 @@ public final class AixComputerSystem extends AbstractComputerSystem {
         final String uuidMarker = "os_uuid";
         final String fwPlatformVersionMarker = "Platform Firmware level is";
 
-        for (final String checkLine : ExecutingCommand.runNative("lsattr -El sys0")) {
+        for (final String checkLine : lsattr) {
             if (checkLine.startsWith(fwVersionMarker)) {
                 fwVersion = checkLine.split(fwVersionMarker)[1].trim();
                 int comma = fwVersion.indexOf(',');
@@ -111,7 +122,7 @@ public final class AixComputerSystem extends AbstractComputerSystem {
                 uuid = ParseUtil.whitespaces.split(uuid)[0];
             }
         }
-        for (final String checkLine : ExecutingCommand.runNative("lsmcode -c")) {
+        for (final String checkLine : lsmcode) {
             /*-
              Platform Firmware level is 3F080425
              System Firmware level is RG080425_d79e22_regatta
@@ -124,7 +135,7 @@ public final class AixComputerSystem extends AbstractComputerSystem {
         return new LsattrStrings(fwVendor, fwPlatformVersion, fwVersion, manufacturer, model, serialNumber, uuid);
     }
 
-    private static final class LsattrStrings {
+    static final class LsattrStrings {
         private final String biosVendor;
         private final String biosPlatformVersion;
         private final String biosVersion;
@@ -144,6 +155,34 @@ public final class AixComputerSystem extends AbstractComputerSystem {
             this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
             this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
             this.uuid = Util.isBlank(uuid) ? Constants.UNKNOWN : uuid;
+        }
+
+        String biosVendor() {
+            return biosVendor;
+        }
+
+        String biosPlatformVersion() {
+            return biosPlatformVersion;
+        }
+
+        String biosVersion() {
+            return biosVersion;
+        }
+
+        String manufacturer() {
+            return manufacturer;
+        }
+
+        String model() {
+            return model;
+        }
+
+        String serialNumber() {
+            return serialNumber;
+        }
+
+        String uuid() {
+            return uuid;
         }
     }
 }
