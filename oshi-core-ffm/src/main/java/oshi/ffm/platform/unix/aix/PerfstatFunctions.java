@@ -7,6 +7,7 @@ package oshi.ffm.platform.unix.aix;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+import static java.lang.foreign.ValueLayout.JAVA_DOUBLE_UNALIGNED;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
@@ -44,7 +45,7 @@ public final class PerfstatFunctions extends ForeignFunctions {
     public static final int PERFSTAT_MEMORY_TOTAL_T_SIZE = 352;
     public static final int PERFSTAT_PROCESS_T_SIZE = 288;
     public static final int PERFSTAT_DISK_T_SIZE = 496;
-    public static final int PERFSTAT_PARTITION_CONFIG_T_SIZE = 800;
+    public static final int PERFSTAT_PARTITION_CONFIG_T_SIZE = 808;
     public static final int PERFSTAT_NETINTERFACE_T_SIZE = 240;
     public static final int PERFSTAT_PROTOCOL_T_SIZE = 728;
 
@@ -393,9 +394,12 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return readName(seg, 276);
     }
 
-    /** {@code processorMHz}: processor clock speed in MHz. */
+    /**
+     * {@code processorMHz}: processor clock speed in MHz. It follows {@code machineID[64]} (ending at 340) with no
+     * padding, so it is 4-byte- but not 8-byte-aligned and must be read unaligned.
+     */
     public static double configProcessorMHz(MemorySegment seg) {
-        return seg.get(JAVA_DOUBLE, 344);
+        return seg.get(JAVA_DOUBLE_UNALIGNED, 340);
     }
 
     /** {@code OSBuild[64]}: OS build string. */
