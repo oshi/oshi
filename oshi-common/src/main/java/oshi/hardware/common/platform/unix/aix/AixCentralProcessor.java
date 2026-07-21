@@ -145,13 +145,32 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     private static List<ProcessorCache> getCachesForModel(int cores) {
-        return cachesForPowerVersion(ParseUtil.getFirstIntValue(ExecutingCommand.getFirstAnswer("uname -n")), cores);
+        return cachesForPowerVersion(parsePowerVersion(ExecutingCommand.runNative("prtconf")), cores);
+    }
+
+    /**
+     * Parses the POWER generation from {@code prtconf}'s {@code Processor Version} line (e.g. {@code PV_8_Compat} -&gt;
+     * 8). This is the source used to select the cache topology; {@code uname -n} is the hostname and yields a
+     * meaningless number.
+     *
+     * @param prtconf the lines of {@code prtconf} output
+     * @return the POWER generation, or 0 if no {@code Processor Version} line is present
+     */
+    static int parsePowerVersion(List<String> prtconf) {
+        final String versionMarker = "Processor Version:";
+        for (String line : prtconf) {
+            if (line.startsWith(versionMarker)) {
+                return ParseUtil.getFirstIntValue(line.substring(versionMarker.length()));
+            }
+        }
+        return 0;
     }
 
     /**
      * Returns the known cache topology for a given POWER version.
      *
-     * @param powerVersion the POWER generation (e.g. 7, 8, 9), as parsed from {@code uname -n}
+     * @param powerVersion the POWER generation (e.g. 7, 8, 9), as parsed from {@code prtconf}'s {@code Processor
+     *                     Version} field
      * @param cores        the number of physical cores, used to size the shared L3 on POWER9
      * @return the processor caches for that generation, or an empty list if the version is unrecognized
      */

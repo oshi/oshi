@@ -57,6 +57,24 @@ class AixCentralProcessorTest {
     }
 
     @Test
+    void testParsePowerVersion() {
+        // Real prtconf excerpt from a POWER8 box (IBM,8284-22A): the Processor Version line carries the generation
+        List<String> prtconf = Arrays.asList(//
+                "System Model: IBM,8284-22A", //
+                "Processor Type: PowerPC_POWER8", //
+                "Processor Implementation Mode: POWER 8", //
+                "Processor Version: PV_8_Compat", //
+                "Number Of Processors: 10", //
+                "CPU Type: 64-bit");
+        assertThat(AixCentralProcessor.parsePowerVersion(prtconf), is(8));
+        // POWER9 form
+        assertThat(AixCentralProcessor.parsePowerVersion(Collections.singletonList("Processor Version: PV_9_Compat")),
+                is(9));
+        // No Processor Version line -> 0 (selects no caches, same as an unknown generation)
+        assertThat(AixCentralProcessor.parsePowerVersion(Collections.emptyList()), is(0));
+    }
+
+    @Test
     void testParseCurrentFreq() {
         List<String> pmcycles = Arrays.asList("Cpu 0 runs at 3000 MHz", "Cpu 1 runs at 3000 MHz");
         // exactly two CPUs
