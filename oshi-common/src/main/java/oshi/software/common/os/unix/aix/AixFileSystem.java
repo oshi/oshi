@@ -174,9 +174,19 @@ public class AixFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
+        return parseOpenFileDescriptors(ExecutingCommand.runNative("lsof -nl"));
+    }
+
+    /**
+     * Counts the open file descriptor rows in {@code lsof -nl} output (every row after the {@code COMMAND} header).
+     *
+     * @param lsof the lines of {@code lsof -nl} output
+     * @return the number of open file descriptors
+     */
+    static long parseOpenFileDescriptors(List<String> lsof) {
         boolean header = false;
         long openfiles = 0L;
-        for (String f : ExecutingCommand.runNative("lsof -nl")) {
+        for (String f : lsof) {
             if (!header) {
                 header = f.startsWith("COMMAND");
             } else {
@@ -193,8 +203,17 @@ public class AixFileSystem extends AbstractFileSystem {
 
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        final List<String> lines = FileUtil.readFile("/etc/security/limits");
-        for (final String line : lines) {
+        return parseMaxFileDescriptorsPerProcess(FileUtil.readFile("/etc/security/limits"));
+    }
+
+    /**
+     * Parses {@code /etc/security/limits} for the default per-process {@code nofiles} descriptor limit.
+     *
+     * @param limits the lines of {@code /etc/security/limits}
+     * @return the {@code nofiles} value, or {@link Long#MAX_VALUE} if not present
+     */
+    static long parseMaxFileDescriptorsPerProcess(List<String> limits) {
+        for (final String line : limits) {
             if (line.trim().startsWith("nofiles")) {
                 return ParseUtil.parseLastLong(line, Long.MAX_VALUE);
             }

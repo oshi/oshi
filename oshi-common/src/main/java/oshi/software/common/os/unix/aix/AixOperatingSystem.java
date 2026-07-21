@@ -178,25 +178,7 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSService> getServices() {
-        List<OSService> services = new ArrayList<>();
-        List<String> systemServicesInfoList = ExecutingCommand.runNative("lssrc -a");
-        if (systemServicesInfoList.size() > 1) {
-            systemServicesInfoList.remove(0);
-            for (String systemService : systemServicesInfoList) {
-                String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
-                if (systemService.contains("active")) {
-                    if (serviceSplit.length == 4) {
-                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0),
-                                RUNNING));
-                    } else if (serviceSplit.length == 3) {
-                        services.add(new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[1], 0),
-                                RUNNING));
-                    }
-                } else if (systemService.contains("inoperative")) {
-                    services.add(new OSService(serviceSplit[0], 0, STOPPED));
-                }
-            }
-        }
+        List<OSService> services = parseServices(ExecutingCommand.runNative("lssrc -a"));
         File dir = new File("/etc/rc.d/init.d");
         File[] listFiles;
         if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
@@ -207,6 +189,37 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
                 } else {
                     services.add(new OSService(file.getName(), 0, STOPPED));
                 }
+            }
+        }
+        return services;
+    }
+
+    /**
+     * Parses {@code lssrc -a} output into the list of subsystem services. The first row is the column header.
+     *
+     * @param lssrc the lines of {@code lssrc -a} output
+     * @return the parsed services (active subsystems as {@code RUNNING}, inoperative as {@code STOPPED})
+     */
+    static List<OSService> parseServices(List<String> lssrc) {
+        List<OSService> services = new ArrayList<>();
+        boolean header = true;
+        for (String systemService : lssrc) {
+            // Skip the "Subsystem Group PID Status" header row without mutating the input list
+            if (header) {
+                header = false;
+                continue;
+            }
+            String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
+            if (systemService.contains("active")) {
+                if (serviceSplit.length == 4) {
+                    services.add(
+                            new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[2], 0), RUNNING));
+                } else if (serviceSplit.length == 3) {
+                    services.add(
+                            new OSService(serviceSplit[0], ParseUtil.parseIntOrDefault(serviceSplit[1], 0), RUNNING));
+                }
+            } else if (systemService.contains("inoperative")) {
+                services.add(new OSService(serviceSplit[0], 0, STOPPED));
             }
         }
         return services;
