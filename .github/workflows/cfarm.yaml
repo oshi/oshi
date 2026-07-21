@@ -98,6 +98,11 @@ jobs:
     concurrency: aix_cfarm119
     runs-on: ubuntu-latest
     steps:
+    # Checkout on the runner so codecov-action can read the git context (commit,
+    # branch) for the report the AIX box produces; the build itself runs remotely.
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        persist-credentials: false
     - name: Test in AIX
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
@@ -108,7 +113,7 @@ jobs:
         username: oshi
         key: ${{ secrets.GCC_CI_KEY }}
         port: 22
-        command_timeout: 15m
+        command_timeout: 25m
         envs: REPO_URL,BRANCH
         script: |
           # Backup reaper: kill stale JVMs from a previously killed run (older
@@ -117,7 +122,7 @@ jobs:
           for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
                 et=$2; n=split(et,a,/[-:]/);
                 m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
-                if (m>=13) print $1 }'); do
+                if (m>=21) print $1 }'); do
             kill -9 "$pid" 2>/dev/null || true
           done
           rm -fR ~/javashared*
@@ -175,10 +180,33 @@ jobs:
           trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
           # One wall-clock budget for both attempts, kept under command_timeout
           # so the box self-terminates first and leaves no orphan.
-          BUILD='mvn clean test -B -Djacoco.skip=true || { sleep 15; mvn clean test -B -Djacoco.skip=true; }'
+          BUILD='mvn clean test -Paggregate-coverage -B || { sleep 15; mvn clean test -Paggregate-coverage -B; }'
           if command -v timeout >/dev/null 2>&1; then
-            timeout --kill-after=30s 12m sh -c "$BUILD"
+            timeout --kill-after=30s 20m sh -c "$BUILD"
           else
             sh -c "$BUILD"
           fi
           exit $?
+    # Pull the aggregate JaCoCo report off the shared box (produced under JDK 25
+    # so the FFM backend is included) and upload it to Codecov under the `aix`
+    # flag. Runs on test failure too, since JaCoCo still emits a report then.
+    - name: Copy back AIX coverage
+      if: always()
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        mkdir -p oshi-benchmark/target/site/jacoco-aggregate
+        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          oshi@cfarm119.cfarm.net:git/oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml \
+          oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No AIX coverage report to copy"
+        rm -f "$KEY"
+    - name: Upload Coverage
+      if: always()
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+        flags: aix

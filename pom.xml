@@ -855,15 +855,13 @@
                         <exclude>**/jna/platform/**</exclude>
                         <exclude>**/jna/ByRef*</exclude>
                         <exclude>**/jna/Struct*</exclude>
-                        <exclude>**/unix/aix/**</exclude>
                         <exclude>**/unix/dragonflybsd/**</exclude>
                         <exclude>**/unix/netbsd/**</exclude>
                         <!-- Narrow these `**/unix/<Name>*` patterns — JaCoCo agent globs let `*`
                              cross path separators, so `**/unix/*Bsd*` etc. would also exclude
-                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. OpenBSD and Solaris are now
-                             exercised on the permanent OpenBSD/OpenIndiana CI jobs (with aggregate
-                             coverage and codecov upload) that landed with the FFM ports. -->
-                        <exclude>**/unix/*Aix*</exclude>
+                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. OpenBSD and Solaris are exercised
+                             on the permanent OpenBSD/OpenIndiana CI jobs, and AIX on the cfarm CI job,
+                             all with aggregate coverage and codecov upload. -->
                         <exclude>**/unix/*DragonFlyBsd*</exclude>
                         <exclude>**/unix/*NetBsd*</exclude>
                         <!-- Hardware-dependent: no GPU/sensors/battery on CI runners -->
