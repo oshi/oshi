@@ -98,16 +98,13 @@ public final class Lscfg {
         String model = null;
         String serial = null;
         for (String s : lscfg) {
-            // Default model to description at end of first line
+            // Default model to description at end of first line. Locate the device literally (split would treat it
+            // as a regex); a device at the very end of the line leaves an empty remainder, so no model is derived.
             if (model == null && s.contains(device)) {
-                String[] locDescSplit = s.split(device);
-                // A device at the very end of the line splits to a single element; skip the fallback then
-                if (locDescSplit.length > 1) {
-                    String locDesc = locDescSplit[1].trim();
-                    int idx = locDesc.indexOf(' ');
-                    if (idx > 0) {
-                        model = locDesc.substring(idx).trim();
-                    }
+                String locDesc = s.substring(s.indexOf(device) + device.length()).trim();
+                int idx = locDesc.indexOf(' ');
+                if (idx > 0) {
+                    model = locDesc.substring(idx).trim();
                 }
             }
             if (s.contains(modelMarker)) {
