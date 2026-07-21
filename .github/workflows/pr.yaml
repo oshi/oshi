@@ -3,6 +3,9 @@ name: Pull Request CI
 
 on:
   pull_request:
+    # `labeled` lets the `full-coverage` label trigger a run immediately (no re-push);
+    # the other types are the default set.
+    types: [opened, synchronize, reopened, labeled]
     paths-ignore:
       - '**.md'
       - '**.yml'
@@ -12,9 +15,50 @@ permissions:
   contents: read
 
 jobs:
+  # Detect whether this PR touches Unix-platform code or the build infrastructure.
+  # The nested-VM Unix coverage jobs (freebsd/openbsd/openindiana) are gated on this
+  # so an unrelated PR doesn't spin up slow VMs. Generic shared source is covered by
+  # the always-on ubuntu/mac/windows jobs, Codecov carryforward, and the authoritative
+  # master run. A `full-coverage` label overrides the gate to force the VM jobs on.
+  changes:
+    # On a `labeled` event only proceed for the full-coverage label, so adding an
+    # unrelated label doesn't re-run CI. opened/synchronize/reopened always run.
+    # The VM jobs inherit this via `needs: changes`.
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      unix: ${{ steps.filter.outputs.unix }}
+    steps:
+      - name: Detect Unix-relevant changes
+        id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! CHANGED=$(gh pr view "${{ github.event.pull_request.number }}" \
+              --repo "${{ github.repository }}" --json files --jq '.files[].path'); then
+            # Fail safe: if the file list can't be read, run the Unix jobs rather than
+            # silently skip them and drop coverage.
+            echo "Could not read changed files; defaulting to running the Unix jobs"
+            echo "unix=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Changed files:"; echo "$CHANGED"
+          # Run the Unix VM jobs when Unix-platform code (any `unix/` path segment across
+          # oshi-common/oshi-core: hardware, software, driver, util, ffm, jna) or build
+          # infrastructure (any pom.xml, the Maven wrapper) changes.
+          if echo "$CHANGED" | grep -qE '(^|/)unix/|(^|/)pom\.xml$|^\.mvn/|^mvnw'; then
+            echo "unix=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "unix=false" >> "$GITHUB_OUTPUT"
+          fi
+
   # Static analysis: formatting, style, API restrictions, and javadoc link validity.
   # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
   lint:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
     steps:
@@ -42,17 +86,27 @@ jobs:
         run: ./mvnw -Pverify-slf4j-17 clean compile
 
   test:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ${{ matrix.os }}
     strategy:
+      # Latest LTS (JDK 25) across all three OSes — this is the coverage + JNA==FFM
+      # row (uploads linux/macos/windows flags). The version floor/ceiling checks
+      # (JDK 21 and 26) run on ubuntu only; an OS-specific bug that is also
+      # JDK-version-specific in a way ubuntu wouldn't catch is vanishingly rare.
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        java: [21, 25, 26]
         include:
           - os: ubuntu-latest
+            java: 21
+          - os: ubuntu-latest
+            java: 25
             coverage-flag: linux
+          - os: ubuntu-latest
+            java: 26
           - os: macos-latest
+            java: 25
             coverage-flag: macos
           - os: windows-latest
+            java: 25
             coverage-flag: windows
       fail-fast: false
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
@@ -87,6 +141,10 @@ jobs:
   testfreebsd:
     runs-on: ubuntu-24.04
     name: Test JDK 25, FreeBSD (+ JNA==FFM)
+    needs: changes
+    if: >-
+      needs.changes.outputs.unix == 'true' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage')
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -116,6 +174,10 @@ jobs:
   testopenbsd:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenBSD (+ JNA==FFM)
+    needs: changes
+    if: >-
+      needs.changes.outputs.unix == 'true' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage')
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -148,6 +210,10 @@ jobs:
   testopenindiana:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenIndiana (+ JNA==FFM)
+    needs: changes
+    if: >-
+      needs.changes.outputs.unix == 'true' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage')
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

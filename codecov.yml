@@ -13,3 +13,13 @@ coverage:
     patch:
       default:
         target: 70%
+
+# Carry each per-OS flag's coverage forward when a commit doesn't upload it. Full
+# coverage (every flag) runs on pushes to master, so nothing is carried there. On
+# a PR only a subset of platforms runs, so the platforms that didn't run reuse their
+# last master value instead of reading as 0% — keeping the PR's project coverage
+# accurate. It is also a no-op-or-flake-smoother on master: an occasional missing
+# upload reuses the prior value rather than cratering that flag.
+flag_management:
+  default_rules:
+    carryforward: true
