@@ -100,10 +100,14 @@ public final class Lscfg {
         for (String s : lscfg) {
             // Default model to description at end of first line
             if (model == null && s.contains(device)) {
-                String locDesc = s.split(device)[1].trim();
-                int idx = locDesc.indexOf(' ');
-                if (idx > 0) {
-                    model = locDesc.substring(idx).trim();
+                String[] locDescSplit = s.split(device);
+                // A device at the very end of the line splits to a single element; skip the fallback then
+                if (locDescSplit.length > 1) {
+                    String locDesc = locDescSplit[1].trim();
+                    int idx = locDesc.indexOf(' ');
+                    if (idx > 0) {
+                        model = locDesc.substring(idx).trim();
+                    }
                 }
             }
             if (s.contains(modelMarker)) {

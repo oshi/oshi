@@ -40,6 +40,15 @@ class LscfgTest {
     }
 
     @Test
+    void testParseModelSerialDeviceAtEndOfLine() {
+        // A line ending in the device name splits to a single element; the fallback must be skipped, not crash
+        Pair<String, String> modSer = Lscfg.parseModelSerial(Collections.singletonList("  Adapter containing hdisk0"),
+                "hdisk0");
+        assertThat(modSer.getA(), is(nullValue()));
+        assertThat(modSer.getB(), is(nullValue()));
+    }
+
+    @Test
     void testParseModelSerialEmpty() {
         Pair<String, String> modSer = Lscfg.parseModelSerial(Collections.emptyList(), "hdisk0");
         assertThat(modSer.getA(), is(nullValue()));

@@ -106,17 +106,18 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         final String familyMarker = "Processor Version:";
         final String bitnessMarker = "CPU Type:";
         for (final String checkLine : prtconf) {
+            // Each branch already confirmed the marker is a prefix, so substring is safe even when the value is empty
             if (checkLine.startsWith(nameMarker)) {
-                cpuName = checkLine.split(nameMarker)[1].trim();
+                cpuName = checkLine.substring(nameMarker.length()).trim();
                 if (cpuName.startsWith("P")) {
                     cpuVendor = "IBM";
                 } else if (cpuName.startsWith("I")) {
                     cpuVendor = "Intel";
                 }
             } else if (checkLine.startsWith(familyMarker)) {
-                cpuFamily = checkLine.split(familyMarker)[1].trim();
+                cpuFamily = checkLine.substring(familyMarker.length()).trim();
             } else if (checkLine.startsWith(bitnessMarker)) {
-                cpu64bit = checkLine.split(bitnessMarker)[1].contains("64");
+                cpu64bit = checkLine.substring(bitnessMarker.length()).contains("64");
             }
         }
         return new Quartet<>(cpuVendor, cpuName, cpuFamily, cpu64bit);

@@ -46,6 +46,17 @@ class AixCentralProcessorTest {
     }
 
     @Test
+    void testParseProcessorIdEmptyMarkerValues() {
+        // Bare marker lines (no value after the colon) must not throw; they yield empty fields
+        Quartet<String, String, String, Boolean> id = AixCentralProcessor
+                .parseProcessorId(Arrays.asList("Processor Type:", "Processor Version:", "CPU Type:"));
+        assertThat(id.getA(), is(Constants.UNKNOWN));
+        assertThat(id.getB(), is(""));
+        assertThat(id.getC(), is(""));
+        assertThat(id.getD(), is(false));
+    }
+
+    @Test
     void testParseCurrentFreq() {
         List<String> pmcycles = Arrays.asList("Cpu 0 runs at 3000 MHz", "Cpu 1 runs at 3000 MHz");
         // exactly two CPUs
