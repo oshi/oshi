@@ -21,6 +21,10 @@ jobs:
   # the always-on ubuntu/mac/windows jobs, Codecov carryforward, and the authoritative
   # master run. A `full-coverage` label overrides the gate to force the VM jobs on.
   changes:
+    # On a `labeled` event only proceed for the full-coverage label, so adding an
+    # unrelated label doesn't re-run CI. opened/synchronize/reopened always run.
+    # The VM jobs inherit this via `needs: changes`.
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,6 +58,7 @@ jobs:
   # Static analysis: formatting, style, API restrictions, and javadoc link validity.
   # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
   lint:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
     steps:
@@ -81,6 +86,7 @@ jobs:
         run: ./mvnw -Pverify-slf4j-17 clean compile
 
   test:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ${{ matrix.os }}
     strategy:
       # Latest LTS (JDK 25) across all three OSes — this is the coverage + JNA==FFM
