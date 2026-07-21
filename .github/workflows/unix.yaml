@@ -138,6 +138,7 @@ jobs:
         with:
           release: "6.4.2"
           usesh: true
+          copyback: true
           prepare: |
             pkg install -y curl
             pkg install -y openjdk21
@@ -145,7 +146,15 @@ jobs:
             export JAVA_HOME=/usr/local/openjdk21
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw clean test -B -Djacoco.skip=true
+            # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
+            ./mvnw clean test -Pjna-aggregate -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
+          flags: dragonflybsd
 
   # Runs on NetBSD 10.1 x86 VM WITHOUT the JNA native library (java-jna not installed), exercising the
   # command-line fallback path (NetBsdSysctlUtil.JNA_AVAILABLE == false).
@@ -162,6 +171,7 @@ jobs:
         with:
           release: "10.1"
           usesh: true
+          copyback: true
           prepare: |
             pkg_add curl
             pkg_add openjdk21
@@ -169,7 +179,15 @@ jobs:
             export JAVA_HOME=/usr/pkg/java/openjdk21
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw clean test -B -Djacoco.skip=true
+            # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
+            ./mvnw clean test -Pjna-aggregate -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
+          flags: netbsd-nojna
 
   # Runs on NetBSD 10.1 x86 VM WITH the JNA native library (pkgsrc java-jna), exercising the native path
   # (NetBsdSysctlUtil.JNA_AVAILABLE == true). jna.boot.library.path points JNA at the pkgsrc libjnidispatch.
@@ -186,6 +204,7 @@ jobs:
         with:
           release: "10.1"
           usesh: true
+          copyback: true
           prepare: |
             pkg_add curl
             pkg_add openjdk21
@@ -195,4 +214,12 @@ jobs:
             export PATH=$JAVA_HOME/bin:$PATH
             export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw clean test -B -Djacoco.skip=true
+            # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
+            ./mvnw clean test -Pjna-aggregate -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
+          flags: netbsd-jna

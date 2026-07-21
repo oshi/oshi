@@ -21,6 +21,14 @@
     </properties>
 
     <dependencies>
+        <!-- oshi-common is transitive via oshi-core, but jacoco:report-aggregate only aggregates
+             DIRECT reactor dependencies, so declare it explicitly to include its coverage (native-free
+             base classes) in the jna-aggregate report. -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>oshi-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>oshi-core</artifactId>
@@ -51,6 +59,27 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <!-- JDK 17+/21 aggregate report for the JNA (oshi-core) + native-free (oshi-common)
+                         backends, without FFM. The oshi-benchmark aggregator requires JDK 25 (it depends
+                         on oshi-core-ffm), so platforms capped below 25 (NetBSD JDK 21, Solaris SPARC
+                         JDK 17) aggregate here instead. Gated behind the jna-aggregate profile so it does
+                         not run on the default build. -->
+                    <execution>
+                        <id>jna-aggregate-report</id>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <skip>${jna.aggregate.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

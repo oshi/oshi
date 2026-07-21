@@ -82,6 +82,8 @@
         <sonar.java.test.binaries>${project.build.testOutputDirectory}</sonar.java.test.binaries>
         <!-- native access enablement default -->
         <native.access.modules>ALL-UNNAMED</native.access.modules>
+        <!-- Skip the JDK 17+/21 JNA aggregate report (oshi-demo) by default; the jna-aggregate profile enables it. -->
+        <jna.aggregate.skip>true</jna.aggregate.skip>
         <!-- internal, see https://issues.apache.org/jira/browse/MNG-7038 -->
         <main.basedir>${maven.multiModuleProjectDirectory}</main.basedir>
         <!-- Dependency versions -->
@@ -855,22 +857,16 @@
                         <exclude>**/jna/platform/**</exclude>
                         <exclude>**/jna/ByRef*</exclude>
                         <exclude>**/jna/Struct*</exclude>
-                        <exclude>**/unix/dragonflybsd/**</exclude>
-                        <!-- NetBSD: exclude only the oshi-core JNA classes (hardware/platform,
-                             software/os, util/platform). The oshi-common base classes under
-                             `*/common/*` are native-free and exercised on the native-free NetBSD CI
-                             job (codecov `nativefree-netbsd` flag), so they stay in coverage. `NetBsdLibc` in
-                             `jna/platform` is already covered by the `**/jna/platform/**` exclusion
-                             above. -->
-                        <exclude>**/hardware/platform/unix/netbsd/**</exclude>
-                        <exclude>**/software/os/unix/netbsd/**</exclude>
-                        <exclude>**/util/platform/unix/netbsd/**</exclude>
-                        <!-- Narrow these `**/unix/<Name>*` patterns — JaCoCo agent globs let `*`
-                             cross path separators, so `**/unix/*Bsd*` etc. would also exclude
-                             `**/unix/<bsd-subpkg>/Free**Bsd**...`. OpenBSD and Solaris are exercised
-                             on the permanent OpenBSD/OpenIndiana CI jobs, and AIX on the cfarm CI job,
-                             all with aggregate coverage and codecov upload. -->
-                        <exclude>**/unix/*DragonFlyBsd*</exclude>
+                        <!-- All Unix platforms now have aggregate coverage + codecov upload: FreeBSD /
+                             OpenBSD / OpenIndiana (Solaris x86) on the permanent unix CI jobs (JDK 25,
+                             oshi-benchmark aggregator); AIX and Solaris SPARC on the cfarm CI jobs; and
+                             NetBSD and DragonFly BSD on their unix CI jobs. NetBSD, DragonFly, and Solaris
+                             SPARC are capped below JDK 25 (no FFM), so they aggregate via the oshi-demo
+                             `jna-aggregate` profile instead of oshi-benchmark. Their oshi-core JNA classes
+                             (hardware/platform, software/os, util/platform under unix/<os>) are therefore
+                             covered and not excluded; the oshi-common native-free base classes under
+                             `*/common/*` are covered on the native-free jobs. -->
+
                         <!-- Hardware-dependent: no GPU/sensors/battery on CI runners -->
                         <exclude>**/gpu/NvmlUtil*</exclude>
                         <exclude>**/gpu/AdlUtil*</exclude>
@@ -1160,6 +1156,18 @@
                  The profile is defined here as a placeholder; oshi-benchmark
                  overrides maven.test.skip to enable its comparison tests. -->
             <id>aggregate-coverage</id>
+        </profile>
+        <profile>
+            <!-- JDK 17+/21 aggregate JaCoCo report over oshi-common + oshi-core (JNA), without FFM.
+                 Use: mvnw test -Pjna-aggregate
+                 For platforms capped below JDK 25 that cannot build oshi-core-ffm/oshi-benchmark
+                 (NetBSD JDK 21, Solaris SPARC JDK 17). Enables the report-aggregate execution in
+                 oshi-demo (which depends on oshi-core); the aggregate lands at
+                 oshi-demo/target/site/jacoco-aggregate/jacoco.xml. -->
+            <id>jna-aggregate</id>
+            <properties>
+                <jna.aggregate.skip>false</jna.aggregate.skip>
+            </properties>
         </profile>
         <profile>
             <id>checks</id>
