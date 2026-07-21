@@ -6,6 +6,7 @@
 * [#3499](https://github.com/oshi/oshi/pull/3499): Fix FreeBSD, NetBSD, and OpenBSD `df -i` inode parsing to include ZFS, tmpfs, devfs, and mfs filesystems that do not start with `/` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3504](https://github.com/oshi/oshi/pull/3504): Fix AIX processor cache detection, which read the POWER generation from the hostname (`uname -n`) instead of `prtconf`'s `Processor Version` field, causing `getProcessorCaches()` to return an empty list - [@dbwiddis](https://github.com/dbwiddis).
 * [#3505](https://github.com/oshi/oshi/pull/3505): Fix the AIX FFM backend reading `perfstat_partition_config_t.processorMHz` at the wrong struct offset (344 instead of 340), which reported the processor's vendor frequency as unknown - [@dbwiddis](https://github.com/dbwiddis).
+* [#3507](https://github.com/oshi/oshi/pull/3507): Extend the native-free provider (`oshi-common` alone, no JNA or FFM) to NetBSD, so NetBSD users without the JNA native library can depend on `oshi-common` without `--enable-native-access`, as Linux already can - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
 

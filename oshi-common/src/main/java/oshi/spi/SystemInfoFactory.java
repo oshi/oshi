@@ -47,7 +47,7 @@ public final class SystemInfoFactory {
      *
      * @return a new instance of the best available {@link SystemInfoProvider}
      * @throws IllegalStateException if no available provider is found. Ensure {@code oshi-core}, {@code oshi-core-ffm},
-     *                               or (on Linux) {@code oshi-common} alone is on the classpath.
+     *                               or (on Linux or NetBSD) {@code oshi-common} alone is on the classpath.
      */
     public static SystemInfoProvider create() {
         SystemInfoProvider best = null;
@@ -65,7 +65,7 @@ public final class SystemInfoFactory {
         if (best == null) {
             throw new IllegalStateException(
                     "No SystemInfoProvider found. Add oshi-core or oshi-core-ffm as a dependency,"
-                            + " or use oshi-common alone if on Linux (native-free provider).");
+                            + " or use oshi-common alone if on Linux or NetBSD (native-free provider).");
         }
         return best;
     }

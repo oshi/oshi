@@ -77,7 +77,7 @@ SystemInfoProvider si = SystemInfoFactory.create();
 | `oshi-core` only | 8+ | JNA (`oshi.SystemInfo`) |
 | `oshi-core-ffm` only | 25+ | FFM (`oshi.ffm.SystemInfo`) |
 | Both `oshi-core` and `oshi-core-ffm` | 8+ | FFM (JDK 25+), otherwise JNA |
-| `oshi-common` only | 8+ | No `--enable-native-access` required — Linux only (`oshi.nativefree.SystemInfo`) |
+| `oshi-common` only | 8+ | No `--enable-native-access` required — Linux and NetBSD only (`oshi.nativefree.SystemInfo`) |
 
 You can also instantiate directly:
 
