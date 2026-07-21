@@ -4,6 +4,7 @@
 
 * [#3493](https://github.com/oshi/oshi/pull/3493): Document the CPU/memory trade-off of reusing versus recreating `SystemInfo` when polling, with supporting benchmarks - [@dbwiddis](https://github.com/dbwiddis).
 * [#3499](https://github.com/oshi/oshi/pull/3499): Fix FreeBSD, NetBSD, and OpenBSD `df -i` inode parsing to include ZFS, tmpfs, devfs, and mfs filesystems that do not start with `/` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3504](https://github.com/oshi/oshi/pull/3504): Fix AIX processor cache detection, which read the POWER generation from the hostname (`uname -n`) instead of `prtconf`'s `Processor Version` field, causing `getProcessorCaches()` to return an empty list - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
 
