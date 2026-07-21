@@ -1,0 +1,62 @@
+# CI for the native-free path: oshi-common alone (no oshi-core/JNA, no oshi-core-ffm).
+# Exercises oshi.nativefree.SystemInfo on the two platforms whose oshi-common base
+# classes are fully native-free: Linux (procfs/sysfs) and NetBSD (sysctl/ps).
+name: Native-Free CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  # Builds and tests ONLY oshi-common on Linux, so neither oshi-core (JNA) nor
+  # oshi-core-ffm is on the classpath. Verifies the native-free provider is
+  # selected and works using procfs/sysfs alone.
+  testnativefreelinux:
+    runs-on: ubuntu-latest
+    name: Native-Free JDK 21, Linux
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - name: Set up JDK 21
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Test oshi-common alone (native-free)
+        run: ./mvnw clean test -pl oshi-common -B -Djacoco.skip=true
+
+  # Builds and tests ONLY oshi-common on NetBSD WITHOUT the JNA native library
+  # (java-jna not installed), exercising the fully command-line native-free path
+  # (sysctl/ps). No oshi-core or oshi-core-ffm on the classpath.
+  testnativefreenetbsd:
+    runs-on: ubuntu-24.04
+    name: Native-Free JDK 21, NetBSD
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - name: Test in NetBSD
+        id: test-nativefree-netbsd
+        uses: vmactions/netbsd-vm@fac0a63f3e5244c600cb9ca532d27ee774ecdb4b # v1
+        with:
+          release: "10.1"
+          usesh: true
+          prepare: |
+            pkg_add curl
+            pkg_add openjdk21
+          run: |
+            export JAVA_HOME=/usr/pkg/java/openjdk21
+            export PATH=$JAVA_HOME/bin:$PATH
+            mount -t procfs procfs /proc 2>/dev/null || true
+            ./mvnw clean test -pl oshi-common -B -Djacoco.skip=true

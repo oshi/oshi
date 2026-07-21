@@ -10,26 +10,36 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 /**
  * Validates SystemInfoFactory behavior when only oshi-common is on the classpath (no oshi-core or oshi-core-ffm).
  */
 class SystemInfoFactoryTest {
 
+    /**
+     * Whether the native-free provider supports the current platform. Delegates to the production
+     * {@code oshi.nativefree.SystemInfo#isAvailable()} so the test enablement cannot drift from the provider's own
+     * gating. ({@code @EnabledIf} requires a static method and cannot reference the instance method directly.)
+     *
+     * @return {@code true} on Linux or NetBSD
+     */
+    static boolean isNativeFreePlatform() {
+        return new oshi.nativefree.SystemInfo().isAvailable();
+    }
+
     @Test
-    @EnabledOnOs(OS.LINUX)
-    void factoryReturnsNativeFreeProviderOnLinux() {
+    @EnabledIf("isNativeFreePlatform")
+    void factoryReturnsNativeFreeProviderOnNativeFreePlatform() {
         SystemInfoProvider provider = SystemInfoFactory.create();
         assertThat(provider, is(instanceOf(oshi.nativefree.SystemInfo.class)));
         assertThat(provider.getPriority(), is(0));
     }
 
     @Test
-    @DisabledOnOs(OS.LINUX)
-    void factoryThrowsOnNonLinux() {
+    @DisabledIf("isNativeFreePlatform")
+    void factoryThrowsOnUnsupportedPlatform() {
         assertThrows(IllegalStateException.class, SystemInfoFactory::create);
     }
 }

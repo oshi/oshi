@@ -38,7 +38,7 @@ public interface SystemInfoProvider {
      * Returns the priority of this provider. Higher values indicate higher priority. When multiple providers are
      * available, the one with the highest priority is selected.
      * <p>
-     * Priority 0 is reserved for a potential future no-native-access fallback. The JNA-based provider
+     * Priority 0 is the native-free fallback ({@code oshi-common} alone, on Linux or NetBSD). The JNA-based provider
      * ({@code oshi-core}) returns 10. The FFM-based provider ({@code oshi-core-ffm}) returns 20 (preferred when
      * available).
      *

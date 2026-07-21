@@ -32,8 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
@@ -44,14 +43,25 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.PlatformEnum;
 
 /**
- * Exercises the native-free Linux provider and logs human-readable output, mirroring the JNA and FFM SystemInfoTest
- * classes.
+ * Exercises the native-free provider (Linux and NetBSD) and logs human-readable output, mirroring the JNA and FFM
+ * SystemInfoTest classes.
  */
 @Execution(ExecutionMode.SAME_THREAD)
-@EnabledOnOs(OS.LINUX)
+@EnabledIf("isNativeFreePlatform")
 public class SystemInfoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
+
+    /**
+     * Whether the native-free provider supports the current platform. Delegates to the production
+     * {@link SystemInfo#isAvailable()} so the test enablement cannot drift from the provider's own gating.
+     * ({@code @EnabledIf} requires a static method and cannot reference the instance method directly.)
+     *
+     * @return {@code true} on Linux or NetBSD
+     */
+    static boolean isNativeFreePlatform() {
+        return new SystemInfo().isAvailable();
+    }
 
     @Test
     void testPlatformEnum() {
