@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -70,6 +71,21 @@ class CentralProcessorTest {
                 assertThat("Logical processor frequency should be within 3x its max frequency", freq,
                         is(lessThanOrEqualTo(max * 3)));
             }
+        }
+    }
+
+    @Test
+    void testVendorFreqSanity() {
+        // The vendor-advertised frequency and the max frequency describe the same CPU, so when both are known they
+        // must be the same order of magnitude. This guards against native-read bugs that silently corrupt the value:
+        // e.g. reading the 4-byte FreeBSD hw.clockrate sysctl through an 8-byte buffer produced a vendor frequency of
+        // ~6.2 EHz against a ~2.6 GHz max (oshi/oshi#3517).
+        long vendorFreq = p.getProcessorIdentifier().getVendorFreq();
+        long maxFreq = p.getMaxFreq();
+        if (vendorFreq > 0 && maxFreq > 0) {
+            double ratio = (double) Math.max(vendorFreq, maxFreq) / Math.min(vendorFreq, maxFreq);
+            assertThat("Vendor frequency (" + vendorFreq + ") and max frequency (" + maxFreq
+                    + ") should be within an order of magnitude", ratio, is(lessThan(10.0)));
         }
     }
 
