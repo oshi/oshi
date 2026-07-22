@@ -329,12 +329,14 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
         try {
             Path link = Paths.get(procPidExe);
-            this.path = Files.readSymbolicLink(link).toString();
+            String exePath = Files.readSymbolicLink(link).toString();
             // For some services the symbolic link process has terminated
-            int index = path.indexOf(" (deleted)");
+            int index = exePath.indexOf(" (deleted)");
             if (index != -1) {
-                path = path.substring(0, index);
+                exePath = exePath.substring(0, index);
             }
+            // Assign the volatile field once, after the value is fully computed
+            this.path = exePath;
         } catch (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
             LOG.debug("Unable to open symbolic link {}", procPidExe);
         }
