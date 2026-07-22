@@ -18,6 +18,7 @@ import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 @ThreadSafe
 final class OpenBsdGlobalMemoryFFM extends oshi.hardware.common.platform.unix.openbsd.OpenBsdGlobalMemory {
@@ -46,12 +47,12 @@ final class OpenBsdGlobalMemoryFFM extends oshi.hardware.common.platform.unix.op
 
     @Override
     protected long queryPhysMem() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.physmem", 0L);
+        return BsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
     @Override
     protected long queryPageSize() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.pagesize", 4096L);
+        return BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
     }
 
     @Override

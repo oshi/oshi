@@ -5,8 +5,8 @@
 package oshi.software.os.unix.openbsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.openbsd.OpenBsdFileSystem;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * FFM-backed OpenBSD file system. All file-store enumeration (mount/df parsing) lives on {@link OpenBsdFileSystem};
@@ -17,6 +17,6 @@ public final class OpenBsdFileSystemFFM extends OpenBsdFileSystem {
 
     @Override
     protected long querySysctl(String name) {
-        return OpenBsdSysctlUtilFFM.sysctl(name, 0);
+        return BsdSysctlUtil.sysctl(name, 0);
     }
 }

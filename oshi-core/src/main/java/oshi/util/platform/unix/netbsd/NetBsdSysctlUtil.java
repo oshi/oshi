@@ -4,17 +4,19 @@
  */
 package oshi.util.platform.unix.netbsd;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.NetBsdLibc;
+import oshi.jna.util.SysctlUtilJNA;
 
 /**
  * Provides access to native sysctl calls on NetBSD via JNA.
@@ -22,14 +24,12 @@ import oshi.jna.platform.unix.NetBsdLibc;
  * JNA does not distribute a native binary for NetBSD; it is only available as an optional pkgsrc package
  * ({@code java-jna}), and OSHI does not require it to be installed. Callers must therefore gate every native call on
  * {@link #JNA_AVAILABLE} and fall back to the command-line implementations in
- * {@code oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil} when it is {@code false}.
+ * {@code oshi.util.common.platform.unix.bsd.BsdSysctlUtil} when it is {@code false}.
  */
 @ThreadSafe
 public final class NetBsdSysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetBsdSysctlUtil.class);
-
-    private static final String SYSCTL_FAIL = "Failed sysctl call: {}, Error code: {}";
 
     /**
      * Whether the JNA native library is available on this system. When {@code false}, the native methods in this class
@@ -61,14 +61,9 @@ public final class NetBsdSysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(int[] name, int def) {
-        int intSize = NetBsdLibc.INT_SIZE;
-        try (Memory p = new Memory(intSize); CloseableSizeTByReference size = new CloseableSizeTByReference(intSize)) {
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return def;
-            }
-            return p.getInt(0);
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
+                Arrays.toString(name), def, LOG, true);
     }
 
     /**
@@ -79,15 +74,9 @@ public final class NetBsdSysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(int[] name, long def) {
-        int uint64Size = NetBsdLibc.UINT64_SIZE;
-        try (Memory p = new Memory(uint64Size);
-                CloseableSizeTByReference size = new CloseableSizeTByReference(uint64Size)) {
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return def;
-            }
-            return p.getLong(0);
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
+                Arrays.toString(name), def, LOG);
     }
 
     /**
@@ -98,21 +87,9 @@ public final class NetBsdSysctlUtil {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(int[] name, String def) {
-        // Call first time with null pointer to get value of size
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return def;
-            }
-            // Add 1 to size for null terminated string
-            try (Memory p = new Memory(size.longValue() + 1L)) {
-                if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, p, size, null, size_t.ZERO)) {
-                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                    return def;
-                }
-                return p.getString(0);
-            }
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
+                Arrays.toString(name), def, LOG, true);
     }
 
     /**
@@ -123,14 +100,9 @@ public final class NetBsdSysctlUtil {
      * @return True if structure is successfully populated, false otherwise
      */
     public static boolean sysctl(int[] name, Structure struct) {
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, struct.getPointer(), size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
-                return false;
-            }
-        }
-        struct.read();
-        return true;
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
+                Arrays.toString(name), struct, LOG, Level.ERROR);
     }
 
     /**
@@ -141,18 +113,8 @@ public final class NetBsdSysctlUtil {
      *         undefined.
      */
     public static Memory sysctl(int[] name) {
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, null, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
-                return null;
-            }
-            Memory m = new Memory(size.longValue());
-            if (0 != NetBsdLibc.INSTANCE.sysctl(name, name.length, m, size, null, size_t.ZERO)) {
-                LOG.error(SYSCTL_FAIL, name, Native.getLastError());
-                m.close();
-                return null;
-            }
-            return m;
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
+                Arrays.toString(name), LOG, Level.ERROR);
     }
 }

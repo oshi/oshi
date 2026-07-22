@@ -14,6 +14,7 @@ import com.sun.jna.Native;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdCentralProcessor;
 import oshi.jna.platform.unix.OpenBsdLibc;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
@@ -24,12 +25,12 @@ public class OpenBsdCentralProcessorJNA extends OpenBsdCentralProcessor {
 
     @Override
     protected int sysctl(String name, int def) {
-        return OpenBsdSysctlUtil.sysctl(name, def);
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
     protected String sysctl(String name, String def) {
-        return OpenBsdSysctlUtil.sysctl(name, def);
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override

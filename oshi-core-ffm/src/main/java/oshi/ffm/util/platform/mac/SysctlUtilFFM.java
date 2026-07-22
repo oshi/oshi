@@ -5,14 +5,10 @@
 package oshi.ffm.util.platform.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
-import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
-import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
-import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.ForeignFunctions.getErrno;
-import static oshi.ffm.platform.mac.MacSystemFunctions.SIZE_T;
+import static oshi.ffm.util.SysctlFFM.SIZE_T;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -24,6 +20,7 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.mac.MacSystemFunctions;
+import oshi.ffm.util.SysctlFFM;
 
 /**
  * Provides access to sysctl calls on macOS
@@ -58,15 +55,8 @@ public final class SysctlUtilFFM {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def, boolean logWarning) {
-        return callInArenaIntOrDefault(arena -> {
-            MemorySegment nameSeg = arena.allocateFrom(name);
-            MemorySegment valueSeg = arena.allocate(JAVA_INT);
-            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_INT.byteSize());
-            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, logWarning)) {
-                return def;
-            }
-            return valueSeg.get(JAVA_INT, 0);
-        }, LOG, logWarning ? Level.WARN : Level.DEBUG, "Failed to get sysctl value for " + name, def);
+        return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, logWarning), def,
+                LOG, name);
     }
 
     /**
@@ -77,15 +67,8 @@ public final class SysctlUtilFFM {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-        return callInArenaLongOrDefault(arena -> {
-            MemorySegment nameSeg = arena.allocateFrom(name);
-            MemorySegment valueSeg = arena.allocate(JAVA_LONG);
-            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, JAVA_LONG.byteSize());
-            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, true)) {
-                return def;
-            }
-            return valueSeg.get(JAVA_LONG, 0);
-        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, def);
+        return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, true), def, LOG,
+                name);
     }
 
     /**
@@ -108,19 +91,8 @@ public final class SysctlUtilFFM {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def, boolean logWarning) {
-        return callInArenaOrDefault(arena -> {
-            MemorySegment nameSeg = arena.allocateFrom(name);
-            MemorySegment sizeSeg = arena.allocate(SIZE_T);
-            if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg, logWarning)) {
-                return def;
-            }
-            long size = sizeSeg.get(SIZE_T, 0);
-            MemorySegment valueSeg = arena.allocate(size + 1);
-            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, logWarning)) {
-                return def;
-            }
-            return valueSeg.getString(0);
-        }, LOG, logWarning ? Level.WARN : Level.DEBUG, "Failed to get sysctl value for " + name, def);
+        return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, logWarning), def,
+                LOG, name);
     }
 
     /**
@@ -131,11 +103,8 @@ public final class SysctlUtilFFM {
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, MemorySegment struct) {
-        return callInArenaBooleanOrDefault(arena -> {
-            MemorySegment nameSeg = arena.allocateFrom(name);
-            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, struct.byteSize());
-            return sysctlbyname(arena, nameSeg, struct, sizeSeg, true);
-        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, false);
+        return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, true), struct, LOG,
+                name);
     }
 
     /**
@@ -146,21 +115,7 @@ public final class SysctlUtilFFM {
      *         undefined.
      */
     public static MemorySegment sysctl(String name) {
-        return callInArenaOrDefault(arena -> {
-            MemorySegment nameSeg = arena.allocateFrom(name);
-            MemorySegment sizeSeg = arena.allocate(SIZE_T);
-            if (!sysctlbyname(arena, nameSeg, MemorySegment.NULL, sizeSeg, true)) {
-                return null;
-            }
-            long size = sizeSeg.get(SIZE_T, 0);
-            MemorySegment valueSeg = arena.allocate(size);
-            if (!sysctlbyname(arena, nameSeg, valueSeg, sizeSeg, true)) {
-                return null;
-            }
-            MemorySegment returnSeg = Arena.ofAuto().allocate(size);
-            returnSeg.copyFrom(valueSeg);
-            return returnSeg;
-        }, LOG, Level.WARN, "Failed to get sysctl value for " + name, null);
+        return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, true), LOG, name);
     }
 
     /**
@@ -186,10 +141,11 @@ public final class SysctlUtilFFM {
         }, LOG, Level.WARN, "Failed to get sysctl value for " + Arrays.toString(mib), -1L);
     }
 
-    private static boolean sysctlbyname(Arena arena, MemorySegment name, MemorySegment oldp, MemorySegment oldlenp,
+    private static boolean sysctlbyname(Arena arena, String name, MemorySegment oldp, MemorySegment oldlenp,
             boolean logWarning) throws Throwable {
+        MemorySegment nameSeg = arena.allocateFrom(name);
         MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-        var result = MacSystemFunctions.sysctlbyname(callState, name, oldp, oldlenp, MemorySegment.NULL, 0L);
+        int result = MacSystemFunctions.sysctlbyname(callState, nameSeg, oldp, oldlenp, MemorySegment.NULL, 0L);
         if (result != 0) {
             if (logWarning) {
                 LOG.warn(SYSCTL_FAIL, name, getErrno(callState));

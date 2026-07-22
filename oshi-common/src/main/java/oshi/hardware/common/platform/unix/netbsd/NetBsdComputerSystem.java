@@ -14,7 +14,7 @@ import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.util.Constants;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * NetBSD ComputerSystem implementation
@@ -58,22 +58,22 @@ public class NetBsdComputerSystem extends AbstractComputerSystem {
     @Override
     protected Baseboard createBaseboard() {
         return new UnixBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
-                NetBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
+                BsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
     }
 
     private static String queryManufacturer() {
-        return NetBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
     }
 
     private static String queryModel() {
-        return NetBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
     }
 
     private static String querySerialNumber() {
-        return NetBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
     }
 
     private static String queryUUID() {
-        return NetBsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
     }
 }

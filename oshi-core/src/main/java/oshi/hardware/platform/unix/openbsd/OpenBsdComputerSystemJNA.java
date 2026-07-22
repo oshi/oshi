@@ -15,7 +15,7 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdFirmware;
 import oshi.util.Constants;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * OpenBSD ComputerSystem implementation
@@ -59,22 +59,22 @@ public class OpenBsdComputerSystemJNA extends AbstractComputerSystem {
     @Override
     protected Baseboard createBaseboard() {
         return new UnixBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
-                OpenBsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
+                BsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
     }
 
     private static String queryManufacturer() {
-        return OpenBsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
     }
 
     private static String queryModel() {
-        return OpenBsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
     }
 
     private static String querySerialNumber() {
-        return OpenBsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
     }
 
     private static String queryUUID() {
-        return OpenBsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
     }
 }

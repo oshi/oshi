@@ -40,8 +40,8 @@ import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.common.platform.unix.netbsd.FstatUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * OSProcess implementation
@@ -110,9 +110,9 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            long limit = NetBsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
+            long limit = BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
             if (limit <= 0) {
-                limit = NetBsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+                limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
             }
             return limit > 0 ? limit : -1L;
         }
@@ -122,7 +122,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            long limit = NetBsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            long limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
             return limit > 0 ? limit : -1L;
         }
         return -1L;
@@ -154,7 +154,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
             }
         }
         // Not bound — return all CPUs
-        int ncpu = NetBsdSysctlUtil.sysctl("hw.ncpuonline", 1);
+        int ncpu = BsdSysctlUtil.sysctl("hw.ncpuonline", 1);
         return ncpu < 64 ? (1L << ncpu) - 1 : -1L;
     }
 

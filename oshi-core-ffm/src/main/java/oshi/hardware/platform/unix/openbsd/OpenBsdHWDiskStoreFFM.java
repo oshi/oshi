@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdHWDiskStore;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * FFM-backed OpenBSD hard disk implementation.
@@ -29,6 +29,6 @@ public final class OpenBsdHWDiskStoreFFM extends OpenBsdHWDiskStore {
      * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks() {
-        return OpenBsdHWDiskStore.getDisks(OpenBsdSysctlUtilFFM::sysctl, OpenBsdHWDiskStoreFFM::new);
+        return OpenBsdHWDiskStore.getDisks(BsdSysctlUtil::sysctl, OpenBsdHWDiskStoreFFM::new);
     }
 }

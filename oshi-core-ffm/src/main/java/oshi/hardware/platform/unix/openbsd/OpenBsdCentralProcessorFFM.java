@@ -21,6 +21,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdCentralProcessor;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * OpenBSD Central Processor implementation, backed by FFM sysctl and native library calls.
@@ -32,12 +33,12 @@ public class OpenBsdCentralProcessorFFM extends OpenBsdCentralProcessor {
 
     @Override
     protected int sysctl(String name, int def) {
-        return OpenBsdSysctlUtilFFM.sysctl(name, def);
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
     protected String sysctl(String name, String def) {
-        return OpenBsdSysctlUtilFFM.sysctl(name, def);
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override

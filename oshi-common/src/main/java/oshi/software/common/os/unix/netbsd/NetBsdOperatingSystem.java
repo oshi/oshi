@@ -19,7 +19,7 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -35,9 +35,9 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
 
     @Override
     public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String family = NetBsdSysctlUtil.sysctl("kern.ostype", "NetBSD");
-        String version = NetBsdSysctlUtil.sysctl("kern.osrelease", "");
-        String versionInfo = NetBsdSysctlUtil.sysctl("kern.version", "");
+        String family = BsdSysctlUtil.sysctl("kern.ostype", "NetBSD");
+        String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
+        String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
         String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
 
         return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));

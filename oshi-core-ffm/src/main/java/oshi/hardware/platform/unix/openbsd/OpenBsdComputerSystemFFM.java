@@ -9,13 +9,13 @@ import static oshi.util.Memoizer.memoize;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.hardware.common.platform.unix.UnixBaseboard;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdFirmware;
 import oshi.util.Constants;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * FFM-backed OpenBSD ComputerSystem implementation.
@@ -59,22 +59,22 @@ public class OpenBsdComputerSystemFFM extends AbstractComputerSystem {
     @Override
     protected Baseboard createBaseboard() {
         return new UnixBaseboard(manufacturer.get(), model.get(), serialNumber.get(),
-                OpenBsdSysctlUtilFFM.sysctl("hw.product", Constants.UNKNOWN));
+                BsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
     }
 
     private static String queryManufacturer() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.vendor", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
     }
 
     private static String queryModel() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.version", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
     }
 
     private static String querySerialNumber() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.serialno", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
     }
 
     private static String queryUUID() {
-        return OpenBsdSysctlUtilFFM.sysctl("hw.uuid", Constants.UNKNOWN);
+        return BsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
     }
 }

@@ -17,6 +17,7 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdVirtualMemory;
 import oshi.jna.platform.unix.OpenBsdLibc.Bcachestats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
@@ -48,12 +49,12 @@ final class OpenBsdGlobalMemoryJNA extends OpenBsdGlobalMemory {
 
     @Override
     protected long queryPhysMem() {
-        return OpenBsdSysctlUtil.sysctl("hw.physmem", 0L);
+        return BsdSysctlUtil.sysctl("hw.physmem", 0L);
     }
 
     @Override
     protected long queryPageSize() {
-        return OpenBsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+        return BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
     }
 
     @Override

@@ -2,22 +2,23 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.util.common.platform.unix.netbsd;
+package oshi.util.common.platform.unix.bsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Provides access to sysctl calls on NetBSD via command-line execution. This implementation does not require JNA native
- * library support.
+ * Provides access to sysctl calls on BSD-family operating systems (FreeBSD, OpenBSD, NetBSD, macOS) via command-line
+ * execution of {@code sysctl -n}. This implementation does not require JNA or FFM native library support and serves as
+ * the native-free implementation as well as the fallback path for the JNA and FFM implementations.
  */
 @ThreadSafe
-public final class NetBsdSysctlUtil {
+public final class BsdSysctlUtil {
 
     private static final String SYSCTL_N = "sysctl -n ";
 
-    private NetBsdSysctlUtil() {
+    private BsdSysctlUtil() {
     }
 
     /**
