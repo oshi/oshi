@@ -24,8 +24,6 @@ import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * Provides access to sysctl calls on OpenBSD via the FFM API.
@@ -35,8 +33,6 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public final class OpenBsdSysctlUtilFFM {
-
-    private static final String SYSCTL_N = "sysctl -n ";
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtilFFM.class);
 
@@ -138,47 +134,6 @@ public final class OpenBsdSysctlUtilFFM {
             returnSeg.copyFrom(valueSeg);
             return returnSeg;
         }, LOG, Level.WARN, "Failed to get sysctl value for " + Arrays.toString(mib), null);
-    }
-
-    /*
-     * Backup versions with command parsing
-     */
-
-    /**
-     * Executes a sysctl call with an int result via command line.
-     *
-     * @param name name of the sysctl
-     * @param def  default int value
-     * @return The int result of the call if successful; the default otherwise
-     */
-    public static int sysctl(String name, int def) {
-        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);
-    }
-
-    /**
-     * Executes a sysctl call with a long result via command line.
-     *
-     * @param name name of the sysctl
-     * @param def  default long value
-     * @return The long result of the call if successful; the default otherwise
-     */
-    public static long sysctl(String name, long def) {
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);
-    }
-
-    /**
-     * Executes a sysctl call with a String result via command line.
-     *
-     * @param name name of the sysctl
-     * @param def  default String value
-     * @return The String result of the call if successful; the default otherwise
-     */
-    public static String sysctl(String name, String def) {
-        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);
-        if (null == v || v.isEmpty()) {
-            return def;
-        }
-        return v;
     }
 
     private static boolean sysctlMib(Arena arena, int[] mib, MemorySegment oldp, MemorySegment oldlenp)

@@ -11,7 +11,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.unix.BsdCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -31,32 +31,32 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
 
     @Override
     protected int sysctl(String name, int def) {
-        return NetBsdSysctlUtil.sysctl(name, def);
+        return BsdSysctlUtil.sysctl(name, def);
     }
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = NetBsdSysctlUtil.sysctl("machdep.cpu_vendor", "");
+        String cpuVendor = BsdSysctlUtil.sysctl("machdep.cpu_vendor", "");
         if (cpuVendor.isEmpty()) {
             cpuVendor = ExecutingCommand.getFirstAnswer("sysctl -n machdep.dmi.processor-vendor").trim();
         }
-        String cpuName = NetBsdSysctlUtil.sysctl("machdep.cpu_brand", "");
+        String cpuName = BsdSysctlUtil.sysctl("machdep.cpu_brand", "");
         if (cpuName.isEmpty()) {
-            cpuName = NetBsdSysctlUtil.sysctl("hw.model", "");
+            cpuName = BsdSysctlUtil.sysctl("hw.model", "");
         }
         String[] fms = parseFamilyModelStepping(ExecutingCommand.runNative("dmesg"));
         String cpuFamily = fms[0];
         String cpuModel = fms[1];
         String cpuStepping = fms[2];
         String processorID = "";
-        long cpuFreq = NetBsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
+        long cpuFreq = BsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
         if (cpuFreq == 0L) {
             cpuFreq = ParseUtil.parseHertz(cpuName);
             if (cpuFreq < 0) {
                 cpuFreq = queryMaxFreq();
             }
         }
-        String machine = NetBsdSysctlUtil.sysctl("hw.machine", "");
+        String machine = BsdSysctlUtil.sysctl("hw.machine", "");
         boolean cpu64bit = machine != null && machine.contains("64")
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
 
@@ -68,7 +68,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
     protected long[] queryCurrentFreq() {
         long[] freq = new long[1];
         // machdep.tsc_freq gives frequency in Hz on x86
-        freq[0] = NetBsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
+        freq[0] = BsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
         if (freq[0] == 0L) {
             // Fallback: parse from cpu name (e.g., "Intel ... @ 2.10GHz")
             freq[0] = queryMaxFreq();

@@ -14,7 +14,7 @@ import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * Memory obtained by sysctl and vmstat
@@ -64,11 +64,11 @@ final class NetBsdGlobalMemory extends AbstractGlobalMemory {
     }
 
     private static long queryPhysMem() {
-        return NetBsdSysctlUtil.sysctl("hw.physmem64", 0L);
+        return BsdSysctlUtil.sysctl("hw.physmem64", 0L);
     }
 
     private static long queryPageSize() {
-        return NetBsdSysctlUtil.sysctl("hw.pagesize", 4096L);
+        return BsdSysctlUtil.sysctl("hw.pagesize", 4096L);
     }
 
     private VirtualMemory createVirtualMemory() {

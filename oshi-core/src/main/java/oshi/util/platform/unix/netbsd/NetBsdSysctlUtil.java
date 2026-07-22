@@ -22,7 +22,7 @@ import oshi.jna.platform.unix.NetBsdLibc;
  * JNA does not distribute a native binary for NetBSD; it is only available as an optional pkgsrc package
  * ({@code java-jna}), and OSHI does not require it to be installed. Callers must therefore gate every native call on
  * {@link #JNA_AVAILABLE} and fall back to the command-line implementations in
- * {@code oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil} when it is {@code false}.
+ * {@code oshi.util.common.platform.unix.bsd.BsdSysctlUtil} when it is {@code false}.
  */
 @ThreadSafe
 public final class NetBsdSysctlUtil {

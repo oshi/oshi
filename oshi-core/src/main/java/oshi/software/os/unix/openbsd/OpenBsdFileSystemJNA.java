@@ -6,7 +6,7 @@ package oshi.software.os.unix.openbsd;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.openbsd.OpenBsdFileSystem;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * The OpenBSD File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
@@ -17,6 +17,6 @@ public class OpenBsdFileSystemJNA extends OpenBsdFileSystem {
 
     @Override
     protected long querySysctl(String name) {
-        return OpenBsdSysctlUtil.sysctl(name, 0);
+        return BsdSysctlUtil.sysctl(name, 0);
     }
 }

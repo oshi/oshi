@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdHWDiskStore;
-import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
  * OpenBSD hard disk implementation.
@@ -29,6 +29,6 @@ public final class OpenBsdHWDiskStoreJNA extends OpenBsdHWDiskStore {
      * @return a list of {@link HWDiskStore} objects representing the disks
      */
     public static List<HWDiskStore> getDisks() {
-        return OpenBsdHWDiskStore.getDisks(OpenBsdSysctlUtil::sysctl, OpenBsdHWDiskStoreJNA::new);
+        return OpenBsdHWDiskStore.getDisks(BsdSysctlUtil::sysctl, OpenBsdHWDiskStoreJNA::new);
     }
 }

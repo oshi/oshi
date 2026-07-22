@@ -58,6 +58,7 @@ module com.github.oshi.common {
     exports oshi.software.os;
     exports oshi.spi;
     exports oshi.util;
+    exports oshi.util.common.platform.unix.bsd;
     exports oshi.util.common.platform.unix.dragonflybsd;
     exports oshi.util.common.platform.unix.freebsd;
     exports oshi.util.common.platform.unix.netbsd;

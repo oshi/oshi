@@ -20,7 +20,7 @@ import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -49,7 +49,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
         // Get list of disks from sysctl
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
-        String[] devices = NetBsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+");
+        String[] devices = BsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+");
         NetBsdHWDiskStore store;
         for (String diskName : devices) {
             // Try disklabel first (works for physical disks, not wedges)

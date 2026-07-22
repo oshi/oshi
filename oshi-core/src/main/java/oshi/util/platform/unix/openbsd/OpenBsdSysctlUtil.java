@@ -15,16 +15,12 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
 
 /**
  * Provides access to sysctl calls on OpenBSD
  */
 @ThreadSafe
 public final class OpenBsdSysctlUtil {
-
-    private static final String SYSCTL_N = "sysctl -n ";
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdSysctlUtil.class);
 
@@ -134,46 +130,5 @@ public final class OpenBsdSysctlUtil {
             }
             return m;
         }
-    }
-
-    /*
-     * Backup versions with command parsing
-     */
-
-    /**
-     * Executes a sysctl call with an int result
-     *
-     * @param name name of the sysctl
-     * @param def  default int value
-     * @return The int result of the call if successful; the default otherwise
-     */
-    public static int sysctl(String name, int def) {
-        return ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);
-    }
-
-    /**
-     * Executes a sysctl call with a long result
-     *
-     * @param name name of the sysctl
-     * @param def  default long value
-     * @return The long result of the call if successful; the default otherwise
-     */
-    public static long sysctl(String name, long def) {
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(SYSCTL_N + name), def);
-    }
-
-    /**
-     * Executes a sysctl call with a String result
-     *
-     * @param name name of the sysctl
-     * @param def  default String value
-     * @return The String result of the call if successful; the default otherwise
-     */
-    public static String sysctl(String name, String def) {
-        String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);
-        if (null == v || v.isEmpty()) {
-            return def;
-        }
-        return v;
     }
 }

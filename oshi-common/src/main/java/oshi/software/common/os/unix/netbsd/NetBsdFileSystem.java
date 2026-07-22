@@ -17,7 +17,7 @@ import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -151,16 +151,16 @@ public class NetBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return NetBsdSysctlUtil.sysctl("kern.nfiles", 0);
+        return BsdSysctlUtil.sysctl("kern.nfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        return NetBsdSysctlUtil.sysctl("kern.maxfiles", 0);
+        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
     }
 
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        return NetBsdSysctlUtil.sysctl("kern.maxfilesperproc", 0);
+        return BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0);
     }
 }

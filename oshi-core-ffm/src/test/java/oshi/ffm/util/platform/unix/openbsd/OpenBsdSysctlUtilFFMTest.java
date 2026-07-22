@@ -87,24 +87,6 @@ class OpenBsdSysctlUtilFFMTest {
     }
 
     @Test
-    void testSysctlCommandLineString() {
-        String osType = OpenBsdSysctlUtilFFM.sysctl("kern.ostype", "");
-        assertThat("Command-line kern.ostype should be OpenBSD", osType, is("OpenBSD"));
-    }
-
-    @Test
-    void testSysctlCommandLineInt() {
-        int pageSize = OpenBsdSysctlUtilFFM.sysctl("hw.pagesize", 0);
-        assertThat("Command-line hw.pagesize should be positive", pageSize, greaterThan(0));
-    }
-
-    @Test
-    void testSysctlCommandLineLong() {
-        long physmem = OpenBsdSysctlUtilFFM.sysctl("hw.physmem", 0L);
-        assertThat("Command-line hw.physmem should be positive", physmem, greaterThan(0L));
-    }
-
-    @Test
     void testGetrlimit() throws Throwable {
         java.lang.foreign.Arena arena = java.lang.foreign.Arena.ofConfined();
         java.lang.foreign.MemorySegment rlim = arena.allocate(OpenBsdLibcFunctions.RLIMIT_LAYOUT);
