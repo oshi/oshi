@@ -488,8 +488,18 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return The first valid matching filename
      */
     protected static String getReleaseFilename() {
-        // Look for any /etc/*-release, *-version, and variants
-        File etc = new File("/etc");
+        return getReleaseFilename("/etc");
+    }
+
+    /**
+     * Looks for a collection of possible distrib-release filenames in the given directory.
+     *
+     * @param etcPath the directory to search (normally {@code /etc})
+     * @return The first valid matching filename, or the {@code release}/{@code issue} fallback within {@code etcPath}
+     */
+    static String getReleaseFilename(String etcPath) {
+        // Look for any *-release, *-version, and variants
+        File etc = new File(etcPath);
         File[] matchingFiles = etc.listFiles(//
                 f -> (f.getName().endsWith("-release") || //
                         f.getName().endsWith("-version") || //
@@ -501,10 +511,11 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         if (matchingFiles != null && matchingFiles.length > 0) {
             return matchingFiles[0].getPath();
         }
-        if (new File("/etc/release").exists()) {
-            return "/etc/release";
+        File release = new File(etc, "release");
+        if (release.exists()) {
+            return release.getPath();
         }
-        return "/etc/issue";
+        return new File(etc, "issue").getPath();
     }
 
     /**
@@ -535,35 +546,50 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             services.add(s);
             running.add(p.getName());
         }
+        services.addAll(parseServices(ExecutingCommand.runNative("systemctl list-unit-files"), running, "/etc/init"));
+        return services;
+    }
+
+    /**
+     * Parse enabled-but-not-running services from {@code systemctl list-unit-files}, falling back to {@code .conf}
+     * files in the init directory when systemctl reports none.
+     *
+     * @param systemctl output of {@code systemctl list-unit-files}
+     * @param running   names of services already known to be running (used to avoid duplicates)
+     * @param initDir   the upstart init directory to scan when systemctl yields nothing (normally {@code /etc/init})
+     * @return the list of stopped services
+     */
+    static List<OSService> parseServices(List<String> systemctl, Set<String> running, String initDir) {
+        List<OSService> services = new ArrayList<>();
         boolean systemctlFound = false;
-        List<String> systemctl = ExecutingCommand.runNative("systemctl list-unit-files");
         for (String str : systemctl) {
             String[] split = ParseUtil.whitespaces.split(str);
             if (split.length >= 2 && split[0].endsWith(".service") && "enabled".equals(split[1])) {
+                // systemctl produced usable output; the /etc/init fallback is only for systems without systemctl,
+                // so mark it found even if every enabled unit turns out to be already running
+                systemctlFound = true;
                 String name = split[0].substring(0, split[0].length() - 8);
                 int index = name.lastIndexOf('.');
                 String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
                 if (!running.contains(name) && !running.contains(shortName)) {
-                    OSService s = new OSService(name, 0, STOPPED);
-                    services.add(s);
-                    systemctlFound = true;
+                    services.add(new OSService(name, 0, STOPPED));
                 }
             }
         }
         if (!systemctlFound) {
-            File dir = new File("/etc/init");
-            if (dir.exists() && dir.isDirectory()) {
-                for (File f : dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".conf"))) {
+            File dir = new File(initDir);
+            File[] confFiles = dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".conf"));
+            if (confFiles != null) {
+                for (File f : confFiles) {
                     String name = f.getName().substring(0, f.getName().length() - 5);
                     int index = name.lastIndexOf('.');
                     String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
                     if (!running.contains(name) && !running.contains(shortName)) {
-                        OSService s = new OSService(name, 0, STOPPED);
-                        services.add(s);
+                        services.add(new OSService(name, 0, STOPPED));
                     }
                 }
             } else {
-                LOG.error("Directory: /etc/init does not exist");
+                LOG.error("Directory: {} does not exist", initDir);
             }
         }
         return services;

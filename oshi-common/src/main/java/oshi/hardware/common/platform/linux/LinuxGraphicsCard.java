@@ -296,8 +296,21 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     // Slower, use as backup
     private static List<GraphicsCard> getGraphicsCardsFromLshw(Function<Attrs, GraphicsCard> factory) {
+        return getGraphicsCardsFromLshw(ExecutingCommand.runPrivilegedNative("lshw -C display"), factory,
+                LinuxGraphicsCard::findDrmInfo);
+    }
+
+    /**
+     * Parse graphics card information from lshw output.
+     *
+     * @param lshw      output of {@code lshw -C display}
+     * @param factory   function that creates a concrete {@link GraphicsCard} from parsed attributes
+     * @param drmLookup function to look up DRM info for a PCI slot address
+     * @return list of graphics cards
+     */
+    static List<GraphicsCard> getGraphicsCardsFromLshw(List<String> lshw, Function<Attrs, GraphicsCard> factory,
+            Function<String, Triplet<String, String, String>> drmLookup) {
         List<GraphicsCard> cardList = new ArrayList<>();
-        List<String> lshw = ExecutingCommand.runPrivilegedNative("lshw -C display");
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
         String vendor = Constants.UNKNOWN;
@@ -310,7 +323,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (split[0].startsWith("*-display")) {
                 // Save previous card
                 if (cardNum++ > 0) {
-                    Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
+                    Triplet<String, String, String> drmInfo = drmLookup.apply(busInfo);
                     cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                             drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
@@ -341,7 +354,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             }
         }
         if (cardNum > 0) {
-            Triplet<String, String, String> drmInfo = findDrmInfo(busInfo);
+            Triplet<String, String, String> drmInfo = drmLookup.apply(busInfo);
             cardList.add(factory.apply(new Attrs(name, deviceId, vendor,
                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(", ", versionInfoList), vram,
                     drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));

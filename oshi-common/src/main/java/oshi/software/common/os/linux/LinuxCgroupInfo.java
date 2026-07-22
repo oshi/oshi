@@ -201,7 +201,17 @@ public class LinuxCgroupInfo implements CgroupInfo {
     }
 
     private String resolveV1ControllerPath(String controller) {
-        List<String> selfCgroup = selfCgroupSupplier.get();
+        return resolveV1ControllerPath(selfCgroupSupplier.get(), controller);
+    }
+
+    /**
+     * Resolve the cgroup v1 sysfs mount path for a controller from {@code /proc/self/cgroup} lines.
+     *
+     * @param selfCgroup lines of {@code /proc/self/cgroup} (format {@code hierarchy-id:controllers:path})
+     * @param controller the controller name to resolve (e.g. {@code cpu})
+     * @return the sysfs path for the controller, or a best-effort default if not found in the cgroup lines
+     */
+    static String resolveV1ControllerPath(List<String> selfCgroup, String controller) {
         for (String line : selfCgroup) {
             // v1 format: "hierarchy-id:controllers:path"
             String[] parts = line.split(":");

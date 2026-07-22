@@ -5,17 +5,28 @@
 package oshi.software.common.os.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
+import oshi.software.os.OSService;
+import oshi.software.os.OSService.State;
 import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
@@ -285,5 +296,89 @@ class LinuxOperatingSystemTest {
         assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
         assertThat(result.getB(), is("15"));
         assertThat(result.getC(), is("SP3"));
+    }
+
+    // -------------------------------------------------------------------------
+    // parseServices — systemctl list-unit-files and /etc/init fallback
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testParseServicesSystemctl() {
+        // Real `systemctl list-unit-files` columns: UNIT FILE, STATE, [VENDOR PRESET]. Only ".service"/"enabled"
+        // rows count; already-running services are dropped by full name or short (last dotted segment) name.
+        List<String> systemctl = Arrays.asList("UNIT FILE                              STATE      VENDOR PRESET",
+                "cron.service                           enabled    enabled",
+                "ssh.service                            enabled    enabled",
+                "dbus-org.freedesktop.resolve1.service  enabled    enabled",
+                "bluetooth.service                      disabled   enabled", "", "247 unit files listed.");
+        Set<String> running = new HashSet<>(Arrays.asList("ssh", "resolve1"));
+        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, "/nonexistent-init-dir");
+        // ssh (full-name match) and resolve1 (short-name match) deduped; bluetooth disabled; only cron remains
+        assertThat(services, hasSize(1));
+        assertThat(services.get(0).getName(), is("cron"));
+        assertThat(services.get(0).getState(), is(State.STOPPED));
+        // systemctl produced a service, so the init-dir fallback (nonexistent path) is not consulted
+    }
+
+    @Test
+    void testParseServicesSystemctlFoundSuppressesFallback(@TempDir Path initDir) throws IOException {
+        // The only enabled unit is already running, so no stopped service is emitted -- but systemctl DID produce
+        // output, so the /etc/init fallback must not run even though a .conf job is present in the init dir
+        Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
+        List<String> systemctl = Arrays.asList("UNIT FILE          STATE      VENDOR PRESET",
+                "ssh.service        enabled    enabled");
+        Set<String> running = new HashSet<>(Collections.singletonList("ssh"));
+        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString());
+        assertThat(services, is(empty()));
+    }
+
+    @Test
+    void testParseServicesInitFallback(@TempDir Path initDir) throws IOException {
+        // No systemctl services -> scan the init directory for *.conf upstart jobs
+        Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(initDir.resolve("ssh.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(initDir.resolve("README.txt"), "not a job\n".getBytes(StandardCharsets.UTF_8));
+        Set<String> running = new HashSet<>(Collections.singletonList("ssh"));
+        List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
+                initDir.toString());
+        // ssh.conf deduped against running, README.txt is not a .conf; only tty1 remains
+        assertThat(services, hasSize(1));
+        assertThat(services.get(0).getName(), is("tty1"));
+        assertThat(services.get(0).getState(), is(State.STOPPED));
+    }
+
+    @Test
+    void testParseServicesInitDirMissing(@TempDir Path tempDir) {
+        // No systemctl services and a nonexistent init directory -> empty list (error logged)
+        List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), new HashSet<>(),
+                tempDir.resolve("does-not-exist").toString());
+        assertThat(services, is(empty()));
+    }
+
+    // -------------------------------------------------------------------------
+    // getReleaseFilename — /etc scan for *-release / *-version files
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testGetReleaseFilenameMatchesDistribFile(@TempDir Path etc) throws IOException {
+        Files.write(etc.resolve("redhat-release"), "CentOS release 7\n".getBytes(StandardCharsets.UTF_8));
+        assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()),
+                is(etc.resolve("redhat-release").toString()));
+    }
+
+    @Test
+    void testGetReleaseFilenameSkipsExcludedThenReleaseFallback(@TempDir Path etc) throws IOException {
+        // os-release/lsb-release/system-release are handled elsewhere and excluded from the scan; with only those
+        // present the scan falls back to the "release" file (Solaris-style) when it exists
+        Files.write(etc.resolve("os-release"), "NAME=Ubuntu\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(etc.resolve("lsb-release"), "DISTRIB_ID=Ubuntu\n".getBytes(StandardCharsets.UTF_8));
+        Files.write(etc.resolve("release"), "Solaris\n".getBytes(StandardCharsets.UTF_8));
+        assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()), is(etc.resolve("release").toString()));
+    }
+
+    @Test
+    void testGetReleaseFilenameIssueFallback(@TempDir Path etc) {
+        // No matching *-release files and no "release" file -> fall back to the "issue" path
+        assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()), is(etc.resolve("issue").toString()));
     }
 }
