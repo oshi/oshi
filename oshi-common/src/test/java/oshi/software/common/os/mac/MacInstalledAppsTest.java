@@ -16,6 +16,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.util.Constants;
+
 class MacInstalledAppsTest {
 
     // Fixture: minimal system_profiler -xml SPApplicationsDataType output
@@ -155,5 +157,35 @@ class MacInstalledAppsTest {
     @Test
     void testUnescapeMixed() {
         assertThat(MacInstalledApps.unescape("a &amp; b &lt; c"), is("a & b < c"));
+    }
+
+    // --- resolveVendor ---
+
+    @Test
+    void testResolveVendorAppleAndAppStore() {
+        assertThat(MacInstalledApps.resolveVendor("apple", "Software Signing"), is("Apple"));
+        assertThat(MacInstalledApps.resolveVendor("mac_app_store", "Apple Mac OS Application Signing"),
+                is("App Store"));
+    }
+
+    @Test
+    void testResolveVendorIdentifiedDeveloper() {
+        // The "Developer ID Application: " prefix is stripped
+        assertThat(
+                MacInstalledApps.resolveVendor("identified_developer", "Developer ID Application: Acme Corp (ABC123)"),
+                is("Acme Corp (ABC123)"));
+        // Without the prefix, the signer is returned as-is
+        assertThat(MacInstalledApps.resolveVendor("identified_developer", "Some Other Signer"),
+                is("Some Other Signer"));
+    }
+
+    @Test
+    void testResolveVendorUnknownAndFallthrough() {
+        // Unknown obtained_from but a known signer -> use the signer
+        assertThat(MacInstalledApps.resolveVendor(Constants.UNKNOWN, "A Signer"), is("A Signer"));
+        // Both unknown -> unknown
+        assertThat(MacInstalledApps.resolveVendor(Constants.UNKNOWN, Constants.UNKNOWN), is(Constants.UNKNOWN));
+        // Any other obtained_from is used verbatim
+        assertThat(MacInstalledApps.resolveVendor("web_download", "irrelevant"), is("web_download"));
     }
 }

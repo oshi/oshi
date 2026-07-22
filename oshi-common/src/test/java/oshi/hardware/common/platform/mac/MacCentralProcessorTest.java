@@ -12,10 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.hardware.CentralProcessor;
 import oshi.hardware.CentralProcessor.TickType;
 
 class MacCentralProcessorTest {
@@ -39,6 +41,33 @@ class MacCentralProcessorTest {
         StubMacCentralProcessor cpu = new StubMacCentralProcessor(new HashMap<>());
         List<String> flags = cpu.parseX86FeatureFlags();
         assertThat(flags, is(empty()));
+    }
+
+    @Test
+    void testQueryProcessorIdX86() {
+        // A non-Apple brand_string routes queryProcessorId into the x86 (Intel) identity branch, which reads
+        // machdep.cpu.* sysctls directly. Representative Intel values (Core 2 Duo, Penryn family 6 model 23).
+        Map<String, String> strings = new HashMap<>();
+        strings.put("machdep.cpu.brand_string", "Intel(R) Core(TM)2 Duo CPU L9400 @ 1.86GHz");
+        strings.put("machdep.cpu.vendor", "GenuineIntel");
+        Map<String, Integer> ints = new HashMap<>();
+        ints.put("machdep.cpu.family", 6);
+        ints.put("machdep.cpu.model", 23);
+        ints.put("machdep.cpu.stepping", 10);
+        ints.put("machdep.cpu.signature", 0x000106A5);
+        Map<String, Long> longs = new HashMap<>();
+        longs.put("machdep.cpu.feature_bits", 0xBFEBFBFFL);
+        StubMacCentralProcessor cpu = new StubMacCentralProcessor(strings, ints, longs);
+
+        CentralProcessor.ProcessorIdentifier id = cpu.queryProcessorId();
+        assertThat(id.getVendor(), is("GenuineIntel"));
+        assertThat(id.getName(), is("Intel(R) Core(TM)2 Duo CPU L9400 @ 1.86GHz"));
+        assertThat(id.getFamily(), is("6"));
+        assertThat(id.getModel(), is("23"));
+        assertThat(id.getStepping(), is("10"));
+        assertThat(id.isCpu64bit(), is(true));
+        // processorID packs the signature in the low word and the feature bits in the high word
+        assertThat(id.getProcessorID(), is(String.format(Locale.ROOT, "%016x", 0x000106A5L | (0xBFEBFBFFL << 32))));
     }
 
     @Test
@@ -138,6 +167,13 @@ class MacCentralProcessorTest {
 
         StubMacCentralProcessor(Map<String, String> extraStrings) {
             this(extraStrings, new int[0], new int[0], new double[0], 0);
+        }
+
+        StubMacCentralProcessor(Map<String, String> extraStrings, Map<String, Integer> extraInts,
+                Map<String, Long> extraLongs) {
+            this(extraStrings, new int[0], new int[0], new double[0], 0);
+            sysctlInts.putAll(extraInts);
+            sysctlLongs.putAll(extraLongs);
         }
 
         StubMacCentralProcessor(Map<String, String> extraStrings, int[] hostCpuTicks, int[] processorCpuTicks,
