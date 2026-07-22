@@ -58,25 +58,9 @@ public final class MacInstalledApps {
 
                 for (Map<String, String> dictValues : plistValues) {
                     try {
-                        String obtainedFrom = ParseUtil.getStringValueOrUnknown(dictValues.get("obtained_from"));
-                        if ("apple".equals(obtainedFrom)) {
-                            obtainedFrom = "Apple";
-                        } else if ("mac_app_store".equals(obtainedFrom)) {
-                            obtainedFrom = "App Store";
-                        }
-                        String signedBy = ParseUtil.getStringValueOrUnknown(dictValues.get("signed_by"));
-                        String vendor;
-                        if ("identified_developer".equals(obtainedFrom)) {
-                            if (signedBy.startsWith("Developer ID Application: ")) {
-                                vendor = signedBy.substring(26);
-                            } else {
-                                vendor = signedBy;
-                            }
-                        } else if (Constants.UNKNOWN.equals(obtainedFrom) && !Constants.UNKNOWN.equals(signedBy)) {
-                            vendor = signedBy;
-                        } else {
-                            vendor = obtainedFrom;
-                        }
+                        String vendor = resolveVendor(
+                                ParseUtil.getStringValueOrUnknown(dictValues.get("obtained_from")),
+                                ParseUtil.getStringValueOrUnknown(dictValues.get("signed_by")));
 
                         String version = dictValues.get("version");
 
@@ -139,6 +123,32 @@ public final class MacInstalledApps {
             }
             return buffer;
         }
+    }
+
+    /**
+     * Resolves the vendor/publisher name from an application's {@code obtained_from} and {@code signed_by} values (as
+     * reported by {@code system_profiler}). {@code apple}/{@code mac_app_store} map to display names; for an identified
+     * developer the {@code Developer ID Application:} prefix is stripped from the signer.
+     *
+     * @param obtainedFrom the {@code obtained_from} value ({@link Constants#UNKNOWN} if absent)
+     * @param signedBy     the {@code signed_by} value ({@link Constants#UNKNOWN} if absent)
+     * @return the resolved vendor name
+     */
+    static String resolveVendor(String obtainedFrom, String signedBy) {
+        if ("apple".equals(obtainedFrom)) {
+            obtainedFrom = "Apple";
+        } else if ("mac_app_store".equals(obtainedFrom)) {
+            obtainedFrom = "App Store";
+        }
+        if ("identified_developer".equals(obtainedFrom)) {
+            if (signedBy.startsWith("Developer ID Application: ")) {
+                return signedBy.substring(26);
+            }
+            return signedBy;
+        } else if (Constants.UNKNOWN.equals(obtainedFrom) && !Constants.UNKNOWN.equals(signedBy)) {
+            return signedBy;
+        }
+        return obtainedFrom;
     }
 
     static List<Map<String, String>> parseItems(String xml) {
