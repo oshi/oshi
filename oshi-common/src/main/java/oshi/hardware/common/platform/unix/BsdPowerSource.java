@@ -56,8 +56,28 @@ public final class BsdPowerSource extends AbstractPowerSource {
     }
 
     private static BsdPowerSource getPowerSource(String name, List<String> sensorLines) {
-        String psName = name.startsWith("acpi") ? name.substring(4) : name;
         BatteryFields b = Systat.parseBatteryFields(name, sensorLines);
+        // state 0=high, 1=low, 2=critical, 3=charging, 4=absent, 255=unknown
+        int state = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -b"), 255);
+        // apm -m reports the estimated time (minutes) and is only meaningful while discharging (state 0/1/2)
+        int time = state < 3 ? ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -m"), -1) : -1;
+        // life is in percent
+        int life = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -l"), -1);
+        return buildPowerSource(name, b, state, time, life);
+    }
+
+    /**
+     * Builds a power source from parsed battery fields and the {@code apm} state/time/life values.
+     *
+     * @param name  the power source name (e.g. {@code "acpibat0"})
+     * @param b     battery sensor fields from {@code systat -ab sensors}
+     * @param state {@code apm -b}: 0=high, 1=low, 2=critical, 3=charging, 4=absent, 255=unknown
+     * @param time  {@code apm -m}: estimated minutes remaining while discharging, or negative if unknown
+     * @param life  {@code apm -l}: remaining capacity percent, or negative if unknown
+     * @return the constructed power source
+     */
+    static BsdPowerSource buildPowerSource(String name, BatteryFields b, int state, int time, int life) {
+        String psName = name.startsWith("acpi") ? name.substring(4) : name;
         double psVoltage = b.getVoltage();
         double psAmperage = b.getAmperage();
         double psTemperature = b.getTemperature();
@@ -75,21 +95,17 @@ public final class BsdPowerSource extends AbstractPowerSource {
         int psCycleCount = -1;
         LocalDate psManufactureDate = null;
 
-        int state = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -b"), 255);
-        // state 0=high, 1=low, 2=critical, 3=charging, 4=absent, 255=unknown
         if (state < 4) {
             psPowerOnLine = true;
             if (state == 3) {
                 psCharging = true;
             } else {
-                int time = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -m"), -1);
                 // time is in minutes
                 psTimeRemainingEstimated = time < 0 ? -1d : 60d * time;
                 psDischarging = true;
             }
         }
         // life is in percent
-        int life = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer("apm -l"), -1);
         if (life > 0) {
             psRemainingCapacityPercent = life / 100d;
         }
