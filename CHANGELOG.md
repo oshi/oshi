@@ -8,6 +8,7 @@
 * [#3505](https://github.com/oshi/oshi/pull/3505): Fix the AIX FFM backend reading `perfstat_partition_config_t.processorMHz` at the wrong struct offset (344 instead of 340), which reported the processor's vendor frequency as unknown - [@dbwiddis](https://github.com/dbwiddis).
 * [#3507](https://github.com/oshi/oshi/pull/3507): Extend the native-free provider (`oshi-common` alone, no JNA or FFM) to NetBSD, so NetBSD users without the JNA native library can depend on `oshi-common` without `--enable-native-access`, as Linux already can - [@dbwiddis](https://github.com/dbwiddis).
 * [#3518](https://github.com/oshi/oshi/pull/3518): Consolidate the duplicated `sysctl` utility code into shared command-line (`BsdSysctlUtil`), JNA (`SysctlUtilJNA`), and FFM (`SysctlFFM`) helpers, and fix a latent bug where reading an int-width sysctl (e.g. FreeBSD `hw.clockrate`) through the `long` API returned uninitialized bytes, intermittently reporting an absurd CPU vendor frequency such as 6.2 EHz - [@dbwiddis](https://github.com/dbwiddis).
+* [#3519](https://github.com/oshi/oshi/pull/3519): Fix the Solaris JNA Kstat2 processor identifier reporting the CPU vendor frequency in MHz instead of Hz (missing the `clock_MHz` to Hz conversion applied on the other code paths) - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
 
