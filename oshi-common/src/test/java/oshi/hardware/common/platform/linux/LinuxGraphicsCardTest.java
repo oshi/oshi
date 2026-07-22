@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.GraphicsCard;
+import oshi.util.Constants;
 import oshi.util.tuples.Triplet;
 
 class LinuxGraphicsCardTest {
@@ -324,6 +325,7 @@ class LinuxGraphicsCardTest {
         assertThat(intel.getName(), is("UHD Graphics 630"));
         assertThat(intel.getVendor(), is("Intel Corporation"));
         // No version line -> UNKNOWN version info; single 16 MiB memory range
+        assertThat(intel.getVersionInfo(), is(Constants.UNKNOWN));
         assertThat(intel.getVRam(), is(16L * 1024 * 1024));
     }
 

@@ -321,6 +321,18 @@ class LinuxOperatingSystemTest {
     }
 
     @Test
+    void testParseServicesSystemctlFoundSuppressesFallback(@TempDir Path initDir) throws IOException {
+        // The only enabled unit is already running, so no stopped service is emitted -- but systemctl DID produce
+        // output, so the /etc/init fallback must not run even though a .conf job is present in the init dir
+        Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
+        List<String> systemctl = Arrays.asList("UNIT FILE          STATE      VENDOR PRESET",
+                "ssh.service        enabled    enabled");
+        Set<String> running = new HashSet<>(Collections.singletonList("ssh"));
+        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString());
+        assertThat(services, is(empty()));
+    }
+
+    @Test
     void testParseServicesInitFallback(@TempDir Path initDir) throws IOException {
         // No systemctl services -> scan the init directory for *.conf upstart jobs
         Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));

@@ -565,12 +565,14 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         for (String str : systemctl) {
             String[] split = ParseUtil.whitespaces.split(str);
             if (split.length >= 2 && split[0].endsWith(".service") && "enabled".equals(split[1])) {
+                // systemctl produced usable output; the /etc/init fallback is only for systems without systemctl,
+                // so mark it found even if every enabled unit turns out to be already running
+                systemctlFound = true;
                 String name = split[0].substring(0, split[0].length() - 8);
                 int index = name.lastIndexOf('.');
                 String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
                 if (!running.contains(name) && !running.contains(shortName)) {
                     services.add(new OSService(name, 0, STOPPED));
-                    systemctlFound = true;
                 }
             }
         }
