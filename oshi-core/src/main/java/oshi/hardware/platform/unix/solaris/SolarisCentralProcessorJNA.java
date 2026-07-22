@@ -79,7 +79,9 @@ final class SolarisCentralProcessorJNA extends SolarisCentralProcessor {
         String cpuFamily = results[2] == null ? "" : results[2].toString();
         String cpuModel = results[3] == null ? "" : results[3].toString();
         String cpuStepping = results[4] == null ? "" : results[4].toString();
-        long cpuFreq = results[5] == null ? 0L : (long) results[5];
+        // clock_MHz is in MHz; the ProcessorIdentifier vendor frequency contract is Hz (matches the non-Kstat2 path
+        // above and the FFM implementation).
+        long cpuFreq = results[5] == null ? 0L : (long) results[5] * 1_000_000L;
 
         String processorID = getProcessorID(cpuStepping, cpuModel, cpuFamily);
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
