@@ -13,9 +13,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
+
+import oshi.util.linux.SysPath;
 
 /**
  * Tests the v1 dispatch paths and limit resolution in LinuxCgroupInfo that are not covered by the main test.
@@ -132,5 +139,47 @@ class LinuxCgroupInfoV1DispatchTest {
     void readPidCurrentV2EmptyFile(@TempDir Path tempDir) throws IOException {
         Files.write(tempDir.resolve("pids.current"), "".getBytes(StandardCharsets.UTF_8));
         assertEquals(0L, cgroup.readPidCurrentV2(tempDir.toString() + "/"));
+    }
+
+    // --- V1 controller path resolution from /proc/self/cgroup ---
+
+    // Real hybrid (v1 + unified) /proc/self/cgroup: numbered v1 hierarchies with comma-separated controllers, plus
+    // a trailing "0::" unified (v2) line whose controllers field is empty.
+    private static final List<String> SELF_CGROUP = Arrays.asList("12:hugetlb:/",
+            "11:cpu,cpuacct:/user.slice/user-1000.slice", "10:memory:/user.slice/user-1000.slice/session-3.scope",
+            "3:pids:/user.slice/user-1000.slice", "1:name=systemd:/user.slice/user-1000.slice/session-3.scope",
+            "0::/user.slice/user-1000.slice/session-3.scope");
+
+    // SysPath's static initializer resolves the live sysfs mount, so these Linux-only paths are asserted on Linux CI
+    // (which is also where coverage is collected).
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void resolveV1ControllerPathExactMatchInCommaList() {
+        // "cpu" is one of the comma-separated controllers; the full "cpu,cpuacct" mount name is used in the path
+        assertEquals(SysPath.CGROUP + "cpu,cpuacct/user.slice/user-1000.slice/",
+                LinuxCgroupInfo.resolveV1ControllerPath(SELF_CGROUP, "cpu"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void resolveV1ControllerPathSingleController() {
+        assertEquals(SysPath.CGROUP + "memory/user.slice/user-1000.slice/session-3.scope/",
+                LinuxCgroupInfo.resolveV1ControllerPath(SELF_CGROUP, "memory"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void resolveV1ControllerPathNotFoundUsesDefault() {
+        // No hierarchy lists "blkio"; fall back to the bare controller mount
+        assertEquals(SysPath.CGROUP + "blkio/", LinuxCgroupInfo.resolveV1ControllerPath(SELF_CGROUP, "blkio"));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void resolveV1ControllerPathSkipsUnifiedLine() {
+        // A pure-v2 cgroup (only the "0::" unified line, empty controllers) never matches -> default path
+        List<String> unifiedOnly = Collections.singletonList("0::/user.slice/user-1000.slice/session-3.scope");
+        assertEquals(SysPath.CGROUP + "cpu/", LinuxCgroupInfo.resolveV1ControllerPath(unifiedOnly, "cpu"));
     }
 }

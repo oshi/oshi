@@ -268,4 +268,68 @@ class LinuxGraphicsCardTest {
     void testQueryLspciMemorySizeEmpty() {
         assertThat(LinuxGraphicsCard.queryLspciMemorySize(Collections.emptyList()), is(0L));
     }
+
+    @Test
+    void testGetGraphicsCardsFromLspciVendorWithoutBracket() {
+        // A Vendor line whose value has no "[hex]" id does not parse as machine-readable; the raw text is used
+        List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
+                "Vendor:\tRedHat, Inc.", "Device:\tVirtio GPU [1050]", "");
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
+        assertThat(cards.size(), is(1));
+        assertThat(cards.get(0).getVendor(), is("RedHat, Inc."));
+        assertThat(cards.get(0).getName(), is("Virtio GPU"));
+    }
+
+    @Test
+    void testGetGraphicsCardsFromLspciNoTrailingBlankLine() {
+        // Output that ends mid-card (no terminating blank line) still flushes the last card
+        List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
+                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1");
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
+        assertThat(cards.size(), is(1));
+        assertThat(cards.get(0).getName(), is("GA102 [GeForce RTX 3090]"));
+        assertThat(cards.get(0).getVersionInfo(), is("Rev:\ta1"));
+    }
+
+    // -------------------------------------------------------------------------
+    // getGraphicsCardsFromLshw parsing
+    // -------------------------------------------------------------------------
+
+    // Fixture: `lshw -C display` output (real structure) with two display nodes. The second card has no bus info so
+    // its DRM lookup is with a null slot; resources memory ranges drive the VRAM total.
+    private static final List<String> LSHW = Arrays.asList("  *-display",
+            "       description: VGA compatible controller", "       product: GA102 [GeForce RTX 3090]",
+            "       vendor: NVIDIA Corporation", "       physical id: 0", "       bus info: pci@0000:01:00.0",
+            "       version: a1", "       width: 64 bits", "       clock: 33MHz",
+            "       capabilities: pm msi pciexpress vga_controller bus_master cap_list rom",
+            "       configuration: driver=nvidia latency=0",
+            "       resources: irq:178 memory:f6000000-f6ffffff memory:e0000000-efffffff", "  *-display",
+            "       description: VGA compatible controller", "       product: UHD Graphics 630",
+            "       vendor: Intel Corporation", "       physical id: 2",
+            "       resources: irq:24 memory:db000000-dbffffff");
+
+    @Test
+    void testGetGraphicsCardsFromLshwTwoCards() {
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLshw(LSHW, STUB_FACTORY, NO_DRM);
+        assertThat(cards.size(), is(2));
+
+        GraphicsCard nvidia = cards.get(0);
+        assertThat(nvidia.getName(), is("GA102 [GeForce RTX 3090]"));
+        assertThat(nvidia.getVendor(), is("NVIDIA Corporation"));
+        assertThat(nvidia.getVersionInfo(), is("version: a1"));
+        // 16 MiB (f6000000-f6ffffff) + 256 MiB (e0000000-efffffff)
+        assertThat(nvidia.getVRam(), is(16L * 1024 * 1024 + 256L * 1024 * 1024));
+
+        GraphicsCard intel = cards.get(1);
+        assertThat(intel.getName(), is("UHD Graphics 630"));
+        assertThat(intel.getVendor(), is("Intel Corporation"));
+        // No version line -> UNKNOWN version info; single 16 MiB memory range
+        assertThat(intel.getVRam(), is(16L * 1024 * 1024));
+    }
+
+    @Test
+    void testGetGraphicsCardsFromLshwEmpty() {
+        assertThat(LinuxGraphicsCard.getGraphicsCardsFromLshw(Collections.emptyList(), STUB_FACTORY, NO_DRM),
+                is(empty()));
+    }
 }
