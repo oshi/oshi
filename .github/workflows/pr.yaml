@@ -11,8 +11,9 @@ on:
       - '**.yml'
       - '**.yaml'
 
-permissions:
-  contents: read
+# Deny-all default so any job without an explicit block gets no token permissions;
+# each job below grants exactly what it needs (least privilege, see Sonar S8264).
+permissions: {}
 
 jobs:
   # Detect whether this PR touches Unix-platform code or the build infrastructure.
@@ -61,6 +62,8 @@ jobs:
     if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -88,6 +91,8 @@ jobs:
   test:
     if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       # Latest LTS (JDK 25) across all three OSes — this is the coverage + JNA==FFM
       # row (uploads linux/macos/windows flags). The version floor/ceiling checks
@@ -142,6 +147,8 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, FreeBSD (+ JNA==FFM)
     needs: changes
+    permissions:
+      contents: read
     if: >-
       needs.changes.outputs.unix == 'true' ||
       contains(github.event.pull_request.labels.*.name, 'full-coverage')
@@ -175,6 +182,8 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenBSD (+ JNA==FFM)
     needs: changes
+    permissions:
+      contents: read
     if: >-
       needs.changes.outputs.unix == 'true' ||
       contains(github.event.pull_request.labels.*.name, 'full-coverage')
@@ -211,6 +220,8 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test JDK 25, OpenIndiana (+ JNA==FFM)
     needs: changes
+    permissions:
+      contents: read
     if: >-
       needs.changes.outputs.unix == 'true' ||
       contains(github.event.pull_request.labels.*.name, 'full-coverage')
