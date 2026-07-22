@@ -1,20 +1,20 @@
 /*
- * Copyright 2016-2024 The OSHI Project Contributors
+ * Copyright 2016-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.mac;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.mac.SystemB;
+import oshi.jna.util.SysctlUtilJNA;
 
 /**
  * Provides access to sysctl calls on macOS
@@ -23,8 +23,6 @@ import oshi.jna.platform.mac.SystemB;
 public final class SysctlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(SysctlUtil.class);
-
-    private static final String SYSCTL_FAIL = "Failed sysctl call: {}, Error code: {}";
 
     private SysctlUtil() {
     }
@@ -49,16 +47,9 @@ public final class SysctlUtil {
      * @return The int result of the call if successful; the default otherwise
      */
     public static int sysctl(String name, int def, boolean logWarning) {
-        int intSize = com.sun.jna.platform.mac.SystemB.INT_SIZE;
-        try (Memory p = new Memory(intSize); CloseableSizeTByReference size = new CloseableSizeTByReference(intSize)) {
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                if (logWarning) {
-                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                }
-                return def;
-            }
-            return p.getInt(0);
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, def,
+                LOG, logWarning);
     }
 
     /**
@@ -69,15 +60,9 @@ public final class SysctlUtil {
      * @return The long result of the call if successful; the default otherwise
      */
     public static long sysctl(String name, long def) {
-        int uint64Size = com.sun.jna.platform.mac.SystemB.UINT64_SIZE;
-        try (Memory p = new Memory(uint64Size);
-                CloseableSizeTByReference size = new CloseableSizeTByReference(uint64Size)) {
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return def;
-            }
-            return p.getLong(0);
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, def,
+                LOG);
     }
 
     /**
@@ -100,25 +85,9 @@ public final class SysctlUtil {
      * @return The String result of the call if successful; the default otherwise
      */
     public static String sysctl(String name, String def, boolean logWarning) {
-        // Call first time with null pointer to get value of size
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, size_t.ZERO)) {
-                if (logWarning) {
-                    LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                }
-                return def;
-            }
-            // Add 1 to size for null terminated string
-            try (Memory p = new Memory(size.longValue() + 1L)) {
-                if (0 != SystemB.INSTANCE.sysctlbyname(name, p, size, null, size_t.ZERO)) {
-                    if (logWarning) {
-                        LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                    }
-                    return def;
-                }
-                return p.getString(0);
-            }
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, def,
+                LOG, logWarning);
     }
 
     /**
@@ -129,14 +98,9 @@ public final class SysctlUtil {
      * @return True if structure is successfuly populated, false otherwise
      */
     public static boolean sysctl(String name, Structure struct) {
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, struct.getPointer(), size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return false;
-            }
-        }
-        struct.read();
-        return true;
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, struct,
+                LOG, Level.WARN);
     }
 
     /**
@@ -147,18 +111,8 @@ public final class SysctlUtil {
      *         undefined.
      */
     public static Memory sysctl(String name) {
-        try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, null, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                return null;
-            }
-            Memory m = new Memory(size.longValue());
-            if (0 != SystemB.INSTANCE.sysctlbyname(name, m, size, null, size_t.ZERO)) {
-                LOG.warn(SYSCTL_FAIL, name, Native.getLastError());
-                m.close();
-                return null;
-            }
-            return m;
-        }
+        return SysctlUtilJNA.sysctl(
+                (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, LOG,
+                Level.WARN);
     }
 }
