@@ -9,6 +9,7 @@
 * [#3507](https://github.com/oshi/oshi/pull/3507): Extend the native-free provider (`oshi-common` alone, no JNA or FFM) to NetBSD, so NetBSD users without the JNA native library can depend on `oshi-common` without `--enable-native-access`, as Linux already can - [@dbwiddis](https://github.com/dbwiddis).
 * [#3518](https://github.com/oshi/oshi/pull/3518): Consolidate the duplicated `sysctl` utility code into shared command-line (`BsdSysctlUtil`), JNA (`SysctlUtilJNA`), and FFM (`SysctlFFM`) helpers, and fix a latent bug where reading an int-width sysctl (e.g. FreeBSD `hw.clockrate`) through the `long` API returned uninitialized bytes, intermittently reporting an absurd CPU vendor frequency such as 6.2 EHz - [@dbwiddis](https://github.com/dbwiddis).
 * [#3519](https://github.com/oshi/oshi/pull/3519): Fix the Solaris JNA Kstat2 processor identifier reporting the CPU vendor frequency in MHz instead of Hz (missing the `clock_MHz` to Hz conversion applied on the other code paths) - [@dbwiddis](https://github.com/dbwiddis).
+* [#3524](https://github.com/oshi/oshi/issues/3524): Carry the exception log level with a new `oshi.util.LogLevel` enum instead of `org.slf4j.event.Level`, so OSHI no longer class-loads a type added in slf4j-api 1.7.15 on non-exceptional code paths and works again against host-provided slf4j-api older than 1.7.15 (e.g. the 1.7.5 bundled by Apache Maven 3.3.x) - [@wolfs](https://github.com/wolfs).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
 

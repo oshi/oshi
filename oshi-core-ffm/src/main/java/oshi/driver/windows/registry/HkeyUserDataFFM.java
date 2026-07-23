@@ -8,7 +8,6 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.Advapi32FFM.ConvertStringSidToSid;
 import static oshi.ffm.platform.windows.Advapi32FFM.LookupAccountSid;
@@ -21,6 +20,7 @@ import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

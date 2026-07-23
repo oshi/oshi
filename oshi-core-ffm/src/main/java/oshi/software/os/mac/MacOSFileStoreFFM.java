@@ -5,11 +5,11 @@
 package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.F_FFREE;
 import static oshi.ffm.platform.mac.MacSystem.F_FILES;
 import static oshi.ffm.platform.mac.MacSystem.STATFS;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.io.File;
 import java.lang.foreign.MemorySegment;

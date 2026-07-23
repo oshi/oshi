@@ -34,10 +34,10 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_cpu_total} and {@code perfstat_cpu}, mirroring
@@ -106,7 +106,7 @@ public final class PerfstatCpuFFM {
                 result.busy_stolen_purr = cpuTotalBusyStolenPurr(buf);
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query CPU total", new CpuTotal());
+        }, LOG, LogLevel.TRACE, "Failed to query CPU total", new CpuTotal());
     }
 
     /**
@@ -143,7 +143,7 @@ public final class PerfstatCpuFFM {
                 result[i] = c;
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query per-CPU statistics", new Cpu[0]);
+        }, LOG, LogLevel.TRACE, "Failed to query per-CPU statistics", new Cpu[0]);
     }
 
     /**

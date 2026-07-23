@@ -21,10 +21,10 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_disk}, mirroring {@code oshi.driver.unix.aix.perfstat.PerfstatDiskJNA}.
@@ -83,6 +83,6 @@ public final class PerfstatDiskFFM {
                 result[i] = d;
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query disk statistics", new Disk[0]);
+        }, LOG, LogLevel.TRACE, "Failed to query disk statistics", new Disk[0]);
     }
 }

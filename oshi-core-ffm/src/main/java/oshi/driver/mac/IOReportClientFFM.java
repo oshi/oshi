@@ -4,10 +4,10 @@
  */
 package oshi.driver.mac;
 
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFRelease;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
+import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

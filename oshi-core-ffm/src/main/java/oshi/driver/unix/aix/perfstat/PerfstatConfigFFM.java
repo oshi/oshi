@@ -17,10 +17,10 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_partition_config}, mirroring
@@ -63,6 +63,6 @@ public final class PerfstatConfigFFM {
                 result.vcpusMax = configVcpusMax(buf);
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query partition config", new PartitionConfig());
+        }, LOG, LogLevel.TRACE, "Failed to query partition config", new PartitionConfig());
     }
 }

@@ -4,10 +4,10 @@
  */
 package oshi.software.os.linux;
 
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.WARN;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;

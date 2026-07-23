@@ -21,9 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.slf4j.Logger;
-import org.slf4j.event.Level;
 
 import oshi.util.ExceptionUtil;
+import oshi.util.LogLevel;
 
 /**
  * Base class providing utility methods for working with the Java Foreign Function and Memory (FFM) API.
@@ -148,7 +148,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, Logger logger, Level level, String message,
+    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, Logger logger, LogLevel level, String message,
             T defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
@@ -173,7 +173,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static int callInArenaIntOrDefault(ArenaIntCallable callable, Logger logger, Level level, String message,
+    public static int callInArenaIntOrDefault(ArenaIntCallable callable, Logger logger, LogLevel level, String message,
             int defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
@@ -198,8 +198,8 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static long callInArenaLongOrDefault(ArenaLongCallable callable, Logger logger, Level level, String message,
-            long defaultValue) {
+    public static long callInArenaLongOrDefault(ArenaLongCallable callable, Logger logger, LogLevel level,
+            String message, long defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -223,7 +223,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static double callInArenaDoubleOrDefault(ArenaDoubleCallable callable, Logger logger, Level level,
+    public static double callInArenaDoubleOrDefault(ArenaDoubleCallable callable, Logger logger, LogLevel level,
             String message, double defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
@@ -248,7 +248,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static boolean callInArenaBooleanOrDefault(ArenaBooleanCallable callable, Logger logger, Level level,
+    public static boolean callInArenaBooleanOrDefault(ArenaBooleanCallable callable, Logger logger, LogLevel level,
             String message, boolean defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
@@ -469,7 +469,7 @@ public abstract class ForeignFunctions {
         return (int) ERRNO_HANDLE.get(callState, 0);
     }
 
-    private static void logThrowable(Logger logger, Level level, String message, Throwable t) {
+    private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
         ExceptionUtil.logAtLevel(logger, level, message + ": {}", t);

@@ -19,13 +19,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
 import oshi.util.FileUtil;
+import oshi.util.LogLevel;
 import oshi.util.ParseUtil;
 
 /**
@@ -58,7 +58,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     protected Map<String, String> queryEnvironmentVariables() {
         // DragonFlyBSD's /proc does not expose environ for other processes.
         // For the current process, use Java's System.getenv().
-        int self = callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, Level.WARN, "getpid failed",
+        int self = callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed",
                 -1);
         if (getProcessID() == self) {
             return System.getenv();
@@ -79,7 +79,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
                 return -1L;
             }
             return rlim.get(JAVA_LONG, soft ? 0 : Long.BYTES);
-        }, LOG, Level.WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
+        }, LOG, LogLevel.WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
             }
             byte[] bytes = buf.asSlice(0, Math.min(size.get(JAVA_LONG, 0), 32L)).toArray(JAVA_BYTE);
             return elfBitness(new String(bytes, StandardCharsets.UTF_8).trim());
-        }, LOG, Level.WARN, "queryBitness failed", 0);
+        }, LOG, LogLevel.WARN, "queryBitness failed", 0);
     }
 
 }

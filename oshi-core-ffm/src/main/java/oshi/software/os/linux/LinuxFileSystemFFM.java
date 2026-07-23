@@ -4,8 +4,8 @@
  */
 package oshi.software.os.linux;
 
-import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;
 

@@ -5,7 +5,6 @@
 package oshi.jna.util;
 
 import org.slf4j.Logger;
-import org.slf4j.event.Level;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -15,6 +14,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
+import oshi.util.LogLevel;
 import oshi.util.ParseUtil;
 
 /**
@@ -141,7 +141,7 @@ public final class SysctlUtilJNA {
      * @param level  level at which to log a failure
      * @return {@code true} if the structure was successfully populated, {@code false} otherwise
      */
-    public static boolean sysctl(SysctlCall call, Object name, Structure struct, Logger log, Level level) {
+    public static boolean sysctl(SysctlCall call, Object name, Structure struct, Logger log, LogLevel level) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference(struct.size())) {
             if (0 != call.call(struct.getPointer(), size)) {
                 logFailure(log, level, name);
@@ -162,7 +162,7 @@ public final class SysctlUtilJNA {
      * @return An allocated memory buffer containing the result on success, {@code null} otherwise. Its value on failure
      *         is undefined.
      */
-    public static Memory sysctl(SysctlCall call, Object name, Logger log, Level level) {
+    public static Memory sysctl(SysctlCall call, Object name, Logger log, LogLevel level) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != call.call(null, size)) {
                 logFailure(log, level, name);
@@ -178,8 +178,8 @@ public final class SysctlUtilJNA {
         }
     }
 
-    private static void logFailure(Logger log, Level level, Object name) {
-        if (level == Level.ERROR) {
+    private static void logFailure(Logger log, LogLevel level, Object name) {
+        if (level == LogLevel.ERROR) {
             log.error(SYSCTL_FAIL, name, Native.getLastError());
         } else {
             log.warn(SYSCTL_FAIL, name, Native.getLastError());

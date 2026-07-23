@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.WhoFFM;
@@ -24,6 +23,7 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed Solaris OperatingSystem. Uses the legacy {@code kstat} chain only; Kstat2 exists only on the JDK 17-capped
@@ -48,13 +48,13 @@ public class SolarisOperatingSystemFFM extends SolarisOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> SolarisLibcFunctions.getpid(), LOG, Level.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> SolarisLibcFunctions.getpid(), LOG, LogLevel.WARN,
                 "getpid failed", 0);
     }
 
     @Override
     public int getThreadId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> SolarisLibcFunctions.thr_self(), LOG, Level.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> SolarisLibcFunctions.thr_self(), LOG, LogLevel.WARN,
                 "thr_self failed", 0);
     }
 

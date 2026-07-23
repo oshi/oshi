@@ -15,11 +15,11 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed FreeBSD network params. Command-line gateway lookup and the {@code getHostName} fallback live on
@@ -55,7 +55,7 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
             } finally {
                 FreeBsdLibcFunctions.freeaddrinfo(res);
             }
-        }, LOG, Level.WARN, "Failed to query domain name", "");
+        }, LOG, LogLevel.WARN, "Failed to query domain name", "");
     }
 
     @Override
@@ -66,6 +66,6 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
                 return null;
             }
             return buf.getString(0);
-        }, LOG, Level.WARN, "Failed to get hostname", null);
+        }, LOG, LogLevel.WARN, "Failed to get hostname", null);
     }
 }

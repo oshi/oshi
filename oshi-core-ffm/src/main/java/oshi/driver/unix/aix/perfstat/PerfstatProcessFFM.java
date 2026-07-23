@@ -19,11 +19,11 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_process}, mirroring {@code oshi.driver.unix.aix.perfstat.PerfstatProcessJNA}.
@@ -75,6 +75,6 @@ public final class PerfstatProcessFFM {
                 result[i] = p;
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query process statistics", new AixPerfstatProcess[0]);
+        }, LOG, LogLevel.TRACE, "Failed to query process statistics", new AixPerfstatProcess[0]);
     }
 }

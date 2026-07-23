@@ -39,12 +39,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.perfmon.PerfCounter;
 import oshi.driver.windows.registry.HkeyPerformanceDataUtilFFM;
+import oshi.util.LogLevel;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
@@ -228,7 +228,7 @@ public final class PerfDataUtilFFM {
             List<String> instances = parseMultiSz(instanceBuf);
             instances.removeIf(i -> !Util.wildcardMatch(i.toLowerCase(Locale.ROOT), instanceFilter));
             return instances;
-        }, LOG, Level.WARN, "Failed to enumerate instances for " + localizedObject, Collections.emptyList());
+        }, LOG, LogLevel.WARN, "Failed to enumerate instances for " + localizedObject, Collections.emptyList());
     }
 
     /**
@@ -413,6 +413,6 @@ public final class PerfDataUtilFFM {
                 return "";
             }
             return readWideString(nameBuf);
-        }, LOG, Level.DEBUG, "Failed to lookup perf name by index " + index, "");
+        }, LOG, LogLevel.DEBUG, "Failed to lookup perf name by index " + index, "");
     }
 }

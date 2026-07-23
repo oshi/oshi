@@ -19,10 +19,10 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_memory_total}, mirroring
@@ -69,6 +69,6 @@ public final class PerfstatMemoryFFM {
                 result.pgsp_free = memPgspFree(buf);
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query memory total", new MemoryTotal());
+        }, LOG, LogLevel.TRACE, "Failed to query memory total", new MemoryTotal());
     }
 }

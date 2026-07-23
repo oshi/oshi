@@ -6,7 +6,6 @@ package oshi.ffm.util.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOBSDNameMatching;
@@ -19,6 +18,7 @@ import static oshi.ffm.platform.mac.MacSystemFunctions.mach_port_deallocate;
 import static oshi.ffm.platform.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runSilently;
+import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.MemorySegment;
 

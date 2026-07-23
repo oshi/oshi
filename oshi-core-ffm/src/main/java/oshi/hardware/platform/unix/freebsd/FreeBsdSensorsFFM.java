@@ -14,11 +14,11 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdSensors;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed FreeBSD sensors. The only native read is the per-CPU temperature from the {@code coretemp} kld module via
@@ -56,6 +56,6 @@ public class FreeBsdSensorsFFM extends FreeBsdSensors {
                 cpu++;
             }
             return cpu > 0 ? sumTemp / cpu : Double.NaN;
-        }, LOG, Level.WARN, "Failed reading CPU temperature", Double.NaN);
+        }, LOG, LogLevel.WARN, "Failed reading CPU temperature", Double.NaN);
     }
 }

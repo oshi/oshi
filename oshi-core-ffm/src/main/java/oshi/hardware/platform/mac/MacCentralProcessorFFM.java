@@ -4,13 +4,13 @@
  */
 package oshi.hardware.platform.mac;
 
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.DEBUG;
+import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;

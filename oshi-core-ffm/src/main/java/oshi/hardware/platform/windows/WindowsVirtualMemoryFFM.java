@@ -4,8 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
-import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;

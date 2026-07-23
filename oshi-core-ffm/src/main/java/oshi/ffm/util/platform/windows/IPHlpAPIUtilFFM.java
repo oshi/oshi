@@ -52,12 +52,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.ffm.platform.windows.Win32Exception;
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
+import oshi.util.LogLevel;
 import oshi.util.ParseUtil;
 
 /**
@@ -120,7 +120,7 @@ public final class IPHlpAPIUtilFFM {
             }
 
             return dnsServers.toArray(new String[0]);
-        }, LOG, Level.ERROR, "GetNetworkParams failed", new String[0]);
+        }, LOG, LogLevel.ERROR, "GetNetworkParams failed", new String[0]);
     }
 
     /**
@@ -159,7 +159,7 @@ public final class IPHlpAPIUtilFFM {
 
             return new TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,
                     connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
-        }, LOG, Level.DEBUG, "getTcpStats failed", null);
+        }, LOG, LogLevel.DEBUG, "getTcpStats failed", null);
     }
 
     /**
@@ -185,7 +185,7 @@ public final class IPHlpAPIUtilFFM {
             int inErrors = stats.get(JAVA_INT, MIB_UDPSTATS_LAYOUT.byteOffset(PathElement.groupElement("dwInErrors")));
 
             return new UdpStats(outDatagrams, inDatagrams, noPorts, inErrors);
-        }, LOG, Level.DEBUG, "getUdpStats failed", null);
+        }, LOG, LogLevel.DEBUG, "getUdpStats failed", null);
     }
 
     /**
@@ -236,7 +236,7 @@ public final class IPHlpAPIUtilFFM {
                         ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
             }
             return conns;
-        }, LOG, Level.DEBUG, "queryTCPv4Connections failed", Collections.emptyList());
+        }, LOG, LogLevel.DEBUG, "queryTCPv4Connections failed", Collections.emptyList());
     }
 
     /**
@@ -294,7 +294,7 @@ public final class IPHlpAPIUtilFFM {
                         remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
             }
             return conns;
-        }, LOG, Level.DEBUG, "queryTCPv6Connections failed", Collections.emptyList());
+        }, LOG, LogLevel.DEBUG, "queryTCPv6Connections failed", Collections.emptyList());
     }
 
     /**
@@ -338,7 +338,7 @@ public final class IPHlpAPIUtilFFM {
                         ParseUtil.bigEndian16ToLittleEndian(localPortBE), new byte[0], 0, TcpState.NONE, 0, 0, pid));
             }
             return conns;
-        }, LOG, Level.DEBUG, "queryUDPv4Connections failed", Collections.emptyList());
+        }, LOG, LogLevel.DEBUG, "queryUDPv4Connections failed", Collections.emptyList());
     }
 
     /**
@@ -386,7 +386,7 @@ public final class IPHlpAPIUtilFFM {
                         new byte[0], 0, TcpState.NONE, 0, 0, pid));
             }
             return conns;
-        }, LOG, Level.DEBUG, "queryUDPv6Connections failed", Collections.emptyList());
+        }, LOG, LogLevel.DEBUG, "queryUDPv6Connections failed", Collections.emptyList());
     }
 
     private static TcpState stateLookup(int state) {

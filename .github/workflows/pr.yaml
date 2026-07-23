@@ -87,6 +87,8 @@ jobs:
         run: ./mvnw javadoc:javadoc -DskipTests
       - name: Verify SLF4J 1.7 API compatibility
         run: ./mvnw -Pverify-slf4j-17 clean compile
+      - name: Verify SLF4J 1.7 JPMS compatibility
+        run: ./mvnw -Pverify-slf4j-17-jpms clean compile
 
   test:
     if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
