@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
@@ -17,6 +16,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.jna.util.SysctlUtilJNA;
+import oshi.util.LogLevel;
 
 /**
  * Provides access to sysctl calls on OpenBSD
@@ -78,7 +78,7 @@ public final class OpenBsdSysctlUtil {
     public static boolean sysctl(int[] name, Structure struct) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> OpenBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
-                Arrays.toString(name), struct, LOG, Level.ERROR);
+                Arrays.toString(name), struct, LOG, LogLevel.ERROR);
     }
 
     /**
@@ -91,6 +91,6 @@ public final class OpenBsdSysctlUtil {
     public static Memory sysctl(int[] name) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> OpenBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
-                Arrays.toString(name), LOG, Level.ERROR);
+                Arrays.toString(name), LOG, LogLevel.ERROR);
     }
 }

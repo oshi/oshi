@@ -16,9 +16,9 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
 import org.slf4j.Logger;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.LogLevel;
 import oshi.util.ParseUtil;
 
 /**
@@ -72,7 +72,7 @@ public final class SysctlFFM {
                 return def;
             }
             return valueSeg.get(JAVA_INT, 0);
-        }, log, Level.WARN, "Failed to get sysctl value for " + name, def);
+        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class SysctlFFM {
             return sizeSeg.get(SIZE_T, 0) == JAVA_INT.byteSize()
                     ? ParseUtil.unsignedIntToLong(valueSeg.get(JAVA_INT, 0))
                     : valueSeg.get(JAVA_LONG, 0);
-        }, log, Level.WARN, "Failed to get sysctl value for " + name, def);
+        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -121,7 +121,7 @@ public final class SysctlFFM {
                 return def;
             }
             return valueSeg.getString(0);
-        }, log, Level.WARN, "Failed to get sysctl value for " + name, def);
+        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
     }
 
     /**
@@ -137,7 +137,7 @@ public final class SysctlFFM {
         return callInArenaBooleanOrDefault(arena -> {
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, struct.byteSize());
             return op.invoke(arena, struct, sizeSeg);
-        }, log, Level.WARN, "Failed to get sysctl value for " + name, false);
+        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, false);
     }
 
     /**
@@ -162,6 +162,6 @@ public final class SysctlFFM {
             MemorySegment returnSeg = Arena.ofAuto().allocate(size);
             returnSeg.copyFrom(valueSeg);
             return returnSeg;
-        }, log, Level.WARN, "Failed to get sysctl value for " + name, null);
+        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, null);
     }
 }

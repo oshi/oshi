@@ -6,7 +6,6 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.ADDRINFO;
 import static oshi.ffm.platform.mac.MacSystem.ADDRINFO_CANONNAME;
@@ -16,6 +15,7 @@ import static oshi.ffm.platform.mac.MacSystem.HOST_NAME_MAX;
 import static oshi.ffm.platform.mac.MacSystemFunctions.gai_strerror;
 import static oshi.ffm.platform.mac.MacSystemFunctions.getaddrinfo;
 import static oshi.ffm.platform.mac.MacSystemFunctions.gethostname;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;
 import java.net.InetAddress;

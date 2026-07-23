@@ -15,12 +15,12 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.hardware.common.platform.unix.openbsd.OpenBsdCentralProcessor;
+import oshi.util.LogLevel;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
@@ -83,6 +83,6 @@ public class OpenBsdCentralProcessorFFM extends OpenBsdCentralProcessor {
                 loadavg[i] = avg.getAtIndex(JAVA_DOUBLE, i);
             }
             return retval;
-        }, LOG, Level.WARN, "Failed to read load average", 0);
+        }, LOG, LogLevel.WARN, "Failed to read load average", 0);
     }
 }

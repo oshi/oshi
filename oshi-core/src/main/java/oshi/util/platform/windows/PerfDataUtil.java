@@ -4,14 +4,13 @@
  */
 package oshi.util.platform.windows;
 
-import static org.slf4j.event.Level.ERROR;
-import static org.slf4j.event.Level.WARN;
+import static oshi.util.LogLevel.ERROR;
+import static oshi.util.LogLevel.WARN;
 
 import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import com.sun.jna.platform.win32.BaseTSD.DWORD_PTR;
 import com.sun.jna.platform.win32.Pdh;
@@ -26,6 +25,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableLONGLONGByReference;
 import oshi.jna.Struct.CloseablePdhRawCounter;
 import oshi.util.FormatUtil;
+import oshi.util.LogLevel;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -162,7 +162,7 @@ public final class PerfDataUtil {
         return message + " Error code: " + String.format(Locale.ROOT, FormatUtil.formatError(ret));
     }
 
-    static <T> T handleError(int ret, Level level, String message, T defaultValue) {
+    static <T> T handleError(int ret, LogLevel level, String message, T defaultValue) {
         switch (level) {
             case ERROR:
                 if (LOG.isErrorEnabled()) {

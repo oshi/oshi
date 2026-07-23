@@ -6,11 +6,11 @@ package oshi.hardware.platform.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.DEBUG;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.platform.mac.MacSystem.XSW_USAGE_TOTAL;
 import static oshi.ffm.platform.mac.MacSystem.XSW_USAGE_USED;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;
 

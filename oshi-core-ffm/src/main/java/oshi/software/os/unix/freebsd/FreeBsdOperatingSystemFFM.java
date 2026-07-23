@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.WhoFFM;
@@ -27,6 +26,7 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed FreeBSD operating system.
@@ -63,7 +63,7 @@ public class FreeBsdOperatingSystemFFM extends FreeBsdOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, Level.WARN, "getpid failed", 0);
+        return callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed", 0);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FreeBsdOperatingSystemFFM extends FreeBsdOperatingSystem {
                 return 0;
             }
             return (int) id.get(JAVA_LONG, 0);
-        }, LOG, Level.WARN, "thr_self failed", 0);
+        }, LOG, LogLevel.WARN, "thr_self failed", 0);
     }
 
     @Override

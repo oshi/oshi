@@ -8,7 +8,6 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.AF_INET;
 import static oshi.ffm.platform.mac.MacSystem.AF_INET6;
@@ -55,6 +54,7 @@ import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
 import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
 import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.LogLevel.TRACE;
 import static oshi.util.ParseUtil.parseIntToIP;
 
 import java.lang.foreign.Arena;

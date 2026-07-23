@@ -4,9 +4,9 @@
  */
 package oshi.hardware.platform.linux;
 
-import static org.slf4j.event.Level.WARN;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.software.os.linux.LinuxOperatingSystemFFM.HAS_UDEV;
+import static oshi.util.LogLevel.WARN;
 
 import java.io.File;
 import java.lang.foreign.MemorySegment;

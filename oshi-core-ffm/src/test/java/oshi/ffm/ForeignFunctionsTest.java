@@ -7,7 +7,7 @@ package oshi.ffm;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.slf4j.event.Level.DEBUG;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;
 

@@ -6,13 +6,13 @@ package oshi.hardware.platform.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.VM_FREE_COUNT;
 import static oshi.ffm.platform.mac.MacSystem.VM_INACTIVE_COUNT;
 import static oshi.ffm.platform.mac.MacSystem.VM_STATISTICS;
 import static oshi.ffm.platform.mac.MacSystemFunctions.mach_host_self;
+import static oshi.util.LogLevel.DEBUG;
+import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemorySegment;
 

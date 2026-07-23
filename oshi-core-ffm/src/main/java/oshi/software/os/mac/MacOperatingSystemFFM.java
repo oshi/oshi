@@ -6,7 +6,6 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.WARN;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.MacSystem.INT_SIZE;
@@ -19,6 +18,7 @@ import static oshi.ffm.platform.mac.MacSystemFunctions.getpid;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_listpids;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidinfo;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

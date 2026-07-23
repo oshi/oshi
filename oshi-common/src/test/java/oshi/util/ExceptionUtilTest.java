@@ -21,7 +21,6 @@ import java.util.OptionalLong;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 /**
  * Tests for {@link ExceptionUtil}.
@@ -302,13 +301,13 @@ class ExceptionUtilTest {
         assertThat(result, is(empty()));
     }
 
-    // -- Level-taking overloads --
+    // -- LogLevel-taking overloads --
 
     @Test
     void testGetOrDefaultWithTraceLevel() {
         String result = ExceptionUtil.getOrDefault(() -> {
             throw new RuntimeException("trace test");
-        }, "fallback", LOG, Level.TRACE, "Trace-level failure: {}");
+        }, "fallback", LOG, LogLevel.TRACE, "Trace-level failure: {}");
         assertThat(result, is(equalTo("fallback")));
     }
 
@@ -316,7 +315,7 @@ class ExceptionUtilTest {
     void testGetIntOrDefaultWithTraceLevel() {
         int result = ExceptionUtil.getIntOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, -1, LOG, Level.TRACE, "Int trace failure");
+        }, -1, LOG, LogLevel.TRACE, "Int trace failure");
         assertThat(result, is(-1));
     }
 
@@ -324,7 +323,7 @@ class ExceptionUtilTest {
     void testGetLongOrDefaultWithTraceLevel() {
         long result = ExceptionUtil.getLongOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, -1L, LOG, Level.TRACE, "Long trace failure");
+        }, -1L, LOG, LogLevel.TRACE, "Long trace failure");
         assertThat(result, is(-1L));
     }
 
@@ -332,7 +331,7 @@ class ExceptionUtilTest {
     void testGetBooleanOrDefaultWithTraceLevel() {
         boolean result = ExceptionUtil.getBooleanOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, true, LOG, Level.TRACE, "Bool trace failure");
+        }, true, LOG, LogLevel.TRACE, "Bool trace failure");
         assertThat(result, is(true));
     }
 
@@ -340,7 +339,7 @@ class ExceptionUtilTest {
     void testGetDoubleOrDefaultWithTraceLevel() {
         double result = ExceptionUtil.getDoubleOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, -1d, LOG, Level.TRACE, "Double trace failure");
+        }, -1d, LOG, LogLevel.TRACE, "Double trace failure");
         assertThat(result, is(-1d));
     }
 
@@ -348,7 +347,7 @@ class ExceptionUtilTest {
     void testGetOptionalWithTraceLevel() {
         Optional<String> result = ExceptionUtil.getOptional(() -> {
             throw new RuntimeException("fail");
-        }, LOG, Level.TRACE, "Optional trace failure");
+        }, LOG, LogLevel.TRACE, "Optional trace failure");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -356,7 +355,7 @@ class ExceptionUtilTest {
     void testGetOptionalIntWithTraceLevel() {
         OptionalInt result = ExceptionUtil.getOptionalInt(() -> {
             throw new RuntimeException("fail");
-        }, LOG, Level.TRACE, "OptionalInt trace failure");
+        }, LOG, LogLevel.TRACE, "OptionalInt trace failure");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -364,7 +363,7 @@ class ExceptionUtilTest {
     void testGetOptionalLongWithTraceLevel() {
         OptionalLong result = ExceptionUtil.getOptionalLong(() -> {
             throw new RuntimeException("fail");
-        }, LOG, Level.TRACE, "OptionalLong trace failure");
+        }, LOG, LogLevel.TRACE, "OptionalLong trace failure");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -372,19 +371,19 @@ class ExceptionUtilTest {
     void testRunOrLogWithTraceLevel() {
         assertDoesNotThrow(() -> ExceptionUtil.runOrLog(() -> {
             throw new RuntimeException("fail");
-        }, LOG, Level.TRACE, "Runnable trace failure"));
+        }, LOG, LogLevel.TRACE, "Runnable trace failure"));
     }
 
     @Test
     void testGetOrDefaultWithWarnLevelSuccessPath() {
         // Non-throwing path with an exotic level — verifies the level argument doesn't disturb success behavior.
-        String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", LOG, Level.WARN, "Should not log");
+        String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", LOG, LogLevel.WARN, "Should not log");
         assertThat(result, is(equalTo("ok")));
     }
 
     @Test
     void testLogsAndReturnsDefaultAtEveryLevel() {
-        for (Level level : Level.values()) {
+        for (LogLevel level : LogLevel.values()) {
             String result = ExceptionUtil.getOrDefault(() -> {
                 // Intentional: exercises the exception-logging path at each level. The stack trace this logs is
                 // expected test output, not a real failure.

@@ -25,10 +25,10 @@ import java.lang.foreign.MemorySegment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed driver for {@code perfstat_netinterface}, mirroring
@@ -96,6 +96,6 @@ public final class PerfstatNetInterfaceFFM {
                 result[i] = n;
             }
             return result;
-        }, LOG, Level.TRACE, "Failed to query network interfaces", new NetInterface[0]);
+        }, LOG, LogLevel.TRACE, "Failed to query network interfaces", new NetInterface[0]);
     }
 }

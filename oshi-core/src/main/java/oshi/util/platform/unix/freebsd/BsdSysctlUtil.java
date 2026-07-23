@@ -6,7 +6,6 @@ package oshi.util.platform.unix.freebsd;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
@@ -15,6 +14,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.util.SysctlUtilJNA;
+import oshi.util.LogLevel;
 
 /**
  * Provides access to sysctl calls on FreeBSD
@@ -76,7 +76,7 @@ public final class BsdSysctlUtil {
     public static boolean sysctl(String name, Structure struct) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> FreeBsdLibc.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name,
-                struct, LOG, Level.ERROR);
+                struct, LOG, LogLevel.ERROR);
     }
 
     /**
@@ -89,6 +89,6 @@ public final class BsdSysctlUtil {
     public static Memory sysctl(String name) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> FreeBsdLibc.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, LOG,
-                Level.ERROR);
+                LogLevel.ERROR);
     }
 }

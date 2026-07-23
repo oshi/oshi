@@ -143,7 +143,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                 return -1L;
             }
             return soft ? OpenBsdLibcFunctions.rlimitCur(rlim) : OpenBsdLibcFunctions.rlimitMax(rlim);
-        }, LOG, org.slf4j.event.Level.WARN, "Failed getrlimit", -1L);
+        }, LOG, oshi.util.LogLevel.WARN, "Failed getrlimit", -1L);
     }
 
 }

@@ -4,8 +4,8 @@
  */
 package oshi.software.os.linux;
 
-import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.util.LogLevel.ERROR;
 
 import java.io.File;
 import java.io.IOException;

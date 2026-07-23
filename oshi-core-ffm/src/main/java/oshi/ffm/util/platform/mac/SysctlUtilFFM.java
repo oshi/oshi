@@ -16,11 +16,11 @@ import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.ffm.util.SysctlFFM;
+import oshi.util.LogLevel;
 
 /**
  * Provides access to sysctl calls on macOS
@@ -138,7 +138,7 @@ public final class SysctlUtilFFM {
                 return -1L;
             }
             return sizeSeg.get(SIZE_T, 0);
-        }, LOG, Level.WARN, "Failed to get sysctl value for " + Arrays.toString(mib), -1L);
+        }, LOG, LogLevel.WARN, "Failed to get sysctl value for " + Arrays.toString(mib), -1L);
     }
 
     private static boolean sysctlbyname(Arena arena, String name, MemorySegment oldp, MemorySegment oldlenp,

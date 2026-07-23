@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
@@ -18,6 +17,7 @@ import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.OSProcess;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed OpenBSD operating system.
@@ -39,13 +39,13 @@ public class OpenBsdOperatingSystemFFM extends OpenBsdOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getpid(), LOG, Level.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getpid(), LOG, LogLevel.WARN,
                 "getpid failed", 0);
     }
 
     @Override
     public int getThreadId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getthrid(), LOG, Level.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getthrid(), LOG, LogLevel.WARN,
                 "getthrid failed", 0);
     }
 

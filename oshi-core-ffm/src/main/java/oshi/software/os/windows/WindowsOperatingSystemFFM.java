@@ -7,13 +7,13 @@ package oshi.software.os.windows;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
-import static org.slf4j.event.Level.ERROR;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.platform.windows.Kernel32FFM.GetLastError;
 import static oshi.ffm.platform.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.setupTokenPrivileges;
 import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
+import static oshi.util.LogLevel.ERROR;
 import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.lang.foreign.Arena;

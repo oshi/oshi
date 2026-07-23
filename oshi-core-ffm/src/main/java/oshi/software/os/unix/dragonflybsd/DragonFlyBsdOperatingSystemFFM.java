@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.WhoFFM;
@@ -31,6 +30,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsFFM;
 import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsFFM;
+import oshi.util.LogLevel;
 
 /**
  * FFM-backed DragonFly BSD operating system.
@@ -67,12 +67,12 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
 
     @Override
     public int getProcessId() {
-        return callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, Level.WARN, "getpid failed", 0);
+        return callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed", 0);
     }
 
     @Override
     public int getThreadId() {
-        int tid = callInArenaIntOrDefault(arena -> DragonFlyBsdLibcFunctions.lwp_gettid(), LOG, Level.WARN,
+        int tid = callInArenaIntOrDefault(arena -> DragonFlyBsdLibcFunctions.lwp_gettid(), LOG, LogLevel.WARN,
                 "lwp_gettid failed", -1);
         return tid < 0 ? 0 : tid;
     }

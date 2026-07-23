@@ -9,8 +9,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.readFixedWidthString;
@@ -64,6 +62,8 @@ import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidinfo;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidpath;
 import static oshi.ffm.util.platform.mac.SysctlUtilFFM.sysctl;
 import static oshi.software.os.OSProcess.State.INVALID;
+import static oshi.util.LogLevel.DEBUG;
+import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;

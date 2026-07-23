@@ -9,7 +9,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static org.slf4j.event.Level.TRACE;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.Advapi32FFM.GetTokenInformation;
@@ -32,6 +31,7 @@ import static oshi.ffm.platform.windows.WinNTFFM.REG_SZ;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.LogLevel.TRACE;
 import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
