@@ -4,8 +4,6 @@
  */
 package oshi.util;
 
-import oshi.annotation.concurrent.ThreadSafe;
-
 /**
  * A logging severity level, used by OSHI's exception-handling and native-call helpers (such as {@link ExceptionUtil})
  * to select which {@code Logger#debug/info/warn/error/trace} method a caught or handled condition is logged with.
@@ -15,7 +13,6 @@ import oshi.annotation.concurrent.ThreadSafe;
  * OSHI loggable against host-provided slf4j-api versions older than 1.7.15 (e.g. the 1.7.5 bundled by Apache Maven
  * 3.3.x, which loads OSHI-based extensions against its own slf4j).
  */
-@ThreadSafe
 public enum LogLevel {
     /**
      * The TRACE level.
