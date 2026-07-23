@@ -86,7 +86,9 @@ jobs:
       - name: Javadoc
         run: ./mvnw javadoc:javadoc -DskipTests
       - name: Verify SLF4J 1.7 API compatibility
-        run: ./mvnw -Pverify-slf4j-17 clean compile
+        # Scoped to the classpath modules whose module-info can be skipped; oshi-core-ffm is covered by the
+        # JPMS check below, and org.slf4j.event.Level is banned everywhere via forbiddenapis.
+        run: ./mvnw -Pverify-slf4j-17 clean compile -pl oshi-common,oshi-core
       - name: Verify SLF4J 1.7 JPMS compatibility
         run: ./mvnw -Pverify-slf4j-17-jpms clean compile
 

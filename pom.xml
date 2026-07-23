@@ -1140,13 +1140,16 @@
                 <module>oshi-dist</module>
             </modules>
         </profile>
-        <!-- Compiles the main sources against the oldest slf4j-api OSHI supports (1.7.5), to catch
-             accidental use of API added after it that would break consumers pinning an older slf4j-api on
-             the runtime classpath. This covers both SLF4J 2.0-only Logger methods (atLevel,
-             isEnabledForLevel, etc.) and org.slf4j.event.Level, which only exists from 1.7.15 (see #3524:
-             hosts such as Apache Maven 3.3.x bundle 1.7.5). module-info is skipped here — see below — so the
-             JPMS side is covered by the sibling verify-slf4j-17-jpms profile.
-             Use: mvnw -Pverify-slf4j-17 clean compile -->
+        <!-- Compiles the main sources against the oldest slf4j-api OSHI supports (1.7.5), to catch accidental
+             use of API added after it that would break consumers pinning an older slf4j-api on the runtime
+             classpath — e.g. SLF4J 2.0-only Logger methods (atLevel, isEnabledForLevel, etc.). #3524's
+             org.slf4j.event.Level (added in 1.7.15) is banned outright by config/forbidden-apis.txt, which
+             catches it in every module including oshi-core-ffm.
+             Scope this to the classpath modules whose module-info can be skipped:
+                 mvnw -Pverify-slf4j-17 clean compile -pl oshi-common,oshi-core
+             oshi-core-ffm compiles module-info.java in default-compile at release 25 (it cannot be skipped
+             there, and `requires org.slf4j` will not resolve against pre-1.7.27 slf4j), so it is excluded
+             here; its JPMS resolution and SLF4J-2.0-method safety are covered by verify-slf4j-17-jpms. -->
         <profile>
             <id>verify-slf4j-17</id>
             <properties>
@@ -1160,9 +1163,10 @@
                         <executions>
                             <!-- slf4j-api 1.7.5 predates the Automatic-Module-Name manifest entry (added in
                                  1.7.27), so `requires org.slf4j` cannot resolve on the module path. Skip the
-                                 module-info compilation here; this profile only verifies that the main
-                                 sources avoid slf4j API newer than 1.7.5. JPMS resolution against a 1.7.x
-                                 slf4j is verified by verify-slf4j-17-jpms. -->
+                                 module-info compilation here (oshi-common and oshi-core isolate it in this
+                                 execution); this profile only verifies that the main sources avoid slf4j API
+                                 newer than 1.7.5. JPMS resolution against a 1.7.x slf4j is verified by
+                                 verify-slf4j-17-jpms. -->
                             <execution>
                                 <id>compile-module-info</id>
                                 <phase>none</phase>
