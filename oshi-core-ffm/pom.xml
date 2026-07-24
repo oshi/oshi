@@ -16,8 +16,8 @@
         cross-platform implementation to retrieve system information, such as version, memory, CPU, disk, battery, etc.</description>
 
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
-        <maven.compiler.testRelease>25</maven.compiler.testRelease>
+        <maven.compiler.release>${oshi.ffm.release}</maven.compiler.release>
+        <maven.compiler.testRelease>${oshi.ffm.release}</maven.compiler.testRelease>
 
         <native.access.modules>com.github.oshi.ffm</native.access.modules>
     </properties>

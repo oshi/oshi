@@ -16,8 +16,8 @@
 
     <properties>
         <jmh.version>1.37</jmh.version>
-        <maven.compiler.release>25</maven.compiler.release>
-        <maven.compiler.testRelease>25</maven.compiler.testRelease>
+        <maven.compiler.release>${oshi.ffm.release}</maven.compiler.release>
+        <maven.compiler.testRelease>${oshi.ffm.release}</maven.compiler.testRelease>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
         <shade.phase>none</shade.phase>

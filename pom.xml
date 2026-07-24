@@ -73,6 +73,11 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.compiler.release>8</maven.compiler.release>
         <maven.compiler.testRelease>8</maven.compiler.testRelease>
+        <!-- Release level for the FFM-based modules (oshi-core-ffm, oshi-benchmark). Defaults to the 25 baseline
+        OSHI ships. Overridable on the command line (e.g. -Doshi.ffm.release=23) so the Coverity scan can compile the
+        FFM code on an older JDK toolchain: cov-build 2024.12.1 cannot capture JDK 25 bytecode. OSHI's FFM code needs
+        release 23+ (uses SymbolLookup.findOrThrow). Temporary until Coverity Scan ships a JDK 25-capable build tool. -->
+        <oshi.ffm.release>25</oshi.ffm.release>
         <maven.min-version>3.6.3</maven.min-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
@@ -1138,6 +1143,18 @@
                 <module>oshi-core-ffm</module>
                 <module>oshi-benchmark</module>
                 <module>oshi-dist</module>
+            </modules>
+        </profile>
+        <!-- Coverity scan profile. The free Coverity Scan tier serves cov-build 2024.12.1, which cannot capture JDK 25
+        bytecode, so the scan must run on an older JDK than the [25,) modules require. Activate with -Pcoverity to pull
+        the FFM and benchmark modules into the reactor on a pre-25 JDK, paired with -Doshi.ffm.release=23 to lower their
+        compile target (dist is excluded: it is ignored by the scan and only assembles on the full Java 25 build).
+        Temporary until Coverity Scan ships a JDK 25-capable build tool, after which the scan can run straight on 25. -->
+        <profile>
+            <id>coverity</id>
+            <modules>
+                <module>oshi-core-ffm</module>
+                <module>oshi-benchmark</module>
             </modules>
         </profile>
         <!-- Compiles against the oldest supported SLF4J 1.x API to catch accidental

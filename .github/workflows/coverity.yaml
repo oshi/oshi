@@ -23,7 +23,10 @@ jobs:
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
         with:
           cache: maven
-          java-version: 25
+          # cov-build 2024.12.1 (the version the free Coverity Scan tier serves) cannot capture JDK 25 bytecode, so
+          # the scan runs on JDK 23 and lowers the FFM/benchmark compile target to 23 via -Doshi.ffm.release. Revert
+          # to 25 (and drop -Pcoverity/-Doshi.ffm.release below) once Coverity Scan ships a JDK 25-capable build tool.
+          java-version: 23
           distribution: temurin
 
       - name: Analyze with Coverity
@@ -45,14 +48,20 @@ jobs:
           TOOL_DIR="$(echo cov-analysis-linux64-*/ | head -n 1)"
           echo "Using Coverity tool dir: ${TOOL_DIR}"
 
+          # Log the served build-tool version. When Coverity Scan bumps to a JDK 25-capable tool, this is the signal
+          # to drop the JDK 23 / -Doshi.ffm.release workaround and scan straight on Java 25.
+          "${TOOL_DIR}bin/cov-build" --version || true
+
           # Configure Java capture
           "${TOOL_DIR}bin/cov-configure" --java
 
-          # IMPORTANT: clean build under cov-build to ensure full capture
+          # IMPORTANT: clean build under cov-build to ensure full capture.
+          # -Pcoverity pulls the FFM and benchmark modules into the reactor on this pre-25 JDK, and
+          # -Doshi.ffm.release=23 lowers their compile target so cov-build 2024.12.1 can capture them.
           rm -rf cov-int
 
           "${TOOL_DIR}bin/cov-build" --dir cov-int \
-            ./mvnw -B -DskipTests=true \
+            ./mvnw -B -DskipTests=true -Pcoverity -Doshi.ffm.release=23 \
             clean compile
 
           # Package results for upload
