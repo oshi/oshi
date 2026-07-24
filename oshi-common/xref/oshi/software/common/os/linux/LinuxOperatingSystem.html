@@ -496,110 +496,136 @@
 <a class="jxr_linenumber" name="L488" href="#L488">488</a> <em class="jxr_javadoccomment">     * @return The first valid matching filename</em>
 <a class="jxr_linenumber" name="L489" href="#L489">489</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String getReleaseFilename() {
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         <em class="jxr_comment">// Look for any /etc/*-release, *-version, and variants</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         File etc = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/etc"</span>);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         File[] matchingFiles = etc.listFiles(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 f -&gt; (f.getName().endsWith(<span class="jxr_string">"-release"</span>) || <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>                         f.getName().endsWith(<span class="jxr_string">"-version"</span>) || <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>                         f.getName().endsWith(<span class="jxr_string">"_release"</span>) || <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                         f.getName().endsWith(<span class="jxr_string">"_version"</span>)) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                         &amp;&amp; !(f.getName().endsWith(<span class="jxr_string">"os-release"</span>) || <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                                 f.getName().endsWith(<span class="jxr_string">"lsb-release"</span>) || <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                                 f.getName().endsWith(<span class="jxr_string">"system-release"</span>)));
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">if</strong> (matchingFiles != <strong class="jxr_keyword">null</strong> &amp;&amp; matchingFiles.length &gt; 0) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>             <strong class="jxr_keyword">return</strong> matchingFiles[0].getPath();
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         }
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/etc/release"</span>).exists()) {
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"/etc/release"</span>;
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         }
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">"/etc/issue"</span>;
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>     }
-<a class="jxr_linenumber" name="L509" href="#L509">509</a> 
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L511" href="#L511">511</a> <em class="jxr_javadoccomment">     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release) to a mixed case string representing</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">     * the family (e.g., Red Hat)</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     * @param name Stripped version of filename after removing /etc and -release</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * @return Mixed case family</em>
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <strong class="jxr_keyword">static</strong> String filenameToFamily(String name) {
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Solaris"</span>;
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"issue"</span>.equalsIgnoreCase(name)) {
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown"</span>;
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>             Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             String family = filenameProps.getProperty(name.toLowerCase(Locale.ROOT));
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>             <strong class="jxr_keyword">return</strong> family != <strong class="jxr_keyword">null</strong> ? family : name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>     }
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> 
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     @Override
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>     <strong class="jxr_keyword">public</strong> List&lt;OSService&gt; getServices() {
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>             <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(p.getName(), p.getProcessID(), RUNNING);
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>             services.add(s);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>             running.add(p.getName());
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         <strong class="jxr_keyword">return</strong> getReleaseFilename(<span class="jxr_string">"/etc"</span>);
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     }
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">     * Looks for a collection of possible distrib-release filenames in the given directory.</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">     * @param etcPath the directory to search (normally {@code /etc})</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">     * @return The first valid matching filename, or the {@code release}/{@code issue} fallback within {@code etcPath}</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>     <strong class="jxr_keyword">static</strong> String getReleaseFilename(String etcPath) {
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <em class="jxr_comment">// Look for any *-release, *-version, and variants</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>         File etc = <strong class="jxr_keyword">new</strong> File(etcPath);
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         File[] matchingFiles = etc.listFiles(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 f -&gt; (f.getName().endsWith(<span class="jxr_string">"-release"</span>) || <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                         f.getName().endsWith(<span class="jxr_string">"-version"</span>) || <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                         f.getName().endsWith(<span class="jxr_string">"_release"</span>) || <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                         f.getName().endsWith(<span class="jxr_string">"_version"</span>)) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                         &amp;&amp; !(f.getName().endsWith(<span class="jxr_string">"os-release"</span>) || <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                                 f.getName().endsWith(<span class="jxr_string">"lsb-release"</span>) || <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                                 f.getName().endsWith(<span class="jxr_string">"system-release"</span>)));
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>         <strong class="jxr_keyword">if</strong> (matchingFiles != <strong class="jxr_keyword">null</strong> &amp;&amp; matchingFiles.length &gt; 0) {
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">return</strong> matchingFiles[0].getPath();
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>         }
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         File release = <strong class="jxr_keyword">new</strong> File(etc, <span class="jxr_string">"release"</span>);
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         <strong class="jxr_keyword">if</strong> (release.exists()) {
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             <strong class="jxr_keyword">return</strong> release.getPath();
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         }
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> File(etc, <span class="jxr_string">"issue"</span>).getPath();
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>     }
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> 
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> <em class="jxr_javadoccomment">     * Converts a portion of a filename (e.g. the 'redhat' in /etc/redhat-release) to a mixed case string representing</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> <em class="jxr_javadoccomment">     * the family (e.g., Red Hat)</em>
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">     * @param name Stripped version of filename after removing /etc and -release</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">     * @return Mixed case family</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <strong class="jxr_keyword">static</strong> String filenameToFamily(String name) {
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">if</strong> (name.isEmpty()) {
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Solaris"</span>;
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"issue"</span>.equalsIgnoreCase(name)) {
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown"</span>;
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             Properties filenameProps = FileUtil.readPropertiesFromFilename(FILENAME_PROPERTIES);
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>             String family = filenameProps.getProperty(name.toLowerCase(Locale.ROOT));
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             <strong class="jxr_keyword">return</strong> family != <strong class="jxr_keyword">null</strong> ? family : name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
 <a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         <strong class="jxr_keyword">boolean</strong> systemctlFound = false;
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         List&lt;String&gt; systemctl = ExecutingCommand.runNative(<span class="jxr_string">"systemctl list-unit-files"</span>);
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">for</strong> (String str : systemctl) {
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             String[] split = ParseUtil.whitespaces.split(str);
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 2 &amp;&amp; split[0].endsWith(<span class="jxr_string">".service"</span>) &amp;&amp; <span class="jxr_string">"enabled"</span>.equals(split[1])) {
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 String name = split[0].substring(0, split[0].length() - 8);
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>                 <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>                 <strong class="jxr_keyword">if</strong> (!running.contains(name) &amp;&amp; !running.contains(shortName)) {
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>                     <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED);
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>                     services.add(s);
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>                     systemctlFound = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>                 }
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>             }
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         }
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <strong class="jxr_keyword">if</strong> (!systemctlFound) {
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>             File dir = <strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"/etc/init"</span>);
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>             <strong class="jxr_keyword">if</strong> (dir.exists() &amp;&amp; dir.isDirectory()) {
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>                 <strong class="jxr_keyword">for</strong> (File f : dir.listFiles((f, name) -&gt; name.toLowerCase(Locale.ROOT).endsWith(<span class="jxr_string">".conf"</span>))) {
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>                     String name = f.getName().substring(0, f.getName().length() - 5);
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>                     <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>                     String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>                     <strong class="jxr_keyword">if</strong> (!running.contains(name) &amp;&amp; !running.contains(shortName)) {
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>                         <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED);
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>                         services.add(s);
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>                     }
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>                 }
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>                 LOG.error(<span class="jxr_string">"Directory: /etc/init does not exist"</span>);
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>             }
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>         }
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <strong class="jxr_keyword">return</strong> services;
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>     }
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> 
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice versa.</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">     * @return Jiffies per second.</em>
-<a class="jxr_linenumber" name="L576" href="#L576">576</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> getHz();
-<a class="jxr_linenumber" name="L578" href="#L578">578</a> 
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     * Gets Page Size, for converting memory stats from pages to bytes</em>
-<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * @return Page Size</em>
-<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> getPageSize();
-<a class="jxr_linenumber" name="L585" href="#L585">585</a> 
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">     * Gets the system boot time in seconds since the epoch.</em>
-<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">     * @return Boot time in seconds since the epoch.</em>
-<a class="jxr_linenumber" name="L590" href="#L590">590</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> getBootTime() {
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <strong class="jxr_keyword">return</strong> BOOTTIME;
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>     }
-<a class="jxr_linenumber" name="L594" href="#L594">594</a> }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     }
+<a class="jxr_linenumber" name="L539" href="#L539">539</a> 
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>     @Override
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">public</strong> List&lt;OSService&gt; getServices() {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">for</strong> (<a name="OSProcess" href="../../../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>             <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a> s = <strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(p.getName(), p.getProcessID(), RUNNING);
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>             services.add(s);
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>             running.add(p.getName());
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         }
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         services.addAll(parseServices(ExecutingCommand.runNative(<span class="jxr_string">"systemctl list-unit-files"</span>), running, <span class="jxr_string">"/etc/init"</span>));
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">return</strong> services;
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>     }
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> 
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">     * Parse enabled-but-not-running services from {@code systemctl list-unit-files}, falling back to {@code .conf}</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * files in the init directory when systemctl reports none.</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     * @param systemctl output of {@code systemctl list-unit-files}</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">     * @param running   names of services already known to be running (used to avoid duplicates)</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">     * @param initDir   the upstart init directory to scan when systemctl yields nothing (normally {@code /etc/init})</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a> <em class="jxr_javadoccomment">     * @return the list of stopped services</em>
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <strong class="jxr_keyword">static</strong> List&lt;OSService&gt; parseServices(List&lt;String&gt; systemctl, Set&lt;String&gt; running, String initDir) {
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         List&lt;OSService&gt; services = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         <strong class="jxr_keyword">boolean</strong> systemctlFound = false;
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <strong class="jxr_keyword">for</strong> (String str : systemctl) {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>             String[] split = ParseUtil.whitespaces.split(str);
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 2 &amp;&amp; split[0].endsWith(<span class="jxr_string">".service"</span>) &amp;&amp; <span class="jxr_string">"enabled"</span>.equals(split[1])) {
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>                 <em class="jxr_comment">// systemctl produced usable output; the /etc/init fallback is only for systems without systemctl,</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>                 <em class="jxr_comment">// so mark it found even if every enabled unit turns out to be already running</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>                 systemctlFound = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>                 String name = split[0].substring(0, split[0].length() - 8);
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>                 <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>                 String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>                 <strong class="jxr_keyword">if</strong> (!running.contains(name) &amp;&amp; !running.contains(shortName)) {
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>                     services.add(<strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED));
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>                 }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>             }
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         }
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <strong class="jxr_keyword">if</strong> (!systemctlFound) {
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>             File dir = <strong class="jxr_keyword">new</strong> File(initDir);
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>             File[] confFiles = dir.listFiles((f, name) -&gt; name.toLowerCase(Locale.ROOT).endsWith(<span class="jxr_string">".conf"</span>));
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>             <strong class="jxr_keyword">if</strong> (confFiles != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>                 <strong class="jxr_keyword">for</strong> (File f : confFiles) {
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>                     String name = f.getName().substring(0, f.getName().length() - 5);
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>                     <strong class="jxr_keyword">int</strong> index = name.lastIndexOf('.');
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>                     String shortName = (index &lt; 0 || index &gt; name.length() - 2) ? name : name.substring(index + 1);
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>                     <strong class="jxr_keyword">if</strong> (!running.contains(name) &amp;&amp; !running.contains(shortName)) {
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>                         services.add(<strong class="jxr_keyword">new</strong> <a name="OSService" href="../../../../../oshi/software/os/OSService.html#OSService">OSService</a>(name, 0, STOPPED));
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>                     }
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>                 }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>                 LOG.error(<span class="jxr_string">"Directory: {} does not exist"</span>, initDir);
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>             }
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         }
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>         <strong class="jxr_keyword">return</strong> services;
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>     }
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> 
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">     * Gets Jiffies per second, useful for converting ticks to milliseconds and vice versa.</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">     * @return Jiffies per second.</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> getHz();
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_javadoccomment">     * Gets Page Size, for converting memory stats from pages to bytes</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L608" href="#L608">608</a> <em class="jxr_javadoccomment">     * @return Page Size</em>
+<a class="jxr_linenumber" name="L609" href="#L609">609</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> getPageSize();
+<a class="jxr_linenumber" name="L611" href="#L611">611</a> 
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L613" href="#L613">613</a> <em class="jxr_javadoccomment">     * Gets the system boot time in seconds since the epoch.</em>
+<a class="jxr_linenumber" name="L614" href="#L614">614</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L615" href="#L615">615</a> <em class="jxr_javadoccomment">     * @return Boot time in seconds since the epoch.</em>
+<a class="jxr_linenumber" name="L616" href="#L616">616</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> getBootTime() {
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>         <strong class="jxr_keyword">return</strong> BOOTTIME;
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>     }
+<a class="jxr_linenumber" name="L620" href="#L620">620</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

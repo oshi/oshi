@@ -38,504 +38,593 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.LogicalProcessor;
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.CentralProcessor.ProcessorCache;
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">class</strong> <a name="LinuxCentralProcessorTest" href="../../../../../oshi/hardware/common/platform/linux/LinuxCentralProcessorTest.html#LinuxCentralProcessorTest">LinuxCentralProcessorTest</a> {
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> EPS = 1e-6;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_comment">// parseCpuidOutput</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Test
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputValid() {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <em class="jxr_comment">// Real cpuid -1r output for leaf 0x00000001</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CPU 0:"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <span class="jxr_string">"   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69"</span>,
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <span class="jxr_string">"   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf edx=0xbfebfbff"</span>);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          String result = LinuxCentralProcessor.parseCpuidOutput(lines);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(result, is(<span class="jxr_string">"bfebfbff000906ea"</span>));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputNoMatch() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CPU 0:"</span>,
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  <span class="jxr_string">"   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69"</span>);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Test
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputMalformed() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Leaf 0x00000001 present but edx missing — should return null to allow fallback</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf"</span>);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      @Test
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputEmpty() {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(Collections.emptyList()), is(nullValue()));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_comment">// createMIDR</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Test
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">void</strong> testCreateMIDRBasic() {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <em class="jxr_comment">// vendor=0x41 (ARM), stepping=r1p3, model=0xd07, family=8</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">"r1p3"</span>, <span class="jxr_string">"0xd07"</span>, <span class="jxr_string">"8"</span>);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <em class="jxr_comment">// Implementer 0x41 &lt;&lt; 24 = 0x41000000</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// Variant 1 &lt;&lt; 20 = 0x00100000</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <em class="jxr_comment">// Architecture 8 &lt;&lt; 16 = 0x00080000</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <em class="jxr_comment">// PartNum 0xd07 &lt;&lt; 4 = 0x0000D070</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <em class="jxr_comment">// Revision 3 = 0x00000003</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// Total = 0x41180073... let me compute:</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <em class="jxr_comment">// 0x41 &lt;&lt; 24 = 0x41000000</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// 1 &lt;&lt; 20 = 0x00100000</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// 8 &lt;&lt; 16 = 0x00080000</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// 0xd07 &lt;&lt; 4 = 0x0000D070</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <em class="jxr_comment">// 3 = 0x00000003</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_comment">// Sum = 0x4118D073</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(midr, is(<span class="jxr_string">"4118D073"</span>));
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      @Test
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">void</strong> testCreateMIDRNoStepping() {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// No rnpn stepping format</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"0xd03"</span>, <span class="jxr_string">"8"</span>);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <em class="jxr_comment">// 0x41 &lt;&lt; 24 + 8 &lt;&lt; 16 + 0xd03 &lt;&lt; 4 = 0x4108D030</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          assertThat(midr, is(<span class="jxr_string">"4108D030"</span>));
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     @Test
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">void</strong> testCreateMIDRZeroValues() {
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x0"</span>, <span class="jxr_string">"r0p0"</span>, <span class="jxr_string">"0x0"</span>, <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(midr, is(<span class="jxr_string">"00000000"</span>));
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <em class="jxr_comment">// getSystemLoadAverage</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     @Test
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageThreeElements() {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(3, <span class="jxr_string">"1.25 0.75 0.50 1/234 5678"</span>);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(avg.length, is(3));
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(avg[0], closeTo(1.25, EPS));
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(avg[1], closeTo(0.75, EPS));
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(avg[2], closeTo(0.50, EPS));
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     @Test
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageOneElement() {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(1, <span class="jxr_string">"2.00 1.00 0.50 1/100 999"</span>);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertThat(avg.length, is(1));
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(avg[0], closeTo(2.0, EPS));
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     @Test
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageEmptyContent() {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(3, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(avg.length, is(3));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         assertThat(avg[0], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(avg[1], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(avg[2], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     @Test
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageInvalidNelem() {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; LinuxCentralProcessor.getSystemLoadAverage(0, <span class="jxr_string">"1 2 3"</span>));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; LinuxCentralProcessor.getSystemLoadAverage(4, <span class="jxr_string">"1 2 3"</span>));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Test
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativeFullResult() {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1.0, 5.0, 15.0 }, 3);
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">double</strong>[] avg = cpu.getSystemLoadAverage(3);
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertThat(avg[0], closeTo(1.0, EPS));
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(avg[1], closeTo(5.0, EPS));
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(avg[2], closeTo(15.0, EPS));
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Test
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativePartialResultFillsNegative() {
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <em class="jxr_comment">// Native call returns fewer samples than requested: all-or-nothing, whole array becomes -1</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1.0, 5.0, 15.0 }, 2);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">double</strong>[] avg = cpu.getSystemLoadAverage(3);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(avg[0], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(avg[1], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertThat(avg[2], closeTo(-1d, EPS));
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
-<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     @Test
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativeInvalidNelem() {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[0], 0);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; cpu.getSystemLoadAverage(0));
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; cpu.getSystemLoadAverage(4));
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_comment">// cpuSyspathsFromSysfs</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Test
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">void</strong> testCpuSyspathsFromSysfs(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpu0"</span>));
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpu1"</span>));
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpufreq"</span>)); <em class="jxr_comment">// not a cpuN entry</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         List&lt;String&gt; syspaths = LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         assertThat(syspaths, hasSize(2));
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(syspaths.stream().anyMatch(p -&gt; p.endsWith(<span class="jxr_string">"cpu0"</span>)), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertThat(syspaths.stream().anyMatch(p -&gt; p.endsWith(<span class="jxr_string">"cpu1"</span>)), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     @Test
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <strong class="jxr_keyword">void</strong> testCpuSyspathsFromSysfsNonexistentPath(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         assertThat(LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString()), is(empty()));
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     }
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">// queryMaxFreqFromCpuFreqPath</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     @Test
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqFromCpuFreqPathWithPolicies(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         Path policy0 = cpuFreq.resolve(<span class="jxr_string">"policy0"</span>);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         Path policy1 = cpuFreq.resolve(<span class="jxr_string">"policy1"</span>);
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         Files.createDirectories(policy0);
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         Files.createDirectories(policy1);
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         writeFile(policy0.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"3600000"</span>);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         writeFile(policy1.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"4200000"</span>);
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <em class="jxr_comment">// 4200000 kHz * 1000 = 4200000000 Hz</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>         assertThat(maxFreq, is(4200000000L));
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     }
-<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     @Test
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqFallbackToCpuinfoMaxFreq(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Path policy0 = cpuFreq.resolve(<span class="jxr_string">"policy0"</span>);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         Files.createDirectories(policy0);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <em class="jxr_comment">// scaling_max_freq is 0, fall back to cpuinfo_max_freq</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         writeFile(policy0.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         writeFile(policy0.resolve(<span class="jxr_string">"cpuinfo_max_freq"</span>), <span class="jxr_string">"2500000"</span>);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertThat(maxFreq, is(2500000000L));
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     }
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> 
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>     @Test
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqNonexistentPath(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString());
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         assertThat(maxFreq, is(-1L));
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     @Test
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqNoPolicies(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         Files.createDirectories(cpuFreq);
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         <em class="jxr_comment">// Directory exists but no policy subdirectories</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         assertThat(maxFreq, is(-1L));
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <em class="jxr_comment">// readTopologyFromSysfs</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     @Test
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsNonexistentPath(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 .readTopologyFromSysfs(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString());
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         assertThat(result.getA(), is(empty()));
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(result.getB(), is(empty()));
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         assertThat(result.getC().isEmpty(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertThat(result.getD().isEmpty(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     @Test
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsSingleCpu(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         writeFile(cpu0.resolve(<span class="jxr_string">"cpu_capacity"</span>), <span class="jxr_string">"1024"</span>);
-<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         assertThat(result.getA(), hasSize(1));
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         LogicalProcessor lp = result.getA().get(0);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         assertThat(lp.getPhysicalProcessorNumber(), is(0));
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         assertThat(lp.getPhysicalPackageNumber(), is(0));
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <em class="jxr_comment">// cpu_capacity value stored in coreEfficiencyMap keyed by (pkg&lt;&lt;16)+core = 0</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         assertThat(result.getC().containsKey(0), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         assertThat(result.getC().get(0), is(1024));
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>     @Test
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsMultiCpu(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 4; i++) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>             Path cpu = tempDir.resolve(<span class="jxr_string">"cpu"</span> + i);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>             Files.createDirectories(cpu.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             writeFile(cpu.resolve(<span class="jxr_string">"topology/core_id"</span>), String.valueOf(i % 2));
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>             writeFile(cpu.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         assertThat(result.getA(), hasSize(4));
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     @Test
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithCache(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         Path index0 = cpu0.resolve(<span class="jxr_string">"cache/index0"</span>);
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Files.createDirectories(index0);
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         writeFile(index0.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"1"</span>);
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         writeFile(index0.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Data"</span>);
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         writeFile(index0.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"8"</span>);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         writeFile(index0.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         writeFile(index0.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"32K"</span>);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         assertThat(result.getB(), hasSize(1));
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         ProcessorCache cache = result.getB().get(0);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         assertThat(cache.getLevel(), is((byte) 1));
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         assertThat(cache.getType(), is(ProcessorCache.Type.DATA));
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         assertThat(cache.getAssociativity(), is((byte) 8));
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         assertThat(cache.getLineSize(), is((<strong class="jxr_keyword">short</strong>) 64));
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         assertThat(cache.getCacheSize(), is(32768));
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     @Test
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithModAlias(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         writeFile(cpu0.resolve(<span class="jxr_string">"uevent"</span>), <span class="jxr_string">"MODALIAS=cpu:type:aarch64:feature:0001"</span>);
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> 
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         assertThat(result.getD().get(0), is(<span class="jxr_string">"cpu:type:aarch64:feature:0001"</span>));
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>     }
-<a class="jxr_linenumber" name="L325" href="#L325">325</a> 
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>     <em class="jxr_comment">// readTopologyFromCpuinfo</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a> 
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>     @Test
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoSingleProcessor() {
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 0"</span>);
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 .readTopologyFromCpuinfo(lines);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>         assertThat(result.getA(), hasSize(1));
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         LogicalProcessor lp = result.getA().get(0);
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         assertThat(lp.getProcessorNumber(), is(0));
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         assertThat(lp.getPhysicalProcessorNumber(), is(0));
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         assertThat(lp.getPhysicalPackageNumber(), is(0));
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>     }
-<a class="jxr_linenumber" name="L341" href="#L341">341</a> 
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>     @Test
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoMultiProcessor() {
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"processor\t: 1"</span>,
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 <span class="jxr_string">"core id\t\t: 1"</span>, <span class="jxr_string">"physical id\t: 0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"processor\t: 2"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 1"</span>);
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 .readTopologyFromCpuinfo(lines);
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         assertThat(result.getA(), hasSize(3));
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <em class="jxr_comment">// Verify second processor</em>
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         LogicalProcessor lp1 = result.getA().get(1);
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         assertThat(lp1.getProcessorNumber(), is(1));
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         assertThat(lp1.getPhysicalProcessorNumber(), is(1));
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <em class="jxr_comment">// Verify third processor on different package</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         LogicalProcessor lp2 = result.getA().get(2);
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>         assertThat(lp2.getPhysicalPackageNumber(), is(1));
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>     }
-<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     @Test
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoCpuNumber() {
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>         <em class="jxr_comment">// Some architectures use "cpu number" instead of "core id"</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"cpu number\t: 5"</span>, <span class="jxr_string">"physical id\t: 0"</span>);
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 .readTopologyFromCpuinfo(lines);
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         assertThat(result.getA().get(0).getPhysicalProcessorNumber(), is(5));
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     }
-<a class="jxr_linenumber" name="L366" href="#L366">366</a> 
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>     @Test
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoEmptyInput() {
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <em class="jxr_comment">// Even with empty input, the method adds one default processor</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                 .readTopologyFromCpuinfo(Collections.emptyList());
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>         assertThat(result.getA(), hasSize(1));
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThat(result.getA().get(0).getProcessorNumber(), is(0));
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     }
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> 
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <em class="jxr_comment">// readTopologyFromSysfs — additional coverage</em>
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     @Test
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithNumaNode(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <em class="jxr_comment">// Use non-zero NUMA node to verify parsing (default is 0)</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         Path numaNode = cpu0.resolve(<span class="jxr_string">"node3"</span>);
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         Files.createDirectories(numaNode);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a> 
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         assertThat(result.getA(), hasSize(1));
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         assertThat(result.getA().get(0).getNumaNode(), is(3));
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>     }
-<a class="jxr_linenumber" name="L395" href="#L395">395</a> 
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     @Test
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithCacheTypes(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <em class="jxr_comment">// Add Instruction cache</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         Path index0 = cpu0.resolve(<span class="jxr_string">"cache/index0"</span>);
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         Files.createDirectories(index0);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>         writeFile(index0.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"1"</span>);
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>         writeFile(index0.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Instruction"</span>);
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>         writeFile(index0.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"4"</span>);
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         writeFile(index0.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         writeFile(index0.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"64K"</span>);
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <em class="jxr_comment">// Add Unified L2 cache</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         Path index1 = cpu0.resolve(<span class="jxr_string">"cache/index1"</span>);
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>         Files.createDirectories(index1);
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>         writeFile(index1.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"2"</span>);
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>         writeFile(index1.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Unified"</span>);
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         writeFile(index1.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"16"</span>);
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         writeFile(index1.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         writeFile(index1.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"512K"</span>);
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> 
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>                 .readTopologyFromSysfs(tempDir.toString());
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         assertThat(result.getB(), hasSize(2));
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> 
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <em class="jxr_comment">// mapNumaNodesFromLscpu</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <em class="jxr_comment">// Fixture: lscpu -p=cpu,node output</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSCPU_NUMA = Arrays.asList(
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <span class="jxr_string">"# The following is the parsable format, which can be fed to other"</span>,
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>             <span class="jxr_string">"# programs. Each different item in every column has an unique ID"</span>, <span class="jxr_string">"# starting from zero."</span>, <span class="jxr_string">"# CPU,Node"</span>,
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             <span class="jxr_string">"0,0"</span>, <span class="jxr_string">"1,0"</span>, <span class="jxr_string">"2,1"</span>, <span class="jxr_string">"3,1"</span>);
-<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     @Test
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpu() {
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(LSCPU_NUMA);
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         assertThat(result.size(), is(4));
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>         assertThat(result.get(0), is(0));
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         assertThat(result.get(1), is(0));
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         assertThat(result.get(2), is(1));
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         assertThat(result.get(3), is(1));
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     @Test
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpuEmpty() {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(Collections.emptyList());
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         assertThat(result.isEmpty(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     @Test
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpuCommentsOnly() {
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         List&lt;String&gt; comments = Arrays.asList(<span class="jxr_string">"# comment1"</span>, <span class="jxr_string">"# comment2"</span>);
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(comments);
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         assertThat(result.isEmpty(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     }
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> 
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <em class="jxr_comment">// mapCachesFromLscpu</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <em class="jxr_comment">// Fixture: lscpu -B -C --json output</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSCPU_CACHE_JSON = Arrays.asList(<span class="jxr_string">"{"</span>, <span class="jxr_string">"   \&quot;caches\&quot;: ["</span>, <span class="jxr_string">"      {"</span>,
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L1d\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;32768\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 8,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Data\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 1,"</span>,
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L1i\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;32768\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 8,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Instruction\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 1,"</span>,
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L2\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;262144\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 4,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Unified\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 2,"</span>,
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L3\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;16777216\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <span class="jxr_string">"         \&quot;ways\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Unified\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 3,"</span>,
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      }"</span>, <span class="jxr_string">"   ]"</span>, <span class="jxr_string">"}"</span>);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a> 
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>     @Test
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>     <strong class="jxr_keyword">void</strong> testMapCachesFromLscpu() {
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         Set&lt;ProcessorCache&gt; result = LinuxCentralProcessor.mapCachesFromLscpu(LSCPU_CACHE_JSON);
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         assertThat(result, hasSize(4));
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> 
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         ProcessorCache l1d = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.DATA);
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         assertThat(result.contains(l1d), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> 
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         ProcessorCache l1i = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.INSTRUCTION);
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         assertThat(result.contains(l1i), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L488" href="#L488">488</a> 
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>         ProcessorCache l2 = <strong class="jxr_keyword">new</strong> ProcessorCache(2, 4, 64, 262144L, ProcessorCache.Type.UNIFIED);
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>         assertThat(result.contains(l2), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L491" href="#L491">491</a> 
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <em class="jxr_comment">// L3 ways is null, so associativity should be 0</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         ProcessorCache l3 = <strong class="jxr_keyword">new</strong> ProcessorCache(3, 0, 64, 16777216L, ProcessorCache.Type.UNIFIED);
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>         assertThat(result.contains(l3), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>     }
-<a class="jxr_linenumber" name="L496" href="#L496">496</a> 
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>     @Test
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">void</strong> testMapCachesFromLscpuEmpty() {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>         Set&lt;ProcessorCache&gt; result = LinuxCentralProcessor.mapCachesFromLscpu(Collections.emptyList());
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         assertThat(result, is(empty()));
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     }
-<a class="jxr_linenumber" name="L502" href="#L502">502</a> 
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_javadoccomment">     * Minimal stub supplying native load-average samples without native calls and no udev enumeration.</em>
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> StubLinuxCentralProcessor <strong class="jxr_keyword">extends</strong> LinuxCentralProcessor {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">class</strong> <a name="LinuxCentralProcessorTest" href="../../../../../oshi/hardware/common/platform/linux/LinuxCentralProcessorTest.html#LinuxCentralProcessorTest">LinuxCentralProcessorTest</a> {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> EPS = 1e-6;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">// parseCpuidOutput</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Test
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputValid() {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <em class="jxr_comment">// Real cpuid -1r output for leaf 0x00000001</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CPU 0:"</span>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <span class="jxr_string">"   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69"</span>,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <span class="jxr_string">"   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf edx=0xbfebfbff"</span>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          String result = LinuxCentralProcessor.parseCpuidOutput(lines);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertThat(result, is(<span class="jxr_string">"bfebfbff000906ea"</span>));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      @Test
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputNoMatch() {
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CPU 0:"</span>,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  <span class="jxr_string">"   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69"</span>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Test
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputMalformed() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// Leaf 0x00000001 present but edx missing — should return null to allow fallback</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf"</span>);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      @Test
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">void</strong> testParseCpuidOutputEmpty() {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(LinuxCentralProcessor.parseCpuidOutput(Collections.emptyList()), is(nullValue()));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_comment">// createMIDR</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Test
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testCreateMIDRBasic() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// vendor=0x41 (ARM), stepping=r1p3, model=0xd07, family=8</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">"r1p3"</span>, <span class="jxr_string">"0xd07"</span>, <span class="jxr_string">"8"</span>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// Implementer 0x41 &lt;&lt; 24 = 0x41000000</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <em class="jxr_comment">// Variant 1 &lt;&lt; 20 = 0x00100000</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <em class="jxr_comment">// Architecture 8 &lt;&lt; 16 = 0x00080000</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <em class="jxr_comment">// PartNum 0xd07 &lt;&lt; 4 = 0x0000D070</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// Revision 3 = 0x00000003</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <em class="jxr_comment">// Total = 0x41180073... let me compute:</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">// 0x41 &lt;&lt; 24 = 0x41000000</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// 1 &lt;&lt; 20 = 0x00100000</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// 8 &lt;&lt; 16 = 0x00080000</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <em class="jxr_comment">// 0xd07 &lt;&lt; 4 = 0x0000D070</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_comment">// 3 = 0x00000003</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <em class="jxr_comment">// Sum = 0x4118D073</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(midr, is(<span class="jxr_string">"4118D073"</span>));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      @Test
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">void</strong> testCreateMIDRNoStepping() {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <em class="jxr_comment">// No rnpn stepping format</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"0xd03"</span>, <span class="jxr_string">"8"</span>);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <em class="jxr_comment">// 0x41 &lt;&lt; 24 + 8 &lt;&lt; 16 + 0xd03 &lt;&lt; 4 = 0x4108D030</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertThat(midr, is(<span class="jxr_string">"4108D030"</span>));
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     @Test
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">void</strong> testCreateMIDRZeroValues() {
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         String midr = LinuxCentralProcessor.createMIDR(<span class="jxr_string">"0x0"</span>, <span class="jxr_string">"r0p0"</span>, <span class="jxr_string">"0x0"</span>, <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(midr, is(<span class="jxr_string">"00000000"</span>));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_comment">// getSystemLoadAverage</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Test
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageThreeElements() {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(3, <span class="jxr_string">"1.25 0.75 0.50 1/234 5678"</span>);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(avg.length, is(3));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(avg[0], closeTo(1.25, EPS));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(avg[1], closeTo(0.75, EPS));
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(avg[2], closeTo(0.50, EPS));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     @Test
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageOneElement() {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(1, <span class="jxr_string">"2.00 1.00 0.50 1/100 999"</span>);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(avg.length, is(1));
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(avg[0], closeTo(2.0, EPS));
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     @Test
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageEmptyContent() {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">double</strong>[] avg = LinuxCentralProcessor.getSystemLoadAverage(3, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         assertThat(avg.length, is(3));
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(avg[0], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(avg[1], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         assertThat(avg[2], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     @Test
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageInvalidNelem() {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; LinuxCentralProcessor.getSystemLoadAverage(0, <span class="jxr_string">"1 2 3"</span>));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; LinuxCentralProcessor.getSystemLoadAverage(4, <span class="jxr_string">"1 2 3"</span>));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     @Test
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativeFullResult() {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1.0, 5.0, 15.0 }, 3);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">double</strong>[] avg = cpu.getSystemLoadAverage(3);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(avg[0], closeTo(1.0, EPS));
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(avg[1], closeTo(5.0, EPS));
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(avg[2], closeTo(15.0, EPS));
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     @Test
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativePartialResultFillsNegative() {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <em class="jxr_comment">// Native call returns fewer samples than requested: all-or-nothing, whole array becomes -1</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { 1.0, 5.0, 15.0 }, 2);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">double</strong>[] avg = cpu.getSystemLoadAverage(3);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(avg[0], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertThat(avg[1], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(avg[2], closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     @Test
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     @EnabledOnOs(OS.LINUX) <em class="jxr_comment">// constructing a LinuxCentralProcessor initializes Linux-only SysPath</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">void</strong> testGetSystemLoadAverageNativeInvalidNelem() {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         StubLinuxCentralProcessor cpu = <strong class="jxr_keyword">new</strong> StubLinuxCentralProcessor(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[0], 0);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; cpu.getSystemLoadAverage(0));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         assertThrows(IllegalArgumentException.<strong class="jxr_keyword">class</strong>, () -&gt; cpu.getSystemLoadAverage(4));
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_comment">// cpuSyspathsFromSysfs</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     @Test
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">void</strong> testCpuSyspathsFromSysfs(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpu0"</span>));
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpu1"</span>));
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"cpufreq"</span>)); <em class="jxr_comment">// not a cpuN entry</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         List&lt;String&gt; syspaths = LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(syspaths, hasSize(2));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertThat(syspaths.stream().anyMatch(p -&gt; p.endsWith(<span class="jxr_string">"cpu0"</span>)), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(syspaths.stream().anyMatch(p -&gt; p.endsWith(<span class="jxr_string">"cpu1"</span>)), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     @Test
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">void</strong> testCpuSyspathsFromSysfsNonexistentPath(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         assertThat(LinuxCentralProcessor.cpuSyspathsFromSysfs(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString()), is(empty()));
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <em class="jxr_comment">// queryMaxFreqFromCpuFreqPath</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     @Test
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqFromCpuFreqPathWithPolicies(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         Path policy0 = cpuFreq.resolve(<span class="jxr_string">"policy0"</span>);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         Path policy1 = cpuFreq.resolve(<span class="jxr_string">"policy1"</span>);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         Files.createDirectories(policy0);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         Files.createDirectories(policy1);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         writeFile(policy0.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"3600000"</span>);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         writeFile(policy1.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"4200000"</span>);
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <em class="jxr_comment">// 4200000 kHz * 1000 = 4200000000 Hz</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         assertThat(maxFreq, is(4200000000L));
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     @Test
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqFallbackToCpuinfoMaxFreq(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         Path policy0 = cpuFreq.resolve(<span class="jxr_string">"policy0"</span>);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         Files.createDirectories(policy0);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <em class="jxr_comment">// scaling_max_freq is 0, fall back to cpuinfo_max_freq</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         writeFile(policy0.resolve(<span class="jxr_string">"scaling_max_freq"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         writeFile(policy0.resolve(<span class="jxr_string">"cpuinfo_max_freq"</span>), <span class="jxr_string">"2500000"</span>);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         assertThat(maxFreq, is(2500000000L));
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     @Test
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqNonexistentPath(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString());
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         assertThat(maxFreq, is(-1L));
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     @Test
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">void</strong> testQueryMaxFreqNoPolicies(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         Path cpuFreq = tempDir.resolve(<span class="jxr_string">"cpufreq"</span>);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         Files.createDirectories(cpuFreq);
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// Directory exists but no policy subdirectories</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">long</strong> maxFreq = LinuxCentralProcessor.queryMaxFreqFromCpuFreqPath(cpuFreq.toString());
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         assertThat(maxFreq, is(-1L));
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <em class="jxr_comment">// readTopologyFromSysfs</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> 
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     @Test
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsNonexistentPath(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 .readTopologyFromSysfs(tempDir.resolve(<span class="jxr_string">"missing"</span>).toString());
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(result.getA(), is(empty()));
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         assertThat(result.getB(), is(empty()));
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertThat(result.getC().isEmpty(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertThat(result.getD().isEmpty(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     @Test
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsSingleCpu(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         writeFile(cpu0.resolve(<span class="jxr_string">"cpu_capacity"</span>), <span class="jxr_string">"1024"</span>);
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         assertThat(result.getA(), hasSize(1));
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         LogicalProcessor lp = result.getA().get(0);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         assertThat(lp.getPhysicalProcessorNumber(), is(0));
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         assertThat(lp.getPhysicalPackageNumber(), is(0));
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         <em class="jxr_comment">// cpu_capacity value stored in coreEfficiencyMap keyed by (pkg&lt;&lt;16)+core = 0</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         assertThat(result.getC().containsKey(0), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         assertThat(result.getC().get(0), is(1024));
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Test
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsMultiCpu(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; 4; i++) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             Path cpu = tempDir.resolve(<span class="jxr_string">"cpu"</span> + i);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             Files.createDirectories(cpu.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             writeFile(cpu.resolve(<span class="jxr_string">"topology/core_id"</span>), String.valueOf(i % 2));
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             writeFile(cpu.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         assertThat(result.getA(), hasSize(4));
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     @Test
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithCache(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Path index0 = cpu0.resolve(<span class="jxr_string">"cache/index0"</span>);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         Files.createDirectories(index0);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         writeFile(index0.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"1"</span>);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         writeFile(index0.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Data"</span>);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         writeFile(index0.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"8"</span>);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         writeFile(index0.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         writeFile(index0.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"32K"</span>);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         assertThat(result.getB(), hasSize(1));
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         ProcessorCache cache = result.getB().get(0);
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         assertThat(cache.getLevel(), is((byte) 1));
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         assertThat(cache.getType(), is(ProcessorCache.Type.DATA));
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         assertThat(cache.getAssociativity(), is((byte) 8));
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         assertThat(cache.getLineSize(), is((<strong class="jxr_keyword">short</strong>) 64));
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         assertThat(cache.getCacheSize(), is(32768));
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     @Test
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithModAlias(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         writeFile(cpu0.resolve(<span class="jxr_string">"uevent"</span>), <span class="jxr_string">"MODALIAS=cpu:type:aarch64:feature:0001"</span>);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         assertThat(result.getD().get(0), is(<span class="jxr_string">"cpu:type:aarch64:feature:0001"</span>));
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     }
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_comment">// readTopologyFromCpuinfo</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     @Test
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoSingleProcessor() {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 0"</span>);
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 .readTopologyFromCpuinfo(lines);
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         assertThat(result.getA(), hasSize(1));
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         LogicalProcessor lp = result.getA().get(0);
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         assertThat(lp.getProcessorNumber(), is(0));
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         assertThat(lp.getPhysicalProcessorNumber(), is(0));
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         assertThat(lp.getPhysicalPackageNumber(), is(0));
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     @Test
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoMultiProcessor() {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"processor\t: 1"</span>,
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 <span class="jxr_string">"core id\t\t: 1"</span>, <span class="jxr_string">"physical id\t: 0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"processor\t: 2"</span>, <span class="jxr_string">"core id\t\t: 0"</span>, <span class="jxr_string">"physical id\t: 1"</span>);
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 .readTopologyFromCpuinfo(lines);
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         assertThat(result.getA(), hasSize(3));
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <em class="jxr_comment">// Verify second processor</em>
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         LogicalProcessor lp1 = result.getA().get(1);
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         assertThat(lp1.getProcessorNumber(), is(1));
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         assertThat(lp1.getPhysicalProcessorNumber(), is(1));
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <em class="jxr_comment">// Verify third processor on different package</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         LogicalProcessor lp2 = result.getA().get(2);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         assertThat(lp2.getPhysicalPackageNumber(), is(1));
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     @Test
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoCpuNumber() {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <em class="jxr_comment">// Some architectures use "cpu number" instead of "core id"</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"cpu number\t: 5"</span>, <span class="jxr_string">"physical id\t: 0"</span>);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 .readTopologyFromCpuinfo(lines);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         assertThat(result.getA().get(0).getPhysicalProcessorNumber(), is(5));
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     }
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>     @Test
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromCpuinfoEmptyInput() {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <em class="jxr_comment">// Even with empty input, the method adds one default processor</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                 .readTopologyFromCpuinfo(Collections.emptyList());
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThat(result.getA(), hasSize(1));
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         assertThat(result.getA().get(0).getProcessorNumber(), is(0));
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <em class="jxr_comment">// readTopologyFromSysfs — additional coverage</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     @Test
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithNumaNode(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// Use non-zero NUMA node to verify parsing (default is 0)</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         Path numaNode = cpu0.resolve(<span class="jxr_string">"node3"</span>);
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         Files.createDirectories(numaNode);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         assertThat(result.getA(), hasSize(1));
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         assertThat(result.getA().get(0).getNumaNode(), is(3));
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>     @Test
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <strong class="jxr_keyword">void</strong> testReadTopologyFromSysfsWithCacheTypes(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         Path cpu0 = tempDir.resolve(<span class="jxr_string">"cpu0"</span>);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         Files.createDirectories(cpu0.resolve(<span class="jxr_string">"topology"</span>));
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/core_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         writeFile(cpu0.resolve(<span class="jxr_string">"topology/physical_package_id"</span>), <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <em class="jxr_comment">// Add Instruction cache</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         Path index0 = cpu0.resolve(<span class="jxr_string">"cache/index0"</span>);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         Files.createDirectories(index0);
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         writeFile(index0.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"1"</span>);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         writeFile(index0.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Instruction"</span>);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         writeFile(index0.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"4"</span>);
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         writeFile(index0.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         writeFile(index0.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"64K"</span>);
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> 
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <em class="jxr_comment">// Add Unified L2 cache</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         Path index1 = cpu0.resolve(<span class="jxr_string">"cache/index1"</span>);
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         Files.createDirectories(index1);
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         writeFile(index1.resolve(<span class="jxr_string">"level"</span>), <span class="jxr_string">"2"</span>);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         writeFile(index1.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Unified"</span>);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         writeFile(index1.resolve(<span class="jxr_string">"ways_of_associativity"</span>), <span class="jxr_string">"16"</span>);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         writeFile(index1.resolve(<span class="jxr_string">"coherency_line_size"</span>), <span class="jxr_string">"64"</span>);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         writeFile(index1.resolve(<span class="jxr_string">"size"</span>), <span class="jxr_string">"512K"</span>);
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         Quartet&lt;List&lt;LogicalProcessor&gt;, List&lt;ProcessorCache&gt;, Map&lt;Integer, Integer&gt;, Map&lt;Integer, String&gt;&gt; result = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                 .readTopologyFromSysfs(tempDir.toString());
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         assertThat(result.getB(), hasSize(2));
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <em class="jxr_comment">// mapNumaNodesFromLscpu</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> 
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <em class="jxr_comment">// Fixture: lscpu -p=cpu,node output</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSCPU_NUMA = Arrays.asList(
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>             <span class="jxr_string">"# The following is the parsable format, which can be fed to other"</span>,
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             <span class="jxr_string">"# programs. Each different item in every column has an unique ID"</span>, <span class="jxr_string">"# starting from zero."</span>, <span class="jxr_string">"# CPU,Node"</span>,
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <span class="jxr_string">"0,0"</span>, <span class="jxr_string">"1,0"</span>, <span class="jxr_string">"2,1"</span>, <span class="jxr_string">"3,1"</span>);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     @Test
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpu() {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(LSCPU_NUMA);
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         assertThat(result.size(), is(4));
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         assertThat(result.get(0), is(0));
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         assertThat(result.get(1), is(0));
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         assertThat(result.get(2), is(1));
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         assertThat(result.get(3), is(1));
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     @Test
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpuEmpty() {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(Collections.emptyList());
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         assertThat(result.isEmpty(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     @Test
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <strong class="jxr_keyword">void</strong> testMapNumaNodesFromLscpuCommentsOnly() {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         List&lt;String&gt; comments = Arrays.asList(<span class="jxr_string">"# comment1"</span>, <span class="jxr_string">"# comment2"</span>);
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         Map&lt;Integer, Integer&gt; result = LinuxCentralProcessor.mapNumaNodesFromLscpu(comments);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         assertThat(result.isEmpty(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_comment">// mapCachesFromLscpu</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a> 
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <em class="jxr_comment">// Fixture: lscpu -B -C --json output</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSCPU_CACHE_JSON = Arrays.asList(<span class="jxr_string">"{"</span>, <span class="jxr_string">"   \&quot;caches\&quot;: ["</span>, <span class="jxr_string">"      {"</span>,
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L1d\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;32768\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 8,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Data\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 1,"</span>,
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L1i\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;32768\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 8,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Instruction\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 1,"</span>,
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L2\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;262144\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <span class="jxr_string">"         \&quot;ways\&quot;: 4,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Unified\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 2,"</span>,
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      },"</span>, <span class="jxr_string">"      {"</span>,
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <span class="jxr_string">"         \&quot;name\&quot;: \&quot;L3\&quot;,"</span>, <span class="jxr_string">"         \&quot;one-size\&quot;: \&quot;16777216\&quot;,"</span>, <span class="jxr_string">"         \&quot;all-size\&quot;: null,"</span>,
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>             <span class="jxr_string">"         \&quot;ways\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;type\&quot;: \&quot;Unified\&quot;,"</span>, <span class="jxr_string">"         \&quot;level\&quot;: 3,"</span>,
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             <span class="jxr_string">"         \&quot;sets\&quot;: null,"</span>, <span class="jxr_string">"         \&quot;coherency-size\&quot;: 64"</span>, <span class="jxr_string">"      }"</span>, <span class="jxr_string">"   ]"</span>, <span class="jxr_string">"}"</span>);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     @Test
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>     <strong class="jxr_keyword">void</strong> testMapCachesFromLscpu() {
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         Set&lt;ProcessorCache&gt; result = LinuxCentralProcessor.mapCachesFromLscpu(LSCPU_CACHE_JSON);
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         assertThat(result, hasSize(4));
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         ProcessorCache l1d = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.DATA);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         assertThat(result.contains(l1d), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         ProcessorCache l1i = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 8, 64, 32768L, ProcessorCache.Type.INSTRUCTION);
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         assertThat(result.contains(l1i), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         ProcessorCache l2 = <strong class="jxr_keyword">new</strong> ProcessorCache(2, 4, 64, 262144L, ProcessorCache.Type.UNIFIED);
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         assertThat(result.contains(l2), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         <em class="jxr_comment">// L3 ways is null, so associativity should be 0</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         ProcessorCache l3 = <strong class="jxr_keyword">new</strong> ProcessorCache(3, 0, 64, 16777216L, ProcessorCache.Type.UNIFIED);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         assertThat(result.contains(l3), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>     }
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>     @Test
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>     <strong class="jxr_keyword">void</strong> testMapCachesFromLscpuEmpty() {
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         Set&lt;ProcessorCache&gt; result = LinuxCentralProcessor.mapCachesFromLscpu(Collections.emptyList());
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         assertThat(result, is(empty()));
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     }
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> 
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>     <em class="jxr_comment">// parseProcessorIdFromCpuinfo</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
 <a class="jxr_linenumber" name="L507" href="#L507">507</a> 
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] loadavgValues;
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> loadavgRetval;
-<a class="jxr_linenumber" name="L510" href="#L510">510</a> 
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>         StubLinuxCentralProcessor(<strong class="jxr_keyword">double</strong>[] loadavgValues, <strong class="jxr_keyword">int</strong> loadavgRetval) {
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">super</strong>(100L);
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">this</strong>.loadavgValues = loadavgValues;
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>             <strong class="jxr_keyword">this</strong>.loadavgRetval = loadavgRetval;
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         }
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         @Override
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">protected</strong> List&lt;String&gt; enumerateCpuSyspathsViaUdev() {
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         }
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     @Test
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">void</strong> testParseProcessorIdFromCpuinfoX86() {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         List&lt;String&gt; cpuinfo = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"vendor_id\t: GenuineIntel"</span>, <span class="jxr_string">"cpu family\t: 6"</span>,
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>                 <span class="jxr_string">"model\t\t: 158"</span>, <span class="jxr_string">"model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"</span>, <span class="jxr_string">"stepping\t: 10"</span>,
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>                 <span class="jxr_string">"flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic sep lm constant_tsc"</span>);
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         assertThat(id.vendor(), is(<span class="jxr_string">"GenuineIntel"</span>));
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         assertThat(id.name(), is(<span class="jxr_string">"Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"</span>));
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         assertThat(id.family(), is(<span class="jxr_string">"6"</span>));
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         assertThat(id.model(), is(<span class="jxr_string">"158"</span>));
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         assertThat(id.stepping(), is(<span class="jxr_string">"10"</span>));
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         assertThat(id.cpu64bit(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     }
 <a class="jxr_linenumber" name="L521" href="#L521">521</a> 
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         @Override
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nelem &amp;&amp; i &lt; loadavgValues.length; i++) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>                 loadavg[i] = loadavgValues[i];
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>             }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>             <strong class="jxr_keyword">return</strong> loadavgRetval;
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>         }
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     }
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     @Test
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <strong class="jxr_keyword">void</strong> testParseProcessorIdFromCpuinfoArm() {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <em class="jxr_comment">// Raspberry Pi style aarch64 /proc/cpuinfo: vendor from implementer, family from architecture, model from part,</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <em class="jxr_comment">// stepping synthesized from variant (r0) + revision (p3)</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         List&lt;String&gt; cpuinfo = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"BogoMIPS\t: 108.00"</span>,
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>                 <span class="jxr_string">"Features\t: fp asimd evtstrm crc32 cpuid"</span>, <span class="jxr_string">"CPU implementer\t: 0x41"</span>, <span class="jxr_string">"CPU architecture: 8"</span>,
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>                 <span class="jxr_string">"CPU variant\t: 0x0"</span>, <span class="jxr_string">"CPU part\t: 0xd08"</span>, <span class="jxr_string">"CPU revision\t: 3"</span>);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         assertThat(id.vendor(), is(<span class="jxr_string">"0x41"</span>));
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         assertThat(id.family(), is(<span class="jxr_string">"8"</span>));
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         assertThat(id.model(), is(<span class="jxr_string">"0xd08"</span>));
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         assertThat(id.stepping(), is(<span class="jxr_string">"r0p3"</span>));
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         assertThat(id.name(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         assertThat(id.cpu64bit(), is(false));
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>     }
+<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     @Test
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">void</strong> testParseProcessorIdFromCpuinfoEmpty() {
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>                 .parseProcessorIdFromCpuinfo(Collections.emptyList());
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         assertThat(id.vendor(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         assertThat(id.name(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         assertThat(id.family(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         assertThat(id.model(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         assertThat(id.stepping(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         assertThat(id.cpu64bit(), is(false));
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         assertThat(id.flags().length, is(0));
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     }
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> 
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>     @Test
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     <strong class="jxr_keyword">void</strong> testParseProcessorIdFromCpuinfoIgnoresNumericProcessorName() {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         <em class="jxr_comment">// The "processor : N" line on ARM must not become the CPU name</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>                 .parseProcessorIdFromCpuinfo(Arrays.asList(<span class="jxr_string">"processor\t: 3"</span>));
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         assertThat(id.name(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>     }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> 
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <em class="jxr_comment">// parseLscpuIdentity</em>
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a> 
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>     @Test
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>     <strong class="jxr_keyword">void</strong> testParseLscpuIdentityFillsFromLscpu() {
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         List&lt;String&gt; lscpu = Arrays.asList(<span class="jxr_string">"Architecture:                    aarch64"</span>,
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>                 <span class="jxr_string">"Vendor ID:                       ARM"</span>, <span class="jxr_string">"Model name:                      Cortex-A72"</span>);
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>         Triplet&lt;String, String, String&gt; id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, <span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>         assertThat(id.getA(), is(<span class="jxr_string">"ARM"</span>));
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>         assertThat(id.getB(), is(<span class="jxr_string">"Cortex-A72"</span>));
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         assertThat(id.getC(), is(<span class="jxr_string">"Cortex-A72"</span>));
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     }
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> 
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     @Test
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     <strong class="jxr_keyword">void</strong> testParseLscpuIdentityArchitectureOnlyOverridesHexVendor() {
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         List&lt;String&gt; lscpu = Arrays.asList(<span class="jxr_string">"Architecture:                    x86_64"</span>);
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <em class="jxr_comment">// Non-hex vendor is left alone by the Architecture line</em>
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         assertThat(LinuxCentralProcessor.parseLscpuIdentity(lscpu, <span class="jxr_string">"GenuineIntel"</span>, <span class="jxr_string">"158"</span>, <span class="jxr_string">"Xeon"</span>).getA(),
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>                 is(<span class="jxr_string">"GenuineIntel"</span>));
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>         <em class="jxr_comment">// Hex vendor is replaced by the architecture</em>
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>         assertThat(LinuxCentralProcessor.parseLscpuIdentity(lscpu, <span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>).getA(), is(<span class="jxr_string">"x86_64"</span>));
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>     }
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> 
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>     @Test
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>     <strong class="jxr_keyword">void</strong> testParseLscpuIdentityKeepsExistingModelAndName() {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>         List&lt;String&gt; lscpu = Arrays.asList(<span class="jxr_string">"Model name:                      Ignored"</span>);
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>         Triplet&lt;String, String, String&gt; id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, <span class="jxr_string">"GenuineIntel"</span>, <span class="jxr_string">"158"</span>,
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>                 <span class="jxr_string">"i7"</span>);
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>         assertThat(id.getB(), is(<span class="jxr_string">"158"</span>));
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         assertThat(id.getC(), is(<span class="jxr_string">"i7"</span>));
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>     }
+<a class="jxr_linenumber" name="L591" href="#L591">591</a> 
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">     * Minimal stub supplying native load-average samples without native calls and no udev enumeration.</em>
+<a class="jxr_linenumber" name="L594" href="#L594">594</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> StubLinuxCentralProcessor <strong class="jxr_keyword">extends</strong> LinuxCentralProcessor {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a> 
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] loadavgValues;
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> loadavgRetval;
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> 
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         StubLinuxCentralProcessor(<strong class="jxr_keyword">double</strong>[] loadavgValues, <strong class="jxr_keyword">int</strong> loadavgRetval) {
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>             <strong class="jxr_keyword">super</strong>(100L);
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>             <strong class="jxr_keyword">this</strong>.loadavgValues = loadavgValues;
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>             <strong class="jxr_keyword">this</strong>.loadavgRetval = loadavgRetval;
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>         }
+<a class="jxr_linenumber" name="L605" href="#L605">605</a> 
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>         @Override
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>         <strong class="jxr_keyword">protected</strong> List&lt;String&gt; enumerateCpuSyspathsViaUdev() {
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>         }
+<a class="jxr_linenumber" name="L610" href="#L610">610</a> 
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>         @Override
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nelem &amp;&amp; i &lt; loadavgValues.length; i++) {
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                 loadavg[i] = loadavgValues[i];
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>             }
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>             <strong class="jxr_keyword">return</strong> loadavgRetval;
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>         }
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>     }
+<a class="jxr_linenumber" name="L619" href="#L619">619</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

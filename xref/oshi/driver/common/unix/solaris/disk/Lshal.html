@@ -38,23 +38,32 @@
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     *         otherwise</em>
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, Integer&gt; queryDiskToMajorMap() {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          Map&lt;String, Integer&gt; majorMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          List&lt;String&gt; lshal = ExecutingCommand.runNative(LSHAL_CMD);
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          String diskName = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">for</strong> (String line : lshal) {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"udi "</span>)) {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>                  String udi = ParseUtil.getSingleQuoteStringValue(line);
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>                  diskName = udi.substring(udi.lastIndexOf('/') + 1);
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  line = line.trim();
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"block.major"</span>) &amp;&amp; diskName != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                      majorMap.put(diskName, ParseUtil.getFirstIntValue(line));
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">return</strong> majorMap;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">return</strong> parseLshal(ExecutingCommand.runNative(LSHAL_CMD));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * Parses the output of {@code lshal} into a map of disk names to block device major numbers.</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @param lshal the lines of output from {@code lshal}</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @return A map with disk names as the key and block device major as the value</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">static</strong> Map&lt;String, Integer&gt; parseLshal(List&lt;String&gt; lshal) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          Map&lt;String, Integer&gt; majorMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String diskName = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">for</strong> (String line : lshal) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"udi "</span>)) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  String udi = ParseUtil.getSingleQuoteStringValue(line);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  diskName = udi.substring(udi.lastIndexOf('/') + 1);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  line = line.trim();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"block.major"</span>) &amp;&amp; diskName != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                      majorMap.put(diskName, ParseUtil.getFirstIntValue(line));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">return</strong> majorMap;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

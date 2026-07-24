@@ -49,34 +49,45 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_comment">                       3        1992.00</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_comment">                       4         249.00</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">int</strong> node = 0;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">int</strong> slot = 0;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          Map&lt;Integer, Pair&lt;Integer, Integer&gt;&gt; nodeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          List&lt;String&gt; lssrad = ExecutingCommand.runNative(<span class="jxr_string">"lssrad -av"</span>);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <em class="jxr_comment">// remove header</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">if</strong> (!lssrad.isEmpty()) {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              lssrad.remove(0);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">for</strong> (String s : lssrad) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              String t = s.trim();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">if</strong> (!t.isEmpty()) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  <strong class="jxr_keyword">if</strong> (Character.isDigit(s.charAt(0))) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                      node = ParseUtil.parseIntOrDefault(t, 0);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                      <strong class="jxr_keyword">if</strong> (t.contains(<span class="jxr_string">"."</span>)) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                          String[] split = ParseUtil.whitespaces.split(t, 3);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                          slot = ParseUtil.parseIntOrDefault(split[0], 0);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                          t = split.length &gt; 2 ? split[2] : <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      }
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      <strong class="jxr_keyword">for</strong> (Integer proc : ParseUtil.parseHyphenatedIntList(t)) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                          nodeMap.put(proc, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(node, slot));
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> nodeMap;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">return</strong> parseNodesPackages(ExecutingCommand.runNative(<span class="jxr_string">"lssrad -av"</span>));
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * Parses {@code lssrad -av} output into a map of processor number to its (ref, srad) pair.</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * @param lssrad the lines of {@code lssrad -av} output (including the header row)</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * @return A map of processor number to a pair containing the ref (NUMA equivalent) and srad (package)</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Map&lt;Integer, Pair&lt;Integer, Integer&gt;&gt; parseNodesPackages(List&lt;String&gt; lssrad) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">int</strong> node = 0;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">int</strong> slot = 0;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          Map&lt;Integer, Pair&lt;Integer, Integer&gt;&gt; nodeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">boolean</strong> header = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">for</strong> (String s : lssrad) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <em class="jxr_comment">// Skip the "REF1 SRAD MEM CPU" header row without mutating the input list</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (header) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  header = false;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              String t = s.trim();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (!t.isEmpty()) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">if</strong> (Character.isDigit(s.charAt(0))) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      node = ParseUtil.parseIntOrDefault(t, 0);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <strong class="jxr_keyword">if</strong> (t.contains(<span class="jxr_string">"."</span>)) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                          String[] split = ParseUtil.whitespaces.split(t, 3);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          slot = ParseUtil.parseIntOrDefault(split[0], 0);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                          t = split.length &gt; 2 ? split[2] : <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      <strong class="jxr_keyword">for</strong> (Integer proc : ParseUtil.parseHyphenatedIntList(t)) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          nodeMap.put(proc, <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(node, slot));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> nodeMap;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

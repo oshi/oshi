@@ -219,7 +219,7 @@
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>     @Override
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> getSystemCpuLoadBetweenTicks(<strong class="jxr_keyword">long</strong>[] oldTicks) {
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">if</strong> (oldTicks.length != TickType.values().length) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Provited tick array length "</span> + oldTicks.length + <span class="jxr_string">" should have "</span>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Provided tick array length "</span> + oldTicks.length + <span class="jxr_string">" should have "</span>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>                     + TickType.values().length + <span class="jxr_string">" elements"</span>);
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">return</strong> getSystemCpuLoadBetweenTicks(oldTicks, getSystemCpuLoadTicks());

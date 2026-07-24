@@ -93,29 +93,30 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      @Override
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> updateThreadCount() {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          List&lt;String&gt; threadList = ExecutingCommand.runNative(<span class="jxr_string">"ps -axHo tid -p "</span> + getProcessID());
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">if</strong> (!threadList.isEmpty()) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <em class="jxr_comment">// Subtract 1 for header</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">this</strong>.threadCount = threadList.size() - 1;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <em class="jxr_comment">// A live process always has at least one thread</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">this</strong>.threadCount = Math.max(<strong class="jxr_keyword">this</strong>.threadCount, 1);
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Override
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> List&lt;OSThread&gt; getThreadDetails() {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          String psCommand = <span class="jxr_string">"ps -aHwwxo "</span> + OpenBsdOSThread.PS_THREAD_COLUMNS;
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">if</strong> (getProcessID() &gt;= 0) {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             psCommand += <span class="jxr_string">" -p "</span> + getProcessID();
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         Predicate&lt;Map&lt;BsdPsThreadKeyword, String&gt;&gt; hasColumnsArgs = threadMap -&gt; threadMap
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 .containsKey(BsdPsThreadKeyword.ARGS);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 .map(thread -&gt; ParseUtil.stringToEnumMap(BsdPsThreadKeyword.<strong class="jxr_keyword">class</strong>, OpenBsdOSThread.PS_THREAD_KEYWORDS,
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                         thread.trim(), ' '))
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 .filter(hasColumnsArgs).map(threadMap -&gt; <strong class="jxr_keyword">new</strong> <a name="OpenBsdOSThread" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdOSThread.html#OpenBsdOSThread">OpenBsdOSThread</a>(getProcessID(), threadMap))
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 .filter(VALID_THREAD).collect(Collectors.toList());
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">int</strong> count = <strong class="jxr_keyword">this</strong>.threadCount;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">if</strong> (!threadList.isEmpty()) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <em class="jxr_comment">// Subtract 1 for header</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              count = threadList.size() - 1;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// A live process always has at least one thread</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">this</strong>.threadCount = Math.max(count, 1);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      @Override
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> List&lt;OSThread&gt; getThreadDetails() {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          String psCommand = <span class="jxr_string">"ps -aHwwxo "</span> + OpenBsdOSThread.PS_THREAD_COLUMNS;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">if</strong> (getProcessID() &gt;= 0) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             psCommand += <span class="jxr_string">" -p "</span> + getProcessID();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Predicate&lt;Map&lt;BsdPsThreadKeyword, String&gt;&gt; hasColumnsArgs = threadMap -&gt; threadMap
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 .containsKey(BsdPsThreadKeyword.ARGS);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 .map(thread -&gt; ParseUtil.stringToEnumMap(BsdPsThreadKeyword.<strong class="jxr_keyword">class</strong>, OpenBsdOSThread.PS_THREAD_KEYWORDS,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                         thread.trim(), ' '))
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 .filter(hasColumnsArgs).map(threadMap -&gt; <strong class="jxr_keyword">new</strong> <a name="OpenBsdOSThread" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdOSThread.html#OpenBsdOSThread">OpenBsdOSThread</a>(getProcessID(), threadMap))
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 .filter(VALID_THREAD).collect(Collectors.toList());
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

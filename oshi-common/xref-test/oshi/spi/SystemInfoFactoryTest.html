@@ -18,29 +18,39 @@
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertThrows;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.DisabledOnOs;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * Validates SystemInfoFactory behavior when only oshi-common is on the classpath (no oshi-core or oshi-core-ffm).</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">class</strong> <a name="SystemInfoFactoryTest" href="../../oshi/spi/SystemInfoFactoryTest.html#SystemInfoFactoryTest">SystemInfoFactoryTest</a> {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Test
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      @EnabledOnOs(OS.LINUX)
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">void</strong> factoryReturnsNativeFreeProviderOnLinux() {
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          SystemInfoProvider provider = SystemInfoFactory.create();
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(provider, is(instanceOf(oshi.nativefree.SystemInfo.<strong class="jxr_keyword">class</strong>)));
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(provider.getPriority(), is(0));
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      @Test
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @DisabledOnOs(OS.LINUX)
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">void</strong> factoryThrowsOnNonLinux() {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThrows(IllegalStateException.<strong class="jxr_keyword">class</strong>, SystemInfoFactory::create);
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  }
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.DisabledIf;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledIf;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * Validates SystemInfoFactory behavior when only oshi-common is on the classpath (no oshi-core or oshi-core-ffm).</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="SystemInfoFactoryTest" href="../../oshi/spi/SystemInfoFactoryTest.html#SystemInfoFactoryTest">SystemInfoFactoryTest</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * Whether the native-free provider supports the current platform. Delegates to the production</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * {@code oshi.nativefree.SystemInfo#isAvailable()} so the test enablement cannot drift from the provider's own</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * gating. ({@code @EnabledIf} requires a static method and cannot reference the instance method directly.)</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @return {@code true} on Linux or NetBSD</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isNativeFreePlatform() {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> oshi.nativefree.SystemInfo().isAvailable();
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      @Test
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      @EnabledIf(<span class="jxr_string">"isNativeFreePlatform"</span>)
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">void</strong> factoryReturnsNativeFreeProviderOnNativeFreePlatform() {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          SystemInfoProvider provider = SystemInfoFactory.create();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(provider, is(instanceOf(oshi.nativefree.SystemInfo.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(provider.getPriority(), is(0));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @DisabledIf(<span class="jxr_string">"isNativeFreePlatform"</span>)
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">void</strong> factoryThrowsOnUnsupportedPlatform() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThrows(IllegalStateException.<strong class="jxr_keyword">class</strong>, SystemInfoFactory::create);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

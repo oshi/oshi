@@ -60,12 +60,12 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> org.slf4j.event.Level;
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Win32Exception;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.IPConnection;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.TcpStats;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.UdpStats;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.Win32Exception;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.IPConnection;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.TcpStats;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.UdpStats;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <strong class="jxr_keyword">import</strong> oshi.util.LogLevel;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">/**</em>
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             }
 <a class="jxr_linenumber" name="L121" href="#L121">121</a> 
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>             <strong class="jxr_keyword">return</strong> dnsServers.toArray(<strong class="jxr_keyword">new</strong> String[0]);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }, LOG, Level.ERROR, <span class="jxr_string">"GetNetworkParams failed"</span>, <strong class="jxr_keyword">new</strong> String[0]);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         }, LOG, LogLevel.ERROR, <span class="jxr_string">"GetNetworkParams failed"</span>, <strong class="jxr_keyword">new</strong> String[0]);
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
 <a class="jxr_linenumber" name="L125" href="#L125">125</a> 
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_javadoccomment">/**</em>
@@ -167,7 +167,7 @@
 <a class="jxr_linenumber" name="L159" href="#L159">159</a> 
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(connectionsEstablished, connectionsActive, connectionsPassive, connectionFailures,
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>                     connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"getTcpStats failed"</span>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"getTcpStats failed"</span>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> 
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
@@ -193,7 +193,7 @@
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">int</strong> inErrors = stats.get(JAVA_INT, MIB_UDPSTATS_LAYOUT.byteOffset(PathElement.groupElement(<span class="jxr_string">"dwInErrors"</span>)));
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(outDatagrams, inDatagrams, noPorts, inErrors);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"getUdpStats failed"</span>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"getUdpStats failed"</span>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
 <a class="jxr_linenumber" name="L190" href="#L190">190</a> 
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_javadoccomment">/**</em>
@@ -244,7 +244,7 @@
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>                         ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>             }
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">return</strong> conns;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"queryTCPv4Connections failed"</span>, Collections.emptyList());
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"queryTCPv4Connections failed"</span>, Collections.emptyList());
 <a class="jxr_linenumber" name="L240" href="#L240">240</a>     }
 <a class="jxr_linenumber" name="L241" href="#L241">241</a> 
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>     <em class="jxr_javadoccomment">/**</em>
@@ -302,7 +302,7 @@
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>                         remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>             }
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>             <strong class="jxr_keyword">return</strong> conns;
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"queryTCPv6Connections failed"</span>, Collections.emptyList());
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"queryTCPv6Connections failed"</span>, Collections.emptyList());
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>     }
 <a class="jxr_linenumber" name="L299" href="#L299">299</a> 
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>     <em class="jxr_javadoccomment">/**</em>
@@ -346,7 +346,7 @@
 <a class="jxr_linenumber" name="L338" href="#L338">338</a>                         ParseUtil.bigEndian16ToLittleEndian(localPortBE), <strong class="jxr_keyword">new</strong> byte[0], 0, TcpState.NONE, 0, 0, pid));
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>             }
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>             <strong class="jxr_keyword">return</strong> conns;
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"queryUDPv4Connections failed"</span>, Collections.emptyList());
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"queryUDPv4Connections failed"</span>, Collections.emptyList());
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>     }
 <a class="jxr_linenumber" name="L343" href="#L343">343</a> 
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>     <em class="jxr_javadoccomment">/**</em>
@@ -394,7 +394,7 @@
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>                         <strong class="jxr_keyword">new</strong> byte[0], 0, TcpState.NONE, 0, 0, pid));
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>             }
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>             <strong class="jxr_keyword">return</strong> conns;
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         }, LOG, Level.DEBUG, <span class="jxr_string">"queryUDPv6Connections failed"</span>, Collections.emptyList());
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         }, LOG, LogLevel.DEBUG, <span class="jxr_string">"queryUDPv6Connections failed"</span>, Collections.emptyList());
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>     }
 <a class="jxr_linenumber" name="L391" href="#L391">391</a> 
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> TcpState stateLookup(<strong class="jxr_keyword">int</strong> state) {

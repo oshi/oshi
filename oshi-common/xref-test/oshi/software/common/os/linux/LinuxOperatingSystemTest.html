@@ -13,288 +13,383 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.common.os.linux;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.nullValue;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @EnabledOnOs(OS.LINUX)
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">class</strong> <a name="LinuxOperatingSystemTest" href="../../../../../oshi/software/common/os/linux/LinuxOperatingSystemTest.html#LinuxOperatingSystemTest">LinuxOperatingSystemTest</a> {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_comment">// Fixture: /etc/os-release from Ubuntu 22.04</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; OS_RELEASE_UBUNTU = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>,
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>              <span class="jxr_string">"VERSION=\&quot;22.04.3 LTS (Jammy Jellyfish)\&quot;"</span>, <span class="jxr_string">"ID=ubuntu"</span>, <span class="jxr_string">"VERSION_ID=\&quot;22.04\&quot;"</span>,
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>              <span class="jxr_string">"PRETTY_NAME=\&quot;Ubuntu 22.04.3 LTS\&quot;"</span>);
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_comment">// Fixture: /etc/os-release from CentOS Stream (no codename in VERSION)</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; OS_RELEASE_CENTOS = Arrays.asList(<span class="jxr_string">"NAME=\&quot;CentOS Stream\&quot;"</span>, <span class="jxr_string">"VERSION=\&quot;9\&quot;"</span>,
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>              <span class="jxr_string">"ID=\&quot;centos\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;9\&quot;"</span>);
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_comment">// Fixture: lsb_release -a output</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSB_RELEASE = Arrays.asList(
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <span class="jxr_string">"LSB Version:\tcore-11.1.0ubuntu4-noarch:security-11.1.0ubuntu4-noarch"</span>, <span class="jxr_string">"Distributor ID:\tUbuntu"</span>,
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <span class="jxr_string">"Description:\tUbuntu 22.04.3 LTS"</span>, <span class="jxr_string">"Release:\t22.04"</span>, <span class="jxr_string">"Codename:\tjammy"</span>);
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      @Test
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseUbuntu() {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_UBUNTU);
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(result.getB(), is(<span class="jxr_string">"22.04.3 LTS"</span>));
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertThat(result.getC(), is(<span class="jxr_string">"Jammy Jellyfish"</span>));
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      @Test
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseCentOS() {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_CENTOS);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertThat(result.getA(), is(<span class="jxr_string">"CentOS Stream"</span>));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(result.getB(), is(<span class="jxr_string">"9"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      @Test
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseEmpty() {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(LinuxOperatingSystem.readOsRelease(Collections.emptyList()), is(nullValue()));
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Test
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseNoName() {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;String&gt; noName = Arrays.asList(<span class="jxr_string">"VERSION=\&quot;1.0\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;1\&quot;"</span>);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(LinuxOperatingSystem.readOsRelease(noName), is(nullValue()));
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasSize;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.nullValue;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.StandardCharsets;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.io.TempDir;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSService;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.OSService.State;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  @EnabledOnOs(OS.LINUX)
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">class</strong> <a name="LinuxOperatingSystemTest" href="../../../../../oshi/software/common/os/linux/LinuxOperatingSystemTest.html#LinuxOperatingSystemTest">LinuxOperatingSystemTest</a> {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_comment">// Fixture: /etc/os-release from Ubuntu 22.04</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; OS_RELEASE_UBUNTU = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <span class="jxr_string">"VERSION=\&quot;22.04.3 LTS (Jammy Jellyfish)\&quot;"</span>, <span class="jxr_string">"ID=ubuntu"</span>, <span class="jxr_string">"VERSION_ID=\&quot;22.04\&quot;"</span>,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <span class="jxr_string">"PRETTY_NAME=\&quot;Ubuntu 22.04.3 LTS\&quot;"</span>);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_comment">// Fixture: /etc/os-release from CentOS Stream (no codename in VERSION)</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; OS_RELEASE_CENTOS = Arrays.asList(<span class="jxr_string">"NAME=\&quot;CentOS Stream\&quot;"</span>, <span class="jxr_string">"VERSION=\&quot;9\&quot;"</span>,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <span class="jxr_string">"ID=\&quot;centos\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;9\&quot;"</span>);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_comment">// Fixture: lsb_release -a output</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSB_RELEASE = Arrays.asList(
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <span class="jxr_string">"LSB Version:\tcore-11.1.0ubuntu4-noarch:security-11.1.0ubuntu4-noarch"</span>, <span class="jxr_string">"Distributor ID:\tUbuntu"</span>,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <span class="jxr_string">"Description:\tUbuntu 22.04.3 LTS"</span>, <span class="jxr_string">"Release:\t22.04"</span>, <span class="jxr_string">"Codename:\tjammy"</span>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseUbuntu() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_UBUNTU);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(result.getB(), is(<span class="jxr_string">"22.04.3 LTS"</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(result.getC(), is(<span class="jxr_string">"Jammy Jellyfish"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      @Test
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseCentOS() {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_CENTOS);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(result.getA(), is(<span class="jxr_string">"CentOS Stream"</span>));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(result.getB(), is(<span class="jxr_string">"9"</span>));
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Test
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">void</strong> testExecLsbRelease() {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(LSB_RELEASE);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(result.getB(), is(<span class="jxr_string">"22.04"</span>));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(result.getC(), is(<span class="jxr_string">"jammy"</span>));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      @Test
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">void</strong> testExecLsbReleaseEmpty() {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(LinuxOperatingSystem.execLsbRelease(Collections.emptyList()), is(nullValue()));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      @Test
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">void</strong> testExecLsbReleaseDescriptionOnly() {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          List&lt;String&gt; descOnly = Arrays.asList(<span class="jxr_string">"Description:\tFedora release 38 (Thirty Eight)"</span>);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(descOnly);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(result.getB(), is(<span class="jxr_string">"38"</span>));
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(result.getC(), is(<span class="jxr_string">"Thirty Eight"</span>));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_comment">// getParentPidFromStat — parses /proc/[pid]/stat</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      @Test
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">void</strong> testGetParentPidFromStat() {
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// Real /proc/[pid]/stat line: pid (comm) state ppid ...</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          String stat = <span class="jxr_string">"1234 (bash) S 567 1234 1234 0 -1 4194304 1234 0 0 0 0 0 0 0 20 0 1 0 12345 67890 0 "</span>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                  + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(567));
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      @Test
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatInit() {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <em class="jxr_comment">// PID 1 (init/systemd) has PPID 0</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         String stat = <span class="jxr_string">"1 (systemd) S 0 1 1 0 -1 4194560 12345 0 0 0 0 0 0 0 20 0 1 0 1 67890 0 "</span>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(0));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Test
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatEmpty() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(<span class="jxr_string">""</span>), is(0));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     @Test
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatCommWithSpaces() {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// Process name can contain spaces and parentheses</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         String stat = <span class="jxr_string">"42 (Web Content (pid 42)) S 100 42 42 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 0 0 0 "</span>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(100));
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_comment">// readLsbRelease — parses /etc/lsb-release</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     @Test
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">void</strong> testReadLsbRelease() {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"DISTRIB_ID=Ubuntu"</span>, <span class="jxr_string">"DISTRIB_RELEASE=20.04"</span>, <span class="jxr_string">"DISTRIB_CODENAME=focal"</span>,
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 <span class="jxr_string">"DISTRIB_DESCRIPTION=\&quot;Ubuntu 20.04.6 LTS\&quot;"</span>);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readLsbRelease(lines);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertThat(result.getB(), is(<span class="jxr_string">"20.04"</span>));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(result.getC(), is(<span class="jxr_string">"focal"</span>));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     @Test
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">void</strong> testReadLsbReleaseDescriptionWithRelease() {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"DISTRIB_DESCRIPTION=\&quot;Fedora release 38 (Thirty Eight)\&quot;"</span>);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readLsbRelease(lines);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThat(result.getB(), is(<span class="jxr_string">"38"</span>));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(result.getC(), is(<span class="jxr_string">"Thirty Eight"</span>));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Test
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">void</strong> testReadLsbReleaseEmpty() {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertThat(LinuxOperatingSystem.readLsbRelease(Collections.emptyList()), is(nullValue()));
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <em class="jxr_comment">// readDistribRelease — parses distrib-release files</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     @Test
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">void</strong> testReadDistribRelease() {
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CentOS release 6.10 (Final)"</span>);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(result.getA(), is(<span class="jxr_string">"CentOS"</span>));
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(result.getB(), is(<span class="jxr_string">"6.10"</span>));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         assertThat(result.getC(), is(<span class="jxr_string">"Final"</span>));
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     @Test
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseVersion() {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"SUSE Linux Enterprise Server VERSION 15"</span>);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         assertThat(result.getA(), is(<span class="jxr_string">"SUSE Linux Enterprise Server"</span>));
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         assertThat(result.getB(), is(<span class="jxr_string">"15"</span>));
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     @Test
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseEmpty() {
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         assertThat(LinuxOperatingSystem.readDistribRelease(Collections.emptyList()), is(nullValue()));
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <em class="jxr_comment">// parseRelease — pure parsing logic</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     @Test
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">void</strong> testParseRelease() {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 .parseRelease(<span class="jxr_string">"Red Hat Enterprise Linux release 8.5 (Ootpa)"</span>, <span class="jxr_string">" release "</span>);
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(result.getA(), is(<span class="jxr_string">"Red Hat Enterprise Linux"</span>));
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertThat(result.getB(), is(<span class="jxr_string">"8.5"</span>));
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(result.getC(), is(<span class="jxr_string">"Ootpa"</span>));
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> 
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     @Test
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <strong class="jxr_keyword">void</strong> testParseReleaseNoCodename() {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.parseRelease(<span class="jxr_string">"Debian release 11"</span>, <span class="jxr_string">" release "</span>);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         assertThat(result.getA(), is(<span class="jxr_string">"Debian"</span>));
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         assertThat(result.getB(), is(<span class="jxr_string">"11"</span>));
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     @Test
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">void</strong> testParseReleaseNoVersion() {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.parseRelease(<span class="jxr_string">"MyLinux"</span>, <span class="jxr_string">" release "</span>);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         assertThat(result.getA(), is(<span class="jxr_string">"MyLinux"</span>));
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         assertThat(result.getB(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     }
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> 
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <em class="jxr_comment">// filenameToFamily — maps release filename to distro family</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     @Test
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyEmpty() {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">""</span>), is(<span class="jxr_string">"Solaris"</span>));
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     }
-<a class="jxr_linenumber" name="L212" href="#L212">212</a> 
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     @Test
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyIssue() {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">"issue"</span>), is(<span class="jxr_string">"Unknown"</span>));
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
-<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     @Test
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyUnknown() {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// Unknown name gets capitalized</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">"mylinux"</span>), is(<span class="jxr_string">"Mylinux"</span>));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseEmpty() {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(LinuxOperatingSystem.readOsRelease(Collections.emptyList()), is(nullValue()));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      @Test
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">void</strong> testReadOsReleaseNoName() {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          List&lt;String&gt; noName = Arrays.asList(<span class="jxr_string">"VERSION=\&quot;1.0\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;1\&quot;"</span>);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertThat(LinuxOperatingSystem.readOsRelease(noName), is(nullValue()));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Test
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testExecLsbRelease() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(LSB_RELEASE);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(result.getB(), is(<span class="jxr_string">"22.04"</span>));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(result.getC(), is(<span class="jxr_string">"jammy"</span>));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      @Test
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">void</strong> testExecLsbReleaseEmpty() {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertThat(LinuxOperatingSystem.execLsbRelease(Collections.emptyList()), is(nullValue()));
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      @Test
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">void</strong> testExecLsbReleaseDescriptionOnly() {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          List&lt;String&gt; descOnly = Arrays.asList(<span class="jxr_string">"Description:\tFedora release 38 (Thirty Eight)"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(descOnly);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(result.getB(), is(<span class="jxr_string">"38"</span>));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(result.getC(), is(<span class="jxr_string">"Thirty Eight"</span>));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <em class="jxr_comment">// getParentPidFromStat — parses /proc/[pid]/stat</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     @Test
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStat() {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// Real /proc/[pid]/stat line: pid (comm) state ppid ...</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         String stat = <span class="jxr_string">"1234 (bash) S 567 1234 1234 0 -1 4194304 1234 0 0 0 0 0 0 0 20 0 1 0 12345 67890 0 "</span>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(567));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     @Test
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatInit() {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// PID 1 (init/systemd) has PPID 0</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         String stat = <span class="jxr_string">"1 (systemd) S 0 1 1 0 -1 4194560 12345 0 0 0 0 0 0 0 20 0 1 0 1 67890 0 "</span>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 65536 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(0));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     @Test
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatEmpty() {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(<span class="jxr_string">""</span>), is(0));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     @Test
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">void</strong> testGetParentPidFromStatCommWithSpaces() {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <em class="jxr_comment">// Process name can contain spaces and parentheses</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         String stat = <span class="jxr_string">"42 (Web Content (pid 42)) S 100 42 42 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 0 0 0 "</span>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 + <span class="jxr_string">"18446744073709551615 0 0 0 0 0 0 0 0 0 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0"</span>;
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertThat(LinuxOperatingSystem.getParentPidFromStat(stat), is(100));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_comment">// readLsbRelease — parses /etc/lsb-release</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     @Test
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">void</strong> testReadLsbRelease() {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"DISTRIB_ID=Ubuntu"</span>, <span class="jxr_string">"DISTRIB_RELEASE=20.04"</span>, <span class="jxr_string">"DISTRIB_CODENAME=focal"</span>,
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 <span class="jxr_string">"DISTRIB_DESCRIPTION=\&quot;Ubuntu 20.04.6 LTS\&quot;"</span>);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readLsbRelease(lines);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(result.getB(), is(<span class="jxr_string">"20.04"</span>));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         assertThat(result.getC(), is(<span class="jxr_string">"focal"</span>));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     @Test
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">void</strong> testReadLsbReleaseDescriptionWithRelease() {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"DISTRIB_DESCRIPTION=\&quot;Fedora release 38 (Thirty Eight)\&quot;"</span>);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readLsbRelease(lines);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(result.getB(), is(<span class="jxr_string">"38"</span>));
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(result.getC(), is(<span class="jxr_string">"Thirty Eight"</span>));
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     @Test
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">void</strong> testReadLsbReleaseEmpty() {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(LinuxOperatingSystem.readLsbRelease(Collections.emptyList()), is(nullValue()));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <em class="jxr_comment">// readDistribRelease — parses distrib-release files</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     @Test
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">void</strong> testReadDistribRelease() {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"CentOS release 6.10 (Final)"</span>);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         assertThat(result.getA(), is(<span class="jxr_string">"CentOS"</span>));
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         assertThat(result.getB(), is(<span class="jxr_string">"6.10"</span>));
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertThat(result.getC(), is(<span class="jxr_string">"Final"</span>));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     @Test
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseVersion() {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"SUSE Linux Enterprise Server VERSION 15"</span>);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         assertThat(result.getA(), is(<span class="jxr_string">"SUSE Linux Enterprise Server"</span>));
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         assertThat(result.getB(), is(<span class="jxr_string">"15"</span>));
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Test
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseEmpty() {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(LinuxOperatingSystem.readDistribRelease(Collections.emptyList()), is(nullValue()));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_comment">// parseRelease — pure parsing logic</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> 
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     @Test
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <strong class="jxr_keyword">void</strong> testParseRelease() {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 .parseRelease(<span class="jxr_string">"Red Hat Enterprise Linux release 8.5 (Ootpa)"</span>, <span class="jxr_string">" release "</span>);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertThat(result.getA(), is(<span class="jxr_string">"Red Hat Enterprise Linux"</span>));
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         assertThat(result.getB(), is(<span class="jxr_string">"8.5"</span>));
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         assertThat(result.getC(), is(<span class="jxr_string">"Ootpa"</span>));
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     @Test
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">void</strong> testParseReleaseNoCodename() {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.parseRelease(<span class="jxr_string">"Debian release 11"</span>, <span class="jxr_string">" release "</span>);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         assertThat(result.getA(), is(<span class="jxr_string">"Debian"</span>));
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         assertThat(result.getB(), is(<span class="jxr_string">"11"</span>));
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     @Test
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">void</strong> testParseReleaseNoVersion() {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.parseRelease(<span class="jxr_string">"MyLinux"</span>, <span class="jxr_string">" release "</span>);
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         assertThat(result.getA(), is(<span class="jxr_string">"MyLinux"</span>));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         assertThat(result.getB(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a> 
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <em class="jxr_comment">// filenameToFamily — maps release filename to distro family</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a> 
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     @Test
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyEmpty() {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">""</span>), is(<span class="jxr_string">"Solaris"</span>));
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     }
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> 
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <em class="jxr_comment">// readOsRelease — additional branch coverage</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     @Test
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseCommaSeparator() {
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <em class="jxr_comment">// VERSION uses ", " separator instead of parentheses</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>, <span class="jxr_string">"VERSION=\&quot;22.04, Jammy\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;22.04\&quot;"</span>);
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(lines);
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertThat(result.getB(), is(<span class="jxr_string">"22.04"</span>));
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         assertThat(result.getC(), is(<span class="jxr_string">"Jammy"</span>));
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     @Test
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseVersionIdFallback() {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         <em class="jxr_comment">// No VERSION= line, falls back to VERSION_ID=</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Alpine Linux\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;3.18.4\&quot;"</span>);
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(lines);
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         assertThat(result.getA(), is(<span class="jxr_string">"Alpine Linux"</span>));
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertThat(result.getB(), is(<span class="jxr_string">"3.18.4"</span>));
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     @Test
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseNameAfterVersion() {
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// NAME= appears after VERSION= to verify order independence</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"VERSION=\&quot;20.04.6 LTS (Focal Fossa)\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;20.04\&quot;"</span>,
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 <span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     @Test
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyIssue() {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">"issue"</span>), is(<span class="jxr_string">"Unknown"</span>));
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> 
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     @Test
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">void</strong> testFilenameToFamilyUnknown() {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         <em class="jxr_comment">// Unknown name gets capitalized</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         assertThat(LinuxOperatingSystem.filenameToFamily(<span class="jxr_string">"mylinux"</span>), is(<span class="jxr_string">"Mylinux"</span>));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <em class="jxr_comment">// readOsRelease — additional branch coverage</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     @Test
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseCommaSeparator() {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <em class="jxr_comment">// VERSION uses ", " separator instead of parentheses</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>, <span class="jxr_string">"VERSION=\&quot;22.04, Jammy\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;22.04\&quot;"</span>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(lines);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertThat(result.getB(), is(<span class="jxr_string">"22.04"</span>));
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         assertThat(result.getC(), is(<span class="jxr_string">"Jammy"</span>));
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     @Test
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseVersionIdFallback() {
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// No VERSION= line, falls back to VERSION_ID=</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"NAME=\&quot;Alpine Linux\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;3.18.4\&quot;"</span>);
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(lines);
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         assertThat(result.getB(), is(<span class="jxr_string">"20.04.6 LTS"</span>));
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         assertThat(result.getC(), is(<span class="jxr_string">"Focal Fossa"</span>));
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(result.getA(), is(<span class="jxr_string">"Alpine Linux"</span>));
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         assertThat(result.getB(), is(<span class="jxr_string">"3.18.4"</span>));
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         assertThat(result.getC(), is(Constants.UNKNOWN));
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>     }
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> 
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_comment">// execLsbRelease — Description with " release " plus explicit Release/Codename</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a> 
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>     @Test
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     <strong class="jxr_keyword">void</strong> testExecLsbReleaseDescriptionWithExplicitReleaseCodename() {
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <em class="jxr_comment">// When Release:/Codename: lines appear before Description:, the explicit</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <em class="jxr_comment">// values are set first. Description's parsed version/codename do not override</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <em class="jxr_comment">// because the code only sets them when versionId/codeName are still UNKNOWN.</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"Distributor ID:\tFedora"</span>, <span class="jxr_string">"Release:\t39"</span>, <span class="jxr_string">"Codename:\tThirtyNine"</span>,
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 <span class="jxr_string">"Description:\tFedora release 38 (Thirty Eight)"</span>);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(lines);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         assertThat(result.getB(), is(<span class="jxr_string">"39"</span>));
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         assertThat(result.getC(), is(<span class="jxr_string">"ThirtyNine"</span>));
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     }
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> 
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <em class="jxr_comment">// readDistribRelease — " VERSION " delimiter</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     @Test
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseVersionWithCodename() {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <em class="jxr_comment">// " VERSION " delimiter with a codename in parentheses</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"SUSE Linux Enterprise Server VERSION 15 (SP3)"</span>);
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>         assertThat(result.getA(), is(<span class="jxr_string">"SUSE Linux Enterprise Server"</span>));
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         assertThat(result.getB(), is(<span class="jxr_string">"15"</span>));
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>         assertThat(result.getC(), is(<span class="jxr_string">"SP3"</span>));
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>     }
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     @Test
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">void</strong> testReadOsReleaseNameAfterVersion() {
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <em class="jxr_comment">// NAME= appears after VERSION= to verify order independence</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"VERSION=\&quot;20.04.6 LTS (Focal Fossa)\&quot;"</span>, <span class="jxr_string">"VERSION_ID=\&quot;20.04\&quot;"</span>,
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 <span class="jxr_string">"NAME=\&quot;Ubuntu\&quot;"</span>);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readOsRelease(lines);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         assertThat(result.getA(), is(<span class="jxr_string">"Ubuntu"</span>));
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         assertThat(result.getB(), is(<span class="jxr_string">"20.04.6 LTS"</span>));
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         assertThat(result.getC(), is(<span class="jxr_string">"Focal Fossa"</span>));
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_comment">// execLsbRelease — Description with " release " plus explicit Release/Codename</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     @Test
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">void</strong> testExecLsbReleaseDescriptionWithExplicitReleaseCodename() {
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <em class="jxr_comment">// When Release:/Codename: lines appear before Description:, the explicit</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <em class="jxr_comment">// values are set first. Description's parsed version/codename do not override</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <em class="jxr_comment">// because the code only sets them when versionId/codeName are still UNKNOWN.</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"Distributor ID:\tFedora"</span>, <span class="jxr_string">"Release:\t39"</span>, <span class="jxr_string">"Codename:\tThirtyNine"</span>,
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <span class="jxr_string">"Description:\tFedora release 38 (Thirty Eight)"</span>);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.execLsbRelease(lines);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         assertThat(result.getA(), is(<span class="jxr_string">"Fedora"</span>));
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         assertThat(result.getB(), is(<span class="jxr_string">"39"</span>));
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         assertThat(result.getC(), is(<span class="jxr_string">"ThirtyNine"</span>));
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <em class="jxr_comment">// readDistribRelease — " VERSION " delimiter</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     @Test
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">void</strong> testReadDistribReleaseVersionWithCodename() {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         <em class="jxr_comment">// " VERSION " delimiter with a codename in parentheses</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         List&lt;String&gt; lines = Arrays.asList(<span class="jxr_string">"SUSE Linux Enterprise Server VERSION 15 (SP3)"</span>);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Triplet&lt;String, String, String&gt; result = LinuxOperatingSystem.readDistribRelease(lines);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         assertThat(result.getA(), is(<span class="jxr_string">"SUSE Linux Enterprise Server"</span>));
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         assertThat(result.getB(), is(<span class="jxr_string">"15"</span>));
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         assertThat(result.getC(), is(<span class="jxr_string">"SP3"</span>));
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> 
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     <em class="jxr_comment">// parseServices — systemctl list-unit-files and /etc/init fallback</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     @Test
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">void</strong> testParseServicesSystemctl() {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <em class="jxr_comment">// Real `systemctl list-unit-files` columns: UNIT FILE, STATE, [VENDOR PRESET]. Only ".service"/"enabled"</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <em class="jxr_comment">// rows count; already-running services are dropped by full name or short (last dotted segment) name.</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         List&lt;String&gt; systemctl = Arrays.asList(<span class="jxr_string">"UNIT FILE                              STATE      VENDOR PRESET"</span>,
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                 <span class="jxr_string">"cron.service                           enabled    enabled"</span>,
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                 <span class="jxr_string">"ssh.service                            enabled    enabled"</span>,
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 <span class="jxr_string">"dbus-org.freedesktop.resolve1.service  enabled    enabled"</span>,
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 <span class="jxr_string">"bluetooth.service                      disabled   enabled"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"247 unit files listed."</span>);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"ssh"</span>, <span class="jxr_string">"resolve1"</span>));
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         List&lt;OSService&gt; services = LinuxOperatingSystem.parseServices(systemctl, running, <span class="jxr_string">"/nonexistent-init-dir"</span>);
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <em class="jxr_comment">// ssh (full-name match) and resolve1 (short-name match) deduped; bluetooth disabled; only cron remains</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         assertThat(services, hasSize(1));
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         assertThat(services.get(0).getName(), is(<span class="jxr_string">"cron"</span>));
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         assertThat(services.get(0).getState(), is(State.STOPPED));
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <em class="jxr_comment">// systemctl produced a service, so the init-dir fallback (nonexistent path) is not consulted</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     @Test
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">void</strong> testParseServicesSystemctlFoundSuppressesFallback(@TempDir Path initDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// The only enabled unit is already running, so no stopped service is emitted -- but systemctl DID produce</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <em class="jxr_comment">// output, so the /etc/init fallback must not run even though a .conf job is present in the init dir</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         Files.write(initDir.resolve(<span class="jxr_string">"tty1.conf"</span>), <span class="jxr_string">"start on runlevel\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         List&lt;String&gt; systemctl = Arrays.asList(<span class="jxr_string">"UNIT FILE          STATE      VENDOR PRESET"</span>,
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <span class="jxr_string">"ssh.service        enabled    enabled"</span>);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Collections.singletonList(<span class="jxr_string">"ssh"</span>));
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         List&lt;OSService&gt; services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString());
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         assertThat(services, is(empty()));
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     @Test
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     <strong class="jxr_keyword">void</strong> testParseServicesInitFallback(@TempDir Path initDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <em class="jxr_comment">// No systemctl services -&gt; scan the init directory for *.conf upstart jobs</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         Files.write(initDir.resolve(<span class="jxr_string">"tty1.conf"</span>), <span class="jxr_string">"start on runlevel\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         Files.write(initDir.resolve(<span class="jxr_string">"ssh.conf"</span>), <span class="jxr_string">"start on runlevel\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         Files.write(initDir.resolve(<span class="jxr_string">"README.txt"</span>), <span class="jxr_string">"not a job\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         Set&lt;String&gt; running = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Collections.singletonList(<span class="jxr_string">"ssh"</span>));
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         List&lt;OSService&gt; services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 initDir.toString());
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <em class="jxr_comment">// ssh.conf deduped against running, README.txt is not a .conf; only tty1 remains</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         assertThat(services, hasSize(1));
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         assertThat(services.get(0).getName(), is(<span class="jxr_string">"tty1"</span>));
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         assertThat(services.get(0).getState(), is(State.STOPPED));
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>     }
+<a class="jxr_linenumber" name="L349" href="#L349">349</a> 
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>     @Test
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <strong class="jxr_keyword">void</strong> testParseServicesInitDirMissing(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <em class="jxr_comment">// No systemctl services and a nonexistent init directory -&gt; empty list (error logged)</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         List&lt;OSService&gt; services = LinuxOperatingSystem.parseServices(Collections.emptyList(), <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(),
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 tempDir.resolve(<span class="jxr_string">"does-not-exist"</span>).toString());
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         assertThat(services, is(empty()));
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     <em class="jxr_comment">// getReleaseFilename — /etc scan for *-release / *-version files</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     @Test
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">void</strong> testGetReleaseFilenameMatchesDistribFile(@TempDir Path etc) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         Files.write(etc.resolve(<span class="jxr_string">"redhat-release"</span>), <span class="jxr_string">"CentOS release 7\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()),
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 is(etc.resolve(<span class="jxr_string">"redhat-release"</span>).toString()));
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     }
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     @Test
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>     <strong class="jxr_keyword">void</strong> testGetReleaseFilenameSkipsExcludedThenReleaseFallback(@TempDir Path etc) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <em class="jxr_comment">// os-release/lsb-release/system-release are handled elsewhere and excluded from the scan; with only those</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <em class="jxr_comment">// present the scan falls back to the "release" file (Solaris-style) when it exists</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         Files.write(etc.resolve(<span class="jxr_string">"os-release"</span>), <span class="jxr_string">"NAME=Ubuntu\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         Files.write(etc.resolve(<span class="jxr_string">"lsb-release"</span>), <span class="jxr_string">"DISTRIB_ID=Ubuntu\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         Files.write(etc.resolve(<span class="jxr_string">"release"</span>), <span class="jxr_string">"Solaris\n"</span>.getBytes(StandardCharsets.UTF_8));
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()), is(etc.resolve(<span class="jxr_string">"release"</span>).toString()));
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     }
+<a class="jxr_linenumber" name="L378" href="#L378">378</a> 
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     @Test
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <strong class="jxr_keyword">void</strong> testGetReleaseFilenameIssueFallback(@TempDir Path etc) {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// No matching *-release files and no "release" file -&gt; fall back to the "issue" path</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()), is(etc.resolve(<span class="jxr_string">"issue"</span>).toString()));
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

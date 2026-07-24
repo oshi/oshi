@@ -28,7 +28,7 @@
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractHWDiskStore;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">/**</em>
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          <em class="jxr_comment">// Get list of disks from sysctl</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <em class="jxr_comment">// NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          String[] devices = NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.disknames"</span>, <span class="jxr_string">""</span>).trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          String[] devices = BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.disknames"</span>, <span class="jxr_string">""</span>).trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          <a name="NetBsdHWDiskStore" href="../../../../../../oshi/hardware/common/platform/unix/netbsd/NetBsdHWDiskStore.html#NetBsdHWDiskStore">NetBsdHWDiskStore</a> store;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">for</strong> (String diskName : devices) {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// Try disklabel first (works for physical disks, not wedges)</em>

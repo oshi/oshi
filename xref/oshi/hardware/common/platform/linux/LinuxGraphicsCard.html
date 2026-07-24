@@ -304,138 +304,151 @@
 <a class="jxr_linenumber" name="L296" href="#L296">296</a> 
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>     <em class="jxr_comment">// Slower, use as backup</em>
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;GraphicsCard&gt; getGraphicsCardsFromLshw(Function&lt;Attrs, GraphicsCard&gt; factory) {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         List&lt;GraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         List&lt;String&gt; lshw = ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"lshw -C display"</span>);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         String name = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         String deviceId = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         String vendor = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         List&lt;String&gt; versionInfoList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">long</strong> vram = 0;
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">int</strong> cardNum = 0;
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         String busInfo = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">for</strong> (String line : lshw) {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>             String[] split = line.trim().split(<span class="jxr_string">":"</span>, 2);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             <strong class="jxr_keyword">if</strong> (split[0].startsWith(<span class="jxr_string">"*-display"</span>)) {
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>                 <em class="jxr_comment">// Save previous card</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 <strong class="jxr_keyword">if</strong> (cardNum++ &gt; 0) {
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                     Triplet&lt;String, String, String&gt; drmInfo = findDrmInfo(busInfo);
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                     cardList.add(factory.apply(<strong class="jxr_keyword">new</strong> Attrs(name, deviceId, vendor,
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList), vram,
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>                             drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>                 name = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>                 deviceId = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 vendor = Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>                 vram = 0;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>                 versionInfoList.clear();
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 busInfo = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (split.length == 2) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 String prefix = split[0];
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"product"</span>)) {
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>                     name = split[1].trim();
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"vendor"</span>)) {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                     vendor = split[1].trim();
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"version"</span>)) {
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                     versionInfoList.add(line.trim());
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.startsWith(<span class="jxr_string">"resources"</span>)) {
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>                     vram = ParseUtil.parseLshwResourceString(split[1].trim());
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"bus info"</span>)) {
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                     <em class="jxr_comment">// lshw reports PCI slot as "pci@0000:01:00.0"; the value contains multiple</em>
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     <em class="jxr_comment">// colons so we locate the first colon in the original line to get the full value.</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     <strong class="jxr_keyword">int</strong> colonIdx = line.indexOf(':');
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                     String raw = colonIdx &gt;= 0 ? line.substring(colonIdx + 1).trim() : <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>                     busInfo = raw.startsWith(<span class="jxr_string">"pci@"</span>) ? raw.substring(4) : raw;
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>                 }
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             }
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">if</strong> (cardNum &gt; 0) {
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>             Triplet&lt;String, String, String&gt; drmInfo = findDrmInfo(busInfo);
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>             cardList.add(factory.apply(<strong class="jxr_keyword">new</strong> Attrs(name, deviceId, vendor,
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList), vram,
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                     drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>         }
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">return</strong> cardList;
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     }
-<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU by matching against the PCI slot address</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a> <em class="jxr_javadoccomment">     * from the uevent file under each DRM card's device directory.</em>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">     * When {@code pciSlot} is non-null, each card's {@code device/uevent} file is read and the {@code PCI_SLOT_NAME}</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * key is compared against the supplied slot (e.g. {@code "0000:01:00.0"} or {@code "01:00.0"}). The first card</em>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * whose slot matches is returned. If no match is found, or if {@code pciSlot} is null (lshw path), the first card</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * with a non-empty driver symlink is returned as a best-effort fallback.</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; findDrmInfo(String pciSlot) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">return</strong> findDrmInfo(pciSlot, DRM_PATH);
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>     }
-<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU.</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     * @param pciSlot the PCI slot address, or {@code null} to use first-match</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     * @param drmPath the base DRM sysfs directory path</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>     <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; findDrmInfo(String pciSlot, String drmPath) {
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         File drmDir = <strong class="jxr_keyword">new</strong> File(drmPath);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         File[] cards = drmDir.listFiles(f -&gt; f.getName().matches(<span class="jxr_string">"card&#92;&#92;d+"</span>));
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">if</strong> (cards == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         }
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         Triplet&lt;String, String, String&gt; firstWithDriver = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <strong class="jxr_keyword">for</strong> (File card : cards) {
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>             String devicePath = card.getAbsolutePath() + <span class="jxr_string">"/device"</span>;
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             String driver = readDriverName(devicePath + <span class="jxr_string">"/driver"</span>);
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             <strong class="jxr_keyword">if</strong> (driver.isEmpty()) {
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>             }
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>             String slotName = readUeventValue(devicePath + <span class="jxr_string">"/uevent"</span>, <span class="jxr_string">"PCI_SLOT_NAME"</span>);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <strong class="jxr_keyword">if</strong> (firstWithDriver == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>                 firstWithDriver = <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(devicePath, driver, slotName);
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>             }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <em class="jxr_comment">// Attempt PCI slot match via uevent</em>
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">if</strong> (pciSlot != <strong class="jxr_keyword">null</strong> &amp;&amp; slotName.endsWith(pciSlot)) {
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(devicePath, driver, slotName);
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>             }
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <em class="jxr_comment">// Fall back to first card with a driver symlink</em>
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         <strong class="jxr_keyword">return</strong> firstWithDriver != <strong class="jxr_keyword">null</strong> ? firstWithDriver : <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">     * Reads a key=value entry from a sysfs uevent file.</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     * @param ueventPath absolute path to the uevent file</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     * @param key        the key to look up (e.g. {@code "PCI_SLOT_NAME"})</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     * @return the value string, or empty string if not found</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <strong class="jxr_keyword">static</strong> String readUeventValue(String ueventPath, String key) {
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         List&lt;String&gt; lines = FileUtil.readFile(ueventPath);
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         String prefix = key + <span class="jxr_string">"="</span>;
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(prefix)) {
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                 <strong class="jxr_keyword">return</strong> line.substring(prefix.length()).trim();
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>             }
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>         }
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>     }
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> 
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <strong class="jxr_keyword">static</strong> String readDriverName(String driverSymlink) {
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         String target = FileUtil.readSymlinkTarget(<strong class="jxr_keyword">new</strong> File(driverSymlink));
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">if</strong> (target == <strong class="jxr_keyword">null</strong> || target.isEmpty()) {
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <em class="jxr_comment">// The symlink target resolves to a driver directory,</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>         <em class="jxr_comment">// e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>         String name = FileUtil.getFileName(target);
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">return</strong> name.isEmpty() ? target : name;
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>     }
-<a class="jxr_linenumber" name="L430" href="#L430">430</a> }
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">return</strong> getGraphicsCardsFromLshw(ExecutingCommand.runPrivilegedNative(<span class="jxr_string">"lshw -C display"</span>), factory,
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 LinuxGraphicsCard::findDrmInfo);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> <em class="jxr_javadoccomment">     * Parse graphics card information from lshw output.</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * @param lshw      output of {@code lshw -C display}</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     * @param factory   function that creates a concrete {@link GraphicsCard} from parsed attributes</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">     * @param drmLookup function to look up DRM info for a PCI slot address</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     * @return list of graphics cards</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <strong class="jxr_keyword">static</strong> List&lt;GraphicsCard&gt; getGraphicsCardsFromLshw(List&lt;String&gt; lshw, Function&lt;Attrs, GraphicsCard&gt; factory,
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             Function&lt;String, Triplet&lt;String, String, String&gt;&gt; drmLookup) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         List&lt;GraphicsCard&gt; cardList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         String name = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         String deviceId = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         String vendor = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         List&lt;String&gt; versionInfoList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         <strong class="jxr_keyword">long</strong> vram = 0;
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">int</strong> cardNum = 0;
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         String busInfo = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">for</strong> (String line : lshw) {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>             String[] split = line.trim().split(<span class="jxr_string">":"</span>, 2);
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>             <strong class="jxr_keyword">if</strong> (split[0].startsWith(<span class="jxr_string">"*-display"</span>)) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>                 <em class="jxr_comment">// Save previous card</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 <strong class="jxr_keyword">if</strong> (cardNum++ &gt; 0) {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                     Triplet&lt;String, String, String&gt; drmInfo = drmLookup.apply(busInfo);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                     cardList.add(factory.apply(<strong class="jxr_keyword">new</strong> Attrs(name, deviceId, vendor,
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                             versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList), vram,
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                             drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 }
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 name = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 deviceId = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 vendor = Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 vram = 0;
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 versionInfoList.clear();
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 busInfo = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (split.length == 2) {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 String prefix = split[0];
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"product"</span>)) {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                     name = split[1].trim();
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"vendor"</span>)) {
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                     vendor = split[1].trim();
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"version"</span>)) {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                     versionInfoList.add(line.trim());
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.startsWith(<span class="jxr_string">"resources"</span>)) {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                     vram = ParseUtil.parseLshwResourceString(split[1].trim());
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (prefix.equals(<span class="jxr_string">"bus info"</span>)) {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                     <em class="jxr_comment">// lshw reports PCI slot as "pci@0000:01:00.0"; the value contains multiple</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                     <em class="jxr_comment">// colons so we locate the first colon in the original line to get the full value.</em>
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                     <strong class="jxr_keyword">int</strong> colonIdx = line.indexOf(':');
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                     String raw = colonIdx &gt;= 0 ? line.substring(colonIdx + 1).trim() : <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                     busInfo = raw.startsWith(<span class="jxr_string">"pci@"</span>) ? raw.substring(4) : raw;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 }
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             }
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">if</strong> (cardNum &gt; 0) {
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             Triplet&lt;String, String, String&gt; drmInfo = drmLookup.apply(busInfo);
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>             cardList.add(factory.apply(<strong class="jxr_keyword">new</strong> Attrs(name, deviceId, vendor,
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     versionInfoList.isEmpty() ? Constants.UNKNOWN : String.join(<span class="jxr_string">", "</span>, versionInfoList), vram,
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <strong class="jxr_keyword">return</strong> cardList;
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     }
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU by matching against the PCI slot address</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">     * from the uevent file under each DRM card's device directory.</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     * When {@code pciSlot} is non-null, each card's {@code device/uevent} file is read and the {@code PCI_SLOT_NAME}</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     * key is compared against the supplied slot (e.g. {@code "0000:01:00.0"} or {@code "01:00.0"}). The first card</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     * whose slot matches is returned. If no match is found, or if {@code pciSlot} is null (lshw path), the first card</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     * with a non-empty driver symlink is returned as a best-effort fallback.</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; findDrmInfo(String pciSlot) {
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">return</strong> findDrmInfo(pciSlot, DRM_PATH);
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     * Finds the sysfs DRM device path, driver name, and PCI bus ID for a GPU.</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     * @param pciSlot the PCI slot address, or {@code null} to use first-match</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">     * @param drmPath the base DRM sysfs directory path</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">     * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>     <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; findDrmInfo(String pciSlot, String drmPath) {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         File drmDir = <strong class="jxr_keyword">new</strong> File(drmPath);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         File[] cards = drmDir.listFiles(f -&gt; f.getName().matches(<span class="jxr_string">"card&#92;&#92;d+"</span>));
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">if</strong> (cards == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         Triplet&lt;String, String, String&gt; firstWithDriver = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <strong class="jxr_keyword">for</strong> (File card : cards) {
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>             String devicePath = card.getAbsolutePath() + <span class="jxr_string">"/device"</span>;
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>             String driver = readDriverName(devicePath + <span class="jxr_string">"/driver"</span>);
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>             <strong class="jxr_keyword">if</strong> (driver.isEmpty()) {
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             }
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>             String slotName = readUeventValue(devicePath + <span class="jxr_string">"/uevent"</span>, <span class="jxr_string">"PCI_SLOT_NAME"</span>);
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>             <strong class="jxr_keyword">if</strong> (firstWithDriver == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 firstWithDriver = <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(devicePath, driver, slotName);
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>             }
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             <em class="jxr_comment">// Attempt PCI slot match via uevent</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             <strong class="jxr_keyword">if</strong> (pciSlot != <strong class="jxr_keyword">null</strong> &amp;&amp; slotName.endsWith(pciSlot)) {
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(devicePath, driver, slotName);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>             }
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         }
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <em class="jxr_comment">// Fall back to first card with a driver symlink</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">return</strong> firstWithDriver != <strong class="jxr_keyword">null</strong> ? firstWithDriver : <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     * Reads a key=value entry from a sysfs uevent file.</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">     * @param ueventPath absolute path to the uevent file</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     * @param key        the key to look up (e.g. {@code "PCI_SLOT_NAME"})</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     * @return the value string, or empty string if not found</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <strong class="jxr_keyword">static</strong> String readUeventValue(String ueventPath, String key) {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         List&lt;String&gt; lines = FileUtil.readFile(ueventPath);
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         String prefix = key + <span class="jxr_string">"="</span>;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(prefix)) {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>                 <strong class="jxr_keyword">return</strong> line.substring(prefix.length()).trim();
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             }
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>         }
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     }
+<a class="jxr_linenumber" name="L432" href="#L432">432</a> 
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     <strong class="jxr_keyword">static</strong> String readDriverName(String driverSymlink) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         String target = FileUtil.readSymlinkTarget(<strong class="jxr_keyword">new</strong> File(driverSymlink));
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         <strong class="jxr_keyword">if</strong> (target == <strong class="jxr_keyword">null</strong> || target.isEmpty()) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         }
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <em class="jxr_comment">// The symlink target resolves to a driver directory,</em>
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <em class="jxr_comment">// e.g. "../../../bus/pci/drivers/amdgpu"; the last path segment is the driver name.</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         String name = FileUtil.getFileName(target);
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <strong class="jxr_keyword">return</strong> name.isEmpty() ? target : name;
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -90,28 +90,40 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * @return A pair containing the model and serial number for the device, or null if not found</em>
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Pair&lt;String, String&gt; queryModelSerial(String device) {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          String modelMarker = <span class="jxr_string">"Machine Type and Model"</span>;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          String serialMarker = <span class="jxr_string">"Serial Number"</span>;
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>          String model = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          String serial = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">for</strong> (String s : ExecutingCommand.runNative(<span class="jxr_string">"lscfg -vl "</span> + device)) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <em class="jxr_comment">// Default model to description at end of first line</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">if</strong> (model == <strong class="jxr_keyword">null</strong> &amp;&amp; s.contains(device)) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  String locDesc = s.split(device)[1].trim();
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  <strong class="jxr_keyword">int</strong> idx = locDesc.indexOf(' ');
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <strong class="jxr_keyword">if</strong> (idx &gt; 0) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      model = locDesc.substring(idx).trim();
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              <strong class="jxr_keyword">if</strong> (s.contains(modelMarker)) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(serialMarker)) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(model, serial);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> parseModelSerial(ExecutingCommand.runNative(<span class="jxr_string">"lscfg -vl "</span> + device), device);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * Parse the output of {@code lscfg -vl device} to get the model and serial number</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     * @param lscfg  The output of a previous call to {@code lscfg -vl device}</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @param device The disk the output describes</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * @return A pair containing the model and serial number for the device, either of which may be null if not found</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Pair&lt;String, String&gt; parseModelSerial(List&lt;String&gt; lscfg, String device) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          String modelMarker = <span class="jxr_string">"Machine Type and Model"</span>;
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          String serialMarker = <span class="jxr_string">"Serial Number"</span>;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          String model = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          String serial = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">for</strong> (String s : lscfg) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             <em class="jxr_comment">// Default model to description at end of first line. Locate the device literally (split would treat it</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <em class="jxr_comment">// as a regex); a device at the very end of the line leaves an empty remainder, so no model is derived.</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">if</strong> (model == <strong class="jxr_keyword">null</strong> &amp;&amp; s.contains(device)) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 String locDesc = s.substring(s.indexOf(device) + device.length()).trim();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 <strong class="jxr_keyword">int</strong> idx = locDesc.indexOf(' ');
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">if</strong> (idx &gt; 0) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                     model = locDesc.substring(idx).trim();
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>                 }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">if</strong> (s.contains(modelMarker)) {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(serialMarker)) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(model, serial);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

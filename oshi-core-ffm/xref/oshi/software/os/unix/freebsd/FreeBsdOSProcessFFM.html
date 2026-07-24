@@ -82,7 +82,7 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">long</strong> written = size.get(SIZE_T, 0);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(bytes));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }, LOG, org.slf4j.event.Level.WARN, <span class="jxr_string">"queryArguments failed"</span>, Collections.&lt;String&gt;emptyList());
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }, LOG, oshi.util.LogLevel.WARN, <span class="jxr_string">"queryArguments failed"</span>, Collections.&lt;String&gt;emptyList());
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      @Override
@@ -105,7 +105,7 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">long</strong> written = size.get(SIZE_T, 0);
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>              byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">return</strong> Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(bytes));
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }, LOG, org.slf4j.event.Level.WARN, <span class="jxr_string">"queryEnvironmentVariables failed"</span>, Collections.&lt;String, String&gt;emptyMap());
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }, LOG, oshi.util.LogLevel.WARN, <span class="jxr_string">"queryEnvironmentVariables failed"</span>, Collections.&lt;String, String&gt;emptyMap());
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
 <a class="jxr_linenumber" name="L102" href="#L102">102</a> 
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     @Override
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 <strong class="jxr_keyword">return</strong> 0;
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             }
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">return</strong> elfBitness(buf.getString(0));
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         }, LOG, org.slf4j.event.Level.WARN, <span class="jxr_string">"queryBitness failed"</span>, 0);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         }, LOG, oshi.util.LogLevel.WARN, <span class="jxr_string">"queryBitness failed"</span>, 0);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> }
 </pre>

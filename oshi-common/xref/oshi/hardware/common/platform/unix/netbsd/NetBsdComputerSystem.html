@@ -22,7 +22,7 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractComputerSystem;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.unix.UnixBaseboard;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * NetBSD ComputerSystem implementation</em>
@@ -66,23 +66,23 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      @Override
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">protected</strong> <a name="Baseboard" href="../../../../../../oshi/hardware/Baseboard.html#Baseboard">Baseboard</a> createBaseboard() {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="UnixBaseboard" href="../../../../../../oshi/hardware/common/platform/unix/UnixBaseboard.html#UnixBaseboard">UnixBaseboard</a>(manufacturer.get(), model.get(), serialNumber.get(),
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.product"</span>, Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.product"</span>, Constants.UNKNOWN));
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryManufacturer() {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">return</strong> NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.vendor"</span>, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.vendor"</span>, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryModel() {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.version"</span>, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.version"</span>, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySerialNumber() {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.serialno"</span>, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.serialno"</span>, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryUUID() {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.uuid"</span>, Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.uuid"</span>, Constants.UNKNOWN);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
 </pre>

@@ -95,7 +95,7 @@
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                  cpuFreq);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;Integer, Integer, Integer&gt; cpuidToFamilyModelStepping(<strong class="jxr_keyword">int</strong> cpuid) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">static</strong> Triplet&lt;Integer, Integer, Integer&gt; cpuidToFamilyModelStepping(<strong class="jxr_keyword">int</strong> cpuid) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <em class="jxr_comment">// family is bits 27:20 | 11:8</em>
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">int</strong> family = cpuid &gt;&gt; 16 &amp; 0xff0 | cpuid &gt;&gt; 8 &amp; 0xf;
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// model is bits 19:16 | 7:4</em>
@@ -115,91 +115,100 @@
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> 
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>     @Override
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">protected</strong> Pair&lt;Long, Long&gt; queryVmStats() {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">long</strong> contextSwitches = 0L;
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">long</strong> interrupts = 0L;
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         List&lt;String&gt; vmstat = ExecutingCommand.runNative(<span class="jxr_string">"vmstat -s"</span>);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">for</strong> (String line : vmstat) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"cpu context switches"</span>)) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"interrupts"</span>)) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 interrupts = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(contextSwitches, interrupts);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * Reads the system-wide CPU time counters ({@code kern.cptime}) as an array of 5 or 6 {@code long} values.</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return the CPU state ticks, or a shorter/empty array if unavailable</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpTime();
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * Reads a single processor's CPU time counters ({@code kern.cptime2}) as an array of 5 or 6 {@code long} values.</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * @param cpu the logical processor index</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * @return the CPU state ticks, or a shorter/empty array if unavailable</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong>[] queryProcessorCpTime(<strong class="jxr_keyword">int</strong> cpu);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @return the number of samples retrieved</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> parseVmStats(ExecutingCommand.runNative(<span class="jxr_string">"vmstat -s"</span>));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * Parses the output of {@code vmstat -s} to extract context switch and interrupt counts.</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     * @param vmstat the lines emitted by {@code vmstat -s}</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * @return a {@link Pair} of (context switches, interrupts)</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">static</strong> Pair&lt;Long, Long&gt; parseVmStats(List&lt;String&gt; vmstat) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">long</strong> contextSwitches = 0L;
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">long</strong> interrupts = 0L;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">for</strong> (String line : vmstat) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"cpu context switches"</span>)) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"interrupts"</span>)) {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 interrupts = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(contextSwitches, interrupts);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * Reads the system-wide CPU time counters ({@code kern.cptime}) as an array of 5 or 6 {@code long} values.</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     * @return the CPU state ticks, or a shorter/empty array if unavailable</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpTime();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * Reads a single processor's CPU time counters ({@code kern.cptime2}) as an array of 5 or 6 {@code long} values.</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param cpu the logical processor index</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @return the CPU state ticks, or a shorter/empty array if unavailable</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong>[] queryProcessorCpTime(<strong class="jxr_keyword">int</strong> cpu);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> 
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * Maps a 5- or 6-element OpenBSD CPU-state array to the corresponding {@link TickType} slots of {@code ticks}.</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * OpenBSD 6.4+ adds a spin-time element, giving a 6-element array; the extra element shifts IRQ and IDLE by one.</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @param ticks   the destination tick array</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     * @param cpTicks the source CPU-state values (5 or 6 longs)</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     * @return the number of samples retrieved</em>
 <a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fillTicks(<strong class="jxr_keyword">long</strong>[] ticks, <strong class="jxr_keyword">long</strong>[] cpTicks) {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">if</strong> (cpTicks.length &lt; CPUSTATES) {
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         ticks[TickType.USER.getIndex()] = cpTicks[CP_USER];
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         ticks[TickType.NICE.getIndex()] = cpTicks[CP_NICE];
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         ticks[TickType.SYSTEM.getIndex()] = cpTicks[CP_SYS];
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">int</strong> offset = cpTicks.length &gt; CPUSTATES ? 1 : 0;
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         ticks[TickType.IRQ.getIndex()] = cpTicks[CP_INTR + offset];
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         ticks[TickType.IDLE.getIndex()] = cpTicks[CP_IDLE + offset];
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     @Override
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         fillTicks(ticks, querySystemCpTime());
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     }
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> 
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>     @Override
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             fillTicks(ticks[cpu], queryProcessorCpTime(cpu));
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * Maps a 5- or 6-element OpenBSD CPU-state array to the corresponding {@link TickType} slots of {@code ticks}.</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * OpenBSD 6.4+ adds a spin-time element, giving a 6-element array; the extra element shifts IRQ and IDLE by one.</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     * @param ticks   the destination tick array</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">     * @param cpTicks the source CPU-state values (5 or 6 longs)</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fillTicks(<strong class="jxr_keyword">long</strong>[] ticks, <strong class="jxr_keyword">long</strong>[] cpTicks) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">if</strong> (cpTicks.length &lt; CPUSTATES) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         ticks[TickType.USER.getIndex()] = cpTicks[CP_USER];
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         ticks[TickType.NICE.getIndex()] = cpTicks[CP_NICE];
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         ticks[TickType.SYSTEM.getIndex()] = cpTicks[CP_SYS];
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">int</strong> offset = cpTicks.length &gt; CPUSTATES ? 1 : 0;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         ticks[TickType.IRQ.getIndex()] = cpTicks[CP_INTR + offset];
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         ticks[TickType.IDLE.getIndex()] = cpTicks[CP_IDLE + offset];
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     @Override
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         fillTicks(ticks, querySystemCpTime());
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">return</strong> ticks;
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> 
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     @Override
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         }
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             Arrays.fill(average, -1d);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; getLogicalProcessorCount(); cpu++) {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             fillTicks(ticks[cpu], queryProcessorCpTime(cpu));
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     @Override
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             Arrays.fill(average, -1d);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     }
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

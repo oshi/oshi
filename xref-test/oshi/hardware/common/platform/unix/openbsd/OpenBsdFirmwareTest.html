@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>OpenBsdFirmwareTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../testapidocs/oshi/hardware/common/platform/unix/openbsd/OpenBsdFirmwareTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.unix.openbsd;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.emptyString;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.nullValue;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">class</strong> <a name="OpenBsdFirmwareTest" href="../../../../../../oshi/hardware/common/platform/unix/openbsd/OpenBsdFirmwareTest.html#OpenBsdFirmwareTest">OpenBsdFirmwareTest</a> {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Test
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">void</strong> testParseDmesg() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <em class="jxr_comment">// Representative OpenBSD dmesg bios0 output with multi-word vendor</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  <span class="jxr_string">"bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)"</span>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  <span class="jxr_string">"bios0: vendor American Megatrends Inc. version \&quot;F5\&quot; date 03/18/2016"</span>);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          Triplet&lt;String, String, String&gt; fw = OpenBsdFirmware.parseDmesg(dmesg);
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(fw.getA(), is(<span class="jxr_string">"American Megatrends Inc."</span>));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(fw.getB(), is(<span class="jxr_string">"F5"</span>));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2016-03-18"</span>));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      @Test
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">void</strong> testParseDmesgEmpty() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          Triplet&lt;String, String, String&gt; fw = OpenBsdFirmware.parseDmesg(Collections.emptyList());
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(fw.getA(), is(nullValue()));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(fw.getB(), is(nullValue()));
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(fw.getC(), is(emptyString()));
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

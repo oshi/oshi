@@ -60,93 +60,116 @@
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;HWPartition&gt; computeLogicalVolumes(String device,
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>              Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          List&lt;HWPartition&gt; partitions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">/*-</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_comment">         $ lspv -L hdisk0</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_comment">        PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_comment">        PV IDENTIFIER:      000acfde95524f85 VG IDENTIFIER     000acfde00004c000000000395525276</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_comment">        PV STATE:           active</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_comment">        STALE PARTITIONS:   0                        ALLOCATABLE:      yes</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_comment">        PP SIZE:            128 megabyte(s)          LOGICAL VOLUMES:  12</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_comment">        TOTAL PPs:          271 (34688 megabytes)    VG DESCRIPTORS:   2</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_comment">        FREE PPs:           227 (29056 megabytes)    HOT SPARE:        no</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_comment">        USED PPs:           44 (5632 megabytes)      MAX REQUEST:      256 kilobytes</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_comment">        FREE DISTRIBUTION:  54..46..19..54..54</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_comment">        USED DISTRIBUTION:  01..08..35..00..00</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          String stateMarker = <span class="jxr_string">"PV STATE:"</span>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          String sizeMarker = <span class="jxr_string">"PP SIZE:"</span>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">long</strong> ppSize = 0L; <em class="jxr_comment">// All physical partitions are the same size</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">for</strong> (String s : ExecutingCommand.runNative(<span class="jxr_string">"lspv -L "</span> + device)) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">if</strong> (s.startsWith(stateMarker)) {
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  <strong class="jxr_keyword">if</strong> (!s.contains(<span class="jxr_string">"active"</span>)) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">return</strong> partitions;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(sizeMarker)) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  ppSize = ParseUtil.getFirstIntValue(s);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">if</strong> (ppSize == 0L) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> partitions;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// Convert to megabytes</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          ppSize &lt;&lt;= 20;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <em class="jxr_comment">/*-</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_comment">         $ lspv -p hdisk0</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_comment">        hdisk0:</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_comment">        PP RANGE  STATE   REGION        LV NAME             TYPE       MOUNT POINT</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_comment">        1-1     used    outer edge    hd5                 boot       N/A</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_comment">        2-55    free    outer edge</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_comment">        56-59    used    outer middle  hd6                 paging     N/A</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_comment">        60-61    used    outer middle  livedump            jfs2       /var/adm/ras/livedump</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_comment">        62-62    used    outer middle  loglv01             jfslog     N/A</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_comment">        63-63    used    outer middle  lv01                jfs        N/A</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_comment">        64-109   free    outer middle</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_comment">        110-110   used    center        hd8                 jfs2log    N/A</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_comment">        111-112   used    center        hd4                 jfs2       /</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_comment">        113-128   used    center        hd2                 jfs2       /usr</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_comment">        129-131   used    center        hd9var              jfs2       /var</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_comment">        132-132   used    center        hd3                 jfs2       /tmp</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_comment">        133-133   used    center        hd9var              jfs2       /var</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_comment">        134-136   used    center        hd10opt             jfs2       /opt</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_comment">        137-137   used    center        hd11admin           jfs2       /admin</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_comment">        138-140   used    center        hd2                 jfs2       /usr</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_comment">        141-141   used    center        hd3                 jfs2       /tmp</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_comment">        142-142   used    center        hd4                 jfs2       /</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_comment">        143-143   used    center        hd9var              jfs2       /var</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_comment">        144-144   used    center        hd2                 jfs2       /usr</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_comment">        145-163   free    center</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_comment">        164-217   free    inner middle</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_comment">        218-271   free    inner edge</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_comment">         */</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         Map&lt;String, String&gt; mountMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         Map&lt;String, String&gt; typeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         Map&lt;String, Integer&gt; ppMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">for</strong> (String s : ExecutingCommand.runNative(<span class="jxr_string">"lspv -p "</span> + device)) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             String[] split = ParseUtil.whitespaces.split(s.trim());
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 6 &amp;&amp; <span class="jxr_string">"used"</span>.equals(split[1])) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 <em class="jxr_comment">// Region may have two words, so count from end</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 String name = split[split.length - 3];
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 mountMap.put(name, split[split.length - 1]);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 typeMap.put(name, split[split.length - 2]);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <strong class="jxr_keyword">int</strong> ppCount = 1 + ParseUtil.getNthIntValue(split[0], 2) - ParseUtil.getNthIntValue(split[0], 1);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 ppMap.put(name, ppCount + ppMap.getOrDefault(name, 0));
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             }
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, String&gt; entry : mountMap.entrySet()) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             String mount = <span class="jxr_string">"N/A"</span>.equals(entry.getValue()) ? <span class="jxr_string">""</span> : entry.getValue();
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <em class="jxr_comment">// All maps should have same keys</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             String name = entry.getKey();
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             String type = typeMap.get(name);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">long</strong> size = ppSize * ppMap.get(name);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             Pair&lt;Integer, Integer&gt; majMin = majMinMap.get(name);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">int</strong> major = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getA();
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">int</strong> minor = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getB();
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">return</strong> partitions;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">long</strong> ppSize = parsePpSize(ExecutingCommand.runNative(<span class="jxr_string">"lspv -L "</span> + device));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">if</strong> (ppSize == 0L) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">return</strong> parsePartitions(ExecutingCommand.runNative(<span class="jxr_string">"lspv -p "</span> + device), ppSize, majMinMap);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * Parses {@code lspv -L device} output to get the physical-partition size in bytes.</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @param lspvL the lines of {@code lspv -L device} output</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     * @return the physical-partition size in bytes, or 0 if the volume is not active or no PP size is reported</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parsePpSize(List&lt;String&gt; lspvL) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">/*-</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_comment">         $ lspv -L hdisk0</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_comment">        PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_comment">        PV IDENTIFIER:      000acfde95524f85 VG IDENTIFIER     000acfde00004c000000000395525276</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_comment">        PV STATE:           active</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_comment">        STALE PARTITIONS:   0                        ALLOCATABLE:      yes</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_comment">        PP SIZE:            128 megabyte(s)          LOGICAL VOLUMES:  12</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_comment">        TOTAL PPs:          271 (34688 megabytes)    VG DESCRIPTORS:   2</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_comment">        FREE PPs:           227 (29056 megabytes)    HOT SPARE:        no</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_comment">        USED PPs:           44 (5632 megabytes)      MAX REQUEST:      256 kilobytes</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_comment">        FREE DISTRIBUTION:  54..46..19..54..54</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_comment">        USED DISTRIBUTION:  01..08..35..00..00</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          String stateMarker = <span class="jxr_string">"PV STATE:"</span>;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          String sizeMarker = <span class="jxr_string">"PP SIZE:"</span>;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">long</strong> ppSize = 0L; <em class="jxr_comment">// All physical partitions are the same size</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">for</strong> (String s : lspvL) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">if</strong> (s.startsWith(stateMarker)) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <strong class="jxr_keyword">if</strong> (!s.contains(<span class="jxr_string">"active"</span>)) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (s.contains(sizeMarker)) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  ppSize = ParseUtil.getFirstIntValue(s);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <em class="jxr_comment">// Convert megabytes to bytes</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">return</strong> ppSize &lt;&lt; 20;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * Parses {@code lspv -p device} output into the list of logical volumes (partitions) on the device.</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @param lspvP     the lines of {@code lspv -p device} output</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * @param ppSize    the physical-partition size in bytes (from {@link #parsePpSize})</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     * @param majMinMap a map of device name to a pair with major and minor numbers</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * @return a list of logical volumes (partitions)</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <strong class="jxr_keyword">static</strong> List&lt;HWPartition&gt; parsePartitions(List&lt;String&gt; lspvP, <strong class="jxr_keyword">long</strong> ppSize,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         List&lt;HWPartition&gt; partitions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">/*-</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_comment">         $ lspv -p hdisk0</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_comment">        hdisk0:</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_comment">        PP RANGE  STATE   REGION        LV NAME             TYPE       MOUNT POINT</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_comment">        1-1     used    outer edge    hd5                 boot       N/A</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_comment">        2-55    free    outer edge</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_comment">        56-59    used    outer middle  hd6                 paging     N/A</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_comment">        60-61    used    outer middle  livedump            jfs2       /var/adm/ras/livedump</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_comment">        62-62    used    outer middle  loglv01             jfslog     N/A</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_comment">        63-63    used    outer middle  lv01                jfs        N/A</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_comment">        64-109   free    outer middle</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_comment">        110-110   used    center        hd8                 jfs2log    N/A</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_comment">        111-112   used    center        hd4                 jfs2       /</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_comment">        113-128   used    center        hd2                 jfs2       /usr</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_comment">        129-131   used    center        hd9var              jfs2       /var</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_comment">        132-132   used    center        hd3                 jfs2       /tmp</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_comment">        133-133   used    center        hd9var              jfs2       /var</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_comment">        134-136   used    center        hd10opt             jfs2       /opt</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_comment">        137-137   used    center        hd11admin           jfs2       /admin</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_comment">        138-140   used    center        hd2                 jfs2       /usr</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_comment">        141-141   used    center        hd3                 jfs2       /tmp</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_comment">        142-142   used    center        hd4                 jfs2       /</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_comment">        143-143   used    center        hd9var              jfs2       /var</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_comment">        144-144   used    center        hd2                 jfs2       /usr</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_comment">        145-163   free    center</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_comment">        164-217   free    inner middle</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_comment">        218-271   free    inner edge</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_comment">         */</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         Map&lt;String, String&gt; mountMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         Map&lt;String, String&gt; typeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         Map&lt;String, Integer&gt; ppMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">for</strong> (String s : lspvP) {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             String[] split = ParseUtil.whitespaces.split(s.trim());
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 6 &amp;&amp; <span class="jxr_string">"used"</span>.equals(split[1])) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 <em class="jxr_comment">// Region may have two words, so count from end</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                 String name = split[split.length - 3];
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 mountMap.put(name, split[split.length - 1]);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 typeMap.put(name, split[split.length - 2]);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 <strong class="jxr_keyword">int</strong> ppCount = 1 + ParseUtil.getNthIntValue(split[0], 2) - ParseUtil.getNthIntValue(split[0], 1);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 ppMap.put(name, ppCount + ppMap.getOrDefault(name, 0));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">for</strong> (Entry&lt;String, String&gt; entry : mountMap.entrySet()) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             String mount = <span class="jxr_string">"N/A"</span>.equals(entry.getValue()) ? <span class="jxr_string">""</span> : entry.getValue();
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <em class="jxr_comment">// All maps should have same keys</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             String name = entry.getKey();
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             String type = typeMap.get(name);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">long</strong> size = ppSize * ppMap.get(name);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             Pair&lt;Integer, Integer&gt; majMin = majMinMap.get(name);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">int</strong> major = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getA();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">int</strong> minor = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getB();
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> partitions;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

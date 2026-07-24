@@ -68,20 +68,20 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; argsEnviron = memoize(
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">this</strong>::queryArgsAndEnvironment);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">protected</strong> String currentWorkingDirectory;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">protected</strong> String user;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">protected</strong> String userID;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">protected</strong> String group;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">protected</strong> String groupID;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> memoryFootprint;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> openFiles;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> bitness;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> minorFaults;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> majorFaults;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> contextSwitches;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> voluntaryContextSwitches;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> involuntaryContextSwitches;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String currentWorkingDirectory;
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String user;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String userID;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String group;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String groupID;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> memoryFootprint;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> openFiles;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">int</strong> bitness;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> minorFaults;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> majorFaults;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> contextSwitches;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> voluntaryContextSwitches;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> involuntaryContextSwitches;
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>  
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">protected</strong> <a name="MacOSProcess" href="../../../../../oshi/software/common/os/mac/MacOSProcess.html#MacOSProcess">MacOSProcess</a>(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">int</strong> major, <strong class="jxr_keyword">int</strong> minor, <a name="MacOperatingSystem" href="../../../../../oshi/software/common/os/mac/MacOperatingSystem.html#MacOperatingSystem">MacOperatingSystem</a> os) {
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">super</strong>(pid);

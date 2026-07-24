@@ -15,549 +15,553 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.ADDRESS;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_BYTE;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_DOUBLE;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.FunctionDescriptor;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * FFM bindings for the AIX {@code libperfstat} library, mapped to the surface OSHI actually consumes.</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * Struct sizes and field offsets are taken from JNA's {@code com.sun.jna.platform.unix.aix.Perfstat} (which has been</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * reviewed against AIX's {@code &lt;libperfstat.h&gt;}); see the JNA file for full field documentation.</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * The library lives at {@code /usr/lib/libperfstat.a(shr_64.o)} (or {@code (shr.o)} for the 32-bit variant). Loading</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * requires the AIX-specific {@code RTLD_MEMBER} flag, which FFM's {@link SymbolLookup#libraryLookup} can't pass; the</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * dlopen call is wrapped behind {@link SharedObjectLoader}, mirroring JNA's contrib/platform</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * {@code SharedObjectLoader}.</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="PerfstatFunctions" href="../../../../../oshi/ffm/platform/unix/aix/PerfstatFunctions.html#PerfstatFunctions">PerfstatFunctions</a> <strong class="jxr_keyword">extends</strong> <a name="ForeignFunctions" href="../../../../../oshi/ffm/ForeignFunctions.html#ForeignFunctions">ForeignFunctions</a> {
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <a name="PerfstatFunctions" href="../../../../../oshi/ffm/platform/unix/aix/PerfstatFunctions.html#PerfstatFunctions">PerfstatFunctions</a>() {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_javadoccomment">/** Identifier length for {@code perfstat_id_t} and the leading {@code name} field of most perfstat structs. */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IDENTIFIER_LENGTH = 64;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_comment">// Struct sizes (sizeof) as computed by JNA on 64-bit AIX. These are passed to each perfstat call as the</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">// sizeof_struct argument; perfstat strides the output array by this amount.</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_ID_T_SIZE = 64;
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_CPU_TOTAL_T_SIZE = 696;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_CPU_T_SIZE = 616;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_MEMORY_TOTAL_T_SIZE = 352;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PROCESS_T_SIZE = 288;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_DISK_T_SIZE = 496;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PARTITION_CONFIG_T_SIZE = 800;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_NETINTERFACE_T_SIZE = 240;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PROTOCOL_T_SIZE = 728;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// libperfstat is loaded via the AIX-specific SharedObjectLoader, which knows about</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_comment">// RTLD_MEMBER + the archive-member syntax. The lookup is cached for the JVM lifetime.</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> SymbolLookup LIBPERFSTAT = SharedObjectLoader.loadPerfstat();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_comment">// ---- Method handles. All perfstat_* APIs share the signature</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_comment">// ---- int perfstat_xxx(perfstat_id_t *name, perfstat_xxx_t *userbuff, int sizeof_struct, int desired_number);</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> FunctionDescriptor PERFSTAT_FD = FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, JAVA_INT,
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>              JAVA_INT);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_cpu_total = LINKER
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_cpu_total"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_cpu = LINKER.downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_cpu"</span>),
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              PERFSTAT_FD);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_memory_total = LINKER
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_memory_total"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_process = LINKER
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_process"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_disk = LINKER.downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_disk"</span>),
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              PERFSTAT_FD);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_partition_config = LINKER
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_partition_config"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_netinterface = LINKER
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_netinterface"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_protocol = LINKER
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_protocol"</span>), PERFSTAT_FD);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_cpu_total(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_cpu_total.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_cpu(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_cpu.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_memory_total(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_memory_total.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_process(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>              <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_process.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_disk(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_disk.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_partition_config(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct,
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">int</strong> desired) <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_partition_config.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_netinterface(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_netinterface.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_protocol(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">throws</strong> Throwable {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_protocol.invokeExact(name, userbuff, sizeofStruct, desired);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     * Copy {@code IDENTIFIER_LENGTH} bytes from {@code seg + offset} into a Java string, stopping at the first NUL.</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * @param seg    a perfstat struct segment</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * @param offset byte offset of the leading-name field within {@code seg}</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * @return the decoded ASCII name</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String readName(MemorySegment seg, <strong class="jxr_keyword">long</strong> offset) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         byte[] bytes = <strong class="jxr_keyword">new</strong> byte[IDENTIFIER_LENGTH];
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; IDENTIFIER_LENGTH; i++) {
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>             byte b = seg.get(JAVA_BYTE, offset + i);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">if</strong> (b == 0) {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, 0, i, java.nio.charset.StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             bytes[i] = b;
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         }
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, java.nio.charset.StandardCharsets.US_ASCII);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_comment">// Field accessors for perfstat_cpu_total_t. Offsets verified via JNA's @FieldOrder reflection.</em>
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <em class="jxr_javadoccomment">/** {@code ncpus}: number of active logical processors. */</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> cpuTotalNcpus(MemorySegment seg) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 0);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/** {@code processorHZ}: processor clock speed in Hz. */</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalProcessorHZ(MemorySegment seg) {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 72);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <em class="jxr_javadoccomment">/** {@code user}: raw clock ticks spent in user mode (total). */</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalUser(MemorySegment seg) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 80);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <em class="jxr_javadoccomment">/** {@code sys}: raw clock ticks spent in system mode (total). */</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalSys(MemorySegment seg) {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 88);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
-<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <em class="jxr_javadoccomment">/** {@code idle}: raw clock ticks spent idle (total). */</em>
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalIdle(MemorySegment seg) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 96);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <em class="jxr_javadoccomment">/** {@code wait}: raw clock ticks spent waiting for I/O (total). */</em>
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalWait(MemorySegment seg) {
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 104);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <em class="jxr_javadoccomment">/** {@code pswitch}: number of process switches. */</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalPswitch(MemorySegment seg) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 112);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <em class="jxr_javadoccomment">/** {@code devintrs}: number of device interrupts (total). */</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalDevintrs(MemorySegment seg) {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 176);
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <em class="jxr_javadoccomment">/** {@code softintrs}: number of software interrupts (total). */</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalSoftintrs(MemorySegment seg) {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 184);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     <em class="jxr_javadoccomment">/** {@code loadavg[i]}: 1/5/15-minute load averages (scaled by 1&amp;lt;&amp;lt;SBITS). */</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalLoadavg(MemorySegment seg, <strong class="jxr_keyword">int</strong> i) {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 200L + i * 8L);
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_javadoccomment">/** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor. */</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalIdleStolenPurr(MemorySegment seg) {
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 560);
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <em class="jxr_javadoccomment">/** {@code busy_stolen_purr}: busy cycles stolen by the hypervisor. */</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalBusyStolenPurr(MemorySegment seg) {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 576);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_comment">// Field accessors for perfstat_cpu_t (per-CPU element of the perfstat_cpu array).</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> 
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: logical-processor name ({@code cpu0}, {@code cpu1}, …). */</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String cpuName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     }
-<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <em class="jxr_javadoccomment">/** {@code user}: raw clock ticks spent in user mode (this CPU). */</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuUser(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> 
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>     <em class="jxr_javadoccomment">/** {@code sys}: raw clock ticks spent in system mode (this CPU). */</em>
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuSys(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     }
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <em class="jxr_javadoccomment">/** {@code idle}: raw clock ticks spent idle (this CPU). */</em>
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuIdle(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <em class="jxr_javadoccomment">/** {@code wait}: raw clock ticks waiting for I/O (this CPU). */</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuWait(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     }
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <em class="jxr_javadoccomment">/** {@code devintrs}: device interrupts (this CPU). Offset within JNA layout: 384. */</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuDevintrs(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 384);
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <em class="jxr_javadoccomment">/** {@code softintrs}: software interrupts (this CPU). Offset within JNA layout: 392. */</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuSoftintrs(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 392);
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
-<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_javadoccomment">/** {@code idle_stolen_purr}: idle cycles stolen (this CPU). Offset within JNA layout: 432. */</em>
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuIdleStolenPurr(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 432);
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     }
-<a class="jxr_linenumber" name="L244" href="#L244">244</a> 
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <em class="jxr_javadoccomment">/** {@code busy_stolen_purr}: busy cycles stolen (this CPU). Offset within JNA layout: 448. */</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuBusyStolenPurr(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 448);
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <em class="jxr_comment">// Field accessors for perfstat_memory_total_t.</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> 
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <em class="jxr_javadoccomment">/** {@code virt_total}: total virtual memory (in 4 KB pages). */</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memVirtTotal(MemorySegment seg) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 0);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>     }
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> 
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <em class="jxr_javadoccomment">/** {@code real_total}: total real memory (in 4 KB pages). */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memRealTotal(MemorySegment seg) {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 8);
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     <em class="jxr_javadoccomment">/** {@code pgspins}: number of page-ins from paging space. */</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspins(MemorySegment seg) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 72);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> 
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <em class="jxr_javadoccomment">/** {@code pgspouts}: number of page-outs to paging space. */</em>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspouts(MemorySegment seg) {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 80);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>     }
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> 
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>     <em class="jxr_javadoccomment">/** {@code pgsp_total}: total paging space (in 4 KB pages). */</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspTotal(MemorySegment seg) {
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 120);
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>     }
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> 
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <em class="jxr_javadoccomment">/** {@code pgsp_free}: free paging space (in 4 KB pages). */</em>
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspFree(MemorySegment seg) {
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 128);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/** {@code virt_active}: active virtual pages (accessed). */</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memVirtActive(MemorySegment seg) {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 168);
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> 
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <em class="jxr_javadoccomment">/** {@code real_avail}: real memory available without paging out working segments (in 4 KB pages). */</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memRealAvail(MemorySegment seg) {
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 328);
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>     }
-<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <em class="jxr_comment">// Field accessors for perfstat_process_t (per-process element).</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <em class="jxr_javadoccomment">/** {@code pid}: process ID. */</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procPid(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 8);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>     }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a> 
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <em class="jxr_javadoccomment">/** {@code num_threads}: thread count. */</em>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procNumThreads(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
-<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <em class="jxr_javadoccomment">/** {@code proc_real_mem_data}: real memory used for data (KB). */</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealMemData(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 120);
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <em class="jxr_javadoccomment">/** {@code proc_real_mem_text}: real memory used for text (KB). */</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealMemText(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 128);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> 
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <em class="jxr_javadoccomment">/** {@code real_inuse}: real memory in use (KB). */</em>
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealInuse(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 168);
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>     }
-<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <em class="jxr_javadoccomment">/** {@code ucpu_time}: user-mode CPU time (milliseconds when filled by perfstat_process). */</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> procUcpuTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE, elementOffset + 232);
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_javadoccomment">/** {@code scpu_time}: system-mode CPU time (milliseconds when filled by perfstat_process). */</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> procScpuTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE, elementOffset + 240);
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <em class="jxr_comment">// Field accessors for perfstat_disk_t (per-disk element).</em>
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: disk name. */</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String diskName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>     }
-<a class="jxr_linenumber" name="L341" href="#L341">341</a> 
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>     <em class="jxr_javadoccomment">/** {@code description[64]}: disk description (from ODM). */</em>
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String diskDescription(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset + 64);
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>     }
-<a class="jxr_linenumber" name="L346" href="#L346">346</a> 
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>     <em class="jxr_javadoccomment">/** {@code size}: disk size (in MB). */</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskSize(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 192);
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     }
-<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <em class="jxr_javadoccomment">/** {@code bsize}: disk block size (in bytes). */</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskBsize(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 208);
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/** {@code xfers}: number of transfers to/from disk. */</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskXfers(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 224);
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <em class="jxr_javadoccomment">/** {@code wblks}: blocks written to disk. */</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskWblks(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 232);
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     }
-<a class="jxr_linenumber" name="L366" href="#L366">366</a> 
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <em class="jxr_javadoccomment">/** {@code rblks}: blocks read from disk. */</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskRblks(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 240);
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>     }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> 
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     <em class="jxr_javadoccomment">/** {@code qdepth}: instantaneous service-queue depth. */</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskQdepth(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 248);
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <em class="jxr_javadoccomment">/** {@code time}: time the disk is active. */</em>
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 256);
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
-<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>     <em class="jxr_comment">// Field accessors for perfstat_partition_config_t (singleton; passed by reference, count = 1).</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a> 
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>     <em class="jxr_javadoccomment">/** {@code conf}: partition properties (32-bit union, see {@code perfstat_partition_type_t}). */</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> configConf(MemorySegment seg) {
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 136);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>     }
-<a class="jxr_linenumber" name="L390" href="#L390">390</a> 
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <em class="jxr_javadoccomment">/** {@code machineID[64]}: machine ID. */</em>
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String configMachineID(MemorySegment seg) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">return</strong> readName(seg, 276);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>     }
-<a class="jxr_linenumber" name="L395" href="#L395">395</a> 
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <em class="jxr_javadoccomment">/** {@code processorMHz}: processor clock speed in MHz. */</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> configProcessorMHz(MemorySegment seg) {
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE, 344);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     }
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <em class="jxr_javadoccomment">/** {@code OSBuild[64]}: OS build string. */</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String configOSBuild(MemorySegment seg) {
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">return</strong> readName(seg, 512);
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>     }
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <em class="jxr_javadoccomment">/** {@code smtthreads}: number of SMT threads. */</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> configSmtthreads(MemorySegment seg) {
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 580);
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     }
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> 
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <em class="jxr_javadoccomment">/** {@code vcpus.max}: max virtual CPUs. vcpus is a perfstat_value_t starting at offset 632; max is at +8. */</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> configVcpusMax(MemorySegment seg) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 632L + 8);
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <em class="jxr_comment">// Field accessors for perfstat_netinterface_t (per-interface element).</em>
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_DOUBLE_UNALIGNED;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_INT;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> java.lang.foreign.ValueLayout.JAVA_LONG;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.FunctionDescriptor;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.MemorySegment;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.lang.foreign.SymbolLookup;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.lang.invoke.MethodHandle;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.ForeignFunctions;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * FFM bindings for the AIX {@code libperfstat} library, mapped to the surface OSHI actually consumes.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * Struct sizes and field offsets are taken from JNA's {@code com.sun.jna.platform.unix.aix.Perfstat} (which has been</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> * reviewed against AIX's {@code &lt;libperfstat.h&gt;}); see the JNA file for full field documentation.</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment"> * The library lives at {@code /usr/lib/libperfstat.a(shr_64.o)} (or {@code (shr.o)} for the 32-bit variant). Loading</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * requires the AIX-specific {@code RTLD_MEMBER} flag, which FFM's {@link SymbolLookup#libraryLookup} can't pass; the</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * dlopen call is wrapped behind {@link SharedObjectLoader}, mirroring JNA's contrib/platform</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * {@code SharedObjectLoader}.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="PerfstatFunctions" href="../../../../../oshi/ffm/platform/unix/aix/PerfstatFunctions.html#PerfstatFunctions">PerfstatFunctions</a> <strong class="jxr_keyword">extends</strong> <a name="ForeignFunctions" href="../../../../../oshi/ffm/ForeignFunctions.html#ForeignFunctions">ForeignFunctions</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <a name="PerfstatFunctions" href="../../../../../oshi/ffm/platform/unix/aix/PerfstatFunctions.html#PerfstatFunctions">PerfstatFunctions</a>() {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_javadoccomment">/** Identifier length for {@code perfstat_id_t} and the leading {@code name} field of most perfstat structs. */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IDENTIFIER_LENGTH = 64;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">// Struct sizes (sizeof) as computed by JNA on 64-bit AIX. These are passed to each perfstat call as the</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <em class="jxr_comment">// sizeof_struct argument; perfstat strides the output array by this amount.</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_ID_T_SIZE = 64;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_CPU_TOTAL_T_SIZE = 696;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_CPU_T_SIZE = 616;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_MEMORY_TOTAL_T_SIZE = 352;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PROCESS_T_SIZE = 288;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_DISK_T_SIZE = 496;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PARTITION_CONFIG_T_SIZE = 808;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_NETINTERFACE_T_SIZE = 240;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> PERFSTAT_PROTOCOL_T_SIZE = 728;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_comment">// libperfstat is loaded via the AIX-specific SharedObjectLoader, which knows about</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_comment">// RTLD_MEMBER + the archive-member syntax. The lookup is cached for the JVM lifetime.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> SymbolLookup LIBPERFSTAT = SharedObjectLoader.loadPerfstat();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_comment">// ---- Method handles. All perfstat_* APIs share the signature</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_comment">// ---- int perfstat_xxx(perfstat_id_t *name, perfstat_xxx_t *userbuff, int sizeof_struct, int desired_number);</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> FunctionDescriptor PERFSTAT_FD = FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, JAVA_INT,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              JAVA_INT);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_cpu_total = LINKER
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_cpu_total"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_cpu = LINKER.downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_cpu"</span>),
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              PERFSTAT_FD);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_memory_total = LINKER
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_memory_total"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_process = LINKER
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_process"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_disk = LINKER.downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_disk"</span>),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              PERFSTAT_FD);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_partition_config = LINKER
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_partition_config"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_netinterface = LINKER
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_netinterface"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> MethodHandle perfstat_protocol = LINKER
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              .downcallHandle(LIBPERFSTAT.findOrThrow(<span class="jxr_string">"perfstat_protocol"</span>), PERFSTAT_FD);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_cpu_total(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_cpu_total.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_cpu(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_cpu.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_memory_total(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_memory_total.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_process(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_process.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_disk(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_disk.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> 
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_partition_config(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             <strong class="jxr_keyword">int</strong> desired) <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_partition_config.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_netinterface(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_netinterface.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> perfstat_protocol(MemorySegment name, MemorySegment userbuff, <strong class="jxr_keyword">int</strong> sizeofStruct, <strong class="jxr_keyword">int</strong> desired)
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">throws</strong> Throwable {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) perfstat_protocol.invokeExact(name, userbuff, sizeofStruct, desired);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     * Copy {@code IDENTIFIER_LENGTH} bytes from {@code seg + offset} into a Java string, stopping at the first NUL.</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * @param seg    a perfstat struct segment</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * @param offset byte offset of the leading-name field within {@code seg}</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * @return the decoded ASCII name</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String readName(MemorySegment seg, <strong class="jxr_keyword">long</strong> offset) {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         byte[] bytes = <strong class="jxr_keyword">new</strong> byte[IDENTIFIER_LENGTH];
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; IDENTIFIER_LENGTH; i++) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             byte b = seg.get(JAVA_BYTE, offset + i);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">if</strong> (b == 0) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, 0, i, java.nio.charset.StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             }
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             bytes[i] = b;
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, java.nio.charset.StandardCharsets.US_ASCII);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_comment">// Field accessors for perfstat_cpu_total_t. Offsets verified via JNA's @FieldOrder reflection.</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <em class="jxr_javadoccomment">/** {@code ncpus}: number of active logical processors. */</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> cpuTotalNcpus(MemorySegment seg) {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 0);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <em class="jxr_javadoccomment">/** {@code processorHZ}: processor clock speed in Hz. */</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalProcessorHZ(MemorySegment seg) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 72);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     }
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <em class="jxr_javadoccomment">/** {@code user}: raw clock ticks spent in user mode (total). */</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalUser(MemorySegment seg) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 80);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> 
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <em class="jxr_javadoccomment">/** {@code sys}: raw clock ticks spent in system mode (total). */</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalSys(MemorySegment seg) {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 88);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <em class="jxr_javadoccomment">/** {@code idle}: raw clock ticks spent idle (total). */</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalIdle(MemorySegment seg) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 96);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <em class="jxr_javadoccomment">/** {@code wait}: raw clock ticks spent waiting for I/O (total). */</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalWait(MemorySegment seg) {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 104);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_javadoccomment">/** {@code pswitch}: number of process switches. */</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalPswitch(MemorySegment seg) {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 112);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <em class="jxr_javadoccomment">/** {@code devintrs}: number of device interrupts (total). */</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalDevintrs(MemorySegment seg) {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 176);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <em class="jxr_javadoccomment">/** {@code softintrs}: number of software interrupts (total). */</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalSoftintrs(MemorySegment seg) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 184);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_javadoccomment">/** {@code loadavg[i]}: 1/5/15-minute load averages (scaled by 1&amp;lt;&amp;lt;SBITS). */</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalLoadavg(MemorySegment seg, <strong class="jxr_keyword">int</strong> i) {
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 200L + i * 8L);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     }
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <em class="jxr_javadoccomment">/** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor. */</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalIdleStolenPurr(MemorySegment seg) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 560);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <em class="jxr_javadoccomment">/** {@code busy_stolen_purr}: busy cycles stolen by the hypervisor. */</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuTotalBusyStolenPurr(MemorySegment seg) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 576);
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_comment">// Field accessors for perfstat_cpu_t (per-CPU element of the perfstat_cpu array).</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: logical-processor name ({@code cpu0}, {@code cpu1}, …). */</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String cpuName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <em class="jxr_javadoccomment">/** {@code user}: raw clock ticks spent in user mode (this CPU). */</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuUser(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <em class="jxr_javadoccomment">/** {@code sys}: raw clock ticks spent in system mode (this CPU). */</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuSys(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <em class="jxr_javadoccomment">/** {@code idle}: raw clock ticks spent idle (this CPU). */</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuIdle(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <em class="jxr_javadoccomment">/** {@code wait}: raw clock ticks waiting for I/O (this CPU). */</em>
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuWait(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <em class="jxr_javadoccomment">/** {@code devintrs}: device interrupts (this CPU). Offset within JNA layout: 384. */</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuDevintrs(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 384);
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     }
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <em class="jxr_javadoccomment">/** {@code softintrs}: software interrupts (this CPU). Offset within JNA layout: 392. */</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuSoftintrs(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 392);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     }
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <em class="jxr_javadoccomment">/** {@code idle_stolen_purr}: idle cycles stolen (this CPU). Offset within JNA layout: 432. */</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuIdleStolenPurr(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 432);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     }
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     <em class="jxr_javadoccomment">/** {@code busy_stolen_purr}: busy cycles stolen (this CPU). Offset within JNA layout: 448. */</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> cpuBusyStolenPurr(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 448);
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <em class="jxr_comment">// Field accessors for perfstat_memory_total_t.</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_javadoccomment">/** {@code virt_total}: total virtual memory (in 4 KB pages). */</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memVirtTotal(MemorySegment seg) {
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 0);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_javadoccomment">/** {@code real_total}: total real memory (in 4 KB pages). */</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memRealTotal(MemorySegment seg) {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 8);
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>     }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> 
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <em class="jxr_javadoccomment">/** {@code pgspins}: number of page-ins from paging space. */</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspins(MemorySegment seg) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 72);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>     }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>     <em class="jxr_javadoccomment">/** {@code pgspouts}: number of page-outs to paging space. */</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspouts(MemorySegment seg) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 80);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>     }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     <em class="jxr_javadoccomment">/** {@code pgsp_total}: total paging space (in 4 KB pages). */</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspTotal(MemorySegment seg) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 120);
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <em class="jxr_javadoccomment">/** {@code pgsp_free}: free paging space (in 4 KB pages). */</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memPgspFree(MemorySegment seg) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 128);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> 
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <em class="jxr_javadoccomment">/** {@code virt_active}: active virtual pages (accessed). */</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memVirtActive(MemorySegment seg) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 168);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     }
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> 
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     <em class="jxr_javadoccomment">/** {@code real_avail}: real memory available without paging out working segments (in 4 KB pages). */</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> memRealAvail(MemorySegment seg) {
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 328);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <em class="jxr_comment">// Field accessors for perfstat_process_t (per-process element).</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     <em class="jxr_javadoccomment">/** {@code pid}: process ID. */</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procPid(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 8);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <em class="jxr_javadoccomment">/** {@code num_threads}: thread count. */</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procNumThreads(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     }
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> 
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <em class="jxr_javadoccomment">/** {@code proc_real_mem_data}: real memory used for data (KB). */</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealMemData(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 120);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <em class="jxr_javadoccomment">/** {@code proc_real_mem_text}: real memory used for text (KB). */</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealMemText(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 128);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> 
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <em class="jxr_javadoccomment">/** {@code real_inuse}: real memory in use (KB). */</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> procRealInuse(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 168);
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>     }
+<a class="jxr_linenumber" name="L323" href="#L323">323</a> 
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <em class="jxr_javadoccomment">/** {@code ucpu_time}: user-mode CPU time (milliseconds when filled by perfstat_process). */</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> procUcpuTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE, elementOffset + 232);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     }
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <em class="jxr_javadoccomment">/** {@code scpu_time}: system-mode CPU time (milliseconds when filled by perfstat_process). */</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> procScpuTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE, elementOffset + 240);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>     }
+<a class="jxr_linenumber" name="L333" href="#L333">333</a> 
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     <em class="jxr_comment">// Field accessors for perfstat_disk_t (per-disk element).</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: disk name. */</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String diskName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <em class="jxr_javadoccomment">/** {@code description[64]}: disk description (from ODM). */</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String diskDescription(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset + 64);
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>     }
+<a class="jxr_linenumber" name="L347" href="#L347">347</a> 
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>     <em class="jxr_javadoccomment">/** {@code size}: disk size (in MB). */</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskSize(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 192);
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <em class="jxr_javadoccomment">/** {@code bsize}: disk block size (in bytes). */</em>
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskBsize(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 208);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> 
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <em class="jxr_javadoccomment">/** {@code xfers}: number of transfers to/from disk. */</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskXfers(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 224);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>     }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> 
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <em class="jxr_javadoccomment">/** {@code wblks}: blocks written to disk. */</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskWblks(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 232);
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     }
+<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>     <em class="jxr_javadoccomment">/** {@code rblks}: blocks read from disk. */</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskRblks(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 240);
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>     }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     <em class="jxr_javadoccomment">/** {@code qdepth}: instantaneous service-queue depth. */</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskQdepth(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 248);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>     }
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <em class="jxr_javadoccomment">/** {@code time}: time the disk is active. */</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> diskTime(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 256);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     }
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> 
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <em class="jxr_comment">// Field accessors for perfstat_partition_config_t (singleton; passed by reference, count = 1).</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <em class="jxr_javadoccomment">/** {@code conf}: partition properties (32-bit union, see {@code perfstat_partition_type_t}). */</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> configConf(MemorySegment seg) {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 136);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     }
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> 
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>     <em class="jxr_javadoccomment">/** {@code machineID[64]}: machine ID. */</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String configMachineID(MemorySegment seg) {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">return</strong> readName(seg, 276);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a> 
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_javadoccomment">     * {@code processorMHz}: processor clock speed in MHz. It follows {@code machineID[64]} (ending at 340) with no</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">     * padding, so it is 4-byte- but not 8-byte-aligned and must be read unaligned.</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> configProcessorMHz(MemorySegment seg) {
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_DOUBLE_UNALIGNED, 340);
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     }
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>     <em class="jxr_javadoccomment">/** {@code OSBuild[64]}: OS build string. */</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String configOSBuild(MemorySegment seg) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         <strong class="jxr_keyword">return</strong> readName(seg, 512);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>     }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <em class="jxr_javadoccomment">/** {@code smtthreads}: number of SMT threads. */</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> configSmtthreads(MemorySegment seg) {
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_INT, 580);
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     <em class="jxr_javadoccomment">/** {@code vcpus.max}: max virtual CPUs. vcpus is a perfstat_value_t starting at offset 632; max is at +8. */</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> configVcpusMax(MemorySegment seg) {
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, 632L + 8);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>     }
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> 
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: interface name. */</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String netIfName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>     }
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>     <em class="jxr_javadoccomment">/** {@code description[64]}: interface description (from ODM). */</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String netIfDescription(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset + 64);
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     }
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <em class="jxr_javadoccomment">/** {@code type}: interface type byte (see {@code &lt;net/if_types.h&gt;}). */</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte netIfType(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_BYTE, elementOffset + 128);
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>     }
-<a class="jxr_linenumber" name="L434" href="#L434">434</a> 
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <em class="jxr_javadoccomment">/** {@code mtu}: network frame size. */</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfMtu(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 136);
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>     }
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <em class="jxr_javadoccomment">/** {@code ipackets}: packets received. */</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 144);
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <em class="jxr_javadoccomment">/** {@code ibytes}: bytes received. */</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIbytes(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 152);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>     }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> 
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     <em class="jxr_javadoccomment">/** {@code ierrors}: input errors. */</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 160);
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> 
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <em class="jxr_javadoccomment">/** {@code opackets}: packets sent. */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 168);
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <em class="jxr_javadoccomment">/** {@code obytes}: bytes sent. */</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfObytes(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 176);
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>     }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <em class="jxr_javadoccomment">/** {@code oerrors}: output errors. */</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfOerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 184);
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>     }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> 
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>     <em class="jxr_javadoccomment">/** {@code collisions}: collisions on CSMA interface. */</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfCollisions(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 192);
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>     }
-<a class="jxr_linenumber" name="L474" href="#L474">474</a> 
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <em class="jxr_javadoccomment">/** {@code bitrate}: adapter rating (bits per second). */</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfBitrate(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 200);
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>     }
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> 
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>     <em class="jxr_javadoccomment">/** {@code if_iqdrops}: dropped on input on this interface. */</em>
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIfIqdrops(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 224);
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>     }
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> 
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>     <em class="jxr_comment">// Field accessors for perfstat_protocol_t (per-protocol element).</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>     <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>     <em class="jxr_comment">// The struct is: { byte name[64]; union u { tcp{...}, udp{...}, ... } u; long version; }.</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     <em class="jxr_comment">// Within the union, the tcp and udp variants live at the same offset (64 within the struct);</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>     <em class="jxr_comment">// both start with ipackets at +0, ierrors at +8, opackets at +16, and diverge from there.</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <em class="jxr_comment">// ===========================================================================================</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: protocol name ({@code ip}, {@code tcp}, {@code udp}, …). */</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String protoName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>     }
-<a class="jxr_linenumber" name="L497" href="#L497">497</a> 
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.ipackets}: TCP input packets. */</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     }
-<a class="jxr_linenumber" name="L502" href="#L502">502</a> 
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.ierrors}: TCP input errors. */</em>
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     }
-<a class="jxr_linenumber" name="L507" href="#L507">507</a> 
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.opackets}: TCP output packets. */</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     }
-<a class="jxr_linenumber" name="L512" href="#L512">512</a> 
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.initiated}: TCP connections initiated. */</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpInitiated(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>     }
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> 
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.accepted}: TCP connections accepted. */</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpAccepted(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 96);
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     }
-<a class="jxr_linenumber" name="L522" href="#L522">522</a> 
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.established}: TCP connections established. */</em>
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpEstablished(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 104);
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>     }
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.dropped}: TCP connections dropped. */</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpDropped(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 112);
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>     }
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <em class="jxr_javadoccomment">/** {@code u.udp.ipackets}: UDP input packets. */</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>     }
-<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>     <em class="jxr_javadoccomment">/** {@code u.udp.ierrors}: UDP input errors. */</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>     }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> 
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>     <em class="jxr_javadoccomment">/** {@code u.udp.opackets}: UDP output packets. */</em>
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     }
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>     <em class="jxr_javadoccomment">/** {@code u.udp.no_socket}: UDP packets dropped due to no socket. */</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpNoSocket(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>     }
-<a class="jxr_linenumber" name="L552" href="#L552">552</a> }
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <em class="jxr_comment">// Field accessors for perfstat_netinterface_t (per-interface element).</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> 
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: interface name. */</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String netIfName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     }
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     <em class="jxr_javadoccomment">/** {@code description[64]}: interface description (from ODM). */</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String netIfDescription(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset + 64);
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <em class="jxr_javadoccomment">/** {@code type}: interface type byte (see {@code &lt;net/if_types.h&gt;}). */</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> byte netIfType(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_BYTE, elementOffset + 128);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     }
+<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>     <em class="jxr_javadoccomment">/** {@code mtu}: network frame size. */</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfMtu(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 136);
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> 
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <em class="jxr_javadoccomment">/** {@code ipackets}: packets received. */</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 144);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     <em class="jxr_javadoccomment">/** {@code ibytes}: bytes received. */</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIbytes(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 152);
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     }
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <em class="jxr_javadoccomment">/** {@code ierrors}: input errors. */</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 160);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> 
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <em class="jxr_javadoccomment">/** {@code opackets}: packets sent. */</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 168);
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     }
+<a class="jxr_linenumber" name="L463" href="#L463">463</a> 
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <em class="jxr_javadoccomment">/** {@code obytes}: bytes sent. */</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfObytes(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 176);
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     }
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> 
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     <em class="jxr_javadoccomment">/** {@code oerrors}: output errors. */</em>
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfOerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 184);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     }
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>     <em class="jxr_javadoccomment">/** {@code collisions}: collisions on CSMA interface. */</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfCollisions(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 192);
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>     }
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     <em class="jxr_javadoccomment">/** {@code bitrate}: adapter rating (bits per second). */</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfBitrate(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 200);
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>     }
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>     <em class="jxr_javadoccomment">/** {@code if_iqdrops}: dropped on input on this interface. */</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> netIfIfIqdrops(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 224);
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>     }
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> 
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>     <em class="jxr_comment">// Field accessors for perfstat_protocol_t (per-protocol element).</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     <em class="jxr_comment">// The struct is: { byte name[64]; union u { tcp{...}, udp{...}, ... } u; long version; }.</em>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <em class="jxr_comment">// Within the union, the tcp and udp variants live at the same offset (64 within the struct);</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>     <em class="jxr_comment">// both start with ipackets at +0, ierrors at +8, opackets at +16, and diverge from there.</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>     <em class="jxr_comment">// ===========================================================================================</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> 
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>     <em class="jxr_javadoccomment">/** {@code name[64]}: protocol name ({@code ip}, {@code tcp}, {@code udp}, …). */</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String protoName(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <strong class="jxr_keyword">return</strong> readName(seg, elementOffset);
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>     }
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.ipackets}: TCP input packets. */</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>     }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a> 
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.ierrors}: TCP input errors. */</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     }
+<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.opackets}: TCP output packets. */</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>     }
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.initiated}: TCP connections initiated. */</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpInitiated(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>     }
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> 
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.accepted}: TCP connections accepted. */</em>
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpAccepted(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 96);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     }
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> 
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.established}: TCP connections established. */</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpEstablished(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 104);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     }
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> 
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>     <em class="jxr_javadoccomment">/** {@code u.tcp.dropped}: TCP connections dropped. */</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoTcpDropped(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 112);
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     }
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> 
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <em class="jxr_javadoccomment">/** {@code u.udp.ipackets}: UDP input packets. */</em>
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpIpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 64);
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>     }
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> 
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>     <em class="jxr_javadoccomment">/** {@code u.udp.ierrors}: UDP input errors. */</em>
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpIerrors(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 72);
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     }
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> 
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>     <em class="jxr_javadoccomment">/** {@code u.udp.opackets}: UDP output packets. */</em>
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpOpackets(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 80);
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>     }
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> 
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     <em class="jxr_javadoccomment">/** {@code u.udp.no_socket}: UDP packets dropped due to no socket. */</em>
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> protoUdpNoSocket(MemorySegment seg, <strong class="jxr_keyword">long</strong> elementOffset) {
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">return</strong> seg.get(JAVA_LONG, elementOffset + 88);
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>     }
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

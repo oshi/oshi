@@ -48,8 +48,8 @@
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.netbsd.FstatUtil;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.netbsd.NetBsdSysctlUtil;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> oshi.util.common.platform.unix.netbsd.FstatUtil;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * OSProcess implementation</em>
@@ -118,9 +118,9 @@
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>     @Override
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getSoftOpenFileLimit() {
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">long</strong> limit = NetBsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfilesperproc"</span>, 0L);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             <strong class="jxr_keyword">long</strong> limit = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfilesperproc"</span>, 0L);
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">if</strong> (limit &lt;= 0) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 limit = NetBsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0L);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 limit = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0L);
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> limit &gt; 0 ? limit : -1L;
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
@@ -130,7 +130,7 @@
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>     @Override
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getHardOpenFileLimit() {
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">long</strong> limit = NetBsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0L);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">long</strong> limit = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0L);
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>             <strong class="jxr_keyword">return</strong> limit &gt; 0 ? limit : -1L;
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">return</strong> -1L;
@@ -162,7 +162,7 @@
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         }
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         <em class="jxr_comment">// Not bound — return all CPUs</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">int</strong> ncpu = NetBsdSysctlUtil.sysctl(<span class="jxr_string">"hw.ncpuonline"</span>, 1);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">int</strong> ncpu = BsdSysctlUtil.sysctl(<span class="jxr_string">"hw.ncpuonline"</span>, 1);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> ncpu &lt; 64 ? (1L &lt;&lt; ncpu) - 1 : -1L;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
