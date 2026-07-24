@@ -1,17 +1,8 @@
-# 7.4.2 (in progress)
+# 7.4.3 (in progress)
 
-##### Bug Fixes and Improvements
+* Your contribution here!
 
-* [#3493](https://github.com/oshi/oshi/pull/3493): Document the CPU/memory trade-off of reusing versus recreating `SystemInfo` when polling, with supporting benchmarks - [@dbwiddis](https://github.com/dbwiddis).
-* [#3499](https://github.com/oshi/oshi/pull/3499): Fix FreeBSD, NetBSD, and OpenBSD `df -i` inode parsing to include ZFS, tmpfs, devfs, and mfs filesystems that do not start with `/` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3504](https://github.com/oshi/oshi/pull/3504): Fix AIX processor cache detection, which read the POWER generation from the hostname (`uname -n`) instead of `prtconf`'s `Processor Version` field, causing `getProcessorCaches()` to return an empty list - [@dbwiddis](https://github.com/dbwiddis).
-* [#3505](https://github.com/oshi/oshi/pull/3505): Fix the AIX FFM backend reading `perfstat_partition_config_t.processorMHz` at the wrong struct offset (344 instead of 340), which reported the processor's vendor frequency as unknown - [@dbwiddis](https://github.com/dbwiddis).
-* [#3507](https://github.com/oshi/oshi/pull/3507): Extend the native-free provider (`oshi-common` alone, no JNA or FFM) to NetBSD, so NetBSD users without the JNA native library can depend on `oshi-common` without `--enable-native-access`, as Linux already can - [@dbwiddis](https://github.com/dbwiddis).
-* [#3518](https://github.com/oshi/oshi/pull/3518): Consolidate the duplicated `sysctl` utility code into shared command-line (`BsdSysctlUtil`), JNA (`SysctlUtilJNA`), and FFM (`SysctlFFM`) helpers, and fix a latent bug where reading an int-width sysctl (e.g. FreeBSD `hw.clockrate`) through the `long` API returned uninitialized bytes, intermittently reporting an absurd CPU vendor frequency such as 6.2 EHz - [@dbwiddis](https://github.com/dbwiddis).
-* [#3519](https://github.com/oshi/oshi/pull/3519): Fix the Solaris JNA Kstat2 processor identifier reporting the CPU vendor frequency in MHz instead of Hz (missing the `clock_MHz` to Hz conversion applied on the other code paths) - [@dbwiddis](https://github.com/dbwiddis).
-* [#3525](https://github.com/oshi/oshi/pull/3525): Carry the exception log level with a new `oshi.util.LogLevel` enum instead of `org.slf4j.event.Level`, so OSHI no longer class-loads a type added in slf4j-api 1.7.15 on non-exceptional code paths and works again against host-provided slf4j-api older than 1.7.15 (e.g. the 1.7.5 bundled by Apache Maven 3.3.x) - [@wolfs](https://github.com/wolfs).
-
-# 7.4.0 (2026-07-08), 7.4.1 (2026-07-18)
+# 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24)
 
 ##### New Features
 
@@ -40,6 +31,14 @@
 * [#3482](https://github.com/oshi/oshi/pull/3482): Fix macOS `getThreadCount()` on the default JNA backend, which under-reported the thread count (a `proc_listpids` buffer size passed as an element count, and stale reused-buffer data counted for processes `proc_pidinfo` could not fill), and release the CoreFoundation device dictionary and lookup keys leaked per disk enumeration in the JNA disk-type detection - [@dbwiddis](https://github.com/dbwiddis).
 * [#3483](https://github.com/oshi/oshi/pull/3483): Fix several Windows backend issues: guard against a hard crash when enumerating a network session with a null client name, allocate the AMD ADL callback buffer from the C heap so the driver's `free()` is valid, close leaked system event-log handles, and read `REG_QWORD`/`REG_BINARY` registry values in the FFM backend so graphics-card VRAM is reported consistently with the JNA backend - [@dbwiddis](https://github.com/dbwiddis).
 * [#3484](https://github.com/oshi/oshi/pull/3484): Fix several parsing and consistency issues: return empty instead of throwing from `ParseUtil.getStringBetween` on a single unmatched delimiter, throw the documented `IllegalArgumentException` (not `ArrayIndexOutOfBoundsException`) for mismatched tick arrays, correct an off-by-one bounds guard in Solaris `Prtvtoc`, decode FreeBSD/Solaris utmpx session strings as UTF-8, and read native `utmpx` for Solaris sessions in the FFM backend to match the JNA backend - [@dbwiddis](https://github.com/dbwiddis).
+* [#3493](https://github.com/oshi/oshi/pull/3493): Document the CPU/memory trade-off of reusing versus recreating `SystemInfo` when polling, with supporting benchmarks - [@dbwiddis](https://github.com/dbwiddis).
+* [#3499](https://github.com/oshi/oshi/pull/3499): Fix FreeBSD, NetBSD, and OpenBSD `df -i` inode parsing to include ZFS, tmpfs, devfs, and mfs filesystems that do not start with `/` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3504](https://github.com/oshi/oshi/pull/3504): Fix AIX processor cache detection, which read the POWER generation from the hostname (`uname -n`) instead of `prtconf`'s `Processor Version` field, causing `getProcessorCaches()` to return an empty list - [@dbwiddis](https://github.com/dbwiddis).
+* [#3505](https://github.com/oshi/oshi/pull/3505): Fix the AIX FFM backend reading `perfstat_partition_config_t.processorMHz` at the wrong struct offset (344 instead of 340), which reported the processor's vendor frequency as unknown - [@dbwiddis](https://github.com/dbwiddis).
+* [#3507](https://github.com/oshi/oshi/pull/3507): Extend the native-free provider (`oshi-common` alone, no JNA or FFM) to NetBSD, so NetBSD users without the JNA native library can depend on `oshi-common` without `--enable-native-access`, as Linux already can - [@dbwiddis](https://github.com/dbwiddis).
+* [#3518](https://github.com/oshi/oshi/pull/3518): Consolidate the duplicated `sysctl` utility code into shared command-line (`BsdSysctlUtil`), JNA (`SysctlUtilJNA`), and FFM (`SysctlFFM`) helpers, and fix a latent bug where reading an int-width sysctl (e.g. FreeBSD `hw.clockrate`) through the `long` API returned uninitialized bytes, intermittently reporting an absurd CPU vendor frequency such as 6.2 EHz - [@dbwiddis](https://github.com/dbwiddis).
+* [#3519](https://github.com/oshi/oshi/pull/3519): Fix the Solaris JNA Kstat2 processor identifier reporting the CPU vendor frequency in MHz instead of Hz (missing the `clock_MHz` to Hz conversion applied on the other code paths) - [@dbwiddis](https://github.com/dbwiddis).
+* [#3525](https://github.com/oshi/oshi/pull/3525): Carry the exception log level with a new `oshi.util.LogLevel` enum instead of `org.slf4j.event.Level`, so OSHI no longer class-loads a type added in slf4j-api 1.7.15 on non-exceptional code paths and works again against host-provided slf4j-api older than 1.7.15 (e.g. the 1.7.5 bundled by Apache Maven 3.3.x) - [@wolfs](https://github.com/wolfs).
 
 # 7.3.0 (2026-06-06), 7.3.1 (2026-06-11), 7.3.2 (2026-06-26)
 
