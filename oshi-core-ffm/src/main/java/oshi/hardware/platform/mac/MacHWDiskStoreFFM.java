@@ -4,6 +4,9 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.LogLevel.ERROR;
+
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -244,111 +247,111 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
         List<HWDiskStore> diskList = new ArrayList<>();
 
         try {
-            @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
-            CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
-            try (DASessionRef session = DASessionRef.create(alloc)) {
-                if (session.isNull()) {
-                    LOG.error("Unable to open session to DiskArbitration framework.");
-                    return Collections.emptyList();
-                }
-                List<String> bsdNames = new ArrayList<>();
-                IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMedia");
-                if (iter != null) {
-                    try (iter) {
-                        IORegistryEntry media = iter.next();
-                        while (media != null) {
-                            try (IORegistryEntry current = media) {
-                                Boolean whole = current.getBooleanProperty("Whole");
-                                if (Boolean.TRUE.equals(whole)) {
-                                    try (DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, current)) {
-                                        if (!disk.isNull()) {
-                                            String bsdName = disk.getBSDName();
-                                            if (bsdName != null) {
-                                                bsdNames.add(bsdName);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            media = iter.next();
-                        }
+            return getOrDefault(() -> {
+                @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
+                CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());
+                try (DASessionRef session = DASessionRef.create(alloc)) {
+                    if (session.isNull()) {
+                        LOG.error("Unable to open session to DiskArbitration framework.");
+                        return Collections.emptyList();
                     }
-                }
-
-                for (String bsdName : bsdNames) {
-                    String model = "";
-                    String serial = "";
-                    long size = 0L;
-
-                    String path = "/dev/" + bsdName;
-                    try (DADiskRef disk = DADiskRef.createFromBSDName(alloc, session, path)) {
-                        if (disk.isNull()) {
-                            continue;
-                        }
-                        try (CFDictionaryRef diskInfo = disk.copyDescription()) {
-                            if (!diskInfo.isNull()) {
-                                MemorySegment result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
-                                model = CFUtilFFM.cfPointerToString(result);
-                                result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
-                                if (!result.equals(MemorySegment.NULL)) {
-                                    size = CFNumberRef.longValue(result);
-                                }
-
-                                if (!"Disk Image".equals(model)) {
-                                    try (CFStringRef modelNameRef = CFStringRef.createCFString(model)) {
-                                        @SuppressWarnings("resource") // consumed by matchingDict
-                                        CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
-                                                CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
-                                                        MemorySegment.NULL, MemorySegment.NULL));
-                                        propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
-                                        @SuppressWarnings("resource") // consumed by getMatchingServices
-                                        CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(
-                                                CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(), 0,
-                                                        MemorySegment.NULL, MemorySegment.NULL));
-                                        matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
-
-                                        IOIterator serviceIterator = IOKitUtilFFM
-                                                .getMatchingServices(matchingDict.segment());
-                                        propertyDict.release();
-
-                                        if (serviceIterator != null) {
-                                            try (serviceIterator) {
-                                                IORegistryEntry sdService = serviceIterator.next();
-                                                while (sdService != null) {
-                                                    try (IORegistryEntry current = sdService) {
-                                                        serial = current.getStringProperty("Serial Number");
-                                                    }
-                                                    if (serial != null) {
-                                                        break;
-                                                    }
-                                                    sdService = serviceIterator.next();
+                    List<String> bsdNames = new ArrayList<>();
+                    IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMedia");
+                    if (iter != null) {
+                        try (iter) {
+                            IORegistryEntry media = iter.next();
+                            while (media != null) {
+                                try (IORegistryEntry current = media) {
+                                    Boolean whole = current.getBooleanProperty("Whole");
+                                    if (Boolean.TRUE.equals(whole)) {
+                                        try (DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, current)) {
+                                            if (!disk.isNull()) {
+                                                String bsdName = disk.getBSDName();
+                                                if (bsdName != null) {
+                                                    bsdNames.add(bsdName);
                                                 }
                                             }
                                         }
                                     }
-                                    if (serial == null) {
-                                        serial = "";
-                                    }
                                 }
+                                media = iter.next();
                             }
                         }
                     }
 
-                    if (size <= 0) {
-                        continue;
+                    for (String bsdName : bsdNames) {
+                        String model = "";
+                        String serial = "";
+                        long size = 0L;
+
+                        String path = "/dev/" + bsdName;
+                        try (DADiskRef disk = DADiskRef.createFromBSDName(alloc, session, path)) {
+                            if (disk.isNull()) {
+                                continue;
+                            }
+                            try (CFDictionaryRef diskInfo = disk.copyDescription()) {
+                                if (!diskInfo.isNull()) {
+                                    MemorySegment result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_DEVICE_MODEL));
+                                    model = CFUtilFFM.cfPointerToString(result);
+                                    result = diskInfo.getValue(cfKeyMap.get(CFKey.DA_MEDIA_SIZE));
+                                    if (!result.equals(MemorySegment.NULL)) {
+                                        size = CFNumberRef.longValue(result);
+                                    }
+
+                                    if (!"Disk Image".equals(model)) {
+                                        try (CFStringRef modelNameRef = CFStringRef.createCFString(model)) {
+                                            @SuppressWarnings("resource") // consumed by matchingDict
+                                            CFMutableDictionaryRef propertyDict = new CFMutableDictionaryRef(
+                                                    CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(),
+                                                            0, MemorySegment.NULL, MemorySegment.NULL));
+                                            propertyDict.setValue(cfKeyMap.get(CFKey.MODEL), modelNameRef);
+                                            @SuppressWarnings("resource") // consumed by getMatchingServices
+                                            CFMutableDictionaryRef matchingDict = new CFMutableDictionaryRef(
+                                                    CoreFoundationFunctions.CFDictionaryCreateMutable(alloc.segment(),
+                                                            0, MemorySegment.NULL, MemorySegment.NULL));
+                                            matchingDict.setValue(cfKeyMap.get(CFKey.IO_PROPERTY_MATCH), propertyDict);
+
+                                            IOIterator serviceIterator = IOKitUtilFFM
+                                                    .getMatchingServices(matchingDict.segment());
+                                            propertyDict.release();
+
+                                            if (serviceIterator != null) {
+                                                try (serviceIterator) {
+                                                    IORegistryEntry sdService = serviceIterator.next();
+                                                    while (sdService != null) {
+                                                        try (IORegistryEntry current = sdService) {
+                                                            serial = current.getStringProperty("Serial Number");
+                                                        }
+                                                        if (serial != null) {
+                                                            break;
+                                                        }
+                                                        sdService = serviceIterator.next();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (serial == null) {
+                                            serial = "";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (size <= 0) {
+                            continue;
+                        }
+                        diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size,
+                                detectDiskType(bsdName), session, mountPointMap, cfKeyMap));
                     }
-                    diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size,
-                            detectDiskType(bsdName), session, mountPointMap, cfKeyMap));
                 }
-            }
-        } catch (Throwable e) {
-            LOG.error("Error enumerating disks", e);
+                return diskList;
+            }, diskList, LOG, ERROR, "Error enumerating disks");
         } finally {
             for (CFStringRef value : cfKeyMap.values()) {
                 value.release();
             }
         }
-        return diskList;
     }
 
     /**

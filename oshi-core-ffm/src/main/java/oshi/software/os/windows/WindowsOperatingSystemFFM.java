@@ -7,7 +7,9 @@ package oshi.software.os.windows;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.Kernel32FFM.GetLastError;
 import static oshi.ffm.platform.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
@@ -87,7 +89,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     private static boolean enableDebugPrivilege() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
             MemorySegment hTokenPtr = arena.allocate(ADDRESS);
 
             Optional<MemorySegment> hProcess = Kernel32FFM.GetCurrentProcess();
@@ -117,10 +119,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
                 return true;
             }
-        } catch (Throwable t) {
-            LOG.error("enableDebugPrivilege exception: {}", t.getMessage());
-            return false;
-        }
+        }, LOG, ERROR, "enableDebugPrivilege exception", false);
     }
 
     @Override
@@ -146,7 +145,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     private static final long PROCESS_ID_OFFSET = 44;
 
     private static List<OSService> queryServicesFFM() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment hSCManager = Advapi32FFM.OpenSCManager(MemorySegment.NULL, MemorySegment.NULL,
                     SC_MANAGER_ENUMERATE_SERVICE);
             if (hSCManager == null || hSCManager.address() == 0) {
@@ -203,10 +202,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 }
                 return svcArray;
             }
-        } catch (Throwable t) {
-            LOG.error("Error enumerating services: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, ERROR, "Error enumerating services", Collections.emptyList());
     }
 
     @Override

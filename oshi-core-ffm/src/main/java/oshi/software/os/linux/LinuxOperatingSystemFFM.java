@@ -5,7 +5,11 @@
 package oshi.software.os.linux;
 
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.ExceptionUtil.getOptionalInt;
 import static oshi.util.LogLevel.ERROR;
+import static oshi.util.LogLevel.WARN;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +17,7 @@ import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,11 +103,8 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
     static {
         boolean hasSyscallGettid = LinuxLibcFunctions.hasGettid();
         if (!hasSyscallGettid) {
-            try {
-                hasSyscallGettid = LinuxLibcFunctions.syscallGettid() > 0;
-            } catch (Throwable _) {
-                LOG.debug("Did not find working syscall gettid via FFM. Using procfs");
-            }
+            hasSyscallGettid = getBooleanOrDefault(() -> LinuxLibcFunctions.syscallGettid() > 0, false, LOG,
+                    "Did not find working syscall gettid via FFM, using procfs: {}");
         }
         HAS_SYSCALL_GETTID = hasSyscallGettid;
     }
@@ -138,22 +140,16 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
 
     @Override
     public int getProcessId() {
-        try {
-            return LinuxLibcFunctions.getpid();
-        } catch (Throwable e) {
-            LOG.warn("FFM getpid failed: {}", e.toString());
-            return 0;
-        }
+        return getIntOrDefault(LinuxLibcFunctions::getpid, 0, LOG, WARN, "FFM getpid failed: {}");
     }
 
     @Override
     public int getThreadId() {
         if (HAS_SYSCALL_GETTID) {
-            try {
-                return LinuxLibcFunctions.hasGettid() ? LinuxLibcFunctions.gettid()
-                        : (int) LinuxLibcFunctions.syscallGettid();
-            } catch (Throwable e) {
-                LOG.warn("FFM gettid failed: {}", e.toString());
+            OptionalInt tid = getOptionalInt(() -> LinuxLibcFunctions.hasGettid() ? LinuxLibcFunctions.gettid()
+                    : (int) LinuxLibcFunctions.syscallGettid(), LOG, WARN, "FFM gettid failed: {}");
+            if (tid.isPresent()) {
+                return tid.getAsInt();
             }
         }
         try {

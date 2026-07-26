@@ -25,6 +25,9 @@ import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueChar;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueInt32;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueInt64;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.namedValueString;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -82,7 +85,7 @@ public final class KstatUtilFFM {
          */
         @GuardedBy("CHAIN")
         public boolean read(MemorySegment ksp) {
-            try {
+            return getBooleanOrDefault(() -> {
                 int retry = 0;
                 while (LibKstatFunctions.kstat_read(ctl, ksp, MemorySegment.NULL) == -1) {
                     if (++retry >= 5) {
@@ -98,10 +101,7 @@ public final class KstatUtilFFM {
                     }
                 }
                 return true;
-            } catch (Throwable t) {
-                LOG.warn("kstat_read failed", t);
-                return false;
-            }
+            }, false, LOG, WARN, "kstat_read failed");
         }
 
         /**
@@ -161,12 +161,8 @@ public final class KstatUtilFFM {
          */
         @GuardedBy("CHAIN")
         public int update() {
-            try {
-                return LibKstatFunctions.kstat_chain_update(ctl);
-            } catch (Throwable t) {
-                LOG.warn("kstat_chain_update failed", t);
-                return -1;
-            }
+            return getIntOrDefault(() -> LibKstatFunctions.kstat_chain_update(ctl), -1, LOG, WARN,
+                    "kstat_chain_update failed");
         }
 
         @Override

@@ -8,6 +8,8 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -79,7 +81,7 @@ public final class DxgiFFM extends ForeignFunctions {
         if (!AVAILABLE) {
             return Collections.emptyList();
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Write IID to memory
             MemorySegment riid = arena.allocate(16);
             riid.copyFrom(MemorySegment.ofArray(IID_IDXGI_FACTORY));
@@ -130,10 +132,7 @@ public final class DxgiFFM extends ForeignFunctions {
                 vtableRelease(factory, arena);
             }
             return Collections.unmodifiableList(result);
-        } catch (Throwable t) {
-            LOG.debug("DXGI enumeration failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, DEBUG, "DXGI enumeration failed", Collections.emptyList());
     }
 
     // IDXGIFactory::EnumAdapters is vtable slot 7

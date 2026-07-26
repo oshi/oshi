@@ -4,7 +4,9 @@
  */
 package oshi.software.os.unix.solaris;
 
-import java.lang.foreign.Arena;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+import static oshi.util.LogLevel.WARN;
+
 import java.lang.foreign.MemorySegment;
 import java.util.List;
 import java.util.Map;
@@ -64,15 +66,12 @@ public final class SolarisOSProcessFFM extends SolarisOSProcess {
     }
 
     private static long rlimitNofile(boolean soft) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(SolarisLibcFunctions.RLIMIT_LAYOUT);
             if (SolarisLibcFunctions.getrlimit(SolarisLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
             return soft ? SolarisLibcFunctions.rlimitCur(rlim) : SolarisLibcFunctions.rlimitMax(rlim);
-        } catch (Throwable t) {
-            LOG.warn("getrlimit failed", t);
-            return -1L;
-        }
+        }, LOG, WARN, "getrlimit failed", -1L);
     }
 }

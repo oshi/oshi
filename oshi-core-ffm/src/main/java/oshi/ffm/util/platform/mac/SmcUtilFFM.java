@@ -7,6 +7,7 @@ package oshi.ffm.util.platform.mac;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOConnectCallStructMethod;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceClose;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceOpen;
@@ -24,6 +25,7 @@ import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_DATA_SIZE;
 import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_DATA_TYPE;
 import static oshi.ffm.platform.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
+import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -99,24 +101,23 @@ public final class SmcUtilFFM {
             LOG.error("Unable to locate AppleSMC service");
             return 0;
         }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment connPtr = arena.allocate(JAVA_INT);
-            int task = mach_task_self();
-            int result = IOServiceOpen(smcService.segment(), task, 0, connPtr);
-            if (result == 0) {
-                int conn = connPtr.get(JAVA_INT, 0);
-                if (conn == 0) {
-                    LOG.error("IOServiceOpen returned null connect handle");
-                    return 0;
+        try {
+            return callInArenaIntOrDefault(arena -> {
+                MemorySegment connPtr = arena.allocate(JAVA_INT);
+                int task = mach_task_self();
+                int result = IOServiceOpen(smcService.segment(), task, 0, connPtr);
+                if (result == 0) {
+                    int conn = connPtr.get(JAVA_INT, 0);
+                    if (conn == 0) {
+                        LOG.error("IOServiceOpen returned null connect handle");
+                        return 0;
+                    }
+                    return conn;
                 }
-                return conn;
-            }
-            String hex = String.format(Locale.ROOT, "0x%08x", result);
-            LOG.error("Unable to open connection to AppleSMC service. Error: {}", hex);
-            return 0;
-        } catch (Throwable e) {
-            LOG.error("Exception opening SMC connection", e);
-            return 0;
+                String hex = String.format(Locale.ROOT, "0x%08x", result);
+                LOG.error("Unable to open connection to AppleSMC service. Error: {}", hex);
+                return 0;
+            }, LOG, ERROR, "Exception opening SMC connection", 0);
         } finally {
             smcService.release();
         }

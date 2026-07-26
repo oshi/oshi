@@ -6,6 +6,7 @@ package oshi.hardware.platform.windows;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -88,7 +89,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
     }
 
     private static byte[] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment pType = arena.allocate(JAVA_INT);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             MemorySegment dummyBuf = arena.allocate(1);
@@ -105,9 +106,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             if (rc == ERROR_SUCCESS) {
                 return edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to read EDID from registry: {}", t.getMessage());
-        }
-        return null;
+            return null;
+        }, null, LOG, "Failed to read EDID from registry: {}");
     }
 }

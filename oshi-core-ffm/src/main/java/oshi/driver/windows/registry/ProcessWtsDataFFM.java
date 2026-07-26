@@ -7,6 +7,7 @@ package oshi.driver.windows.registry;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_HANDLE_COUNT;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.PROCESS_INFO_EX_KERNEL_TIME;
@@ -20,8 +21,8 @@ import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_ANY_SESSION;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_CURRENT_SERVER_HANDLE;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_PROCESS_INFO_LEVEL_1;
 import static oshi.ffm.platform.windows.Wtsapi32FFM.WTS_TYPE_PROCESS_INFO_LEVEL_1;
+import static oshi.util.LogLevel.ERROR;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public final class ProcessWtsDataFFM {
     private static Map<Integer, WtsInfo> queryProcessWtsMapFromWTS(Collection<Integer> pids) {
         Set<Integer> pidSet = pids != null ? new HashSet<>(pids) : null;
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment pLevel = arena.allocate(JAVA_INT);
             pLevel.set(JAVA_INT, 0, WTS_PROCESS_INFO_LEVEL_1);
             MemorySegment ppProcessInfo = arena.allocate(ADDRESS);
@@ -108,10 +109,8 @@ public final class ProcessWtsDataFFM {
                             Kernel32FFM.GetLastError().orElse(-1));
                 }
             }
-        } catch (Throwable t) {
-            LOG.error("Failed to enumerate Processes via WTS", t);
-        }
-        return wtsMap;
+            return wtsMap;
+        }, LOG, ERROR, "Failed to enumerate Processes via WTS", wtsMap);
     }
 
     static Map<Integer, WtsInfo> queryProcessWtsMapFromWMI(Collection<Integer> pids) {

@@ -7,8 +7,9 @@ package oshi.driver.mac.net;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.ERROR;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.lang.foreign.ValueLayout.OfLong;
@@ -88,7 +89,7 @@ public final class NetStatFFM {
      */
     public static Map<Integer, IFdata> queryIFdata(int index) {
         Map<Integer, IFdata> data = new HashMap<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_IFLIST2, 0 };
             MemorySegment mibSeg = arena.allocate(ValueLayout.JAVA_INT, mib.length);
             for (int i = 0; i < mib.length; i++) {
@@ -145,9 +146,7 @@ public final class NetStatFFM {
                 }
                 offset += msgLen;
             }
-        } catch (Throwable t) {
-            LOG.error("Error querying network interface data", t);
-        }
-        return data;
+            return data;
+        }, LOG, ERROR, "Error querying network interface data", data);
     }
 }
