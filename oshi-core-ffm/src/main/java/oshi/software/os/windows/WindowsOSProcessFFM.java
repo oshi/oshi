@@ -27,6 +27,8 @@ import static oshi.ffm.platform.windows.WinNTFFM.PROCESS_VM_READ;
 import static oshi.ffm.platform.windows.WinNTFFM.TOKEN_QUERY;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideStringFromPointer;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -188,53 +190,42 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
     @Override
     protected Pair<String, String> queryUserInfo() {
-        Pair<String, String> pair = null;
-        Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
-        if (pHandleOpt.isPresent()) {
-            try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
-                    Arena arena = Arena.ofConfined()) {
-                MemorySegment hTokenPtr = arena.allocate(ADDRESS);
-                if (Advapi32FFM.OpenProcessToken(pHandle.get(), TOKEN_QUERY, hTokenPtr)) {
-                    try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
-                        pair = getTokenAccountInfo(hToken.get(), TokenUser, arena);
-                    }
-                } else {
-                    int error = Kernel32FFM.GetLastError().orElse(0);
-                    if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
-                        LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
-                    }
-                }
-            } catch (Throwable e) {
-                LOG.warn("Failed to query user info for process {} ({}): {}", getProcessID(), getName(),
-                        e.getMessage());
-            }
-        }
-        return pair != null ? pair : defaultPair();
+        return queryTokenAccountInfo(TokenUser, "user");
     }
 
     @Override
     protected Pair<String, String> queryGroupInfo() {
-        Pair<String, String> pair = null;
+        return queryTokenAccountInfo(TokenPrimaryGroup, "group");
+    }
+
+    /**
+     * Opens this process's access token and reads the requested account information class from it.
+     *
+     * @param tokenInformationClass {@code TokenUser} or {@code TokenPrimaryGroup}
+     * @param what                  the noun used in the failure log message
+     * @return the name/SID pair, or {@link #defaultPair()} if the token could not be read
+     */
+    private Pair<String, String> queryTokenAccountInfo(int tokenInformationClass, String what) {
         Optional<MemorySegment> pHandleOpt = Kernel32FFM.OpenProcess(PROCESS_QUERY_INFORMATION, false, getProcessID());
-        if (pHandleOpt.isPresent()) {
+        if (!pHandleOpt.isPresent()) {
+            return defaultPair();
+        }
+        Pair<String, String> pair = getOrDefault(() -> {
             try (NativeHandle pHandle = NativeHandle.of(pHandleOpt.get(), Kernel32FFM::CloseHandle);
                     Arena arena = Arena.ofConfined()) {
                 MemorySegment hTokenPtr = arena.allocate(ADDRESS);
                 if (Advapi32FFM.OpenProcessToken(pHandle.get(), TOKEN_QUERY, hTokenPtr)) {
                     try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
-                        pair = getTokenAccountInfo(hToken.get(), TokenPrimaryGroup, arena);
-                    }
-                } else {
-                    int error = Kernel32FFM.GetLastError().orElse(0);
-                    if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
-                        LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
+                        return getTokenAccountInfo(hToken.get(), tokenInformationClass, arena);
                     }
                 }
-            } catch (Throwable e) {
-                LOG.warn("Failed to query group info for process {} ({}): {}", getProcessID(), getName(),
-                        e.getMessage());
+                int error = Kernel32FFM.GetLastError().orElse(0);
+                if (error != WinErrorFFM.ERROR_ACCESS_DENIED) {
+                    LOG.error("Failed to get process token for process {}: {}", getProcessID(), error);
+                }
+                return null;
             }
-        }
+        }, null, LOG, WARN, "Failed to query {} info for process {} ({}): {}", what, getProcessID(), getName());
         return pair != null ? pair : defaultPair();
     }
 

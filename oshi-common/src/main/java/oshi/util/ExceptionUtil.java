@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -27,15 +28,24 @@ public final class ExceptionUtil {
      * itself as the log event's cause via SLF4J's implicit-cause handling. Level dispatch is delegated to
      * {@link LogUtil#logAtLevel(Logger, LogLevel, String, Object...)}.
      * <p>
+     * The caller's arguments fill the leading {@code {}} placeholders in order, and the throwable's message fills one
+     * final placeholder, so {@code msg} should carry one {@code {}} per argument plus a trailing one. For example,
+     * {@code logAtLevel(log, DEBUG, "Failed to read {}: {}", t, path)} logs the path and then the exception message.
+     * <p>
      * Public so other modules (e.g., {@code oshi-core-ffm}) can share this dispatch instead of duplicating it.
      *
      * @param log   the logger to use
      * @param level the level at which to log
-     * @param msg   the log message (use {} for the exception message placeholder)
+     * @param msg   the log message (use {} for each argument, then one for the exception message)
      * @param t     the throwable to log
+     * @param args  the arguments filling the leading {} placeholders, if any
      */
-    public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t) {
-        LogUtil.logAtLevel(log, level, msg, t.getMessage(), t);
+    public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t, Object... args) {
+        // Append the exception message and the throwable itself; SLF4J takes the trailing throwable as the cause.
+        Object[] all = Arrays.copyOf(args, args.length + 2);
+        all[args.length] = t.getMessage();
+        all[args.length + 1] = t;
+        LogUtil.logAtLevel(log, level, msg, all);
     }
 
     /**
@@ -148,10 +158,12 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param msg          the log message (use {} for the exception message placeholder)
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
-    public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log, String msg) {
-        return getOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg);
+    public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log, String msg,
+            Object... args) {
+        return getOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -164,14 +176,15 @@ public final class ExceptionUtil {
      * @param log          the logger to use
      * @param level        the level at which to log the exception
      * @param msg          the log message (use {} for the exception message placeholder)
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log, LogLevel level,
-            String msg) {
+            String msg, Object... args) {
         try {
             return supplier.get();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -199,10 +212,12 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
-    public static int getIntOrDefault(ThrowingIntSupplier supplier, int defaultValue, Logger log, String msg) {
-        return getIntOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg);
+    public static int getIntOrDefault(ThrowingIntSupplier supplier, int defaultValue, Logger log, String msg,
+            Object... args) {
+        return getIntOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -214,14 +229,15 @@ public final class ExceptionUtil {
      * @param log          the logger to use
      * @param level        the level at which to log the exception
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static int getIntOrDefault(ThrowingIntSupplier supplier, int defaultValue, Logger log, LogLevel level,
-            String msg) {
+            String msg, Object... args) {
         try {
             return supplier.getAsInt();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -249,10 +265,12 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
-    public static long getLongOrDefault(ThrowingLongSupplier supplier, long defaultValue, Logger log, String msg) {
-        return getLongOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg);
+    public static long getLongOrDefault(ThrowingLongSupplier supplier, long defaultValue, Logger log, String msg,
+            Object... args) {
+        return getLongOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -264,14 +282,15 @@ public final class ExceptionUtil {
      * @param log          the logger to use
      * @param level        the level at which to log the exception
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static long getLongOrDefault(ThrowingLongSupplier supplier, long defaultValue, Logger log, LogLevel level,
-            String msg) {
+            String msg, Object... args) {
         try {
             return supplier.getAsLong();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -299,11 +318,12 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static boolean getBooleanOrDefault(ThrowingBooleanSupplier supplier, boolean defaultValue, Logger log,
-            String msg) {
-        return getBooleanOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg);
+            String msg, Object... args) {
+        return getBooleanOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -315,14 +335,15 @@ public final class ExceptionUtil {
      * @param log          the logger to use
      * @param level        the level at which to log the exception
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static boolean getBooleanOrDefault(ThrowingBooleanSupplier supplier, boolean defaultValue, Logger log,
-            LogLevel level, String msg) {
+            LogLevel level, String msg, Object... args) {
         try {
             return supplier.getAsBoolean();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -350,11 +371,12 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static double getDoubleOrDefault(ThrowingDoubleSupplier supplier, double defaultValue, Logger log,
-            String msg) {
-        return getDoubleOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg);
+            String msg, Object... args) {
+        return getDoubleOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -366,14 +388,15 @@ public final class ExceptionUtil {
      * @param log          the logger to use
      * @param level        the level at which to log the exception
      * @param msg          the log message
+     * @param args         the arguments filling the leading {} placeholders, if any
      * @return the supplier's result or the default value
      */
     public static double getDoubleOrDefault(ThrowingDoubleSupplier supplier, double defaultValue, Logger log,
-            LogLevel level, String msg) {
+            LogLevel level, String msg, Object... args) {
         try {
             return supplier.getAsDouble();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -385,10 +408,11 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
-    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, String msg) {
-        return getOptional(supplier, log, LogLevel.DEBUG, msg);
+    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, String msg, Object... args) {
+        return getOptional(supplier, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -400,13 +424,15 @@ public final class ExceptionUtil {
      * @param log      the logger to use
      * @param level    the level at which to log the exception
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
-    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, LogLevel level, String msg) {
+    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, LogLevel level, String msg,
+            Object... args) {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return Optional.empty();
         }
     }
@@ -418,10 +444,11 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an OptionalInt containing the result, or empty on failure
      */
-    public static OptionalInt getOptionalInt(ThrowingIntSupplier supplier, Logger log, String msg) {
-        return getOptionalInt(supplier, log, LogLevel.DEBUG, msg);
+    public static OptionalInt getOptionalInt(ThrowingIntSupplier supplier, Logger log, String msg, Object... args) {
+        return getOptionalInt(supplier, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -432,13 +459,15 @@ public final class ExceptionUtil {
      * @param log      the logger to use
      * @param level    the level at which to log the exception
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an OptionalInt containing the result, or empty on failure
      */
-    public static OptionalInt getOptionalInt(ThrowingIntSupplier supplier, Logger log, LogLevel level, String msg) {
+    public static OptionalInt getOptionalInt(ThrowingIntSupplier supplier, Logger log, LogLevel level, String msg,
+            Object... args) {
         try {
             return OptionalInt.of(supplier.getAsInt());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return OptionalInt.empty();
         }
     }
@@ -450,10 +479,11 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an OptionalLong containing the result, or empty on failure
      */
-    public static OptionalLong getOptionalLong(ThrowingLongSupplier supplier, Logger log, String msg) {
-        return getOptionalLong(supplier, log, LogLevel.DEBUG, msg);
+    public static OptionalLong getOptionalLong(ThrowingLongSupplier supplier, Logger log, String msg, Object... args) {
+        return getOptionalLong(supplier, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -464,13 +494,15 @@ public final class ExceptionUtil {
      * @param log      the logger to use
      * @param level    the level at which to log the exception
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      * @return an OptionalLong containing the result, or empty on failure
      */
-    public static OptionalLong getOptionalLong(ThrowingLongSupplier supplier, Logger log, LogLevel level, String msg) {
+    public static OptionalLong getOptionalLong(ThrowingLongSupplier supplier, Logger log, LogLevel level, String msg,
+            Object... args) {
         try {
             return OptionalLong.of(supplier.getAsLong());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
             return OptionalLong.empty();
         }
     }
@@ -494,9 +526,10 @@ public final class ExceptionUtil {
      * @param runnable the operation to attempt
      * @param log      the logger to use
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      */
-    public static void runOrLog(ThrowingRunnable runnable, Logger log, String msg) {
-        runOrLog(runnable, log, LogLevel.DEBUG, msg);
+    public static void runOrLog(ThrowingRunnable runnable, Logger log, String msg, Object... args) {
+        runOrLog(runnable, log, LogLevel.DEBUG, msg, args);
     }
 
     /**
@@ -506,12 +539,13 @@ public final class ExceptionUtil {
      * @param log      the logger to use
      * @param level    the level at which to log the exception
      * @param msg      the log message
+     * @param args     the arguments filling the leading {} placeholders, if any
      */
-    public static void runOrLog(ThrowingRunnable runnable, Logger log, LogLevel level, String msg) {
+    public static void runOrLog(ThrowingRunnable runnable, Logger log, LogLevel level, String msg, Object... args) {
         try {
             runnable.run();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t);
+            logAtLevel(log, level, msg, t, args);
         }
     }
 }

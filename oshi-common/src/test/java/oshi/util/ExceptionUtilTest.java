@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -402,5 +403,61 @@ class ExceptionUtilTest {
         assertThat("Dispatched to the method matching the level", recorder.onlyCall(), is("warn"));
         // The message fills the placeholder; the trailing throwable is left for SLF4J to pull out as the cause
         assertThat("Throwable message then throwable", recorder.arguments(), arrayContaining("boom", t));
+    }
+
+    @Test
+    void testLogAtLevelPutsCallerArgumentsBeforeTheThrowableMessage() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        Throwable t = new IllegalStateException("boom");
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.DEBUG, "Failed to read {} of {}: {}", t, "key", 42);
+        assertThat("Dispatched to the method matching the level", recorder.onlyCall(), is("debug"));
+        // Caller arguments fill the leading placeholders in order, then the exception message, then the cause
+        assertThat("Caller args, exception message, throwable", recorder.arguments(),
+                arrayContaining("key", 42, "boom", t));
+    }
+
+    @Test
+    void testGetOrDefaultForwardsArgumentsOnFailure() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        String result = ExceptionUtil.getOrDefault(() -> {
+            throw new IllegalStateException("boom");
+        }, "fallback", recorder.logger(), "Lookup of {} failed: {}", "someKey");
+        assertThat("Returns the default", result, is("fallback"));
+        assertThat("Defaults to debug", recorder.onlyCall(), is("debug"));
+        assertThat("Argument precedes the exception message", recorder.arguments(),
+                arrayContaining(is("someKey"), is("boom"), instanceOf(IllegalStateException.class)));
+    }
+
+    @Test
+    void testGetLongOrDefaultForwardsArgumentsAtExplicitLevel() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        long result = ExceptionUtil.getLongOrDefault(() -> {
+            throw new IllegalStateException("boom");
+        }, -1L, recorder.logger(), LogLevel.WARN, "Read of {}/{} failed: {}", "path", "value");
+        assertThat("Returns the default", result, is(-1L));
+        assertThat("Honors the explicit level", recorder.onlyCall(), is("warn"));
+        assertThat("Both arguments precede the exception message", recorder.arguments(),
+                arrayContaining(is("path"), is("value"), is("boom"), instanceOf(IllegalStateException.class)));
+    }
+
+    @Test
+    void testNoArgumentCallsAreUnchanged() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        String result = ExceptionUtil.getOrDefault(() -> {
+            throw new IllegalStateException("boom");
+        }, "fallback", recorder.logger(), "Failed: {}");
+        assertThat("Returns the default", result, is("fallback"));
+        // Adding the varargs parameter must not change what an existing zero-argument call logs
+        assertThat("Exception message then throwable", recorder.arguments(),
+                arrayContaining(is("boom"), instanceOf(IllegalStateException.class)));
+    }
+
+    @Test
+    void testSuccessfulCallLogsNothing() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", recorder.logger(), "Failed for {}: {}",
+                "key");
+        assertThat("Returns the supplied value", result, is("ok"));
+        assertThat("Nothing logged on the success path", recorder.calls(), is(empty()));
     }
 }

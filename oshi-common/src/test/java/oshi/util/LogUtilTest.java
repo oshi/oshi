@@ -66,6 +66,10 @@ class LogUtilTest {
             return null;
         }
 
+        List<String> calls() {
+            return calls;
+        }
+
         String onlyCall() {
             assertThat("Expected exactly one logging call", calls.size(), is(1));
             return calls.get(0);

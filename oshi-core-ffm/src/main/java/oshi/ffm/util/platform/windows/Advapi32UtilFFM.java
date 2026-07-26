@@ -35,6 +35,7 @@ import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.LogLevel.DEBUG;
 import static oshi.util.LogLevel.ERROR;
 import static oshi.util.LogLevel.TRACE;
+import static oshi.util.LogLevel.WARN;
 import static oshi.util.Memoizer.memoize;
 
 import java.lang.foreign.Arena;
@@ -367,7 +368,7 @@ public final class Advapi32UtilFFM {
      * @return An array of strings from the multi-sz value, or an empty array on failure
      */
     public static String[] registryGetStringArray(MemorySegment rootKey, String keyPath, String valueName) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
             if (rc != ERROR_SUCCESS) {
@@ -426,10 +427,7 @@ public final class Advapi32UtilFFM {
                     LOG.debug("Failed to close registry key {}\\\\{}: error {}", keyPath, valueName, closeRc);
                 }
             }
-        } catch (Throwable t) {
-            LOG.warn("Failed to read registry string array {}\\\\{}: {}", keyPath, valueName, t.getMessage());
-            return new String[0];
-        }
+        }, new String[0], LOG, WARN, "Failed to read registry string array {}\\\\{}", keyPath, valueName);
     }
 
     /**

@@ -5,6 +5,7 @@
 package oshi.hardware.platform.mac;
 
 import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runOrLog;
 import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemorySegment;
@@ -154,7 +155,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             MemorySegment bsdUnitSeg = driveProps.getValue(cfKeyMap.get(CFKey.BSD_UNIT));
                             MemorySegment cfFalseSeg = driveProps.getValue(cfKeyMap.get(CFKey.LEAF));
 
-                            try {
+                            runOrLog(() -> {
                                 @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
                                 CFAllocatorRef alloc = new CFAllocatorRef(
                                         CoreFoundationFunctions.CFAllocatorGetDefault());
@@ -224,9 +225,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                         }
                                     }
                                 }
-                            } catch (Throwable e) {
-                                LOG.debug("Error building partition list for {}", bsdName, e);
-                            }
+                            }, LOG, "Error building partition list for {}: {}", bsdName);
                         }
                     }
                     setPartitionList(Collections.unmodifiableList(

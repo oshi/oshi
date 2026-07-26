@@ -7,6 +7,7 @@ package oshi.hardware.platform.mac;
 import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceCopyAll;
 import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetBSDName;
 import static oshi.ffm.platform.mac.SystemConfigurationFunctions.SCNetworkInterfaceGetLocalizedDisplayName;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.MemorySegment;
 import java.net.NetworkInterface;
@@ -39,7 +40,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
 
     private static String queryIfDisplayName(NetworkInterface netint) {
         String name = netint.getName();
-        try {
+        return getOrDefault(() -> {
             MemorySegment ifArray = SCNetworkInterfaceCopyAll();
             if (ifArray.equals(MemorySegment.NULL)) {
                 return name;
@@ -58,10 +59,8 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                     }
                 }
             }
-        } catch (Throwable _) {
-            LOG.debug("Failed to query SC network interface display name for {}", name);
-        }
-        return name;
+            return name;
+        }, name, LOG, "Failed to query SC network interface display name for {}: {}", name);
     }
 
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {
