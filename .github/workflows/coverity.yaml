@@ -3,7 +3,7 @@ name: Coverity Scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 */4 * *" # every 4 days at 09:00 UTC
+    - cron: "0 0 * * 6" # weekly, Saturday 00:00 UTC (Coverity Scan throttles frequent runs; trigger manually after major changes)
 
 permissions:
   contents: read
