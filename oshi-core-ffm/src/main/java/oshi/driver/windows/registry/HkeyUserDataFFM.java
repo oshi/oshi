@@ -8,6 +8,8 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.Advapi32FFM.ConvertStringSidToSid;
 import static oshi.ffm.platform.windows.Advapi32FFM.LookupAccountSid;
@@ -20,9 +22,9 @@ import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.DEBUG;
 import static oshi.util.LogLevel.TRACE;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +139,7 @@ public final class HkeyUserDataFFM {
     }
 
     private static boolean registryKeyExists(MemorySegment rootKey, String keyPath) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
             if (rc != ERROR_SUCCESS) {
@@ -145,14 +147,11 @@ public final class HkeyUserDataFFM {
             }
             RegCloseKey(phkResult.get(ADDRESS, 0));
             return true;
-        } catch (Throwable t) {
-            LOG.debug("Error checking registry key {}: {}", keyPath, t.getMessage());
-            return false;
-        }
+        }, false, LOG, DEBUG, "Error checking registry key {}", keyPath);
     }
 
     private static long queryKeyWriteTime(MemorySegment rootKey, String keyPath) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
             if (rc != ERROR_SUCCESS) {
@@ -170,10 +169,7 @@ public final class HkeyUserDataFFM {
             } finally {
                 RegCloseKey(hKey);
             }
-        } catch (Throwable t) {
-            LOG.debug("Error querying write time for {}: {}", keyPath, t.getMessage());
-            return 0;
-        }
+        }, 0L, LOG, DEBUG, "Error querying write time for {}", keyPath);
     }
 
     private static String[] getSubKeys(MemorySegment rootKey, String keyPath) {

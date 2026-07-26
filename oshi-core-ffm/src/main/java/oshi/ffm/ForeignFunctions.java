@@ -159,6 +159,37 @@ public abstract class ForeignFunctions {
         }
     }
 
+    // ---- parameterized-message variants ----
+    // The overloads above take the default value last, which leaves no room for a trailing varargs. These take it
+    // second instead, matching ExceptionUtil's (operation, defaultValue, log, level, msg, args...) order so both
+    // utilities read the same way. Second rather than merely swapped with the message on purpose: with the default
+    // fourth, a no-argument call whose T is String would match both overloads, and Java's fixed-arity-first
+    // resolution would silently pick the older one with message and default transposed.
+
+    /**
+     * Executes an operation in a confined arena, returning a default value if the operation throws, and logging a
+     * message whose {@code {}} placeholders are filled by {@code args}.
+     *
+     * @param <T>          the return type
+     * @param callable     the operation to execute
+     * @param defaultValue the value to return if the operation throws
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param args         the arguments filling the message placeholders
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, T defaultValue, Logger logger, LogLevel level,
+            String message, Object... args) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t, args);
+            return defaultValue;
+        }
+    }
+
     /**
      * Executes an {@code int}-returning operation in a confined arena, returning a default value if the operation
      * throws.
@@ -180,6 +211,29 @@ public abstract class ForeignFunctions {
             return callable.call(arena);
         } catch (Throwable t) {
             logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes an {@code int}-returning operation in a confined arena, returning a default value if the operation
+     * throws, and logging a message whose {@code {}} placeholders are filled by {@code args}.
+     *
+     * @param callable     the operation to execute
+     * @param defaultValue the value to return if the operation throws
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param args         the arguments filling the message placeholders
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static int callInArenaIntOrDefault(ArenaIntCallable callable, int defaultValue, Logger logger,
+            LogLevel level, String message, Object... args) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t, args);
             return defaultValue;
         }
     }
@@ -210,6 +264,29 @@ public abstract class ForeignFunctions {
     }
 
     /**
+     * Executes a {@code long}-returning operation in a confined arena, returning a default value if the operation
+     * throws, and logging a message whose {@code {}} placeholders are filled by {@code args}.
+     *
+     * @param callable     the operation to execute
+     * @param defaultValue the value to return if the operation throws
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param args         the arguments filling the message placeholders
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static long callInArenaLongOrDefault(ArenaLongCallable callable, long defaultValue, Logger logger,
+            LogLevel level, String message, Object... args) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t, args);
+            return defaultValue;
+        }
+    }
+
+    /**
      * Executes a {@code double}-returning operation in a confined arena, returning a default value if the operation
      * throws.
      * <p>
@@ -235,6 +312,29 @@ public abstract class ForeignFunctions {
     }
 
     /**
+     * Executes a {@code double}-returning operation in a confined arena, returning a default value if the operation
+     * throws, and logging a message whose {@code {}} placeholders are filled by {@code args}.
+     *
+     * @param callable     the operation to execute
+     * @param defaultValue the value to return if the operation throws
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param args         the arguments filling the message placeholders
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static double callInArenaDoubleOrDefault(ArenaDoubleCallable callable, double defaultValue, Logger logger,
+            LogLevel level, String message, Object... args) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t, args);
+            return defaultValue;
+        }
+    }
+
+    /**
      * Executes a {@code boolean}-returning operation in a confined arena, returning a default value if the operation
      * throws.
      * <p>
@@ -255,6 +355,29 @@ public abstract class ForeignFunctions {
             return callable.call(arena);
         } catch (Throwable t) {
             logThrowable(logger, level, message, t);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Executes a {@code boolean}-returning operation in a confined arena, returning a default value if the operation
+     * throws, and logging a message whose {@code {}} placeholders are filled by {@code args}.
+     *
+     * @param callable     the operation to execute
+     * @param defaultValue the value to return if the operation throws
+     * @param logger       the logger for the calling class
+     * @param level        the level at which to log thrown failures
+     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param args         the arguments filling the message placeholders
+     * @return the operation result, or {@code defaultValue} if the operation throws
+     */
+    public static boolean callInArenaBooleanOrDefault(ArenaBooleanCallable callable, boolean defaultValue,
+            Logger logger, LogLevel level, String message, Object... args) {
+        Objects.requireNonNull(callable, "callable");
+        try (Arena arena = Arena.ofConfined()) {
+            return callable.call(arena);
+        } catch (Throwable t) {
+            logThrowable(logger, level, message, t, args);
             return defaultValue;
         }
     }
@@ -469,9 +592,10 @@ public abstract class ForeignFunctions {
         return (int) ERRNO_HANDLE.get(callState, 0);
     }
 
-    private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t) {
+    private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t, Object... args) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
-        ExceptionUtil.logAtLevel(logger, level, message + ": {}", t);
+        // Callers pass a bare message; the trailing placeholder for the exception message is appended here.
+        ExceptionUtil.logAtLevel(logger, level, message + ": {}", t, args);
     }
 }

@@ -4,6 +4,9 @@
  */
 package oshi.hardware.platform.windows;
 
+import static oshi.util.ExceptionUtil.getLongOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -275,7 +278,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
     }
 
     private static String registryGetString(Arena arena, String path, String valueName) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
             MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, path);
             if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
@@ -290,14 +293,12 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                     }
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to read registry string {}/{}: {}", path, valueName, t.getMessage());
-        }
-        return "";
+            return "";
+        }, "", LOG, "Failed to read registry string {}/{}: {}", path, valueName);
     }
 
     private static long registryGetDword(Arena arena, String path, String valueName) {
-        try {
+        return getLongOrDefault(() -> {
             MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
             MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, path);
             if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
@@ -312,9 +313,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                     }
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("Failed to read registry DWORD {}/{}: {}", path, valueName, t.getMessage());
-        }
-        return 0L;
+            return 0L;
+        }, 0L, LOG, "Failed to read registry DWORD {}/{}: {}", path, valueName);
     }
 }

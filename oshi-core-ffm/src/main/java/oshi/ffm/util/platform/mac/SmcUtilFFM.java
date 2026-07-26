@@ -7,7 +7,9 @@ package oshi.ffm.util.platform.mac;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaDoubleOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOConnectCallStructMethod;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceClose;
 import static oshi.ffm.platform.mac.IOKitFunctions.IOServiceOpen;
@@ -26,6 +28,7 @@ import static oshi.ffm.platform.mac.MacSystem.SMC_VAL_DATA_TYPE;
 import static oshi.ffm.platform.mac.MacSystemFunctions.mach_task_self;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
 import static oshi.util.LogLevel.ERROR;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -141,7 +144,7 @@ public final class SmcUtilFFM {
      * @return Double representing the value
      */
     public static double smcGetFloat(int conn, String key) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaDoubleOrDefault(arena -> {
             MemorySegment val = arena.allocate(SMC_VAL);
             int result = smcReadKey(conn, key, val, arena);
             if (result == 0) {
@@ -158,10 +161,8 @@ public final class SmcUtilFFM {
                     }
                 }
             }
-        } catch (Throwable e) {
-            LOG.warn("Failed to read SMC float key {}: {}", key, e.getMessage());
-        }
-        return 0d;
+            return 0d;
+        }, 0d, LOG, WARN, "Failed to read SMC float key {}", key);
     }
 
     /**
@@ -189,7 +190,7 @@ public final class SmcUtilFFM {
      * @return Long representing the value
      */
     public static long smcGetLong(int conn, String key) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment val = arena.allocate(SMC_VAL);
             int result = smcReadKey(conn, key, val, arena);
             if (result == 0) {
@@ -197,10 +198,8 @@ public final class SmcUtilFFM {
                 byte[] bytes = readByteArray(val, SMC_VAL.byteOffset(SMC_VAL_BYTES), dataSize);
                 return ParseUtil.byteArrayToLong(bytes, dataSize);
             }
-        } catch (Throwable e) {
-            LOG.warn("Failed to read SMC long key {}: {}", key, e.getMessage());
-        }
-        return 0L;
+            return 0L;
+        }, 0L, LOG, WARN, "Failed to read SMC long key {}", key);
     }
 
     private static int smcReadKey(int conn, String key, MemorySegment val, Arena arena) throws Throwable {

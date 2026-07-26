@@ -7,9 +7,10 @@ package oshi.driver.unix.aix;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.io.IOException;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,7 +60,7 @@ public final class PsInfoFFM {
             return new Pair<>(args, env);
         }
 
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment procasPath = arena.allocateFrom("/proc/" + pid + "/as");
             int fd = AixLibcFunctions.open(procasPath, 0);
             if (fd < 0) {
@@ -137,10 +138,8 @@ public final class PsInfoFFM {
             } finally {
                 AixLibcFunctions.close(fd);
             }
-        } catch (Throwable t) {
-            LOG.debug("FFM queryArgsEnv failed for pid {}: {}", pid, t.getMessage());
-        }
-        return new Pair<>(args, env);
+            return new Pair<>(args, env);
+        }, new Pair<>(args, env), LOG, DEBUG, "FFM queryArgsEnv failed for pid {}", pid);
     }
 
     /**

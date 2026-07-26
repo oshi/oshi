@@ -6,6 +6,7 @@ package oshi.ffm.platform.windows;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -108,16 +109,14 @@ public final class Cfgmgr32FFM extends WindowsForeignFunctions {
      * @return the device ID string, or empty string on failure
      */
     public static String getDeviceId(int dnDevInst, Arena arena) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment buf = arena.allocate(520); // MAX_DEVICE_ID_LEN = 200 chars * 2 = 400 bytes; 520 provides
                                                      // margin
             if (CM_Get_Device_ID(dnDevInst, buf, 260, 0) == CR_SUCCESS) {
                 return readWideString(buf);
             }
-        } catch (Throwable _) {
-            LOG.debug("CM_Get_Device_ID failed for node {}", dnDevInst);
-        }
-        return "";
+            return "";
+        }, "", LOG, "CM_Get_Device_ID failed for node {}: {}", dnDevInst);
     }
 
     /**
@@ -130,16 +129,14 @@ public final class Cfgmgr32FFM extends WindowsForeignFunctions {
      * @return the property value string, or empty string on failure
      */
     public static String getDevNodeProperty(int dnDevInst, int ulProperty, MemorySegment buf, MemorySegment sizeSeg) {
-        try {
+        return getOrDefault(() -> {
             buf.fill((byte) 0);
             sizeSeg.set(JAVA_INT, 0, (int) buf.byteSize());
             if (CM_Get_DevNode_Registry_Property(dnDevInst, ulProperty, MemorySegment.NULL, buf, sizeSeg,
                     0) == CR_SUCCESS) {
                 return readWideString(buf);
             }
-        } catch (Throwable _) {
-            LOG.debug("CM_Get_DevNode_Registry_Property failed for node {} property {}", dnDevInst, ulProperty);
-        }
-        return "";
+            return "";
+        }, "", LOG, "CM_Get_DevNode_Registry_Property failed for node {} property {}: {}", dnDevInst, ulProperty);
     }
 }

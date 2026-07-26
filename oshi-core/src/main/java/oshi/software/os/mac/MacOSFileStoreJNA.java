@@ -4,6 +4,8 @@
  */
 package oshi.software.os.mac;
 
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+
 import java.io.File;
 
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ public class MacOSFileStoreJNA extends MacOSFileStore {
     @Override
     public boolean updateAttributes() {
         // Fast path: call statfs64 directly on the known mount point
-        try {
+        if (getBooleanOrDefault(() -> {
             Statfs stat = new Statfs();
             if (SystemB.INSTANCE.statfs64(getMount(), stat) == 0) {
                 File f = new File(getMount());
@@ -42,8 +44,9 @@ public class MacOSFileStoreJNA extends MacOSFileStore {
                         stat.f_files);
                 return true;
             }
-        } catch (Throwable e) {
-            LOG.debug("statfs64 fast path failed for {}: {}", getMount(), e.getMessage());
+            return false;
+        }, false, LOG, "statfs64 fast path failed for {}: {}", getMount())) {
+            return true;
         }
         // Fall back to full enumeration
         for (OSFileStore fileStore : MacFileSystemJNA.getFileStoreMatching(getName(), isLocal())) {

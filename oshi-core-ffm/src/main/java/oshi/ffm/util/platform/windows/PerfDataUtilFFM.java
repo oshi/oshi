@@ -26,6 +26,8 @@ import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -79,14 +81,13 @@ public final class PerfDataUtilFFM {
         T[] props = propertyEnum.getEnumConstants();
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
 
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment queryPtr = arena.allocate(ADDRESS);
             checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
-            MemorySegment query = null;
+            // Read once into an effectively-final local so the per-counter lambdas below can capture it.
+            MemorySegment query = queryPtr.get(ADDRESS, 0);
 
             try {
-                query = queryPtr.get(ADDRESS, 0);
-
                 // Add all counters to the single query, skipping any that fail
                 EnumMap<T, MemorySegment> counterHandles = new EnumMap<>(propertyEnum);
                 EnumMap<T, Boolean> baseFlags = new EnumMap<>(propertyEnum);
@@ -97,12 +98,10 @@ public final class PerfDataUtilFFM {
                         counterName = PerfCounter.stripBaseSuffix(counterName);
                     }
                     String path = counterPath(perfObject, prop.getInstance(), counterName);
-                    try {
+                    runOrLog(() -> {
                         counterHandles.put(prop, addEnglishCounter(arena, query, path));
                         baseFlags.put(prop, isBase);
-                    } catch (Throwable t) {
-                        LOG.debug("Failed to add counter {}: {}", path, t.getMessage());
-                    }
+                    }, LOG, "Failed to add counter {}: {}", path);
                 }
                 if (counterHandles.isEmpty()) {
                     return valueMap;
@@ -113,25 +112,17 @@ public final class PerfDataUtilFFM {
 
                 // Read all values, skipping any that fail
                 for (var entry : counterHandles.entrySet()) {
-                    try {
-                        valueMap.put(entry.getKey(),
-                                readRawCounterValue(arena, entry.getValue(), baseFlags.get(entry.getKey())));
-                    } catch (Throwable t) {
-                        LOG.debug("Failed to read counter for {}: {}", entry.getKey(), t.getMessage());
-                    }
+                    runOrLog(
+                            () -> valueMap.put(entry.getKey(),
+                                    readRawCounterValue(arena, entry.getValue(), baseFlags.get(entry.getKey()))),
+                            LOG, "Failed to read counter for {}: {}", entry.getKey());
                 }
 
             } finally {
-                if (query != null) {
-                    PdhCloseQuery(query);
-                }
+                PdhCloseQuery(query);
             }
-
-        } catch (Throwable t) {
-            LOG.debug("PDH queryCounters failed for {}: {}", perfObject, t.getMessage(), t);
-            return new EnumMap<>(propertyEnum);
-        }
-        return valueMap;
+            return valueMap;
+        }, new EnumMap<>(propertyEnum), LOG, DEBUG, "PDH queryCounters failed for {}", perfObject);
     }
 
     private static String counterPath(String object, String instance, String counter) {
@@ -306,7 +297,7 @@ public final class PerfDataUtilFFM {
             return new Pair<>(Collections.emptyList(), valuesMap);
         }
 
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment queryPtr = arena.allocate(ADDRESS);
             checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
             MemorySegment query = null;
@@ -359,11 +350,9 @@ public final class PerfDataUtilFFM {
                     PdhCloseQuery(query);
                 }
             }
-        } catch (Throwable t) {
-            LOG.debug("PDH queryWildcardCounters failed for {}: {}", perfObject, t.getMessage(), t);
-            return new Pair<>(Collections.emptyList(), new EnumMap<>(propertyEnum));
-        }
-        return new Pair<>(instances, valuesMap);
+            return new Pair<>(instances, valuesMap);
+        }, new Pair<>(Collections.emptyList(), new EnumMap<>(propertyEnum)), LOG, DEBUG,
+                "PDH queryWildcardCounters failed for {}", perfObject);
     }
 
     /**

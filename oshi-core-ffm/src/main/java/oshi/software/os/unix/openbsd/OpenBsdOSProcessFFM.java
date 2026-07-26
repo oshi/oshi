@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.NATIVE_LONG_SIZE;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_ARGMAX;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ARGS;
@@ -15,8 +16,8 @@ import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ARGV
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ENV;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.RLIMIT_NOFILE;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.SIZE_T;
+import static oshi.util.LogLevel.WARN;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +63,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     protected List<String> queryArguments() {
         if (ARGMAX > 0) {
             int[] mib = { CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ARGV };
-            try (Arena arena = Arena.ofConfined()) {
+            return callInArenaOrDefault(arena -> {
                 MemorySegment mibSeg = arena.allocate(JAVA_INT, mib.length);
                 for (int i = 0; i < mib.length; i++) {
                     mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
@@ -85,9 +86,8 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                     }
                     return Collections.unmodifiableList(args);
                 }
-            } catch (Throwable e) {
-                LOG.warn("Failed to get process arguments for pid {}", getProcessID(), e);
-            }
+                return Collections.<String>emptyList();
+            }, Collections.emptyList(), LOG, WARN, "Failed to get process arguments for pid {}", getProcessID());
         }
         return Collections.emptyList();
     }
@@ -96,7 +96,7 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     protected Map<String, String> queryEnvironmentVariables() {
         if (ARGMAX > 0) {
             int[] mib = { CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ENV };
-            try (Arena arena = Arena.ofConfined()) {
+            return callInArenaOrDefault(arena -> {
                 MemorySegment mibSeg = arena.allocate(JAVA_INT, mib.length);
                 for (int i = 0; i < mib.length; i++) {
                     mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
@@ -123,9 +123,8 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
                     }
                     return Collections.unmodifiableMap(env);
                 }
-            } catch (Throwable e) {
-                LOG.warn("Failed to get environment variables for pid {}", getProcessID(), e);
-            }
+                return Collections.<String, String>emptyMap();
+            }, Collections.emptyMap(), LOG, WARN, "Failed to get environment variables for pid {}", getProcessID());
         }
         return Collections.emptyMap();
     }

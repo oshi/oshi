@@ -117,4 +117,57 @@ class ForeignFunctionsTest {
         assertThat(result, is(false));
     }
 
+    // -- parameterized-message overloads (default value second) --
+
+    /**
+     * The parameterized overloads take the default value second rather than merely swapping it with the message. With
+     * the default fourth, this call - whose {@code T} is String, so message and default have the same type - would
+     * match both overloads, and Java's fixed-arity-before-varargs resolution would silently bind it to the older one
+     * with the two transposed. This test fails to compile, or returns the message, if that ordering ever regresses.
+     */
+    @Test
+    void testExistingOverloadStillWinsWhenTypeParameterIsString() {
+        String result = ForeignFunctions.callInArenaOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, LOG, DEBUG, "this is the message", "this is the default");
+
+        assertThat(result, is("this is the default"));
+    }
+
+    @Test
+    void testCallInArenaOrDefaultWithArgumentsReturnsDefaultOnThrowable() {
+        String result = ForeignFunctions.callInArenaOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, "the default", LOG, DEBUG, "failed for {}", "someKey");
+
+        assertThat(result, is("the default"));
+    }
+
+    @Test
+    void testCallInArenaOrDefaultWithArgumentsReturnsValue() {
+        String result = ForeignFunctions.callInArenaOrDefault(arena -> "computed", "the default", LOG, DEBUG,
+                "failed for {}", "someKey");
+
+        assertThat(result, is("computed"));
+    }
+
+    @Test
+    void testCallInArenaPrimitiveVariantsWithArguments() {
+        assertThat(ForeignFunctions.callInArenaIntOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, -1, LOG, DEBUG, "int failed for {}", "k"), is(-1));
+
+        assertThat(ForeignFunctions.callInArenaLongOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, -1L, LOG, DEBUG, "long failed for {}", "k"), is(-1L));
+
+        assertThat(ForeignFunctions.callInArenaDoubleOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, -1d, LOG, DEBUG, "double failed for {}", "k"), is(-1d));
+
+        assertThat(ForeignFunctions.callInArenaBooleanOrDefault(arena -> {
+            throw new Throwable("failure");
+        }, true, LOG, DEBUG, "boolean failed for {}", "k"), is(true));
+    }
+
 }

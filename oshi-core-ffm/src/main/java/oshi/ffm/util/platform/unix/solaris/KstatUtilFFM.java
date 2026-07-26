@@ -4,6 +4,8 @@
  */
 package oshi.ffm.util.platform.unix.solaris;
 
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_CHAR;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT32;
 import static oshi.ffm.platform.unix.solaris.LibKstatFunctions.KSTAT_DATA_INT64;
@@ -29,7 +31,6 @@ import static oshi.util.ExceptionUtil.getBooleanOrDefault;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
 import static oshi.util.LogLevel.WARN;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +117,7 @@ public final class KstatUtilFFM {
          */
         @GuardedBy("CHAIN")
         public MemorySegment lookup(String module, int instance, String name) {
-            try (Arena arena = Arena.ofConfined()) {
+            return callInArenaOrDefault(arena -> {
                 MemorySegment modSeg = module == null ? MemorySegment.NULL : arena.allocateFrom(module);
                 MemorySegment nameSeg = name == null ? MemorySegment.NULL : arena.allocateFrom(name);
                 MemorySegment hit = LibKstatFunctions.kstat_lookup(ctl, modSeg, instance, nameSeg);
@@ -124,10 +125,7 @@ public final class KstatUtilFFM {
                     return MemorySegment.NULL;
                 }
                 return hit.reinterpret(KSTAT_LAYOUT.byteSize());
-            } catch (Throwable t) {
-                LOG.warn("kstat_lookup failed for {}:{}:{}", module, instance, name, t);
-                return MemorySegment.NULL;
-            }
+            }, MemorySegment.NULL, LOG, WARN, "kstat_lookup failed for {}:{}:{}", module, instance, name);
         }
 
         /**
@@ -209,7 +207,7 @@ public final class KstatUtilFFM {
         if (type != KSTAT_TYPE_NAMED && type != KSTAT_TYPE_TIMER) {
             throw new IllegalArgumentException("Not a kstat_named or kstat_timer kstat.");
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment data = LibKstatFunctions.kstat_data_lookup(ksp, nameSeg);
             if (data.address() == 0L) {
@@ -235,10 +233,7 @@ public final class KstatUtilFFM {
                     LOG.error("Unimplemented kstat data type {}", dt);
                     return "";
             }
-        } catch (Throwable t) {
-            LOG.warn("kstat_data_lookup failed for key {}", name, t);
-            return "";
-        }
+        }, "", LOG, WARN, "kstat_data_lookup failed for key {}", name);
     }
 
     /**
@@ -253,7 +248,7 @@ public final class KstatUtilFFM {
         if (type != KSTAT_TYPE_NAMED && type != KSTAT_TYPE_TIMER) {
             throw new IllegalArgumentException("Not a kstat_named or kstat_timer kstat.");
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment nameSeg = arena.allocateFrom(name);
             MemorySegment data = LibKstatFunctions.kstat_data_lookup(ksp, nameSeg);
             if (data.address() == 0L) {
@@ -276,10 +271,7 @@ public final class KstatUtilFFM {
                     LOG.error("Unimplemented or non-numeric kstat data type {}", dt);
                     return 0L;
             }
-        } catch (Throwable t) {
-            LOG.warn("kstat_data_lookup failed for key {}", name, t);
-            return 0L;
-        }
+        }, 0L, LOG, WARN, "kstat_data_lookup failed for key {}", name);
     }
 
     /**

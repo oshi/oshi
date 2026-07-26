@@ -15,6 +15,8 @@ import static oshi.ffm.platform.windows.WinRegFFM.HKEY_LOCAL_MACHINE;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.ffm.util.platform.windows.Advapi32UtilFFM.registryGetValue;
+import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -61,15 +63,16 @@ public final class InstalledAppsDataFFM {
 
             for (String registryPath : uninstallPaths) {
                 for (int accessFlag : ACCESS_FLAGS) {
-                    try {
+                    runOrLog(() -> {
                         String[] keys = Advapi32UtilFFM.registryGetKeys(rootKey, registryPath, accessFlag);
                         for (String key : keys) {
                             String fullPath = registryPath + "\\" + key;
-                            try {
+                            runOrLog(() -> {
                                 String name = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayName", accessFlag));
                                 if (name == null) {
-                                    continue;
+                                    // Exits this key's lambda; the enclosing loop moves to the next key.
+                                    return;
                                 }
                                 String version = RegistryValueUtil.registryValueToString(
                                         getRegistryValueOrNull(rootKey, fullPath, "DisplayVersion", accessFlag));
@@ -90,13 +93,9 @@ public final class InstalledAppsDataFFM {
                                         additionalInfo);
                                 appInfoSet.add(app);
 
-                            } catch (Throwable e) {
-                                LOG.trace("Skipping key {}: {}", fullPath, e.getMessage());
-                            }
+                            }, LOG, TRACE, "Skipping key {}: {}", fullPath);
                         }
-                    } catch (Throwable e) {
-                        LOG.trace("Skipping path {}: {}", registryPath, e.getMessage());
-                    }
+                    }, LOG, TRACE, "Skipping path {}: {}", registryPath);
                 }
             }
         }

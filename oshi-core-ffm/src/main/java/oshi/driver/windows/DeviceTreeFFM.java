@@ -5,6 +5,7 @@
 package oshi.driver.windows;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -103,7 +104,7 @@ public final class DeviceTreeFFM {
                                     Cfgmgr32FFM.getDevNodeProperty(node, Cfgmgr32FFM.CM_DRP_MFG, buf, sizeSeg));
 
                             // Traverse children
-                            try {
+                            runOrLog(() -> {
                                 if (Cfgmgr32FFM.CM_Get_Child(childSeg, node, 0) == Cfgmgr32FFM.CR_SUCCESS) {
                                     int child = childSeg.get(JAVA_INT, 0);
                                     parentMap.put(child, node);
@@ -115,9 +116,7 @@ public final class DeviceTreeFFM {
                                         child = sibling;
                                     }
                                 }
-                            } catch (Throwable t) {
-                                LOG.debug("CM_Get_Child/Sibling threw for node {}", node, t);
-                            }
+                            }, LOG, "CM_Get_Child/Sibling threw for node {}: {}", node);
                         }
                     }
                 } finally {
