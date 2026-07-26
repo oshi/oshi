@@ -199,6 +199,8 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     // Faster, use as primary
     private static List<GraphicsCard> getGraphicsCardsFromLspci(Function<Attrs, GraphicsCard> factory) {
+        // -mm is the stable machine-readable format, which labels the slot field "Slot:". The
+        // obsolete single -m form labels it "Device:", colliding with the device name field.
         return getGraphicsCardsFromLspci(ExecutingCommand.runNative("lspci -vnnmm"), factory,
                 slot -> queryLspciMemorySize(ExecutingCommand.runNative("lspci -v -s " + slot)),
                 LinuxGraphicsCard::findDrmInfo);
@@ -229,6 +231,9 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             // Skip until we reach a display controller class
             if (prefix.equals("Class") && isDisplayClass(split.length > 1 ? split[1].trim() : "")) {
                 found = true;
+                // The Slot line precedes Class within a record, so this is the slot of the record
+                // we are entering. Discarding it here would leave every card without a PCI slot,
+                // skipping the VRAM lookup and collapsing all cards onto the same DRM device.
                 lookupDevice = slot;
                 name = Constants.UNKNOWN;
                 deviceId = Constants.UNKNOWN;
