@@ -4,6 +4,8 @@
  */
 package oshi.ffm;
 
+import static oshi.util.ExceptionUtil.runOrLog;
+
 import java.lang.foreign.MemorySegment;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,11 +91,7 @@ public final class NativeHandle implements AutoCloseable {
     @Override
     public void close() {
         if (!isNull() && closed.compareAndSet(false, true)) {
-            try {
-                closer.close(handle);
-            } catch (Throwable t) {
-                LOG.debug("Failed to close native handle: {}", t.getMessage());
-            }
+            runOrLog(() -> closer.close(handle), LOG, "Failed to close native handle: {}");
         }
     }
 }

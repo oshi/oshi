@@ -6,6 +6,7 @@ package oshi.software.os.mac;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.mac.CoreFoundationFunctions.CFAllocatorGetDefault;
 import static oshi.ffm.platform.mac.DiskArbitrationFunctions.DASessionCreate;
 import static oshi.ffm.platform.mac.MacSystem.F_FFREE;
@@ -17,9 +18,9 @@ import static oshi.ffm.platform.mac.MacSystem.F_MNTONNAME;
 import static oshi.ffm.platform.mac.MacSystem.MNT_NOWAIT;
 import static oshi.ffm.platform.mac.MacSystem.STATFS;
 import static oshi.ffm.platform.mac.MacSystemFunctions.getfsstat64;
+import static oshi.util.LogLevel.WARN;
 
 import java.io.File;
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,7 @@ public class MacFileSystemFFM extends MacFileSystem {
     // Called by MacOSFileStore
     static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             // Use getfsstat to find fileSystems
             // Query with null to get total # required
             int numfs = getfsstat64(MemorySegment.NULL, 0, 0);
@@ -182,11 +183,8 @@ public class MacFileSystemFFM extends MacFileSystem {
                     }
                 }
             }
-        } catch (Throwable e) {
-            LOG.warn("Failed to query file systems: {}", e.getMessage(), e);
             return fsList;
-        }
-        return fsList;
+        }, LOG, WARN, "Failed to query file systems", fsList);
     }
 
     @Override

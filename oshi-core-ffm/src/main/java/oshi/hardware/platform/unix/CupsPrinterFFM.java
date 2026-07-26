@@ -5,8 +5,9 @@
 package oshi.hardware.platform.unix;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.WARN;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public final class CupsPrinterFFM extends CupsPrinter {
 
     private static List<Printer> getPrintersFromLibCups() {
         List<Printer> printers = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment ptrSlot = arena.allocate(ADDRESS);
             int numDests = CupsFunctions.cupsGetDests(ptrSlot);
             if (numDests <= 0) {
@@ -96,10 +97,8 @@ public final class CupsPrinterFFM extends CupsPrinter {
             } finally {
                 CupsFunctions.cupsFreeDests(numDests, destsPtr);
             }
-        } catch (Throwable e) {
-            LOG.warn("Failed to query printers from libcups: {}", e.getMessage(), e);
-        }
-        return printers;
+            return printers;
+        }, LOG, WARN, "Failed to query printers from libcups", printers);
     }
 
     private static PrinterStatus parseStateFromCups(String state, String stateReasons) {

@@ -6,14 +6,15 @@ package oshi.software.os.unix.freebsd;
 
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.ForeignFunctions.getByteArrayFromNativePointer;
 import static oshi.ffm.ForeignFunctions.getErrno;
 import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.RLIMIT_LAYOUT;
 import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.RLIMIT_NOFILE;
 import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
+import static oshi.util.LogLevel.WARN;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Collections;
 import java.util.List;
@@ -97,7 +98,7 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             long written = size.get(SIZE_T, 0);
             byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
             return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(bytes));
-        }, LOG, oshi.util.LogLevel.WARN, "queryEnvironmentVariables failed", Collections.<String, String>emptyMap());
+        }, LOG, WARN, "queryEnvironmentVariables failed", Collections.<String, String>emptyMap());
     }
 
     @Override
@@ -107,16 +108,13 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
 
     @Override
     protected long queryRlimitNofile(boolean soft) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
             if (FreeBsdLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
             return soft ? FreeBsdLibcFunctions.rlimitCur(rlim) : FreeBsdLibcFunctions.rlimitMax(rlim);
-        } catch (Throwable t) {
-            LOG.warn("getrlimit(RLIMIT_NOFILE) failed", t);
-            return -1L;
-        }
+        }, LOG, WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
     }
 
     @Override

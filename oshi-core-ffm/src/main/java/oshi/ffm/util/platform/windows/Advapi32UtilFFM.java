@@ -10,6 +10,7 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.callInArenaBooleanOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.Advapi32FFM.GetTokenInformation;
 import static oshi.ffm.platform.windows.Advapi32FFM.OpenProcessToken;
@@ -31,6 +32,8 @@ import static oshi.ffm.platform.windows.WinNTFFM.REG_SZ;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.checkSuccess;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
+import static oshi.util.LogLevel.DEBUG;
+import static oshi.util.LogLevel.ERROR;
 import static oshi.util.LogLevel.TRACE;
 import static oshi.util.Memoizer.memoize;
 
@@ -71,7 +74,7 @@ public final class Advapi32UtilFFM {
      * @return true if the process is elevated, false otherwise
      */
     public static boolean isCurrentProcessElevated() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
 
             Optional<MemorySegment> hProcessOpt = Kernel32FFM.GetCurrentProcess();
             if (hProcessOpt.isEmpty()) {
@@ -105,10 +108,7 @@ public final class Advapi32UtilFFM {
             } finally {
                 Kernel32FFM.CloseHandle(hToken);
             }
-        } catch (Throwable t) {
-            LOG.debug("Advapi32FFM.isCurrentProcessElevated failed", t);
-            return false;
-        }
+        }, LOG, DEBUG, "Advapi32FFM.isCurrentProcessElevated failed", false);
     }
 
     /**
@@ -439,11 +439,12 @@ public final class Advapi32UtilFFM {
      */
     public static long querySystemBootTime() {
         String eventLog = SYSTEM_LOG.get();
-        try (Arena arena = Arena.ofConfined()) {
+        // A zero result means "no boot event found"; every such path shares the uptime fallback below.
+        long bootTime = callInArenaLongOrDefault(arena -> {
             Optional<MemorySegment> hEventLogOpt = Advapi32FFM.OpenEventLog(arena, eventLog);
             if (hEventLogOpt.isEmpty()) {
                 LOG.warn("Unable to open system Event Log. Falling back to uptime.");
-                return System.currentTimeMillis() / 1000L - Kernel32UtilFFM.querySystemUptime();
+                return 0L;
             }
 
             MemorySegment hEventLog = hEventLogOpt.get();
@@ -495,8 +496,10 @@ public final class Advapi32UtilFFM {
                 // Close on every path, including a Throwable from a malformed record (matches the fallback contract).
                 Advapi32FFM.CloseEventLog(hEventLog);
             }
-        } catch (Throwable t) {
-            LOG.error("Exception while querying system boottime, fallback to boot time from uptime", t);
+            return 0L;
+        }, LOG, ERROR, "Exception while querying system boottime, fallback to boot time from uptime", 0L);
+        if (bootTime > 0) {
+            return bootTime;
         }
         // Fallback: approximate boot time from uptime
         return System.currentTimeMillis() / 1000L - Kernel32UtilFFM.querySystemUptime();
@@ -513,7 +516,7 @@ public final class Advapi32UtilFFM {
             return null;
         }
 
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment sourceName = toWideString(arena, systemLog);
 
             Optional<MemorySegment> hEventLog = Advapi32FFM.OpenEventLog(NULL, sourceName);
@@ -526,9 +529,6 @@ public final class Advapi32UtilFFM {
             // Opened only to validate the configured log name; close it so the handle is not leaked.
             Advapi32FFM.CloseEventLog(hEventLog.get());
             return systemLog;
-        } catch (Throwable t) {
-            LOG.error("Exception while opening system event log", t);
-            return null;
-        }
+        }, LOG, ERROR, "Exception while opening system event log", null);
     }
 }

@@ -7,8 +7,9 @@ package oshi.ffm.platform.windows;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
@@ -43,7 +44,7 @@ public final class Shell32FFM extends WindowsForeignFunctions {
             return Collections.emptyList();
         }
 
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment cmdLineSegment = toWideString(arena, commandLine);
             MemorySegment numArgsSegment = arena.allocate(JAVA_INT);
 
@@ -84,9 +85,6 @@ public final class Shell32FFM extends WindowsForeignFunctions {
                 // Free the memory allocated by CommandLineToArgvW
                 Kernel32FFM.LocalFree(argvPtr);
             }
-        } catch (Throwable t) {
-            LOG.debug("Shell32FFM.CommandLineToArgv failed: {}", t.getMessage());
-            return Collections.emptyList();
-        }
+        }, LOG, DEBUG, "Shell32FFM.CommandLineToArgv failed", Collections.emptyList());
     }
 }

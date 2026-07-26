@@ -17,6 +17,7 @@ import static oshi.util.ExceptionUtil.getOptional;
 import static oshi.util.ExceptionUtil.getOptionalInt;
 import static oshi.util.ExceptionUtil.getOptionalLong;
 import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -69,14 +70,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
 
     public static boolean DeviceIoControl(MemorySegment hDevice, int dwIoControlCode, MemorySegment lpInBuffer,
             int nInBufferSize, MemorySegment lpOutBuffer, int nOutBufferSize) {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaBooleanOrDefault(arena -> {
             MemorySegment lpBytesReturned = arena.allocate(JAVA_INT);
             return isSuccess((int) DeviceIoControl.invokeExact(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize,
                     lpOutBuffer, nOutBufferSize, lpBytesReturned, MemorySegment.NULL));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.DeviceIoControl failed: {}", t.getMessage());
-            return false;
-        }
+        }, LOG, DEBUG, "Kernel32FFM.DeviceIoControl failed", false);
     }
 
     private static final MethodHandle FindFirstVolume = downcall(K32, "FindFirstVolumeW", ADDRESS, ADDRESS, JAVA_INT);
@@ -112,7 +110,7 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle GetComputerName = downcall(K32, "GetComputerNameW", JAVA_INT, ADDRESS, ADDRESS);
 
     public static Optional<String> GetComputerName() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             int maxLen = 32;
 
             MemorySegment buffer = arena.allocate(JAVA_CHAR, maxLen);
@@ -123,21 +121,18 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
                 LOG.error("Failed to get computer name. Error code: {}", errorCode);
-                return Optional.empty();
+                return Optional.<String>empty();
             }
 
             return Optional.of(readWideString(buffer));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetComputerName failed: {}", t.getMessage());
-            return Optional.empty();
-        }
+        }, LOG, DEBUG, "Kernel32FFM.GetComputerName failed", Optional.empty());
     }
 
     private static final MethodHandle GetComputerNameEx = downcall(K32, "GetComputerNameExW", JAVA_INT, JAVA_INT,
             ADDRESS, ADDRESS);
 
     public static Optional<String> GetComputerNameEx() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             int maxLen = 256;
 
             MemorySegment buffer = arena.allocate(JAVA_CHAR, maxLen);
@@ -151,14 +146,11 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
                 LOG.error("Failed to get DNS domain name. Error code: {}", errorCode);
-                return Optional.empty();
+                return Optional.<String>empty();
             }
 
             return Optional.of(readWideString(buffer));
-        } catch (Throwable t) {
-            LOG.debug("Kernel32FFM.GetComputerNameEx failed: {}", t.getMessage());
-            return Optional.empty();
-        }
+        }, LOG, DEBUG, "Kernel32FFM.GetComputerNameEx failed", Optional.empty());
     }
 
     private static final MethodHandle GetCurrentProcess = downcall(K32, "GetCurrentProcess", ADDRESS);

@@ -7,6 +7,12 @@ package oshi.ffm.util.gpu;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static oshi.ffm.ForeignFunctions.callInArenaDoubleOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
+import static oshi.util.ExceptionUtil.getBooleanOrDefault;
+import static oshi.util.ExceptionUtil.getOrDefault;
+import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -180,25 +186,21 @@ public final class AdlUtilFFM {
         if (!AVAILABLE) {
             return null;
         }
-        try {
+        return getOrDefault(() -> {
             MemorySegment ctxRef = arena.allocate(ADDRESS);
             int ret = (int) ADL2_MAIN_CONTROL_CREATE.invokeExact(MALLOC_STUB, 1, ctxRef);
             if (ret == ADL_OK) {
                 return ctxRef.get(ADDRESS, 0);
             }
             LOG.debug("ADL2_Main_Control_Create failed with code {}", ret);
-        } catch (Throwable t) {
-            LOG.debug("ADL init failed: {}", t.getMessage());
-        }
-        return null;
+            return null;
+        }, null, LOG, "ADL init failed: {}");
     }
 
     private static void adlUninit(MemorySegment context) {
-        try {
+        runOrLog(() -> {
             ADL2_MAIN_CONTROL_DESTROY.invokeExact(context);
-        } catch (Throwable t) {
-            LOG.debug("ADL uninit failed: {}", t.getMessage());
-        }
+        }, LOG, "ADL uninit failed: {}");
     }
 
     private static void ensureAdaptersEnumerated(MemorySegment context, Arena arena) {
@@ -220,7 +222,7 @@ public final class AdlUtilFFM {
     }
 
     private static Map<Integer, Integer> enumerateAdapters(MemorySegment ctx, Arena arena) {
-        try {
+        return getOrDefault(() -> {
             MemorySegment numRef = arena.allocate(JAVA_INT);
             if ((int) ADL2_ADAPTER_NUMBER_OF_ADAPTERS_GET.invokeExact(ctx, numRef) != ADL_OK) {
                 return null;
@@ -255,10 +257,7 @@ public final class AdlUtilFFM {
                 }
             }
             return Collections.unmodifiableMap(map);
-        } catch (Throwable t) {
-            LOG.debug("ADL adapter enumeration failed: {}", t.getMessage());
-            return null;
-        }
+        }, null, LOG, "ADL adapter enumeration failed: {}");
     }
 
     private static boolean supportsOverdriveN(MemorySegment context, int adapterIndex, Arena arena) {
@@ -271,17 +270,15 @@ public final class AdlUtilFFM {
 
     private static boolean supportsOverdriveVersion(MemorySegment context, int adapterIndex, Arena arena,
             int minVersion) {
-        try {
+        return getBooleanOrDefault(() -> {
             MemorySegment supported = arena.allocate(JAVA_INT);
             MemorySegment enabled = arena.allocate(JAVA_INT);
             MemorySegment version = arena.allocate(JAVA_INT);
             if ((int) ADL2_OVERDRIVE_CAPS.invokeExact(context, adapterIndex, supported, enabled, version) == ADL_OK) {
                 return supported.get(JAVA_INT, 0) != 0 && version.get(JAVA_INT, 0) >= minVersion;
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL Overdrive_Caps failed: {}", t.getMessage());
-        }
-        return false;
+            return false;
+        }, false, LOG, "ADL Overdrive_Caps failed: {}");
     }
 
     // -------------------------------------------------------------------------
@@ -331,7 +328,7 @@ public final class AdlUtilFFM {
         if (adapterIndex < 0) {
             return -1d;
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaDoubleOrDefault(arena -> {
             MemorySegment ctx = adlInit(arena);
             if (ctx == null) {
                 return -1d;
@@ -348,10 +345,8 @@ public final class AdlUtilFFM {
             } finally {
                 adlUninit(ctx);
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL getTemperature failed: {}", t.getMessage());
-        }
-        return -1d;
+            return -1d;
+        }, LOG, DEBUG, "ADL getTemperature failed", -1d);
     }
 
     /**
@@ -364,7 +359,7 @@ public final class AdlUtilFFM {
         if (adapterIndex < 0) {
             return -1L;
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment ctx = adlInit(arena);
             if (ctx == null) {
                 return -1L;
@@ -380,10 +375,8 @@ public final class AdlUtilFFM {
             } finally {
                 adlUninit(ctx);
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL getCoreClockMhz failed: {}", t.getMessage());
-        }
-        return -1L;
+            return -1L;
+        }, LOG, DEBUG, "ADL getCoreClockMhz failed", -1L);
     }
 
     /**
@@ -396,7 +389,7 @@ public final class AdlUtilFFM {
         if (adapterIndex < 0) {
             return -1L;
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaLongOrDefault(arena -> {
             MemorySegment ctx = adlInit(arena);
             if (ctx == null) {
                 return -1L;
@@ -412,10 +405,8 @@ public final class AdlUtilFFM {
             } finally {
                 adlUninit(ctx);
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL getMemoryClockMhz failed: {}", t.getMessage());
-        }
-        return -1L;
+            return -1L;
+        }, LOG, DEBUG, "ADL getMemoryClockMhz failed", -1L);
     }
 
     /**
@@ -428,7 +419,7 @@ public final class AdlUtilFFM {
         if (adapterIndex < 0) {
             return -1d;
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaDoubleOrDefault(arena -> {
             MemorySegment ctx = adlInit(arena);
             if (ctx == null) {
                 return -1d;
@@ -446,10 +437,8 @@ public final class AdlUtilFFM {
             } finally {
                 adlUninit(ctx);
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL getPowerDraw failed: {}", t.getMessage());
-        }
-        return -1d;
+            return -1d;
+        }, LOG, DEBUG, "ADL getPowerDraw failed", -1d);
     }
 
     /**
@@ -462,7 +451,7 @@ public final class AdlUtilFFM {
         if (adapterIndex < 0) {
             return -1d;
         }
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaDoubleOrDefault(arena -> {
             MemorySegment ctx = adlInit(arena);
             if (ctx == null) {
                 return -1d;
@@ -481,9 +470,7 @@ public final class AdlUtilFFM {
             } finally {
                 adlUninit(ctx);
             }
-        } catch (Throwable t) {
-            LOG.debug("ADL getFanSpeedPercent failed: {}", t.getMessage());
-        }
-        return -1d;
+            return -1d;
+        }, LOG, DEBUG, "ADL getFanSpeedPercent failed", -1d);
     }
 }

@@ -12,7 +12,6 @@ import static oshi.util.ExceptionUtil.runOrLog;
 import static oshi.util.LogLevel.DEBUG;
 import static oshi.util.LogLevel.ERROR;
 
-import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
@@ -82,7 +81,7 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
 
     @Override
     protected int[] queryProcessorCpuTicks() {
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             MemorySegment procCountSeg = arena.allocate(ValueLayout.JAVA_INT);
             MemorySegment procInfoPtrSeg = arena.allocate(ValueLayout.ADDRESS);
@@ -108,10 +107,7 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
                                 rawProcInfoPtr.address(), (long) procInfoCount * MacSystem.INT_SIZE),
                         LOG, "Failed to vm_deallocate processor info buffer");
             }
-        } catch (Throwable e) {
-            LOG.error("Failed to update CPU Load", e);
-        }
-        return new int[0];
+        }, LOG, ERROR, "Failed to update CPU Load", new int[0]);
     }
 
 }

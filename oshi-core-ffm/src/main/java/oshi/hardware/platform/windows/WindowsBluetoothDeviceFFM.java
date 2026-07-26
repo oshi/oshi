@@ -8,11 +8,13 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_INFO_LAYOUT;
 import static oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_DEVICE_SEARCH_PARAMS_LAYOUT;
 import static oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT;
 import static oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_MAX_NAME_SIZE;
 import static oshi.ffm.platform.windows.BluetoothApisFFM.BLUETOOTH_RADIO_INFO_LAYOUT;
+import static oshi.util.LogLevel.WARN;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -59,14 +61,14 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
             return Collections.emptyList();
         }
         List<BluetoothDevice> devices = new ArrayList<>();
-        try (Arena arena = Arena.ofConfined()) {
+        return callInArenaOrDefault(arena -> {
             MemorySegment radioParams = arena.allocate(BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT);
             radioParams.set(JAVA_INT, 0, (int) BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT.byteSize());
             MemorySegment phRadio = arena.allocate(ADDRESS);
 
             MemorySegment hFindRadio = BluetoothApisFFM.BluetoothFindFirstRadio(radioParams, phRadio);
             if (hFindRadio.equals(MemorySegment.NULL)) {
-                return Collections.emptyList();
+                return Collections.<BluetoothDevice>emptyList();
             }
 
             // wrapped only to release the native handle on close
@@ -82,10 +84,9 @@ public final class WindowsBluetoothDeviceFFM extends AbstractBluetoothDevice {
                 } while (WindowsForeignFunctions
                         .isSuccess(BluetoothApisFFM.BluetoothFindNextRadio(hFindRadio, phRadio)));
             }
-        } catch (Throwable t) {
-            LOG.warn("Error enumerating Bluetooth devices: {}", t.getMessage());
-        }
-        return Collections.unmodifiableList(devices);
+            return Collections.unmodifiableList(devices);
+            // The default is an unmodifiable *view*, so a partial enumeration is still returned on failure.
+        }, LOG, WARN, "Error enumerating Bluetooth devices", Collections.unmodifiableList(devices));
     }
 
     private static String getRadioName(Arena arena, MemorySegment hRadio) throws Throwable {
