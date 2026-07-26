@@ -1,6 +1,8 @@
 # 7.4.3 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3526](https://github.com/oshi/oshi/pull/3526): Fix a potential `NullPointerException` in the macOS FFM process backend when an `IOPlatformDevice` entry has no readable name, and guard the native `passwd`/`group` struct dereferences against a null return - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24)
 
