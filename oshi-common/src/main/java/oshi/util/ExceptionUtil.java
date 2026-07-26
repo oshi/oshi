@@ -23,9 +23,9 @@ public final class ExceptionUtil {
     }
 
     /**
-     * Logs a throwable at the given level using only SLF4J 1.x-compatible {@link Logger} methods (no {@code atLevel}
-     * fluent API). Relies on SLF4J's implicit-cause handling: when the last of the extra arguments is a
-     * {@link Throwable}, it is attached as the log event's cause rather than substituted into the format string.
+     * Logs a throwable at the given level, substituting its message into the format string and attaching the throwable
+     * itself as the log event's cause via SLF4J's implicit-cause handling. Level dispatch is delegated to
+     * {@link LogUtil#logAtLevel(Logger, LogLevel, String, Object...)}.
      * <p>
      * Public so other modules (e.g., {@code oshi-core-ffm}) can share this dispatch instead of duplicating it.
      *
@@ -35,24 +35,7 @@ public final class ExceptionUtil {
      * @param t     the throwable to log
      */
     public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t) {
-        switch (level) {
-            case ERROR:
-                log.error(msg, t.getMessage(), t);
-                break;
-            case WARN:
-                log.warn(msg, t.getMessage(), t);
-                break;
-            case INFO:
-                log.info(msg, t.getMessage(), t);
-                break;
-            case TRACE:
-                log.trace(msg, t.getMessage(), t);
-                break;
-            case DEBUG:
-            default:
-                log.debug(msg, t.getMessage(), t);
-                break;
-        }
+        LogUtil.logAtLevel(log, level, msg, t.getMessage(), t);
     }
 
     /**

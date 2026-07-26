@@ -7,8 +7,6 @@ package oshi.util.platform.windows;
 import static oshi.util.LogLevel.ERROR;
 import static oshi.util.LogLevel.WARN;
 
-import java.util.Locale;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +24,7 @@ import oshi.jna.ByRef.CloseableLONGLONGByReference;
 import oshi.jna.Struct.CloseablePdhRawCounter;
 import oshi.util.FormatUtil;
 import oshi.util.LogLevel;
+import oshi.util.LogUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 
@@ -158,38 +157,10 @@ public final class PerfDataUtil {
         return WinError.ERROR_SUCCESS == PDH.PdhRemoveCounter(p.getValue());
     }
 
-    private static String formatErrorMessage(String message, int ret) {
-        return message + " Error code: " + String.format(Locale.ROOT, FormatUtil.formatError(ret));
-    }
-
     static <T> T handleError(int ret, LogLevel level, String message, T defaultValue) {
-        switch (level) {
-            case ERROR:
-                if (LOG.isErrorEnabled()) {
-                    LOG.error(formatErrorMessage(message, ret));
-                }
-                break;
-            case WARN:
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn(formatErrorMessage(message, ret));
-                }
-                break;
-            case INFO:
-                if (LOG.isInfoEnabled()) {
-                    LOG.info(formatErrorMessage(message, ret));
-                }
-                break;
-            case TRACE:
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace(formatErrorMessage(message, ret));
-                }
-                break;
-            case DEBUG:
-            default:
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(formatErrorMessage(message, ret));
-                }
-                break;
+        // Guarded because formatting the error code happens before the logging call
+        if (LogUtil.isEnabled(LOG, level)) {
+            LogUtil.logAtLevel(LOG, level, "{} Error code: {}", message, FormatUtil.formatError(ret));
         }
         return defaultValue;
     }
