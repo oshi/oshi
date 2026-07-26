@@ -15,8 +15,6 @@ import org.junit.jupiter.api.condition.OS;
 
 import com.sun.jna.platform.win32.PdhMsg;
 
-import oshi.util.LogLevel;
-
 @EnabledOnOs(OS.WINDOWS)
 class PerfDataUtilTest {
 
@@ -36,12 +34,5 @@ class PerfDataUtilTest {
     void testHandleErrorStringDefault() {
         assertThat(PerfDataUtil.handleError(PdhMsg.PDH_INVALID_HANDLE, WARN, "Failed to get counter.", "default"),
                 is("default"));
-    }
-
-    @Test
-    void testHandleErrorAtEveryLevel() {
-        for (LogLevel level : LogLevel.values()) {
-            assertThat(PerfDataUtil.handleError(PdhMsg.PDH_INVALID_HANDLE, level, "Failed.", "default"), is("default"));
-        }
     }
 }

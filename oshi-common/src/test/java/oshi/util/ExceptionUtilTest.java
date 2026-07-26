@@ -5,6 +5,7 @@
 package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -391,5 +392,15 @@ class ExceptionUtilTest {
             }, "no exception", LOG, level, "failed: {}");
             assertThat(result, is("no exception"));
         }
+    }
+
+    @Test
+    void testLogAtLevelPassesThrowableMessageAndThrowable() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        Throwable t = new IllegalStateException("boom");
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, "Failed: {}", t);
+        assertThat("Dispatched to the method matching the level", recorder.onlyCall(), is("warn"));
+        // The message fills the placeholder; the trailing throwable is left for SLF4J to pull out as the cause
+        assertThat("Throwable message then throwable", recorder.arguments(), arrayContaining("boom", t));
     }
 }

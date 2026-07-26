@@ -20,6 +20,6 @@ java.lang.Long#decode(java.lang.String)
 
 java.lang.Double#parseDouble(java.lang.String)
 
-@defaultMessage Use oshi.util.LogLevel; org.slf4j.event.Level requires slf4j-api 1.7.15+ and breaks hosts providing an older slf4j (see #3524)
+@defaultMessage Use oshi.util.LogLevel; the org.slf4j.event package arrived in slf4j-api 1.7.15 and breaks hosts providing an older slf4j (see #3524)
 
-org.slf4j.event.Level
+org.slf4j.event.**
