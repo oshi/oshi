@@ -199,7 +199,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
     // Faster, use as primary
     private static List<GraphicsCard> getGraphicsCardsFromLspci(Function<Attrs, GraphicsCard> factory) {
-        return getGraphicsCardsFromLspci(ExecutingCommand.runNative("lspci -vnnm"), factory,
+        return getGraphicsCardsFromLspci(ExecutingCommand.runNative("lspci -vnnmm"), factory,
                 slot -> queryLspciMemorySize(ExecutingCommand.runNative("lspci -v -s " + slot)),
                 LinuxGraphicsCard::findDrmInfo);
     }
@@ -221,21 +221,22 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         String vendor = Constants.UNKNOWN;
         List<String> versionInfoList = new ArrayList<>();
         boolean found = false;
+        String slot = null;
         String lookupDevice = null;
         for (String line : lspci) {
             String[] split = line.trim().split(":", 2);
             String prefix = split[0];
-            // Skip until line contains "VGA" or "3D controller"
-            if (prefix.equals("Class") && (line.contains("VGA") || line.contains("3D controller"))) {
+            // Skip until we reach a display controller class
+            if (prefix.equals("Class") && isDisplayClass(split.length > 1 ? split[1].trim() : "")) {
                 found = true;
-                lookupDevice = null;
+                lookupDevice = slot;
                 name = Constants.UNKNOWN;
                 deviceId = Constants.UNKNOWN;
                 vendor = Constants.UNKNOWN;
                 versionInfoList.clear();
             } else if (prefix.equals("Slot") && split.length > 1) {
                 // Capture PCI slot address (e.g. "01:00.0") for use with lspci -s
-                lookupDevice = split[1].trim();
+                slot = split[1].trim();
             }
             if (found) {
                 if (split.length < 2) {
@@ -265,6 +266,10 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
                         versionInfoList.add(line.trim());
                     }
                 }
+            }
+            if (split.length < 2) {
+                // Record boundary; the next record must supply its own Slot line
+                slot = null;
             }
         }
         // If we haven't yet written the last card do so now
@@ -360,6 +365,25 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
                     drmInfo.getA(), drmInfo.getB(), drmInfo.getC())));
         }
         return cardList;
+    }
+
+    /**
+     * Tests whether an lspci {@code Class:} field value denotes a display controller.
+     * <p>
+     * A plain substring test for "VGA" is not sufficient: PCI class 0x0000 is rendered as "Non-VGA unclassified
+     * device", which contains "VGA" but is not a graphics card. When the numeric class code is present (lspci
+     * {@code -nn}) it is authoritative; PCI base class 0x03 is Display controller.
+     *
+     * @param classValue the trimmed value of an lspci {@code Class:} line
+     * @return true if the class denotes a display controller
+     */
+    static boolean isDisplayClass(String classValue) {
+        Pair<String, String> pair = ParseUtil.parseLspciMachineReadable(classValue);
+        if (pair != null && pair.getB().length() >= 2) {
+            return pair.getB().startsWith("03");
+        }
+        return classValue.startsWith("VGA compatible controller") || classValue.startsWith("3D controller")
+                || classValue.startsWith("Display controller");
     }
 
     /**
