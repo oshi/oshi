@@ -7,11 +7,19 @@ package oshi.ffm;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notANumber;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -19,6 +27,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.spi.SystemInfoFactory;
+import oshi.util.common.platform.mac.SmcKeyIndex;
 
 /**
  * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature.
@@ -103,5 +112,76 @@ public class MacSensorsPlausibilityFFMTest {
         assertThat("Aggregate keys must be distinct from the per-core keys",
                 SmcUtilFFM.SMC_KEYS_CPU_TEMP_AGGREGATE_AS.stream().noneMatch(SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS::contains),
                 is(true));
+    }
+
+    /**
+     * GPU keys are discovered from the SMC rather than hardcoded, because they are chip-specific: on this hardware only
+     * two of the four keys OSHI originally shipped exist, and six sensors appear in no published key table.
+     */
+    @Test
+    public void testGpuTemperatureKeysAreDiscovered() {
+        List<String> keys = SmcUtilFFM.getGpuTemperatureKeys();
+        assertThat("Discovery must never return null", keys, is(notNullValue()));
+        for (String key : keys) {
+            assertThat(key + " must match the GPU key convention", SmcKeyIndex.isGpuTemperatureKey(key), is(true));
+        }
+        List<String> second = SmcUtilFFM.getGpuTemperatureKeys();
+        assertThat("Repeated calls must agree", second, is(equalTo(keys)));
+        // A completed discovery is cached; a failed one deliberately is not, and returns the shared fallback constant
+        // instead. Asserting identity unconditionally would pass vacuously in that case, since both calls would return
+        // the same constant without anything having been cached.
+        if (!keys.equals(SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS)) {
+            assertThat("A completed discovery must be cached, not repeated", second, is(sameInstance(keys)));
+        }
+    }
+
+    /**
+     * Regression guard against a discovery bug silently narrowing the sensor set: any of the legacy hardcoded keys that
+     * this machine can actually read must also have been discovered. Passes on any Apple Silicon Mac.
+     */
+    @Test
+    public void testDiscoveryIsASupersetOfReadableLegacyKeys() {
+        int conn = SmcUtilFFM.smcOpen();
+        assumeTrue(conn != 0, "SMC unavailable");
+        try {
+            List<String> discovered = SmcUtilFFM.getGpuTemperatureKeys();
+            for (String legacy : SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS) {
+                if (SmcUtilFFM.isPlausibleTemperature(SmcUtilFFM.smcGetFloat(conn, legacy))) {
+                    assertThat(legacy + " reads a real value but was not discovered", discovered, hasItem(legacy));
+                }
+            }
+        } finally {
+            SmcUtilFFM.smcClose(conn);
+        }
+    }
+
+    /**
+     * The reported value is the hottest cluster, so it can never be below the first-match value the previous
+     * implementation would have returned from the same key set.
+     */
+    @Test
+    public void testMaxIsNotLessThanFirstMatch() {
+        int conn = SmcUtilFFM.smcOpen();
+        assumeTrue(conn != 0, "SMC unavailable");
+        try {
+            List<String> keys = SmcUtilFFM.getGpuTemperatureKeys();
+            double max = SmcUtilFFM.smcGetMaxTemperature(conn, keys);
+            double first = SmcUtilFFM.smcGetFirstTemperature(conn, keys);
+            assertThat("max must be at least the first plausible reading", max, is(greaterThanOrEqualTo(first)));
+            assertThat("A GPU temperature is unavailable or plausible, never a sentinel in between",
+                    max == 0d || SmcUtilFFM.isPlausibleTemperature(max), is(true));
+        } finally {
+            SmcUtilFFM.smcClose(conn);
+        }
+    }
+
+    /**
+     * The fallback list must remain a superset of the four keys OSHI read before discovery existed, so a machine that
+     * falls back can never report less than the previous implementation did. Widening the list by frequency across
+     * published sensor dumps once dropped {@code Tg0f}, which is the only one of the four present on some M2 hardware.
+     */
+    @Test
+    public void testFallbackKeysIncludeTheHistoricalFour() {
+        assertThat(SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS, hasItems("Tg05", "Tg0D", "Tg0f", "Tg0j"));
     }
 }

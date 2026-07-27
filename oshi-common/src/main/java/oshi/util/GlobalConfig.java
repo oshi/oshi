@@ -157,6 +157,13 @@ public final class GlobalConfig {
     public static final String OSHI_OS_MAC_SYSCTL_LOGWARNING = "oshi.os.mac.sysctl.logwarning";
 
     /**
+     * Comma-separated list of macOS SMC keys to read for Apple Silicon GPU temperature; the highest plausible reading
+     * among them is reported. Empty by default, meaning the keys are discovered from the SMC at runtime so that chips
+     * with differently named sensors are handled without a code change. Set this only to override that discovery.
+     */
+    public static final String OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS = "oshi.os.mac.sensors.gputemperature.keys";
+
+    /**
      * The name of the Windows System event log containing bootup event IDs 12 and 6005, used for a one-time calculation
      * of system boot time that is consistent across process runs regardless of sleep/hibernate cycles. If set to the
      * empty string, boot time is calculated by subtracting uptime from the current time (faster but less accurate).

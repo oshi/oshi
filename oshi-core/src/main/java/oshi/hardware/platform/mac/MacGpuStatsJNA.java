@@ -5,6 +5,8 @@
 package oshi.hardware.platform.mac;
 
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -52,6 +54,13 @@ final class MacGpuStatsJNA implements GpuStats {
     private static final String VRAM_USED_KEY = "vramUsedBytes";
     private static final String VRAM_USED_KEY_AS = "In use system memory";
     private static final double GPU_UTIL_DIVISOR = 0xFFFFFFFFL;
+
+    /**
+     * Cards whose IOAccelerator statistics have no Temperature(C) key, so the lookup is not repeated. Static because a
+     * GpuStats session is short-lived, and keyed by card because one card lacking the sensor says nothing about another
+     * on the same machine.
+     */
+    private static final Set<String> PERF_STATS_TEMP_ABSENT = ConcurrentHashMap.newKeySet();
     private static final Pattern TRADEMARK_PATTERN = Pattern.compile("[®™]|\\([Rr]\\)|\\([Tt][Mm]\\)");
 
     private final boolean isAppleSilicon;
@@ -169,7 +178,7 @@ final class MacGpuStatsJNA implements GpuStats {
             IOConnect conn = SmcUtil.smcOpen();
             if (conn != null) {
                 try {
-                    double temp = SmcUtil.smcGetFirstTemperature(conn, SmcUtil.SMC_KEYS_GPU_TEMP_AS);
+                    double temp = SmcUtil.smcGetMaxTemperature(conn, SmcUtil.getGpuTemperatureKeys());
                     if (temp > 0) {
                         return temp;
                     }
@@ -180,19 +189,29 @@ final class MacGpuStatsJNA implements GpuStats {
         }
         // IOAccelerator statistics, not the SMC: a different sensor that is not power-gated with the GPU
         // cluster, so the SMC plausibility floor deliberately does not apply here. Unavailable is -1, not 0.
+        // This key does not exist on Apple Silicon, so it is tried once per card and then latched off rather than
+        // repeating an IOKit registry walk on every call. Latch only on structural absence, not on a low reading.
+        if (PERF_STATS_TEMP_ABSENT.contains(normCardName)) {
+            return -1d;
+        }
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
+            // Not latched: a missing accelerator entry can be transient (driver reset, eGPU unplugged), unlike a
+            // dictionary that is present but has no temperature key.
             return -1d;
         }
         try {
             CFStringRef tempKey = CFStringRef.createCFString("Temperature(C)");
             Pointer result = perfStats.getValue(tempKey);
             tempKey.release();
-            if (result != null) {
-                long val = new CFNumberRef(result).longValue();
-                if (val > 0) {
-                    return val;
-                }
+            if (result == null) {
+                LOG.debug("No Temperature(C) in IOAccelerator statistics for {}; not retrying.", normCardName);
+                PERF_STATS_TEMP_ABSENT.add(normCardName);
+                return -1d;
+            }
+            long val = new CFNumberRef(result).longValue();
+            if (val > 0) {
+                return val;
             }
         } finally {
             perfStats.release();

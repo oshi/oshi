@@ -29,7 +29,9 @@ import oshi.jna.platform.mac.IOKit.SMCKeyData;
 import oshi.jna.platform.mac.IOKit.SMCKeyDataKeyInfo;
 import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.jna.platform.mac.SystemB;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.mac.SmcKeyIndex;
 
 /**
  * Provides access to SMC calls on macOS
@@ -74,14 +76,42 @@ public final class SmcUtil {
     /** Apple Silicon CPU temperature keys, tried in order until one returns a positive value. */
     public static final List<String> SMC_KEYS_CPU_TEMP_AS = Collections
             .unmodifiableList(Arrays.asList("Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D"));
-    /** Apple Silicon GPU temperature keys, tried in order until one returns a positive value. */
-    public static final List<String> SMC_KEYS_GPU_TEMP_AS = Collections
-            .unmodifiableList(Arrays.asList("Tg05", "Tg0D", "Tg0f", "Tg0j"));
+    /**
+     * Fallback Apple Silicon GPU temperature keys, used only when runtime discovery cannot complete. The hottest
+     * plausible reading among them is reported.
+     * <p>
+     * GPU sensor keys are chip-specific, so no fixed list is complete: on an M2 Max only {@code Tg0f} and {@code Tg0j}
+     * of the four originally shipped exist, and six of that machine's sensors appear in no published key table at all.
+     * {@link #getGpuTemperatureKeys()} therefore discovers them from the SMC instead; this list is breadth-first
+     * insurance for the case where that fails. It leads with the four keys OSHI read before discovery existed, so the
+     * fallback can never report less than the previous implementation, followed by the keys most commonly present
+     * across published M1 through M5 and A18 sensor dumps.
+     */
+    public static final List<String> SMC_KEYS_GPU_TEMP_AS = Collections.unmodifiableList(Arrays.asList("Tg05", "Tg0D",
+            "Tg0f", "Tg0j", "Tg0C", "Tg04", "Tg0K", "Tg0L", "Tg0d", "Tg0e", "Tg1k", "Tg0X", "Tg0S", "Tg0y", "Tg0z"));
+
+    /** SMC key whose value is the number of keys in the key index. */
+    public static final String SMC_KEY_COUNT = "#KEY";
+
+    /** The prefix shared by Apple Silicon GPU cluster temperature keys. */
+    private static final String GPU_KEY_PREFIX = "Tg";
+
+    /** Guards {@link #gpuTemperatureKeys}. */
+    private static final Object GPU_KEY_LOCK = new Object();
+
+    /**
+     * Discovered GPU temperature keys, or null if discovery has not yet completed successfully. Deliberately not a
+     * {@link oshi.util.Memoizer}: that would cache a failed discovery permanently, and a transient failure to open the
+     * SMC would then disable GPU temperature for the lifetime of the JVM.
+     */
+    private static volatile List<String> gpuTemperatureKeys;
     /** SMC key for CPU voltage (Apple Silicon). */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
     /** SMC command to read bytes. */
     public static final byte SMC_CMD_READ_BYTES = 5;
+    /** SMC command to read the key at an index in the key index. */
+    public static final byte SMC_CMD_READ_INDEX = 8;
     /** SMC command to read key info. */
     public static final byte SMC_CMD_READ_KEYINFO = 9;
     /** Kernel index for SMC calls. */
@@ -200,6 +230,134 @@ public final class SmcUtil {
             }
         }
         return 0d;
+    }
+
+    /**
+     * Get the highest plausible temperature among a list of SMC keys.
+     * <p>
+     * Plausibility is applied per read rather than when the keys were discovered, because whether a key exists is a
+     * property of the hardware while whether it currently reports a usable value is not.
+     * <p>
+     * Clusters expose their sensors in pairs at different locations on the die, offset by a few degrees and tracking
+     * each other as load changes; verified on an M2 Max where a pair moved 44.8/51.4 to 56.1/62.6 under load and fell
+     * together afterwards. They are not an instantaneous/peak-hold pair, so taking the maximum consistently reports the
+     * hotter location rather than a latched peak.
+     *
+     * @param conn The connection
+     * @param keys The keys to read
+     * @return The highest reading at or above {@link #MIN_PLAUSIBLE_TEMPERATURE}, or 0 if none were plausible
+     */
+    public static double smcGetMaxTemperature(IOConnect conn, List<String> keys) {
+        return SmcKeyIndex.maxPlausible(keys, key -> smcGetFloat(conn, key), SmcUtil::isPlausibleTemperature);
+    }
+
+    /**
+     * Get the name of the key at an index in the SMC key index.
+     *
+     * @param conn  The connection
+     * @param index The index, from 0 to the value of {@link #SMC_KEY_COUNT}
+     * @return The four-character key name, or null if it could not be read
+     */
+    public static String smcReadKeyAtIndex(IOConnect conn, int index) {
+        try (SMCKeyData input = new SMCKeyData(); SMCKeyData output = new SMCKeyData()) {
+            input.data8 = SMC_CMD_READ_INDEX;
+            input.data32 = index;
+            if (smcCall(conn, KERNEL_INDEX_SMC, input, output) != 0) {
+                return null;
+            }
+            byte[] keyBytes = ParseUtil.longToByteArray(output.key, 4, 4);
+            StringBuilder sb = new StringBuilder(4);
+            for (byte b : keyBytes) {
+                sb.append((char) (b & 0xFF));
+            }
+            return sb.toString();
+        }
+    }
+
+    /**
+     * Get the SMC data type of a key, e.g. {@code flt} or {@code sp78}.
+     *
+     * @param conn The connection
+     * @param key  The key to query
+     * @return The data type, or an empty string if it could not be read
+     */
+    public static String smcGetDataType(IOConnect conn, String key) {
+        try (SMCVal val = new SMCVal()) {
+            if (smcReadKey(conn, key, val) != 0 || val.dataType == null) {
+                return "";
+            }
+            StringBuilder sb = new StringBuilder(4);
+            for (byte b : val.dataType) {
+                if (b == 0) {
+                    break;
+                }
+                sb.append((char) b);
+            }
+            return sb.toString().trim();
+        }
+    }
+
+    /**
+     * Get the Apple Silicon GPU temperature keys for this machine, discovering them from the SMC on first use and
+     * caching the result.
+     * <p>
+     * Discovery binary searches the sorted key index for the {@code Tg} block and keeps the keys matching the GPU
+     * naming convention. It does not filter by plausibility: an idle sensor reports a sentinel below ambient, so
+     * filtering here would let one unlucky first call cache an empty set and disable GPU temperature permanently.
+     * Plausibility is applied per read by {@link #smcGetMaxTemperature}.
+     * <p>
+     * Can be overridden with the {@link GlobalConfig#OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS} configuration property,
+     * which bypasses discovery entirely. Falls back to {@link #SMC_KEYS_GPU_TEMP_AS} if discovery cannot complete,
+     * without caching, so a later call retries.
+     *
+     * @return The keys to read for GPU temperature, never null
+     */
+    public static List<String> getGpuTemperatureKeys() {
+        List<String> keys = gpuTemperatureKeys;
+        if (keys != null) {
+            return keys;
+        }
+        synchronized (GPU_KEY_LOCK) {
+            if (gpuTemperatureKeys != null) {
+                return gpuTemperatureKeys;
+            }
+            // Read the config lazily rather than at class initialization, so GlobalConfig.set() still takes effect.
+            List<String> configured = SmcKeyIndex
+                    .parseConfiguredKeys(GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS, ""));
+            if (!configured.isEmpty()) {
+                LOG.debug("Using configured GPU temperature keys {}", configured);
+                gpuTemperatureKeys = configured;
+                return configured;
+            }
+            List<String> discovered = discoverGpuTemperatureKeys();
+            if (discovered == null) {
+                LOG.debug("GPU temperature key discovery did not complete; using the fallback list this time.");
+                return SMC_KEYS_GPU_TEMP_AS;
+            }
+            LOG.debug("Discovered {} GPU temperature keys: {}", discovered.size(), discovered);
+            gpuTemperatureKeys = discovered;
+            return discovered;
+        }
+    }
+
+    /**
+     * @return the discovered keys, or null if the SMC key index could not be read
+     */
+    private static List<String> discoverGpuTemperatureKeys() {
+        IOConnect conn = smcOpen();
+        if (conn == null) {
+            return null;
+        }
+        try {
+            int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);
+            // No data-type filter: smcGetFloat already decodes every temperature encoding the SMC uses (flt, sp78,
+            // fpe2) and returns 0 for anything else, which the plausibility floor then rejects. Filtering on "flt"
+            // here would cost a second read per key and would wrongly exclude a sensor reported as sp78.
+            return SmcKeyIndex.findKeys(keyCount, i -> smcReadKeyAtIndex(conn, i), GPU_KEY_PREFIX,
+                    SmcKeyIndex::isGpuTemperatureKey);
+        } finally {
+            smcClose(conn);
+        }
     }
 
     /**
