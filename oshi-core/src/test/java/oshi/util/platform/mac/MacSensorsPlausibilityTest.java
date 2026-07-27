@@ -7,6 +7,7 @@ package oshi.util.platform.mac;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -126,7 +127,14 @@ public class MacSensorsPlausibilityTest {
         for (String key : keys) {
             assertThat(key + " must match the GPU key convention", SmcKeyIndex.isGpuTemperatureKey(key), is(true));
         }
-        assertThat("Result must be cached, not rediscovered", SmcUtil.getGpuTemperatureKeys(), is(sameInstance(keys)));
+        List<String> second = SmcUtil.getGpuTemperatureKeys();
+        assertThat("Repeated calls must agree", second, is(equalTo(keys)));
+        // A completed discovery is cached; a failed one deliberately is not, and returns the shared fallback constant
+        // instead. Asserting identity unconditionally would pass vacuously in that case, since both calls would return
+        // the same constant without anything having been cached.
+        if (!keys.equals(SmcUtil.SMC_KEYS_GPU_TEMP_AS)) {
+            assertThat("A completed discovery must be cached, not repeated", second, is(sameInstance(keys)));
+        }
     }
 
     /**
