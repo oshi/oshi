@@ -4,6 +4,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AGGREGATE_AS;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_TEMP;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE;
@@ -32,7 +33,12 @@ final class MacSensorsFFM extends AbstractSensors {
             return 0d;
         }
         try {
-            double temp = SmcUtilFFM.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AS);
+            // Prefer the chip-independent CPU-die aggregate keys (TCMb average, TCMz max), which the firmware
+            // computes even on chips whose per-core keys are named differently or absent (e.g. the M3 Pro).
+            double temp = SmcUtilFFM.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AGGREGATE_AS);
+            if (temp <= 0d) {
+                temp = SmcUtilFFM.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AS);
+            }
             if (temp <= 0d) {
                 // Intel fallback, held to the same plausibility floor
                 double intelTemp = SmcUtilFFM.smcGetFloat(conn, SMC_KEY_CPU_TEMP);

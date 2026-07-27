@@ -4,6 +4,7 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_TEMP;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE;
@@ -34,7 +35,12 @@ final class MacSensorsJNA extends AbstractSensors {
             return 0d;
         }
         try {
-            double temp = SmcUtil.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AS);
+            // Prefer the chip-independent CPU-die aggregate keys (TCMb average, TCMz max), which the firmware
+            // computes even on chips whose per-core keys are named differently or absent (e.g. the M3 Pro).
+            double temp = SmcUtil.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AGGREGATE_AS);
+            if (temp <= 0d) {
+                temp = SmcUtil.smcGetFirstTemperature(conn, SMC_KEYS_CPU_TEMP_AS);
+            }
             if (temp <= 0d) {
                 // Intel fallback, held to the same plausibility floor
                 double intelTemp = SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_TEMP);
