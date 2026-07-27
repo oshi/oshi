@@ -156,7 +156,7 @@ final class MacGpuStatsFFM implements GpuStats {
             int conn = SmcUtilFFM.smcOpen();
             if (conn != 0) {
                 try {
-                    double temp = SmcUtilFFM.smcGetFirstFloat(conn, SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS);
+                    double temp = SmcUtilFFM.smcGetFirstTemperature(conn, SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS);
                     if (temp > 0) {
                         return temp;
                     }
@@ -165,6 +165,8 @@ final class MacGpuStatsFFM implements GpuStats {
                 }
             }
         }
+        // IOAccelerator statistics, not the SMC: a different sensor that is not power-gated with the GPU
+        // cluster, so the SMC plausibility floor deliberately does not apply here. Unavailable is -1, not 0.
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
             return -1d;

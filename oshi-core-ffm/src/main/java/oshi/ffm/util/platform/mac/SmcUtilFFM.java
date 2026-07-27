@@ -166,17 +166,48 @@ public final class SmcUtilFFM {
     }
 
     /**
-     * Get the first positive value from a list of SMC keys.
+     * The lowest reading accepted as a genuine temperature, in degrees Celsius.
+     * <p>
+     * Apple Silicon power-gates a CPU core cluster when it is idle, and the SMC then reports a fixed sentinel for each
+     * die sensor in that cluster instead of a reading. Observed sentinels are 6.7 and 4.633 on an M2 Max (Tp01/Tp09 and
+     * Tp05/Tp0D), up to 8.425 across all of that machine's sensors, and -4.0 through 5.2 in the
+     * <a href="https://github.com/dkorunic/iSMC">iSMC</a> sample reports, which independently describe them as
+     * "firmware sentinels from inactive sensor slots". They are below room ambient and so cannot be real die
+     * temperatures, but most are positive, so a simple {@code > 0} test accepts them.
+     * <p>
+     * Across those reports, covering M1 through M5, A18 and Intel T2 machines, no genuine sensor read between 8.425 and
+     * 21, so this floor sits in an empty band with margin on both sides. It is a plausibility guard, not a hardware
+     * specification.
+     */
+    public static final double MIN_PLAUSIBLE_TEMPERATURE = 15d;
+
+    /**
+     * Tests whether a reading is plausible as a temperature, rejecting the sentinel an idle-gated sensor reports.
+     *
+     * @param celsius the reading to test, in degrees Celsius
+     * @return true if the reading is at least {@link #MIN_PLAUSIBLE_TEMPERATURE}
+     */
+    public static boolean isPlausibleTemperature(double celsius) {
+        return celsius >= MIN_PLAUSIBLE_TEMPERATURE;
+    }
+
+    /**
+     * Get the first plausible temperature from a list of SMC keys, skipping sensors that are reporting a parked value
+     * because their core cluster is idle. See {@link #MIN_PLAUSIBLE_TEMPERATURE}.
      *
      * @param conn The connection
      * @param keys The keys to try in order
-     * @return The first value greater than 0, or 0 if all keys fail
+     * @return The first reading at or above {@link #MIN_PLAUSIBLE_TEMPERATURE}, or 0 if no key returned one
      */
-    public static double smcGetFirstFloat(int conn, List<String> keys) {
+    public static double smcGetFirstTemperature(int conn, List<String> keys) {
         for (String key : keys) {
             double val = smcGetFloat(conn, key);
-            if (val > 0d) {
+            if (isPlausibleTemperature(val)) {
                 return val;
+            }
+            if (val != 0d) {
+                LOG.debug("Ignoring implausible temperature {} from SMC key {}; the sensor is likely idle-gated.", val,
+                        key);
             }
         }
         return 0d;
