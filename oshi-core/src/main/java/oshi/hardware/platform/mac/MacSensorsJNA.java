@@ -38,7 +38,7 @@ final class MacSensorsJNA extends AbstractSensors {
             if (temp <= 0d) {
                 // Intel fallback, held to the same plausibility floor
                 double intelTemp = SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_TEMP);
-                temp = intelTemp >= SmcUtil.MIN_PLAUSIBLE_TEMPERATURE ? intelTemp : 0d;
+                temp = SmcUtil.isPlausibleTemperature(intelTemp) ? intelTemp : 0d;
             }
             return temp;
         } finally {

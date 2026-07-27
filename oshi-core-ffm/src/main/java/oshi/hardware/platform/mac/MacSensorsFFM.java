@@ -36,7 +36,7 @@ final class MacSensorsFFM extends AbstractSensors {
             if (temp <= 0d) {
                 // Intel fallback, held to the same plausibility floor
                 double intelTemp = SmcUtilFFM.smcGetFloat(conn, SMC_KEY_CPU_TEMP);
-                temp = intelTemp >= SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE ? intelTemp : 0d;
+                temp = SmcUtilFFM.isPlausibleTemperature(intelTemp) ? intelTemp : 0d;
             }
             return temp;
         } finally {

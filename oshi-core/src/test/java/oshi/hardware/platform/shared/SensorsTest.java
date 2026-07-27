@@ -46,6 +46,22 @@ class SensorsTest {
      */
     @Test
     @EnabledOnOs(OS.MAC)
+    void testMacObservedSentinelsAreRejected() {
+        // Captured from hardware: -4.0 through 5.2 from the iSMC sample reports, 4.633 through 8.425 from a sweep of
+        // all 288 temperature sensors on an M2 Max. 8.425 is the highest ever observed and pins the floor.
+        for (double sentinel : new double[] { -4.0, 0.0, 2.5, 4.0, 4.633, 5.2, 6.033, 6.7, 7.425, 8.425 }) {
+            assertThat("Sentinel " + sentinel + " must be rejected", SmcUtil.isPlausibleTemperature(sentinel),
+                    is(false));
+        }
+        // 21.0 is the lowest genuine reading seen across M1-M5, A18 and Intel T2 machines; no ceiling is applied.
+        for (double reading : new double[] { 21.0, 28.0, 35.0, 85.0, 110.0 }) {
+            assertThat("Genuine reading " + reading + " must be accepted", SmcUtil.isPlausibleTemperature(reading),
+                    is(true));
+        }
+    }
+
+    @Test
+    @EnabledOnOs(OS.MAC)
     void testMacCpuTemperatureIsPlausibleOrUnavailable() {
         assertThat("CPU temperature must be unavailable or plausible, never a parked sensor value",
                 s.getCpuTemperature(),
