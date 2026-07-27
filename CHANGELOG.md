@@ -4,6 +4,7 @@
 
 * [#3526](https://github.com/oshi/oshi/pull/3526): Fix a potential `NullPointerException` in the macOS FFM process backend when an `IOPlatformDevice` entry has no readable name, and guard the native `passwd`/`group` struct dereferences against a null return - [@dbwiddis](https://github.com/dbwiddis).
 * [#3527](https://github.com/oshi/oshi/pull/3527): Consolidate the SLF4J log level dispatch duplicated in `ExceptionUtil` and `PerfDataUtil` into a new `oshi.util.LogUtil`, whose `isEnabled` method offers the slf4j 1.x-compatible equivalent of `Logger#isEnabledForLevel` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3531](https://github.com/oshi/oshi/pull/3531): Stop reporting an implausible CPU or GPU temperature on Apple Silicon. An idle core cluster is power-gated and its die sensors then report a fixed parked value below room ambient, which was previously returned as a reading; `Sensors#getCpuTemperature` now reports 0 (unavailable) instead - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24)
 

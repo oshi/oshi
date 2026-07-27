@@ -169,7 +169,7 @@ final class MacGpuStatsJNA implements GpuStats {
             IOConnect conn = SmcUtil.smcOpen();
             if (conn != null) {
                 try {
-                    double temp = SmcUtil.smcGetFirstFloat(conn, SmcUtil.SMC_KEYS_GPU_TEMP_AS);
+                    double temp = SmcUtil.smcGetFirstTemperature(conn, SmcUtil.SMC_KEYS_GPU_TEMP_AS);
                     if (temp > 0) {
                         return temp;
                     }
