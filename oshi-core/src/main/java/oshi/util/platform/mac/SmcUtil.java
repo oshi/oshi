@@ -83,11 +83,12 @@ public final class SmcUtil {
      * GPU sensor keys are chip-specific, so no fixed list is complete: on an M2 Max only {@code Tg0f} and {@code Tg0j}
      * of the four originally shipped exist, and six of that machine's sensors appear in no published key table at all.
      * {@link #getGpuTemperatureKeys()} therefore discovers them from the SMC instead; this list is breadth-first
-     * insurance for the case where that fails, drawn from the keys most commonly present across published M1 through M5
-     * and A18 sensor dumps.
+     * insurance for the case where that fails. It leads with the four keys OSHI read before discovery existed, so the
+     * fallback can never report less than the previous implementation, followed by the keys most commonly present
+     * across published M1 through M5 and A18 sensor dumps.
      */
-    public static final List<String> SMC_KEYS_GPU_TEMP_AS = Collections.unmodifiableList(Arrays.asList("Tg0C", "Tg04",
-            "Tg05", "Tg0K", "Tg0L", "Tg0D", "Tg0j", "Tg0d", "Tg0e", "Tg1k", "Tg0X", "Tg0S", "Tg0y", "Tg0z"));
+    public static final List<String> SMC_KEYS_GPU_TEMP_AS = Collections.unmodifiableList(Arrays.asList("Tg05", "Tg0D",
+            "Tg0f", "Tg0j", "Tg0C", "Tg04", "Tg0K", "Tg0L", "Tg0d", "Tg0e", "Tg1k", "Tg0X", "Tg0S", "Tg0y", "Tg0z"));
 
     /** SMC key whose value is the number of keys in the key index. */
     public static final String SMC_KEY_COUNT = "#KEY";

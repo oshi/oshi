@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notANumber;
@@ -165,5 +166,15 @@ public class MacSensorsPlausibilityFFMTest {
         } finally {
             SmcUtilFFM.smcClose(conn);
         }
+    }
+
+    /**
+     * The fallback list must remain a superset of the four keys OSHI read before discovery existed, so a machine that
+     * falls back can never report less than the previous implementation did. Widening the list by frequency across
+     * published sensor dumps once dropped {@code Tg0f}, which is the only one of the four present on some M2 hardware.
+     */
+    @Test
+    public void testFallbackKeysIncludeTheHistoricalFour() {
+        assertThat(SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS, hasItems("Tg05", "Tg0D", "Tg0f", "Tg0j"));
     }
 }

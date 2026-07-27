@@ -196,7 +196,8 @@ final class MacGpuStatsJNA implements GpuStats {
         }
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
-            PERF_STATS_TEMP_ABSENT.add(normCardName);
+            // Not latched: a missing accelerator entry can be transient (driver reset, eGPU unplugged), unlike a
+            // dictionary that is present but has no temperature key.
             return -1d;
         }
         try {
