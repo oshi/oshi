@@ -6,7 +6,12 @@ package oshi.hardware.platform.mac;
 
 import java.lang.foreign.MemorySegment;
 import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClientFFM;
@@ -44,7 +49,16 @@ final class MacGpuStatsFFM implements GpuStats {
     private static final String DEVICE_UTIL_KEY = "Device Utilization %";
     private static final String VRAM_USED_KEY = "vramUsedBytes";
     private static final String VRAM_USED_KEY_AS = "In use system memory";
+    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStatsFFM.class);
+
     private static final double GPU_UTIL_DIVISOR = 0xFFFFFFFFL;
+
+    /**
+     * Cards whose IOAccelerator statistics have no Temperature(C) key, so the lookup is not repeated. Static because a
+     * GpuStats session is short-lived, and keyed by card because one card lacking the sensor says nothing about another
+     * on the same machine.
+     */
+    private static final Set<String> PERF_STATS_TEMP_ABSENT = ConcurrentHashMap.newKeySet();
     private static final Pattern TRADEMARK_PATTERN = Pattern.compile("[®™]|\\([Rr]\\)|\\([Tt][Mm]\\)");
 
     private final boolean isAppleSilicon;
@@ -156,7 +170,7 @@ final class MacGpuStatsFFM implements GpuStats {
             int conn = SmcUtilFFM.smcOpen();
             if (conn != 0) {
                 try {
-                    double temp = SmcUtilFFM.smcGetFirstTemperature(conn, SmcUtilFFM.SMC_KEYS_GPU_TEMP_AS);
+                    double temp = SmcUtilFFM.smcGetMaxTemperature(conn, SmcUtilFFM.getGpuTemperatureKeys());
                     if (temp > 0) {
                         return temp;
                     }
@@ -167,19 +181,28 @@ final class MacGpuStatsFFM implements GpuStats {
         }
         // IOAccelerator statistics, not the SMC: a different sensor that is not power-gated with the GPU
         // cluster, so the SMC plausibility floor deliberately does not apply here. Unavailable is -1, not 0.
+        // This key does not exist on Apple Silicon, so it is tried once per card and then latched off rather than
+        // repeating an IOKit registry walk on every call. Latch only on structural absence, not on a low reading.
+        if (PERF_STATS_TEMP_ABSENT.contains(normCardName)) {
+            return -1d;
+        }
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
+            PERF_STATS_TEMP_ABSENT.add(normCardName);
             return -1d;
         }
         try (perfStats) {
             CFStringRef tempKey = CFStringRef.createCFString("Temperature(C)");
             try (tempKey) {
                 MemorySegment result = perfStats.getValue(tempKey);
-                if (!result.equals(MemorySegment.NULL)) {
-                    long val = CFNumberRef.longValue(result);
-                    if (val > 0) {
-                        return val;
-                    }
+                if (result.equals(MemorySegment.NULL)) {
+                    LOG.debug("No Temperature(C) in IOAccelerator statistics for {}; not retrying.", normCardName);
+                    PERF_STATS_TEMP_ABSENT.add(normCardName);
+                    return -1d;
+                }
+                long val = CFNumberRef.longValue(result);
+                if (val > 0) {
+                    return val;
                 }
             }
         }

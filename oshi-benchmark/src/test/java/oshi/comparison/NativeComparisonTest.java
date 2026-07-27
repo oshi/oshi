@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.ComputerSystem;
 import oshi.hardware.Display;
@@ -48,6 +49,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.util.GlobalConfig;
 import oshi.util.PlatformEnum;
 import oshi.util.Util;
+import oshi.util.platform.mac.SmcUtil;
 
 /**
  * Compares JNA and FFM implementations of the OSHI API to detect regressions, missing implementations, or incorrect
@@ -337,6 +339,16 @@ class NativeComparisonTest {
     }
 
     // ---- Hardware: Graphics Cards ----
+
+    /**
+     * GPU temperature keys are discovered from the SMC at runtime by each backend independently, so comparing the
+     * discovered lists is the sharpest available check that the two binary searches agree.
+     */
+    @Test
+    @EnabledOnOs(OS.MAC)
+    void gpuTemperatureKeys() {
+        assertThat(SmcUtilFFM.getGpuTemperatureKeys()).isEqualTo(SmcUtil.getGpuTemperatureKeys());
+    }
 
     @Test
     void graphicsCards() {
