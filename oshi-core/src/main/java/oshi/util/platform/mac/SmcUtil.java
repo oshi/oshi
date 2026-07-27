@@ -62,6 +62,15 @@ public final class SmcUtil {
     /** SMC key for CPU voltage (Intel). */
     public static final String SMC_KEY_CPU_VOLTAGE = "VC0C";
 
+    /**
+     * Apple Silicon CPU-die aggregate temperature keys, tried in order until one returns a plausible value. These are
+     * computed by the SMC firmware and are chip-independent, unlike the per-core {@link #SMC_KEYS_CPU_TEMP_AS} keys
+     * which vary between chips (and are entirely absent on some, e.g. the M3 Pro). {@code TCMb} is the CPU-die average
+     * and {@code TCMz} is the CPU-die maximum; the average is preferred because it stays close to the single-sensor
+     * value OSHI historically reported.
+     */
+    public static final List<String> SMC_KEYS_CPU_TEMP_AGGREGATE_AS = Collections
+            .unmodifiableList(Arrays.asList("TCMb", "TCMz"));
     /** Apple Silicon CPU temperature keys, tried in order until one returns a positive value. */
     public static final List<String> SMC_KEYS_CPU_TEMP_AS = Collections
             .unmodifiableList(Arrays.asList("Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D"));

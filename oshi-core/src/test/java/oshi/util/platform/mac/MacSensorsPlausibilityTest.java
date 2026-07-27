@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi.util.platform.mac;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.ffm.util.platform.mac.SmcUtilFFM;
-import oshi.spi.SystemInfoFactory;
+import oshi.SystemInfo;
 
 /**
- * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature.
+ * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature. JNA
+ * twin of {@code oshi.ffm.MacSensorsPlausibilityFFMTest}.
  */
 @EnabledOnOs(OS.MAC)
-public class MacSensorsPlausibilityFFMTest {
+public class MacSensorsPlausibilityTest {
 
     /**
      * Sentinels actually captured from hardware: -4.0, 0.0, 2.5, 4.0 and 5.2 appear in the iSMC sample reports, and
@@ -43,15 +43,15 @@ public class MacSensorsPlausibilityFFMTest {
     public void testObservedSentinelsAreRejected() {
         for (double sentinel : OBSERVED_SENTINELS) {
             assertThat("Sentinel " + sentinel + " from an idle-gated sensor must be rejected",
-                    SmcUtilFFM.isPlausibleTemperature(sentinel), is(false));
+                    SmcUtil.isPlausibleTemperature(sentinel), is(false));
         }
     }
 
     @Test
     public void testGenuineReadingsAreAccepted() {
         for (double reading : GENUINE_READINGS) {
-            assertThat("Genuine temperature " + reading + " must be accepted",
-                    SmcUtilFFM.isPlausibleTemperature(reading), is(true));
+            assertThat("Genuine temperature " + reading + " must be accepted", SmcUtil.isPlausibleTemperature(reading),
+                    is(true));
         }
     }
 
@@ -62,8 +62,8 @@ public class MacSensorsPlausibilityFFMTest {
      */
     @Test
     public void testNoUpperBoundIsApplied() {
-        assertThat("A reading above the throttling point must still be accepted",
-                SmcUtilFFM.isPlausibleTemperature(110d), is(true));
+        assertThat("A reading above the throttling point must still be accepted", SmcUtil.isPlausibleTemperature(110d),
+                is(true));
     }
 
     /**
@@ -75,9 +75,9 @@ public class MacSensorsPlausibilityFFMTest {
     public void testFloorSitsBetweenTheTwoObservedPopulations() {
         // Strictly greater: the predicate accepts values equal to the floor, so a floor of exactly 8.425 would
         // accept the highest observed sentinel.
-        assertThat("Floor must clear the highest observed sentinel", SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE,
+        assertThat("Floor must clear the highest observed sentinel", SmcUtil.MIN_PLAUSIBLE_TEMPERATURE,
                 is(greaterThan(8.425)));
-        assertThat("Floor must stay below the lowest observed genuine reading", SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE,
+        assertThat("Floor must stay below the lowest observed genuine reading", SmcUtil.MIN_PLAUSIBLE_TEMPERATURE,
                 is(lessThanOrEqualTo(21.0)));
     }
 
@@ -86,9 +86,9 @@ public class MacSensorsPlausibilityFFMTest {
      */
     @Test
     public void testCpuTemperatureIsPlausibleOrUnavailable() {
-        double temp = SystemInfoFactory.create().getHardware().getSensors().getCpuTemperature();
+        double temp = new SystemInfo().getHardware().getSensors().getCpuTemperature();
         assertThat("CPU temperature must be unavailable or plausible, never a sentinel", temp,
-                either(notANumber()).or(is(0d)).or(greaterThanOrEqualTo(SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE)));
+                either(notANumber()).or(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_TEMPERATURE)));
     }
 
     /**
@@ -98,10 +98,10 @@ public class MacSensorsPlausibilityFFMTest {
      */
     @Test
     public void testCpuTempAggregateKeysArePreferredAverageFirst() {
-        assertThat("TCMb (average) must be tried before TCMz (max)", SmcUtilFFM.SMC_KEYS_CPU_TEMP_AGGREGATE_AS,
+        assertThat("TCMb (average) must be tried before TCMz (max)", SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS,
                 is(contains("TCMb", "TCMz")));
         assertThat("Aggregate keys must be distinct from the per-core keys",
-                SmcUtilFFM.SMC_KEYS_CPU_TEMP_AGGREGATE_AS.stream().noneMatch(SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS::contains),
+                SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS.stream().noneMatch(SmcUtil.SMC_KEYS_CPU_TEMP_AS::contains),
                 is(true));
     }
 }
