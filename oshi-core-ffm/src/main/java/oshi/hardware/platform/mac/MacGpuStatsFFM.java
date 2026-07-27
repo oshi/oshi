@@ -165,6 +165,8 @@ final class MacGpuStatsFFM implements GpuStats {
                 }
             }
         }
+        // IOAccelerator statistics, not the SMC: a different sensor that is not power-gated with the GPU
+        // cluster, so the SMC plausibility floor deliberately does not apply here. Unavailable is -1, not 0.
         CFMutableDictionaryRef perfStats = queryPerfStats();
         if (perfStats == null) {
             return -1d;
