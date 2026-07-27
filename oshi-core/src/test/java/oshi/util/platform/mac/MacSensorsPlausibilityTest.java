@@ -9,15 +9,24 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notANumber;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import com.sun.jna.platform.mac.IOKit;
+
 import oshi.SystemInfo;
+import oshi.util.common.platform.mac.SmcKeyIndex;
 
 /**
  * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature. JNA
@@ -103,5 +112,59 @@ public class MacSensorsPlausibilityTest {
         assertThat("Aggregate keys must be distinct from the per-core keys",
                 SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS.stream().noneMatch(SmcUtil.SMC_KEYS_CPU_TEMP_AS::contains),
                 is(true));
+    }
+
+    /**
+     * GPU keys are discovered from the SMC rather than hardcoded, because they are chip-specific: on this hardware only
+     * two of the four keys OSHI originally shipped exist, and six sensors appear in no published key table.
+     */
+    @Test
+    public void testGpuTemperatureKeysAreDiscovered() {
+        List<String> keys = SmcUtil.getGpuTemperatureKeys();
+        assertThat("Discovery must never return null", keys, is(notNullValue()));
+        for (String key : keys) {
+            assertThat(key + " must match the GPU key convention", SmcKeyIndex.isGpuTemperatureKey(key), is(true));
+        }
+        assertThat("Result must be cached, not rediscovered", SmcUtil.getGpuTemperatureKeys(), is(sameInstance(keys)));
+    }
+
+    /**
+     * Regression guard against a discovery bug silently narrowing the sensor set: any of the legacy hardcoded keys that
+     * this machine can actually read must also have been discovered. Passes on any Apple Silicon Mac.
+     */
+    @Test
+    public void testDiscoveryIsASupersetOfReadableLegacyKeys() {
+        IOKit.IOConnect conn = SmcUtil.smcOpen();
+        assumeTrue(conn != null, "SMC unavailable");
+        try {
+            List<String> discovered = SmcUtil.getGpuTemperatureKeys();
+            for (String legacy : SmcUtil.SMC_KEYS_GPU_TEMP_AS) {
+                if (SmcUtil.isPlausibleTemperature(SmcUtil.smcGetFloat(conn, legacy))) {
+                    assertThat(legacy + " reads a real value but was not discovered", discovered, hasItem(legacy));
+                }
+            }
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
+    }
+
+    /**
+     * The reported value is the hottest cluster, so it can never be below the first-match value the previous
+     * implementation would have returned from the same key set.
+     */
+    @Test
+    public void testMaxIsNotLessThanFirstMatch() {
+        IOKit.IOConnect conn = SmcUtil.smcOpen();
+        assumeTrue(conn != null, "SMC unavailable");
+        try {
+            List<String> keys = SmcUtil.getGpuTemperatureKeys();
+            double max = SmcUtil.smcGetMaxTemperature(conn, keys);
+            double first = SmcUtil.smcGetFirstTemperature(conn, keys);
+            assertThat("max must be at least the first plausible reading", max, is(greaterThanOrEqualTo(first)));
+            assertThat("A GPU temperature is unavailable or plausible, never a sentinel in between",
+                    max == 0d || SmcUtil.isPlausibleTemperature(max), is(true));
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
     }
 }

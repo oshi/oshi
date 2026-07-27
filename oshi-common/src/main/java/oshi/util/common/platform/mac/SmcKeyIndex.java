@@ -1,0 +1,238 @@
+/*
+ * Copyright 2026 The OSHI Project Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package oshi.util.common.platform.mac;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.DoublePredicate;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import oshi.annotation.concurrent.ThreadSafe;
+
+/**
+ * Connection-independent logic for locating macOS SMC sensor keys by index.
+ * <p>
+ * The SMC exposes its keys as a list addressed by index, and returns them in ascending order of the key's four
+ * characters. That ordering lets a caller binary-search for a prefix rather than reading every key: on an M2 Max the
+ * full index is 2409 keys, of which 297 begin with {@code T} and 16 with {@code Tg}.
+ * <p>
+ * These methods take the index size and a lookup function rather than an SMC connection, so the JNA and FFM backends
+ * can share this logic despite their different connection handle types, and so it can be tested without Mac hardware.
+ */
+@ThreadSafe
+public final class SmcKeyIndex {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SmcKeyIndex.class);
+
+    /**
+     * Apple Silicon GPU cluster temperature keys, e.g. {@code Tg0f} or {@code Tg1A}.
+     * <p>
+     * The third character is always a digit, but the fourth varies: across the sensor keys published for M1 through M5
+     * and A18 it is uppercase in 42% of cases, lowercase in 43%, and a digit in 15%. A mask requiring an uppercase
+     * fourth character would miss {@code Tg0f}, which is the only GPU key present on some M2 machines.
+     */
+    private static final Pattern GPU_TEMPERATURE_KEY = Pattern.compile("^Tg[0-9][0-9A-Za-z]$");
+
+    /** SMC keys are four characters. */
+    private static final int KEY_LENGTH = 4;
+
+    /**
+     * Upper bound on a plausible {@code #KEY} count, guarding against a garbage read. Observed counts are in the low
+     * thousands.
+     */
+    private static final int MAX_KEY_COUNT = 65536;
+
+    /** Upper bound on the forward scan, so an unsorted index cannot cause a runaway read. */
+    private static final int MAX_SCAN = 256;
+
+    private SmcKeyIndex() {
+    }
+
+    /**
+     * Locates the keys sharing a prefix, by binary searching the sorted key index and then scanning forward.
+     * <p>
+     * Returns {@code null}, rather than an empty list, if the index could not be read reliably. Callers must not cache
+     * a {@code null} result: an empty list means "this machine has no such keys", while {@code null} means "ask again
+     * later".
+     *
+     * @param keyCount   the number of keys in the index, from the SMC's {@code #KEY} key
+     * @param keyAtIndex looks up the key name at an index, returning {@code null} if that read fails
+     * @param prefix     the key prefix to locate, e.g. {@code "Tg"}
+     * @param mask       an additional test each candidate key must pass
+     * @return the matching keys in index order, or {@code null} if the index could not be read
+     */
+    public static List<String> findKeys(int keyCount, IntFunction<String> keyAtIndex, String prefix,
+            Predicate<String> mask) {
+        if (keyCount <= 0 || keyCount > MAX_KEY_COUNT) {
+            LOG.debug("Implausible SMC key count {}; skipping key discovery.", keyCount);
+            return null;
+        }
+        int start = lowerBound(keyCount, keyAtIndex, prefix);
+        if (start < 0) {
+            return null;
+        }
+        Set<String> found = new LinkedHashSet<>();
+        int limit = Math.min(keyCount, start + MAX_SCAN);
+        boolean readAny = false;
+        for (int i = start; i < limit; i++) {
+            String key = keyAtIndex.apply(i);
+            if (key == null) {
+                key = keyAtIndex.apply(i); // one retry, in case the failure was transient
+            }
+            if (key == null) {
+                // Skip rather than stop: an unreadable key in the middle of the block would otherwise discard every
+                // key after it. The scan is bounded, and the prefix test below still ends it at the block boundary.
+                LOG.debug("Could not read SMC key at index {}; continuing the scan.", i);
+                continue;
+            }
+            readAny = true;
+            if (!key.startsWith(prefix)) {
+                break;
+            }
+            if (mask.test(key)) {
+                found.add(key);
+            }
+        }
+        if (!readAny && start < limit) {
+            // The scan had indices to read and none of them worked, so we cannot distinguish "no such keys" from "SMC
+            // unavailable"; returning null keeps the caller from caching an empty set and disabling the sensor for the
+            // JVM lifetime. An empty scan range is different: the search itself read successfully and simply landed
+            // past the end, which is a genuine "this machine has none".
+            LOG.debug("No SMC keys were readable from index {}; skipping key discovery.", start);
+            return null;
+        }
+        return Collections.unmodifiableList(new ArrayList<>(found));
+    }
+
+    /**
+     * Binary searches for the first index whose key sorts at or after the prefix.
+     *
+     * @param keyCount   the number of keys in the index
+     * @param keyAtIndex looks up the key name at an index
+     * @param prefix     the prefix to locate
+     * @return that index, or {@code -1} if the index could not be read
+     */
+    private static int lowerBound(int keyCount, IntFunction<String> keyAtIndex, String prefix) {
+        int lo = 0;
+        int hi = keyCount;
+        while (lo < hi) {
+            int mid = (lo + hi) >>> 1;
+            String key = probe(keyAtIndex, mid, keyCount);
+            if (key == null) {
+                return -1;
+            }
+            // A four-character key is never equal to the shorter prefix, so this also skips the prefix itself.
+            if (key.compareTo(prefix) > 0) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo;
+    }
+
+    /**
+     * Reads the key at an index, retrying at neighbouring indices if that read fails, so a single unreadable key does
+     * not abort discovery. Walking outward keeps the binary search's ordering assumption intact, since neighbours sort
+     * adjacently.
+     *
+     * @param keyAtIndex looks up the key name at an index
+     * @param index      the index to read
+     * @param keyCount   the number of keys in the index, bounding the outward walk
+     * @return a key name, or {@code null} if nothing nearby could be read
+     */
+    private static String probe(IntFunction<String> keyAtIndex, int index, int keyCount) {
+        String key = keyAtIndex.apply(index);
+        if (key != null) {
+            return key;
+        }
+        for (int delta = 1; delta <= 4; delta++) {
+            if (index - delta >= 0) {
+                key = keyAtIndex.apply(index - delta);
+                if (key != null) {
+                    return key;
+                }
+            }
+            if (index + delta < keyCount) {
+                key = keyAtIndex.apply(index + delta);
+                if (key != null) {
+                    return key;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Tests whether a key names an Apple Silicon GPU cluster temperature sensor.
+     *
+     * @param key the four-character SMC key
+     * @return true if the key matches the GPU temperature naming convention
+     */
+    public static boolean isGpuTemperatureKey(String key) {
+        return key != null && GPU_TEMPERATURE_KEY.matcher(key).matches();
+    }
+
+    /**
+     * Parses a user-supplied comma-separated list of SMC keys, ignoring blanks and warning about malformed entries.
+     *
+     * @param csv the configured value, which may be null or empty
+     * @return the keys, never null
+     */
+    public static List<String> parseConfiguredKeys(String csv) {
+        if (csv == null || csv.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<String> keys = new ArrayList<>();
+        for (String token : csv.split(",")) {
+            String key = token.trim();
+            if (key.isEmpty()) {
+                continue;
+            }
+            if (key.length() != KEY_LENGTH) {
+                LOG.warn("Ignoring configured SMC key '{}': keys are exactly {} characters.", key, KEY_LENGTH);
+                continue;
+            }
+            keys.add(key);
+        }
+        return Collections.unmodifiableList(keys);
+    }
+
+    /**
+     * Returns the highest plausible temperature among the given keys.
+     * <p>
+     * Plausibility is applied here, at read time, rather than when the keys were discovered. Whether a key exists is a
+     * property of the hardware and does not change; whether it currently reports a usable value is not, because an idle
+     * sensor may report a sentinel below ambient. Filtering at discovery time would let a single unlucky first read
+     * cache an empty set and disable the sensor for the lifetime of the JVM.
+     *
+     * @param keys        the keys to read
+     * @param reader      reads a key, returning the temperature in degrees Celsius
+     * @param isPlausible tests whether a reading is usable
+     * @return the highest plausible reading, or 0 if none were plausible
+     */
+    public static double maxPlausible(List<String> keys, ToDoubleFunction<String> reader, DoublePredicate isPlausible) {
+        double max = 0d;
+        for (String key : keys) {
+            double value = reader.applyAsDouble(key);
+            if (isPlausible.test(value) && value > max) {
+                max = value;
+            }
+        }
+        if (max == 0d && !keys.isEmpty()) {
+            LOG.debug("No plausible temperature among SMC keys {}; sensors are likely idle-gated.", keys);
+        }
+        return max;
+    }
+}
