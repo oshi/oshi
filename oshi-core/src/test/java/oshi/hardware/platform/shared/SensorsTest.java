@@ -53,11 +53,14 @@ class SensorsTest {
             assertThat("Sentinel " + sentinel + " must be rejected", SmcUtil.isPlausibleTemperature(sentinel),
                     is(false));
         }
-        // 21.0 is the lowest genuine reading seen across M1-M5, A18 and Intel T2 machines; no ceiling is applied.
-        for (double reading : new double[] { 21.0, 28.0, 35.0, 85.0, 110.0 }) {
+        // 21.0 is the lowest genuine reading seen across M1-M5, A18 and Intel T2 machines.
+        for (double reading : new double[] { 21.0, 28.0, 35.0, 85.0, 100.0 }) {
             assertThat("Genuine reading " + reading + " must be accepted", SmcUtil.isPlausibleTemperature(reading),
                     is(true));
         }
+        // No ceiling: a value above the throttling point is still accepted. This is the predicate's contract, not a
+        // claim about what hardware reports, so it does not conflict with the 0-100 range asserted in testSensors().
+        assertThat("No upper bound is applied", SmcUtil.isPlausibleTemperature(110d), is(true));
     }
 
     @Test

@@ -6,6 +6,7 @@ package oshi.ffm;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -32,10 +33,10 @@ public class MacSensorsPlausibilityFFMTest {
     private static final double[] OBSERVED_SENTINELS = { -4.0, 0.0, 2.5, 4.0, 4.633, 5.2, 6.033, 6.7, 7.425, 8.425 };
 
     /**
-     * Genuine readings: the lowest seen anywhere in the iSMC reports (21.0 on an Intel T2), a typical Apple Silicon
-     * idle, a load, and a temperature above the throttling point to show no ceiling is applied.
+     * Genuine readings actually observed: the lowest seen anywhere in the iSMC reports (21.0 on an Intel T2), a typical
+     * Apple Silicon idle, and readings under load.
      */
-    private static final double[] GENUINE_READINGS = { 21.0, 28.0, 35.0, 52.5, 85.0, 100.0, 110.0 };
+    private static final double[] GENUINE_READINGS = { 21.0, 28.0, 35.0, 52.5, 85.0, 100.0 };
 
     @Test
     public void testObservedSentinelsAreRejected() {
@@ -54,14 +55,27 @@ public class MacSensorsPlausibilityFFMTest {
     }
 
     /**
+     * No upper bound is applied. Every bad value observed was at the low end, and a ceiling near the ~100 C throttling
+     * point would discard real readings exactly when they matter most. This is a deliberate contract, not an observed
+     * reading, so it is asserted separately from {@link #GENUINE_READINGS}.
+     */
+    @Test
+    public void testNoUpperBoundIsApplied() {
+        assertThat("A reading above the throttling point must still be accepted",
+                SmcUtilFFM.isPlausibleTemperature(110d), is(true));
+    }
+
+    /**
      * The guard sits in an empty band: across M1 through M5, A18 and Intel T2 machines, nothing was observed between
      * the highest sentinel and the lowest genuine reading. Failing this means the floor has been moved onto one of the
      * two populations.
      */
     @Test
     public void testFloorSitsBetweenTheTwoObservedPopulations() {
+        // Strictly greater: the predicate accepts values equal to the floor, so a floor of exactly 8.425 would
+        // accept the highest observed sentinel.
         assertThat("Floor must clear the highest observed sentinel", SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE,
-                is(greaterThanOrEqualTo(8.425)));
+                is(greaterThan(8.425)));
         assertThat("Floor must stay below the lowest observed genuine reading", SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE,
                 is(lessThanOrEqualTo(21.0)));
     }
