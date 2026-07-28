@@ -103,8 +103,11 @@ public final class SmcUtil {
      * Discovered GPU temperature keys, or null if discovery has not yet completed successfully. Deliberately not a
      * {@link oshi.util.Memoizer}: that would cache a failed discovery permanently, and a transient failure to open the
      * SMC would then disable GPU temperature for the lifetime of the JVM.
+     * <p>
+     * Only ever assigned an unmodifiable copy of a completed discovery, so the reference is safely published by the
+     * volatile write and the list it points at is immutable; no further synchronization is needed on the read path.
      */
-    private static volatile List<String> gpuTemperatureKeys;
+    private static volatile List<String> gpuTemperatureKeys; // NOSONAR squid:S3077 - published value is immutable
     /** SMC key for CPU voltage (Apple Silicon). */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
@@ -346,7 +349,7 @@ public final class SmcUtil {
     private static List<String> discoverGpuTemperatureKeys() {
         IOConnect conn = smcOpen();
         if (conn == null) {
-            return null;
+            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
         }
         try {
             int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);

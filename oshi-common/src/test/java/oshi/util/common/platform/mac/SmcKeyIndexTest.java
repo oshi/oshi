@@ -23,8 +23,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests SMC key index logic without Mac hardware. This is why the logic lives here rather than in {@code SmcUtil},
  * whose static {@code IOKit.INSTANCE} field makes any of its members unloadable off a Mac.
+ * <p>
+ * The class and its methods are {@code public} because the module system only opens public types to the JUnit platform;
+ * a package-private test class in a named module fails to run.
  */
-public class SmcKeyIndexTest {
+public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JPMS, not redundant
 
     /** A realistic slice of a sorted SMC key index, with a Tg block in the middle. */
     private static final String[] SORTED = { "#KEY", "ALI0", "F0Ac", "TB0T", "TC0P", "TCMb", "TCMz", "Tf00", "Tf11",

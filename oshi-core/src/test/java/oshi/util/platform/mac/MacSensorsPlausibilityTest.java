@@ -33,9 +33,12 @@ import oshi.util.common.platform.mac.SmcKeyIndex;
 /**
  * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature. JNA
  * twin of {@code oshi.ffm.MacSensorsPlausibilityFFMTest}.
+ * <p>
+ * The class and its methods are {@code public} because the module system only opens public types to the JUnit platform;
+ * a package-private test class in a named module fails to run.
  */
 @EnabledOnOs(OS.MAC)
-public class MacSensorsPlausibilityTest {
+public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is required by JPMS, not redundant
 
     /**
      * Sentinels actually captured from hardware: -4.0, 0.0, 2.5, 4.0 and 5.2 appear in the iSMC sample reports, and
