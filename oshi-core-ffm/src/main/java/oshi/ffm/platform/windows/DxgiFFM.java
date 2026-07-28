@@ -8,7 +8,6 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.Arena;

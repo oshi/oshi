@@ -7,7 +7,6 @@ package oshi.ffm.platform.windows;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;

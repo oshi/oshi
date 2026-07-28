@@ -42,7 +42,7 @@ public final class SmcKeyIndex {
      * and A18 it is uppercase in 42% of cases, lowercase in 43%, and a digit in 15%. A mask requiring an uppercase
      * fourth character would miss {@code Tg0f}, which is the only GPU key present on some M2 machines.
      */
-    private static final Pattern GPU_TEMPERATURE_KEY = Pattern.compile("^Tg[0-9][0-9A-Za-z]$");
+    private static final Pattern GPU_TEMPERATURE_KEY = Pattern.compile("^Tg\\d[\\dA-Za-z]$");
 
     /** SMC keys are four characters. */
     private static final int KEY_LENGTH = 4;
@@ -76,41 +76,50 @@ public final class SmcKeyIndex {
             Predicate<String> mask) {
         if (keyCount <= 0 || keyCount > MAX_KEY_COUNT) {
             LOG.debug("Implausible SMC key count {}; skipping key discovery.", keyCount);
-            return null;
+            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
         }
-        int start = lowerBound(keyCount, keyAtIndex, prefix);
+        // Any failed read, in the binary search or in the forward scan, could have hidden a matching key: the search
+        // substitutes a neighbour for an unreadable probe, which can move the landing point past the block entirely,
+        // and the scan skips an unreadable index outright. Track failures through one wrapper so no path is missed.
+        boolean[] readFailed = new boolean[1];
+        IntFunction<String> tracked = i -> {
+            String key = keyAtIndex.apply(i);
+            if (key == null) {
+                readFailed[0] = true;
+            }
+            return key;
+        };
+        int start = lowerBound(keyCount, tracked, prefix);
         if (start < 0) {
-            return null;
+            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
         }
         Set<String> found = new LinkedHashSet<>();
         int limit = Math.min(keyCount, start + MAX_SCAN);
-        boolean readAny = false;
         for (int i = start; i < limit; i++) {
-            String key = keyAtIndex.apply(i);
+            String key = tracked.apply(i);
             if (key == null) {
-                key = keyAtIndex.apply(i); // one retry, in case the failure was transient
+                key = tracked.apply(i); // one retry, in case the failure was transient
             }
             if (key == null) {
                 // Skip rather than stop: an unreadable key in the middle of the block would otherwise discard every
                 // key after it. The scan is bounded, and the prefix test below still ends it at the block boundary.
                 LOG.debug("Could not read SMC key at index {}; continuing the scan.", i);
-                continue;
-            }
-            readAny = true;
-            if (!key.startsWith(prefix)) {
-                break;
-            }
-            if (mask.test(key)) {
-                found.add(key);
+            } else {
+                if (!key.startsWith(prefix)) {
+                    break;
+                }
+                if (mask.test(key)) {
+                    found.add(key);
+                }
             }
         }
-        if (!readAny && start < limit) {
-            // The scan had indices to read and none of them worked, so we cannot distinguish "no such keys" from "SMC
-            // unavailable"; returning null keeps the caller from caching an empty set and disabling the sensor for the
-            // JVM lifetime. An empty scan range is different: the search itself read successfully and simply landed
-            // past the end, which is a genuine "this machine has none".
-            LOG.debug("No SMC keys were readable from index {}; skipping key discovery.", start);
-            return null;
+        if (found.isEmpty() && readFailed[0]) {
+            // Nothing matched, but a read failed, so "no such keys" cannot be distinguished from "the one key this
+            // machine has was unreadable". Returning null keeps the caller from caching an empty set and disabling the
+            // sensor for the JVM lifetime. An empty result from a run with no failed read is different: that is a
+            // genuine "this machine has none", and is a cacheable answer.
+            LOG.debug("No SMC keys matched '{}' and at least one read failed; skipping key discovery.", prefix);
+            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
         }
         return Collections.unmodifiableList(new ArrayList<>(found));
     }
@@ -197,14 +206,11 @@ public final class SmcKeyIndex {
         List<String> keys = new ArrayList<>();
         for (String token : csv.split(",")) {
             String key = token.trim();
-            if (key.isEmpty()) {
-                continue;
-            }
-            if (key.length() != KEY_LENGTH) {
+            if (key.length() == KEY_LENGTH) {
+                keys.add(key);
+            } else if (!key.isEmpty()) {
                 LOG.warn("Ignoring configured SMC key '{}': keys are exactly {} characters.", key, KEY_LENGTH);
-                continue;
             }
-            keys.add(key);
         }
         return Collections.unmodifiableList(keys);
     }

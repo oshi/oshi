@@ -34,6 +34,12 @@ public final class SysctlFFM {
     /** All supported platforms define {@code size_t} as an unsigned 64-bit value. */
     public static final ValueLayout.OfLong SIZE_T = JAVA_LONG;
 
+    /**
+     * Logged when a sysctl call fails. Parameterized rather than concatenated so the name is only formatted on the
+     * failure path, and shared so the message is identical across every result type.
+     */
+    private static final String FAILURE_MESSAGE = "Failed to get sysctl value for {}";
+
     private SysctlFFM() {
     }
 
@@ -50,9 +56,11 @@ public final class SysctlFFM {
          * @param oldp    buffer to receive the result, or {@link MemorySegment#NULL} to query the required size
          * @param oldlenp in/out size of {@code oldp}
          * @return {@code true} on success; {@code false} on failure
-         * @throws Throwable on FFM invocation error
+         * @throws Throwable on FFM invocation error. Implementations call {@link java.lang.invoke.MethodHandle}
+         *                   {@code invokeExact}, which declares {@code Throwable}, so nothing narrower can be declared
+         *                   here.
          */
-        boolean invoke(Arena arena, MemorySegment oldp, MemorySegment oldlenp) throws Throwable;
+        boolean invoke(Arena arena, MemorySegment oldp, MemorySegment oldlenp) throws Throwable; // NOSONAR squid:S112
     }
 
     /**
@@ -72,7 +80,7 @@ public final class SysctlFFM {
                 return def;
             }
             return valueSeg.get(JAVA_INT, 0);
-        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
+        }, def, log, LogLevel.WARN, FAILURE_MESSAGE, name);
     }
 
     /**
@@ -97,7 +105,7 @@ public final class SysctlFFM {
             return sizeSeg.get(SIZE_T, 0) == JAVA_INT.byteSize()
                     ? ParseUtil.unsignedIntToLong(valueSeg.get(JAVA_INT, 0))
                     : valueSeg.get(JAVA_LONG, 0);
-        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
+        }, def, log, LogLevel.WARN, FAILURE_MESSAGE, name);
     }
 
     /**
@@ -121,7 +129,7 @@ public final class SysctlFFM {
                 return def;
             }
             return valueSeg.getString(0);
-        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, def);
+        }, def, log, LogLevel.WARN, FAILURE_MESSAGE, name);
     }
 
     /**
@@ -137,7 +145,7 @@ public final class SysctlFFM {
         return callInArenaBooleanOrDefault(arena -> {
             MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, struct.byteSize());
             return op.invoke(arena, struct, sizeSeg);
-        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, false);
+        }, false, log, LogLevel.WARN, FAILURE_MESSAGE, name);
     }
 
     /**
@@ -162,6 +170,6 @@ public final class SysctlFFM {
             MemorySegment returnSeg = Arena.ofAuto().allocate(size);
             returnSeg.copyFrom(valueSeg);
             return returnSeg;
-        }, log, LogLevel.WARN, "Failed to get sysctl value for " + name, null);
+        }, null, log, LogLevel.WARN, FAILURE_MESSAGE, name);
     }
 }
