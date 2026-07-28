@@ -130,9 +130,12 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     @Test
     public void testFailedSearchProbeThatSkipsTheBlockIsNotReportedAsAbsent() {
         // Same shape, but the failure is consumed by the binary search rather than the scan: substituting a neighbour
-        // for the unreadable probe moves the landing point past Tg0f, so the scan never attempts it at all.
+        // for the unreadable probe moves the landing point past Tg0f, so the scan never attempts it at all. Failing
+        // only the first read is what makes null the proof of that -- had the scan reached index 2, its retry would
+        // have recovered Tg0f and returned a non-empty list. A permanently failing index cannot tell the two apart.
         String[] keys = { "TB0T", "TCMb", "Tg0f", "Th00" };
-        IntFunction<String> flaky = i -> i == 2 ? null : keys[i];
+        Set<Integer> failedOnce = new HashSet<>();
+        IntFunction<String> flaky = i -> i == 2 && failedOnce.add(i) ? null : keys[i];
         assertThat("A search that skipped the block on a failed read must not report a confirmed absence",
                 SmcKeyIndex.findKeys(keys.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
     }
