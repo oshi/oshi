@@ -832,6 +832,7 @@ public interface CentralProcessor {
         private final String cpuIdentifier;
         private final boolean cpu64bit;
         private final long cpuVendorFreq;
+        private final String derivedMicroarchitecture;
 
         private final Supplier<String> microArchictecture = memoize(this::queryMicroarchitecture);
 
@@ -865,6 +866,27 @@ public interface CentralProcessor {
          */
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq) {
+            this(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit, vendorFreq, null);
+        }
+
+        /**
+         * Creates a ProcessorIdentifier with the given parameters and a platform-derived microarchitecture.
+         *
+         * @param cpuVendor         the CPU vendor
+         * @param cpuName           the CPU name
+         * @param cpuFamily         the CPU family
+         * @param cpuModel          the CPU model
+         * @param cpuStepping       the CPU stepping
+         * @param processorID       the processor ID
+         * @param cpu64bit          whether the CPU is 64-bit
+         * @param vendorFreq        the vendor-advertised frequency in Hz, or -1 if unknown
+         * @param microarchitecture a microarchitecture description derived from the platform, used only when the
+         *                          architecture table has no entry for this processor's family, model, and stepping.
+         *                          May be null.
+         */
+        public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
+                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq, String microarchitecture) {
+            this.derivedMicroarchitecture = microarchitecture;
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
@@ -1042,6 +1064,13 @@ public interface CentralProcessor {
                 // Append stepping
                 sb.append('.').append(this.cpuStepping);
                 arch = archProps.getProperty(sb.toString());
+            }
+
+            if (Util.isBlank(arch)) {
+                // Only after every table lookup has missed: a value the platform derived at runtime, which covers
+                // processors released since the table was last updated. A table entry always wins, because it may
+                // carry a curated name that a derivation cannot reproduce.
+                arch = this.derivedMicroarchitecture;
             }
 
             return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
