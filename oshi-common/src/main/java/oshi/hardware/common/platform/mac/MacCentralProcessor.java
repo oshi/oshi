@@ -209,7 +209,9 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * to the other cores sharing the same codename.</li>
      * <li>Grouping cores by codename and ordering the groups by their lowest core number, since macOS numbers
      * efficiency cores first. Where there are exactly two groups and {@code hw.perflevel0.physicalcpu} matches the size
-     * of exactly one of them, that count decides which group is the performance group, overriding the ordering.</li>
+     * of exactly one of them, that count decides which group is the performance group, overriding the ordering. This
+     * applies only when {@code cluster-type} classified no core at all: a {@code cluster-type} reading is exact, so
+     * where some cores reported one those values are kept and only the remainder falls to the default below.</li>
      * <li>Failing all of those, every core is class 0, which is the historical behavior for a chip whose cores were not
      * recognized, and for non-hybrid and Intel processors.</li>
      * </ol>
@@ -240,6 +242,11 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         }
         if (!efficiencyMap.isEmpty() && efficiencyMap.size() < coreKeys.size()) {
             for (Integer key : coreKeys) {
+                // Only the cores still unclassified: a core that reported its own cluster-type keeps that exact
+                // reading rather than one inferred from another core sharing its codename.
+                if (efficiencyMap.containsKey(key)) {
+                    continue;
+                }
                 String codename = codename(coreProperties.get(key));
                 Integer efficiency = codename == null ? null : classByCodename.get(codename);
                 if (efficiency != null) {
@@ -250,31 +257,33 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         if (efficiencyMap.size() == coreKeys.size()) {
             return efficiencyMap;
         }
-        // Strategy 3: group by codename, ordered by lowest core number, cross-checked against the perf level count
-        efficiencyMap.clear();
+        // Strategy 3: group by codename, ordered by lowest core number, cross-checked against the perf level count.
+        // Only when cluster-type classified nothing at all: where it classified some cores, those readings are exact
+        // and are kept, with strategy 4 below defaulting the remainder, rather than discarded in favor of an
+        // inference over the whole set.
         Map<String, List<Integer>> groups = new LinkedHashMap<>();
-        for (Integer key : coreKeys) {
-            String codename = codename(coreProperties.get(key));
-            if (codename == null) {
-                // A core with no codename cannot be grouped, so this strategy cannot classify every core
-                groups.clear();
-                break;
+        if (efficiencyMap.isEmpty()) {
+            for (Integer key : coreKeys) {
+                String codename = codename(coreProperties.get(key));
+                if (codename == null) {
+                    // A core with no codename cannot be grouped, so this strategy cannot classify every core
+                    groups.clear();
+                    break;
+                }
+                List<Integer> group = groups.get(codename);
+                if (group == null) {
+                    group = new ArrayList<>();
+                    groups.put(codename, group);
+                }
+                group.add(key);
             }
-            List<Integer> group = groups.get(codename);
-            if (group == null) {
-                group = new ArrayList<>();
-                groups.put(codename, group);
-            }
-            group.add(key);
         }
         List<List<Integer>> ordered = new ArrayList<>(groups.values());
-        if (ordered.size() == 2 && topPerfLevelCores > 0) {
-            boolean firstMatches = ordered.get(0).size() == topPerfLevelCores;
-            // Only decisive when exactly one group matches; an even split such as the base M1's 4+4 leaves the
-            // ordering to decide instead.
-            if (firstMatches != (ordered.get(1).size() == topPerfLevelCores) && firstMatches) {
-                Collections.reverse(ordered);
-            }
+        // Only decisive when the first group alone matches the highest perf level's core count; an even split such as
+        // the base M1's 4+4 matches both groups and leaves the ordering to decide instead.
+        if (ordered.size() == 2 && topPerfLevelCores > 0 && ordered.get(0).size() == topPerfLevelCores
+                && ordered.get(1).size() != topPerfLevelCores) {
+            Collections.reverse(ordered);
         }
         for (int i = 0; i < ordered.size(); i++) {
             for (Integer key : ordered.get(i)) {

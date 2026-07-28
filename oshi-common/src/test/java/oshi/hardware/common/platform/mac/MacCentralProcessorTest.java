@@ -240,6 +240,36 @@ class MacCentralProcessorTest {
     }
 
     @Test
+    void testPartialClusterTypeIsKeptWhenOtherCoresHaveNoProperties() {
+        // Some cores report a cluster-type and a codename while others expose no readable properties at all, as
+        // happens when an IORegistry node cannot be read. The exact readings must survive: discarding them here
+        // classified every performance core as class 0, which is worse than the codename table this replaced.
+        Map<Integer, Pair<String, String>> props = new HashMap<>();
+        for (int i = 0; i < 4; i++) {
+            props.put(i, new Pair<>("apple,everest arm,v8", "P"));
+        }
+        for (int i = 4; i < 8; i++) {
+            props.put(i, new Pair<>(null, null));
+        }
+        assertClasses("partial properties", MacCentralProcessor.deriveEfficiencyClasses(coreKeys(8), props, 0), 1, 1, 1,
+                1, 0, 0, 0, 0);
+    }
+
+    @Test
+    void testOwnClusterTypeIsNotOverwrittenByPropagation() {
+        // A core that reported its own cluster-type must keep that exact reading. Two cores here share a codename but
+        // report different cluster types, so propagating by codename must not overwrite either one's own value.
+        Map<Integer, Pair<String, String>> props = new HashMap<>();
+        props.put(0, new Pair<>("apple,everest arm,v8", "E"));
+        props.put(1, new Pair<>("apple,everest arm,v8", "P"));
+        props.put(2, new Pair<>("apple,everest arm,v8", null));
+        props.put(3, new Pair<>("apple,everest arm,v8", null));
+        Map<Integer, Integer> classes = MacCentralProcessor.deriveEfficiencyClasses(coreKeys(4), props, 0);
+        assertThat("core 0 keeps its own E reading", classes.get(0), is(0));
+        assertThat("core 1 keeps its own P reading", classes.get(1), is(1));
+    }
+
+    @Test
     void testClusterTypeWithoutCodename() {
         Map<Integer, Integer> classes = MacCentralProcessor.deriveEfficiencyClasses(coreKeys(8),
                 coreProps(new String[8], M1_CLUSTERS), 0);
