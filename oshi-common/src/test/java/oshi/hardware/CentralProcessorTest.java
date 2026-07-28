@@ -18,6 +18,7 @@ import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
+import oshi.util.Constants;
 
 class CentralProcessorTest {
 
@@ -115,6 +116,32 @@ class CentralProcessorTest {
         ProcessorIdentifier id = new ProcessorIdentifier("AuthenticAMD", "AMD Ryzen 9", "25", "80", "0",
                 "AABBCCDD11223344", true, 4_000_000_000L);
         assertThat(id.getVendorFreq(), is(4_000_000_000L));
+    }
+
+    /**
+     * A platform-derived microarchitecture only fills a gap. An entry in the architecture table always wins, because it
+     * may carry a curated name that a derivation cannot reproduce, such as the M3 Pro's.
+     */
+    @Test
+    void testArchitectureTableWinsOverDerivedMicroarchitecture() {
+        ProcessorIdentifier id = new ProcessorIdentifier("Apple Inc.", "Apple M2 Max", "0xda33d83d", "0", "0",
+                "0100000cda33d83d", true, -1L, "ARM64 SoC: Derived + Value");
+        assertThat(id.getMicroarchitecture(), is("ARM64 SoC: Avalanche + Blizzard"));
+    }
+
+    @Test
+    void testDerivedMicroarchitectureFillsTableGap() {
+        ProcessorIdentifier id = new ProcessorIdentifier("Apple Inc.", "Apple M99", "0x00000000", "0", "0",
+                "0100000c00000000", true, -1L, "ARM64 SoC: Hydra + Coyote");
+        assertThat("An unlisted chip is described rather than reported unknown", id.getMicroarchitecture(),
+                is("ARM64 SoC: Hydra + Coyote"));
+    }
+
+    @Test
+    void testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
+        ProcessorIdentifier id = new ProcessorIdentifier("Apple Inc.", "Apple M99", "0x00000000", "0", "0",
+                "0100000c00000000", true, -1L, null);
+        assertThat(id.getMicroarchitecture(), is(Constants.UNKNOWN));
     }
 
     @Test
