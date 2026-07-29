@@ -8,6 +8,7 @@ import static oshi.util.ExceptionUtil.runOrLog;
 
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,31 +22,32 @@ import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
 import oshi.driver.common.windows.gpu.DxgiUtil;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
-import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.driver.windows.wmi.Win32VideoControllerFFM;
 import oshi.ffm.platform.windows.DxgiFFM;
+import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.ffm.platform.windows.WinRegFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
-import oshi.util.tuples.Triplet;
 
 /**
  * Graphics Card obtained from the Windows registry using FFM, with VRAM sourced from DXGI.
  */
 @ThreadSafe
-final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
+final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGraphicsCardFFM.class);
+
+    private static final boolean IS_VISTA_OR_GREATER = VersionHelpersFFM.IsWindowsVistaOrGreater();
 
     private static final MemorySegment HKLM = MemorySegment.ofAddress(WinRegFFM.HKEY_LOCAL_MACHINE);
 
@@ -58,23 +60,14 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
     private static final String LOCATION_INFORMATION = "LocationInformation";
     private static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
 
-    private final String luidPrefix;
-    private final String lhmParent;
-    private final int pciBusNumber;
-    private final String pciBusId;
-
     WindowsGraphicsCardFFM(String name, String deviceId, String vendor, String versionInfo, long vram,
             String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId) {
-        super(name, deviceId, vendor, versionInfo, vram);
-        this.luidPrefix = luidPrefix;
-        this.lhmParent = lhmParent;
-        this.pciBusNumber = pciBusNumber;
-        this.pciBusId = pciBusId;
+        super(name, deviceId, vendor, versionInfo, vram, luidPrefix, lhmParent, pciBusNumber, pciBusId);
     }
 
     @Override
     public GpuStats createStatsSession() {
-        return new WindowsGpuStatsFFM(luidPrefix, lhmParent, pciBusNumber, pciBusId, getName());
+        return new WindowsGpuStatsFFM(getLuidPrefix(), getLhmParent(), getPciBusNumber(), getPciBusId(), getName());
     }
 
     public static List<GraphicsCard> getGraphicsCards() {
@@ -161,75 +154,19 @@ final class WindowsGraphicsCardFFM extends AbstractGraphicsCard {
         result.addAll(cardList);
 
         if (result.isEmpty()) {
-            return getGraphicsCardsFromWmi(dxgiAdapters, remainingDxgi, lhmParentMap);
+            return getGraphicsCardsFromWmi(dxgiAdapters, lhmParentMap);
         }
         return result;
     }
 
+    // fall back if something went wrong
     private static List<GraphicsCard> getGraphicsCardsFromWmi(List<DxgiAdapterInfo> dxgiAdapters,
-            List<DxgiAdapterInfo> remainingDxgi, Map<String, String> lhmParentMap) {
-        boolean dxgiAvailable = !dxgiAdapters.isEmpty();
-        List<DxgiAdapterInfo> working = new ArrayList<>(remainingDxgi);
-        TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
-        List<GraphicsCard> cardList = new ArrayList<>();
-
-        WmiResult<VideoControllerProperty> cards = Win32VideoControllerFFM.queryVideoController();
-        for (int index = 0; index < cards.getResultCount(); index++) {
-            if (dxgiAvailable && WmiUtil.getUint32(cards, VideoControllerProperty.CONFIGMANAGERERRORCODE, index) != 0) {
-                continue;
-            }
-            String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
-            Triplet<String, String, String> idPair = ParseUtil.parseDeviceIdToVendorProductSerial(
-                    WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
-            String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();
-            String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);
-            if (idPair != null) {
-                if (Util.isBlank(vendor)) {
-                    deviceId = idPair.getA();
-                } else {
-                    vendor = vendor + " (" + idPair.getA() + ")";
-                }
-            }
-            String versionInfo = WmiUtil.getString(cards, VideoControllerProperty.DRIVERVERSION, index);
-            if (!Util.isBlank(versionInfo)) {
-                versionInfo = "DriverVersion=" + versionInfo;
-            } else {
-                versionInfo = Constants.UNKNOWN;
-            }
-
-            Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(
-                    WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
-            int pciVendorId = pciIds == null ? 0 : pciIds.getA();
-            int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
-            DxgiAdapterInfo dxgiMatch = DxgiUtil.findMatch(working, pciVendorId, pciDeviceId, name);
-            long vram;
-            int dxgiIndex = -1;
-            String luidPrefix = "";
-            int pciBusNumber = -1;
-            String pciBusId = "";
-            if (dxgiMatch != null) {
-                vram = dxgiMatch.getDedicatedVideoMemory();
-                dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                luidPrefix = DxgiUtil.buildLuidPrefix(dxgiMatch);
-            } else {
-                vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
-            }
-            String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? "" : name), "");
-            GraphicsCard card = new WindowsGraphicsCardFFM(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
-                    Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
-                    pciBusNumber, pciBusId);
-            if (dxgiMatch != null) {
-                working.remove(dxgiMatch);
-            }
-            if (dxgiIndex >= 0) {
-                dxgiOrdered.put(dxgiIndex, card);
-            } else {
-                cardList.add(card);
-            }
+            Map<String, String> lhmParentMap) {
+        if (!IS_VISTA_OR_GREATER) {
+            return Collections.emptyList();
         }
-        List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
-        result.addAll(cardList);
-        return result;
+        return buildFromWmi(dxgiAdapters, lhmParentMap, Win32VideoControllerFFM.queryVideoController(),
+                WindowsGraphicsCardFFM::buildLuidPrefix, WindowsGraphicsCardFFM::new);
     }
 
     private static Map<String, String> buildLhmParentMap() {
