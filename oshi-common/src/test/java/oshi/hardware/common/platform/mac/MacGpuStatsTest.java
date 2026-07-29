@@ -21,7 +21,7 @@ import oshi.hardware.GpuTicks;
  * Tests the shared macOS GpuStats logic without a Mac, by stubbing the two native hooks. This is why the logic lives
  * here rather than in the bindings, whose CoreFoundation and SMC calls cannot run in a unit test.
  */
-public class MacGpuStatsTest {
+class MacGpuStatsTest {
 
     private static final String CORE_UTIL = "GPU Core Utilization";
     private static final String DEVICE_UTIL = "Device Utilization %";

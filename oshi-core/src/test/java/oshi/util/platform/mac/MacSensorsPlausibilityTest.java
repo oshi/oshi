@@ -33,12 +33,9 @@ import oshi.util.common.platform.mac.SmcKeyIndex;
 /**
  * Tests the plausibility guard that keeps an idle-gated SMC sensor's sentinel from being reported as a temperature. JNA
  * twin of {@code oshi.ffm.MacSensorsPlausibilityFFMTest}.
- * <p>
- * The class and its methods are {@code public} because the module system only opens public types to the JUnit platform;
- * a package-private test class in a named module fails to run.
  */
 @EnabledOnOs(OS.MAC)
-public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is required by JPMS, not redundant
+class MacSensorsPlausibilityTest {
 
     /**
      * Sentinels actually captured from hardware: -4.0, 0.0, 2.5, 4.0 and 5.2 appear in the iSMC sample reports, and
@@ -54,7 +51,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     private static final double[] GENUINE_READINGS = { 21.0, 28.0, 35.0, 52.5, 85.0, 100.0 };
 
     @Test
-    public void testObservedSentinelsAreRejected() {
+    void testObservedSentinelsAreRejected() {
         for (double sentinel : OBSERVED_SENTINELS) {
             assertThat("Sentinel " + sentinel + " from an idle-gated sensor must be rejected",
                     SmcUtil.isPlausibleTemperature(sentinel), is(false));
@@ -62,7 +59,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testGenuineReadingsAreAccepted() {
+    void testGenuineReadingsAreAccepted() {
         for (double reading : GENUINE_READINGS) {
             assertThat("Genuine temperature " + reading + " must be accepted", SmcUtil.isPlausibleTemperature(reading),
                     is(true));
@@ -75,7 +72,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * reading, so it is asserted separately from {@link #GENUINE_READINGS}.
      */
     @Test
-    public void testNoUpperBoundIsApplied() {
+    void testNoUpperBoundIsApplied() {
         assertThat("A reading above the throttling point must still be accepted", SmcUtil.isPlausibleTemperature(110d),
                 is(true));
     }
@@ -86,7 +83,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * two populations.
      */
     @Test
-    public void testFloorSitsBetweenTheTwoObservedPopulations() {
+    void testFloorSitsBetweenTheTwoObservedPopulations() {
         // Strictly greater: the predicate accepts values equal to the floor, so a floor of exactly 8.425 would
         // accept the highest observed sentinel.
         assertThat("Floor must clear the highest observed sentinel", SmcUtil.MIN_PLAUSIBLE_TEMPERATURE,
@@ -99,7 +96,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * End to end against the real SMC: a reading is either unavailable or plausible, never a sentinel in between.
      */
     @Test
-    public void testCpuTemperatureIsPlausibleOrUnavailable() {
+    void testCpuTemperatureIsPlausibleOrUnavailable() {
         double temp = new SystemInfo().getHardware().getSensors().getCpuTemperature();
         assertThat("CPU temperature must be unavailable or plausible, never a sentinel", temp,
                 either(notANumber()).or(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_TEMPERATURE)));
@@ -111,7 +108,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * returned from a single per-core sensor.
      */
     @Test
-    public void testCpuTempAggregateKeysArePreferredAverageFirst() {
+    void testCpuTempAggregateKeysArePreferredAverageFirst() {
         assertThat("TCMb (average) must be tried before TCMz (max)", SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS,
                 is(contains("TCMb", "TCMz")));
         assertThat("Aggregate keys must be distinct from the per-core keys",
@@ -124,7 +121,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * two of the four keys OSHI originally shipped exist, and six sensors appear in no published key table.
      */
     @Test
-    public void testGpuTemperatureKeysAreDiscovered() {
+    void testGpuTemperatureKeysAreDiscovered() {
         List<String> keys = SmcUtil.getGpuTemperatureKeys();
         assertThat("Discovery must never return null", keys, is(notNullValue()));
         for (String key : keys) {
@@ -145,7 +142,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * this machine can actually read must also have been discovered. Passes on any Apple Silicon Mac.
      */
     @Test
-    public void testDiscoveryIsASupersetOfReadableLegacyKeys() {
+    void testDiscoveryIsASupersetOfReadableLegacyKeys() {
         IOKit.IOConnect conn = SmcUtil.smcOpen();
         assumeTrue(conn != null, "SMC unavailable");
         try {
@@ -165,7 +162,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * implementation would have returned from the same key set.
      */
     @Test
-    public void testMaxIsNotLessThanFirstMatch() {
+    void testMaxIsNotLessThanFirstMatch() {
         IOKit.IOConnect conn = SmcUtil.smcOpen();
         assumeTrue(conn != null, "SMC unavailable");
         try {
@@ -186,14 +183,14 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
      * published sensor dumps once dropped {@code Tg0f}, which is the only one of the four present on some M2 hardware.
      */
     @Test
-    public void testFallbackKeysIncludeTheHistoricalFour() {
+    void testFallbackKeysIncludeTheHistoricalFour() {
         assertThat(SmcUtil.SMC_KEYS_GPU_TEMP_AS, hasItems("Tg05", "Tg0D", "Tg0f", "Tg0j"));
     }
 
     // -- fans --
 
     @Test
-    public void testFanSpeedKeysAreDiscoveredAndWellFormed() {
+    void testFanSpeedKeysAreDiscoveredAndWellFormed() {
         List<String> keys = SmcUtil.getFanSpeedKeys();
         assertThat("Discovery must never return null", keys, is(notNullValue()));
         for (String key : keys) {
@@ -202,7 +199,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testFanSpeedKeyDiscoveryIsCached() {
+    void testFanSpeedKeyDiscoveryIsCached() {
         List<String> keys = SmcUtil.getFanSpeedKeys();
         List<String> second = SmcUtil.getFanSpeedKeys();
         assertThat("Repeated calls must agree", second, is(equalTo(keys)));
@@ -214,7 +211,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testFanCountAgreesWithFanNum() {
+    void testFanCountAgreesWithFanNum() {
         IOKit.IOConnect conn = SmcUtil.smcOpen();
         assumeTrue(conn != null, "SMC unavailable");
         try {
@@ -228,7 +225,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testFanSpeedsAreWithinTheHardwareLimits() {
+    void testFanSpeedsAreWithinTheHardwareLimits() {
         IOKit.IOConnect conn = SmcUtil.smcOpen();
         assumeTrue(conn != null, "SMC unavailable");
         try {
@@ -252,7 +249,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testStoppedFanIsReportedAsZeroNotDropped() {
+    void testStoppedFanIsReportedAsZeroNotDropped() {
         // An empty array means "no fans detected"; a zero entry means "a fan reading zero". A stopped fan must produce
         // the latter, so the array length tracks the key count regardless of whether any fan is spinning.
         int[] speeds = new SystemInfo().getHardware().getSensors().getFanSpeeds();
@@ -263,14 +260,14 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     // -- voltage --
 
     @Test
-    public void testCpuVoltageIsPlausibleOrUnavailable() {
+    void testCpuVoltageIsPlausibleOrUnavailable() {
         double volts = new SystemInfo().getHardware().getSensors().getCpuVoltage();
         assertThat("CPU voltage must be unavailable or plausible, never a mis-scaled fraction", volts,
                 either(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_VOLTAGE)));
     }
 
     @Test
-    public void testAppleSiliconVoltageKeyReadsPlausibly() {
+    void testAppleSiliconVoltageKeyReadsPlausibly() {
         IOKit.IOConnect conn = SmcUtil.smcOpen();
         assumeTrue(conn != null, "SMC unavailable");
         try {
@@ -286,7 +283,7 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     }
 
     @Test
-    public void testVoltageKeysAreNotDiscovered() {
+    void testVoltageKeysAreNotDiscovered() {
         // Guards against someone "completing the pattern" and adding a V-prefix scan that could return a supply rail
         // (e.g. VD0R at 20 V) as the CPU voltage. The default keys are the two named keys, no discovery.
         assertThat("Voltage keys must remain the named defaults", SmcUtil.getCpuVoltageKeys(),

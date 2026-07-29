@@ -23,7 +23,7 @@ import oshi.util.common.gpu.NvmlQuery.NvmlScope;
  * Tests the NVML logic shared by the JNA and FFM bindings, without an NVIDIA GPU or either native library. This is why
  * the logic lives here rather than in the bindings, whose native library loading makes them unusable in a unit test.
  */
-public class NvmlQueryTest {
+class NvmlQueryTest {
 
     /** A scope that records its lifecycle calls and hands out a fixed handle. */
     private static final class FakeScope implements NvmlScope<String> {
