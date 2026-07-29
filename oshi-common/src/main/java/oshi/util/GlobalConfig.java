@@ -164,6 +164,22 @@ public final class GlobalConfig {
     public static final String OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS = "oshi.os.mac.sensors.gputemperature.keys";
 
     /**
+     * Comma-separated list of macOS SMC keys to read for fan speeds, one per fan. Empty by default, meaning the keys
+     * are discovered from the SMC at runtime and cross-checked against the fan count {@code FNum} reports. Set this
+     * only to override that discovery.
+     */
+    public static final String OSHI_OS_MAC_SENSORS_FANSPEED_KEYS = "oshi.os.mac.sensors.fanspeed.keys";
+
+    /**
+     * Comma-separated list of macOS SMC keys to read for CPU voltage, tried in order until one returns a plausible
+     * value. Empty by default, meaning the Apple Silicon key is tried and then the Intel one. Unlike GPU temperature
+     * these keys are not discovered at runtime, because the {@code V} prefix covers supply rails as well as the CPU and
+     * nothing in the naming distinguishes them, so this property is the way to name the key on hardware where neither
+     * default works.
+     */
+    public static final String OSHI_OS_MAC_SENSORS_CPUVOLTAGE_KEYS = "oshi.os.mac.sensors.cpuvoltage.keys";
+
+    /**
      * The name of the Windows System event log containing bootup event IDs 12 and 6005, used for a one-time calculation
      * of system boot time that is consistent across process runs regardless of sleep/hibernate cycles. If set to the
      * empty string, boot time is calculated by subtracting uptime from the current time (faster but less accurate).

@@ -51,6 +51,7 @@ import oshi.ffm.platform.mac.IOKit.IOService;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.mac.SmcKeyIndex;
+import oshi.util.common.platform.mac.SmcSensorValues;
 
 /**
  * Provides access to SMC calls on macOS using FFM
@@ -111,8 +112,20 @@ public final class SmcUtilFFM {
     /** The prefix shared by Apple Silicon GPU cluster temperature keys. */
     private static final String GPU_KEY_PREFIX = "Tg";
 
+    /** The prefix shared by fan keys. */
+    private static final String FAN_KEY_PREFIX = "F";
+
     /** Guards {@link #gpuTemperatureKeys}. */
     private static final Object GPU_KEY_LOCK = new Object();
+
+    /** Guards {@link #fanSpeedKeys}. */
+    private static final Object FAN_KEY_LOCK = new Object();
+
+    /**
+     * Discovered fan speed keys, or null if discovery has not yet produced a cacheable answer. Deliberately not a
+     * {@link oshi.util.Memoizer}, for the same reason as {@link #gpuTemperatureKeys}.
+     */
+    private static volatile List<String> fanSpeedKeys; // NOSONAR squid:S3077 - published value is immutable
 
     /**
      * Discovered GPU temperature keys, or null if discovery has not yet completed successfully. Deliberately not a
@@ -125,6 +138,12 @@ public final class SmcUtilFFM {
     private static volatile List<String> gpuTemperatureKeys; // NOSONAR squid:S3077 - published value is immutable
     /** SMC key for Apple Silicon CPU voltage. */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
+
+    /**
+     * CPU voltage keys, tried in order until one returns a plausible value: the Apple Silicon key first, then the Intel
+     * one. Each reading is scaled according to its own data type, so the order does not imply the units.
+     */
+    public static final List<String> SMC_KEYS_CPU_VOLTAGE = List.of(SMC_KEY_CPU_VOLTAGE_AS, SMC_KEY_CPU_VOLTAGE);
 
     /** SMC command to read bytes. */
     public static final byte SMC_CMD_READ_BYTES = 5;
@@ -369,6 +388,125 @@ public final class SmcUtilFFM {
             gpuTemperatureKeys = discovered;
             return discovered;
         }
+    }
+
+    /**
+     * Get the fan speed keys for this machine, discovering them from the SMC on first use and caching the result.
+     * <p>
+     * Discovery binary searches the sorted key index for the {@code F} block and keeps the keys matching the fan
+     * current-speed naming convention, then reconciles the result against {@code FNum}: the index is authoritative, but
+     * a positive {@code FNum} still implies the conventionally named keys where discovery finds none, so this never
+     * reports fewer fans than reading {@code FNum} directly did. See
+     * {@link SmcKeyIndex#reconcileFanKeys(java.util.List, long)}.
+     * <p>
+     * Can be overridden with the {@link GlobalConfig#OSHI_OS_MAC_SENSORS_FANSPEED_KEYS} configuration property, which
+     * bypasses discovery entirely.
+     *
+     * @return The keys to read for fan speeds, never null
+     */
+    public static List<String> getFanSpeedKeys() {
+        List<String> keys = fanSpeedKeys;
+        if (keys != null) {
+            return keys;
+        }
+        synchronized (FAN_KEY_LOCK) {
+            if (fanSpeedKeys != null) {
+                return fanSpeedKeys;
+            }
+            // Read the config lazily rather than at class initialization, so GlobalConfig.set() still takes effect.
+            List<String> configured = SmcKeyIndex
+                    .parseConfiguredKeys(GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SENSORS_FANSPEED_KEYS, ""));
+            if (!configured.isEmpty()) {
+                LOG.debug("Using configured fan speed keys {}", configured);
+                fanSpeedKeys = configured;
+                return configured;
+            }
+            List<String> discovered = discoverFanSpeedKeys();
+            if (discovered == null) {
+                LOG.debug("Fan speed key discovery did not complete; reporting no fans this time.");
+                return List.of();
+            }
+            LOG.debug("Using {} fan speed keys: {}", discovered.size(), discovered);
+            fanSpeedKeys = discovered;
+            return discovered;
+        }
+    }
+
+    /**
+     * @return the keys to read, or null if neither the key index nor {@code FNum} could be read
+     */
+    private static List<String> discoverFanSpeedKeys() {
+        int conn = smcOpen();
+        if (conn == 0) {
+            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
+        }
+        try {
+            int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);
+            // Scanning the index rather than probing F0Ac through F9Ac directly, because smcGetDataType cannot tell an
+            // absent key from a failed read: both return an empty string. findKeys tracks read failures and so can
+            // distinguish "this machine has no fans" from "ask again later", which a direct probe cannot.
+            List<String> discovered = SmcKeyIndex.findKeys(keyCount, i -> smcReadKeyAtIndex(conn, i), FAN_KEY_PREFIX,
+                    SmcKeyIndex::isFanSpeedKey);
+            // Read FNum on the same connection, so a machine whose index is unreadable still reports its fans.
+            return SmcKeyIndex.reconcileFanKeys(discovered, smcGetLong(conn, SMC_KEY_FAN_NUM));
+        } finally {
+            smcClose(conn);
+        }
+    }
+
+    /**
+     * Get the keys to read for CPU voltage, in the order they should be tried.
+     * <p>
+     * Unlike the GPU temperature keys these are not discovered from the key index, because the {@code V} prefix is not
+     * specific to the CPU: an M3 Pro reports a 0.75 V core voltage from {@code VP0C} alongside a 20 V supply rail from
+     * {@code VD0R}, with no naming convention separating them. A prefix scan could therefore report a rail voltage as
+     * the CPU's, which is worse than reporting nothing. Use {@link GlobalConfig#OSHI_OS_MAC_SENSORS_CPUVOLTAGE_KEYS} to
+     * name the key on hardware where neither default works.
+     *
+     * @return The keys to read for CPU voltage, never null
+     */
+    public static List<String> getCpuVoltageKeys() {
+        List<String> configured = SmcKeyIndex
+                .parseConfiguredKeys(GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SENSORS_CPUVOLTAGE_KEYS, ""));
+        return configured.isEmpty() ? SMC_KEYS_CPU_VOLTAGE : configured;
+    }
+
+    /**
+     * The lowest reading accepted as a genuine CPU voltage, in volts. See
+     * {@link SmcSensorValues#MIN_PLAUSIBLE_VOLTAGE}.
+     */
+    public static final double MIN_PLAUSIBLE_VOLTAGE = SmcSensorValues.MIN_PLAUSIBLE_VOLTAGE;
+
+    /**
+     * Tests whether a reading is plausible as a CPU voltage.
+     *
+     * @param volts the reading to test, in volts
+     * @return true if the reading is at least {@link #MIN_PLAUSIBLE_VOLTAGE}
+     */
+    public static boolean isPlausibleVoltage(double volts) {
+        return SmcSensorValues.isPlausibleVoltage(volts);
+    }
+
+    /**
+     * Get the first plausible CPU voltage from a list of SMC keys, scaling each reading according to its data type.
+     *
+     * @param conn The connection
+     * @param keys The keys to try in order
+     * @return The first reading at or above {@link #MIN_PLAUSIBLE_VOLTAGE}, or 0 if no key returned one
+     */
+    public static double smcGetFirstVoltage(int conn, List<String> keys) {
+        for (String key : keys) {
+            double raw = smcGetFloat(conn, key);
+            if (raw == 0d) {
+                continue;
+            }
+            double volts = SmcSensorValues.scaleVoltage(raw, smcGetDataType(conn, key));
+            if (isPlausibleVoltage(volts)) {
+                return volts;
+            }
+            LOG.debug("Ignoring implausible voltage {} from SMC key {}.", volts, key);
+        }
+        return 0d;
     }
 
     /**

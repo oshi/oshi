@@ -7,24 +7,19 @@ package oshi.hardware.platform.mac;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AGGREGATE_AS;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEYS_CPU_TEMP_AS;
 import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_TEMP;
-import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE;
-import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_CPU_VOLTAGE_AS;
-import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_NUM;
-import static oshi.ffm.util.platform.mac.SmcUtilFFM.SMC_KEY_FAN_SPEED;
 
-import java.util.Locale;
+import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.common.AbstractSensors;
+import oshi.util.common.platform.mac.SmcSensorValues;
 
 /**
  * Sensors from SMC
  */
 @ThreadSafe
 final class MacSensorsFFM extends AbstractSensors {
-
-    private volatile int numFans = 0;
 
     @Override
     public double queryCpuTemperature() {
@@ -52,19 +47,18 @@ final class MacSensorsFFM extends AbstractSensors {
 
     @Override
     public int[] queryFanSpeeds() {
+        // Resolve the keys before opening a connection: discovery opens its own, and nesting two would leak a handle.
+        List<String> keys = SmcUtilFFM.getFanSpeedKeys();
         int conn = SmcUtilFFM.smcOpen();
+        // On open failure return an array sized to the known key count rather than empty, so the length stays stable
+        // across polls. An empty array means "no fans detected"; a zero entry means "a fan reading zero or unmeasured".
         if (conn == 0) {
-            return new int[this.numFans];
+            return new int[keys.size()];
         }
         try {
-            int fans = this.numFans;
-            if (fans == 0) {
-                fans = (int) SmcUtilFFM.smcGetLong(conn, SMC_KEY_FAN_NUM);
-                this.numFans = fans;
-            }
-            int[] fanSpeeds = new int[fans];
-            for (int i = 0; i < fans; i++) {
-                fanSpeeds[i] = (int) SmcUtilFFM.smcGetFloat(conn, String.format(Locale.ROOT, SMC_KEY_FAN_SPEED, i));
+            int[] fanSpeeds = new int[keys.size()];
+            for (int i = 0; i < keys.size(); i++) {
+                fanSpeeds[i] = SmcSensorValues.toRpm(SmcUtilFFM.smcGetFloat(conn, keys.get(i)));
             }
             return fanSpeeds;
         } finally {
@@ -79,11 +73,7 @@ final class MacSensorsFFM extends AbstractSensors {
             return 0d;
         }
         try {
-            double volts = SmcUtilFFM.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE_AS);
-            if (volts > 0d) {
-                return volts;
-            }
-            return SmcUtilFFM.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE) / 1000d;
+            return SmcUtilFFM.smcGetFirstVoltage(conn, SmcUtilFFM.getCpuVoltageKeys());
         } finally {
             SmcUtilFFM.smcClose(conn);
         }

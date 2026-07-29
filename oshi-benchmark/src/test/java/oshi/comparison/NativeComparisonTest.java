@@ -218,8 +218,30 @@ class NativeComparisonTest {
         Sensors jna = jnaHal.getSensors();
         Sensors ffm = ffmHal.getSensors();
         assertWithinRatio(ffm.getCpuTemperature(), jna.getCpuTemperature(), 0.25, "cpuTemperature");
-        assertThat(ffm.getFanSpeeds()).hasSameSizeAs(jna.getFanSpeeds());
+        int[] jnaFans = jna.getFanSpeeds();
+        int[] ffmFans = ffm.getFanSpeeds();
+        assertThat(ffmFans).hasSameSizeAs(jnaFans);
+        for (int i = 0; i < jnaFans.length; i++) {
+            assertThat(ffmFans[i]).as("fanSpeed[%d] non-negative", i).isGreaterThanOrEqualTo(0);
+            // Only compare the ratio when both reads are nonzero: rpm legitimately differs between the sequential JNA
+            // and FFM reads, and assertWithinRatio's one-value-zero branch would fail hard if a fan spun up between
+            // them (asserting the nonzero rpm is <= the ratio).
+            if (jnaFans[i] != 0 && ffmFans[i] != 0) {
+                assertWithinRatio(ffmFans[i], jnaFans[i], 0.25, "fanSpeed[" + i + "]");
+            }
+        }
         assertWithinRatio(ffm.getCpuVoltage(), jna.getCpuVoltage(), 0.25, "cpuVoltage");
+    }
+
+    /**
+     * Fan speed keys are discovered from the SMC at runtime by each backend independently, so comparing the discovered
+     * lists is the sharpest available check that the two binary searches agree — sharper than the fluctuating rpm
+     * readings themselves.
+     */
+    @Test
+    @EnabledOnOs(OS.MAC)
+    void fanSpeedKeys() {
+        assertThat(SmcUtilFFM.getFanSpeedKeys()).isEqualTo(SmcUtil.getFanSpeedKeys());
     }
 
     // ---- Hardware: Power Sources ----
