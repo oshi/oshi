@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -223,17 +222,17 @@ public final class NvmlUtilJNA {
      */
     private static Pointer acquireHandleByBusId(String pciBusId) {
         String needle = pciBusId.toLowerCase(Locale.ROOT);
-        AtomicReference<Pointer> found = new AtomicReference<>();
+        Pointer[] found = new Pointer[1];
         forEachDevice(handle -> {
             Pair<String, String> busIds = readBusIds(handle);
             if (busIds != null
                     && (NvmlQuery.matches(busIds.getA(), needle) || NvmlQuery.matches(busIds.getB(), needle))) {
-                found.set(handle);
+                found[0] = handle;
                 return true;
             }
             return false;
         });
-        return found.get();
+        return found[0];
     }
 
     /**
@@ -245,16 +244,16 @@ public final class NvmlUtilJNA {
      */
     private static Pointer acquireHandleByName(String gpuName) {
         String needle = gpuName.toLowerCase(Locale.ROOT);
-        AtomicReference<Pointer> found = new AtomicReference<>();
+        Pointer[] found = new Pointer[1];
         forEachDevice(handle -> {
             String name = readName(handle);
             if (name != null && NvmlQuery.matches(name, needle)) {
-                found.set(handle);
+                found[0] = handle;
                 return true;
             }
             return false;
         });
-        return found.get();
+        return found[0];
     }
 
     /**

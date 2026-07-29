@@ -103,7 +103,13 @@ public final class NvmlQuery {
     }
 
     /**
-     * Returns the enumerated bus ID matching the given fragment.
+     * Returns the enumerated bus ID matching the given fragment, preferring the most qualified form.
+     * <p>
+     * Both of a device's bus ID forms are enumerated, so a bare fragment such as {@code 01:00.0} matches the modern and
+     * legacy entries alike. The modern form carries the full eight-digit domain and is therefore the longer of the two,
+     * so returning the longest match yields it consistently, and matches what the name lookup returns. Returning the
+     * first match instead would let set iteration order decide, which can differ between runs and between the two
+     * bindings.
      *
      * @param busIds   the enumerated PCI bus IDs, already lowercased
      * @param fragment the fragment to match
@@ -111,11 +117,12 @@ public final class NvmlQuery {
      */
     public static String matchBusId(Set<String> busIds, String fragment) {
         String needle = fragment.toLowerCase(Locale.ROOT);
+        String best = null;
         for (String id : busIds) {
-            if (matches(id, needle)) {
-                return id;
+            if (matches(id, needle) && (best == null || id.length() > best.length())) {
+                best = id;
             }
         }
-        return null;
+        return best;
     }
 }

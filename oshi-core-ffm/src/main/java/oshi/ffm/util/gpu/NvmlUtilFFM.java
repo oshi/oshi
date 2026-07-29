@@ -44,6 +44,12 @@ public final class NvmlUtilFFM {
     private static final long BUS_ID_OFFSET = NvmlFunctions.PCI_INFO_LAYOUT
             .byteOffset(MemoryLayout.PathElement.groupElement("busId"));
 
+    // Derived from the layout rather than repeated as literals, so the reads cannot drift from the struct definition.
+    private static final int BUS_ID_LEGACY_LENGTH = (int) NvmlFunctions.PCI_INFO_LAYOUT
+            .select(MemoryLayout.PathElement.groupElement("busIdLegacy")).byteSize();
+    private static final int BUS_ID_LENGTH = (int) NvmlFunctions.PCI_INFO_LAYOUT
+            .select(MemoryLayout.PathElement.groupElement("busId")).byteSize();
+
     private static final NvmlDeviceCache DEVICE_CACHE = new NvmlDeviceCache("FFM");
 
     private static final NvmlScope<Device> SCOPE = new NvmlScope<Device>() {
@@ -143,8 +149,8 @@ public final class NvmlUtilFFM {
         if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) != NvmlFunctions.NVML_SUCCESS) {
             return null;
         }
-        return new Pair<>(NvmlFunctions.readString(pciSeg, BUS_ID_OFFSET, 32).toLowerCase(Locale.ROOT),
-                NvmlFunctions.readString(pciSeg, BUS_ID_LEGACY_OFFSET, 16).toLowerCase(Locale.ROOT));
+        return new Pair<>(NvmlFunctions.readString(pciSeg, BUS_ID_OFFSET, BUS_ID_LENGTH).toLowerCase(Locale.ROOT),
+                NvmlFunctions.readString(pciSeg, BUS_ID_LEGACY_OFFSET, BUS_ID_LEGACY_LENGTH).toLowerCase(Locale.ROOT));
     }
 
     /**

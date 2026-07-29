@@ -119,12 +119,24 @@ public class NvmlQueryTest {
 
     @Test
     void testMatchBusIdReturnsTheEnumeratedForm() {
-        Set<String> busIds = new LinkedHashSet<>(Arrays.asList("00000000:01:00.0", "00000000:02:00.0"));
+        Set<String> busIds = new LinkedHashSet<>(Arrays.asList("00000000:0a:00.0", "00000000:02:00.0"));
         assertThat("returns the canonical enumerated id", NvmlQuery.matchBusId(busIds, "02:00.0"),
                 is("00000000:02:00.0"));
-        assertThat("is case-insensitive", NvmlQuery.matchBusId(busIds, "01:00.0"), is("00000000:01:00.0"));
+        assertThat("is case-insensitive", NvmlQuery.matchBusId(busIds, "0A:00.0"), is("00000000:0a:00.0"));
         assertThat("no match yields null", NvmlQuery.matchBusId(busIds, "09:00.0"), is(nullValue()));
         assertThat("empty set yields null", NvmlQuery.matchBusId(Collections.emptySet(), "01:00.0"), is(nullValue()));
+    }
+
+    @Test
+    void testMatchBusIdPrefersTheQualifiedForm() {
+        // Both of a device's forms are enumerated and a bare fragment matches both, so the answer must not depend on
+        // which one iteration happens to reach first.
+        Set<String> legacyFirst = new LinkedHashSet<>(Arrays.asList("0000:01:00.0", "00000000:01:00.0"));
+        Set<String> modernFirst = new LinkedHashSet<>(Arrays.asList("00000000:01:00.0", "0000:01:00.0"));
+        assertThat("the domain-qualified form wins", NvmlQuery.matchBusId(legacyFirst, "01:00.0"),
+                is("00000000:01:00.0"));
+        assertThat("regardless of iteration order", NvmlQuery.matchBusId(modernFirst, "01:00.0"),
+                is("00000000:01:00.0"));
     }
 
     @Test
