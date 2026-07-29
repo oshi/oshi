@@ -39,7 +39,7 @@ class FreeBsdFirmwareTest {
     @Test
     void testParseDmiDecodeEmpty() {
         // No output (e.g. dmidecode not available / not root): the parser returns raw absent values (null
-        // manufacturer/version, empty date); readDmiDecode applies the Constants.UNKNOWN fallbacks.
+        // manufacturer/version, empty date); the BsdFirmware base applies the Constants.UNKNOWN fallbacks.
         Triplet<String, String, String> fw = FreeBsdFirmware.parseDmiDecode(Collections.emptyList());
         assertThat(fw.getA(), is(nullValue()));
         assertThat(fw.getB(), is(nullValue()));
