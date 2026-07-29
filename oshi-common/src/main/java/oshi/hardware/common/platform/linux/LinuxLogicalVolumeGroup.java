@@ -4,15 +4,21 @@
  */
 package oshi.hardware.common.platform.linux;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.linux.DevPath;
 
 /**
@@ -66,5 +72,102 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             }
         }
         return physicalVolumesMap;
+    }
+
+    /**
+     * The udev attributes of one block device, read by the bindings so the device-mapper filtering and volume-group
+     * assembly can be shared. Any field may be null if udev did not report that property.
+     */
+    public static final class UdevBlockDevice {
+        private final String syspath;
+        private final String devnode;
+        private final String uuid;
+        private final String vgName;
+        private final String lvName;
+
+        /**
+         * Creates a block device record.
+         *
+         * @param syspath the sysfs path of the device
+         * @param devnode the device node path, e.g. {@code /dev/dm-0}
+         * @param uuid    the {@code DM_UUID} property
+         * @param vgName  the {@code DM_VG_NAME} property
+         * @param lvName  the {@code DM_LV_NAME} property
+         */
+        public UdevBlockDevice(String syspath, String devnode, String uuid, String vgName, String lvName) {
+            this.syspath = syspath;
+            this.devnode = devnode;
+            this.uuid = uuid;
+            this.vgName = vgName;
+            this.lvName = lvName;
+        }
+    }
+
+    /**
+     * Creates the binding's volume group type.
+     */
+    @FunctionalInterface
+    public interface LogicalVolumeGroupFactory {
+        /**
+         * Creates a volume group.
+         *
+         * @param name  the volume group name
+         * @param lvMap the logical volume map
+         * @param pvSet the physical volume set
+         * @return the volume group
+         */
+        LogicalVolumeGroup create(String name, Map<String, Set<String>> lvMap, Set<String> pvSet);
+    }
+
+    /**
+     * Assembles volume groups from enumerated block devices, keeping only the device-mapper devices that LVM owns and
+     * reading each one's physical volumes from its sysfs {@code slaves} directory.
+     *
+     * @param devices the block devices reported by udev
+     * @param factory creates the binding's volume group type
+     * @return the volume groups, never null
+     */
+    protected static List<LogicalVolumeGroup> buildLogicalVolumeGroups(List<UdevBlockDevice> devices,
+            LogicalVolumeGroupFactory factory) {
+        return buildLogicalVolumeGroups(devices, queryPhysicalVolumes(), factory);
+    }
+
+    /**
+     * Assembles volume groups from enumerated block devices and an already-queried physical volume map. Package-private
+     * so tests can supply the map instead of running {@code pvs}.
+     *
+     * @param devices            the block devices reported by udev
+     * @param physicalVolumesMap map of VG name to set of PV device paths, mutated as devices are processed
+     * @param factory            creates the binding's volume group type
+     * @return the volume groups, never null
+     */
+    static List<LogicalVolumeGroup> buildLogicalVolumeGroups(List<UdevBlockDevice> devices,
+            Map<String, Set<String>> physicalVolumesMap, LogicalVolumeGroupFactory factory) {
+        Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
+        for (UdevBlockDevice device : devices) {
+            if (device.devnode == null || !device.devnode.startsWith(DevPath.DM) || device.uuid == null
+                    || !device.uuid.startsWith("LVM-") || Util.isBlank(device.vgName) || Util.isBlank(device.lvName)) {
+                continue;
+            }
+            Map<String, Set<String>> lvMapForGroup = logicalVolumesMap.computeIfAbsent(device.vgName,
+                    k -> new HashMap<>());
+            Set<String> pvSetForGroup = physicalVolumesMap.computeIfAbsent(device.vgName, k -> new HashSet<>());
+            File[] slaves = new File(device.syspath + "/slaves").listFiles();
+            if (slaves != null) {
+                for (File f : slaves) {
+                    String pvName = DevPath.DEV + f.getName();
+                    lvMapForGroup.computeIfAbsent(device.lvName, k -> new HashSet<>()).add(pvName);
+                    pvSetForGroup.add(pvName);
+                }
+            }
+        }
+        List<LogicalVolumeGroup> lvgList = new ArrayList<>();
+        for (Entry<String, Map<String, Set<String>>> entry : logicalVolumesMap.entrySet()) {
+            // Every key here was added to physicalVolumesMap above, but default rather than risk a null set reaching
+            // the immutable-copy constructor.
+            lvgList.add(factory.create(entry.getKey(), entry.getValue(),
+                    physicalVolumesMap.getOrDefault(entry.getKey(), Collections.emptySet())));
+        }
+        return lvgList;
     }
 }

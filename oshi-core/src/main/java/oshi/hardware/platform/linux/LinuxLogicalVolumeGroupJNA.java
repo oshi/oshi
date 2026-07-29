@@ -6,14 +6,11 @@ package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +19,6 @@ import com.sun.jna.platform.linux.Udev;
 
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup;
-import oshi.util.Util;
-import oshi.util.linux.DevPath;
 
 /**
  * JNA-based Linux logical volume group implementation.
@@ -41,12 +36,14 @@ final class LinuxLogicalVolumeGroupJNA extends LinuxLogicalVolumeGroup {
             LOG.warn("Logical Volume Group information requires libudev, which is not present.");
             return Collections.emptyList();
         }
-        Map<String, Map<String, Set<String>>> logicalVolumesMap = new HashMap<>();
-        Map<String, Set<String>> physicalVolumesMap = queryPhysicalVolumes();
+        return buildLogicalVolumeGroups(enumerateBlockDevices(), LinuxLogicalVolumeGroupJNA::new);
+    }
 
+    private static List<UdevBlockDevice> enumerateBlockDevices() {
+        List<UdevBlockDevice> devices = new ArrayList<>();
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();
         if (udev == null) {
-            return Collections.emptyList();
+            return devices;
         }
         try {
             Udev.UdevEnumerate enumerate = udev.enumerateNew();
@@ -55,33 +52,15 @@ final class LinuxLogicalVolumeGroupJNA extends LinuxLogicalVolumeGroup {
                 enumerate.scanDevices();
                 for (Udev.UdevListEntry entry = enumerate.getListEntry(); entry != null; entry = entry.getNext()) {
                     String syspath = entry.getName();
+                    if (syspath == null) {
+                        continue;
+                    }
                     Udev.UdevDevice device = udev.deviceNewFromSyspath(syspath);
                     if (device != null) {
                         try {
-                            String devnode = device.getDevnode();
-                            if (devnode != null && devnode.startsWith(DevPath.DM)) {
-                                String uuid = device.getPropertyValue(DM_UUID);
-                                if (uuid != null && uuid.startsWith("LVM-")) {
-                                    String vgName = device.getPropertyValue(DM_VG_NAME);
-                                    String lvName = device.getPropertyValue(DM_LV_NAME);
-                                    if (!Util.isBlank(vgName) && !Util.isBlank(lvName)) {
-                                        logicalVolumesMap.computeIfAbsent(vgName, k -> new HashMap<>());
-                                        Map<String, Set<String>> lvMapForGroup = logicalVolumesMap.get(vgName);
-                                        physicalVolumesMap.computeIfAbsent(vgName, k -> new HashSet<>());
-                                        Set<String> pvSetForGroup = physicalVolumesMap.get(vgName);
-                                        File slavesDir = new File(syspath + "/slaves");
-                                        File[] slaves = slavesDir.listFiles();
-                                        if (slaves != null) {
-                                            for (File f : slaves) {
-                                                String pvName = f.getName();
-                                                lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>())
-                                                        .add(DevPath.DEV + pvName);
-                                                pvSetForGroup.add(DevPath.DEV + pvName);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            devices.add(
+                                    new UdevBlockDevice(syspath, device.getDevnode(), device.getPropertyValue(DM_UUID),
+                                            device.getPropertyValue(DM_VG_NAME), device.getPropertyValue(DM_LV_NAME)));
                         } finally {
                             device.unref();
                         }
@@ -93,8 +72,6 @@ final class LinuxLogicalVolumeGroupJNA extends LinuxLogicalVolumeGroup {
         } finally {
             udev.unref();
         }
-        return logicalVolumesMap.entrySet().stream()
-                .map(e -> new LinuxLogicalVolumeGroupJNA(e.getKey(), e.getValue(), physicalVolumesMap.get(e.getKey())))
-                .collect(Collectors.toList());
+        return devices;
     }
 }
