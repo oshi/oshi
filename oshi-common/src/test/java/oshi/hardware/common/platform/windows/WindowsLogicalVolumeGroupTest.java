@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -196,10 +197,31 @@ class WindowsLogicalVolumeGroupTest {
         row.put(StoragePoolProperty.OBJECTID, "not-an-object-id");
         rows.add(row);
 
-        List<LogicalVolumeGroup> lvgs = build(result(rows, CIM_STRING), virtualDisks(),
+        List<LogicalVolumeGroup> lvgs = build(result(rows, CIM_STRING), virtualDisks("Volume1", SP_GUID, VD_GUID),
                 physicalDisks("Disk1", "PCISlot1", PD1_GUID), poolToDisk(SP_GUID, PD1_GUID));
         assertThat(lvgs, hasSize(1));
         assertThat(lvgs.get(0).getName(), is("Pool1"));
+        assertThat("An unparseable pool ID must correlate nothing, not everything", lvgs.get(0).getPhysicalVolumes(),
+                is(empty()));
+        assertThat(lvgs.get(0).getLogicalVolumes(), is(anEmptyMap()));
+    }
+
+    @Test
+    void testMissingObjectIdCorrelatesNothing() {
+        // WmiUtil maps an absent property to "", and every string contains "", so an unguarded substring match would
+        // make a pool with no ObjectId absorb every physical and virtual disk on the system.
+        List<Map<StoragePoolProperty, Object>> rows = new ArrayList<>();
+        Map<StoragePoolProperty, Object> row = new EnumMap<>(StoragePoolProperty.class);
+        row.put(StoragePoolProperty.FRIENDLYNAME, "Pool1");
+        row.put(StoragePoolProperty.OBJECTID, null);
+        rows.add(row);
+
+        List<LogicalVolumeGroup> lvgs = build(result(rows, CIM_STRING), virtualDisks("Volume1", SP_GUID, VD_GUID),
+                physicalDisks("Disk1", "PCISlot1", PD1_GUID), poolToDisk(SP_GUID, PD1_GUID));
+        assertThat(lvgs, hasSize(1));
+        assertThat("A pool with no ObjectId must not claim every disk", lvgs.get(0).getPhysicalVolumes(), is(empty()));
+        assertThat("A pool with no ObjectId must not claim every volume", lvgs.get(0).getLogicalVolumes(),
+                is(anEmptyMap()));
     }
 
     @Test

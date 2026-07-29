@@ -135,23 +135,28 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             if (m.matches()) {
                 spObjectId = m.group(1);
             }
-            // find matching physical and logical volumes
             Set<String> physicalVolumeSet = new HashSet<>();
-            for (Entry<String, String> entry : sppdMap.entrySet()) {
-                if (entry.getKey().contains(spObjectId)) {
-                    String pdObjectId = entry.getValue();
-                    Pair<String, String> nameLoc = pdMap.get(pdObjectId);
-                    if (nameLoc != null) {
-                        physicalVolumeSet.add(nameLoc.getA() + " @ " + nameLoc.getB());
+            Map<String, Set<String>> logicalVolumeMap = new HashMap<>();
+            // Members are matched by substring, and every string contains the empty one, so a pool whose ObjectId is
+            // absent would claim every disk and volume on the system rather than none. WmiUtil maps a missing property
+            // to an empty string, so guard on that before matching.
+            if (!spObjectId.isEmpty()) {
+                // find matching physical volumes
+                for (Entry<String, String> entry : sppdMap.entrySet()) {
+                    if (entry.getKey().contains(spObjectId)) {
+                        String pdObjectId = entry.getValue();
+                        Pair<String, String> nameLoc = pdMap.get(pdObjectId);
+                        if (nameLoc != null) {
+                            physicalVolumeSet.add(nameLoc.getA() + " @ " + nameLoc.getB());
+                        }
                     }
                 }
-            }
-            // find matching logical volume
-            Map<String, Set<String>> logicalVolumeMap = new HashMap<>();
-            for (Entry<String, String> entry : vdMap.entrySet()) {
-                if (entry.getKey().contains(spObjectId)) {
-                    String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];
-                    logicalVolumeMap.put(entry.getValue() + " " + vdObjectId, physicalVolumeSet);
+                // find matching logical volume
+                for (Entry<String, String> entry : vdMap.entrySet()) {
+                    if (entry.getKey().contains(spObjectId)) {
+                        String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];
+                        logicalVolumeMap.put(entry.getValue() + " " + vdObjectId, physicalVolumeSet);
+                    }
                 }
             }
             // Add to list
