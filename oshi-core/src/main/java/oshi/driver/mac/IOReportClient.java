@@ -10,12 +10,13 @@ import java.util.Map;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
+import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.IOReportSampler;
 import oshi.jna.platform.mac.IOReport;
 import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
 
@@ -31,7 +32,7 @@ import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
  * Call {@link #close()} when done to release all CoreFoundation references. After {@code close()}, all sampling methods
  * return sentinel values.
  */
-public final class IOReportClient {
+public final class IOReportClient implements IOReportSampler {
 
     private static final String GROUP_GPU_STATS = "GPU Stats";
     private static final String GROUP_ENERGY = "Energy Model";
@@ -118,6 +119,7 @@ public final class IOReportClient {
      *
      * @return GpuTicks snapshot; never null
      */
+    @Override
     public synchronized GpuTicks sampleGpuTicks() {
         if (closed) {
             return new GpuTicks(0L, 0L);
@@ -154,6 +156,7 @@ public final class IOReportClient {
      *
      * @return GPU utilization percentage, or -1.0
      */
+    @Override
     public synchronized double sampleGpuUtilization() {
         if (closed) {
             return -1d;
@@ -202,6 +205,7 @@ public final class IOReportClient {
      *
      * @return GPU power in watts, or -1.0
      */
+    @Override
     public synchronized double samplePowerWatts() {
         if (closed) {
             return -1d;
@@ -255,6 +259,7 @@ public final class IOReportClient {
     /**
      * Releases all CoreFoundation references held by this client. Idempotent.
      */
+    @Override
     public synchronized void close() {
         if (closed) {
             return;

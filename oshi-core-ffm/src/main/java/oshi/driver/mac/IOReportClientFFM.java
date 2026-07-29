@@ -25,6 +25,7 @@ import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.platform.mac.IOReportFunctions;
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.IOReportSampler;
 
 /**
  * FFM equivalent of {@code IOReportClient}: manages a single IOReport subscription for GPU Stats and Energy Model
@@ -36,7 +37,7 @@ import oshi.hardware.GpuTicks;
  * <p>
  * Call {@link #close()} when done to release all CoreFoundation references.
  */
-public final class IOReportClientFFM {
+public final class IOReportClientFFM implements IOReportSampler {
 
     private static final Logger LOG = LoggerFactory.getLogger(IOReportClientFFM.class);
 
@@ -110,6 +111,7 @@ public final class IOReportClientFFM {
      *
      * @return GpuTicks snapshot; never null
      */
+    @Override
     public synchronized GpuTicks sampleGpuTicks() {
         if (closed) {
             return new GpuTicks(0L, 0L);
@@ -138,6 +140,7 @@ public final class IOReportClientFFM {
      *
      * @return GPU utilization percentage, or -1.0
      */
+    @Override
     public synchronized double sampleGpuUtilization() {
         if (closed) {
             return -1d;
@@ -186,6 +189,7 @@ public final class IOReportClientFFM {
      *
      * @return GPU power in watts, or -1.0
      */
+    @Override
     public synchronized double samplePowerWatts() {
         if (closed) {
             return -1d;
@@ -238,6 +242,7 @@ public final class IOReportClientFFM {
     /**
      * Releases all CoreFoundation references held by this client. Idempotent.
      */
+    @Override
     public synchronized void close() {
         if (closed) {
             return;
