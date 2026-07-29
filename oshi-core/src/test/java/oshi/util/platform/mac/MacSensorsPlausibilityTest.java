@@ -189,4 +189,106 @@ public class MacSensorsPlausibilityTest { // NOSONAR squid:S5786 - public is req
     public void testFallbackKeysIncludeTheHistoricalFour() {
         assertThat(SmcUtil.SMC_KEYS_GPU_TEMP_AS, hasItems("Tg05", "Tg0D", "Tg0f", "Tg0j"));
     }
+
+    // -- fans --
+
+    @Test
+    public void testFanSpeedKeysAreDiscoveredAndWellFormed() {
+        List<String> keys = SmcUtil.getFanSpeedKeys();
+        assertThat("Discovery must never return null", keys, is(notNullValue()));
+        for (String key : keys) {
+            assertThat(key + " must match the fan speed key convention", SmcKeyIndex.isFanSpeedKey(key), is(true));
+        }
+    }
+
+    @Test
+    public void testFanSpeedKeyDiscoveryIsCached() {
+        List<String> keys = SmcUtil.getFanSpeedKeys();
+        List<String> second = SmcUtil.getFanSpeedKeys();
+        assertThat("Repeated calls must agree", second, is(equalTo(keys)));
+        // A completed discovery is cached; the "cannot tell" outcome deliberately is not, and returns an empty list
+        // without caching, so asserting identity on an empty result could pass vacuously.
+        if (!keys.isEmpty()) {
+            assertThat("A completed discovery must be cached, not repeated", second, is(sameInstance(keys)));
+        }
+    }
+
+    @Test
+    public void testFanCountAgreesWithFanNum() {
+        IOKit.IOConnect conn = SmcUtil.smcOpen();
+        assumeTrue(conn != null, "SMC unavailable");
+        try {
+            long fanNum = SmcUtil.smcGetLong(conn, SmcUtil.SMC_KEY_FAN_NUM);
+            assumeTrue(fanNum > 0, "FNum unavailable");
+            assertThat("Discovered fan count must agree with FNum", (long) SmcUtil.getFanSpeedKeys().size(),
+                    is(equalTo(fanNum)));
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
+    }
+
+    @Test
+    public void testFanSpeedsAreWithinTheHardwareLimits() {
+        IOKit.IOConnect conn = SmcUtil.smcOpen();
+        assumeTrue(conn != null, "SMC unavailable");
+        try {
+            int[] speeds = new SystemInfo().getHardware().getSensors().getFanSpeeds();
+            List<String> keys = SmcUtil.getFanSpeedKeys();
+            assertThat("One speed per discovered key", speeds.length, is(keys.size()));
+            for (int i = 0; i < speeds.length; i++) {
+                assertThat("Fan speed must not be negative", speeds[i], is(greaterThanOrEqualTo(0)));
+                // F%dMx is the fan's hardware maximum; only assert against it where it reads a real value.
+                double max = SmcUtil.smcGetFloat(conn, String.format(java.util.Locale.ROOT, "F%dMx", i));
+                if (max > 0) {
+                    assertThat("Fan speed must not exceed the hardware maximum", (double) speeds[i],
+                            is(lessThanOrEqualTo(max * 1.5)));
+                }
+            }
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
+    }
+
+    @Test
+    public void testStoppedFanIsReportedAsZeroNotDropped() {
+        // An empty array means "no fans detected"; a zero entry means "a fan reading zero". A stopped fan must produce
+        // the latter, so the array length tracks the key count regardless of whether any fan is spinning.
+        int[] speeds = new SystemInfo().getHardware().getSensors().getFanSpeeds();
+        assertThat("One speed per discovered key, even when all are stopped", speeds.length,
+                is(SmcUtil.getFanSpeedKeys().size()));
+    }
+
+    // -- voltage --
+
+    @Test
+    public void testCpuVoltageIsPlausibleOrUnavailable() {
+        double volts = new SystemInfo().getHardware().getSensors().getCpuVoltage();
+        assertThat("CPU voltage must be unavailable or plausible, never a mis-scaled fraction", volts,
+                either(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_VOLTAGE)));
+    }
+
+    @Test
+    public void testAppleSiliconVoltageKeyReadsPlausibly() {
+        IOKit.IOConnect conn = SmcUtil.smcOpen();
+        assumeTrue(conn != null, "SMC unavailable");
+        try {
+            // Skips on Intel, where VP0C is absent (its data type reads empty).
+            assumeTrue(!SmcUtil.smcGetDataType(conn, SmcUtil.SMC_KEY_CPU_VOLTAGE_AS).isEmpty(),
+                    "VP0C unavailable (Intel)");
+            double volts = SmcUtil.smcGetFirstVoltage(conn, SmcUtil.getCpuVoltageKeys());
+            assertThat("Apple Silicon core voltage must read plausibly", volts,
+                    is(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_VOLTAGE)));
+        } finally {
+            SmcUtil.smcClose(conn);
+        }
+    }
+
+    @Test
+    public void testVoltageKeysAreNotDiscovered() {
+        // Guards against someone "completing the pattern" and adding a V-prefix scan that could return a supply rail
+        // (e.g. VD0R at 20 V) as the CPU voltage. The default keys are the two named keys, no discovery.
+        assertThat("Voltage keys must remain the named defaults", SmcUtil.getCpuVoltageKeys(),
+                is(equalTo(SmcUtil.SMC_KEYS_CPU_VOLTAGE)));
+        assertThat(SmcUtil.SMC_KEYS_CPU_VOLTAGE, contains(SmcUtil.SMC_KEY_CPU_VOLTAGE_AS, SmcUtil.SMC_KEY_CPU_VOLTAGE));
+    }
 }

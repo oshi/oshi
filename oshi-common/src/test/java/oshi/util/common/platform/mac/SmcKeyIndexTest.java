@@ -194,6 +194,88 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
         assertThat(SmcKeyIndex.isGpuTemperatureKey(null), is(false));
     }
 
+    // -- fan keys --
+
+    @Test
+    public void testFindsFanSpeedKeysExcludingOtherFanKeys() {
+        // The SORTED fixture has a single fan key; discovery on it must return exactly that one.
+        assertThat(SmcKeyIndex.findKeys(SORTED.length, lookup(SORTED), "F", SmcKeyIndex::isFanSpeedKey),
+                contains("F0Ac"));
+        // A realistic F block: the mask must reject FNum, F0Mn, F0Mx, FBAC and Ftst, which all sort inside it.
+        String[] keys = { "F0Ac", "F0Mn", "F0Mx", "F1Ac", "FBAC", "FNum", "FOff", "Ftst" };
+        assertThat(SmcKeyIndex.findKeys(keys.length, lookup(keys), "F", SmcKeyIndex::isFanSpeedKey),
+                contains("F0Ac", "F1Ac"));
+    }
+
+    @Test
+    public void testFanSpeedMaskAcceptsRealFanKeys() {
+        for (int i = 0; i <= 9; i++) {
+            String key = "F" + i + "Ac";
+            assertThat(key + " must match", SmcKeyIndex.isFanSpeedKey(key), is(true));
+        }
+    }
+
+    @Test
+    public void testFanSpeedMaskRejectsNonFanKeys() {
+        // FNum/F0Mn/F0Mx/F0Tg/FBAC/Ftst are other keys in the F block; the rest are malformed or wrong case.
+        for (String key : new String[] { "FNum", "F0Mn", "F0Mx", "F0Tg", "FBAC", "Ftst", "f0ac", "F0AC", "F10Ac", "FAc",
+                "" }) {
+            assertThat("'" + key + "' must not match", SmcKeyIndex.isFanSpeedKey(key), is(false));
+        }
+        assertThat(SmcKeyIndex.isFanSpeedKey(null), is(false));
+    }
+
+    @Test
+    public void testFanSpeedKeysSynthesizedFromCount() {
+        assertThat(SmcKeyIndex.fanSpeedKeys(0), is(empty()));
+        assertThat(SmcKeyIndex.fanSpeedKeys(2), contains("F0Ac", "F1Ac"));
+        assertThat("A negative count clamps to empty", SmcKeyIndex.fanSpeedKeys(-1), is(empty()));
+    }
+
+    @Test
+    public void testFanSpeedKeysAreAlwaysFourCharacters() {
+        // Pins the latent defect: F%dAc with a two-digit index formats a five-character key that reads a different key.
+        // Clamping to MAX_FANS keeps every synthesized key exactly four characters.
+        for (long count : new long[] { 99L, Long.MAX_VALUE }) {
+            List<String> keys = SmcKeyIndex.fanSpeedKeys(count);
+            assertThat(keys.size(), is(SmcKeyIndex.MAX_FANS));
+            for (String key : keys) {
+                assertThat("'" + key + "' must be four characters", key.length(), is(4));
+            }
+        }
+    }
+
+    @Test
+    public void testReconcileFanKeysPrefersDiscovered() {
+        List<String> discovered = Arrays.asList("F0Ac", "F1Ac");
+        // Non-empty discovery is authoritative regardless of FNum, including when the two disagree.
+        assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 2), contains("F0Ac", "F1Ac"));
+        assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 5), contains("F0Ac", "F1Ac"));
+        assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 0), contains("F0Ac", "F1Ac"));
+    }
+
+    @Test
+    public void testReconcileFanKeysSynthesizesFromFnumWhenDiscoveryEmpty() {
+        // No-regression: an index that yielded no fan keys still reports the fans FNum implies, as older OSHI did.
+        assertThat(SmcKeyIndex.reconcileFanKeys(null, 2), contains("F0Ac", "F1Ac"));
+        assertThat(SmcKeyIndex.reconcileFanKeys(Arrays.<String>asList(), 2), contains("F0Ac", "F1Ac"));
+    }
+
+    @Test
+    public void testReconcileFanKeysCannotTellReturnsNull() {
+        // Discovery failed and FNum read zero: "no fans" is indistinguishable from "could not read", so defer.
+        assertThat("Null must not be cached as a confirmed absence", SmcKeyIndex.reconcileFanKeys(null, 0),
+                is(nullValue()));
+    }
+
+    @Test
+    public void testReconcileFanKeysConfirmedNoFansReturnsEmpty() {
+        // Discovery completed with no fan keys and FNum agrees: a genuine fanless machine, a cacheable empty answer.
+        List<String> result = SmcKeyIndex.reconcileFanKeys(Arrays.<String>asList(), 0);
+        assertThat(result, is(notNullValue()));
+        assertThat(result, is(empty()));
+    }
+
     // -- configured keys --
 
     @Test

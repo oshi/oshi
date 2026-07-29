@@ -7,17 +7,14 @@ package oshi.hardware.platform.mac;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AGGREGATE_AS;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEYS_CPU_TEMP_AS;
 import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_TEMP;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_CPU_VOLTAGE_AS;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_NUM;
-import static oshi.util.platform.mac.SmcUtil.SMC_KEY_FAN_SPEED;
 
-import java.util.Locale;
+import java.util.List;
 
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractSensors;
+import oshi.util.common.platform.mac.SmcSensorValues;
 import oshi.util.platform.mac.SmcUtil;
 
 /**
@@ -25,8 +22,6 @@ import oshi.util.platform.mac.SmcUtil;
  */
 @ThreadSafe
 final class MacSensorsJNA extends AbstractSensors {
-
-    private volatile int numFans = 0;
 
     @Override
     public double queryCpuTemperature() {
@@ -54,19 +49,18 @@ final class MacSensorsJNA extends AbstractSensors {
 
     @Override
     public int[] queryFanSpeeds() {
+        // Resolve the keys before opening a connection: discovery opens its own, and nesting two would leak a handle.
+        List<String> keys = SmcUtil.getFanSpeedKeys();
         IOConnect conn = SmcUtil.smcOpen();
+        // On open failure return an array sized to the known key count rather than empty, so the length stays stable
+        // across polls. An empty array means "no fans detected"; a zero entry means "a fan reading zero or unmeasured".
         if (conn == null) {
-            return new int[this.numFans];
+            return new int[keys.size()];
         }
         try {
-            int fans = this.numFans;
-            if (fans == 0) {
-                fans = (int) SmcUtil.smcGetLong(conn, SMC_KEY_FAN_NUM);
-                this.numFans = fans;
-            }
-            int[] fanSpeeds = new int[fans];
-            for (int i = 0; i < fans; i++) {
-                fanSpeeds[i] = (int) SmcUtil.smcGetFloat(conn, String.format(Locale.ROOT, SMC_KEY_FAN_SPEED, i));
+            int[] fanSpeeds = new int[keys.size()];
+            for (int i = 0; i < keys.size(); i++) {
+                fanSpeeds[i] = SmcSensorValues.toRpm(SmcUtil.smcGetFloat(conn, keys.get(i)));
             }
             return fanSpeeds;
         } finally {
@@ -81,13 +75,7 @@ final class MacSensorsJNA extends AbstractSensors {
             return 0d;
         }
         try {
-            // Apple Silicon: VP0C is flt already in volts, no scaling needed
-            double volts = SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE_AS);
-            if (volts > 0d) {
-                return volts;
-            }
-            // Intel: VC0C is FPE2 in millivolts, divide by 1000 to get volts
-            return SmcUtil.smcGetFloat(conn, SMC_KEY_CPU_VOLTAGE) / 1000d;
+            return SmcUtil.smcGetFirstVoltage(conn, SmcUtil.getCpuVoltageKeys());
         } finally {
             SmcUtil.smcClose(conn);
         }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
@@ -44,8 +45,30 @@ public final class SmcKeyIndex {
      */
     private static final Pattern GPU_TEMPERATURE_KEY = Pattern.compile("^Tg\\d[\\dA-Za-z]$");
 
+    /**
+     * Fan current-speed keys, e.g. {@code F0Ac} or {@code F1Ac}.
+     * <p>
+     * Unlike {@link #GPU_TEMPERATURE_KEY} the fourth character is fixed, not variable: the published fan keys are
+     * {@code F%dAc} current, {@code F%dMn} minimum, {@code F%dMx} maximum, {@code F%dSf} safe and {@code F%dTg} target,
+     * so only the {@code Ac} suffix names the current speed. The mask matters because the other fan keys sort inside
+     * the same {@code F} prefix block: an M3 Pro's block is
+     * {@code F0Ac F0CR F0Dc F0Fb F0Fc F0Md F0Mn F0Mx F0Sf F0St F0Tg}, the same again for {@code F1}, then
+     * {@code FBAC FBAD FNum FOFC FOff FRmp Fpds Frqd Ftst}.
+     */
+    private static final Pattern FAN_SPEED_KEY = Pattern.compile("^F\\dAc$");
+
     /** SMC keys are four characters. */
     private static final int KEY_LENGTH = 4;
+
+    /**
+     * Upper bound on a fan count read from {@code FNum}.
+     * <p>
+     * The binding constraint is the key format, not the hardware: {@code String.format("F%dAc", 10)} produces the
+     * five-character {@code "F10Ac"}, and reading a key truncates it to four characters, so an eleventh fan would
+     * silently read {@code "F10A"} instead. Ten is therefore the highest index this naming scheme can express. It also
+     * sits above the hardware bound, since no Mac has more than eight fans.
+     */
+    public static final int MAX_FANS = 10;
 
     /**
      * Upper bound on a plausible {@code #KEY} count, guarding against a garbage read. Observed counts are in the low
@@ -191,6 +214,70 @@ public final class SmcKeyIndex {
      */
     public static boolean isGpuTemperatureKey(String key) {
         return key != null && GPU_TEMPERATURE_KEY.matcher(key).matches();
+    }
+
+    /**
+     * Tests whether a key names a fan's current speed.
+     *
+     * @param key the four-character SMC key
+     * @return true if the key matches the fan current-speed naming convention
+     */
+    public static boolean isFanSpeedKey(String key) {
+        return key != null && FAN_SPEED_KEY.matcher(key).matches();
+    }
+
+    /**
+     * Builds the fan current-speed keys for a fan count, as the naming convention implies them.
+     *
+     * @param fanCount the number of fans, from the SMC's {@code FNum} key
+     * @return the keys {@code F0Ac} through {@code F(n-1)Ac}, clamped to {@link #MAX_FANS}, never null
+     */
+    public static List<String> fanSpeedKeys(long fanCount) {
+        // Clamp before narrowing: FNum is a single byte, but a mis-sized read returns whatever the buffer held.
+        int fans = (int) Math.max(0, Math.min(MAX_FANS, fanCount));
+        if (fans < fanCount) {
+            LOG.warn("Ignoring an implausible SMC fan count of {}; using {}.", fanCount, fans);
+        }
+        List<String> keys = new ArrayList<>(fans);
+        for (int i = 0; i < fans; i++) {
+            keys.add(String.format(Locale.ROOT, "F%dAc", i));
+        }
+        return Collections.unmodifiableList(keys);
+    }
+
+    /**
+     * Reconciles the fan keys found in the key index against the count reported by {@code FNum}.
+     * <p>
+     * Discovery is preferred where it produced anything, because the index lists the keys that actually exist. Where it
+     * did not, a positive {@code FNum} still implies the conventionally named keys, which is what earlier versions of
+     * OSHI read directly, so this never reports fewer fans than they did.
+     * <p>
+     * Returns {@code null} when the two sources together cannot distinguish "this machine has no fans" from "the keys
+     * could not be read", so that the caller does not cache the answer. That happens when discovery failed and
+     * {@code FNum} read as zero.
+     *
+     * @param discovered the keys found by {@link #findKeys}, or {@code null} if the index could not be read
+     * @param fanCount   the count from {@code FNum}, or 0 if that read failed
+     * @return the keys to read, or {@code null} if the answer is not yet known
+     */
+    public static List<String> reconcileFanKeys(List<String> discovered, long fanCount) {
+        if (discovered != null && !discovered.isEmpty()) {
+            if (fanCount > 0 && discovered.size() != fanCount) {
+                LOG.debug("Found {} fan speed keys {} but FNum reports {} fans; using the discovered keys.",
+                        discovered.size(), discovered, fanCount);
+            }
+            return discovered;
+        }
+        if (fanCount > 0) {
+            List<String> keys = fanSpeedKeys(fanCount);
+            LOG.debug("Fan speed key discovery found none; using the {} keys FNum implies: {}", keys.size(), keys);
+            return keys;
+        }
+        if (discovered == null) {
+            LOG.debug("Neither the SMC key index nor FNum could be read; deferring the fan count.");
+            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
+        }
+        return Collections.emptyList();
     }
 
     /**
