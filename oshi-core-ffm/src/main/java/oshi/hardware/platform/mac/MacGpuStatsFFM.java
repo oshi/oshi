@@ -5,13 +5,8 @@
 package oshi.hardware.platform.mac;
 
 import java.lang.foreign.MemorySegment;
-import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClientFFM;
@@ -24,227 +19,62 @@ import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.ffm.util.platform.mac.SmcUtilFFM;
-import oshi.hardware.GpuStats;
-import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.MacGpuStats;
 
 /**
- * macOS {@link GpuStats} session using FFM.
- *
- * <p>
- * On Apple Silicon, GPU ticks, utilization, and power via IOReport are not yet available in the FFM path; utilization
- * falls back to IOAccelerator PerformanceStatistics. Temperature is read from SMC first, then falls back to
- * IOAccelerator {@code Temperature(C)}.
- *
- * <p>
- * On Intel Mac, utilization and VRAM used are sourced from IOAccelerator PerformanceStatistics.
- *
- * <p>
- * Clock speeds, fan speed, and shared memory are not available on any macOS path and always return -1.
+ * macOS {@link oshi.hardware.GpuStats} session using FFM. All sampling logic lives in {@link MacGpuStats}; this class
+ * supplies only the two native reads.
  */
 @ThreadSafe
-final class MacGpuStatsFFM implements GpuStats {
+final class MacGpuStatsFFM extends MacGpuStats {
 
     private static final String PERF_STATS_KEY = "PerformanceStatistics";
-    private static final String GPU_CORE_UTIL_KEY = "GPU Core Utilization";
-    private static final String DEVICE_UTIL_KEY = "Device Utilization %";
-    private static final String VRAM_USED_KEY = "vramUsedBytes";
-    private static final String VRAM_USED_KEY_AS = "In use system memory";
-    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStatsFFM.class);
-
-    private static final double GPU_UTIL_DIVISOR = 0xFFFFFFFFL;
-
-    /**
-     * Cards whose IOAccelerator statistics have no Temperature(C) key, so the lookup is not repeated. Static because a
-     * GpuStats session is short-lived, and keyed by card because one card lacking the sensor says nothing about another
-     * on the same machine.
-     */
-    private static final Set<String> PERF_STATS_TEMP_ABSENT = ConcurrentHashMap.newKeySet();
-    private static final Pattern TRADEMARK_PATTERN = Pattern.compile("[®™]|\\([Rr]\\)|\\([Tt][Mm]\\)");
-
-    private final boolean isAppleSilicon;
-    private final IOReportClientFFM ioReportClient;
-    private final String normCardName;
-    private final Pattern cardNamePattern;
-
-    private boolean closed;
 
     MacGpuStatsFFM(boolean isAppleSilicon, String cardName) {
-        this.isAppleSilicon = isAppleSilicon;
-        this.ioReportClient = IOReportClientFFM.create();
-        this.normCardName = TRADEMARK_PATTERN.matcher(cardName.toLowerCase(Locale.ROOT)).replaceAll("").trim();
-        this.cardNamePattern = Pattern.compile("\\b" + Pattern.quote(normCardName) + "\\b");
+        super(isAppleSilicon, cardName, IOReportClientFFM::create);
     }
 
     @Override
-    public synchronized void close() {
-        closed = true;
-        if (ioReportClient != null) {
-            ioReportClient.close();
-        }
-    }
-
-    @Override
-    public synchronized boolean isClosed() {
-        return closed;
-    }
-
-    @Override
-    public synchronized GpuTicks getGpuTicks() {
-        checkOpen();
-        if (ioReportClient != null) {
-            return ioReportClient.sampleGpuTicks();
-        }
-        return new GpuTicks(0L, 0L);
-    }
-
-    @Override
-    public synchronized double getGpuUtilization() {
-        checkOpen();
-        if (ioReportClient != null) {
-            double util = ioReportClient.sampleGpuUtilization();
-            if (util >= 0) {
-                return util;
-            }
-        }
-        CFMutableDictionaryRef perfStats = queryPerfStats();
+    protected Map<String, Long> queryPerfStats(String... keys) {
+        CFMutableDictionaryRef perfStats = openPerfStats();
         if (perfStats == null) {
-            return -1d;
+            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the superclass javadoc
         }
         try (perfStats) {
-            CFStringRef coreUtilKey = CFStringRef.createCFString(GPU_CORE_UTIL_KEY);
-            try (coreUtilKey) {
-                MemorySegment result = perfStats.getValue(coreUtilKey);
-                if (!result.equals(MemorySegment.NULL)) {
-                    return CFNumberRef.longValue(result) / GPU_UTIL_DIVISOR * 100.0;
-                }
-            }
-            CFStringRef devUtilKey = CFStringRef.createCFString(DEVICE_UTIL_KEY);
-            try (devUtilKey) {
-                MemorySegment result = perfStats.getValue(devUtilKey);
-                if (!result.equals(MemorySegment.NULL)) {
-                    return CFNumberRef.longValue(result);
-                }
-            }
-        }
-        return -1d;
-    }
-
-    @Override
-    public synchronized long getVramUsed() {
-        checkOpen();
-        CFMutableDictionaryRef perfStats = queryPerfStats();
-        if (perfStats == null) {
-            return -1L;
-        }
-        try (perfStats) {
-            String primaryKey = isAppleSilicon ? VRAM_USED_KEY_AS : VRAM_USED_KEY;
-            String fallbackKey = isAppleSilicon ? VRAM_USED_KEY : VRAM_USED_KEY_AS;
-            CFStringRef key = CFStringRef.createCFString(primaryKey);
-            try (key) {
-                MemorySegment result = perfStats.getValue(key);
-                if (!result.equals(MemorySegment.NULL)) {
-                    return CFNumberRef.longValue(result);
-                }
-            }
-            CFStringRef fallback = CFStringRef.createCFString(fallbackKey);
-            try (fallback) {
-                MemorySegment result = perfStats.getValue(fallback);
-                if (!result.equals(MemorySegment.NULL)) {
-                    return CFNumberRef.longValue(result);
-                }
-            }
-        }
-        return -1L;
-    }
-
-    @Override
-    public synchronized long getSharedMemoryUsed() {
-        checkOpen();
-        return -1L;
-    }
-
-    @Override
-    public synchronized double getTemperature() {
-        checkOpen();
-        if (isAppleSilicon) {
-            int conn = SmcUtilFFM.smcOpen();
-            if (conn != 0) {
-                try {
-                    double temp = SmcUtilFFM.smcGetMaxTemperature(conn, SmcUtilFFM.getGpuTemperatureKeys());
-                    if (temp > 0) {
-                        return temp;
+            Map<String, Long> values = new HashMap<>();
+            for (String key : keys) {
+                CFStringRef cfKey = CFStringRef.createCFString(key);
+                try (cfKey) {
+                    MemorySegment result = perfStats.getValue(cfKey);
+                    if (!result.equals(MemorySegment.NULL)) {
+                        values.put(key, CFNumberRef.longValue(result));
                     }
-                } finally {
-                    SmcUtilFFM.smcClose(conn);
                 }
             }
+            return values;
         }
-        // IOAccelerator statistics, not the SMC: a different sensor that is not power-gated with the GPU
-        // cluster, so the SMC plausibility floor deliberately does not apply here. Unavailable is -1, not 0.
-        // This key does not exist on Apple Silicon, so it is tried once per card and then latched off rather than
-        // repeating an IOKit registry walk on every call. Latch only on structural absence, not on a low reading.
-        if (PERF_STATS_TEMP_ABSENT.contains(normCardName)) {
+    }
+
+    @Override
+    protected double queryGpuTemperatureFromSmc() {
+        int conn = SmcUtilFFM.smcOpen();
+        if (conn == 0) {
             return -1d;
         }
-        CFMutableDictionaryRef perfStats = queryPerfStats();
-        if (perfStats == null) {
-            // Not latched: a missing accelerator entry can be transient (driver reset, eGPU unplugged), unlike a
-            // dictionary that is present but has no temperature key.
-            return -1d;
-        }
-        try (perfStats) {
-            CFStringRef tempKey = CFStringRef.createCFString("Temperature(C)");
-            try (tempKey) {
-                MemorySegment result = perfStats.getValue(tempKey);
-                if (result.equals(MemorySegment.NULL)) {
-                    LOG.debug("No Temperature(C) in IOAccelerator statistics for {}; not retrying.", normCardName);
-                    PERF_STATS_TEMP_ABSENT.add(normCardName);
-                    return -1d;
-                }
-                long val = CFNumberRef.longValue(result);
-                if (val > 0) {
-                    return val;
-                }
-            }
-        }
-        return -1d;
-    }
-
-    @Override
-    public synchronized double getPowerDraw() {
-        checkOpen();
-        if (ioReportClient != null) {
-            return ioReportClient.samplePowerWatts();
-        }
-        return -1d;
-    }
-
-    @Override
-    public synchronized long getCoreClockMhz() {
-        checkOpen();
-        return -1L;
-    }
-
-    @Override
-    public synchronized long getMemoryClockMhz() {
-        checkOpen();
-        return -1L;
-    }
-
-    @Override
-    public synchronized double getFanSpeedPercent() {
-        checkOpen();
-        return -1d;
-    }
-
-    private void checkOpen() {
-        if (closed) {
-            throw new IllegalStateException(
-                    "GpuStats session has been closed. Obtain a new session via GraphicsCard.createStatsSession().");
+        try {
+            return SmcUtilFFM.smcGetMaxTemperature(conn, SmcUtilFFM.getGpuTemperatureKeys());
+        } finally {
+            SmcUtilFFM.smcClose(conn);
         }
     }
 
-    private CFMutableDictionaryRef queryPerfStats() {
+    /**
+     * Walks the IOAccelerator registry for this card's PerformanceStatistics dictionary.
+     *
+     * @return the retained dictionary, which the caller must close, or {@code null} if this card has no accelerator
+     *         entry
+     */
+    private CFMutableDictionaryRef openPerfStats() {
         IOIterator iter = IOKitUtilFFM.getMatchingServices("IOAccelerator");
         if (iter == null) {
             return null;
@@ -261,18 +91,16 @@ final class MacGpuStatsFFM implements GpuStats {
                         CFDictionaryRef props = new CFDictionaryRef(propsSeg);
                         try (props) {
                             MemorySegment modelSeg = props.getValue(modelKey);
-                            if (!modelSeg.equals(MemorySegment.NULL)) {
-                                String model = CFStringRef.stringValue(modelSeg);
-                                if (matchesName(model)) {
-                                    MemorySegment statsSeg = props.getValue(perfStatsKey);
-                                    if (!statsSeg.equals(MemorySegment.NULL)) {
-                                        try {
-                                            CoreFoundationFunctions.CFRetain(statsSeg);
-                                        } catch (Throwable _) {
-                                            // CFRetain declares throws Throwable; swallow to keep flow clean
-                                        }
-                                        result = new CFMutableDictionaryRef(statsSeg);
+                            if (!modelSeg.equals(MemorySegment.NULL)
+                                    && matchesName(CFStringRef.stringValue(modelSeg))) {
+                                MemorySegment statsSeg = props.getValue(perfStatsKey);
+                                if (!statsSeg.equals(MemorySegment.NULL)) {
+                                    try {
+                                        CoreFoundationFunctions.CFRetain(statsSeg);
+                                    } catch (Throwable _) {
+                                        // CFRetain declares throws Throwable; swallow to keep flow clean
                                     }
+                                    result = new CFMutableDictionaryRef(statsSeg);
                                 }
                             }
                         }
@@ -285,16 +113,5 @@ final class MacGpuStatsFFM implements GpuStats {
             }
         }
         return null;
-    }
-
-    private boolean matchesName(String model) {
-        if (model == null || model.isEmpty()) {
-            return false;
-        }
-        String normModel = TRADEMARK_PATTERN.matcher(model.toLowerCase(Locale.ROOT)).replaceAll("").trim();
-        if (normModel.equals(normCardName)) {
-            return true;
-        }
-        return cardNamePattern.matcher(normModel).find();
     }
 }
