@@ -235,8 +235,10 @@ public class MacSensorsPlausibilityFFMTest { // NOSONAR squid:S5786 - public is 
             assertThat("One speed per discovered key", speeds.length, is(keys.size()));
             for (int i = 0; i < speeds.length; i++) {
                 assertThat("Fan speed must not be negative", speeds[i], is(greaterThanOrEqualTo(0)));
-                // F%dMx is the fan's hardware maximum; only assert against it where it reads a real value.
-                double max = SmcUtilFFM.smcGetFloat(conn, String.format(java.util.Locale.ROOT, "F%dMx", i));
+                // F%dMx is the fan's hardware maximum. Derive it from the discovered key rather than the loop index:
+                // discovery returns keys in index order, so a machine numbering its fans non-contiguously would
+                // otherwise be compared against a different fan's maximum. Only assert where the key reads a value.
+                double max = SmcUtilFFM.smcGetFloat(conn, keys.get(i).substring(0, 2) + "Mx");
                 if (max > 0) {
                     assertThat("Fan speed must not exceed the hardware maximum", (double) speeds[i],
                             is(lessThanOrEqualTo(max * 1.5)));
