@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.mac;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -229,12 +230,8 @@ public class MacGpuStatsTest {
         gpu.close();
         assertThat("closed after close", gpu.isClosed(), is(true));
         assertThat("the sampler was released", sampler.closed, is(true));
-        try {
-            gpu.getGpuUtilization();
-            throw new AssertionError("reading a closed session should throw");
-        } catch (IllegalStateException expected) {
-            // Every metric guards on the closed flag.
-        }
+        // Every metric guards on the closed flag.
+        assertThrows(IllegalStateException.class, gpu::getGpuUtilization, "reading a closed session should throw");
     }
 
     @Test

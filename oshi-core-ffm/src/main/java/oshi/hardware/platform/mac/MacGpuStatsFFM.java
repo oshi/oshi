@@ -8,6 +8,9 @@ import java.lang.foreign.MemorySegment;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.mac.IOReportClientFFM;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -27,6 +30,8 @@ import oshi.hardware.common.platform.mac.MacGpuStats;
  */
 @ThreadSafe
 final class MacGpuStatsFFM extends MacGpuStats {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MacGpuStatsFFM.class);
 
     private static final String PERF_STATS_KEY = "PerformanceStatistics";
 
@@ -95,12 +100,17 @@ final class MacGpuStatsFFM extends MacGpuStats {
                                     && matchesName(CFStringRef.stringValue(modelSeg))) {
                                 MemorySegment statsSeg = props.getValue(perfStatsKey);
                                 if (!statsSeg.equals(MemorySegment.NULL)) {
+                                    // getValue follows the CoreFoundation Get rule, so this dictionary belongs to
+                                    // props; retain it to outlive props.close(). The wrapper is built only once the
+                                    // retain succeeds, because the caller releases whatever it receives and releasing
+                                    // a reference that was never taken would over-release the dictionary.
                                     try {
                                         CoreFoundationFunctions.CFRetain(statsSeg);
+                                        result = new CFMutableDictionaryRef(statsSeg);
                                     } catch (Throwable _) {
-                                        // CFRetain declares throws Throwable; swallow to keep flow clean
+                                        LOG.debug("CFRetain failed for {} statistics; skipping this entry.",
+                                                PERF_STATS_KEY);
                                     }
-                                    result = new CFMutableDictionaryRef(statsSeg);
                                 }
                             }
                         }
