@@ -5,6 +5,7 @@
 package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,6 @@ import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
 import oshi.driver.common.windows.gpu.DxgiUtil;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
-import oshi.driver.common.windows.wmi.Win32VideoController.VideoControllerProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
@@ -32,14 +32,13 @@ import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.driver.windows.wmi.Win32VideoControllerJNA;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
-import oshi.hardware.common.AbstractGraphicsCard;
+import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.gpu.DxgiUtilJNA;
 import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.tuples.Pair;
-import oshi.util.tuples.Triplet;
 
 /**
  * Graphics Card obtained from the Windows registry, with VRAM sourced from DXGI.
@@ -68,7 +67,7 @@ import oshi.util.tuples.Triplet;
  * counters (Windows 10 1709+) and optionally from LibreHardwareMonitor WMI sensors when LHM is running.
  */
 @ThreadSafe
-final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
+final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsGraphicsCardJNA.class);
 
@@ -82,19 +81,6 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
     public static final String MATCHING_DEVICE_ID = "MatchingDeviceId";
     public static final String LOCATION_INFORMATION = "LocationInformation";
     public static final String DISPLAY_DEVICES_REGISTRY_PATH = "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e968-e325-11ce-bfc1-08002be10318}\\";
-
-    // PDH instance prefix for this adapter's LUID, e.g. "luid_0x00000000_0x0001234_phys_0"
-    // Used to filter GPU Engine and GPU Adapter Memory counter instances.
-    private final String luidPrefix;
-
-    // LHM hardware identifier for this GPU, e.g. "/gpu-nvidia/0". Empty if LHM is not available.
-    private final String lhmParent;
-
-    // PCI bus number from DXGI, used to correlate with ADL. -1 if unknown.
-    private final int pciBusNumber;
-
-    // PCI bus ID string for NVML correlation, e.g. "0000:01:00.0". Empty if unknown.
-    private final String pciBusId;
 
     /**
      * Constructor for WindowsGraphicsCard
@@ -111,16 +97,12 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
      */
     WindowsGraphicsCardJNA(String name, String deviceId, String vendor, String versionInfo, long vram,
             String luidPrefix, String lhmParent, int pciBusNumber, String pciBusId) {
-        super(name, deviceId, vendor, versionInfo, vram);
-        this.luidPrefix = luidPrefix;
-        this.lhmParent = lhmParent;
-        this.pciBusNumber = pciBusNumber;
-        this.pciBusId = pciBusId;
+        super(name, deviceId, vendor, versionInfo, vram, luidPrefix, lhmParent, pciBusNumber, pciBusId);
     }
 
     @Override
     public GpuStats createStatsSession() {
-        return new WindowsGpuStatsJNA(luidPrefix, lhmParent, pciBusNumber, pciBusId, getName());
+        return new WindowsGpuStatsJNA(getLuidPrefix(), getLhmParent(), getPciBusNumber(), getPciBusId(), getName());
     }
 
     /**
@@ -264,84 +246,11 @@ final class WindowsGraphicsCardJNA extends AbstractGraphicsCard {
     // fall back if something went wrong
     private static List<GraphicsCard> getGraphicsCardsFromWmi(List<DxgiAdapterInfo> dxgiAdapters,
             Map<String, String> lhmParentMap) {
-        List<GraphicsCard> cardList = new ArrayList<>();
-        if (IS_VISTA_OR_GREATER) {
-            boolean dxgiAvailable = !dxgiAdapters.isEmpty();
-            // dxgiAdapters is not mutated; remainingDxgi is the working copy consumed during matching.
-            // dxgiAdapters is retained as the stable reference for indexOf ordering lookups.
-            List<DxgiAdapterInfo> remainingDxgi = new ArrayList<>(dxgiAdapters);
-            TreeMap<Integer, GraphicsCard> dxgiOrdered = new TreeMap<>();
-
-            WmiResult<VideoControllerProperty> cards = Win32VideoControllerJNA.queryVideoController();
-            for (int index = 0; index < cards.getResultCount(); index++) {
-                // ConfigManagerErrorCode 0 = working properly; non-zero = disabled/error (ghost device).
-                // When DXGI is unavailable, keep all entries for maximum compatibility.
-                if (dxgiAvailable
-                        && WmiUtil.getUint32(cards, VideoControllerProperty.CONFIGMANAGERERRORCODE, index) != 0) {
-                    continue;
-                }
-                String name = WmiUtil.getString(cards, VideoControllerProperty.NAME, index);
-                Triplet<String, String, String> idPair = ParseUtil.parseDeviceIdToVendorProductSerial(
-                        WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
-                String deviceId = idPair == null ? Constants.UNKNOWN : idPair.getB();
-                String vendor = WmiUtil.getString(cards, VideoControllerProperty.ADAPTERCOMPATIBILITY, index);
-                if (idPair != null) {
-                    if (Util.isBlank(vendor)) {
-                        deviceId = idPair.getA();
-                    } else {
-                        vendor = vendor + " (" + idPair.getA() + ")";
-                    }
-                }
-                String versionInfo = WmiUtil.getString(cards, VideoControllerProperty.DRIVERVERSION, index);
-                if (!Util.isBlank(versionInfo)) {
-                    versionInfo = "DriverVersion=" + versionInfo;
-                } else {
-                    versionInfo = Constants.UNKNOWN;
-                }
-                // Prefer DXGI DedicatedVideoMemory when a match can be found via the PCI IDs
-                // extracted from PNPDEVICEID. Fall back to WMI AdapterRAM (32-bit capped) only
-                // when no DXGI match is available.
-                Pair<Integer, Integer> pciIds = ParseUtil.parseDeviceIdToVendorProductIds(
-                        WmiUtil.getString(cards, VideoControllerProperty.PNPDEVICEID, index));
-                int pciVendorId = pciIds == null ? 0 : pciIds.getA();
-                int pciDeviceId = pciIds == null ? 0 : pciIds.getB();
-                DxgiAdapterInfo dxgiMatch = DxgiUtilJNA.findMatch(remainingDxgi, pciVendorId, pciDeviceId, name);
-                long vram;
-                int dxgiIndex = -1;
-                String luidPrefix = "";
-                int pciBusNumber = -1;
-                String pciBusId = "";
-                if (dxgiMatch != null) {
-                    vram = dxgiMatch.getDedicatedVideoMemory();
-                    dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
-                    luidPrefix = buildLuidPrefix(dxgiMatch);
-                    // pciBusNumber and pciBusId are not available via WMI; leave as -1 / empty.
-                    // ADL and NVML correlation will be skipped for cards enumerated via this path.
-                } else {
-                    vram = WmiUtil.getUint32asLong(cards, VideoControllerProperty.ADAPTERRAM, index);
-                }
-                String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
-                        "");
-                GraphicsCard card = new WindowsGraphicsCardJNA(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
-                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent,
-                        pciBusNumber, pciBusId);
-                // Remove dxgiMatch from remainingDxgi only after the card is successfully
-                // constructed, matching the registry path's defensive pattern so that a
-                // failure during construction leaves the match available for subsequent entries.
-                if (dxgiMatch != null) {
-                    remainingDxgi.remove(dxgiMatch);
-                }
-                if (dxgiIndex >= 0) {
-                    dxgiOrdered.put(dxgiIndex, card);
-                } else {
-                    cardList.add(card);
-                }
-            }
-            List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
-            result.addAll(cardList);
-            return result;
+        if (!IS_VISTA_OR_GREATER) {
+            return Collections.emptyList();
         }
-        return cardList;
+        return buildFromWmi(dxgiAdapters, lhmParentMap, Win32VideoControllerJNA.queryVideoController(),
+                WindowsGraphicsCardJNA::buildLuidPrefix, WindowsGraphicsCardJNA::new);
     }
 
     /**
