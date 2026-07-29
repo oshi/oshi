@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,10 @@ import oshi.jna.common.Nvml.NvmlLibrary;
 import oshi.jna.common.Nvml.NvmlMemory;
 import oshi.jna.common.Nvml.NvmlPciInfo;
 import oshi.jna.common.Nvml.NvmlUtilization;
+import oshi.util.common.gpu.NvmlDeviceCache;
+import oshi.util.common.gpu.NvmlQuery;
+import oshi.util.common.gpu.NvmlQuery.NvmlScope;
+import oshi.util.tuples.Pair;
 
 /**
  * Optional runtime binding to the NVIDIA Management Library (NVML). All methods return sentinel values ({@code -1} or
@@ -37,7 +43,7 @@ import oshi.jna.common.Nvml.NvmlUtilization;
  *
  * <p>
  * Device handles are enumerated once on first successful init and cached by PCI bus ID string for correlation with OSHI
- * GraphicsCard instances.
+ * GraphicsCard instances. The query skeleton shared with the FFM binding lives in {@link NvmlQuery}.
  */
 @ThreadSafe
 public final class NvmlUtilJNA {
@@ -67,11 +73,27 @@ public final class NvmlUtilJNA {
         }
     }
 
-    // Lazy device enumeration state — written once on first successful enumeration, read-only thereafter.
-    // Stores PCI bus ID strings (stable identifiers) rather than Pointer handles, which are only valid
-    // within a single nvmlInit/nvmlShutdown scope.
-    private static volatile boolean devicesEnumerated = false;
-    private static final AtomicReference<Set<String>> DEVICE_BUS_IDS = new AtomicReference<>(Collections.emptySet());
+    // Stores PCI bus ID strings (stable identifiers) rather than Pointer handles, which are only valid within a
+    // single nvmlInit/nvmlShutdown scope.
+    private static final NvmlDeviceCache DEVICE_CACHE = new NvmlDeviceCache("JNA");
+
+    private static final NvmlScope<Pointer> SCOPE = new NvmlScope<Pointer>() {
+        @Override
+        public boolean init() {
+            return nvmlInit();
+        }
+
+        @Override
+        public void uninit() {
+            nvmlUninit();
+        }
+
+        @Override
+        public <R> R withDevice(String deviceId, Function<Pointer, R> body, R sentinel) {
+            Pointer device = acquireHandleByBusId(deviceId);
+            return device == null ? sentinel : body.apply(device);
+        }
+    };
 
     private NvmlUtilJNA() {
     }
@@ -107,20 +129,64 @@ public final class NvmlUtilJNA {
         Holder.LIB.nvmlShutdown();
     }
 
+    // -------------------------------------------------------------------------
+    // Device enumeration
+    // -------------------------------------------------------------------------
+
     /**
-     * Enumerates device PCI bus IDs on first call after a successful init. Only sets {@code devicesEnumerated} on
-     * success so transient NVML failures allow a retry on the next call. Must be called while NVML is initialized.
+     * Applies {@code visitor} to each NVML device handle in index order, stopping early if it returns true. Devices
+     * whose handle cannot be acquired are skipped. Must be called while NVML is initialized.
+     *
+     * @param visitor applied to each handle, returning true to stop the walk
+     * @return false if the device count could not be read, letting callers distinguish an NVML failure from a machine
+     *         with no devices
      */
-    private static void ensureDevicesEnumerated() {
-        if (devicesEnumerated) {
-            return;
+    private static boolean forEachDevice(Predicate<Pointer> visitor) {
+        IntByReference countRef = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
+            return false;
         }
-        Set<String> ids = enumerateDeviceBusIds();
-        if (ids != null) {
-            DEVICE_BUS_IDS.set(ids);
-            devicesEnumerated = true;
-            LOG.debug("NVML enumerated {} device(s)", DEVICE_BUS_IDS.get().size());
+        int count = countRef.getValue();
+        for (int i = 0; i < count; i++) {
+            PointerByReference handleRef = new PointerByReference();
+            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
+                continue;
+            }
+            if (visitor.test(handleRef.getValue())) {
+                return true;
+            }
         }
+        return true;
+    }
+
+    /**
+     * Reads a device's two PCI bus ID forms, lowercased.
+     *
+     * @param handle the device handle
+     * @return the modern and legacy bus IDs, or {@code null} if the PCI info could not be read
+     */
+    private static Pair<String, String> readBusIds(Pointer handle) {
+        NvmlPciInfo pci = new NvmlPciInfo();
+        if (Holder.LIB.nvmlDeviceGetPciInfo_v3(handle, pci) != Nvml.NVML_SUCCESS) {
+            return null;
+        }
+        pci.read();
+        return new Pair<>(Native.toString(pci.busId).toLowerCase(Locale.ROOT),
+                Native.toString(pci.busIdLegacy).toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Reads a device's name, lowercased.
+     *
+     * @param handle the device handle
+     * @return the name, or {@code null} if it could not be read
+     */
+    private static String readName(Pointer handle) {
+        byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
+        if (Holder.LIB.nvmlDeviceGetName(handle, nameBuf, nameBuf.length) != Nvml.NVML_SUCCESS) {
+            return null;
+        }
+        return Native.toString(nameBuf).toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -130,32 +196,22 @@ public final class NvmlUtilJNA {
      * @return set of PCI bus ID strings, or {@code null} on NVML error
      */
     private static Set<String> enumerateDeviceBusIds() {
-        IntByReference countRef = new IntByReference();
-        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return null;
-        }
-        int count = countRef.getValue();
         Set<String> ids = new HashSet<>();
-        for (int i = 0; i < count; i++) {
-            PointerByReference handleRef = new PointerByReference();
-            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
-                continue;
+        boolean enumerated = forEachDevice(handle -> {
+            Pair<String, String> busIds = readBusIds(handle);
+            if (busIds != null) {
+                addIfNotEmpty(ids, busIds.getA());
+                addIfNotEmpty(ids, busIds.getB());
             }
-            Pointer handle = handleRef.getValue();
-            NvmlPciInfo pci = new NvmlPciInfo();
-            if (Holder.LIB.nvmlDeviceGetPciInfo_v3(handle, pci) == Nvml.NVML_SUCCESS) {
-                pci.read();
-                String busId = Native.toString(pci.busId).toLowerCase(Locale.ROOT);
-                if (!busId.isEmpty()) {
-                    ids.add(busId);
-                }
-                String legacyId = Native.toString(pci.busIdLegacy).toLowerCase(Locale.ROOT);
-                if (!legacyId.isEmpty()) {
-                    ids.add(legacyId);
-                }
-            }
+            return false;
+        });
+        return enumerated ? Collections.unmodifiableSet(ids) : null;
+    }
+
+    private static void addIfNotEmpty(Set<String> ids, String id) {
+        if (!id.isEmpty()) {
+            ids.add(id);
         }
-        return Collections.unmodifiableSet(ids);
     }
 
     /**
@@ -166,30 +222,18 @@ public final class NvmlUtilJNA {
      * @return device handle Pointer, or {@code null} if not found
      */
     private static Pointer acquireHandleByBusId(String pciBusId) {
-        IntByReference countRef = new IntByReference();
-        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return null;
-        }
         String needle = pciBusId.toLowerCase(Locale.ROOT);
-        int count = countRef.getValue();
-        for (int i = 0; i < count; i++) {
-            PointerByReference handleRef = new PointerByReference();
-            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
-                continue;
+        AtomicReference<Pointer> found = new AtomicReference<>();
+        forEachDevice(handle -> {
+            Pair<String, String> busIds = readBusIds(handle);
+            if (busIds != null
+                    && (NvmlQuery.matches(busIds.getA(), needle) || NvmlQuery.matches(busIds.getB(), needle))) {
+                found.set(handle);
+                return true;
             }
-            Pointer handle = handleRef.getValue();
-            NvmlPciInfo pci = new NvmlPciInfo();
-            if (Holder.LIB.nvmlDeviceGetPciInfo_v3(handle, pci) == Nvml.NVML_SUCCESS) {
-                pci.read();
-                String busId = Native.toString(pci.busId).toLowerCase(Locale.ROOT);
-                String legacyId = Native.toString(pci.busIdLegacy).toLowerCase(Locale.ROOT);
-                if (busId.contains(needle) || needle.contains(busId) || legacyId.contains(needle)
-                        || needle.contains(legacyId)) {
-                    return handle;
-                }
-            }
-        }
-        return null;
+            return false;
+        });
+        return found.get();
     }
 
     /**
@@ -200,51 +244,90 @@ public final class NvmlUtilJNA {
      * @return device handle Pointer, or {@code null} if not found
      */
     private static Pointer acquireHandleByName(String gpuName) {
-        IntByReference countRef = new IntByReference();
-        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return null;
-        }
         String needle = gpuName.toLowerCase(Locale.ROOT);
-        int count = countRef.getValue();
-        for (int i = 0; i < count; i++) {
-            PointerByReference handleRef = new PointerByReference();
-            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
-                continue;
+        AtomicReference<Pointer> found = new AtomicReference<>();
+        forEachDevice(handle -> {
+            String name = readName(handle);
+            if (name != null && NvmlQuery.matches(name, needle)) {
+                found.set(handle);
+                return true;
             }
-            Pointer handle = handleRef.getValue();
-            byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
-            if (Holder.LIB.nvmlDeviceGetName(handle, nameBuf, nameBuf.length) == Nvml.NVML_SUCCESS) {
-                String name = Native.toString(nameBuf).toLowerCase(Locale.ROOT);
-                if (name.contains(needle) || needle.contains(name)) {
-                    return handle;
-                }
-            }
-        }
-        return null;
+            return false;
+        });
+        return found.get();
     }
 
+    /**
+     * Counts the devices whose name matches, so an ambiguous match can be rejected rather than resolved arbitrarily.
+     *
+     * @param gpuName GPU name to match
+     * @return the number of matching devices, or {@code -1} if the devices could not be enumerated
+     */
     private static int countMatchesByName(String gpuName) {
-        IntByReference countRef = new IntByReference();
-        if (Holder.LIB.nvmlDeviceGetCount_v2(countRef) != Nvml.NVML_SUCCESS) {
-            return -1;
-        }
         String needle = gpuName.toLowerCase(Locale.ROOT);
-        int total = countRef.getValue();
-        int matches = 0;
-        for (int i = 0; i < total; i++) {
-            PointerByReference handleRef = new PointerByReference();
-            if (Holder.LIB.nvmlDeviceGetHandleByIndex_v2(i, handleRef) != Nvml.NVML_SUCCESS) {
-                continue;
+        int[] matches = new int[1];
+        boolean enumerated = forEachDevice(handle -> {
+            String name = readName(handle);
+            if (name != null && NvmlQuery.matches(name, needle)) {
+                matches[0]++;
             }
-            byte[] nameBuf = new byte[Nvml.NVML_DEVICE_NAME_BUFFER_SIZE];
-            if (Holder.LIB.nvmlDeviceGetName(handleRef.getValue(), nameBuf, nameBuf.length) == Nvml.NVML_SUCCESS) {
-                String name = Native.toString(nameBuf).toLowerCase(Locale.ROOT);
-                if (name.contains(needle) || needle.contains(name)) {
-                    matches++;
-                }
-            }
+            return false;
+        });
+        return enumerated ? matches[0] : -1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Metric readers — the only part that differs from the FFM binding
+    // -------------------------------------------------------------------------
+
+    private static double readUtilization(Pointer device) {
+        NvmlUtilization util = new NvmlUtilization();
+        if (Holder.LIB.nvmlDeviceGetUtilizationRates(device, util) == Nvml.NVML_SUCCESS) {
+            util.read();
+            return util.gpu;
         }
-        return matches;
+        return -1d;
+    }
+
+    private static long readVramUsed(Pointer device) {
+        NvmlMemory mem = new NvmlMemory();
+        if (Holder.LIB.nvmlDeviceGetMemoryInfo(device, mem) == Nvml.NVML_SUCCESS) {
+            mem.read();
+            return mem.used;
+        }
+        return -1L;
+    }
+
+    private static double readTemperature(Pointer device) {
+        IntByReference temp = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetTemperature(device, Nvml.NVML_TEMPERATURE_GPU, temp) == Nvml.NVML_SUCCESS) {
+            return temp.getValue();
+        }
+        return -1d;
+    }
+
+    private static double readPowerDraw(Pointer device) {
+        IntByReference power = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetPowerUsage(device, power) == Nvml.NVML_SUCCESS) {
+            return power.getValue() / 1000.0;
+        }
+        return -1d;
+    }
+
+    private static long readClock(Pointer device, int clockType) {
+        IntByReference clock = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetClockInfo(device, clockType, clock) == Nvml.NVML_SUCCESS) {
+            return clock.getValue();
+        }
+        return -1L;
+    }
+
+    private static double readFanSpeed(Pointer device) {
+        IntByReference speed = new IntByReference();
+        if (Holder.LIB.nvmlDeviceGetFanSpeed(device, speed) == Nvml.NVML_SUCCESS) {
+            return speed.getValue();
+        }
+        return -1d;
     }
 
     // -------------------------------------------------------------------------
@@ -278,21 +361,12 @@ public final class NvmlUtilJNA {
         if (!Holder.LIBRARY_LOADED || pciBusId == null || pciBusId.isEmpty()) {
             return null;
         }
-        boolean init = nvmlInit();
-        if (!init) {
+        if (!nvmlInit()) {
             return null;
         }
         try {
-            ensureDevicesEnumerated();
-            // Verify a handle can be acquired (device exists), then return the canonical bus ID
-            // from the enumerated set that matches — not the handle itself.
-            String needle = pciBusId.toLowerCase(Locale.ROOT);
-            for (String id : DEVICE_BUS_IDS.get()) {
-                if (id.contains(needle) || needle.contains(id)) {
-                    return id;
-                }
-            }
-            return null;
+            // Return the canonical bus ID from the enumerated set that matches, not a handle.
+            return NvmlQuery.matchBusId(DEVICE_CACHE.get(NvmlUtilJNA::enumerateDeviceBusIds), pciBusId);
         } finally {
             nvmlUninit();
         }
@@ -312,19 +386,14 @@ public final class NvmlUtilJNA {
         if (!Holder.LIBRARY_LOADED || gpuName == null || gpuName.isEmpty()) {
             return null;
         }
-        boolean init = nvmlInit();
-        if (!init) {
+        if (!nvmlInit()) {
             return null;
         }
         try {
-            ensureDevicesEnumerated();
             // Check for ambiguous name matches before committing to the first hit.
             int matchCount = countMatchesByName(gpuName);
-            if (matchCount < 0) {
-                // nvmlDeviceGetCount_v2 failed; cannot enumerate devices
-                return null;
-            }
-            if (matchCount == 0) {
+            if (matchCount <= 0) {
+                // Zero matches, or nvmlDeviceGetCount_v2 failed so the devices could not be enumerated.
                 return null;
             }
             if (matchCount > 1) {
@@ -337,18 +406,19 @@ public final class NvmlUtilJNA {
             if (handle == null) {
                 return null;
             }
-            NvmlPciInfo pci = new NvmlPciInfo();
-            if (Holder.LIB.nvmlDeviceGetPciInfo_v3(handle, pci) == Nvml.NVML_SUCCESS) {
-                pci.read();
-                String busId = Native.toString(pci.busId).toLowerCase(Locale.ROOT);
-                if (!busId.isEmpty()) {
-                    return busId;
-                }
+            Pair<String, String> busIds = readBusIds(handle);
+            if (busIds == null) {
+                return null;
             }
-            return null;
+            // Prefer the modern form, matching the order enumerateDeviceBusIds records them in.
+            return busIds.getA().isEmpty() ? emptyToNull(busIds.getB()) : busIds.getA();
         } finally {
             nvmlUninit();
         }
+    }
+
+    private static String emptyToNull(String value) {
+        return value.isEmpty() ? null : value;
     }
 
     /**
@@ -358,27 +428,7 @@ public final class NvmlUtilJNA {
      * @return utilization percentage or -1
      */
     public static double getGpuUtilization(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1d;
-            }
-            NvmlUtilization util = new NvmlUtilization();
-            if (Holder.LIB.nvmlDeviceGetUtilizationRates(device, util) == Nvml.NVML_SUCCESS) {
-                util.read();
-                return util.gpu;
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readUtilization, -1d);
     }
 
     /**
@@ -388,27 +438,7 @@ public final class NvmlUtilJNA {
      * @return bytes used or -1
      */
     public static long getVramUsed(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1L;
-            }
-            NvmlMemory mem = new NvmlMemory();
-            if (Holder.LIB.nvmlDeviceGetMemoryInfo(device, mem) == Nvml.NVML_SUCCESS) {
-                mem.read();
-                return mem.used;
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readVramUsed, -1L);
     }
 
     /**
@@ -418,26 +448,7 @@ public final class NvmlUtilJNA {
      * @return temperature in °C or -1
      */
     public static double getTemperature(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1d;
-            }
-            IntByReference temp = new IntByReference();
-            if (Holder.LIB.nvmlDeviceGetTemperature(device, Nvml.NVML_TEMPERATURE_GPU, temp) == Nvml.NVML_SUCCESS) {
-                return temp.getValue();
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readTemperature, -1d);
     }
 
     /**
@@ -447,26 +458,7 @@ public final class NvmlUtilJNA {
      * @return power in watts or -1
      */
     public static double getPowerDraw(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1d;
-            }
-            IntByReference power = new IntByReference();
-            if (Holder.LIB.nvmlDeviceGetPowerUsage(device, power) == Nvml.NVML_SUCCESS) {
-                return power.getValue() / 1000.0;
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readPowerDraw, -1d);
     }
 
     /**
@@ -476,26 +468,7 @@ public final class NvmlUtilJNA {
      * @return core clock in MHz or -1
      */
     public static long getCoreClockMhz(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1L;
-            }
-            IntByReference clock = new IntByReference();
-            if (Holder.LIB.nvmlDeviceGetClockInfo(device, Nvml.NVML_CLOCK_GRAPHICS, clock) == Nvml.NVML_SUCCESS) {
-                return clock.getValue();
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, Nvml.NVML_CLOCK_GRAPHICS), -1L);
     }
 
     /**
@@ -505,26 +478,7 @@ public final class NvmlUtilJNA {
      * @return memory clock in MHz or -1
      */
     public static long getMemoryClockMhz(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1L;
-            }
-            IntByReference clock = new IntByReference();
-            if (Holder.LIB.nvmlDeviceGetClockInfo(device, Nvml.NVML_CLOCK_MEM, clock) == Nvml.NVML_SUCCESS) {
-                return clock.getValue();
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, Nvml.NVML_CLOCK_MEM), -1L);
     }
 
     /**
@@ -534,25 +488,6 @@ public final class NvmlUtilJNA {
      * @return fan speed percentage or -1
      */
     public static double getFanSpeedPercent(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try {
-            Pointer device = acquireHandleByBusId(deviceId);
-            if (device == null) {
-                return -1d;
-            }
-            IntByReference speed = new IntByReference();
-            if (Holder.LIB.nvmlDeviceGetFanSpeed(device, speed) == Nvml.NVML_SUCCESS) {
-                return speed.getValue();
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readFanSpeed, -1d);
     }
 }

@@ -15,27 +15,73 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.common.NvmlFunctions;
+import oshi.util.common.gpu.NvmlDeviceCache;
+import oshi.util.common.gpu.NvmlQuery;
+import oshi.util.common.gpu.NvmlQuery.NvmlScope;
+import oshi.util.tuples.Pair;
 
 /**
  * FFM-based optional runtime binding to the NVIDIA Management Library (NVML). All methods return sentinel values
  * ({@code -1} or {@code -1L}) when NVML is unavailable or a specific query fails.
+ * <p>
+ * The query skeleton shared with the JNA binding lives in {@link NvmlQuery}; only the native reads below differ.
  */
 @ThreadSafe
 public final class NvmlUtilFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(NvmlUtilFFM.class);
 
-    private static volatile boolean devicesEnumerated = false;
-    private static final AtomicReference<Set<String>> DEVICE_BUS_IDS = new AtomicReference<>(Collections.emptySet());
+    private static final long BUS_ID_LEGACY_OFFSET = NvmlFunctions.PCI_INFO_LAYOUT
+            .byteOffset(MemoryLayout.PathElement.groupElement("busIdLegacy"));
+    private static final long BUS_ID_OFFSET = NvmlFunctions.PCI_INFO_LAYOUT
+            .byteOffset(MemoryLayout.PathElement.groupElement("busId"));
+
+    private static final NvmlDeviceCache DEVICE_CACHE = new NvmlDeviceCache("FFM");
+
+    private static final NvmlScope<Device> SCOPE = new NvmlScope<Device>() {
+        @Override
+        public boolean init() {
+            return nvmlInit();
+        }
+
+        @Override
+        public void uninit() {
+            nvmlUninit();
+        }
+
+        @Override
+        public <R> R withDevice(String deviceId, Function<Device, R> body, R sentinel) {
+            // The arena is opened and closed here so no MemorySegment outlives the query or escapes this package.
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment handle = acquireHandleByBusId(deviceId, arena);
+                return handle == null ? sentinel : body.apply(new Device(handle, arena));
+            }
+        }
+    };
 
     private NvmlUtilFFM() {
+    }
+
+    /**
+     * An acquired device handle together with the arena its out-parameters are allocated from. Both are valid only for
+     * the duration of one {@link NvmlScope#withDevice} call.
+     */
+    private static final class Device {
+        private final MemorySegment handle;
+        private final Arena arena;
+
+        Device(MemorySegment handle, Arena arena) {
+            this.handle = handle;
+            this.arena = arena;
+        }
     }
 
     private static boolean nvmlInit() {
@@ -54,132 +100,201 @@ public final class NvmlUtilFFM {
         NvmlFunctions.shutdown();
     }
 
-    private static void ensureDevicesEnumerated() {
-        if (devicesEnumerated) {
-            return;
+    // -------------------------------------------------------------------------
+    // Device enumeration
+    // -------------------------------------------------------------------------
+
+    /**
+     * Applies {@code visitor} to each NVML device handle in index order, stopping early if it returns true. Devices
+     * whose handle cannot be acquired are skipped. Must be called while NVML is initialized.
+     *
+     * @param arena   allocates the out-parameters for the walk
+     * @param visitor applied to each handle, returning true to stop the walk
+     * @return false if the device count could not be read, letting callers distinguish an NVML failure from a machine
+     *         with no devices
+     */
+    private static boolean forEachDevice(Arena arena, Predicate<MemorySegment> visitor) {
+        MemorySegment countSeg = arena.allocate(JAVA_INT);
+        if (NvmlFunctions.deviceGetCount(countSeg) != NvmlFunctions.NVML_SUCCESS) {
+            return false;
         }
-        Set<String> ids = enumerateDeviceBusIds();
-        if (ids != null) {
-            DEVICE_BUS_IDS.set(ids);
-            devicesEnumerated = true;
-            LOG.debug("NVML (FFM) enumerated {} device(s)", DEVICE_BUS_IDS.get().size());
+        int count = countSeg.get(JAVA_INT, 0);
+        for (int i = 0; i < count; i++) {
+            MemorySegment handleSeg = arena.allocate(ADDRESS);
+            if (NvmlFunctions.deviceGetHandleByIndex(i, handleSeg) != NvmlFunctions.NVML_SUCCESS) {
+                continue;
+            }
+            if (visitor.test(handleSeg.get(ADDRESS, 0))) {
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Reads a device's two PCI bus ID forms, lowercased.
+     *
+     * @param handle the device handle
+     * @param arena  allocates the PCI info struct
+     * @return the modern and legacy bus IDs, or {@code null} if the PCI info could not be read
+     */
+    private static Pair<String, String> readBusIds(MemorySegment handle, Arena arena) {
+        MemorySegment pciSeg = arena.allocate(NvmlFunctions.PCI_INFO_LAYOUT);
+        if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) != NvmlFunctions.NVML_SUCCESS) {
+            return null;
+        }
+        return new Pair<>(NvmlFunctions.readString(pciSeg, BUS_ID_OFFSET, 32).toLowerCase(Locale.ROOT),
+                NvmlFunctions.readString(pciSeg, BUS_ID_LEGACY_OFFSET, 16).toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Reads a device's name, lowercased.
+     *
+     * @param handle the device handle
+     * @param arena  allocates the name buffer
+     * @return the name, or {@code null} if it could not be read
+     */
+    private static String readName(MemorySegment handle, Arena arena) {
+        MemorySegment nameSeg = arena.allocate(NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE);
+        if (NvmlFunctions.deviceGetName(handle, nameSeg,
+                NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE) != NvmlFunctions.NVML_SUCCESS) {
+            return null;
+        }
+        return nameSeg.getString(0).toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Returns a set of PCI bus ID strings for all NVML devices, or {@code null} on NVML error (so the caller can
+     * distinguish a real failure from a legitimate empty result).
+     *
+     * @return set of PCI bus ID strings, or {@code null} on NVML error
+     */
+    private static Set<String> enumerateDeviceBusIds() {
+        try (Arena arena = Arena.ofConfined()) {
+            Set<String> ids = new HashSet<>();
+            boolean enumerated = forEachDevice(arena, handle -> {
+                Pair<String, String> busIds = readBusIds(handle, arena);
+                if (busIds != null) {
+                    addIfNotEmpty(ids, busIds.getA());
+                    addIfNotEmpty(ids, busIds.getB());
+                }
+                return false;
+            });
+            return enumerated ? Collections.unmodifiableSet(ids) : null;
         }
     }
 
-    private static Set<String> enumerateDeviceBusIds() {
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment countSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetCount(countSeg) != NvmlFunctions.NVML_SUCCESS) {
-                return null;
-            }
-            int count = countSeg.get(JAVA_INT, 0);
-            Set<String> ids = new HashSet<>();
-            long busIdLegacyOffset = NvmlFunctions.PCI_INFO_LAYOUT
-                    .byteOffset(MemoryLayout.PathElement.groupElement("busIdLegacy"));
-            long busIdOffset = NvmlFunctions.PCI_INFO_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("busId"));
-            for (int i = 0; i < count; i++) {
-                MemorySegment handleSeg = arena.allocate(ADDRESS);
-                if (NvmlFunctions.deviceGetHandleByIndex(i, handleSeg) != NvmlFunctions.NVML_SUCCESS) {
-                    continue;
-                }
-                MemorySegment handle = handleSeg.get(ADDRESS, 0);
-                MemorySegment pciSeg = arena.allocate(NvmlFunctions.PCI_INFO_LAYOUT);
-                if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) == NvmlFunctions.NVML_SUCCESS) {
-                    String legacyId = NvmlFunctions.readString(pciSeg, busIdLegacyOffset, 16).toLowerCase(Locale.ROOT);
-                    if (!legacyId.isEmpty()) {
-                        ids.add(legacyId);
-                    }
-                    String busId = NvmlFunctions.readString(pciSeg, busIdOffset, 32).toLowerCase(Locale.ROOT);
-                    if (!busId.isEmpty()) {
-                        ids.add(busId);
-                    }
-                }
-            }
-            return Collections.unmodifiableSet(ids);
+    private static void addIfNotEmpty(Set<String> ids, String id) {
+        if (!id.isEmpty()) {
+            ids.add(id);
         }
     }
 
     private static MemorySegment acquireHandleByBusId(String pciBusId, Arena arena) {
-        MemorySegment countSeg = arena.allocate(JAVA_INT);
-        if (NvmlFunctions.deviceGetCount(countSeg) != NvmlFunctions.NVML_SUCCESS) {
-            return null;
-        }
         String needle = pciBusId.toLowerCase(Locale.ROOT);
-        int count = countSeg.get(JAVA_INT, 0);
-        long busIdLegacyOffset = NvmlFunctions.PCI_INFO_LAYOUT
-                .byteOffset(MemoryLayout.PathElement.groupElement("busIdLegacy"));
-        long busIdOffset = NvmlFunctions.PCI_INFO_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("busId"));
-        for (int i = 0; i < count; i++) {
-            MemorySegment handleSeg = arena.allocate(ADDRESS);
-            if (NvmlFunctions.deviceGetHandleByIndex(i, handleSeg) != NvmlFunctions.NVML_SUCCESS) {
-                continue;
+        MemorySegment[] found = new MemorySegment[1];
+        forEachDevice(arena, handle -> {
+            Pair<String, String> busIds = readBusIds(handle, arena);
+            if (busIds != null
+                    && (NvmlQuery.matches(busIds.getA(), needle) || NvmlQuery.matches(busIds.getB(), needle))) {
+                found[0] = handle;
+                return true;
             }
-            MemorySegment handle = handleSeg.get(ADDRESS, 0);
-            MemorySegment pciSeg = arena.allocate(NvmlFunctions.PCI_INFO_LAYOUT);
-            if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) == NvmlFunctions.NVML_SUCCESS) {
-                String legacyId = NvmlFunctions.readString(pciSeg, busIdLegacyOffset, 16).toLowerCase(Locale.ROOT);
-                String busId = NvmlFunctions.readString(pciSeg, busIdOffset, 32).toLowerCase(Locale.ROOT);
-                if (busId.contains(needle) || needle.contains(busId) || legacyId.contains(needle)
-                        || needle.contains(legacyId)) {
-                    return handle;
-                }
-            }
-        }
-        return null;
+            return false;
+        });
+        return found[0];
     }
 
     private static MemorySegment acquireHandleByName(String gpuName, Arena arena) {
-        MemorySegment countSeg = arena.allocate(JAVA_INT);
-        if (NvmlFunctions.deviceGetCount(countSeg) != NvmlFunctions.NVML_SUCCESS) {
-            return null;
-        }
         String needle = gpuName.toLowerCase(Locale.ROOT);
-        int count = countSeg.get(JAVA_INT, 0);
-        for (int i = 0; i < count; i++) {
-            MemorySegment handleSeg = arena.allocate(ADDRESS);
-            if (NvmlFunctions.deviceGetHandleByIndex(i, handleSeg) != NvmlFunctions.NVML_SUCCESS) {
-                continue;
+        MemorySegment[] found = new MemorySegment[1];
+        forEachDevice(arena, handle -> {
+            String name = readName(handle, arena);
+            if (name != null && NvmlQuery.matches(name, needle)) {
+                found[0] = handle;
+                return true;
             }
-            MemorySegment handle = handleSeg.get(ADDRESS, 0);
-            MemorySegment nameSeg = arena.allocate(NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE);
-            if (NvmlFunctions.deviceGetName(handle, nameSeg,
-                    NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE) == NvmlFunctions.NVML_SUCCESS) {
-                String name = nameSeg.getString(0).toLowerCase(Locale.ROOT);
-                if (name.contains(needle) || needle.contains(name)) {
-                    return handle;
-                }
-            }
-        }
-        return null;
+            return false;
+        });
+        return found[0];
     }
 
+    /**
+     * Counts the devices whose name matches, so an ambiguous match can be rejected rather than resolved arbitrarily.
+     *
+     * @param gpuName GPU name to match
+     * @param arena   allocates the out-parameters for the walk
+     * @return the number of matching devices, or {@code -1} if the devices could not be enumerated
+     */
     private static int countMatchesByName(String gpuName, Arena arena) {
-        MemorySegment countSeg = arena.allocate(JAVA_INT);
-        if (NvmlFunctions.deviceGetCount(countSeg) != NvmlFunctions.NVML_SUCCESS) {
-            return -1;
-        }
         String needle = gpuName.toLowerCase(Locale.ROOT);
-        int total = countSeg.get(JAVA_INT, 0);
-        int matches = 0;
-        for (int i = 0; i < total; i++) {
-            MemorySegment handleSeg = arena.allocate(ADDRESS);
-            if (NvmlFunctions.deviceGetHandleByIndex(i, handleSeg) != NvmlFunctions.NVML_SUCCESS) {
-                continue;
+        int[] matches = new int[1];
+        boolean enumerated = forEachDevice(arena, handle -> {
+            String name = readName(handle, arena);
+            if (name != null && NvmlQuery.matches(name, needle)) {
+                matches[0]++;
             }
-            MemorySegment nameSeg = arena.allocate(NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE);
-            if (NvmlFunctions.deviceGetName(handleSeg.get(ADDRESS, 0), nameSeg,
-                    NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE) == NvmlFunctions.NVML_SUCCESS) {
-                String name = nameSeg.getString(0).toLowerCase(Locale.ROOT);
-                if (name.contains(needle) || needle.contains(name)) {
-                    matches++;
-                }
-            }
-        }
-        return matches;
+            return false;
+        });
+        return enumerated ? matches[0] : -1;
     }
 
     // -------------------------------------------------------------------------
-    // Public API — mirrors NvmlUtil (JNA) exactly
+    // Metric readers — the only part that differs from the JNA binding
+    // -------------------------------------------------------------------------
+
+    private static double readUtilization(Device device) {
+        MemorySegment utilSeg = device.arena.allocate(NvmlFunctions.UTILIZATION_LAYOUT);
+        if (NvmlFunctions.deviceGetUtilizationRates(device.handle, utilSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return utilSeg.get(JAVA_INT, 0);
+        }
+        return -1d;
+    }
+
+    private static long readVramUsed(Device device) {
+        MemorySegment memSeg = device.arena.allocate(NvmlFunctions.MEMORY_LAYOUT);
+        if (NvmlFunctions.deviceGetMemoryInfo(device.handle, memSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return memSeg.get(JAVA_LONG,
+                    NvmlFunctions.MEMORY_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("used")));
+        }
+        return -1L;
+    }
+
+    private static double readTemperature(Device device) {
+        MemorySegment tempSeg = device.arena.allocate(JAVA_INT);
+        if (NvmlFunctions.deviceGetTemperature(device.handle, NvmlFunctions.NVML_TEMPERATURE_GPU,
+                tempSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return tempSeg.get(JAVA_INT, 0);
+        }
+        return -1d;
+    }
+
+    private static double readPowerDraw(Device device) {
+        MemorySegment powerSeg = device.arena.allocate(JAVA_INT);
+        if (NvmlFunctions.deviceGetPowerUsage(device.handle, powerSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return powerSeg.get(JAVA_INT, 0) / 1000.0;
+        }
+        return -1d;
+    }
+
+    private static long readClock(Device device, int clockType) {
+        MemorySegment clockSeg = device.arena.allocate(JAVA_INT);
+        if (NvmlFunctions.deviceGetClockInfo(device.handle, clockType, clockSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return clockSeg.get(JAVA_INT, 0);
+        }
+        return -1L;
+    }
+
+    private static double readFanSpeed(Device device) {
+        MemorySegment speedSeg = device.arena.allocate(JAVA_INT);
+        if (NvmlFunctions.deviceGetFanSpeed(device.handle, speedSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return speedSeg.get(JAVA_INT, 0);
+        }
+        return -1d;
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API — mirrors NvmlUtilJNA exactly
     // -------------------------------------------------------------------------
 
     /**
@@ -201,19 +316,11 @@ public final class NvmlUtilFFM {
         if (!NvmlFunctions.isAvailable() || pciBusId == null || pciBusId.isEmpty()) {
             return null;
         }
-        boolean init = nvmlInit();
-        if (!init) {
+        if (!nvmlInit()) {
             return null;
         }
         try {
-            ensureDevicesEnumerated();
-            String needle = pciBusId.toLowerCase(Locale.ROOT);
-            for (String id : DEVICE_BUS_IDS.get()) {
-                if (id.contains(needle) || needle.contains(id)) {
-                    return id;
-                }
-            }
-            return null;
+            return NvmlQuery.matchBusId(DEVICE_CACHE.get(NvmlUtilFFM::enumerateDeviceBusIds), pciBusId);
         } finally {
             nvmlUninit();
         }
@@ -229,12 +336,10 @@ public final class NvmlUtilFFM {
         if (!NvmlFunctions.isAvailable() || gpuName == null || gpuName.isEmpty()) {
             return null;
         }
-        boolean init = nvmlInit();
-        if (!init) {
+        if (!nvmlInit()) {
             return null;
         }
         try (Arena arena = Arena.ofConfined()) {
-            ensureDevicesEnumerated();
             int matchCount = countMatchesByName(gpuName, arena);
             if (matchCount <= 0) {
                 return null;
@@ -248,19 +353,19 @@ public final class NvmlUtilFFM {
             if (handle == null) {
                 return null;
             }
-            long busIdLegacyOffset = NvmlFunctions.PCI_INFO_LAYOUT
-                    .byteOffset(MemoryLayout.PathElement.groupElement("busIdLegacy"));
-            MemorySegment pciSeg = arena.allocate(NvmlFunctions.PCI_INFO_LAYOUT);
-            if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) == NvmlFunctions.NVML_SUCCESS) {
-                String busId = NvmlFunctions.readString(pciSeg, busIdLegacyOffset, 16).toLowerCase(Locale.ROOT);
-                if (!busId.isEmpty()) {
-                    return busId;
-                }
+            Pair<String, String> busIds = readBusIds(handle, arena);
+            if (busIds == null) {
+                return null;
             }
-            return null;
+            // Prefer the modern form, matching the order enumerateDeviceBusIds records them in.
+            return busIds.getA().isEmpty() ? emptyToNull(busIds.getB()) : busIds.getA();
         } finally {
             nvmlUninit();
         }
+    }
+
+    private static String emptyToNull(String value) {
+        return value.isEmpty() ? null : value;
     }
 
     /**
@@ -270,26 +375,7 @@ public final class NvmlUtilFFM {
      * @return utilization percentage or -1
      */
     public static double getGpuUtilization(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1d;
-            }
-            MemorySegment utilSeg = arena.allocate(NvmlFunctions.UTILIZATION_LAYOUT);
-            if (NvmlFunctions.deviceGetUtilizationRates(device, utilSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return utilSeg.get(JAVA_INT, 0);
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readUtilization, -1d);
     }
 
     /**
@@ -299,27 +385,7 @@ public final class NvmlUtilFFM {
      * @return bytes used or -1
      */
     public static long getVramUsed(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1L;
-            }
-            MemorySegment memSeg = arena.allocate(NvmlFunctions.MEMORY_LAYOUT);
-            if (NvmlFunctions.deviceGetMemoryInfo(device, memSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return memSeg.get(JAVA_LONG,
-                        NvmlFunctions.MEMORY_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("used")));
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readVramUsed, -1L);
     }
 
     /**
@@ -329,27 +395,7 @@ public final class NvmlUtilFFM {
      * @return temperature in °C or -1
      */
     public static double getTemperature(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1d;
-            }
-            MemorySegment tempSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetTemperature(device, NvmlFunctions.NVML_TEMPERATURE_GPU,
-                    tempSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return tempSeg.get(JAVA_INT, 0);
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readTemperature, -1d);
     }
 
     /**
@@ -359,26 +405,7 @@ public final class NvmlUtilFFM {
      * @return power in watts or -1
      */
     public static double getPowerDraw(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1d;
-            }
-            MemorySegment powerSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetPowerUsage(device, powerSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return powerSeg.get(JAVA_INT, 0) / 1000.0;
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readPowerDraw, -1d);
     }
 
     /**
@@ -388,27 +415,7 @@ public final class NvmlUtilFFM {
      * @return core clock in MHz or -1
      */
     public static long getCoreClockMhz(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1L;
-            }
-            MemorySegment clockSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetClockInfo(device, NvmlFunctions.NVML_CLOCK_GRAPHICS,
-                    clockSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return clockSeg.get(JAVA_INT, 0);
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, NvmlFunctions.NVML_CLOCK_GRAPHICS), -1L);
     }
 
     /**
@@ -418,27 +425,7 @@ public final class NvmlUtilFFM {
      * @return memory clock in MHz or -1
      */
     public static long getMemoryClockMhz(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1L;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1L;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1L;
-            }
-            MemorySegment clockSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetClockInfo(device, NvmlFunctions.NVML_CLOCK_MEM,
-                    clockSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return clockSeg.get(JAVA_INT, 0);
-            }
-            return -1L;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, NvmlFunctions.NVML_CLOCK_MEM), -1L);
     }
 
     /**
@@ -448,25 +435,6 @@ public final class NvmlUtilFFM {
      * @return fan speed percentage or -1
      */
     public static double getFanSpeedPercent(String deviceId) {
-        if (deviceId == null || deviceId.isEmpty()) {
-            return -1d;
-        }
-        boolean init = nvmlInit();
-        if (!init) {
-            return -1d;
-        }
-        try (Arena arena = Arena.ofConfined()) {
-            MemorySegment device = acquireHandleByBusId(deviceId, arena);
-            if (device == null) {
-                return -1d;
-            }
-            MemorySegment speedSeg = arena.allocate(JAVA_INT);
-            if (NvmlFunctions.deviceGetFanSpeed(device, speedSeg) == NvmlFunctions.NVML_SUCCESS) {
-                return speedSeg.get(JAVA_INT, 0);
-            }
-            return -1d;
-        } finally {
-            nvmlUninit();
-        }
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readFanSpeed, -1d);
     }
 }
