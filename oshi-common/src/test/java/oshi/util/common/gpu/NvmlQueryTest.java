@@ -128,6 +128,15 @@ public class NvmlQueryTest {
     }
 
     @Test
+    void testMatchBusIdRejectsABlankFragment() {
+        // Every string contains the empty string, so without an explicit guard a blank fragment would match every
+        // enumerated id and resolve to the longest of them.
+        Set<String> busIds = new LinkedHashSet<>(Arrays.asList("0000:01:00.0", "00000000:01:00.0"));
+        assertThat("an empty fragment matches nothing", NvmlQuery.matchBusId(busIds, ""), is(nullValue()));
+        assertThat("a null fragment matches nothing", NvmlQuery.matchBusId(busIds, null), is(nullValue()));
+    }
+
+    @Test
     void testMatchBusIdPrefersTheQualifiedForm() {
         // Both of a device's forms are enumerated and a bare fragment matches both, so the answer must not depend on
         // which one iteration happens to reach first.

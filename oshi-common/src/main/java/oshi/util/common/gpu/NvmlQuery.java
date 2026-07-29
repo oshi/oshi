@@ -111,11 +111,18 @@ public final class NvmlQuery {
      * first match instead would let set iteration order decide, which can differ between runs and between the two
      * bindings.
      *
+     * A blank fragment matches nothing, rather than matching every enumerated ID as bidirectional containment would
+     * otherwise have it do. This is checked here rather than left to {@link #matches}, whose guard covers a blank
+     * candidate read from a device and not a blank fragment supplied by a caller.
+     *
      * @param busIds   the enumerated PCI bus IDs, already lowercased
      * @param fragment the fragment to match
-     * @return the matching bus ID, or {@code null} if none matched
+     * @return the matching bus ID, or {@code null} if none matched or the fragment was blank
      */
     public static String matchBusId(Set<String> busIds, String fragment) {
+        if (fragment == null || fragment.isEmpty()) {
+            return null;
+        }
         String needle = fragment.toLowerCase(Locale.ROOT);
         String best = null;
         for (String id : busIds) {
