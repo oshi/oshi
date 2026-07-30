@@ -269,9 +269,11 @@ class MacSensorsPlausibilityFFMTest {
         int conn = SmcUtilFFM.smcOpen();
         assumeTrue(conn != 0, "SMC unavailable");
         try {
-            // Skips on Intel, where VP0C is absent (its data type reads empty).
+            // VP0C is chip-specific, not simply Apple Silicon versus Intel: it reads 0.75 V on an M3 Pro but is
+            // absent on an M2 Max, whose 53 V keys contain no identified core voltage at all. So skip when the key
+            // is absent, without inferring which chip that implies.
             assumeTrue(!SmcUtilFFM.smcGetDataType(conn, SmcUtilFFM.SMC_KEY_CPU_VOLTAGE_AS).isEmpty(),
-                    "VP0C unavailable (Intel)");
+                    "VP0C absent on this chip");
             double volts = SmcUtilFFM.smcGetFirstVoltage(conn, SmcUtilFFM.getCpuVoltageKeys());
             assertThat("Apple Silicon core voltage must read plausibly", volts,
                     is(greaterThanOrEqualTo(SmcUtilFFM.MIN_PLAUSIBLE_VOLTAGE)));
