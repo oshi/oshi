@@ -279,6 +279,43 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
     }
 
     /**
+     * The x86 CPUID feature flags carried in the EDX word of the processor ID, with the bit each one sets. Bits 42 and
+     * 52 are reserved by the specification, which is why the numbering skips them. A constant with more than one name
+     * is a feature that platforms report under different spellings, and those names share a bit.
+     */
+    private enum CpuidFeature {
+        FPU(32, "fpu"), VME(33, "vme"), DE(34, "de"), PSE(35, "pse"), TSC(36, "tsc"), MSR(37, "msr"), PAE(38, "pae"),
+        MCE(39, "mce"), CX8(40, "cx8"), APIC(41, "apic"), SEP(43, "sep"), MTRR(44, "mtrr"), PGE(45, "pge"),
+        MCA(46, "mca"), CMOV(47, "cmov"), PAT(48, "pat"), PSE36(49, "pse-36", "pse36"), PSN(50, "psn"),
+        CLFSH(51, "clfsh", "clflush"), DS(53, "ds"), ACPI(54, "acpi"), MMX(55, "mmx"), FXSR(56, "fxsr"), SSE(57, "sse"),
+        SSE2(58, "sse2"), SS(59, "ss"), HTT(60, "htt", "ht"), TM(61, "tm"), IA64(62, "ia64"), PBE(63, "pbe");
+
+        private final int bit;
+        private final String[] names;
+
+        CpuidFeature(int bit, String... names) {
+            this.bit = bit;
+            this.names = names;
+        }
+    }
+
+    /**
+     * Feature flag name to the bit it sets. Keyed by string because the names come from platform text such as
+     * {@code /proc/cpuinfo}, so an {@code EnumMap} would be the wrong direction.
+     */
+    private static final Map<String, Integer> CPUID_FEATURE_BITS = mapCpuidFeatureBits();
+
+    private static Map<String, Integer> mapCpuidFeatureBits() {
+        Map<String, Integer> bits = new HashMap<>();
+        for (CpuidFeature feature : CpuidFeature.values()) {
+            for (String name : feature.names) {
+                bits.put(name, feature.bit);
+            }
+        }
+        return Collections.unmodifiableMap(bits);
+    }
+
+    /**
      * Creates a Processor ID by encoding the stepping, model, family, and feature flags.
      *
      * @param stepping The CPU stepping
@@ -320,102 +357,9 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             processorIdBytes |= hwcap << 32;
         } else {
             for (String flag : flags) {
-                switch (flag) { // NOSONAR squid:S1479
-                    case "fpu":
-                        processorIdBytes |= 1L << 32;
-                        break;
-                    case "vme":
-                        processorIdBytes |= 1L << 33;
-                        break;
-                    case "de":
-                        processorIdBytes |= 1L << 34;
-                        break;
-                    case "pse":
-                        processorIdBytes |= 1L << 35;
-                        break;
-                    case "tsc":
-                        processorIdBytes |= 1L << 36;
-                        break;
-                    case "msr":
-                        processorIdBytes |= 1L << 37;
-                        break;
-                    case "pae":
-                        processorIdBytes |= 1L << 38;
-                        break;
-                    case "mce":
-                        processorIdBytes |= 1L << 39;
-                        break;
-                    case "cx8":
-                        processorIdBytes |= 1L << 40;
-                        break;
-                    case "apic":
-                        processorIdBytes |= 1L << 41;
-                        break;
-                    case "sep":
-                        processorIdBytes |= 1L << 43;
-                        break;
-                    case "mtrr":
-                        processorIdBytes |= 1L << 44;
-                        break;
-                    case "pge":
-                        processorIdBytes |= 1L << 45;
-                        break;
-                    case "mca":
-                        processorIdBytes |= 1L << 46;
-                        break;
-                    case "cmov":
-                        processorIdBytes |= 1L << 47;
-                        break;
-                    case "pat":
-                        processorIdBytes |= 1L << 48;
-                        break;
-                    case "pse-36":
-                    case "pse36":
-                        processorIdBytes |= 1L << 49;
-                        break;
-                    case "psn":
-                        processorIdBytes |= 1L << 50;
-                        break;
-                    case "clfsh":
-                    case "clflush":
-                        processorIdBytes |= 1L << 51;
-                        break;
-                    case "ds":
-                        processorIdBytes |= 1L << 53;
-                        break;
-                    case "acpi":
-                        processorIdBytes |= 1L << 54;
-                        break;
-                    case "mmx":
-                        processorIdBytes |= 1L << 55;
-                        break;
-                    case "fxsr":
-                        processorIdBytes |= 1L << 56;
-                        break;
-                    case "sse":
-                        processorIdBytes |= 1L << 57;
-                        break;
-                    case "sse2":
-                        processorIdBytes |= 1L << 58;
-                        break;
-                    case "ss":
-                        processorIdBytes |= 1L << 59;
-                        break;
-                    case "htt":
-                    case "ht":
-                        processorIdBytes |= 1L << 60;
-                        break;
-                    case "tm":
-                        processorIdBytes |= 1L << 61;
-                        break;
-                    case "ia64":
-                        processorIdBytes |= 1L << 62;
-                        break;
-                    case "pbe":
-                        processorIdBytes |= 1L << 63;
-                        break;
-                    default:
-                        break;
+                Integer bit = CPUID_FEATURE_BITS.get(flag);
+                if (bit != null) {
+                    processorIdBytes |= 1L << bit;
                 }
             }
         }
