@@ -23,11 +23,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests SMC key index logic without Mac hardware. This is why the logic lives here rather than in {@code SmcUtil},
  * whose static {@code IOKit.INSTANCE} field makes any of its members unloadable off a Mac.
- * <p>
- * The class and its methods are {@code public} because the module system only opens public types to the JUnit platform;
- * a package-private test class in a named module fails to run.
  */
-public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JPMS, not redundant
+class SmcKeyIndexTest {
 
     /** A realistic slice of a sorted SMC key index, with a Tg block in the middle. */
     private static final String[] SORTED = { "#KEY", "ALI0", "F0Ac", "TB0T", "TC0P", "TCMb", "TCMz", "Tf00", "Tf11",
@@ -44,24 +41,24 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- binary search --
 
     @Test
-    public void testFindsBlockInTheMiddle() {
+    void testFindsBlockInTheMiddle() {
         assertThat(findTg(SORTED), contains("Tg0W", "Tg0X", "Tg0e", "Tg0f", "Tg1g", "Tg1h"));
     }
 
     @Test
-    public void testFindsBlockAtStart() {
+    void testFindsBlockAtStart() {
         String[] keys = { "Tg0W", "Tg0X", "Th00", "Tp01" };
         assertThat(findTg(keys), contains("Tg0W", "Tg0X"));
     }
 
     @Test
-    public void testFindsBlockAtEnd() {
+    void testFindsBlockAtEnd() {
         String[] keys = { "TB0T", "TCMb", "Tg0W", "Tg0X" };
         assertThat(findTg(keys), contains("Tg0W", "Tg0X"));
     }
 
     @Test
-    public void testAbsentBlockYieldsEmptyNotNull() {
+    void testAbsentBlockYieldsEmptyNotNull() {
         // Empty means "this machine has no such keys" and is a cacheable answer; null means "could not read".
         String[] keys = { "TB0T", "TCMb", "Th00", "Tp01" };
         List<String> found = findTg(keys);
@@ -70,14 +67,14 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testEmptyAndSingleElementIndex() {
+    void testEmptyAndSingleElementIndex() {
         assertThat("Zero count is not a readable index", findTg(new String[0]), is(nullValue()));
         assertThat(findTg(new String[] { "Tg0f" }), contains("Tg0f"));
         assertThat(findTg(new String[] { "TB0T" }), is(empty()));
     }
 
     @Test
-    public void testImplausibleKeyCountIsRejected() {
+    void testImplausibleKeyCountIsRejected() {
         assertThat(SmcKeyIndex.findKeys(0, lookup(SORTED), "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
         assertThat(SmcKeyIndex.findKeys(-1, lookup(SORTED), "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
         assertThat("Guards against a garbage #KEY read",
@@ -86,7 +83,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testKeyCountLargerThanIndexDegradesSafely() {
+    void testKeyCountLargerThanIndexDegradesSafely() {
         // A count that overruns the readable range must degrade to "could not read", not throw and not report empty.
         assertThat(SmcKeyIndex.findKeys(SORTED.length + 50, lookup(SORTED), "Tg", SmcKeyIndex::isGpuTemperatureKey),
                 is(nullValue()));
@@ -95,13 +92,13 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- read failures --
 
     @Test
-    public void testAllReadsFailingYieldsNull() {
+    void testAllReadsFailingYieldsNull() {
         assertThat("Nothing readable must not be cached as empty",
                 SmcKeyIndex.findKeys(20, i -> null, "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
     }
 
     @Test
-    public void testTransientFailureIsRecovered() {
+    void testTransientFailureIsRecovered() {
         // Fails the first read of one index, then succeeds: the retry must recover the full block.
         Set<Integer> failedOnce = new HashSet<>();
         IntFunction<String> flaky = i -> i == 12 && failedOnce.add(i) ? null : SORTED[i];
@@ -110,7 +107,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testPermanentFailureMidScanSkipsOnlyThatKey() {
+    void testPermanentFailureMidScanSkipsOnlyThatKey() {
         // Index 12 is Tg0f. Skipping rather than stopping preserves Tg1g/Tg1h, which a break would have discarded.
         IntFunction<String> flaky = i -> i == 12 ? null : SORTED[i];
         assertThat(SmcKeyIndex.findKeys(SORTED.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey),
@@ -118,7 +115,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFailedSoleMatchIsNotReportedAsAbsent() {
+    void testFailedSoleMatchIsNotReportedAsAbsent() {
         // The only Tg key is unreadable and the next key ends the block. Reporting empty would be cached as "this
         // machine has no GPU sensors" and would disable the sensor for the JVM lifetime.
         String[] keys = { "TB0T", "Tg0f", "Th00", "Tp01" };
@@ -128,7 +125,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFailedSearchProbeThatSkipsTheBlockIsNotReportedAsAbsent() {
+    void testFailedSearchProbeThatSkipsTheBlockIsNotReportedAsAbsent() {
         // Same shape, but the failure is consumed by the binary search rather than the scan: substituting a neighbour
         // for the unreadable probe moves the landing point past Tg0f, so the scan never attempts it at all. Failing
         // only the first read is what makes null the proof of that -- had the scan reached index 2, its retry would
@@ -141,7 +138,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testConfirmedAbsenceStillReportsEmpty() {
+    void testConfirmedAbsenceStillReportsEmpty() {
         // The counterpart guard: with every read succeeding, "no Tg keys" is a real answer and must stay cacheable,
         // so the fix above cannot degrade into "never return empty".
         String[] keys = { "TB0T", "TCMb", "Th00", "Tp01" };
@@ -149,7 +146,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFailedProbeDuringSearchIsRetriedAtNeighbour() {
+    void testFailedProbeDuringSearchIsRetriedAtNeighbour() {
         // A permanently unreadable index during the binary search descends via a neighbour instead of aborting.
         IntFunction<String> flaky = i -> i == SORTED.length / 2 ? null : SORTED[i];
         assertThat(SmcKeyIndex.findKeys(SORTED.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey),
@@ -159,7 +156,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- robustness --
 
     @Test
-    public void testUnsortedIndexTerminatesAndIsBounded() {
+    void testUnsortedIndexTerminatesAndIsBounded() {
         String[] shuffled = SORTED.clone();
         Arrays.sort(shuffled, (a, b) -> b.compareTo(a)); // reverse order breaks the search's assumption
         List<String> found = SmcKeyIndex.findKeys(shuffled.length, lookup(shuffled), "Tg",
@@ -169,7 +166,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testDuplicateKeysAreDeduped() {
+    void testDuplicateKeysAreDeduped() {
         String[] keys = { "TB0T", "Tg0f", "Tg0f", "Tg1h", "Th00" };
         assertThat(findTg(keys), contains("Tg0f", "Tg1h"));
     }
@@ -177,7 +174,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- mask --
 
     @Test
-    public void testMaskAcceptsRealGpuKeys() {
+    void testMaskAcceptsRealGpuKeys() {
         // Every shape seen across M1-M5 and A18: uppercase, lowercase and digit fourth characters.
         for (String key : new String[] { "Tg05", "Tg0D", "Tg0f", "Tg0j", "Tg0W", "Tg1A", "Tg1k", "Tg99", "Tg0P" }) {
             assertThat(key + " must match", SmcKeyIndex.isGpuTemperatureKey(key), is(true));
@@ -185,7 +182,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testMaskRejectsNonGpuKeys() {
+    void testMaskRejectsNonGpuKeys() {
         // Tp/TG are CPU and Intel-era GPU keys; the rest are malformed.
         for (String key : new String[] { "Tp09", "TG05", "TCMb", "Tg0", "Tg005", "TgA5", "Tg0_", "tg05", "",
                 " Tg0f" }) {
@@ -197,7 +194,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- fan keys --
 
     @Test
-    public void testFindsFanSpeedKeysExcludingOtherFanKeys() {
+    void testFindsFanSpeedKeysExcludingOtherFanKeys() {
         // The SORTED fixture has a single fan key; discovery on it must return exactly that one.
         assertThat(SmcKeyIndex.findKeys(SORTED.length, lookup(SORTED), "F", SmcKeyIndex::isFanSpeedKey),
                 contains("F0Ac"));
@@ -208,7 +205,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFanSpeedMaskAcceptsRealFanKeys() {
+    void testFanSpeedMaskAcceptsRealFanKeys() {
         for (int i = 0; i <= 9; i++) {
             String key = "F" + i + "Ac";
             assertThat(key + " must match", SmcKeyIndex.isFanSpeedKey(key), is(true));
@@ -216,7 +213,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFanSpeedMaskRejectsNonFanKeys() {
+    void testFanSpeedMaskRejectsNonFanKeys() {
         // FNum/F0Mn/F0Mx/F0Tg/FBAC/Ftst are other keys in the F block; the rest are malformed or wrong case.
         for (String key : new String[] { "FNum", "F0Mn", "F0Mx", "F0Tg", "FBAC", "Ftst", "f0ac", "F0AC", "F10Ac", "FAc",
                 "" }) {
@@ -226,14 +223,14 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testFanSpeedKeysSynthesizedFromCount() {
+    void testFanSpeedKeysSynthesizedFromCount() {
         assertThat(SmcKeyIndex.fanSpeedKeys(0), is(empty()));
         assertThat(SmcKeyIndex.fanSpeedKeys(2), contains("F0Ac", "F1Ac"));
         assertThat("A negative count clamps to empty", SmcKeyIndex.fanSpeedKeys(-1), is(empty()));
     }
 
     @Test
-    public void testFanSpeedKeysAreAlwaysFourCharacters() {
+    void testFanSpeedKeysAreAlwaysFourCharacters() {
         // Pins the latent defect: F%dAc with a two-digit index formats a five-character key that reads a different key.
         // Clamping to MAX_FANS keeps every synthesized key exactly four characters.
         for (long count : new long[] { 99L, Long.MAX_VALUE }) {
@@ -246,7 +243,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testReconcileFanKeysPrefersDiscovered() {
+    void testReconcileFanKeysPrefersDiscovered() {
         List<String> discovered = Arrays.asList("F0Ac", "F1Ac");
         // Non-empty discovery is authoritative regardless of FNum, including when the two disagree.
         assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 2), contains("F0Ac", "F1Ac"));
@@ -255,21 +252,21 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testReconcileFanKeysSynthesizesFromFnumWhenDiscoveryEmpty() {
+    void testReconcileFanKeysSynthesizesFromFnumWhenDiscoveryEmpty() {
         // No-regression: an index that yielded no fan keys still reports the fans FNum implies, as older OSHI did.
         assertThat(SmcKeyIndex.reconcileFanKeys(null, 2), contains("F0Ac", "F1Ac"));
         assertThat(SmcKeyIndex.reconcileFanKeys(Arrays.<String>asList(), 2), contains("F0Ac", "F1Ac"));
     }
 
     @Test
-    public void testReconcileFanKeysCannotTellReturnsNull() {
+    void testReconcileFanKeysCannotTellReturnsNull() {
         // Discovery failed and FNum read zero: "no fans" is indistinguishable from "could not read", so defer.
         assertThat("Null must not be cached as a confirmed absence", SmcKeyIndex.reconcileFanKeys(null, 0),
                 is(nullValue()));
     }
 
     @Test
-    public void testReconcileFanKeysConfirmedNoFansReturnsEmpty() {
+    void testReconcileFanKeysConfirmedNoFansReturnsEmpty() {
         // Discovery completed with no fan keys and FNum agrees: a genuine fanless machine, a cacheable empty answer.
         List<String> result = SmcKeyIndex.reconcileFanKeys(Arrays.<String>asList(), 0);
         assertThat(result, is(notNullValue()));
@@ -279,7 +276,7 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     // -- configured keys --
 
     @Test
-    public void testParseConfiguredKeys() {
+    void testParseConfiguredKeys() {
         assertThat(SmcKeyIndex.parseConfiguredKeys(null), is(empty()));
         assertThat(SmcKeyIndex.parseConfiguredKeys(""), is(empty()));
         assertThat(SmcKeyIndex.parseConfiguredKeys("   "), is(empty()));
@@ -311,14 +308,14 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testMaxPlausibleIgnoresSentinels() {
+    void testMaxPlausibleIgnoresSentinels() {
         List<String> keys = Arrays.asList("Tg0W", "Tg0X", "Tg0f", "Tg1h");
         assertThat("Returns the hottest genuine reading, not the global max",
                 SmcKeyIndex.maxPlausible(keys, SmcKeyIndexTest::read, v -> v >= FLOOR), is(63.4d));
     }
 
     @Test
-    public void testMaxPlausibleWithNothingUsable() {
+    void testMaxPlausibleWithNothingUsable() {
         assertThat("All-sentinel reads must report unavailable",
                 SmcKeyIndex.maxPlausible(Arrays.asList("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR),
                 is(0d));
@@ -326,10 +323,43 @@ public class SmcKeyIndexTest { // NOSONAR squid:S5786 - public is required by JP
     }
 
     @Test
-    public void testMaxPlausibleNeverReturnsBelowTheFloor() {
+    void testMaxPlausibleNeverReturnsBelowTheFloor() {
         double result = SmcKeyIndex.maxPlausible(Arrays.asList("Tg0W", "Tg0X"), SmcKeyIndexTest::read, v -> v >= FLOOR);
         assertThat("A result is either 0 or at least the floor, never in between", result == 0d || result >= FLOOR,
                 is(true));
         assertThat(6.7d, is(lessThanOrEqualTo(result)));
+    }
+
+    // -- first plausible --
+
+    @Test
+    void testFirstPlausibleReturnsTheFirstNotTheBest() {
+        // Order is preference order, so an earlier plausible reading wins even though a later one is higher. This is
+        // what distinguishes it from maxPlausible.
+        List<String> keys = Arrays.asList("Tg0W", "Tg0X", "Tg0f");
+        assertThat(SmcKeyIndex.firstPlausible(keys, SmcKeyIndexTest::read, v -> v >= FLOOR, "temperature"), is(40.7d));
+    }
+
+    @Test
+    void testFirstPlausibleSkipsImplausibleAndSentinelReads() {
+        assertThat("A leading sentinel must not stop the scan",
+                SmcKeyIndex.firstPlausible(Arrays.asList("Tg1h", "Tg0W", "Tg0f"), SmcKeyIndexTest::read,
+                        v -> v >= FLOOR, "temperature"),
+                is(63.4d));
+    }
+
+    @Test
+    void testFirstPlausibleWithNothingUsable() {
+        assertThat(SmcKeyIndex.firstPlausible(Arrays.asList("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR,
+                "temperature"), is(0d));
+        assertThat(SmcKeyIndex.firstPlausible(Arrays.<String>asList(), SmcKeyIndexTest::read, v -> v >= FLOOR,
+                "temperature"), is(0d));
+    }
+
+    @Test
+    void testFirstPlausibleAndMaxPlausibleAgreeOnASingleKey() {
+        List<String> one = Arrays.asList("Tg0f");
+        assertThat(SmcKeyIndex.firstPlausible(one, SmcKeyIndexTest::read, v -> v >= FLOOR, "temperature"),
+                is(SmcKeyIndex.maxPlausible(one, SmcKeyIndexTest::read, v -> v >= FLOOR)));
     }
 }

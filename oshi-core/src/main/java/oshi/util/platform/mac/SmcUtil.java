@@ -31,6 +31,7 @@ import oshi.jna.platform.mac.IOKit.SMCVal;
 import oshi.jna.platform.mac.SystemB;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.mac.SmcKeyCache;
 import oshi.util.common.platform.mac.SmcKeyIndex;
 import oshi.util.common.platform.mac.SmcSensorValues;
 
@@ -100,27 +101,13 @@ public final class SmcUtil {
     /** The prefix shared by fan keys. */
     private static final String FAN_KEY_PREFIX = "F";
 
-    /** Guards {@link #gpuTemperatureKeys}. */
-    private static final Object GPU_KEY_LOCK = new Object();
+    /** GPU temperature keys, discovered on first use. */
+    private static final SmcKeyCache GPU_KEYS = new SmcKeyCache(GlobalConfig.OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS,
+            "GPU temperature", SMC_KEYS_GPU_TEMP_AS);
 
-    /** Guards {@link #fanSpeedKeys}. */
-    private static final Object FAN_KEY_LOCK = new Object();
-
-    /**
-     * Discovered fan speed keys, or null if discovery has not yet produced a cacheable answer. Deliberately not a
-     * {@link oshi.util.Memoizer}, for the same reason as {@link #gpuTemperatureKeys}.
-     */
-    private static volatile List<String> fanSpeedKeys; // NOSONAR squid:S3077 - published value is immutable
-
-    /**
-     * Discovered GPU temperature keys, or null if discovery has not yet completed successfully. Deliberately not a
-     * {@link oshi.util.Memoizer}: that would cache a failed discovery permanently, and a transient failure to open the
-     * SMC would then disable GPU temperature for the lifetime of the JVM.
-     * <p>
-     * Only ever assigned an unmodifiable copy of a completed discovery, so the reference is safely published by the
-     * volatile write and the list it points at is immutable; no further synchronization is needed on the read path.
-     */
-    private static volatile List<String> gpuTemperatureKeys; // NOSONAR squid:S3077 - published value is immutable
+    /** Fan speed keys, discovered on first use. Reports no fans when discovery cannot complete. */
+    private static final SmcKeyCache FAN_KEYS = new SmcKeyCache(GlobalConfig.OSHI_OS_MAC_SENSORS_FANSPEED_KEYS,
+            "fan speed", Collections.emptyList());
     /** SMC key for CPU voltage (Apple Silicon). */
     public static final String SMC_KEY_CPU_VOLTAGE_AS = "VP0C";
 
@@ -242,17 +229,8 @@ public final class SmcUtil {
      * @return The first reading at or above {@link #MIN_PLAUSIBLE_TEMPERATURE}, or 0 if no key returned one
      */
     public static double smcGetFirstTemperature(IOConnect conn, List<String> keys) {
-        for (String key : keys) {
-            double val = smcGetFloat(conn, key);
-            if (isPlausibleTemperature(val)) {
-                return val;
-            }
-            if (val != 0d) {
-                LOG.debug("Ignoring implausible temperature {} from SMC key {}; the sensor is likely idle-gated.", val,
-                        key);
-            }
-        }
-        return 0d;
+        return SmcKeyIndex.firstPlausible(keys, key -> smcGetFloat(conn, key), SmcUtil::isPlausibleTemperature,
+                "temperature");
     }
 
     /**
@@ -336,31 +314,7 @@ public final class SmcUtil {
      * @return The keys to read for GPU temperature, never null
      */
     public static List<String> getGpuTemperatureKeys() {
-        List<String> keys = gpuTemperatureKeys;
-        if (keys != null) {
-            return keys;
-        }
-        synchronized (GPU_KEY_LOCK) {
-            if (gpuTemperatureKeys != null) {
-                return gpuTemperatureKeys;
-            }
-            // Read the config lazily rather than at class initialization, so GlobalConfig.set() still takes effect.
-            List<String> configured = SmcKeyIndex
-                    .parseConfiguredKeys(GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SENSORS_GPUTEMPERATURE_KEYS, ""));
-            if (!configured.isEmpty()) {
-                LOG.debug("Using configured GPU temperature keys {}", configured);
-                gpuTemperatureKeys = configured;
-                return configured;
-            }
-            List<String> discovered = discoverGpuTemperatureKeys();
-            if (discovered == null) {
-                LOG.debug("GPU temperature key discovery did not complete; using the fallback list this time.");
-                return SMC_KEYS_GPU_TEMP_AS;
-            }
-            LOG.debug("Discovered {} GPU temperature keys: {}", discovered.size(), discovered);
-            gpuTemperatureKeys = discovered;
-            return discovered;
-        }
+        return GPU_KEYS.get(SmcUtil::discoverGpuTemperatureKeys);
     }
 
     /**
@@ -377,31 +331,7 @@ public final class SmcUtil {
      * @return The keys to read for fan speeds, never null
      */
     public static List<String> getFanSpeedKeys() {
-        List<String> keys = fanSpeedKeys;
-        if (keys != null) {
-            return keys;
-        }
-        synchronized (FAN_KEY_LOCK) {
-            if (fanSpeedKeys != null) {
-                return fanSpeedKeys;
-            }
-            // Read the config lazily rather than at class initialization, so GlobalConfig.set() still takes effect.
-            List<String> configured = SmcKeyIndex
-                    .parseConfiguredKeys(GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_SENSORS_FANSPEED_KEYS, ""));
-            if (!configured.isEmpty()) {
-                LOG.debug("Using configured fan speed keys {}", configured);
-                fanSpeedKeys = configured;
-                return configured;
-            }
-            List<String> discovered = discoverFanSpeedKeys();
-            if (discovered == null) {
-                LOG.debug("Fan speed key discovery did not complete; reporting no fans this time.");
-                return Collections.emptyList();
-            }
-            LOG.debug("Using {} fan speed keys: {}", discovered.size(), discovered);
-            fanSpeedKeys = discovered;
-            return discovered;
-        }
+        return FAN_KEYS.get(SmcUtil::discoverFanSpeedKeys);
     }
 
     /**
@@ -467,18 +397,10 @@ public final class SmcUtil {
      * @return The first reading at or above {@link #MIN_PLAUSIBLE_VOLTAGE}, or 0 if no key returned one
      */
     public static double smcGetFirstVoltage(IOConnect conn, List<String> keys) {
-        for (String key : keys) {
+        return SmcKeyIndex.firstPlausible(keys, key -> {
             double raw = smcGetFloat(conn, key);
-            if (raw == 0d) {
-                continue;
-            }
-            double volts = SmcSensorValues.scaleVoltage(raw, smcGetDataType(conn, key));
-            if (isPlausibleVoltage(volts)) {
-                return volts;
-            }
-            LOG.debug("Ignoring implausible voltage {} from SMC key {}.", volts, key);
-        }
-        return 0d;
+            return raw == 0d ? 0d : SmcSensorValues.scaleVoltage(raw, smcGetDataType(conn, key));
+        }, SmcUtil::isPlausibleVoltage, "voltage");
     }
 
     /**
