@@ -353,12 +353,14 @@ public final class AdlUtilFFM {
     }
 
     /**
-     * Gets the GPU core clock frequency in MHz.
+     * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
      *
-     * @param adapterIndex the adapter index
-     * @return the core clock in MHz, or -1 on failure
+     * @param adapterIndex ADL adapter index
+     * @param clockOffset  byte offset of the clock field within the status struct
+     * @param what         the clock being read, for the failure log
+     * @return the clock in MHz, or -1 if unavailable
      */
-    public static long getCoreClockMhz(int adapterIndex) {
+    private static long performanceClockMhz(int adapterIndex, long clockOffset, String what) {
         if (adapterIndex < 0) {
             return -1L;
         }
@@ -373,13 +375,23 @@ public final class AdlUtilFFM {
                 }
                 MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
                 if ((int) ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
-                    return perf.get(JAVA_INT, PERF_CORE_CLOCK_OFFSET) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
+                    return perf.get(JAVA_INT, clockOffset) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
                 }
             } finally {
                 adlUninit(ctx);
             }
             return -1L;
-        }, LOG, DEBUG, "ADL getCoreClockMhz failed", -1L);
+        }, LOG, DEBUG, "ADL " + what + " failed", -1L);
+    }
+
+    /**
+     * Gets the GPU core clock frequency in MHz.
+     *
+     * @param adapterIndex the adapter index
+     * @return the core clock in MHz, or -1 on failure
+     */
+    public static long getCoreClockMhz(int adapterIndex) {
+        return performanceClockMhz(adapterIndex, PERF_CORE_CLOCK_OFFSET, "getCoreClockMhz");
     }
 
     /**
@@ -389,27 +401,7 @@ public final class AdlUtilFFM {
      * @return the memory clock in MHz, or -1 on failure
      */
     public static long getMemoryClockMhz(int adapterIndex) {
-        if (adapterIndex < 0) {
-            return -1L;
-        }
-        return callInArenaLongOrDefault(arena -> {
-            MemorySegment ctx = adlInit(arena);
-            if (ctx == null) {
-                return -1L;
-            }
-            try {
-                if (!supportsOverdriveN(ctx, adapterIndex, arena)) {
-                    return -1L;
-                }
-                MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
-                if ((int) ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
-                    return perf.get(JAVA_INT, PERF_MEMORY_CLOCK_OFFSET) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
-                }
-            } finally {
-                adlUninit(ctx);
-            }
-            return -1L;
-        }, LOG, DEBUG, "ADL getMemoryClockMhz failed", -1L);
+        return performanceClockMhz(adapterIndex, PERF_MEMORY_CLOCK_OFFSET, "getMemoryClockMhz");
     }
 
     /**

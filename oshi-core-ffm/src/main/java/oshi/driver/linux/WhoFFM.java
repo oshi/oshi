@@ -6,26 +6,22 @@ package oshi.driver.linux;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static java.util.Objects.nonNull;
 import static oshi.ffm.platform.linux.LinuxLibcFunctions.LOGIN_PROCESS;
 import static oshi.ffm.platform.linux.LinuxLibcFunctions.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
 
-import java.io.File;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
 import oshi.ffm.platform.linux.SystemdFunctions;
 import oshi.software.os.OSSession;
-import oshi.util.Constants;
-import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.Who;
 
 /**
  * FFM-based utility to query logged in users on Linux.
@@ -85,7 +81,7 @@ public final class WhoFFM {
 
         // If utmp returned no sessions, try systemd file fallback
         if (whoList.isEmpty()) {
-            whoList = querySystemdFiles();
+            whoList = Who.querySystemdFiles();
             if (whoList.isEmpty()) {
                 return oshi.util.driver.linux.Who.queryWho();
             }
@@ -196,37 +192,4 @@ public final class WhoFFM {
         return new OSSession(user, tty, loginTime, remoteHost);
     }
 
-    private static List<OSSession> querySystemdFiles() {
-        List<OSSession> sessionList = new ArrayList<>();
-        File sessionsDir = new File("/run/systemd/sessions");
-        if (sessionsDir.exists() && sessionsDir.isDirectory()) {
-            File[] sessionFiles = sessionsDir.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
-            if (nonNull(sessionFiles)) {
-                for (File sessionFile : sessionFiles) {
-                    try {
-                        Map<String, String> sessionMap = FileUtil.getKeyValueMapFromFile(sessionFile.getPath(), "=");
-                        String user = sessionMap.get("USER");
-                        if (nonNull(user) && !user.isEmpty()) {
-                            String tty = sessionMap.getOrDefault("TTY", sessionFile.getName());
-                            String remoteHost = sessionMap.getOrDefault("REMOTE_HOST", "");
-                            long loginTime = 0L;
-                            String realtime = sessionMap.get("REALTIME");
-                            if (nonNull(realtime)) {
-                                loginTime = ParseUtil.parseLongOrDefault(realtime, 0L) / 1000L;
-                            }
-                            if (loginTime == 0L) {
-                                loginTime = sessionFile.lastModified();
-                            }
-                            if (isSessionValid(user, tty, loginTime)) {
-                                sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
-                            }
-                        }
-                    } catch (Exception _) {
-                        // Skip invalid session files
-                    }
-                }
-            }
-        }
-        return sessionList;
-    }
 }
