@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
+import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Triplet;
@@ -51,10 +52,15 @@ public abstract class BsdFirmware extends AbstractFirmware {
     /**
      * Reads the platform's firmware attributes. Any attribute the platform cannot supply may be returned as null or
      * blank; the caller substitutes {@link Constants#UNKNOWN}.
+     * <p>
+     * Defaults to the boot-time {@code dmesg} banner, which is what most of the BSDs report firmware through. FreeBSD
+     * overrides this because it reads {@code dmidecode} instead.
      *
      * @return a {@link Triplet} of manufacturer, version, and release date
      */
-    protected abstract Triplet<String, String, String> readFirmware();
+    protected Triplet<String, String, String> readFirmware() {
+        return parseDmesg(ExecutingCommand.runNative("dmesg"));
+    }
 
     private Triplet<String, String, String> queryFirmware() {
         Triplet<String, String, String> dmi = readFirmware();
@@ -73,7 +79,7 @@ public abstract class BsdFirmware extends AbstractFirmware {
      * @param dmesg the lines emitted by {@code dmesg}
      * @return a {@link Triplet} of vendor, version, and release date
      */
-    protected static Triplet<String, String, String> parseDmesg(List<String> dmesg) {
+    static Triplet<String, String, String> parseDmesg(List<String> dmesg) {
         String version = null;
         String vendor = null;
         String releaseDate = "";

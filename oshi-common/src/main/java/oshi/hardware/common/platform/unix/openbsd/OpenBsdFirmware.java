@@ -6,17 +6,11 @@ package oshi.hardware.common.platform.unix.openbsd;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.unix.BsdFirmware;
-import oshi.util.ExecutingCommand;
-import oshi.util.tuples.Triplet;
 
 /**
- * OpenBSD Firmware implementation
+ * OpenBSD Firmware implementation. OpenBSD reports firmware through the {@code dmesg} banner the base reads by default,
+ * so there is nothing platform-specific to add.
  */
 @Immutable
 public class OpenBsdFirmware extends BsdFirmware {
-
-    @Override
-    protected Triplet<String, String, String> readFirmware() {
-        return parseDmesg(ExecutingCommand.runNative("dmesg"));
-    }
 }

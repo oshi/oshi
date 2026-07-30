@@ -6,17 +6,11 @@ package oshi.hardware.common.platform.unix.netbsd;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.unix.BsdFirmware;
-import oshi.util.ExecutingCommand;
-import oshi.util.tuples.Triplet;
 
 /**
- * NetBSD Firmware implementation
+ * NetBSD Firmware implementation. NetBSD reports firmware through the {@code dmesg} banner the base reads by default,
+ * so there is nothing platform-specific to add.
  */
 @Immutable
 public class NetBsdFirmware extends BsdFirmware {
-
-    @Override
-    protected Triplet<String, String, String> readFirmware() {
-        return parseDmesg(ExecutingCommand.runNative("dmesg"));
-    }
 }
