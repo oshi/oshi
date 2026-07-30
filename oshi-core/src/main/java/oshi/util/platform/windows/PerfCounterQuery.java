@@ -137,6 +137,11 @@ public final class PerfCounterQuery {
      * @param propertyEnum the property enum
      * @param result       the query result
      * @return an {@link EnumMap} of the values indexed by {@code propertyEnum}, empty if the result had no rows
+     *         <p>
+     *         Note that {@code WmiUtil} here is {@link oshi.driver.common.windows.wmi.WmiUtil}, imported so it shadows
+     *         the same-named class in this package. That one takes JNA's result type; this takes the backend-neutral
+     *         interface, which is what makes this testable.
+     *
      * @throws ClassCastException if a property has a CIM type this does not convert
      */
     static <T extends Enum<T>> Map<T, Long> mapValuesFromResult(Class<T> propertyEnum, WmiResult<T> result) {
