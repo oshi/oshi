@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,10 +40,18 @@ class FreeBsdFirmwareTest {
     @Test
     void testParseDmiDecodeEmpty() {
         // No output (e.g. dmidecode not available / not root): the parser returns raw absent values (null
-        // manufacturer/version, empty date); readDmiDecode applies the Constants.UNKNOWN fallbacks.
+        // manufacturer/version, empty date); the BsdFirmware base applies the Constants.UNKNOWN fallbacks.
         Triplet<String, String, String> fw = FreeBsdFirmware.parseDmiDecode(Collections.emptyList());
         assertThat(fw.getA(), is(nullValue()));
         assertThat(fw.getB(), is(nullValue()));
         assertThat(fw.getC(), is(emptyString()));
+    }
+
+    @Test
+    void testDmiDecodeOverridesTheDmesgDefault() {
+        // BsdFirmware defaults to the dmesg banner; FreeBSD is the one BSD that reads dmidecode instead. Deleting its
+        // override would silently switch it to dmesg while the parseDmiDecode tests above kept passing.
+        assertDoesNotThrow(() -> FreeBsdFirmware.class.getDeclaredMethod("readFirmware"),
+                "FreeBsdFirmware must declare its own readFirmware, not inherit the dmesg default");
     }
 }

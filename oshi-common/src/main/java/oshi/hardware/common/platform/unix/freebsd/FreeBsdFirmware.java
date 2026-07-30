@@ -4,55 +4,24 @@
  */
 package oshi.hardware.common.platform.unix.freebsd;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.util.List;
-import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.hardware.common.AbstractFirmware;
-import oshi.util.Constants;
+import oshi.hardware.common.platform.unix.BsdFirmware;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
 /**
  * Firmware information from dmidecode
  */
 @Immutable
-public class FreeBsdFirmware extends AbstractFirmware {
-
-    private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(FreeBsdFirmware::readDmiDecode);
+public class FreeBsdFirmware extends BsdFirmware {
 
     @Override
-    public String getManufacturer() {
-        return manufVersRelease.get().getA();
-    }
-
-    @Override
-    public String getVersion() {
-        return manufVersRelease.get().getB();
-    }
-
-    @Override
-    public String getReleaseDate() {
-        return manufVersRelease.get().getC();
-    }
-
-    /*
-     * Name and Description not set
-     */
-
-    private static Triplet<String, String, String> readDmiDecode() {
+    protected Triplet<String, String, String> readFirmware() {
         // Only works with root permissions but it's all we've got
-        Triplet<String, String, String> dmi = parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
-        String manufacturer = dmi.getA();
-        String version = dmi.getB();
-        String releaseDate = dmi.getC();
-        return new Triplet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
     }
 
     /**
