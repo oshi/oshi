@@ -27,6 +27,7 @@ import oshi.hardware.common.platform.unix.BsdSensors;
 import oshi.hardware.common.platform.unix.BsdSoundCard;
 import oshi.hardware.common.platform.unix.BsdUsbDevice;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.openbsd.OpenBsdComputerSystem;
 import oshi.hardware.platform.unix.CupsPrinterJNA;
 
 /**
@@ -37,7 +38,7 @@ public final class OpenBsdHardwareAbstractionLayerJNA extends AbstractHardwareAb
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new OpenBsdComputerSystemJNA();
+        return new OpenBsdComputerSystem();
     }
 
     @Override

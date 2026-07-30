@@ -27,6 +27,7 @@ import oshi.hardware.common.platform.unix.BsdSensors;
 import oshi.hardware.common.platform.unix.BsdSoundCard;
 import oshi.hardware.common.platform.unix.BsdUsbDevice;
 import oshi.hardware.common.platform.unix.UnixDisplay;
+import oshi.hardware.common.platform.unix.openbsd.OpenBsdComputerSystem;
 import oshi.hardware.platform.unix.CupsPrinterFFM;
 
 @ThreadSafe
@@ -34,7 +35,7 @@ public final class OpenBsdHardwareAbstractionLayerFFM extends AbstractHardwareAb
 
     @Override
     public ComputerSystem createComputerSystem() {
-        return new OpenBsdComputerSystemFFM();
+        return new OpenBsdComputerSystem();
     }
 
     @Override

@@ -1,8 +1,8 @@
 /*
- * Copyright 2021-2026 The OSHI Project Contributors
+ * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.platform.unix.openbsd;
+package oshi.hardware.common.platform.unix;
 
 import static oshi.util.Memoizer.memoize;
 
@@ -10,26 +10,37 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
-import oshi.hardware.Firmware;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.hardware.common.platform.unix.UnixBaseboard;
-import oshi.hardware.common.platform.unix.openbsd.OpenBsdFirmware;
 import oshi.util.Constants;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
- * OpenBSD ComputerSystem implementation
+ * Common BSD ComputerSystem implementation for the platforms that identify the machine through the {@code hw.*} string
+ * sysctls, namely NetBSD and OpenBSD.
+ * <p>
+ * These are read with the command-line {@code sysctl} rather than natively, because OpenBSD has no {@code sysctlbyname}
+ * and so cannot look a string sysctl up by name from a binding. That is also why these platforms need no per-binding
+ * subclass: there is nothing backend-specific to vary.
+ * <p>
+ * FreeBSD deliberately does not extend this. It identifies the machine from {@code dmidecode} and only falls back to a
+ * sysctl for the UUID, which it reads natively, so it keeps its own base and its per-binding subclasses.
  */
 @Immutable
-public class OpenBsdComputerSystemJNA extends AbstractComputerSystem {
+public abstract class BsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<String> manufacturer = memoize(OpenBsdComputerSystemJNA::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(BsdComputerSystem::queryManufacturer);
 
-    private final Supplier<String> model = memoize(OpenBsdComputerSystemJNA::queryModel);
+    private final Supplier<String> model = memoize(BsdComputerSystem::queryModel);
 
-    private final Supplier<String> serialNumber = memoize(OpenBsdComputerSystemJNA::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(BsdComputerSystem::querySerialNumber);
 
-    private final Supplier<String> uuid = memoize(OpenBsdComputerSystemJNA::queryUUID);
+    private final Supplier<String> uuid = memoize(BsdComputerSystem::queryUUID);
+
+    /**
+     * Default constructor.
+     */
+    protected BsdComputerSystem() {
+    }
 
     @Override
     public String getManufacturer() {
@@ -49,11 +60,6 @@ public class OpenBsdComputerSystemJNA extends AbstractComputerSystem {
     @Override
     public String getHardwareUUID() {
         return uuid.get();
-    }
-
-    @Override
-    protected Firmware createFirmware() {
-        return new OpenBsdFirmware();
     }
 
     @Override
