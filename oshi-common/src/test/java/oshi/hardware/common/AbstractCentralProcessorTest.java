@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -319,6 +320,38 @@ class AbstractCentralProcessorTest {
                 "htt", "tm", "ia64", "pbe" };
         String id = AbstractCentralProcessor.createProcessorID("0", "0", "0", allFlags);
         assertThat(id, is("FFEFFBFF00000000"));
+    }
+
+    /**
+     * Three features are reported under two spellings depending on the platform, and each pair must set the same bit.
+     * The all-flags test above only uses one spelling of each, so without this the aliases are unverified.
+     */
+    @Test
+    void testCreateProcessorIDFlagAliasesSetTheSameBit() {
+        String[][] aliases = { { "pse-36", "pse36" }, { "clfsh", "clflush" }, { "htt", "ht" } };
+        for (String[] pair : aliases) {
+            String first = AbstractCentralProcessor.createProcessorID("0", "0", "0", new String[] { pair[0] });
+            String second = AbstractCentralProcessor.createProcessorID("0", "0", "0", new String[] { pair[1] });
+            assertThat(pair[0] + " and " + pair[1] + " must set the same bit", second, is(first));
+            assertThat("An alias must actually set a bit", first, is(not("0000000000000000")));
+        }
+    }
+
+    /**
+     * Bits 42 and 52 are reserved, so no flag name may claim them. Guards the enum's bit numbering, which skips them.
+     */
+    @Test
+    void testReservedFeatureBitsAreNeverSet() {
+        String[] allFlags = { "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce", "cx8", "apic", "sep", "mtrr",
+                "pge", "mca", "cmov", "pat", "pse-36", "pse36", "psn", "clfsh", "clflush", "ds", "acpi", "mmx", "fxsr",
+                "sse", "sse2", "ss", "htt", "ht", "tm", "ia64", "pbe" };
+        String hex = AbstractCentralProcessor.createProcessorID("0", "0", "0", allFlags);
+        // Adding every alias must not change the value, since an alias shares its primary's bit. Asserting the exact
+        // mask also stops the reserved-bit checks below passing vacuously against an all-zero result.
+        assertThat("Aliases share bits, so the mask is unchanged", hex, is("FFEFFBFF00000000"));
+        long id = ParseUtil.hexStringToLong(hex, 0L);
+        assertThat("bit 42 is reserved", id & (1L << 42), is(0L));
+        assertThat("bit 52 is reserved", id & (1L << 52), is(0L));
     }
 
     @Test
