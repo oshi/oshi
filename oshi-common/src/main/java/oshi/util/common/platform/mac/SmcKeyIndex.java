@@ -303,6 +303,34 @@ public final class SmcKeyIndex {
     }
 
     /**
+     * Returns the first plausible reading among the given keys, in the order given.
+     * <p>
+     * Plausibility is applied here, at read time, for the same reason as in {@link #maxPlausible}: whether a key exists
+     * is a property of the hardware and does not change, but whether it currently reports a usable value is not.
+     *
+     * @param keys        the keys to read, in preference order
+     * @param reader      reads a key and returns the value in its final units, 0 if unavailable
+     * @param isPlausible tests whether a reading is usable
+     * @param description what is being read, for log messages, e.g. {@code "temperature"}
+     * @return the first plausible reading, or 0 if none were plausible
+     */
+    public static double firstPlausible(List<String> keys, ToDoubleFunction<String> reader, DoublePredicate isPlausible,
+            String description) {
+        for (String key : keys) {
+            double value = reader.applyAsDouble(key);
+            if (isPlausible.test(value)) {
+                return value;
+            }
+            // A zero means the key was absent or undecodable, which is expected while scanning a candidate list; a
+            // non-zero implausible value means a sensor answered with something unusable, which is worth a note.
+            if (value != 0d) {
+                LOG.debug("Ignoring implausible {} {} from SMC key {}.", description, value, key);
+            }
+        }
+        return 0d;
+    }
+
+    /**
      * Returns the highest plausible temperature among the given keys.
      * <p>
      * Plausibility is applied here, at read time, rather than when the keys were discovered. Whether a key exists is a

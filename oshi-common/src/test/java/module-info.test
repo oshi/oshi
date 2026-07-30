@@ -61,6 +61,8 @@
 --add-opens
   com.github.oshi.common/oshi.software.common.os.unix.dragonflybsd=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.util.common.platform.mac=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.util.common.platform.unix.bsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.util.common.platform.unix.dragonflybsd=org.junit.platform.commons
