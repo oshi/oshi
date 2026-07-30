@@ -132,7 +132,9 @@ public final class Who {
                     sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
                 }
             } catch (Exception e) {
-                LOG.debug("Skipping unreadable systemd session file {}: {}", sessionFile, e.getMessage());
+                // Pass the exception itself, not just its message: the catch is broad, so the type matters for
+                // diagnosis and getMessage() is null for some exceptions.
+                LOG.debug("Skipping unreadable systemd session file {}", sessionFile, e);
             }
         }
         return sessionList;

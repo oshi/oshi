@@ -251,35 +251,6 @@ public final class AdlUtilJNA {
     }
 
     /**
-     * Returns GPU core utilization percentage (0–100), or -1 if unavailable.
-     *
-     * @param adapterIndex ADL adapter index
-     * @return utilization percentage or -1
-     */
-    public static double getGpuUtilization(int adapterIndex) {
-        if (adapterIndex < 0) {
-            return -1d;
-        }
-        Pointer ctx = adlInit();
-        if (ctx == null) {
-            return -1d;
-        }
-        try {
-            if (!supportsOverdriveN(ctx, adapterIndex)) {
-                return -1d;
-            }
-            ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
-            if (Holder.LIB.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
-                perf.read();
-                return perf.iGPUActivityPercent;
-            }
-            return -1d;
-        } finally {
-            adlUninit(ctx);
-        }
-    }
-
-    /**
      * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
      *
      * @param adapterIndex ADL adapter index
