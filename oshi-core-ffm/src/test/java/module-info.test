@@ -5,6 +5,8 @@
 --add-opens
   com.github.oshi.ffm/oshi.ffm.platform.mac=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.hardware.platform.unix.dragonflybsd=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.openbsd=org.junit.platform.commons
