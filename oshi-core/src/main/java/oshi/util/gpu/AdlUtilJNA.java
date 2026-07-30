@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.ToIntFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,29 +251,30 @@ public final class AdlUtilJNA {
     }
 
     /**
-     * Returns GPU core utilization percentage (0–100), or -1 if unavailable.
+     * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
      *
      * @param adapterIndex ADL adapter index
-     * @return utilization percentage or -1
+     * @param clock        selects the clock field to read
+     * @return the clock in MHz, or -1 if unavailable
      */
-    public static double getGpuUtilization(int adapterIndex) {
+    private static long performanceClockMhz(int adapterIndex, ToIntFunction<ADLODNPerformanceStatus> clock) {
         if (adapterIndex < 0) {
-            return -1d;
+            return -1L;
         }
         Pointer ctx = adlInit();
         if (ctx == null) {
-            return -1d;
+            return -1L;
         }
         try {
             if (!supportsOverdriveN(ctx, adapterIndex)) {
-                return -1d;
+                return -1L;
             }
             ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
             if (Holder.LIB.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
                 perf.read();
-                return perf.iGPUActivityPercent;
+                return clock.applyAsInt(perf) / 100L;
             }
-            return -1d;
+            return -1L;
         } finally {
             adlUninit(ctx);
         }
@@ -285,27 +287,7 @@ public final class AdlUtilJNA {
      * @return core clock in MHz or -1
      */
     public static long getCoreClockMhz(int adapterIndex) {
-        if (adapterIndex < 0) {
-            return -1L;
-        }
-        Pointer ctx = adlInit();
-        if (ctx == null) {
-            return -1L;
-        }
-        try {
-            if (!supportsOverdriveN(ctx, adapterIndex)) {
-                return -1L;
-            }
-            ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
-            if (Holder.LIB.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
-                perf.read();
-                // iCoreClock is in 10 kHz units; divide by 100 to get MHz
-                return perf.iCoreClock / 100L;
-            }
-            return -1L;
-        } finally {
-            adlUninit(ctx);
-        }
+        return performanceClockMhz(adapterIndex, perf -> perf.iCoreClock);
     }
 
     /**
@@ -315,26 +297,7 @@ public final class AdlUtilJNA {
      * @return memory clock in MHz or -1
      */
     public static long getMemoryClockMhz(int adapterIndex) {
-        if (adapterIndex < 0) {
-            return -1L;
-        }
-        Pointer ctx = adlInit();
-        if (ctx == null) {
-            return -1L;
-        }
-        try {
-            if (!supportsOverdriveN(ctx, adapterIndex)) {
-                return -1L;
-            }
-            ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
-            if (Holder.LIB.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
-                perf.read();
-                return perf.iMemoryClock / 100L;
-            }
-            return -1L;
-        } finally {
-            adlUninit(ctx);
-        }
+        return performanceClockMhz(adapterIndex, perf -> perf.iMemoryClock);
     }
 
     /**

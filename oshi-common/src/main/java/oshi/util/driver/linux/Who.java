@@ -4,6 +4,7 @@
  */
 package oshi.util.driver.linux;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -11,13 +12,20 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSSession;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
+import oshi.util.Util;
 
 /**
  * Utility to query logged in users using the {@code who} command with Linux date format parsing, falling back to Unix
@@ -25,6 +33,11 @@ import oshi.util.ExecutingCommand;
  */
 @ThreadSafe
 public final class Who {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Who.class);
+
+    /** Where systemd records one file per active session. */
+    private static final File SYSTEMD_SESSIONS_DIR = new File("/run/systemd/sessions");
 
     // oshi pts/0 2020-05-14 21:23 (192.168.1.23)
     private static final Pattern WHO_FORMAT_LINUX = Pattern
@@ -71,5 +84,59 @@ public final class Who {
             }
         }
         return false;
+    }
+
+    /**
+     * Queries logged-in sessions from the files systemd keeps under {@code /run/systemd/sessions}, as a fallback for
+     * when a native systemd query is unavailable or fails.
+     * <p>
+     * Shared by the bindings because it reads only files: nothing here is backend-specific.
+     *
+     * @return the sessions systemd records, or an empty list if the directory is absent or unreadable
+     */
+    public static List<OSSession> querySystemdFiles() {
+        return querySystemdFiles(SYSTEMD_SESSIONS_DIR);
+    }
+
+    /**
+     * Queries logged-in sessions from a systemd sessions directory. Package-private so tests can supply a directory
+     * instead of requiring a running systemd.
+     *
+     * @param sessionsDir the directory holding one file per session
+     * @return the sessions it records, or an empty list if the directory is absent or unreadable
+     */
+    static List<OSSession> querySystemdFiles(File sessionsDir) {
+        List<OSSession> sessionList = new ArrayList<>();
+        if (!sessionsDir.isDirectory()) {
+            return sessionList;
+        }
+        File[] sessionFiles = sessionsDir.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
+        if (sessionFiles == null) {
+            return sessionList;
+        }
+        for (File sessionFile : sessionFiles) {
+            try {
+                Map<String, String> sessionMap = FileUtil.getKeyValueMapFromFile(sessionFile.getPath(), "=");
+                String user = sessionMap.get("USER");
+                if (user == null || user.isEmpty()) {
+                    continue;
+                }
+                String tty = sessionMap.getOrDefault("TTY", sessionFile.getName());
+                String remoteHost = sessionMap.getOrDefault("REMOTE_HOST", "");
+                // REALTIME is microseconds since the epoch; fall back to the file's own timestamp
+                long loginTime = ParseUtil.parseLongOrDefault(sessionMap.get("REALTIME"), 0L) / 1000L;
+                if (loginTime == 0L) {
+                    loginTime = sessionFile.lastModified();
+                }
+                if (Util.isSessionValid(user, tty, loginTime)) {
+                    sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
+                }
+            } catch (Exception e) {
+                // Pass the exception itself, not just its message: the catch is broad, so the type matters for
+                // diagnosis and getMessage() is null for some exceptions.
+                LOG.debug("Skipping unreadable systemd session file {}", sessionFile, e);
+            }
+        }
+        return sessionList;
     }
 }

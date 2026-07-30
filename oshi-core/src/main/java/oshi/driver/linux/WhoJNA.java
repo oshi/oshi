@@ -11,11 +11,9 @@ import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
 import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -27,10 +25,9 @@ import oshi.jna.platform.linux.LinuxLibc;
 import oshi.jna.platform.linux.LinuxLibc.LinuxUtmpx;
 import oshi.jna.platform.linux.Systemd;
 import oshi.software.os.OSSession;
-import oshi.util.Constants;
-import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.Who;
 
 /**
  * Utility to query logged in users.
@@ -90,7 +87,7 @@ public final class WhoJNA {
 
         // If utmp returned no sessions, try systemd file fallback
         if (whoList.isEmpty()) {
-            whoList = querySystemdFiles();
+            whoList = Who.querySystemdFiles();
             if (whoList.isEmpty()) {
                 // Final fallback to who command
                 return oshi.util.driver.linux.Who.queryWho();
@@ -208,50 +205,4 @@ public final class WhoJNA {
         return sessionList;
     }
 
-    /**
-     * Query systemd sessions from files as fallback when native calls fail.
-     *
-     * @return A list of logged in user sessions from systemd
-     */
-    private static List<OSSession> querySystemdFiles() {
-        List<OSSession> sessionList = new ArrayList<>();
-
-        // Directly iterate /run/systemd/sessions/ directory
-        File sessionsDir = new File("/run/systemd/sessions");
-        if (sessionsDir.exists() && sessionsDir.isDirectory()) {
-            File[] sessionFiles = sessionsDir.listFiles(file -> Constants.DIGITS.matcher(file.getName()).matches());
-
-            if (nonNull(sessionFiles)) {
-                for (File sessionFile : sessionFiles) {
-                    try {
-                        Map<String, String> sessionMap = FileUtil.getKeyValueMapFromFile(sessionFile.getPath(), "=");
-
-                        String user = sessionMap.get("USER");
-                        if (nonNull(user) && !user.isEmpty()) {
-                            String tty = sessionMap.getOrDefault("TTY", sessionFile.getName());
-                            String remoteHost = sessionMap.getOrDefault("REMOTE_HOST", "");
-
-                            // Try to get login time from REALTIME field or file modification time
-                            long loginTime = 0L;
-                            String realtime = sessionMap.get("REALTIME");
-                            if (nonNull(realtime)) {
-                                loginTime = ParseUtil.parseLongOrDefault(realtime, 0L) / 1000L; // Convert µs to ms
-                            }
-                            if (loginTime == 0L) {
-                                loginTime = sessionFile.lastModified(); // Fallback to file modification time
-                            }
-
-                            if (isSessionValid(user, tty, loginTime)) {
-                                sessionList.add(new OSSession(user, tty, loginTime, remoteHost));
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Skip invalid session files
-                    }
-                }
-            }
-        }
-
-        return sessionList;
-    }
 }
