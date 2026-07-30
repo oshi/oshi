@@ -2,20 +2,20 @@
  * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.hardware.common.platform.unix.netbsd;
+package oshi.hardware.common.platform.unix.openbsd;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Firmware;
 import oshi.hardware.common.platform.unix.BsdComputerSystem;
 
 /**
- * NetBSD ComputerSystem implementation
+ * OpenBSD ComputerSystem implementation
  */
 @Immutable
-public class NetBsdComputerSystem extends BsdComputerSystem {
+public class OpenBsdComputerSystem extends BsdComputerSystem {
 
     @Override
     protected Firmware createFirmware() {
-        return new NetBsdFirmware();
+        return new OpenBsdFirmware();
     }
 }
