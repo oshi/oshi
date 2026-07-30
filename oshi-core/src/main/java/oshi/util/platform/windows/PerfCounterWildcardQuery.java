@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
@@ -27,6 +24,10 @@ import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.perfmon.PerfCounter;
+import oshi.driver.common.windows.wmi.WmiConstants;
+import oshi.driver.common.windows.wmi.WmiQuery;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
@@ -210,10 +211,33 @@ public final class PerfCounterWildcardQuery {
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromWMI(
             Class<T> propertyEnum, String wmiClass) {
-        List<String> instances = new ArrayList<>();
-        EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);
         WmiQuery<T> query = new WmiQuery<>(wmiClass, propertyEnum);
         WmiResult<T> result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);
+        return mapInstancesAndValuesFromResult(propertyEnum, result);
+    }
+
+    /**
+     * Maps a WMI result to its instance names and per-instance values, converting each property according to its CIM
+     * type. The first property of the enum names the instance; the rest are values.
+     * <p>
+     * Split from the query so it can be tested against a stubbed result: real WMI data exercises whichever CIM type the
+     * queried class happens to use, leaving the other conversions unreached.
+     *
+     * @param <T>          The enum type of {@code propertyEnum}
+     * @param propertyEnum the property enum
+     * @param result       the query result
+     * @return the instance names and the values indexed by {@code propertyEnum}, both empty if the result had no rows
+     *         <p>
+     *         Note that {@code WmiUtil} here is {@link oshi.driver.common.windows.wmi.WmiUtil}, imported so it shadows
+     *         the same-named class in this package. That one takes JNA's result type; this takes the backend-neutral
+     *         interface, which is what makes this testable.
+     *
+     * @throws ClassCastException if a property has a CIM type this does not convert
+     */
+    static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> mapInstancesAndValuesFromResult(
+            Class<T> propertyEnum, WmiResult<T> result) {
+        List<String> instances = new ArrayList<>();
+        EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);
         if (result.getResultCount() > 0) {
             for (T prop : propertyEnum.getEnumConstants()) {
                 // First element is instance name
@@ -225,16 +249,16 @@ public final class PerfCounterWildcardQuery {
                     List<Long> values = new ArrayList<>();
                     for (int i = 0; i < result.getResultCount(); i++) {
                         switch (result.getCIMType(prop)) {
-                            case Wbemcli.CIM_UINT16:
+                            case WmiConstants.CIM_UINT16:
                                 values.add((long) WmiUtil.getUint16(result, prop, i));
                                 break;
-                            case Wbemcli.CIM_UINT32:
+                            case WmiConstants.CIM_UINT32:
                                 values.add(WmiUtil.getUint32asLong(result, prop, i));
                                 break;
-                            case Wbemcli.CIM_UINT64:
+                            case WmiConstants.CIM_UINT64:
                                 values.add(WmiUtil.getUint64(result, prop, i));
                                 break;
-                            case Wbemcli.CIM_DATETIME:
+                            case WmiConstants.CIM_DATETIME:
                                 values.add(WmiUtil.getDateTime(result, prop, i).toInstant().toEpochMilli());
                                 break;
                             default:
