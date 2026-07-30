@@ -14,9 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jna.platform.win32.COM.Wbemcli;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiQuery;
-import com.sun.jna.platform.win32.COM.WbemcliUtil.WmiResult;
 import com.sun.jna.platform.win32.PdhUtil;
 import com.sun.jna.platform.win32.PdhUtil.PdhException;
 import com.sun.jna.platform.win32.VersionHelpers;
@@ -25,6 +22,10 @@ import com.sun.jna.platform.win32.Win32Exception;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PerfCounter;
+import oshi.driver.common.windows.wmi.WmiConstants;
+import oshi.driver.common.windows.wmi.WmiQuery;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 
 /**
  * Enables queries of Performance Counters using wild cards to filter instances
@@ -123,20 +124,36 @@ public final class PerfCounterQuery {
     public static <T extends Enum<T>> Map<T, Long> queryValuesFromWMI(Class<T> propertyEnum, String wmiClass) {
         WmiQuery<T> query = new WmiQuery<>(wmiClass, propertyEnum);
         WmiResult<T> result = Objects.requireNonNull(WmiQueryHandler.createInstance()).queryWMI(query);
+        return mapValuesFromResult(propertyEnum, result);
+    }
+
+    /**
+     * Maps a WMI result's first row to longs, converting each property according to its CIM type.
+     * <p>
+     * Split from the query so it can be tested against a stubbed result: real WMI data exercises whichever CIM type the
+     * queried class happens to use, leaving the other conversions unreached.
+     *
+     * @param <T>          The enum type of {@code propertyEnum}
+     * @param propertyEnum the property enum
+     * @param result       the query result
+     * @return an {@link EnumMap} of the values indexed by {@code propertyEnum}, empty if the result had no rows
+     * @throws ClassCastException if a property has a CIM type this does not convert
+     */
+    static <T extends Enum<T>> Map<T, Long> mapValuesFromResult(Class<T> propertyEnum, WmiResult<T> result) {
         EnumMap<T, Long> valueMap = new EnumMap<>(propertyEnum);
         if (result.getResultCount() > 0) {
             for (T prop : propertyEnum.getEnumConstants()) {
                 switch (result.getCIMType(prop)) {
-                    case Wbemcli.CIM_UINT16:
+                    case WmiConstants.CIM_UINT16:
                         valueMap.put(prop, (long) WmiUtil.getUint16(result, prop, 0));
                         break;
-                    case Wbemcli.CIM_UINT32:
+                    case WmiConstants.CIM_UINT32:
                         valueMap.put(prop, WmiUtil.getUint32asLong(result, prop, 0));
                         break;
-                    case Wbemcli.CIM_UINT64:
+                    case WmiConstants.CIM_UINT64:
                         valueMap.put(prop, WmiUtil.getUint64(result, prop, 0));
                         break;
-                    case Wbemcli.CIM_DATETIME:
+                    case WmiConstants.CIM_DATETIME:
                         valueMap.put(prop, WmiUtil.getDateTime(result, prop, 0).toInstant().toEpochMilli());
                         break;
                     default:

@@ -77,7 +77,9 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
                 success = PerfDataUtil.removeCounter(href);
             }
         }
-        if (counterHandleMap.isEmpty()) {
+        // The query is only opened when the first counter is added, so it may never have existed: removing a counter
+        // that was never added leaves an empty map with a null handle. removeAllCounters() guards this the same way.
+        if (counterHandleMap.isEmpty() && this.queryHandle != null) {
             PerfDataUtil.closeQuery(this.queryHandle);
             this.queryHandle.close();
             this.queryHandle = null;
