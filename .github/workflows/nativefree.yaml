@@ -58,7 +58,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-nativefree-netbsd
-        uses: vmactions/netbsd-vm@bf34bcd909bb50856f934a67d09a8fbe2b966a1b # v1
+        uses: vmactions/netbsd-vm@e7ac71b97abbe8437cec8859a5acf72dfa6a8be0 # v1
         with:
           release: "10.1"
           usesh: true
