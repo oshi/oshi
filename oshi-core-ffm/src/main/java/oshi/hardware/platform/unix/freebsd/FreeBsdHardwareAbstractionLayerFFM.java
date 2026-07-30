@@ -32,7 +32,7 @@ import oshi.hardware.platform.unix.CupsPrinterFFM;
  * BSD-shared display/network/USB/sound/graphics classes come from {@code oshi-common}.
  */
 @ThreadSafe
-public final class FreeBsdHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
+public class FreeBsdHardwareAbstractionLayerFFM extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {

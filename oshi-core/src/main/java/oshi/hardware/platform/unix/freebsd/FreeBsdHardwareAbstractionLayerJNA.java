@@ -31,7 +31,7 @@ import oshi.hardware.platform.unix.CupsPrinterJNA;
  * FreeBsdHardwareAbstractionLayerJNA class.
  */
 @ThreadSafe
-public final class FreeBsdHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
+public class FreeBsdHardwareAbstractionLayerJNA extends AbstractHardwareAbstractionLayer {
 
     @Override
     public ComputerSystem createComputerSystem() {
