@@ -33,7 +33,7 @@ class LinuxGraphicsCardTest {
      */
     private static class StubGraphicsCard extends LinuxGraphicsCard {
         StubGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram,
-                String drmDevicePath, String driverName, String pciBusId) {
+                         String drmDevicePath, String driverName, String pciBusId) {
             super(name, deviceId, vendor, versionInfo, vram, drmDevicePath, driverName, pciBusId);
         }
     }
@@ -41,7 +41,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testConstructorAndGetters() {
         StubGraphicsCard card = new StubGraphicsCard("RTX 4090", "0x2684", "NVIDIA", "Rev: 01", 24576L,
-                "/sys/class/drm/card0/device", "nvidia", "0000:01:00.0");
+            "/sys/class/drm/card0/device", "nvidia", "0000:01:00.0");
         assertThat(card.getName(), is("RTX 4090"));
         assertThat(card.getDeviceId(), is("0x2684"));
         assertThat(card.getVendor(), is("NVIDIA"));
@@ -55,7 +55,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testAttrsConstructorAndGetters() {
         LinuxGraphicsCard.Attrs attrs = new LinuxGraphicsCard.Attrs("RX 7900", "0x744c", "AMD", "Rev: c1", 20480L,
-                "/sys/class/drm/card1/device", "amdgpu", "0000:03:00.0");
+            "/sys/class/drm/card1/device", "amdgpu", "0000:03:00.0");
         assertThat(attrs.getName(), is("RX 7900"));
         assertThat(attrs.getDeviceId(), is("0x744c"));
         assertThat(attrs.getVendor(), is("AMD"));
@@ -69,7 +69,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testFindDrmInfoNonexistentPath(@TempDir Path tempDir) {
         Triplet<String, String, String> result = LinuxGraphicsCard.findDrmInfo("01:00.0",
-                tempDir.resolve("does-not-exist").toString());
+            tempDir.resolve("does-not-exist").toString());
         assertThat(result.getA(), is(""));
         assertThat(result.getB(), is(""));
         assertThat(result.getC(), is(""));
@@ -104,13 +104,16 @@ class LinuxGraphicsCardTest {
     }
 
     @Test
-    void testFindDrmInfoFallsBackToFirstDriver(@TempDir Path tempDir) throws IOException {
+    void testFindDrmInfoUnmatchedSlotReturnsEmpty(@TempDir Path tempDir) throws IOException {
+        // card0 has a driver, so it is a candidate for the first-with-driver fallback. Because a slot was supplied
+        // and no card claimed it, this card has no DRM node (e.g. a GPU bound to vfio-pci) and must report nothing
+        // rather than inherit card0's path, driver and metrics.
         createCardWithDriver(tempDir, "card0", "amdgpu", "0000:01:00.0");
 
-        // No slot match — should fall back to first card with a driver
         Triplet<String, String, String> result = LinuxGraphicsCard.findDrmInfo("99:00.0", tempDir.toString());
-        assertThat(result.getB(), is("amdgpu"));
-        assertThat(result.getC(), is("0000:01:00.0"));
+        assertThat(result.getA(), is(""));
+        assertThat(result.getB(), is(""));
+        assertThat(result.getC(), is(""));
     }
 
     @Test
@@ -174,7 +177,7 @@ class LinuxGraphicsCardTest {
      * @throws IOException if file creation fails
      */
     private static void createCardWithDriver(Path drmDir, String cardName, String driverName, String slotName)
-            throws IOException {
+        throws IOException {
         Path deviceDir = drmDir.resolve(cardName + "/device");
         Files.createDirectories(deviceDir);
         // Create a fake driver target and symlink
@@ -189,15 +192,15 @@ class LinuxGraphicsCardTest {
     // getGraphicsCardsFromLspci parsing
     // -------------------------------------------------------------------------
 
-    // Fixture: lspci -vnnm output with one VGA card
-    private static final List<String> LSPCI_VNNM = Arrays.asList("Slot:\t01:00.0",
-            "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
-            "Device:\tGA102 [GeForce RTX 3090] [2204]", "SVendor:\tASUS [1043]",
-            "SDevice:\tGA102 [GeForce RTX 3090] [8687]", "Rev:\ta1", "");
+    // Fixture: lspci -vnnmm output with one VGA card
+    private static final List<String> LSPCI_VNNMM = Arrays.asList("Slot:\t01:00.0",
+        "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
+        "Device:\tGA102 [GeForce RTX 3090] [2204]", "SVendor:\tASUS [1043]",
+        "SDevice:\tGA102 [GeForce RTX 3090] [8687]", "Rev:\ta1", "");
 
     private static final Function<LinuxGraphicsCard.Attrs, GraphicsCard> STUB_FACTORY = attrs -> new StubGraphicsCard(
-            attrs.getName(), attrs.getDeviceId(), attrs.getVendor(), attrs.getVersionInfo(), attrs.getVram(),
-            attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
+        attrs.getName(), attrs.getDeviceId(), attrs.getVendor(), attrs.getVersionInfo(), attrs.getVram(),
+        attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
 
     // No-op lookups for pure parsing tests
     private static final ToLongFunction<String> NO_VRAM = slot -> 0L;
@@ -205,8 +208,8 @@ class LinuxGraphicsCardTest {
 
     @Test
     void testGetGraphicsCardsFromLspciSingleCard() {
-        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(LSPCI_VNNM, STUB_FACTORY, NO_VRAM,
-                NO_DRM);
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(LSPCI_VNNMM, STUB_FACTORY, NO_VRAM,
+            NO_DRM);
         assertThat(cards.size(), is(1));
         GraphicsCard card = cards.get(0);
         assertThat(card.getName(), is("GA102 [GeForce RTX 3090]"));
@@ -218,16 +221,16 @@ class LinuxGraphicsCardTest {
     @Test
     void testGetGraphicsCardsFromLspciEmpty() {
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(Collections.emptyList(), STUB_FACTORY,
-                NO_VRAM, NO_DRM);
+            NO_VRAM, NO_DRM);
         assertThat(cards, is(empty()));
     }
 
     @Test
     void testGetGraphicsCardsFromLspciTwoCards() {
         List<String> twoCards = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
-                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1", "",
-                "Slot:\t00:02.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tIntel Corporation [8086]",
-                "Device:\tUHD Graphics 630 [3E92]", "Rev:\t00", "");
+            "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1", "",
+            "Slot:\t00:02.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tIntel Corporation [8086]",
+            "Device:\tUHD Graphics 630 [3E92]", "Rev:\t00", "");
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, NO_VRAM, NO_DRM);
         assertThat(cards.size(), is(2));
         assertThat(cards.get(0).getName(), is("GA102 [GeForce RTX 3090]"));
@@ -238,7 +241,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testGetGraphicsCardsFromLspci3DController() {
         List<String> threeD = Arrays.asList("Slot:\t01:00.0", "Class:\t3D controller [0302]",
-                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tTesla V100 [1db4]", "");
+            "Vendor:\tNVIDIA Corporation [10de]", "Device:\tTesla V100 [1db4]", "");
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(threeD, STUB_FACTORY, NO_VRAM, NO_DRM);
         assertThat(cards.size(), is(1));
         assertThat(cards.get(0).getName(), is("Tesla V100"));
@@ -247,9 +250,9 @@ class LinuxGraphicsCardTest {
     @Test
     void testGetGraphicsCardsFromLspciPassesEachSlotToLookups() {
         List<String> twoCards = Arrays.asList("Slot:\t00:02.0", "Class:\tVGA compatible controller [0300]",
-                "Vendor:\tIntel Corporation [8086]", "Device:\tUHD Graphics 630 [3E92]", "Rev:\t00", "",
-                "Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
-                "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1", "");
+            "Vendor:\tIntel Corporation [8086]", "Device:\tUHD Graphics 630 [3E92]", "Rev:\t00", "",
+            "Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
+            "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1", "");
 
         List<String> drmSlots = new ArrayList<>();
         List<String> vramSlots = new ArrayList<>();
@@ -271,17 +274,20 @@ class LinuxGraphicsCardTest {
 
     @Test
     void testGetGraphicsCardsFromLspciSkipsNonGraphicsSlots() {
-        List<String> mixed = Arrays.asList("Slot:\t00:11.0", "Class:\tSignal processing controller [1180]",
-                "Vendor:\tIntel Corporation [8086]", "Device:\tIntegrated Sensor Hub [a135]", "Rev:\t31", "",
-                "Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
-                "Device:\tGP107GL [Quadro P400] [1cb3]", "Rev:\ta1", "");
-
+        // PCI class 0x0000 renders as "Non-VGA unclassified device", which contains "VGA"; 0x1180 is a signal
+        // processing controller. Neither is a graphics card and neither may reach the DRM lookup.
+        List<String> mixed = Arrays.asList("Slot:\t00:13.0", "Class:\tNon-VGA unclassified device [0000]",
+            "Vendor:\tIntel Corporation [8086]",
+            "Device:\t100 Series/C230 Series Chipset Family Integrated Sensor Hub [a135]", "Rev:\t31", "",
+            "Slot:\t00:11.0", "Class:\tSignal processing controller [1180]", "Vendor:\tIntel Corporation [8086]",
+            "Device:\tIntegrated Sensor Hub [a135]", "Rev:\t31", "", "Slot:\t01:00.0",
+            "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
+            "Device:\tGP107GL [Quadro P400] [1cb3]", "Rev:\ta1", "");
         List<String> drmSlots = new ArrayList<>();
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(mixed, STUB_FACTORY, NO_VRAM, slot -> {
             drmSlots.add(slot);
             return new Triplet<>("", "", "");
         });
-
         assertThat(cards.size(), is(1));
         assertThat(cards.get(0).getDeviceId(), is("0x1cb3"));
         assertThat(drmSlots, is(Collections.singletonList("01:00.0")));
@@ -290,6 +296,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testIsDisplayClass() {
         assertThat(LinuxGraphicsCard.isDisplayClass("VGA compatible controller [0300]"), is(true));
+        assertThat(LinuxGraphicsCard.isDisplayClass("XGA compatible controller [0301]"), is(true));
         assertThat(LinuxGraphicsCard.isDisplayClass("3D controller [0302]"), is(true));
         assertThat(LinuxGraphicsCard.isDisplayClass("Display controller [0380]"), is(true));
         // Contains "VGA" but is PCI class 0x0000, not a graphics card
@@ -298,21 +305,42 @@ class LinuxGraphicsCardTest {
         assertThat(LinuxGraphicsCard.isDisplayClass("Host bridge [0600]"), is(false));
         // Without numeric class codes, fall back to the class name
         assertThat(LinuxGraphicsCard.isDisplayClass("VGA compatible controller"), is(true));
+        assertThat(LinuxGraphicsCard.isDisplayClass("3D controller"), is(true));
         assertThat(LinuxGraphicsCard.isDisplayClass("Non-VGA unclassified device"), is(false));
+        // A bracket group too short to hold a base class falls through to the name check
+        assertThat(LinuxGraphicsCard.isDisplayClass("Bogus controller [3]"), is(false));
     }
 
     @Test
-    void testGetGraphicsCardsFromLspciIgnoresNonVgaUnclassifiedDevice() {
-        // PCI class 0x0000 renders as "Non-VGA unclassified device", which contains "VGA"
-        List<String> lspci = Arrays.asList("Slot:\t00:13.0", "Class:\tNon-VGA unclassified device [0000]",
-                "Vendor:\tIntel Corporation [8086]",
-                "Device:\t100 Series/C230 Series Chipset Family Integrated Sensor Hub [a135]", "Rev:\t31", "",
-                "Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
-                "Device:\tGP107GL [Quadro P400] [1cb3]", "Rev:\ta1", "");
+    void testGetGraphicsCardsFromLspciNewRecordClearsPreviousCardState() {
+        // The second card omits Vendor and Rev, so any value it reports for them would be leaked from the first card
+        List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
+            "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGP107GL [Quadro P400] [1cb3]", "Rev:\ta1", "",
+            "Slot:\t00:02.0", "Class:\tVGA compatible controller [0300]",
+            "Device:\tASPEED Graphics Family [2000]", "");
+        List<String> drmSlots = new ArrayList<>();
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, slot -> {
+            drmSlots.add(slot);
+            return new Triplet<>("", "", slot);
+        });
+        assertThat(cards.size(), is(2));
+        assertThat(cards.get(0).getName(), is("GP107GL [Quadro P400]"));
+        assertThat(cards.get(0).getVendor(), is("NVIDIA Corporation (0x10de)"));
+        assertThat(cards.get(0).getVersionInfo(), is("Rev:\ta1"));
+        GraphicsCard second = cards.get(1);
+        assertThat(second.getName(), is("ASPEED Graphics Family"));
+        assertThat(second.getDeviceId(), is("0x2000"));
+        assertThat(second.getVendor(), is(Constants.UNKNOWN));
+        assertThat(second.getVersionInfo(), is(Constants.UNKNOWN));
+        assertThat(drmSlots, is(Arrays.asList("01:00.0", "00:02.0")));
+    }
 
-        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
-        assertThat(cards.size(), is(1));
-        assertThat(cards.get(0).getDeviceId(), is("0x1cb3"));
+    @Test
+    void testGetGraphicsCardsFromLspciValuelessClassLine() {
+        // A "Class:" line with no value must not be treated as a display controller
+        List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:", "Vendor:\tNVIDIA Corporation [10de]",
+            "Device:\tGP107GL [Quadro P400] [1cb3]", "");
+        assertThat(LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM), is(empty()));
     }
 
     // -------------------------------------------------------------------------
@@ -322,9 +350,9 @@ class LinuxGraphicsCardTest {
     @Test
     void testQueryLspciMemorySize() {
         List<String> lspciV = Arrays.asList("01:00.0 VGA compatible controller: NVIDIA Corporation",
-                "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]",
-                "\tMemory at e0000000 (64-bit, prefetchable) [size=256M]",
-                "\tMemory at f0000000 (64-bit, prefetchable) [size=32M]", "\tI/O ports at e000 [size=128]");
+            "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]",
+            "\tMemory at e0000000 (64-bit, prefetchable) [size=256M]",
+            "\tMemory at f0000000 (64-bit, prefetchable) [size=32M]", "\tI/O ports at e000 [size=128]");
         long vram = LinuxGraphicsCard.queryLspciMemorySize(lspciV);
         // 256M + 32M = 288M
         assertThat(vram, is(256L * 1024 * 1024 + 32L * 1024 * 1024));
@@ -333,7 +361,7 @@ class LinuxGraphicsCardTest {
     @Test
     void testQueryLspciMemorySizeNoPrefetchable() {
         List<String> noPrefetch = Arrays.asList("01:00.0 VGA compatible controller: Intel",
-                "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]");
+            "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]");
         assertThat(LinuxGraphicsCard.queryLspciMemorySize(noPrefetch), is(0L));
     }
 
@@ -346,7 +374,7 @@ class LinuxGraphicsCardTest {
     void testGetGraphicsCardsFromLspciVendorWithoutBracket() {
         // A Vendor line whose value has no "[hex]" id does not parse as machine-readable; the raw text is used
         List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
-                "Vendor:\tRedHat, Inc.", "Device:\tVirtio GPU [1050]", "");
+            "Vendor:\tRedHat, Inc.", "Device:\tVirtio GPU [1050]", "");
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
         assertThat(cards.size(), is(1));
         assertThat(cards.get(0).getVendor(), is("RedHat, Inc."));
@@ -357,7 +385,7 @@ class LinuxGraphicsCardTest {
     void testGetGraphicsCardsFromLspciNoTrailingBlankLine() {
         // Output that ends mid-card (no terminating blank line) still flushes the last card
         List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:\tVGA compatible controller [0300]",
-                "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1");
+            "Vendor:\tNVIDIA Corporation [10de]", "Device:\tGA102 [GeForce RTX 3090] [2204]", "Rev:\ta1");
         List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
         assertThat(cards.size(), is(1));
         assertThat(cards.get(0).getName(), is("GA102 [GeForce RTX 3090]"));
@@ -371,15 +399,15 @@ class LinuxGraphicsCardTest {
     // Fixture: `lshw -C display` output (real structure) with two display nodes. The second card has no bus info so
     // its DRM lookup is with a null slot; resources memory ranges drive the VRAM total.
     private static final List<String> LSHW = Arrays.asList("  *-display",
-            "       description: VGA compatible controller", "       product: GA102 [GeForce RTX 3090]",
-            "       vendor: NVIDIA Corporation", "       physical id: 0", "       bus info: pci@0000:01:00.0",
-            "       version: a1", "       width: 64 bits", "       clock: 33MHz",
-            "       capabilities: pm msi pciexpress vga_controller bus_master cap_list rom",
-            "       configuration: driver=nvidia latency=0",
-            "       resources: irq:178 memory:f6000000-f6ffffff memory:e0000000-efffffff", "  *-display",
-            "       description: VGA compatible controller", "       product: UHD Graphics 630",
-            "       vendor: Intel Corporation", "       physical id: 2",
-            "       resources: irq:24 memory:db000000-dbffffff");
+        "       description: VGA compatible controller", "       product: GA102 [GeForce RTX 3090]",
+        "       vendor: NVIDIA Corporation", "       physical id: 0", "       bus info: pci@0000:01:00.0",
+        "       version: a1", "       width: 64 bits", "       clock: 33MHz",
+        "       capabilities: pm msi pciexpress vga_controller bus_master cap_list rom",
+        "       configuration: driver=nvidia latency=0",
+        "       resources: irq:178 memory:f6000000-f6ffffff memory:e0000000-efffffff", "  *-display",
+        "       description: VGA compatible controller", "       product: UHD Graphics 630",
+        "       vendor: Intel Corporation", "       physical id: 2",
+        "       resources: irq:24 memory:db000000-dbffffff");
 
     @Test
     void testGetGraphicsCardsFromLshwTwoCards() {
@@ -404,6 +432,6 @@ class LinuxGraphicsCardTest {
     @Test
     void testGetGraphicsCardsFromLshwEmpty() {
         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLshw(Collections.emptyList(), STUB_FACTORY, NO_DRM),
-                is(empty()));
+            is(empty()));
     }
 }

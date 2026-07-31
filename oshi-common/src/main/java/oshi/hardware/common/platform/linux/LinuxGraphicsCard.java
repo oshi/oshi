@@ -207,7 +207,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
     /**
      * Parse graphics card information from lspci machine-readable output.
      *
-     * @param lspci      output of {@code lspci -vnnm}
+     * @param lspci      output of {@code lspci -vnnmm}
      * @param factory    function that creates a concrete {@link GraphicsCard} from parsed attributes
      * @param vramLookup function to look up VRAM for a PCI slot address
      * @param drmLookup  function to look up DRM info for a PCI slot address
@@ -266,10 +266,6 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
                         versionInfoList.add(line.trim());
                     }
                 }
-            }
-            if (split.length < 2) {
-                // Record boundary; the next record must supply its own Slot line
-                slot = null;
             }
         }
         // If we haven't yet written the last card do so now
@@ -432,7 +428,12 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
                 return new Triplet<>(devicePath, driver, slotName);
             }
         }
-        // Fall back to first card with a driver symlink
+        if (pciSlot != null) {
+            // We had a slot to match on and no DRM card claimed it, so this card has no DRM node (e.g. a GPU bound to
+            // vfio-pci). Returning another card's path would attribute that card's driver and metrics to this one.
+            return new Triplet<>("", "", "");
+        }
+        // No slot to match on: fall back to the first card with a driver symlink
         return firstWithDriver != null ? firstWithDriver : new Triplet<>("", "", "");
     }
 
