@@ -49,6 +49,8 @@ oshi.software.common.os.windows
 oshi.software.os
 oshi.spi
 oshi.util
+oshi.util.common.gpu
+oshi.util.common.platform.mac
 oshi.util.common.platform.unix.bsd
 oshi.util.common.platform.unix.dragonflybsd
 oshi.util.common.platform.unix.freebsd
