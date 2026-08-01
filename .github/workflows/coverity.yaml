@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Java
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           cache: maven
           # cov-build 2024.12.1 (the version the free Coverity Scan tier serves) cannot capture JDK 25 bytecode, so
