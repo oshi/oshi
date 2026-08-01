@@ -1,0 +1,246 @@
+# AGENTS.md
+
+Instructions for AI coding agents working in the OSHI repository. Humans should start with
+[README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md); this file covers what an agent
+is likely to get wrong.
+
+## What OSHI is
+
+A cross-platform Java library that reads operating system and hardware information through native
+APIs, with no bundled native libraries. It supports Windows, macOS, Linux/Android, and six UNIX
+variants (AIX, DragonFly BSD, FreeBSD, NetBSD, OpenBSD, Solaris/illumos), through two independent
+native-access implementations (JNA and the JDK Foreign Function & Memory API).
+
+**The single most important consequence: you can only build and test the platform you are running
+on, and only against the hardware you happen to have.** Most changes in this repository cannot be
+verified by running them. Plan for that instead of assuming a green local build means the change is
+correct.
+
+## Repository map
+
+| Path | Contents |
+|---|---|
+| `oshi-common` | Public API interfaces, abstract bases, POJOs, shared parsing/util code, and a pure-Java (no native access) implementation under `oshi.nativefree` for Linux and NetBSD. **Java 8; no JNA, no FFM.** |
+| `oshi-core` | The JNA implementation. **Java 8.** |
+| `oshi-core-ffm` | The FFM implementation. **Java 25+.** |
+| `oshi-demo` | Proof-of-concept examples, jbang catalog entries. |
+| `oshi-metrics` | Micrometer bindings. Java 17+. |
+| `oshi-benchmark` | JMH benchmarks and the `oshi.comparison` cross-implementation tests. Java 25+. |
+| `oshi-dist` | Distribution zip assembly. |
+| `config/` | Checkstyle, import-control, forbidden-apis, license header, formatter, Sonar config. |
+| `src/site/` | Maven site sources (`SampleOutput.md`, project listings). |
+
+Within `oshi-core` and `oshi-core-ffm` the layout mirrors each other:
+
+- `oshi/hardware/platform/<os>/` and `oshi/software/os/<os>/` — the per-OS implementations of the
+  public interfaces.
+- `oshi/driver/<os>/` — reusable helpers that fetch and parse one specific thing (a sysfs file, a
+  WMI query, a `sysctl` call). Most parsing logic belongs here, not in the HAL classes.
+- `oshi/jna/platform/<os>/` (JNA) and `oshi/ffm/platform/<os>/` (FFM) — the native mappings.
+- `oshi/util/` — shared utilities. `ParseUtil`, `ExecutingCommand`, `FileUtil`, `GlobalConfig`.
+
+### Where code belongs
+
+`oshi-common` is not just the interfaces — it holds the shared *implementation*. Only code that
+actually touches JNA or FFM types belongs in `oshi-core` / `oshi-core-ffm`.
+
+Anything else — parsing, unit conversion, string handling, sorting and filtering, caching, sentinel
+and range checks, the logic that turns raw native output into a returned value — belongs in
+`oshi-common`, as an abstract base class the platform implementations extend, a `driver`/`util`
+class both call, or a POJO they populate. If you are writing the same logic in both twins, it is in
+the wrong place.
+
+Reducing this duplication has been a sustained effort in the project, so **default to hoisting**
+rather than copying. A change that adds parallel logic to both implementations will be asked to
+justify why it is not shared.
+
+Runtime configuration lives in `oshi-common/src/main/resources/oshi.properties`, read through
+`oshi.util.GlobalConfig` or overridden with Java system properties. Configuration is read at
+startup, is not thread-safe, and is not re-read during operation. Add new settings there rather
+than introducing a separate mechanism.
+
+## The feedback loop
+
+```sh
+./mvnw clean install                 # full reactor build + tests
+./mvnw -pl oshi-core -am test        # one module and its dependencies
+./mvnw spotless:apply                # formatting, import order, license-header years
+./mvnw checkstyle:check              # includes import-control
+./mvnw forbiddenapis:check           # see "Banned APIs" below
+./mvnw javadoc:javadoc               # javadoc errors fail the release build
+```
+
+Print a full report for the machine you are on — the fastest way to sanity-check a change by hand:
+
+```sh
+./mvnw install -DskipTests
+./mvnw exec:java -pl oshi-core -Dexec.mainClass="oshi.SystemInfoTest" -Dexec.classpathScope="test"
+./mvnw exec:java -pl oshi-core-ffm -Dexec.mainClass="oshi.ffm.SystemInfoTest" -Dexec.classpathScope="test"
+```
+
+Which modules are in the reactor depends on the JDK you build with: `oshi-metrics` needs 17+,
+and `oshi-core-ffm`, `oshi-benchmark`, and `oshi-dist` need 25+. A build on JDK 8–16 silently
+skips them. **Use a JDK 25+ toolchain so FFM code is actually compiled.**
+
+### Stale `oshi-common` is the most common self-inflicted failure
+
+`oshi-common` is a dependency of both `oshi-core` and `oshi-core-ffm`. When it is not part of the
+build you just ran, Maven resolves it from the copy installed in your local `~/.m2` repository by a
+previous build — which may be older than your working tree. Because both the stale and the current
+copy carry the same `-SNAPSHOT` version, nothing warns you.
+
+Symptoms: a change to `oshi-common` appears to have no effect; a method you just added is "not
+found"; a test fails against behavior you already fixed; `NoSuchMethodError`, `AbstractMethodError`,
+or an unresolvable symbol in a module that clearly compiles.
+
+Avoid it:
+
+- Use `./mvnw clean install` from the repository root when you have touched `oshi-common`, and
+  before any final verification run.
+- Always pass `-am` with `-pl` (`./mvnw -pl oshi-core -am test`) so dependency modules are rebuilt
+  from source in the same reactor rather than resolved from `~/.m2`.
+- Run `./mvnw install -DskipTests` before `exec:java`, benchmarks, or anything else that runs
+  outside the reactor.
+
+If a result does not make sense, rebuild clean from the root before spending time debugging it.
+
+Before opening a PR, run the whole gate in this order, on the modules you touched
+(`-pl <modules> -am`), and fold any spotless reformatting into the same commit:
+`spotless:apply` → `checkstyle:check` → `install` → `forbiddenapis:check` → `javadoc:javadoc`.
+Spotless first, because it shifts line numbers.
+
+### Tests
+
+Tests run under `de.sormuras.junit:junit-platform-maven-plugin`, **not** Surefire. There is no
+`Tests run: N` line to grep for and Surefire `includes`/`excludes` do nothing. Check the exit code,
+and look for `tests failed` or `[X]` markers in the output. Test files are named `*Test.java`.
+
+JUnit 5 + Hamcrest are the only test dependencies. **Mockito is deliberately absent** — do not add
+it. To make code testable, extract the parsing from the acquisition: a method that takes a
+`List<String>` or `String` and returns a parsed result, called by a thin method that does the
+`readFile`/`runNative`. Test the parse method against fixture data.
+
+## Hard rules that CI enforces
+
+**Language level.** `oshi-common` and `oshi-core` compile with `release 8`. No `var`, no `List.of`,
+no records, no switch expressions, no text blocks, no `Stream.toList()`. Only `oshi-core-ffm`
+(25), `oshi-metrics` (17), and `oshi-benchmark` (25) get modern Java. Agents get this wrong
+constantly.
+
+**Banned APIs** (`config/forbidden-apis.txt` and friends, enforced by `forbiddenapis:check`):
+
+- `Integer.parseInt`, `Long.parseLong`, `Double.parseDouble`, `Integer.decode`, and relatives are
+  banned. Use `oshi.util.ParseUtil` — `parseIntOrDefault`, `parseLongOrDefault`,
+  `parseHyphenatedIntList`, `parseDHMSOrDefault`, and so on. They fail soft on the malformed input
+  that real system output regularly produces.
+- `org.slf4j.event.**` is banned; use `oshi.util.LogLevel`. OSHI supports hosts pinning slf4j 1.7.
+- `oshi-common` may not reference `com.sun.jna.**`, `java.lang.foreign.**`, or any
+  `System.load`/`loadLibrary`. It must stay pure JDK.
+- `oshi-core-ffm` may not reference `com.sun.jna.**`.
+
+**Import control.** `config/import-control.xml` allowlists every non-OSHI package that may be
+imported, and must stay consistent with each module's `module-info.java`
+(`src/main/java/module-info.java`). A new external import means editing both, plus possibly the
+module's `pom.xml`. Checkstyle fails otherwise.
+
+**Formatting and headers.** Spotless owns formatting and the import block, so you do not need to
+remove unused imports — but you do need to *add* the ones you use. New files get a current-year-only
+header (`Copyright 2026 The OSHI Project Contributors` / `SPDX-License-Identifier: MIT`), even when
+copied from an older file; spotless maintains end years on existing files.
+
+**Javadoc.** Every public member needs javadoc. Do not use fully-qualified class names in code or in
+javadoc — including inside `{@link ...}`. Import the type and link the simple name.
+
+## Two conventions that apply to nearly every class
+
+**Concurrency annotations.** Roughly two thirds of the classes in this project carry
+`@ThreadSafe`, `@Immutable`, `@NotThreadSafe`, or `@GuardedBy` from
+`oshi.annotation.concurrent`. These are documentation, not enforcement — but new classes are
+expected to declare one, and matching the annotation of the class you are modeling yours on is the
+right default.
+
+**Memoization.** System calls are expensive, and callers poll. Values that are constant (CPU model,
+serial number) or expensive-but-slow-changing are wrapped in
+`oshi.util.Memoizer.memoize(supplier, ...)` — usually as a `Supplier<T>` field, with
+`defaultExpiration()` for values that must refresh. Follow the pattern in the surrounding class
+when adding a getter that makes a native call, and read [PERFORMANCE.md](PERFORMANCE.md) before
+adding one to a path that callers hit in a loop.
+
+**Prefer a native call to anything else.** Below that, the ranking is platform-dependent, and the
+common assumption that reading a file always beats running a command is wrong here. On Linux,
+`/proc` and `/sys` are kernel interfaces rather than real disk, so `FileUtil` reads are cheap and
+preferred over `ExecutingCommand`. On other platforms a file read is an actual disk read, with no
+inherent advantage over spawning a command — there, `ExecutingCommand` is a legitimate way to reach
+information the native APIs do not expose, not a last resort to be engineered around.
+
+## The JNA/FFM twin rule
+
+Nearly every class in `oshi-core` has a counterpart in `oshi-core-ffm` implementing the same
+`oshi-common` interface for the same platform. **A behavior change to one is almost always a bug
+unless the twin gets it too.** This has been the single largest source of defects in the project:
+one implementation gains a null guard, a charset fix, or a sentinel-value check, and the other
+quietly keeps returning wrong data on the same input.
+
+When you change a HAL or OS component:
+
+1. Find the twin (same package path, `oshi-core` ↔ `oshi-core-ffm`) and apply the equivalent change.
+2. If the twin is intentionally different, say why in the commit message.
+3. Better still, do not write it twice: if the change is not specific to JNA or FFM types, hoist it
+   into `oshi-common` so both implementations inherit it and cannot diverge again. See
+   [Where code belongs](#where-code-belongs). Rebuild from the root afterward; see the
+   stale-`oshi-common` note above.
+
+`oshi-benchmark`'s `oshi.comparison` tests (`NativeComparisonTest`, `WmiComparisonTest`,
+`RegistryComparisonTest`, `PerfmonComparisonTest`, `NativeFreeComparisonTest`) assert that the
+implementations agree; they run under `-Paggregate-coverage`.
+
+## Writing code you cannot run
+
+Most of this repository targets platforms you are not on. When editing AIX, Solaris, BSD, or a
+Windows/macOS path from a different host:
+
+- Copy the shape of the nearest working sibling implementation rather than inventing a new approach.
+- Native struct offsets, field widths, and `sysctl`/`ioctl` constants are per-OS and per-architecture.
+  Verify them against the platform's real headers; do not infer them from another OS.
+- Say plainly in the PR description what you could not verify. "Compiles; untested on AIX" is a
+  useful and welcome statement.
+- CI covers the rest: GitHub Actions for Windows/macOS/Linux, vmactions VMs for the BSDs and
+  Solaris, and the GCC compile farm (`cfarm.yaml`) for AIX and SPARC. Some of those run only on
+  push to master or via `workflow_dispatch`, not on PRs.
+
+## Writing tests for hardware that may not exist
+
+CI runs on virtual machines with no battery, no sensors, no discrete GPU, sometimes no sound card,
+and occasionally a single logical processor. Tests must pass there *and* on real hardware.
+
+- Assert on invariants (non-null, correct type, ordering, a plausible range), not on specific values.
+- Zero and empty collections are legitimate results almost everywhere. `getCpuVoltage() == 0` on a
+  machine with no voltage sensor is correct behavior, not a failure.
+- Beware timing-sensitive assertions comparing two live readings — CPU frequency, tick counters, and
+  uptime all move between samples. That is the main source of flaky tests here.
+- Any `oshi-core` test that allocates JNA needs
+  `@DisabledIfSystemProperty(named = "os.name", matches = "(?i).*netbsd.*")`; the NetBSD CI runner
+  has no `libjnidispatch`.
+
+## Pull request conventions
+
+- Branch from `master`; PRs target `master`.
+- Add a `CHANGELOG.md` entry under *Next Release* **only for user-visible changes**. Pure
+  refactors, dedup, test-only changes, and CI config get no entry.
+- Do not add dependencies without discussion, and do not bump dependency versions by hand —
+  Renovate handles that.
+- Commit messages describe what changed and why. Do not add sign-off or `Co-Authored-By` trailers
+  unless asked.
+- Do not commit generated output, `target/`, or IDE files.
+
+## Further reading
+
+- [README.md](README.md) — features, usage, module overview
+- [CONTRIBUTING.md](CONTRIBUTING.md) — fork/branch/PR workflow for humans
+- [FAQ.md](FAQ.md) — platform quirks and common user problems; useful background on *why* a
+  value looks odd on a given OS
+- [PERFORMANCE.md](PERFORMANCE.md) — which calls are expensive and why; read before adding a
+  native call to a hot path
+- [UPGRADING.md](UPGRADING.md) — the breaking-change history and API compatibility policy
+- [RELEASING.md](RELEASING.md) — the release process (maintainers only)
+- [SECURITY.md](SECURITY.md) — vulnerability reporting
