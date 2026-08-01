@@ -15,6 +15,5 @@ lib/
 release.properties
 *.releaseBackup
 bin/
-AGENTS.md
 CLAUDE.md
 .kiro/
