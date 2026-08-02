@@ -20,7 +20,7 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
-import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 
 /**
  * FFM bindings for FreeBSD libc functions used by OSHI.
@@ -30,7 +30,7 @@ import oshi.ffm.ForeignFunctions;
  * Additional libc bindings ({@code sysctl} with int MIB, {@code getpid}, {@code thr_self}, {@code getrlimit}) are added
  * in later phases alongside their first FFM consumer.
  */
-public final class FreeBsdLibcFunctions extends ForeignFunctions {
+public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
 
     private FreeBsdLibcFunctions() {
     }
@@ -40,15 +40,6 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
 
     /** {@code getrlimit} resource: maximum number of open file descriptors. FreeBSD-specific value (8). */
     public static final int RLIMIT_NOFILE = 8;
-
-    /**
-     * Layout of FreeBSD's {@code struct rlimit}: two {@code rlim_t} (LP64 long) fields.
-     */
-    public static final StructLayout RLIMIT_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("rlim_cur"),
-            JAVA_LONG.withName("rlim_max"));
-
-    private static final VarHandle RLIMIT_CUR = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_cur"));
-    private static final VarHandle RLIMIT_MAX = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_max"));
 
     /** {@code getaddrinfo} hint flag: return the canonical name in {@code ai_canonname}. */
     public static final int AI_CANONNAME = 2;
@@ -252,22 +243,6 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
         return tvSec * 1000L + tvUsec / 1000L;
     }
 
-    // int gethostname(char *name, size_t namelen);
-    private static final MethodHandle gethostname = LINKER.downcallHandle(LIBC.findOrThrow("gethostname"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, SIZE_T));
-
-    /**
-     * Calls {@code gethostname(name, namelen)}.
-     *
-     * @param buf segment of at least {@code len} bytes
-     * @param len buffer length
-     * @return 0 on success, -1 on error
-     * @throws Throwable on FFM invocation error
-     */
-    public static int gethostname(MemorySegment buf, long len) throws Throwable {
-        return (int) gethostname.invokeExact(buf, len);
-    }
-
     // int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
     private static final MethodHandle getaddrinfo = LINKER.downcallHandle(LIBC.findOrThrow("getaddrinfo"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
@@ -335,20 +310,6 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
         return getStringFromNativePointer(canonPtr, arena);
     }
 
-    // pid_t getpid(void);
-    private static final MethodHandle getpid = LINKER.downcallHandle(LIBC.findOrThrow("getpid"),
-            FunctionDescriptor.of(JAVA_INT));
-
-    /**
-     * Calls {@code getpid()}.
-     *
-     * @return the process ID of the calling process
-     * @throws Throwable on FFM invocation error
-     */
-    public static int getpid() throws Throwable {
-        return (int) getpid.invokeExact();
-    }
-
     // int thr_self(long *id);
     private static final MethodHandle thr_self = LINKER.downcallHandle(LIBC.findOrThrow("thr_self"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS));
@@ -387,39 +348,4 @@ public final class FreeBsdLibcFunctions extends ForeignFunctions {
         return (int) sysctl.invokeExact(callState, name, namelen, oldp, oldlenp, newp, newlen);
     }
 
-    // int getrlimit(int resource, struct rlimit *rlim);
-    private static final MethodHandle getrlimit = LINKER.downcallHandle(LIBC.findOrThrow("getrlimit"),
-            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
-
-    /**
-     * Calls {@code getrlimit(resource, rlim)}.
-     *
-     * @param resource resource constant (e.g. {@link #RLIMIT_NOFILE})
-     * @param rlim     segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return 0 on success, -1 on error
-     * @throws Throwable on FFM invocation error
-     */
-    public static int getrlimit(int resource, MemorySegment rlim) throws Throwable {
-        return (int) getrlimit.invokeExact(resource, rlim);
-    }
-
-    /**
-     * Reads {@code rlim_cur} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
-     *
-     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return the soft resource limit
-     */
-    public static long rlimitCur(MemorySegment rlim) {
-        return (long) RLIMIT_CUR.get(rlim, 0L);
-    }
-
-    /**
-     * Reads {@code rlim_max} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
-     *
-     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return the hard resource limit
-     */
-    public static long rlimitMax(MemorySegment rlim) {
-        return (long) RLIMIT_MAX.get(rlim, 0L);
-    }
 }

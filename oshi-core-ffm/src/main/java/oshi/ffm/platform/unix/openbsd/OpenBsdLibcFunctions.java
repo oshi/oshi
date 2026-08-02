@@ -18,7 +18,7 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
-import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 
 /**
  * FFM bindings for OpenBSD libc functions used by OSHI.
@@ -26,7 +26,7 @@ import oshi.ffm.ForeignFunctions;
  * OpenBSD uses {@code sysctl(int *name, u_int namelen, ...)} exclusively (no {@code sysctlbyname}). Additional bindings
  * ({@code getthrid}, {@code getrlimit}) support process and resource limit queries.
  */
-public final class OpenBsdLibcFunctions extends ForeignFunctions {
+public final class OpenBsdLibcFunctions extends PosixLibcFunctions {
 
     private OpenBsdLibcFunctions() {
     }
@@ -36,15 +36,6 @@ public final class OpenBsdLibcFunctions extends ForeignFunctions {
 
     /** {@code getrlimit} resource: maximum number of open file descriptors. OpenBSD value (8). */
     public static final int RLIMIT_NOFILE = 8;
-
-    /**
-     * Layout of OpenBSD's {@code struct rlimit}: two {@code rlim_t} (LP64 long) fields.
-     */
-    public static final StructLayout RLIMIT_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("rlim_cur"),
-            JAVA_LONG.withName("rlim_max"));
-
-    private static final VarHandle RLIMIT_CUR = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_cur"));
-    private static final VarHandle RLIMIT_MAX = RLIMIT_LAYOUT.varHandle(PathElement.groupElement("rlim_max"));
 
     // libc is already loaded into the JVM process; defaultLookup() avoids versioning pitfalls.
     private static final SymbolLookup LIBC = LINKER.defaultLookup();
@@ -83,56 +74,6 @@ public final class OpenBsdLibcFunctions extends ForeignFunctions {
      */
     public static int getthrid() throws Throwable {
         return (int) getthrid.invokeExact();
-    }
-
-    // pid_t getpid(void);
-    private static final MethodHandle getpid = LINKER.downcallHandle(LIBC.findOrThrow("getpid"),
-            FunctionDescriptor.of(JAVA_INT));
-
-    /**
-     * Calls {@code getpid()}.
-     *
-     * @return the process ID of the calling process
-     * @throws Throwable on FFM invocation error
-     */
-    public static int getpid() throws Throwable {
-        return (int) getpid.invokeExact();
-    }
-
-    // int getrlimit(int resource, struct rlimit *rlim);
-    private static final MethodHandle getrlimit = LINKER.downcallHandle(LIBC.findOrThrow("getrlimit"),
-            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
-
-    /**
-     * Calls {@code getrlimit(resource, rlim)}.
-     *
-     * @param resource resource constant (e.g. {@link #RLIMIT_NOFILE})
-     * @param rlim     segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return 0 on success, -1 on error
-     * @throws Throwable on FFM invocation error
-     */
-    public static int getrlimit(int resource, MemorySegment rlim) throws Throwable {
-        return (int) getrlimit.invokeExact(resource, rlim);
-    }
-
-    /**
-     * Reads {@code rlim_cur} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
-     *
-     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return the soft resource limit
-     */
-    public static long rlimitCur(MemorySegment rlim) {
-        return (long) RLIMIT_CUR.get(rlim, 0L);
-    }
-
-    /**
-     * Reads {@code rlim_max} from an rlimit segment populated by {@link #getrlimit(int, MemorySegment)}.
-     *
-     * @param rlim segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return the hard resource limit
-     */
-    public static long rlimitMax(MemorySegment rlim) {
-        return (long) RLIMIT_MAX.get(rlim, 0L);
     }
 
     // --- Sysctl MIB constants ---

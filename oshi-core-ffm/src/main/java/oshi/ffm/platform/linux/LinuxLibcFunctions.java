@@ -24,7 +24,7 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 
 /**
  * FFM bindings for Linux libc functions used by OSHI.
@@ -32,7 +32,7 @@ import oshi.ffm.ForeignFunctions;
  * Covers: {@code getpid}, {@code gettid}, {@code syscall}, {@code getloadavg}, {@code sysinfo}, {@code statvfs},
  * {@code gethostname}, {@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror}, and {@code getrlimit}.
  */
-public final class LinuxLibcFunctions extends ForeignFunctions {
+public final class LinuxLibcFunctions extends PosixLibcFunctions {
 
     private LinuxLibcFunctions() {
     }
@@ -119,17 +119,6 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final VarHandle STATVFS_F_FFREE = STATVFS_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("f_ffree"));
 
-    /**
-     * {@code struct rlimit} layout: two {@code unsigned long} fields.
-     */
-    public static final StructLayout RLIMIT_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("rlim_cur"),
-            JAVA_LONG.withName("rlim_max"));
-
-    private static final VarHandle RLIMIT_CUR = RLIMIT_LAYOUT
-            .varHandle(MemoryLayout.PathElement.groupElement("rlim_cur"));
-    private static final VarHandle RLIMIT_MAX = RLIMIT_LAYOUT
-            .varHandle(MemoryLayout.PathElement.groupElement("rlim_max"));
-
     /** Size of {@code struct rusage} on LP64 Linux (18 longs = 144 bytes). */
     public static final long RUSAGE_SIZE = 144L;
     /** Byte offset of {@code ru_nvcsw} in {@code struct rusage} (16th long). */
@@ -215,17 +204,14 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     private static final MethodHandle setutxent;
     private static final MethodHandle getutxent;
     private static final MethodHandle endutxent;
-    private static final MethodHandle getpid;
     private static final MethodHandle gettid;
     private static final MethodHandle syscall;
     private static final MethodHandle getloadavg;
     private static final MethodHandle sysinfo;
     private static final MethodHandle statvfs;
-    private static final MethodHandle gethostname;
     private static final MethodHandle getaddrinfo;
     private static final MethodHandle freeaddrinfo;
     private static final MethodHandle gai_strerror;
-    private static final MethodHandle getrlimit;
     private static final MethodHandle getrusage;
 
     private static final boolean HAS_GETTID;
@@ -238,7 +224,6 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         setutxent = LINKER.downcallHandle(libc.findOrThrow("setutxent"), FunctionDescriptor.ofVoid());
         getutxent = LINKER.downcallHandle(libc.findOrThrow("getutxent"), FunctionDescriptor.of(ADDRESS));
         endutxent = LINKER.downcallHandle(libc.findOrThrow("endutxent"), FunctionDescriptor.ofVoid());
-        getpid = LINKER.downcallHandle(libc.findOrThrow("getpid"), FunctionDescriptor.of(JAVA_INT));
         // syscall(SYS_GETTID) — declare with one fixed arg; no extra args needed for gettid
         syscall = LINKER.downcallHandle(libc.findOrThrow("syscall"), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG),
                 Linker.Option.firstVariadicArg(1));
@@ -246,15 +231,11 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
                 FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
         sysinfo = LINKER.downcallHandle(libc.findOrThrow("sysinfo"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
         statvfs = LINKER.downcallHandle(libc.findOrThrow("statvfs"), FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
-        gethostname = LINKER.downcallHandle(libc.findOrThrow("gethostname"),
-                FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
         getaddrinfo = LINKER.downcallHandle(libc.findOrThrow("getaddrinfo"),
                 FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
         freeaddrinfo = LINKER.downcallHandle(libc.findOrThrow("freeaddrinfo"), FunctionDescriptor.ofVoid(ADDRESS));
         gai_strerror = LINKER.downcallHandle(libc.findOrThrow("gai_strerror"),
                 FunctionDescriptor.of(ADDRESS, JAVA_INT));
-        getrlimit = LINKER.downcallHandle(libc.findOrThrow("getrlimit"),
-                FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
         getrusage = LINKER.downcallHandle(libc.findOrThrow("getrusage"),
                 FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
@@ -361,16 +342,6 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         int tvSec = (int) UTMPX_TV_SEC.get(ut, 0L);
         int tvUsec = (int) UTMPX_TV_USEC.get(ut, 0L);
         return tvSec * 1000L + tvUsec / 1000L;
-    }
-
-    /**
-     * Calls {@code getpid()}.
-     *
-     * @return the process ID of the calling process
-     * @throws Throwable if the native call fails
-     */
-    public static int getpid() throws Throwable {
-        return (int) getpid.invokeExact();
     }
 
     /**
@@ -496,17 +467,6 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code gethostname(char *name, size_t len)}.
-     *
-     * @param buf segment of at least {@code len} bytes
-     * @param len buffer length
-     * @return 0 on success, -1 on error
-     */
-    public static int gethostname(MemorySegment buf, long len) throws Throwable {
-        return (int) gethostname.invokeExact(buf, len);
-    }
-
-    /**
      * Calls {@code getaddrinfo(node, service, hints, res)}.
      *
      * @param node    hostname segment (null-terminated UTF-8)
@@ -559,17 +519,6 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code getrlimit(int resource, struct rlimit *rlim)}.
-     *
-     * @param resource resource constant (e.g. {@link #RLIMIT_NOFILE})
-     * @param rlim     segment allocated with {@link #RLIMIT_LAYOUT}
-     * @return 0 on success, -1 on error
-     */
-    public static int getrlimit(int resource, MemorySegment rlim) throws Throwable {
-        return (int) getrlimit.invokeExact(resource, rlim);
-    }
-
-    /**
      * Calls {@code getrusage(who, rusage)}.
      *
      * @param who    RUSAGE_SELF (0)
@@ -581,23 +530,4 @@ public final class LinuxLibcFunctions extends ForeignFunctions {
         return (int) getrusage.invokeExact(who, rusage);
     }
 
-    /**
-     * Reads {@code rlim_cur} from a rlimit segment.
-     *
-     * @param rlim segment populated by {@link #getrlimit(int, MemorySegment)}
-     * @return the soft resource limit
-     */
-    public static long rlimitCur(MemorySegment rlim) {
-        return (long) RLIMIT_CUR.get(rlim, 0L);
-    }
-
-    /**
-     * Reads {@code rlim_max} from a rlimit segment.
-     *
-     * @param rlim segment populated by {@link #getrlimit(int, MemorySegment)}
-     * @return the hard resource limit
-     */
-    public static long rlimitMax(MemorySegment rlim) {
-        return (long) RLIMIT_MAX.get(rlim, 0L);
-    }
 }
