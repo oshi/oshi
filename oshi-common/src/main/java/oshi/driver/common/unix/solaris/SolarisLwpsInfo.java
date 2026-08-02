@@ -39,6 +39,11 @@ public class SolarisLwpsInfo {
     public long pr_last_onproc;
     public byte[] pr_name = new byte[32];
 
+    /**
+     * Constructs a new {@code SolarisLwpsInfo}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public SolarisLwpsInfo(ByteBuffer buff) {
         this.pr_flag = FileUtil.readIntFromBuffer(buff);
         this.pr_lwpid = FileUtil.readIntFromBuffer(buff);

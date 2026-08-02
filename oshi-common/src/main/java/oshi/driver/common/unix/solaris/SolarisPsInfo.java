@@ -50,6 +50,11 @@ public class SolarisPsInfo {
     public int pr_contract;
     public SolarisLwpsInfo pr_lwp;
 
+    /**
+     * Constructs a new {@code SolarisPsInfo}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public SolarisPsInfo(ByteBuffer buff) {
         this.pr_flag = FileUtil.readIntFromBuffer(buff);
         this.pr_nlwp = FileUtil.readIntFromBuffer(buff);

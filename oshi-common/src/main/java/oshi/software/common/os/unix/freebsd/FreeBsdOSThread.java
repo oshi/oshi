@@ -44,11 +44,23 @@ public class FreeBsdOSThread extends BsdOSThread {
     public static final String PS_THREAD_COLUMNS = PS_THREAD_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * Constructs a new {@code FreeBsdOSThread}.
+     *
+     * @param processId the owning process ID
+     * @param threadMap the parsed {@code ps} columns for this thread
+     */
     public FreeBsdOSThread(int processId, Map<BsdPsThreadKeyword, String> threadMap) {
         super(processId);
         updateAttributes(threadMap);
     }
 
+    /**
+     * Constructs a new {@code FreeBsdOSThread}.
+     *
+     * @param processId the owning process ID
+     * @param threadId  the thread ID
+     */
     public FreeBsdOSThread(int processId, int threadId) {
         super(processId);
         this.threadId = threadId;

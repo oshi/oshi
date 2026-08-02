@@ -395,6 +395,12 @@
                             <link>https://java-native-access.github.io/jna/${jna.version}/javadoc/</link>
                         </links>
                         <detectJavaApiLink>false</detectJavaApiLink>
+                        <!-- Presence of javadoc is enforced by checkstyle's MissingJavadocType/MissingJavadocMethod,
+                             which can be scoped to the API that matters. doclint keeps everything else: bad tags,
+                             broken references, malformed HTML. Without -missing it also demands a comment on every
+                             protected field of the C-struct mirrors and on every implicit constructor, which is
+                             ~1500 warnings of no value to a reader. -->
+                        <doclint>all,-missing</doclint>
                         <additionalJOptions>
                             <additionalJOption>-Xmaxwarns</additionalJOption>
                             <additionalJOption>1000</additionalJOption>

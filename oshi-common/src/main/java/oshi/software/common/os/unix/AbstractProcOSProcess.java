@@ -57,6 +57,11 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
     protected volatile long residentSetSize;
     protected volatile long privateResidentMemory;
 
+    /**
+     * Constructs a new {@code AbstractProcOSProcess}.
+     *
+     * @param pid the process ID
+     */
     protected AbstractProcOSProcess(int pid) {
         super(pid);
     }

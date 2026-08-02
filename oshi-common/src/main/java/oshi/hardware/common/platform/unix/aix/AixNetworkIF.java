@@ -29,6 +29,12 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         public long speed;
     }
 
+    /**
+     * Constructs a new {@code AixNetworkIF}.
+     *
+     * @param netint the underlying network interface
+     * @throws InstantiationException if the instance could not be constructed
+     */
     protected AixNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
     }

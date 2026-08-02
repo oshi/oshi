@@ -19,6 +19,12 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class NetBsdNetworkIF extends AbstractNetworkIF {
 
+    /**
+     * Constructs a new {@code NetBsdNetworkIF}.
+     *
+     * @param netint the underlying network interface
+     * @throws InstantiationException if the instance could not be constructed
+     */
     public NetBsdNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
         updateAttributes();

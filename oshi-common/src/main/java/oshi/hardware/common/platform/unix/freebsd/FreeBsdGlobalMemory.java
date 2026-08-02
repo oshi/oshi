@@ -14,6 +14,10 @@ import oshi.hardware.common.AbstractGlobalMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * Abstract base for the FreeBSD GlobalMemory. Holds the page-size and memory-total arithmetic; the JNA and FFM
+ * subclasses supply the sysctl reads.
+ */
 public abstract class FreeBsdGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryVmStats, defaultExpiration());

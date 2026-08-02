@@ -17,6 +17,12 @@ import oshi.software.os.OSProcess;
 @ThreadSafe
 public class AixOSThread extends AbstractOSThread {
 
+    /**
+     * Constructs a new {@code AixOSThread}.
+     *
+     * @param pid the process ID
+     * @param tid the thread ID
+     */
     public AixOSThread(int pid, int tid) {
         super(pid);
         this.threadId = tid;

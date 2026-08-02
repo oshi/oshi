@@ -52,6 +52,11 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     protected volatile long involuntaryContextSwitches;
     protected volatile String commandLineBackup;
 
+    /**
+     * Constructs a new {@code BsdOSProcess}.
+     *
+     * @param pid the process ID
+     */
     protected BsdOSProcess(int pid) {
         super(pid);
     }

@@ -48,6 +48,32 @@ public abstract class SolarisPowerSource extends AbstractPowerSource {
     /** Creates a concrete (JNA or FFM) Solaris power source from the computed battery fields. */
     @FunctionalInterface
     protected interface PowerSourceFactory {
+        /**
+         * Creates a platform-specific instance.
+         *
+         * @param psName                     the power source name
+         * @param psDeviceName               the power source device name
+         * @param psRemainingCapacityPercent the remaining capacity as a fraction of the maximum
+         * @param psTimeRemainingEstimated   the estimated time remaining in seconds
+         * @param psTimeRemainingInstant     the reported instantaneous time remaining in seconds
+         * @param psPowerUsageRate           the power usage rate in milliwatts
+         * @param psVoltage                  the voltage in volts
+         * @param psAmperage                 the amperage in milliamperes
+         * @param psPowerOnLine              whether external power is connected
+         * @param psCharging                 whether the power source is charging
+         * @param psDischarging              whether the power source is discharging
+         * @param psCapacityUnits            the units of the capacity values
+         * @param psCurrentCapacity          the current capacity
+         * @param psMaxCapacity              the maximum capacity
+         * @param psDesignCapacity           the design capacity
+         * @param psCycleCount               the charge cycle count
+         * @param psChemistry                the battery chemistry
+         * @param psManufactureDate          the manufacture date
+         * @param psManufacturer             the manufacturer
+         * @param psSerialNumber             the serial number
+         * @param psTemperature              the temperature in degrees Celsius
+         * @return the new instance
+         */
         SolarisPowerSource create(String psName, String psDeviceName, double psRemainingCapacityPercent,
                 double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate,
                 double psVoltage, double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
@@ -56,6 +82,31 @@ public abstract class SolarisPowerSource extends AbstractPowerSource {
                 String psSerialNumber, double psTemperature);
     }
 
+    /**
+     * Constructs a new {@code SolarisPowerSource}.
+     *
+     * @param psName                     the power source name
+     * @param psDeviceName               the power source device name
+     * @param psRemainingCapacityPercent the remaining capacity as a fraction of the maximum
+     * @param psTimeRemainingEstimated   the estimated time remaining in seconds
+     * @param psTimeRemainingInstant     the reported instantaneous time remaining in seconds
+     * @param psPowerUsageRate           the power usage rate in milliwatts
+     * @param psVoltage                  the voltage in volts
+     * @param psAmperage                 the amperage in milliamperes
+     * @param psPowerOnLine              whether external power is connected
+     * @param psCharging                 whether the power source is charging
+     * @param psDischarging              whether the power source is discharging
+     * @param psCapacityUnits            the units of the capacity values
+     * @param psCurrentCapacity          the current capacity
+     * @param psMaxCapacity              the maximum capacity
+     * @param psDesignCapacity           the design capacity
+     * @param psCycleCount               the charge cycle count
+     * @param psChemistry                the battery chemistry
+     * @param psManufactureDate          the manufacture date
+     * @param psManufacturer             the manufacturer
+     * @param psSerialNumber             the serial number
+     * @param psTemperature              the temperature in degrees Celsius
+     */
     protected SolarisPowerSource(String psName, String psDeviceName, double psRemainingCapacityPercent,
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,

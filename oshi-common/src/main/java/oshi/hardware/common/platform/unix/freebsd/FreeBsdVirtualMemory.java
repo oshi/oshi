@@ -14,6 +14,11 @@ import oshi.hardware.common.AbstractVirtualMemory;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * Abstract base for the FreeBSD VirtualMemory. Swap total and the paging counters come from the sysctl hooks the
+ * subclasses implement ({@code vm.swap_total}, {@code vm.stats.vm.v_swappgsin} and {@code v_swappgsout}); swap usage is
+ * read here from {@code swapinfo -k}.
+ */
 public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 
     private final FreeBsdGlobalMemory global;
@@ -23,6 +28,11 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
     private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
     private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
 
+    /**
+     * Constructs a new {@code FreeBsdVirtualMemory}.
+     *
+     * @param global the backing global memory
+     */
     protected FreeBsdVirtualMemory(FreeBsdGlobalMemory global) {
         this.global = global;
     }

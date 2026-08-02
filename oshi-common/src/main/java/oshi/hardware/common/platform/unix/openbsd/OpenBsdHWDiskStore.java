@@ -31,6 +31,15 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
 
     private final Supplier<List<String>> iostat;
 
+    /**
+     * Constructs a new {@code OpenBsdHWDiskStore}.
+     *
+     * @param name           the disk name
+     * @param model          the model
+     * @param serial         the serial number
+     * @param size           the size in bytes
+     * @param iostatSupplier a supplier of {@code iostat} output
+     */
     protected OpenBsdHWDiskStore(String name, String model, String serial, long size,
             Supplier<List<String>> iostatSupplier) {
         super(name, model, serial, size);
@@ -131,6 +140,16 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
      */
     @FunctionalInterface
     protected interface DiskStoreFactory<T extends OpenBsdHWDiskStore> {
+        /**
+         * Creates a platform-specific instance.
+         *
+         * @param name           the disk name
+         * @param model          the model
+         * @param serial         the serial number
+         * @param size           the size in bytes
+         * @param iostatSupplier a supplier of {@code iostat} output
+         * @return the new instance
+         */
         T create(String name, String model, String serial, long size, Supplier<List<String>> iostatSupplier);
     }
 }

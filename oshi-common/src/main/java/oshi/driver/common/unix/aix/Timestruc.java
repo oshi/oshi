@@ -17,6 +17,11 @@ public class Timestruc {
     public int tv_nsec; // nanoseconds
     public int pad; // alignment padding
 
+    /**
+     * Constructs a new {@code Timestruc}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public Timestruc(ByteBuffer buff) {
         this.tv_sec = FileUtil.readLongFromBuffer(buff);
         this.tv_nsec = FileUtil.readIntFromBuffer(buff);

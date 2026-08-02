@@ -12,6 +12,10 @@ import java.util.function.Supplier;
 import oshi.hardware.VirtualMemory;
 import oshi.hardware.common.AbstractGlobalMemory;
 
+/**
+ * Abstract base for the OpenBSD GlobalMemory. Holds the page-size and memory-total arithmetic; the JNA and FFM
+ * subclasses supply the sysctl reads.
+ */
 public abstract class OpenBsdGlobalMemory extends AbstractGlobalMemory {
 
     private final Supplier<Long> available = memoize(this::queryAvailable, defaultExpiration());

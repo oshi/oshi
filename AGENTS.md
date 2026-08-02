@@ -158,8 +158,21 @@ remove unused imports — but you do need to *add* the ones you use. New files g
 header (`Copyright 2026 The OSHI Project Contributors` / `SPDX-License-Identifier: MIT`), even when
 copied from an older file; spotless maintains end years on existing files.
 
-**Javadoc.** Every public member needs javadoc. Do not use fully-qualified class names in code or in
-javadoc — including inside `{@link ...}`. Import the type and link the simple name.
+**Javadoc.** Every public and protected type and method needs javadoc. Do not use fully-qualified class names in
+code or in javadoc — including inside `{@link ...}`. Import the type and link the simple name.
+
+Two tools split the job. **Checkstyle owns presence** (`MissingJavadocType`, `MissingJavadocMethod` at
+`scope=protected`); **doclint owns correctness** — the javadoc plugin runs `-Xdoclint:all,-missing`, so bad tags,
+broken `{@link}` and malformed HTML still fail the build. `missing` is off there because it also demands a comment
+on every protected field of the C-struct mirrors and on every implicit constructor: ~580 sites of no value to a
+reader. Fields are deliberately not checked (no `MissingJavadocVariable`), and the `jna`/`ffm` binding packages and
+the `*JNA.java`/`*FFM.java` backend twins are suppressed — a twin's only undocumented member is a public
+constructor that forwards to the abstract parent's, which *is* documented.
+
+⚠️ **Checkstyle caches results per file in `target/checkstyle-cachefile`, so a second run only re-checks what
+changed.** Measuring a rule change without `mvn clean` first will report a fraction of the real violations and look
+like a fix. The same trap applies to `javadoc:javadoc`, which silently skips when `target/reports` is already
+populated. Always `clean` before believing either number.
 
 **Suppressing a warning.** Both tools have one house style. Never add a line range to
 `config/checkstyle-suppressions.xml` — a range breaks the moment anything above it shifts, including a

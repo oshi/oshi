@@ -15,6 +15,8 @@
     <suppress checks="VisibilityModifier" files="[\\/]jna[\\/].*"/>
 
     <suppress checks="ConstantName" files="[\\/]jna[\\/].*"/>
+    <!-- Native mappings mirror C headers field for field; javadoc on each would restate the header. -->
+    <suppress checks="(MissingJavadocType|MissingJavadocMethod)" files="[\\/]jna[\\/].*"/>
     <suppress checks="MemberName" files="[\\/]jna[\\/].*"/>
     <suppress checks="MethodName" files="[\\/]jna[\\/].*"/>
     <suppress checks="ParameterName" files="[\\/]jna[\\/].*"/>
@@ -23,6 +25,16 @@
     <!-- FFM convention -->
     <suppress checks="InterfaceIsType" files="[\\/]ffm[\\/].*"/>
     <suppress checks="ConstantName" files="[\\/]ffm[\\/].*"/>
+    <suppress checks="(MissingJavadocType|MissingJavadocMethod)" files="[\\/]ffm[\\/].*"/>
+    <!-- Backend twins. Their only undocumented members are a public constructor forwarding to the abstract
+         parent's (which is documented) and public static query methods. FUTURE WORK: those statics are a
+         structural signal rather than a doc gap - a public member here that is neither an @Override nor a
+         constructor marks a backend split done with parallel helpers instead of a shared seam. Some are
+         vestigial forwarders over a seam that already exists (ThreadInformationJNA only binds
+         PerfCounterQueryExecutorJNA.INSTANCE and adds nothing); others have no seam at all (HkeyUserData,
+         SessionWtsData and NetSessionData, whose combining logic is duplicated in both getSessions()
+         overrides). Align those and this suppression can go. -->
+    <suppress checks="(MissingJavadocType|MissingJavadocMethod)" files=".*(JNA|FFM)\.java"/>
     <suppress checks="MethodName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="ParameterName" files="[\\/]ffm[\\/].*"/>
     <suppress checks="RecordComponentName" files=".*FFM\.java"/>
@@ -100,7 +112,7 @@
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
     <!-- Test files -->
-    <suppress checks="(JavadocPackage|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
+    <suppress checks="(JavadocPackage|MissingJavadocType|MissingJavadocMethod|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
     <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
     <suppress checks="(VisibilityModifier)" files="OperatingSystemTest\.java"/>
 </suppressions>

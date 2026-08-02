@@ -52,8 +52,19 @@
     </module>
 
     <module name="InvalidJavadocPosition"/>
-    <module name="JavadocMethod"/>
     <module name="JavadocType"/>
+
+    <!-- Presence of javadoc. doclint's "missing" group is switched off in the javadoc plugin because it also
+         demands a comment on every protected struct-mirror field and implicit constructor; these two scope the
+         requirement to the API a caller or subclasser actually reads. Deliberately no MissingJavadocVariable. -->
+    <module name="MissingJavadocType">
+      <property name="scope" value="protected"/>
+    </module>
+    <module name="MissingJavadocMethod">
+      <property name="scope" value="protected"/>
+      <property name="allowMissingPropertyJavadoc" value="true"/>
+      <property name="allowedAnnotations" value="Override, Test"/>
+    </module>
 
     <module name="ConstantName"/>
     <module name="LocalFinalVariableName"/>
@@ -333,10 +344,12 @@
       <property name="target"
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
     </module>
+    <!-- Correctness of javadoc that exists: @param/@return must match the signature, and both are required. That
+         is what the previously-duplicated bare JavadocMethod module already enforced at every scope. allowedAnnotations
+         skips the check entirely for the methods it lists, which is deliberate: an @Override inherits its
+         documentation from the supertype, and a @Test method documents itself by name. -->
     <module name="JavadocMethod">
-      <property name="accessModifiers" value="public"/>
-      <property name="allowMissingParamTags" value="true"/>
-      <property name="allowMissingReturnTag" value="true"/>
+      <property name="accessModifiers" value="public, protected"/>
       <property name="allowedAnnotations" value="Override, Test"/>
       <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
     </module>

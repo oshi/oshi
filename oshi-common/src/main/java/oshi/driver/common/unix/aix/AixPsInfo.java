@@ -49,6 +49,11 @@ public class AixPsInfo {
     public long[] pr__pad = new long[8]; // reserved for future use
     public AixLwpsInfo pr_lwp; // "representative" thread info
 
+    /**
+     * Constructs a new {@code AixPsInfo}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public AixPsInfo(ByteBuffer buff) {
         this.pr_flag = FileUtil.readIntFromBuffer(buff);
         this.pr_flag2 = FileUtil.readIntFromBuffer(buff);

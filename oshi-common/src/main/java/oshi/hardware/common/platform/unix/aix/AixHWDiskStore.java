@@ -25,6 +25,14 @@ public abstract class AixHWDiskStore extends AbstractHWDiskStore {
         public long time;
     }
 
+    /**
+     * Constructs a new {@code AixHWDiskStore}.
+     *
+     * @param name   the disk name
+     * @param model  the model
+     * @param serial the serial number
+     * @param size   the size in bytes
+     */
     protected AixHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }

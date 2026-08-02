@@ -30,6 +30,7 @@ import oshi.util.Util;
  */
 @Immutable
 public class SolarisComputerSystem extends AbstractComputerSystem {
+    /** The SMBIOS structure types this class reads from the {@code smbios} output. */
     public enum SmbType {
         /**
          * BIOS

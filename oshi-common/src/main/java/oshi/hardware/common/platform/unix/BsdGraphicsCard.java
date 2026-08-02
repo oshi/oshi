@@ -26,6 +26,15 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
     private static final String UNKNOWN_PCI_ID = "0x0000";
     private static final Pattern PCI_DUMP_HEADER = Pattern.compile(" \\d+:\\d+:\\d+: (.+)");
 
+    /**
+     * Constructs a new {@code BsdGraphicsCard}.
+     *
+     * @param name        the graphics card name
+     * @param deviceId    the device ID
+     * @param vendor      the vendor
+     * @param versionInfo the version information
+     * @param vram        the video memory in bytes
+     */
     public BsdGraphicsCard(String name, String deviceId, String vendor, String versionInfo, long vram) {
         super(name, deviceId, vendor, versionInfo, vram);
     }

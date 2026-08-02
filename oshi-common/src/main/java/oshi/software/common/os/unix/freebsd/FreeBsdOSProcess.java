@@ -42,6 +42,10 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.unix.freebsd.ProcstatUtil;
 
+/**
+ * Abstract base for a FreeBSD OSProcess. Inherits the shared BSD {@code ps} parsing and adds the fields whose column
+ * set differs on FreeBSD.
+ */
 public abstract class FreeBsdOSProcess extends BsdOSProcess {
 
     /**
@@ -55,6 +59,11 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * Constructs a new {@code FreeBsdOSProcess}.
+     *
+     * @param pid the process ID
+     */
     protected FreeBsdOSProcess(int pid) {
         super(pid);
     }

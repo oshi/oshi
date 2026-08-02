@@ -44,6 +44,11 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     private volatile long voluntaryContextSwitches;
     private volatile long involuntaryContextSwitches;
 
+    /**
+     * Constructs a new {@code SolarisOSProcess}.
+     *
+     * @param pid the process ID
+     */
     protected SolarisOSProcess(int pid) {
         super(pid);
     }

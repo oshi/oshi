@@ -75,6 +75,14 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     protected volatile long voluntaryContextSwitches;
     protected volatile long involuntaryContextSwitches;
 
+    /**
+     * Constructs a new {@code MacOSProcess}.
+     *
+     * @param pid   the process ID
+     * @param major the major version number
+     * @param minor the minor version number
+     * @param os    the owning operating system
+     */
     protected MacOSProcess(int pid, int major, int minor, MacOperatingSystem os) {
         super(pid);
         this.majorVersion = major;

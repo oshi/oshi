@@ -16,6 +16,11 @@ public class SolarisTimestruc {
     public long tv_sec; // seconds
     public long tv_nsec; // nanoseconds
 
+    /**
+     * Constructs a new {@code SolarisTimestruc}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public SolarisTimestruc(ByteBuffer buff) {
         this.tv_sec = FileUtil.readLongFromBuffer(buff);
         this.tv_nsec = FileUtil.readLongFromBuffer(buff);

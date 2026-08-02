@@ -61,6 +61,13 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     protected final NetBsdOperatingSystem os;
 
+    /**
+     * Constructs a new {@code NetBsdOSProcess}.
+     *
+     * @param pid   the process ID
+     * @param psMap the parsed {@code ps} columns for this process
+     * @param os    the owning operating system
+     */
     public NetBsdOSProcess(int pid, Map<BsdPsKeyword, String> psMap, NetBsdOperatingSystem os) {
         super(pid);
         this.os = os;

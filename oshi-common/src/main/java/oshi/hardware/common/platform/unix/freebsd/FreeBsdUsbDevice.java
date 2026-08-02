@@ -25,6 +25,17 @@ import oshi.util.ParseUtil;
 @Immutable
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
 
+    /**
+     * Constructs a new {@code FreeBsdUsbDevice}.
+     *
+     * @param name             the device name
+     * @param vendor           the vendor
+     * @param vendorId         the vendor ID
+     * @param productId        the product ID
+     * @param serialNumber     the serial number
+     * @param uniqueDeviceId   the unique device ID
+     * @param connectedDevices the devices connected to this one
+     */
     public FreeBsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
