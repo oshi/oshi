@@ -1034,6 +1034,11 @@ class ParseUtilTest {
                         LocalDateTime.of(2024, Month.JUNE, 15, 10, 0)),
                 is(LocalDateTime.of(2024, Month.FEBRUARY, 29, 12, 0).atZone(ZoneId.systemDefault()).toInstant()
                         .toEpochMilli()));
+        // April has 30 days in every year, so neither candidate can resolve it. The default resolver style would
+        // have normalized this to April 30 instead of rejecting it.
+        assertThat("Parse a day-of-month that exists in no year",
+                ParseUtil.parseYearlessDateToEpoch("Apr 31 12:00", "MMM d HH:mm", now), is(0L));
+
         assertThat("Parse empty pattern", ParseUtil.parseYearlessDateToEpoch("Feb 13 23:31", "", now), is(0L));
         assertThat("Parse null date string", ParseUtil.parseYearlessDateToEpoch(null, "MMM d HH:mm", now), is(0L));
         assertThat("Parse unmatched format", ParseUtil.parseYearlessDateToEpoch("not a date", "MMM d HH:mm", now),
