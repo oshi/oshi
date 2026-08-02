@@ -111,9 +111,11 @@ class MacGpuStatsTest {
         }
     }
 
+    // The varargs are key/value pairs, so the loop is bounded on the value index rather than the key index: a caller
+    // that passes a stray trailing key gets one fewer entry instead of running off the end.
     private static Map<String, Long> stats(Object... keyValues) {
         Map<String, Long> map = new HashMap<>();
-        for (int i = 0; i < keyValues.length; i += 2) {
+        for (int i = 0; i + 1 < keyValues.length; i += 2) {
             map.put((String) keyValues[i], (Long) keyValues[i + 1]);
         }
         return map;

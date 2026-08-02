@@ -77,9 +77,11 @@ class WindowsLogicalVolumeGroupTest {
         };
     }
 
+    // The varargs of these helpers are fixed-size groups, so each loop is bounded on the last index it reads rather
+    // than on the first: a caller that passes a partial group gets one fewer row instead of running off the end.
     private static WmiResult<StoragePoolProperty> pools(String... namesAndIds) {
         List<Map<StoragePoolProperty, Object>> rows = new ArrayList<>();
-        for (int i = 0; i < namesAndIds.length; i += 2) {
+        for (int i = 0; i + 1 < namesAndIds.length; i += 2) {
             Map<StoragePoolProperty, Object> row = new EnumMap<>(StoragePoolProperty.class);
             row.put(StoragePoolProperty.FRIENDLYNAME, namesAndIds[i]);
             row.put(StoragePoolProperty.OBJECTID, objectId("SP", namesAndIds[i + 1]));
@@ -90,7 +92,7 @@ class WindowsLogicalVolumeGroupTest {
 
     private static WmiResult<VirtualDiskProperty> virtualDisks(String... namesSpAndVd) {
         List<Map<VirtualDiskProperty, Object>> rows = new ArrayList<>();
-        for (int i = 0; i < namesSpAndVd.length; i += 3) {
+        for (int i = 0; i + 2 < namesSpAndVd.length; i += 3) {
             Map<VirtualDiskProperty, Object> row = new EnumMap<>(VirtualDiskProperty.class);
             row.put(VirtualDiskProperty.FRIENDLYNAME, namesSpAndVd[i]);
             // A VD ObjectId carries the storage pool GUID followed by the virtual disk GUID
@@ -102,7 +104,7 @@ class WindowsLogicalVolumeGroupTest {
 
     private static WmiResult<PhysicalDiskProperty> physicalDisks(String... nameLocationAndId) {
         List<Map<PhysicalDiskProperty, Object>> rows = new ArrayList<>();
-        for (int i = 0; i < nameLocationAndId.length; i += 3) {
+        for (int i = 0; i + 2 < nameLocationAndId.length; i += 3) {
             Map<PhysicalDiskProperty, Object> row = new EnumMap<>(PhysicalDiskProperty.class);
             row.put(PhysicalDiskProperty.FRIENDLYNAME, nameLocationAndId[i]);
             row.put(PhysicalDiskProperty.PHYSICALLOCATION, nameLocationAndId[i + 1]);
@@ -114,7 +116,7 @@ class WindowsLogicalVolumeGroupTest {
 
     private static WmiResult<StoragePoolToPhysicalDiskProperty> poolToDisk(String... spAndPdGuids) {
         List<Map<StoragePoolToPhysicalDiskProperty, Object>> rows = new ArrayList<>();
-        for (int i = 0; i < spAndPdGuids.length; i += 2) {
+        for (int i = 0; i + 1 < spAndPdGuids.length; i += 2) {
             Map<StoragePoolToPhysicalDiskProperty, Object> row = new EnumMap<>(StoragePoolToPhysicalDiskProperty.class);
             row.put(StoragePoolToPhysicalDiskProperty.STORAGEPOOL, objectId("SP", spAndPdGuids[i]));
             row.put(StoragePoolToPhysicalDiskProperty.PHYSICALDISK, objectId("PD", spAndPdGuids[i + 1]));
