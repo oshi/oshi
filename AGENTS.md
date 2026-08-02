@@ -285,3 +285,9 @@ and occasionally a single logical processor. Tests must pass there *and* on real
 - [UPGRADING.md](UPGRADING.md) — the breaking-change history and API compatibility policy
 - [RELEASING.md](RELEASING.md) — the release process (maintainers only)
 - [SECURITY.md](SECURITY.md) — vulnerability reporting
+
+For worked examples of *using* the API — what a caller actually writes to reach a given piece of data —
+read `oshi-demo` rather than asking for a walkthrough. It is kept current and covers the common shapes
+(full system dump, per-process listing, JSON export, Swing and web front ends, jbang entry points). This
+file deliberately does not duplicate that: it covers what an agent gets wrong *changing* the library, not
+what a user writes to consume it.
