@@ -621,8 +621,14 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     public long queryMaxFreq() {
         long policyMax = queryMaxFreqFromUdev();
         long lshwMax = Lshw.queryCpuCapacity();
-        return LongStream.concat(LongStream.of(policyMax, lshwMax), Arrays.stream(this.getCurrentFreq())).max()
-                .orElse(-1L);
+        // The vendor frequency is parsed from the CPU model name and is therefore constant. A live getCurrentFreq()
+        // reading used to be folded in here as a last resort, but a maximum derived from a fluctuating measurement is
+        // not reproducible: it left getMaxFreq() reporting whatever the CPU happened to be clocked at the first time
+        // it was asked, which on a host with no cpufreq sysfs and no lshw is all it reported.
+        long vendorFreq = getProcessorIdentifier().getVendorFreq();
+        long maxFreq = LongStream.of(policyMax, lshwMax, vendorFreq).max().orElse(-1L);
+        // A cpufreq policy that reads back as zero is no more known than a missing one
+        return maxFreq > 0L ? maxFreq : -1L;
     }
 
     /**

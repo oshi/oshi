@@ -466,11 +466,15 @@ class NativeComparisonTest {
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         // Command line exercises Win32ProcessCached when batch mode is enabled
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
-        // Kernel and user time are monotonically nondecreasing
+        // Kernel time comes straight from one ps column, so it is monotonically nondecreasing on its own.
         assertThat(jna.getKernelTime()).as("JNA kernelTime").isGreaterThanOrEqualTo(jnaKernelBefore);
-        assertThat(jna.getUserTime()).as("JNA userTime").isGreaterThanOrEqualTo(jnaUserBefore);
         assertThat(ffm.getKernelTime()).as("FFM kernelTime").isGreaterThanOrEqualTo(ffmKernelBefore);
-        assertThat(ffm.getUserTime()).as("FFM userTime").isGreaterThanOrEqualTo(ffmUserBefore);
+        // Summed for the same reason as the thread times below: BsdOSProcess also derives user time as
+        // (TIME - SYSTIME), a difference of two centisecond-rounded ps columns, which can fall by one quantum.
+        assertThat(jna.getKernelTime() + jna.getUserTime()).as("JNA kernel+user time")
+                .isGreaterThanOrEqualTo(jnaKernelBefore + jnaUserBefore);
+        assertThat(ffm.getKernelTime() + ffm.getUserTime()).as("FFM kernel+user time")
+                .isGreaterThanOrEqualTo(ffmKernelBefore + ffmUserBefore);
     }
 
     @Test
@@ -495,11 +499,18 @@ class NativeComparisonTest {
         if (!jnaUpdated || !ffmUpdated) {
             return;
         }
-        // Kernel and user time are monotonically nondecreasing
+        // Kernel time comes straight from one ps column, so it is monotonically nondecreasing on its own.
         assertThat(jnaThread.getKernelTime()).as("JNA thread kernelTime").isGreaterThanOrEqualTo(jnaKernelBefore);
-        assertThat(jnaThread.getUserTime()).as("JNA thread userTime").isGreaterThanOrEqualTo(jnaUserBefore);
         assertThat(ffmThread.getKernelTime()).as("FFM thread kernelTime").isGreaterThanOrEqualTo(ffmKernelBefore);
-        assertThat(ffmThread.getUserTime()).as("FFM thread userTime").isGreaterThanOrEqualTo(ffmUserBefore);
+        // User time is not asserted on its own. FreeBSD derives it as (TIME - SYSTIME), and ps rounds each of those
+        // columns to a centisecond, so the difference can fall by one 10 ms quantum when they cross their rounding
+        // boundaries at different instants, even though both underlying values only rise. Their sum is exactly the
+        // TIME column, which is monotonic, so assert that instead of widening the bound by a fudge factor that would
+        // also hide a real decrease.
+        assertThat(jnaThread.getKernelTime() + jnaThread.getUserTime()).as("JNA thread kernel+user time")
+                .isGreaterThanOrEqualTo(jnaKernelBefore + jnaUserBefore);
+        assertThat(ffmThread.getKernelTime() + ffmThread.getUserTime()).as("FFM thread kernel+user time")
+                .isGreaterThanOrEqualTo(ffmKernelBefore + ffmUserBefore);
     }
 
     @Test
