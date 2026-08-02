@@ -621,8 +621,20 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     public long queryMaxFreq() {
         long policyMax = queryMaxFreqFromUdev();
         long lshwMax = Lshw.queryCpuCapacity();
-        return LongStream.concat(LongStream.of(policyMax, lshwMax), Arrays.stream(this.getCurrentFreq())).max()
-                .orElse(-1L);
+        // A live getCurrentFreq() reading used to be folded in here as a last resort, but a maximum derived from a
+        // fluctuating measurement is not reproducible: it left getMaxFreq() reporting whatever the CPU happened to be
+        // clocked at the first time it was asked, which on a host with no cpufreq sysfs and no lshw is all it
+        // reported. The branded frequency in the model name replaces it, being constant.
+        //
+        // getVendorFreq() alone will not do. queryProcessorId only discards the cpuinfo frequency when the model name
+        // carries one of its own; otherwise it passes /proc/cpuinfo's live "cpu MHz" value straight through, and the
+        // identifier reports that. Gating on the same condition queryProcessorId uses keeps the value name-derived,
+        // and leaves it unknown on a CPU whose name has no frequency in it.
+        ProcessorIdentifier identifier = getProcessorIdentifier();
+        long vendorFreq = identifier.getName().contains("Hz") ? identifier.getVendorFreq() : -1L;
+        long maxFreq = LongStream.of(policyMax, lshwMax, vendorFreq).max().orElse(-1L);
+        // A cpufreq policy that reads back as zero is no more known than a missing one
+        return maxFreq > 0L ? maxFreq : -1L;
     }
 
     /**
