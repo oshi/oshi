@@ -61,7 +61,7 @@ public class OshiHTTPServer implements Runnable {
             logger.info("Server started. Listening for connections on port {}", PORT);
 
             // we listen until user halts server execution
-            while (true) { // NOSONAR squid:S2189
+            while (true) { // NOSONAR java:S2189
                 OshiHTTPServer myServer = new OshiHTTPServer(serverConnect.accept());
 
                 // create dedicated thread to manage the client connection

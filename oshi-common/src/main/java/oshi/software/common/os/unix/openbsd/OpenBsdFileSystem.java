@@ -100,7 +100,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeUsedMap = inodes.getB();
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR java:S135
             String[] split = ParseUtil.whitespaces.split(fs, 7);
             if (split.length == 7) {
                 String volume = split[0];

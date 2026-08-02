@@ -340,7 +340,7 @@ public final class SmcUtil {
     private static List<String> discoverFanSpeedKeys() {
         IOConnect conn = smcOpen();
         if (conn == null) {
-            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
+            return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
         }
         try {
             int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);
@@ -409,7 +409,7 @@ public final class SmcUtil {
     private static List<String> discoverGpuTemperatureKeys() {
         IOConnect conn = smcOpen();
         if (conn == null) {
-            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
+            return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
         }
         try {
             int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);

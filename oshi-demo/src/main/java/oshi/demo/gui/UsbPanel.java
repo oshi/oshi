@@ -20,7 +20,7 @@ import oshi.hardware.UsbDevice;
 /**
  * Shows USB devices. Simply prints OSHI's output in a scrollable pane.
  */
-public class UsbPanel extends OshiJPanel { // NOSONAR squid:S110
+public class UsbPanel extends OshiJPanel { // NOSONAR java:S110
 
     private static final long serialVersionUID = 1L;
 

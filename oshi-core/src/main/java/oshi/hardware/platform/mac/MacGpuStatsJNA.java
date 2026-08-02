@@ -41,7 +41,7 @@ final class MacGpuStatsJNA extends MacGpuStats {
     protected Map<String, Long> queryPerfStats(String... keys) {
         CFMutableDictionaryRef perfStats = openPerfStats();
         if (perfStats == null) {
-            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the superclass javadoc
+            return null; // NOSONAR java:S1168 - null and empty are different answers; see the superclass javadoc
         }
         try {
             Map<String, Long> values = new HashMap<>();

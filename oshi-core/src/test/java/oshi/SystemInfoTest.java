@@ -50,7 +50,7 @@ import oshi.util.PlatformEnum;
  */
 @Execution(ExecutionMode.SAME_THREAD)
 @EnabledForJreRange(max = JRE.JAVA_25)
-public class SystemInfoTest { // NOSONAR squid:S5786
+public class SystemInfoTest { // NOSONAR java:S5786
 
     private static final Logger logger = LoggerFactory.getLogger(SystemInfoTest.class);
 

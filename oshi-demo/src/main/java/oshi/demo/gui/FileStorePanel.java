@@ -36,7 +36,7 @@ import oshi.util.PlatformEnum;
 /**
  * Displays used and free space on all filesystems.
  */
-public class FileStorePanel extends OshiJPanel { // NOSONAR squid:S110
+public class FileStorePanel extends OshiJPanel { // NOSONAR java:S110
 
     private static final long serialVersionUID = 1L;
 

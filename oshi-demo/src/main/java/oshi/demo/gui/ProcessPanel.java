@@ -35,7 +35,7 @@ import oshi.util.PlatformEnum;
  * Displays a process list, such as ps or task manager. This performs more like Windows Task Manger with current CPU as
  * measured between polling intervals, while PS uses a cumulative CPU value.
  */
-public class ProcessPanel extends OshiJPanel { // NOSONAR squid:S110
+public class ProcessPanel extends OshiJPanel { // NOSONAR java:S110
 
     private static final long serialVersionUID = 1L;
 

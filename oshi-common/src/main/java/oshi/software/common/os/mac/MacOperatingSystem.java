@@ -52,6 +52,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
 
+    // CHECKSTYLE:OFF VisibilityModifier - protected final, set by the constructor and read by both backends
     /** Maximum number of processes. */
     protected final int maxProc;
 
@@ -61,6 +62,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     protected final int major;
     /** Minor version number. */
     protected final int minor;
+    // CHECKSTYLE:ON VisibilityModifier
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());

@@ -62,7 +62,7 @@ public class AixFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR java:S135
             /*- Sample Output:
              *   node       mounted        mounted over    vfs       date        options
             * -------- ---------------  ---------------  ------ ------------ ---------------

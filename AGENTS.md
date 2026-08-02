@@ -161,6 +161,31 @@ copied from an older file; spotless maintains end years on existing files.
 **Javadoc.** Every public member needs javadoc. Do not use fully-qualified class names in code or in
 javadoc — including inside `{@link ...}`. Import the type and link the simple name.
 
+**Suppressing a warning.** Both tools have one house style. Never add a line range to
+`config/checkstyle-suppressions.xml` — a range breaks the moment anything above it shifts, including a
+single added import, and the failure looks unrelated to the change that caused it.
+
+Checkstyle, in order of preference:
+
+| Form | Use it for |
+|---|---|
+| `@SuppressWarnings("checkstyle:ConstantName")` | a single declaration — cannot drift |
+| `// CHECKSTYLE:OFF <Check> — why` … `// CHECKSTYLE:ON <Check>` | a contiguous run of declarations breaking the same rule |
+| `// CHECKSTYLE.SUPPRESS: <Check> for <n> lines` | a one-off; `n` counts the comment's own line plus the next `n` |
+| `<suppress checks=… files=…/>` (no `lines`) | a whole file or a naming convention across a package |
+
+Sonar: **`// NOSONAR java:Sxxxx - why`**, one space, modern `java:` prefix (not the legacy `squid:`), reason
+after a dash. Two things to know:
+
+- **`NOSONAR` suppresses every issue on that line, whatever the rule.** The rule id after it is documentation
+  only — Sonar does not parse it. So keep the suppressed line short, or a future real bug on it is silenced too.
+- **Prefer `@SuppressWarnings("java:Sxxxx")` when there is a declaration to annotate**, because that *is*
+  rule-scoped. It is not always honored, though: `S3077` ignores the annotation and needs the comment. When a
+  suppression does not take effect, switch forms before assuming the rule is wrong.
+
+Merely writing the word `NOSONAR` in prose suppresses that line, so describe one as "the suppression below"
+rather than repeating the keyword.
+
 ## Two conventions that apply to nearly every class
 
 **Concurrency annotations.** Roughly two thirds of the classes in this project carry

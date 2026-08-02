@@ -36,7 +36,7 @@ public final class SmcKeyCache {
     private final Object lock = new Object();
 
     /** Only ever assigned an unmodifiable list, so the volatile write safely publishes an immutable value. */
-    private volatile List<String> keys; // NOSONAR squid:S3077 - published value is immutable
+    private volatile List<String> keys; // NOSONAR java:S3077 - published value is immutable
 
     /**
      * Creates a key cache.

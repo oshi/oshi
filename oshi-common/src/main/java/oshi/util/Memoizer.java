@@ -66,7 +66,7 @@ public final class Memoizer {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             private final Supplier<T> delegate = original;
-            private volatile T value; // NOSONAR squid:S3077
+            private volatile T value; // NOSONAR java:S3077
             private volatile long expirationNanos;
 
             @Override

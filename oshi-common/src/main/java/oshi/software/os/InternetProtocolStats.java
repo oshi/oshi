@@ -496,12 +496,12 @@ public interface InternetProtocolStats {
             String localIp = "*";
             try {
                 localIp = InetAddress.getByAddress(localAddress).toString();
-            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            } catch (UnknownHostException e) { // NOSONAR java:S108
             }
             String foreignIp = "*";
             try {
                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
-            } catch (UnknownHostException e) { // NOSONAR squid:S108
+            } catch (UnknownHostException e) { // NOSONAR java:S108
             }
             return "IPConnection [type=" + type + ", localAddress=" + localIp + ", localPort=" + localPort
                     + ", foreignAddress=" + foreignIp + ", foreignPort=" + foreignPort + ", state=" + state

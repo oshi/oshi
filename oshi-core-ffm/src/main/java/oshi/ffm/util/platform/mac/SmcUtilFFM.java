@@ -369,7 +369,7 @@ public final class SmcUtilFFM {
     private static List<String> discoverFanSpeedKeys() {
         int conn = smcOpen();
         if (conn == 0) {
-            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
+            return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
         }
         try {
             int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);
@@ -438,7 +438,7 @@ public final class SmcUtilFFM {
     private static List<String> discoverGpuTemperatureKeys() {
         int conn = smcOpen();
         if (conn == 0) {
-            return null; // NOSONAR squid:S1168 - null means "could not read", which the caller must not cache
+            return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
         }
         try {
             int keyCount = (int) smcGetLong(conn, SMC_KEY_COUNT);

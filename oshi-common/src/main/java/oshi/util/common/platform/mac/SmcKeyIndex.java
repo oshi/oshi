@@ -99,7 +99,7 @@ public final class SmcKeyIndex {
             Predicate<String> mask) {
         if (keyCount <= 0 || keyCount > MAX_KEY_COUNT) {
             LOG.debug("Implausible SMC key count {}; skipping key discovery.", keyCount);
-            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
+            return null; // NOSONAR java:S1168 - null and empty are different answers; see the javadoc
         }
         // Any failed read, in the binary search or in the forward scan, could have hidden a matching key: the search
         // substitutes a neighbour for an unreadable probe, which can move the landing point past the block entirely,
@@ -114,7 +114,7 @@ public final class SmcKeyIndex {
         };
         int start = lowerBound(keyCount, tracked, prefix);
         if (start < 0) {
-            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
+            return null; // NOSONAR java:S1168 - null and empty are different answers; see the javadoc
         }
         Set<String> found = new LinkedHashSet<>();
         int limit = Math.min(keyCount, start + MAX_SCAN);
@@ -142,7 +142,7 @@ public final class SmcKeyIndex {
             // sensor for the JVM lifetime. An empty result from a run with no failed read is different: that is a
             // genuine "this machine has none", and is a cacheable answer.
             LOG.debug("No SMC keys matched '{}' and at least one read failed; skipping key discovery.", prefix);
-            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
+            return null; // NOSONAR java:S1168 - null and empty are different answers; see the javadoc
         }
         return Collections.unmodifiableList(new ArrayList<>(found));
     }
@@ -275,7 +275,7 @@ public final class SmcKeyIndex {
         }
         if (discovered == null) {
             LOG.debug("Neither the SMC key index nor FNum could be read; deferring the fan count.");
-            return null; // NOSONAR squid:S1168 - null and empty are different answers; see the javadoc
+            return null; // NOSONAR java:S1168 - null and empty are different answers; see the javadoc
         }
         return Collections.emptyList();
     }

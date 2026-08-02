@@ -61,7 +61,7 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR java:S135
             String[] split = ParseUtil.whitespaces.split(fs);
             if (split.length < 5) {
                 continue;

@@ -45,7 +45,7 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
                 throw e;
             }
             return soundCards;
-        } catch (Throwable t) { // NOSONAR squid:S1181
+        } catch (Throwable t) { // NOSONAR java:S1181
             LOG.debug("Failed to enumerate sound card registry keys: {}", t.getMessage());
             return soundCards;
         }
@@ -64,7 +64,7 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
                 if (e.getErrorCode() != WinErrorFFM.ERROR_ACCESS_DENIED) {
                     throw e;
                 }
-            } catch (Throwable t) { // NOSONAR squid:S1181
+            } catch (Throwable t) { // NOSONAR java:S1181
                 LOG.debug("Failed to read sound card registry key {}: {}", key, t.getMessage());
             }
         }

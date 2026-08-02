@@ -57,7 +57,7 @@ public class NetBsdFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeUsedMap = inodes.getB();
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR squid:S135
+        for (String fs : ExecutingCommand.runNative("mount")) { // NOSONAR java:S135
             /*-
              Sample Output:
              /dev/dk0 on / type ffs (local)

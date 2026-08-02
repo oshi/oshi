@@ -32,7 +32,7 @@ import oshi.util.Constants;
 /**
  * Displays a interface list, such as ifconfig.
  */
-public class InterfacePanel extends OshiJPanel { // NOSONAR squid:S110
+public class InterfacePanel extends OshiJPanel { // NOSONAR java:S110
 
     private static final long serialVersionUID = 1L;
 

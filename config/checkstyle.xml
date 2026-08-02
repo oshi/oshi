@@ -11,6 +11,10 @@
     <property name="fileNamePattern" value="module\-info\.java$"/>
   </module>
 
+  <!-- Honors @SuppressWarnings("checkstyle:CheckName") on the annotated element. Preferred over the comment
+       filters below, and over line ranges in checkstyle-suppressions.xml, because it cannot drift when lines move. -->
+  <module name="SuppressWarningsFilter"/>
+
   <module name="SuppressionFilter">
     <property name="file" value="${org.checkstyle.sun.suppressionfilter.config}"
               default="checkstyle-suppressions.xml" />
@@ -29,6 +33,24 @@
   </module>
 
   <module name="TreeWalker">
+    <module name="SuppressWarningsHolder"/>
+
+    <!-- CHECKSTYLE:OFF <Check> ... CHECKSTYLE:ON <Check> around a contiguous region. Use for a run of declarations
+         that all break the same rule; unlike a line range it survives edits above and inside the region. -->
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="CHECKSTYLE:OFF (\w+)"/>
+      <property name="onCommentFormat" value="CHECKSTYLE:ON (\w+)"/>
+      <property name="checkFormat" value="$1"/>
+    </module>
+
+    <!-- CHECKSTYLE.SUPPRESS: <Check> for <n> lines, counting the comment's own line plus the next n. Use for a
+         one-off; prefer the annotation or an OFF/ON region when the span could grow. -->
+    <module name="SuppressWithNearbyCommentFilter">
+      <property name="commentFormat" value="CHECKSTYLE.SUPPRESS: (\w+) for (\d+) lines"/>
+      <property name="checkFormat" value="$1"/>
+      <property name="influenceFormat" value="$2"/>
+    </module>
+
     <module name="InvalidJavadocPosition"/>
     <module name="JavadocMethod"/>
     <module name="JavadocType"/>

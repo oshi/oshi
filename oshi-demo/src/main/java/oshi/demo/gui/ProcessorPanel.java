@@ -27,7 +27,7 @@ import oshi.hardware.CentralProcessor.TickType;
 /**
  * Shows system and per-processor CPU usage every second in a time series chart.
  */
-public class ProcessorPanel extends OshiJPanel { // NOSONAR squid:S110
+public class ProcessorPanel extends OshiJPanel { // NOSONAR java:S110
 
     private static final long serialVersionUID = 1L;
 

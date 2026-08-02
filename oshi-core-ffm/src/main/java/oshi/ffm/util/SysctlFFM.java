@@ -60,7 +60,7 @@ public final class SysctlFFM {
          *                   {@code invokeExact}, which declares {@code Throwable}, so nothing narrower can be declared
          *                   here.
          */
-        boolean invoke(Arena arena, MemorySegment oldp, MemorySegment oldlenp) throws Throwable; // NOSONAR squid:S112
+        boolean invoke(Arena arena, MemorySegment oldp, MemorySegment oldlenp) throws Throwable; // NOSONAR java:S112
     }
 
     /**

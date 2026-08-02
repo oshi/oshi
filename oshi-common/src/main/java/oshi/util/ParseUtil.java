@@ -114,6 +114,7 @@ public final class ParseUtil {
     private static final String THZ = "THz";
     private static final String PHZ = "PHz";
 
+    // CHECKSTYLE:OFF ConstantName - lowercase names on these are public API and cannot be renamed
     private static final Map<String, Long> multipliers;
 
     // PDH timestamps are 1601 epoch, local time
@@ -135,6 +136,7 @@ public final class ParseUtil {
 
     /** Constant <code>forwardSlash</code> */
     public static final Pattern slash = Pattern.compile("\\/");
+    // CHECKSTYLE:ON ConstantName
 
     static {
         multipliers = new HashMap<>();

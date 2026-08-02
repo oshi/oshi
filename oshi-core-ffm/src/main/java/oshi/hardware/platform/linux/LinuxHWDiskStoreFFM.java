@@ -202,7 +202,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
             } else if ("1".equals(rotational)) {
                 return "HDD";
             }
-        } catch (Throwable t) { // NOSONAR
+        } catch (Throwable t) { // NOSONAR java:S1181 - an FFM downcall throws Throwable
             LOG.debug("Unable to read disk type sysattr", t);
         }
         return "Unknown";

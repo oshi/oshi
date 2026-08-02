@@ -24,7 +24,8 @@ public abstract class LinuxNetworkParams extends AbstractNetworkParams {
     protected LinuxNetworkParams() {
     }
 
-    private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR
+    private static final String IPV4_DEFAULT_DEST = "0.0.0.0"; // NOSONAR java:S1313 - the kernel route table's literal
+                                                               // wildcard destination, not a configurable address
     private static final String IPV6_DEFAULT_DEST = "::/0";
 
     @Override

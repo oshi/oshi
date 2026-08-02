@@ -40,7 +40,7 @@ public class IFdata {
      * @param speed      interface speed (baud rate)
      * @param timeStamp  the time the data was sampled, in milliseconds since the epoch
      */
-    public IFdata(int ifType, // NOSONAR squid:S00107
+    public IFdata(int ifType, // NOSONAR java:S107
             long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
             long iDrops, long speed, long timeStamp) {
         this.ifType = ifType;

@@ -50,7 +50,7 @@ public final class Util {
         try {
             LOG.trace("Sleeping for {} ms", ms);
             Thread.sleep(ms);
-        } catch (InterruptedException e) { // NOSONAR squid:S2142
+        } catch (InterruptedException e) { // NOSONAR java:S2142
             LOG.warn("Interrupted while sleeping for {} ms: {}", ms, e.getMessage());
             Thread.currentThread().interrupt();
         }

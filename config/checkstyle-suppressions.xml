@@ -8,9 +8,6 @@
     <suppress checks=".*" files="[\\/]comparison[\\/].*"/>
 
     <!-- Intentional style breaks -->
-    <!-- Legacy lowercase public Pattern constants, kept for API compatibility. Line-keyed, so adding an import to
-         ParseUtil shifts them out of range and fails the build; re-check the bounds when this file moves. -->
-    <suppress checks="ConstantName" files="ParseUtil\.java" lines="117-137"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
 
     <!-- JNA convention  -->
@@ -99,9 +96,6 @@
 
     <!-- Package-info is in other source tree -->
     <suppress checks="JavadocPackage" files=".*FFM\.java"/>
-
-    <!-- Protected final fields initialized in constructor -->
-    <suppress checks="VisibilityModifier" files="MacOperatingSystem\.java" lines="56-63"/>
 
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
