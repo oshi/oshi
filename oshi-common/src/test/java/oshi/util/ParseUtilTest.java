@@ -1007,19 +1007,37 @@ class ParseUtilTest {
 
         // Later in the year than now, so it cannot be this year and must be last year's
         assertThat("Parse MMM d HH:mm later in the year",
-                ParseUtil.parseYearlessDateToEpoch("Nov 30 04:05", "MMM d HH:mm", now),
-                is(LocalDateTime.of(2025, Month.NOVEMBER, 30, 4, 5).atZone(ZoneId.systemDefault()).toInstant()
-                        .toEpochMilli()));
+                ParseUtil.parseYearlessDateToEpoch("Nov 30 04:05", "MMM d HH:mm", now), is(LocalDateTime
+                        .of(2025, Month.NOVEMBER, 30, 4, 5).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
         // Fields the pattern does not supply default to zero rather than failing
         assertThat("Parse MMM d with no time", ParseUtil.parseYearlessDateToEpoch("Mar 9", "MMM d", now),
                 is(LocalDate.of(2026, Month.MARCH, 9).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 
         assertThat("Parse empty date string", ParseUtil.parseYearlessDateToEpoch("", "MMM d HH:mm", now), is(0L));
+
+        // A leap day does not exist in a non-leap current year, so defaulting the year fails outright rather than
+        // landing in the future. 2025 is not a leap year and 2024 is, so it resolves against the previous year.
+        assertThat("Parse Feb 29 in a non-leap current year",
+                ParseUtil.parseYearlessDateToEpoch("Feb 29 12:00", "MMM d HH:mm",
+                        LocalDateTime.of(2025, Month.JUNE, 15, 10, 0)),
+                is(LocalDateTime.of(2024, Month.FEBRUARY, 29, 12, 0).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
+
+        // Neither 2027 nor 2026 is a leap year, so the timestamp cannot be resolved at all
+        assertThat("Parse Feb 29 when neither candidate year is a leap year", ParseUtil.parseYearlessDateToEpoch(
+                "Feb 29 12:00", "MMM d HH:mm", LocalDateTime.of(2027, Month.JUNE, 15, 10, 0)), is(0L));
+
+        // A real leap day earlier in a leap year keeps its date rather than being shifted to the 28th
+        assertThat("Parse Feb 29 in a leap current year",
+                ParseUtil.parseYearlessDateToEpoch("Feb 29 12:00", "MMM d HH:mm",
+                        LocalDateTime.of(2024, Month.JUNE, 15, 10, 0)),
+                is(LocalDateTime.of(2024, Month.FEBRUARY, 29, 12, 0).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
         assertThat("Parse empty pattern", ParseUtil.parseYearlessDateToEpoch("Feb 13 23:31", "", now), is(0L));
         assertThat("Parse null date string", ParseUtil.parseYearlessDateToEpoch(null, "MMM d HH:mm", now), is(0L));
-        assertThat("Parse unmatched format",
-                ParseUtil.parseYearlessDateToEpoch("not a date", "MMM d HH:mm", now), is(0L));
+        assertThat("Parse unmatched format", ParseUtil.parseYearlessDateToEpoch("not a date", "MMM d HH:mm", now),
+                is(0L));
     }
 
     @Test
