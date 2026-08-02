@@ -2,6 +2,8 @@
 
 ##### Bug Fixes and Improvements
 
+* [#3564](https://github.com/oshi/oshi/pull/3564): Fix Linux `getSoftOpenFileLimit()` returning -1 for a process whose hard open-file limit is `unlimited`, discarding a valid soft limit - [@dbwiddis](https://github.com/dbwiddis).
+
 * [#3561](https://github.com/oshi/oshi/pull/3561): Fix AIX reporting the current instant as its boot time, and an uptime of zero, when the `uptime` command transiently failed; parse the year-less `who -b` format AIX 7.3 emits, and add `ParseUtil.parseYearlessDateToEpoch` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3562](https://github.com/oshi/oshi/pull/3562): Make Linux `getMaxFreq()` reproducible by resolving it from the cpufreq policy, `lshw`, and the vendor frequency rather than folding in a live frequency reading, returning -1 when none of those reports a maximum - [@dbwiddis](https://github.com/dbwiddis).
 
