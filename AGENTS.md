@@ -186,6 +186,10 @@ after a dash. Two things to know:
 Merely writing the word `NOSONAR` in prose suppresses that line, so describe one as "the suppression below"
 rather than repeating the keyword.
 
+`NOSONAR` only works on the offending line, so it cannot be moved to its own line above. When that line is
+already near the width limit, spotless will wrap the trailing comment and strand the rule id underneath it —
+keep the bare `// NOSONAR` on the line and document the id in the comment block above instead.
+
 ## Two conventions that apply to nearly every class
 
 **Concurrency annotations.** Roughly two thirds of the classes in this project carry

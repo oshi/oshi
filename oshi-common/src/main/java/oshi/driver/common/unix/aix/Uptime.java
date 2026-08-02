@@ -24,9 +24,12 @@ public final class Uptime {
     // sample format:
     // 18:36pm up 10 days 8:11, 2 users, load average: 3.14, 2.74, 2.41
 
+    // The rule suppressed on the .compile line is java:S5843, regex complexity: the optional groups mirror the day,
+    // hour and minute forms the uptime command emits. The id is documented here rather than after the suppression
+    // because that line is already at the width limit and spotless wraps anything longer onto a line of its own,
+    // where it would no longer read as part of the suppression.
     private static final Pattern UPTIME_FORMAT_AIX = Pattern
             .compile(".*\\sup\\s+((\\d+)\\s+days?,?\\s+)?\\b((\\d+):)?(\\d+)(\\s+min(s|utes?)?)?,\\s+\\d+\\s+user.+"); // NOSONAR
-                                                                                                                       // java:S5843
 
     private Uptime() {
     }
