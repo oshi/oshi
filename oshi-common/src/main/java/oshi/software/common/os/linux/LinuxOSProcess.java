@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -41,6 +40,7 @@ import oshi.util.PrivilegedUtil;
 import oshi.util.UserGroupInfo;
 import oshi.util.Util;
 import oshi.util.driver.linux.proc.ProcessStat;
+import oshi.util.driver.unix.ProcLimits;
 import oshi.util.linux.ProcPath;
 
 /**
@@ -485,29 +485,10 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      * Gets the open file limit for a process.
      *
      * @param processId the process ID
-     * @param index     the limit index (soft=0, hard=1)
-     * @return the file limit
+     * @param index     {@code 1} for the soft limit, {@code 2} for the hard limit
+     * @return the file limit, or {@code -1} if unavailable
      */
     protected long getProcessOpenFileLimit(long processId, int index) {
-        final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
-        if (!Files.exists(Paths.get(limitsPath))) {
-            return -1; // not supported
-        }
-        final List<String> lines = FileUtil.readFile(limitsPath);
-        final Optional<String> maxOpenFilesLine = lines.stream().filter(line -> line.startsWith("Max open files"))
-                .findFirst();
-        if (!maxOpenFilesLine.isPresent()) {
-            return -1;
-        }
-        final String line = maxOpenFilesLine.get();
-        if (line.contains("unlimited")) {
-            return -1;
-        }
-        // Split all non-Digits away -> ["", "{soft-limit}", "{hard-limit}"]
-        final String[] split = line.split("\\D+");
-        if (split.length <= index) {
-            return -1;
-        }
-        return ParseUtil.parseLongOrDefault(split[index], -1);
+        return ProcLimits.queryOpenFileLimit(processId, index);
     }
 }

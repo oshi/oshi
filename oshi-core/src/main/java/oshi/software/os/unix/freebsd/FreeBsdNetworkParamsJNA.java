@@ -43,7 +43,7 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
                     }
                     return "";
                 }
-                try (Addrinfo info = new Addrinfo(ptr.getValue())) { // NOSONAR
+                try (Addrinfo info = new Addrinfo(ptr.getValue())) {
                     String canonname = info.ai_canonname == null ? "" : info.ai_canonname.trim();
                     LIBC.freeaddrinfo(ptr.getValue());
                     return canonname;

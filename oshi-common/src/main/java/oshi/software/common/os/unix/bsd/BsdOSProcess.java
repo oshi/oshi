@@ -12,19 +12,15 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.ExecutingCommand;
-import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.ProcLimits;
 
 /**
  * Abstract base shared by the BSD-family OSProcess implementations (FreeBSD, OpenBSD, DragonFly, NetBSD). Holds the
@@ -340,22 +336,7 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
      * @return the limit, or {@code -1} if unavailable
      */
     protected static long getProcessOpenFileLimit(long processId, int index) {
-        final String limitsPath = String.format(Locale.ROOT, "/proc/%d/limits", processId);
-        if (!Files.exists(Paths.get(limitsPath))) {
-            return -1; // not supported
-        }
-        final List<String> lines = FileUtil.readFile(limitsPath);
-        final Optional<String> maxOpenFilesLine = lines.stream().filter(line -> line.startsWith("Max open files"))
-                .findFirst();
-        if (!maxOpenFilesLine.isPresent()) {
-            return -1;
-        }
-        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
-        final String[] split = maxOpenFilesLine.get().split("\\D+");
-        if (split.length <= index) {
-            return -1;
-        }
-        return ParseUtil.parseLongOrDefault(split[index], -1);
+        return ProcLimits.queryOpenFileLimit(processId, index);
     }
 
     /**
