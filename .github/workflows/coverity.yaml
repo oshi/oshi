@@ -45,12 +45,10 @@ jobs:
 
           tar -xzf coverity_tool.tgz
 
+          # The directory name carries the served build-tool version. When Coverity Scan bumps to a JDK 25-capable
+          # tool, this is the signal to drop the JDK 23 / -Doshi.ffm.release workaround and scan straight on Java 25.
           TOOL_DIR="$(echo cov-analysis-linux64-*/ | head -n 1)"
           echo "Using Coverity tool dir: ${TOOL_DIR}"
-
-          # Log the served build-tool version. When Coverity Scan bumps to a JDK 25-capable tool, this is the signal
-          # to drop the JDK 23 / -Doshi.ffm.release workaround and scan straight on Java 25.
-          "${TOOL_DIR}bin/cov-build" --version || true
 
           # Configure Java capture
           "${TOOL_DIR}bin/cov-configure" --java

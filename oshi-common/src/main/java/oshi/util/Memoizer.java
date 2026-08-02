@@ -66,7 +66,7 @@ public final class Memoizer {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             private final Supplier<T> delegate = original;
-            @SuppressWarnings("java:S3077") // probe: is the annotation honored here, or is NOSONAR required?
+            @SuppressWarnings("java:S3077") // holder is swapped wholesale, never mutated in place
             private volatile T value;
             private volatile long expirationNanos;
 

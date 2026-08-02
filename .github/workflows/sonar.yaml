@@ -2,6 +2,13 @@ name: SonarCloud
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: >-
+          SonarCloud branch to report under. Set this when dispatching against a feature branch, so the analysis
+          lands on its own branch instead of overwriting master's. Leave empty for a master run.
+        required: false
+        default: ""
   push:
     branches:
       - master
@@ -35,7 +42,14 @@ jobs:
         # sonar-maven-plugin reads SONAR_TOKEN from the env, so it does not
         # need to appear on the command line (and shouldn't, to keep it out
         # of process argv).
-        run: ./mvnw verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io"
+        # SONAR_BRANCH is read from the environment rather than interpolated into the script, so a dispatch
+        # input cannot inject shell.
+        run: |
+          if [ -n "${SONAR_BRANCH}" ]; then
+            set -- -D"sonar.branch.name=${SONAR_BRANCH}"
+          fi
+          ./mvnw verify sonar:sonar -B -D"sonar.projectKey=oshi_oshi" -D"sonar.organization=oshi-oshi" -D"sonar.host.url=https://sonarcloud.io" "$@"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_BRANCH: ${{ inputs.branch }}

@@ -285,11 +285,14 @@ class NativeComparisonTest {
             assertThat(f.getSerial()).isEqualTo(j.getSerial());
             assertThat(f.getSize()).isEqualTo(j.getSize());
             assertThat(f.getDiskType()).as("diskType(%s)", j.getName()).isEqualTo(j.getDiskType());
-            // Stats are nondecreasing; FFM called second
-            assertThat(f.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
+            // Byte counters are read straight from the platform and are nondecreasing; FFM is called second
             assertThat(f.getReadBytes()).as("readBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReadBytes());
-            assertThat(f.getWrites()).as("writes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWrites());
             assertThat(f.getWriteBytes()).as("writeBytes(%s)", j.getName()).isGreaterThanOrEqualTo(j.getWriteBytes());
+            // Reads and writes are summed rather than compared one by one. AIX reports a single combined transfer
+            // count, which AixHWDiskStore apportions between the two by block ratio, so a shift in the read/write
+            // mix moves each part on its own while only their total is guaranteed to rise.
+            assertThat(f.getReads() + f.getWrites()).as("reads+writes(%s)", j.getName())
+                    .isGreaterThanOrEqualTo(j.getReads() + j.getWrites());
             assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
         }
     }
