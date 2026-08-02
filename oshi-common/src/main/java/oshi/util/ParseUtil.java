@@ -1554,4 +1554,40 @@ public final class ParseUtil {
             return 0;
         }
     }
+
+    /**
+     * Parses a timestamp that carries no year into an epoch time, resolving it to the most recent occurrence at or
+     * before {@code now}.
+     * <p>
+     * Several UNIX commands report timestamps without a year, such as the {@code MMM d HH:mm} form of {@code who} and
+     * {@code who -b}. Defaulting to the current year alone is not enough: read in January, a December timestamp would
+     * resolve to a date eleven months in the future, so anything later than {@code now} is taken to be last year's.
+     * This cannot resolve a timestamp more than a year old, which is indistinguishable from a recent one.
+     * <p>
+     * Month names are parsed as English, which is what the C locale these commands are read under emits.
+     *
+     * @param dateString  the timestamp to parse, carrying no year
+     * @param datePattern the expected format pattern, for example {@code "MMM d HH:mm"}
+     * @param now         the moment to resolve the missing year against
+     * @return the epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
+     */
+    public static long parseYearlessDateToEpoch(String dateString, String datePattern, LocalDateTime now) {
+        if (dateString == null || dateString.isEmpty() || datePattern.isEmpty()) {
+            return 0;
+        }
+        try {
+            DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern(datePattern)
+                    .parseDefaulting(ChronoField.YEAR, now.getYear()).parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                    .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                    .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0).toFormatter(Locale.US);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+            if (localDateTime.isAfter(now)) {
+                localDateTime = localDateTime.minusYears(1);
+            }
+            return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        } catch (DateTimeParseException e) {
+            LOG.trace("Unable to parse yearless date string: {}", dateString);
+            return 0;
+        }
+    }
 }

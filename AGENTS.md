@@ -54,6 +54,16 @@ Reducing this duplication has been a sustained effort in the project, so **defau
 rather than copying. A change that adds parallel logic to both implementations will be asked to
 justify why it is not shared.
 
+**Before writing any parsing helper, check whether `ParseUtil` already has one.** It is the home for
+general parsing primitives — numbers, sizes, frequencies, hex, delimited fields, and dates
+(`parseDateToEpoch`, `parseCimDateTimeToOffset`, `parseYearlessDateToEpoch`). The duplication is
+easy to miss because the two copies live in per-platform drivers that you would never read side by
+side: the AIX and generic-UNIX `who` readers each grew their own copy of "parse a `MMM d HH:mm`
+timestamp that carries no year, defaulting to the current year and subtracting one if that lands in
+the future" before it was hoisted. If a command on one OS emits a format, a command on another
+probably does too, so put the format parser in `ParseUtil` and leave only the
+command-specific regex in the driver.
+
 Runtime configuration lives in `oshi-common/src/main/resources/oshi.properties`, read through
 `oshi.util.GlobalConfig` or overridden with Java system properties. Configuration is read at
 startup, is not thread-safe, and is not re-read during operation. Add new settings there rather

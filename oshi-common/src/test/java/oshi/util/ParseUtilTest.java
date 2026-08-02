@@ -996,6 +996,33 @@ class ParseUtilTest {
     }
 
     @Test
+    void testParseYearlessDateToEpoch() {
+        LocalDateTime now = LocalDateTime.of(2026, Month.AUGUST, 2, 16, 3);
+
+        // Earlier in the same year, so the current year applies
+        assertThat("Parse MMM d HH:mm earlier this year",
+                ParseUtil.parseYearlessDateToEpoch("Feb 13 23:31", "MMM d HH:mm", now),
+                is(LocalDateTime.of(2026, Month.FEBRUARY, 13, 23, 31).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
+
+        // Later in the year than now, so it cannot be this year and must be last year's
+        assertThat("Parse MMM d HH:mm later in the year",
+                ParseUtil.parseYearlessDateToEpoch("Nov 30 04:05", "MMM d HH:mm", now),
+                is(LocalDateTime.of(2025, Month.NOVEMBER, 30, 4, 5).atZone(ZoneId.systemDefault()).toInstant()
+                        .toEpochMilli()));
+
+        // Fields the pattern does not supply default to zero rather than failing
+        assertThat("Parse MMM d with no time", ParseUtil.parseYearlessDateToEpoch("Mar 9", "MMM d", now),
+                is(LocalDate.of(2026, Month.MARCH, 9).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+
+        assertThat("Parse empty date string", ParseUtil.parseYearlessDateToEpoch("", "MMM d HH:mm", now), is(0L));
+        assertThat("Parse empty pattern", ParseUtil.parseYearlessDateToEpoch("Feb 13 23:31", "", now), is(0L));
+        assertThat("Parse null date string", ParseUtil.parseYearlessDateToEpoch(null, "MMM d HH:mm", now), is(0L));
+        assertThat("Parse unmatched format",
+                ParseUtil.parseYearlessDateToEpoch("not a date", "MMM d HH:mm", now), is(0L));
+    }
+
+    @Test
     void testDecodeIntOrDefault() {
         assertThat(ParseUtil.decodeIntOrDefault("0x1A", -1), is(26));
         assertThat(ParseUtil.decodeIntOrDefault("26", -1), is(26));

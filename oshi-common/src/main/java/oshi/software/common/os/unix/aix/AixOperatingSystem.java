@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,10 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(AixInstalledApps::queryInstalledApps, installedAppsExpiration());
 
-    private static final long BOOTTIME = querySystemBootTimeMillis() / 1000L;
+    // Boot time is constant, but the commands it is read from can fail transiently on a busy system. Caching only a
+    // successful reading means such a failure is retried on the next call, rather than pinning the boot time to the
+    // moment this class happened to load for the life of the JVM.
+    private static final AtomicLong BOOT_TIME_SECONDS = new AtomicLong(0L);
 
     @Override
     public String queryManufacturer() {
@@ -160,20 +164,59 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public long getSystemUptime() {
-        return System.currentTimeMillis() / 1000L - BOOTTIME;
+        long bootTime = bootTimeSeconds();
+        return bootTime > 0L ? System.currentTimeMillis() / 1000L - bootTime : 0L;
     }
 
     @Override
     public long getSystemBootTime() {
-        return BOOTTIME;
+        return bootTimeSeconds();
+    }
+
+    /**
+     * Returns the cached boot time, querying it on first use and on any call that follows a failed query.
+     * <p>
+     * The cache is static so that the JNA and FFM subclasses report an identical boot time rather than each deriving
+     * one from a separately-timed {@code uptime} reading, whose resolution is only a minute.
+     *
+     * @return boot time in seconds since the epoch, or 0 if it could not be determined
+     */
+    private static long bootTimeSeconds() {
+        long cached = BOOT_TIME_SECONDS.get();
+        if (cached > 0L) {
+            return cached;
+        }
+        long queried = querySystemBootTimeMillis() / 1000L;
+        if (queried > 0L) {
+            // Only the first successful query wins, so concurrent callers agree on one value
+            BOOT_TIME_SECONDS.compareAndSet(0L, queried);
+            return BOOT_TIME_SECONDS.get();
+        }
+        return 0L;
     }
 
     private static long querySystemBootTimeMillis() {
-        long bootTime = Who.queryBootTime();
-        if (bootTime >= 1000L) {
-            return bootTime;
+        return resolveBootTimeMillis(Who.queryBootTime(), Uptime.queryUpTime(), System.currentTimeMillis());
+    }
+
+    /**
+     * Resolves a boot time from the two available sources.
+     *
+     * @param whoBootTimeMillis boot time reported by {@code who -b}, or 0 if unavailable
+     * @param upTimeMillis      up time reported by {@code uptime}, or 0 if unavailable
+     * @param nowMillis         the current time in milliseconds since the epoch
+     * @return boot time in milliseconds since the epoch, or 0 if neither source produced a usable value
+     */
+    static long resolveBootTimeMillis(long whoBootTimeMillis, long upTimeMillis, long nowMillis) {
+        // The uptime command reports a duration, which is unambiguous, so it is preferred. A zero up time means the
+        // query failed, not that the system booted this instant: subtracting it would report the current moment as
+        // the boot time and pin uptime to zero.
+        if (upTimeMillis > 0L) {
+            return nowMillis - upTimeMillis;
         }
-        return System.currentTimeMillis() - Uptime.queryUpTime();
+        // who -b reports a timestamp, whose AIX format may omit the year and so has to be resolved by assuming the
+        // boot was within the last 365 days. Only consulted when the uptime command gave nothing.
+        return whoBootTimeMillis >= 1000L ? whoBootTimeMillis : 0L;
     }
 
     @Override

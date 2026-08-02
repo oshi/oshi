@@ -46,4 +46,27 @@ class AixOperatingSystemTest {
                 is(empty()));
         assertThat(AixOperatingSystem.parseServices(Collections.emptyList()), is(empty()));
     }
+
+    @Test
+    void testResolveBootTimeMillis() {
+        long now = 1_600_000_000_000L;
+        long whoBootTime = 1_500_000_000_000L;
+        long upTime = 10_000_000L;
+
+        // The up time duration is unambiguous, so it wins even when who -b also parsed
+        assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, upTime, now), is(now - upTime));
+        assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, upTime, now), is(now - upTime));
+        // who -b is consulted only when the uptime command gave nothing
+        assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, 0L, now), is(whoBootTime));
+    }
+
+    @Test
+    void testResolveBootTimeMillisTreatsZeroUpTimeAsUnknown() {
+        long now = 1_600_000_000_000L;
+        // who -b unparseable (its AIX output carries no year) and the uptime command failed. Reporting now - 0 would
+        // claim the system booted this instant and pin uptime to zero, so both failing must yield "unknown" instead.
+        assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, 0L, now), is(0L));
+        // A who -b value below the 1000 ms floor is treated as unusable rather than as a boot time in 1970
+        assertThat(AixOperatingSystem.resolveBootTimeMillis(999L, 0L, now), is(0L));
+    }
 }
