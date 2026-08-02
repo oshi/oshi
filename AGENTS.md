@@ -180,15 +180,17 @@ after a dash. Two things to know:
 - **`NOSONAR` suppresses every issue on that line, whatever the rule.** The rule id after it is documentation
   only — Sonar does not parse it. So keep the suppressed line short, or a future real bug on it is silenced too.
 - **Prefer `@SuppressWarnings("java:Sxxxx")` when there is a declaration to annotate**, because that *is*
-  rule-scoped. It is not always honored, though: `S3077` ignores the annotation and needs the comment. When a
-  suppression does not take effect, switch forms before assuming the rule is wrong.
+  rule-scoped. Sonar honors it with no configuration; measured on `Memoizer`'s volatile field, where swapping
+  the comment for the annotation kept `S3077` quiet. Reach for `NOSONAR` when the issue is on a statement,
+  a `catch`, or anything else you cannot annotate.
 
 Merely writing the word `NOSONAR` in prose suppresses that line, so describe one as "the suppression below"
 rather than repeating the keyword.
 
-`NOSONAR` only works on the offending line, so it cannot be moved to its own line above. When that line is
-already near the width limit, spotless will wrap the trailing comment and strand the rule id underneath it —
-keep the bare `// NOSONAR` on the line and document the id in the comment block above instead.
+`NOSONAR` only works on the offending line, so it cannot be moved above. If the line is too long to carry the
+trailing comment, spotless will wrap it and strand the rule id underneath — shorten the line rather than
+working around the wrap. The AIX uptime pattern is the worked example: splitting the regex into named
+constants both shortened it and made Sonar stop reporting `S5843` at all, so the suppression could go.
 
 ## Two conventions that apply to nearly every class
 
