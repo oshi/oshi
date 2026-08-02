@@ -69,4 +69,13 @@ class ProcLimitsTest {
         List<String> lines = limits("Max open files            1024                 unlimited            files");
         assertThat(ProcLimits.parseOpenFileLimit(lines, 3), is(-1L));
     }
+
+    @Test
+    void testIndexBelowTheFirstField() {
+        // Element 0 is the empty string to the left of the label, and anything lower would index out of bounds
+        List<String> lines = limits(
+                "Max open files            1024                 4096                 files            ");
+        assertThat("index 0 is the label remnant", ProcLimits.parseOpenFileLimit(lines, 0), is(-1L));
+        assertThat("negative index", ProcLimits.parseOpenFileLimit(lines, -1), is(-1L));
+    }
 }

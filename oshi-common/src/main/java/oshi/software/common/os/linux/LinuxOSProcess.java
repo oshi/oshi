@@ -485,8 +485,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      * Gets the open file limit for a process.
      *
      * @param processId the process ID
-     * @param index     the limit index (soft=0, hard=1)
-     * @return the file limit
+     * @param index     {@code 1} for the soft limit, {@code 2} for the hard limit
+     * @return the file limit, or {@code -1} if unavailable
      */
     protected long getProcessOpenFileLimit(long processId, int index) {
         return ProcLimits.queryOpenFileLimit(processId, index);
