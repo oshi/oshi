@@ -17,6 +17,9 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
+/**
+ * Utility to query installed applications on AIX from {@code lslpp} output.
+ */
 public final class AixInstalledApps {
 
     private static final Pattern COLON_PATTERN = Pattern.compile(":");
@@ -24,6 +27,11 @@ public final class AixInstalledApps {
     private AixInstalledApps() {
     }
 
+    /**
+     * Queries {@code lslpp} for the installed filesets.
+     *
+     * @return the installed applications
+     */
     public static List<ApplicationInfo> queryInstalledApps() {
         // https://www.ibm.com/docs/en/aix/7.1.0?topic=l-lslpp-command
         List<String> output = ExecutingCommand.runNative("lslpp -Lc");

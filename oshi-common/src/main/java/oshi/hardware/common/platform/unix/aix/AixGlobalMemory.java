@@ -30,6 +30,11 @@ public abstract class AixGlobalMemory extends AbstractGlobalMemory {
     /** Memoized hardware listing supplier from the owning HAL. */
     protected final Supplier<List<String>> lscfg;
 
+    /**
+     * Constructs a new {@code AixGlobalMemory}.
+     *
+     * @param lscfg a supplier of {@code lscfg} output
+     */
     protected AixGlobalMemory(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }

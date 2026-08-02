@@ -14,6 +14,25 @@ import oshi.software.os.OSFileStore;
 @ThreadSafe
 public class NetBsdOSFileStore extends AbstractOSFileStore {
 
+    /**
+     * Constructs a new {@code NetBsdOSFileStore}.
+     *
+     * @param name          the device name
+     * @param volume        the volume name
+     * @param label         the volume label
+     * @param mount         the mount point
+     * @param options       the mount options
+     * @param uuid          the volume UUID
+     * @param local         whether the store is local
+     * @param logicalVolume the logical volume
+     * @param description   the description
+     * @param fsType        the fs type
+     * @param freeSpace     the free space in bytes
+     * @param usableSpace   the usable space in bytes
+     * @param totalSpace    the total space in bytes
+     * @param freeInodes    the free inode count
+     * @param totalInodes   the total inode count
+     */
     public NetBsdOSFileStore(String name, String volume, String label, String mount, String options, String uuid,
             boolean local, String logicalVolume, String description, String fsType, long freeSpace, long usableSpace,
             long totalSpace, long freeInodes, long totalInodes) {

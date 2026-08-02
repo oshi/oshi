@@ -38,6 +38,11 @@ public final class HkeyUserData {
     private HkeyUserData() {
     }
 
+    /**
+     * Queries the {@code HKEY_USERS} registry hive for logged-in user sessions.
+     *
+     * @return the user sessions
+     */
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();
         for (String sidKey : Advapi32Util.registryGetKeys(WinReg.HKEY_USERS)) {

@@ -29,6 +29,13 @@ public final class BsdSoundCard extends AbstractSoundCard {
     private static final Pattern PCI_AT = Pattern
             .compile("(.+) at pci\\d+ dev \\d+ function \\d+ \"(.*)\" (rev .+):.*");
 
+    /**
+     * Constructs a new {@code BsdSoundCard}.
+     *
+     * @param kernelVersion the kernel version
+     * @param name          the device name
+     * @param codec         the codec
+     */
     public BsdSoundCard(String kernelVersion, String name, String codec) {
         super(kernelVersion, name, codec);
     }

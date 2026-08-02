@@ -27,6 +27,11 @@ public final class AixComputerSystem extends AbstractComputerSystem {
     private final Supplier<LsattrStrings> lsattrStrings = memoize(AixComputerSystem::readLsattr);
     private final Supplier<List<String>> lscfg;
 
+    /**
+     * Constructs a new {@code AixComputerSystem}.
+     *
+     * @param lscfg a supplier of {@code lscfg} output
+     */
     public AixComputerSystem(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }

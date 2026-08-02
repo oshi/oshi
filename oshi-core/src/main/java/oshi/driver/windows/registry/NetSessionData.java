@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -27,6 +27,11 @@ public final class NetSessionData {
     private NetSessionData() {
     }
 
+    /**
+     * Queries {@code NetSessionEnum} for sessions established from remote machines.
+     *
+     * @return the user sessions
+     */
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();
         try (CloseablePointerByReference bufptr = new CloseablePointerByReference();

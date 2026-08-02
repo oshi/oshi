@@ -23,6 +23,11 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public abstract class BsdOSThread extends AbstractOSThread {
 
+    /**
+     * Constructs a new {@code BsdOSThread}.
+     *
+     * @param processId the owning process ID
+     */
     protected BsdOSThread(int processId) {
         super(processId);
     }

@@ -18,6 +18,10 @@ import oshi.util.FileSystemUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
+/**
+ * Abstract base for the FreeBSD FileSystem. Parses the mount table and builds the file stores; the JNA and FFM
+ * subclasses supply the statfs reads.
+ */
 public abstract class FreeBsdFileSystem extends AbstractFileSystem {
 
     public static final String OSHI_FREEBSD_FS_PATH_EXCLUDES = "oshi.os.freebsd.filesystem.path.excludes";

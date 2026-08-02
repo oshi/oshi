@@ -38,6 +38,11 @@ public class SolarisPrUsage {
     public long pr_ictx;
     public long pr_ioch; // chars read and written
 
+    /**
+     * Constructs a new {@code SolarisPrUsage}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public SolarisPrUsage(ByteBuffer buff) {
         this.pr_lwpid = FileUtil.readIntFromBuffer(buff);
         this.pr_count = FileUtil.readIntFromBuffer(buff);

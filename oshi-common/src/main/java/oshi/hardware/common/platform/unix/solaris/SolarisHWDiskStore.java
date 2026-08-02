@@ -43,9 +43,26 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
     /** Creates a concrete (JNA or FFM) Solaris disk store. */
     @FunctionalInterface
     protected interface DiskStoreFactory {
+        /**
+         * Creates a platform-specific instance.
+         *
+         * @param name   the device name
+         * @param model  the model
+         * @param serial the serial number
+         * @param size   the size in bytes
+         * @return the new instance
+         */
         SolarisHWDiskStore create(String name, String model, String serial, long size);
     }
 
+    /**
+     * Constructs a new {@code SolarisHWDiskStore}.
+     *
+     * @param name   the device name
+     * @param model  the model
+     * @param serial the serial number
+     * @param size   the size in bytes
+     */
     protected SolarisHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }

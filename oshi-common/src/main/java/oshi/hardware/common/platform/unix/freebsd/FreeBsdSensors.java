@@ -6,6 +6,9 @@ package oshi.hardware.common.platform.unix.freebsd;
 
 import oshi.hardware.common.AbstractSensors;
 
+/**
+ * Abstract base for the FreeBSD Sensors. The JNA and FFM subclasses supply the coretemp and ACPI sysctl reads.
+ */
 public abstract class FreeBsdSensors extends AbstractSensors {
 
     @Override

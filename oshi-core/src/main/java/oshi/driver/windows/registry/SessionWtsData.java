@@ -47,6 +47,11 @@ public final class SessionWtsData {
     private SessionWtsData() {
     }
 
+    /**
+     * Queries the Remote Desktop Services API for logged-in user sessions.
+     *
+     * @return the user sessions
+     */
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();
         if (IS_VISTA_OR_GREATER) {

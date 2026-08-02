@@ -40,6 +40,10 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.unix.dragonflybsd.ProcstatUtil;
 
+/**
+ * Abstract base for a DragonFly BSD OSProcess. Inherits the shared BSD {@code ps} parsing and adds the fields whose
+ * column set differs on DragonFly.
+ */
 public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
 
     /**
@@ -53,6 +57,11 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * Constructs a new {@code DragonFlyBsdOSProcess}.
+     *
+     * @param pid the process ID
+     */
     protected DragonFlyBsdOSProcess(int pid) {
         super(pid);
     }

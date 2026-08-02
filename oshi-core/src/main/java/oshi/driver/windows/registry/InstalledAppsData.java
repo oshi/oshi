@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The OSHI Project Contributors
+ * Copyright 2025-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows.registry;
@@ -25,6 +25,9 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 import oshi.software.os.ApplicationInfo;
 import oshi.util.platform.windows.RegistryUtil;
 
+/**
+ * Utility to read installed applications from the Windows uninstall registry keys.
+ */
 public final class InstalledAppsData {
 
     private InstalledAppsData() {
@@ -40,6 +43,11 @@ public final class InstalledAppsData {
         REGISTRY_PATHS.put(HKEY_CURRENT_USER, Arrays.asList("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
     }
 
+    /**
+     * Queries the uninstall keys under both {@code HKEY_LOCAL_MACHINE} and {@code HKEY_CURRENT_USER}.
+     *
+     * @return the installed applications
+     */
     public static List<ApplicationInfo> queryInstalledApps() {
         Set<ApplicationInfo> appInfoSet = new LinkedHashSet<>();
 

@@ -18,6 +18,14 @@ public final class UnixBaseboard extends AbstractBaseboard {
     private final String serialNumber;
     private final String version;
 
+    /**
+     * Constructs a new {@code UnixBaseboard}.
+     *
+     * @param manufacturer the manufacturer
+     * @param model        the model
+     * @param serialNumber the serial number
+     * @param version      the version
+     */
     public UnixBaseboard(String manufacturer, String model, String serialNumber, String version) {
         this.manufacturer = manufacturer;
         this.model = model;

@@ -20,6 +20,10 @@ import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quintet;
 
+/**
+ * Abstract base for the FreeBSD ComputerSystem. Reads the manufacturer, model and serial from the kenv/dmidecode output
+ * the backends supply.
+ */
 @Immutable
 public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 

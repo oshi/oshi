@@ -29,6 +29,14 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
 
+    /**
+     * Constructs a new {@code FreeBsdHWDiskStore}.
+     *
+     * @param name   the device name
+     * @param model  the model
+     * @param serial the serial number
+     * @param size   the size in bytes
+     */
     protected FreeBsdHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
     }
@@ -108,6 +116,15 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
      */
     @FunctionalInterface
     protected interface DiskStoreFactory<T extends FreeBsdHWDiskStore> {
+        /**
+         * Creates a platform-specific instance.
+         *
+         * @param name   the device name
+         * @param model  the model
+         * @param serial the serial number
+         * @param size   the size in bytes
+         * @return the new instance
+         */
         T create(String name, String model, String serial, long size);
     }
 }

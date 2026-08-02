@@ -30,6 +30,12 @@ public abstract class SolarisNetworkIF extends AbstractNetworkIF {
         public long timeStamp;
     }
 
+    /**
+     * Constructs a new {@code SolarisNetworkIF}.
+     *
+     * @param netint the underlying network interface
+     * @throws InstantiationException if the instance could not be constructed
+     */
     protected SolarisNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
     }

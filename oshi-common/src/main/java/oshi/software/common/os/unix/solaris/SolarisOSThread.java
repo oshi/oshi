@@ -25,6 +25,12 @@ public abstract class SolarisOSThread extends AbstractOSThread {
     private final Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
     private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
+    /**
+     * Constructs a new {@code SolarisOSThread}.
+     *
+     * @param pid   the process ID
+     * @param lwpid the lightweight process ID
+     */
     protected SolarisOSThread(int pid, int lwpid) {
         super(pid);
         this.threadId = lwpid;

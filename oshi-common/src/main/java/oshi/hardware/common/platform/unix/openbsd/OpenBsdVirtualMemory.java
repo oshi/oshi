@@ -27,6 +27,11 @@ public class OpenBsdVirtualMemory extends AbstractVirtualMemory {
             OpenBsdVirtualMemory::queryVmstat, defaultExpiration());
     private final Supplier<Integer> pgout = memoize(OpenBsdVirtualMemory::queryUvm, defaultExpiration());
 
+    /**
+     * Constructs a new {@code OpenBsdVirtualMemory}.
+     *
+     * @param global the backing global memory
+     */
     public OpenBsdVirtualMemory(OpenBsdGlobalMemory global) {
         this.global = global;
     }

@@ -20,6 +20,17 @@ import oshi.util.ExecutingCommand;
 @Immutable
 public final class BsdUsbDevice extends AbstractUsbDevice {
 
+    /**
+     * Constructs a new {@code BsdUsbDevice}.
+     *
+     * @param name             the device name
+     * @param vendor           the vendor
+     * @param vendorId         the vendor ID
+     * @param productId        the product ID
+     * @param serialNumber     the serial number
+     * @param uniqueDeviceId   the unique device ID
+     * @param connectedDevices the devices connected to this one
+     */
     public BsdUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
             String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);

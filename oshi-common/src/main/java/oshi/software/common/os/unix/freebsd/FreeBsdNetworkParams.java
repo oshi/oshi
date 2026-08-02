@@ -7,6 +7,10 @@ package oshi.software.common.os.unix.freebsd;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
 
+/**
+ * Abstract base for the FreeBSD NetworkParams. Resolves the host and domain names and the default gateways from command
+ * output; the JNA and FFM subclasses supply the resolver calls.
+ */
 public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     @Override

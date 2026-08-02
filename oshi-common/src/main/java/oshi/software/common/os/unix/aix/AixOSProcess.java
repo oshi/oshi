@@ -40,6 +40,14 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
     private final Supplier<AixPerfstatProcess[]> procCpu;
     private final AixOperatingSystem os;
 
+    /**
+     * Constructs a new {@code AixOSProcess}.
+     *
+     * @param pid     the process ID
+     * @param cpuMem  the CPU and memory counters for this process
+     * @param procCpu a supplier of the perfstat process array
+     * @param os      the owning operating system
+     */
     protected AixOSProcess(int pid, Quartet<Long, Long, Long, Long> cpuMem, Supplier<AixPerfstatProcess[]> procCpu,
             AixOperatingSystem os) {
         super(pid);

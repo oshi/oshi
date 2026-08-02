@@ -42,11 +42,23 @@ public class NetBsdOSThread extends BsdOSThread {
     public static final String PS_THREAD_COLUMNS = PS_THREAD_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * Constructs a new {@code NetBsdOSThread}.
+     *
+     * @param processId the owning process ID
+     * @param threadMap the parsed {@code ps} columns for this thread
+     */
     public NetBsdOSThread(int processId, Map<BsdPsThreadKeyword, String> threadMap) {
         super(processId);
         updateAttributes(threadMap);
     }
 
+    /**
+     * Constructs a new {@code NetBsdOSThread}.
+     *
+     * @param processId the owning process ID
+     * @param threadId  the thread ID
+     */
     public NetBsdOSThread(int processId, int threadId) {
         super(processId);
         this.threadId = threadId;

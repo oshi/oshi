@@ -32,6 +32,11 @@ public class AixLwpsInfo {
     public int pr_onpro; // processor on which thread last ran
     public int pr_bindpro; // processor to which thread is bound
 
+    /**
+     * Constructs a new {@code AixLwpsInfo}.
+     *
+     * @param buff the buffer positioned at the start of the struct
+     */
     public AixLwpsInfo(ByteBuffer buff) {
         this.pr_lwpid = FileUtil.readLongFromBuffer(buff);
         this.pr_addr = FileUtil.readLongFromBuffer(buff);

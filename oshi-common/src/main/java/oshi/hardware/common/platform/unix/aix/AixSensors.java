@@ -18,6 +18,11 @@ public final class AixSensors extends AbstractSensors {
 
     private final Supplier<List<String>> lscfg;
 
+    /**
+     * Constructs a new {@code AixSensors}.
+     *
+     * @param lscfg a supplier of {@code lscfg} output
+     */
     public AixSensors(Supplier<List<String>> lscfg) {
         this.lscfg = lscfg;
     }
