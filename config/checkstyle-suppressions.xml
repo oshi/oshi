@@ -8,7 +8,9 @@
     <suppress checks=".*" files="[\\/]comparison[\\/].*"/>
 
     <!-- Intentional style breaks -->
-    <suppress checks="ConstantName" files="ParseUtil\.java" lines="116-136"/>
+    <!-- Legacy lowercase public Pattern constants, kept for API compatibility. Line-keyed, so adding an import to
+         ParseUtil shifts them out of range and fails the build; re-check the bounds when this file moves. -->
+    <suppress checks="ConstantName" files="ParseUtil\.java" lines="117-137"/>
     <suppress checks="VisibilityModifier" files="SmcUtil\.java"/>
 
     <!-- JNA convention  -->

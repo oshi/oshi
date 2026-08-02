@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1552,6 +1553,63 @@ public final class ParseUtil {
         } catch (DateTimeParseException e) {
             LOG.trace("Unable to parse date string: {}", dateString);
             return 0;
+        }
+    }
+
+    /**
+     * Parses a timestamp that carries no year into an epoch time, resolving it to the most recent occurrence at or
+     * before {@code now}.
+     * <p>
+     * Several UNIX commands report timestamps without a year, such as the {@code MMM d HH:mm} form of {@code who} and
+     * {@code who -b}. Defaulting to the current year alone is not enough: read in January, a December timestamp would
+     * resolve to a date eleven months in the future, so anything later than {@code now} is taken to be last year's.
+     * This cannot resolve a timestamp more than a year old, which is indistinguishable from a recent one.
+     * <p>
+     * February 29 is handled by parsing strictly and reparsing against the previous year, rather than by subtracting
+     * one from the result: the default resolver would quietly clamp a leap day to the 28th in a non-leap current year,
+     * and subtracting a year from a valid one would do the same. A leap day valid in neither candidate year yields
+     * {@code 0}.
+     * <p>
+     * Month names are parsed as English, which is what the C locale these commands are read under emits.
+     *
+     * @param dateString  the timestamp to parse, carrying no year
+     * @param datePattern the expected format pattern, for example {@code "MMM d HH:mm"}
+     * @param now         the moment to resolve the missing year against
+     * @return the epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
+     */
+    public static long parseYearlessDateToEpoch(String dateString, String datePattern, LocalDateTime now) {
+        if (dateString == null || dateString.isEmpty() || datePattern.isEmpty()) {
+            return 0;
+        }
+        LocalDateTime thisYear = parseWithDefaultYear(dateString, datePattern, now.getYear());
+        if (thisYear != null && !thisYear.isAfter(now)) {
+            return thisYear.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        }
+        // Either the timestamp falls later in the year than now, so it can only be last year's, or it is not a valid
+        // date in the current year at all: February 29 outside a leap year, which the strict parse above rejects.
+        // Reparsing handles both, and keeps a real leap day intact where subtracting a year would shift it to the
+        // 28th.
+        LocalDateTime lastYear = parseWithDefaultYear(dateString, datePattern, now.getYear() - 1);
+        if (lastYear != null) {
+            return lastYear.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        }
+        LOG.trace("Unable to parse yearless date string: {}", dateString);
+        return 0;
+    }
+
+    private static LocalDateTime parseWithDefaultYear(String dateString, String datePattern, int year) {
+        try {
+            // STRICT, because the default SMART style silently clamps February 29 to the 28th in a non-leap year
+            // instead of rejecting it, which would resolve a genuine leap day to the wrong date rather than letting
+            // the caller retry against the previous year
+            DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern(datePattern)
+                    .parseDefaulting(ChronoField.YEAR, year).parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                    .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                    .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0).toFormatter(Locale.US)
+                    .withResolverStyle(ResolverStyle.STRICT);
+            return LocalDateTime.parse(dateString, formatter);
+        } catch (DateTimeParseException e) {
+            return null;
         }
     }
 }

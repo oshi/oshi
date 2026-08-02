@@ -50,6 +50,31 @@ class UptimeAndBootTimeTest {
     }
 
     @Test
+    void testParseBootTimeNoYear() {
+        // AIX 7.3 prints a month name and no year. This is the exact line an AIX 7.3.0.0 box emits, trailing padding
+        // included, captured from `who -b | od -c`.
+        LocalDateTime now = LocalDateTime.of(2026, 8, 2, 16, 3);
+        long ms = Who.parseBootTime("   .        system boot Feb 13 23:31                     ", now);
+        assertThat(ms, is(zonedMillis(LocalDateTime.of(2026, 2, 13, 23, 31))));
+
+        // A month later in the year than "now" cannot be this year, so it must have been last year
+        assertThat(Who.parseBootTime("   .        system boot Nov 30 04:05", now),
+                is(zonedMillis(LocalDateTime.of(2025, 11, 30, 4, 5))));
+
+        // A single-digit day is padded with a space in this format
+        assertThat(Who.parseBootTime("   .        system boot Jul  4 08:00", now),
+                is(zonedMillis(LocalDateTime.of(2026, 7, 4, 8, 0))));
+
+        // The four-digit form still wins when present, regardless of the reference moment
+        assertThat(Who.parseBootTime("   .        system boot 2020-06-16 09:12", now),
+                is(zonedMillis(LocalDateTime.of(2020, 6, 16, 9, 12))));
+    }
+
+    private static long zonedMillis(LocalDateTime dateTime) {
+        return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
+
+    @Test
     @EnabledOnOs(OS.AIX)
     void testQueryBootTime() {
         long msSinceEpoch = Who.queryBootTime();
