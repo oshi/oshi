@@ -48,9 +48,10 @@ public final class SessionWtsData {
     }
 
     /**
-     * Queries the Remote Desktop Services API for logged-in user sessions.
+     * Queries the Remote Desktop Services API for active sessions connected over a remote protocol. Console sessions
+     * are skipped, having already been read from the registry.
      *
-     * @return the user sessions
+     * @return the active remote user sessions
      */
     public static List<OSSession> queryUserSessions() {
         List<OSSession> sessions = new ArrayList<>();

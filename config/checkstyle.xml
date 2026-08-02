@@ -344,8 +344,10 @@
       <property name="target"
                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
     </module>
-    <!-- Correctness of javadoc that exists: @param/@return must match the signature. Tags are required, which is
-         what the previously-duplicated bare JavadocMethod module already enforced at every scope. -->
+    <!-- Correctness of javadoc that exists: @param/@return must match the signature, and both are required. That
+         is what the previously-duplicated bare JavadocMethod module already enforced at every scope. allowedAnnotations
+         skips the check entirely for the methods it lists, which is deliberate: an @Override inherits its
+         documentation from the supertype, and a @Test method documents itself by name. -->
     <module name="JavadocMethod">
       <property name="accessModifiers" value="public, protected"/>
       <property name="allowedAnnotations" value="Override, Test"/>

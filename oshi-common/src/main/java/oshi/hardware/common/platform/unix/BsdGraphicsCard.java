@@ -29,7 +29,7 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
     /**
      * Constructs a new {@code BsdGraphicsCard}.
      *
-     * @param name        the device name
+     * @param name        the graphics card name
      * @param deviceId    the device ID
      * @param vendor      the vendor
      * @param versionInfo the version information

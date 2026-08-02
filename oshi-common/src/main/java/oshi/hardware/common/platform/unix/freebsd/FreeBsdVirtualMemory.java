@@ -15,8 +15,9 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Abstract base for the FreeBSD VirtualMemory. Derives swap totals and paging counters from the vmstat and swapinfo
- * output the backends supply.
+ * Abstract base for the FreeBSD VirtualMemory. Swap total and the paging counters come from the sysctl hooks the
+ * subclasses implement ({@code vm.swap_total}, {@code vm.stats.vm.v_swappgsin} and {@code v_swappgsout}); swap usage is
+ * read here from {@code swapinfo -k}.
  */
 public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
 

@@ -33,7 +33,7 @@ public final class BsdSoundCard extends AbstractSoundCard {
      * Constructs a new {@code BsdSoundCard}.
      *
      * @param kernelVersion the kernel version
-     * @param name          the device name
+     * @param name          the sound card name
      * @param codec         the codec
      */
     public BsdSoundCard(String kernelVersion, String name, String codec) {

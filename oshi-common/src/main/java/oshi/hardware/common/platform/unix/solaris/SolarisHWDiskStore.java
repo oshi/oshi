@@ -46,7 +46,7 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
         /**
          * Creates a platform-specific instance.
          *
-         * @param name   the device name
+         * @param name   the disk name
          * @param model  the model
          * @param serial the serial number
          * @param size   the size in bytes
@@ -58,7 +58,7 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
     /**
      * Constructs a new {@code SolarisHWDiskStore}.
      *
-     * @param name   the device name
+     * @param name   the disk name
      * @param model  the model
      * @param serial the serial number
      * @param size   the size in bytes

@@ -28,7 +28,7 @@ public abstract class AixHWDiskStore extends AbstractHWDiskStore {
     /**
      * Constructs a new {@code AixHWDiskStore}.
      *
-     * @param name   the device name
+     * @param name   the disk name
      * @param model  the model
      * @param serial the serial number
      * @param size   the size in bytes

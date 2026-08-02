@@ -21,7 +21,7 @@ public final class AixPowerSource extends AbstractPowerSource {
     /**
      * Constructs a new {@code AixPowerSource}.
      *
-     * @param name                     the device name
+     * @param name                     the power source name
      * @param deviceName               the device name
      * @param remainingCapacityPercent the remaining capacity as a fraction of the maximum
      * @param timeRemainingEstimated   the estimated time remaining in seconds

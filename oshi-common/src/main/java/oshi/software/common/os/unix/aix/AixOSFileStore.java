@@ -17,7 +17,7 @@ public class AixOSFileStore extends AbstractOSFileStore {
     /**
      * Constructs a new {@code AixOSFileStore}.
      *
-     * @param name          the device name
+     * @param name          the file store name
      * @param volume        the volume name
      * @param label         the volume label
      * @param mount         the mount point

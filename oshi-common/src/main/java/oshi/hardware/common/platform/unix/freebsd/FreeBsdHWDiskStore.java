@@ -32,7 +32,7 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
     /**
      * Constructs a new {@code FreeBsdHWDiskStore}.
      *
-     * @param name   the device name
+     * @param name   the disk name
      * @param model  the model
      * @param serial the serial number
      * @param size   the size in bytes
@@ -119,7 +119,7 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         /**
          * Creates a platform-specific instance.
          *
-         * @param name   the device name
+         * @param name   the disk name
          * @param model  the model
          * @param serial the serial number
          * @param size   the size in bytes
