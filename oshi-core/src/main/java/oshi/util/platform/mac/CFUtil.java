@@ -1,20 +1,25 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.util.platform.mac;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.platform.mac.CoreFoundation;
+import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
+import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 
 /**
- * CF String retrieving
+ * CoreFoundation utility methods
  */
 @ThreadSafe
 public final class CFUtil {
+
+    private static final CoreFoundation CF = CoreFoundation.INSTANCE;
 
     private CFUtil() {
     }
@@ -48,4 +53,62 @@ public final class CFUtil {
         return s;
     }
 
+    /**
+     * Reads a nested dictionary value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the returned dictionary must <em>not</em> be
+     * released.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link CFDictionaryRef}, or {@code null} if the key is absent
+     */
+    public static CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
+        CFStringRef k = CFStringRef.createCFString(key);
+        try {
+            Pointer v = CF.CFDictionaryGetValue(dict, k);
+            return v == null ? null : new CFDictionaryRef(v);
+        } finally {
+            k.release();
+        }
+    }
+
+    /**
+     * Reads a string value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the underlying value must <em>not</em> be released.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link String}, or {@code null} if the key is absent
+     */
+    public static String getString(CFDictionaryRef dict, String key) {
+        CFStringRef k = CFStringRef.createCFString(key);
+        try {
+            Pointer v = CF.CFDictionaryGetValue(dict, k);
+            return v == null ? null : new CFStringRef(v).stringValue();
+        } finally {
+            k.release();
+        }
+    }
+
+    /**
+     * Reads a long value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the underlying value must <em>not</em> be released.
+     * The value is read as a 64-bit integer.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link Long}, or {@code null} if the key is absent
+     */
+    public static Long getLong(CFDictionaryRef dict, String key) {
+        CFStringRef k = CFStringRef.createCFString(key);
+        try {
+            Pointer v = CF.CFDictionaryGetValue(dict, k);
+            return v == null ? null : new CFNumberRef(v).longValue();
+        } finally {
+            k.release();
+        }
+    }
 }

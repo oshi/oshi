@@ -7,6 +7,8 @@ package oshi.ffm.util.platform.mac;
 import java.lang.foreign.MemorySegment;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
+import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.util.Constants;
 
@@ -55,5 +57,55 @@ public final class CFUtilFFM {
      */
     public static CFStringRef stringToCFString(String str) {
         return CFStringRef.createCFString(str);
+    }
+
+    /**
+     * Reads a nested dictionary value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the returned dictionary must <em>not</em> be
+     * released.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link CFDictionaryRef}, or {@code null} if the key is absent
+     */
+    public static CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
+        try (CFStringRef k = CFStringRef.createCFString(key)) {
+            MemorySegment v = dict.getValue(k);
+            return v == null || v.equals(MemorySegment.NULL) ? null : new CFDictionaryRef(v);
+        }
+    }
+
+    /**
+     * Reads a string value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the underlying value must <em>not</em> be released.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link String}, or {@code null} if the key is absent
+     */
+    public static String getString(CFDictionaryRef dict, String key) {
+        try (CFStringRef k = CFStringRef.createCFString(key)) {
+            MemorySegment v = dict.getValue(k);
+            return v == null || v.equals(MemorySegment.NULL) ? null : new CFStringRef(v).stringValue();
+        }
+    }
+
+    /**
+     * Reads a long value from a CFDictionary by key.
+     * <p>
+     * {@code CFDictionaryGetValue} returns a borrowed reference, so the underlying value must <em>not</em> be released.
+     * The value is read as a 64-bit integer.
+     *
+     * @param dict the dictionary to read from
+     * @param key  the string key to look up
+     * @return the value as a {@link Long}, or {@code null} if the key is absent
+     */
+    public static Long getLong(CFDictionaryRef dict, String key) {
+        try (CFStringRef k = CFStringRef.createCFString(key)) {
+            MemorySegment v = dict.getValue(k);
+            return v == null || v.equals(MemorySegment.NULL) ? null : new CFNumberRef(v).longValue();
+        }
     }
 }

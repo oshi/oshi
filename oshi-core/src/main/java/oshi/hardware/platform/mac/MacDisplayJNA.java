@@ -34,6 +34,7 @@ import oshi.jna.platform.mac.CoreGraphicsExt;
 import oshi.jna.platform.mac.ObjCRuntime;
 import oshi.util.EdidUtil;
 import oshi.util.ExceptionUtil;
+import oshi.util.platform.mac.CFUtil;
 
 /**
  * A Display
@@ -214,21 +215,21 @@ final class MacDisplayJNA extends AbstractDisplay {
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
     private static DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
-        CFDictionaryRef product = cfDictGetDictionary(attrs, "ProductAttributes");
+        CFDictionaryRef product = CFUtil.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
         }
-        Long legacyMfg = cfDictGetLong(product, "LegacyManufacturerID");
-        Long week = cfDictGetLong(product, "WeekOfManufacture");
-        Long year = cfDictGetLong(product, "YearOfManufacture");
-        String model = cfDictGetString(product, "ProductName");
-        String serial = cfDictGetString(product, "AlphanumericSerialNumber");
+        Long legacyMfg = CFUtil.getLong(product, "LegacyManufacturerID");
+        Long week = CFUtil.getLong(product, "WeekOfManufacture");
+        Long year = CFUtil.getLong(product, "YearOfManufacture");
+        String model = CFUtil.getString(product, "ProductName");
+        String serial = CFUtil.getString(product, "AlphanumericSerialNumber");
         // Native pixel resolution from the framebuffer node.
-        Long displayWidth = cfRegistryEntryGetLong(fb, "DisplayWidth");
-        Long displayHeight = cfRegistryEntryGetLong(fb, "DisplayHeight");
+        Long displayWidth = fb.getLongProperty("DisplayWidth");
+        Long displayHeight = fb.getLongProperty("DisplayHeight");
         // Device tree name for fallback model name.
         String fallbackName = null;
-        String ioNameMatched = cfRegistryEntryGetString(fb, "IONameMatched");
+        String ioNameMatched = fb.getStringProperty("IONameMatched");
         if (ioNameMatched != null) {
             String shortName = ioNameMatched.contains(",") ? ioNameMatched.substring(0, ioNameMatched.indexOf(','))
                     : ioNameMatched;
@@ -336,83 +337,5 @@ final class MacDisplayJNA extends AbstractDisplay {
             cfKey.release();
         }
         return null;
-    }
-
-    // Reads a long value from an IORegistryEntry property.
-    private static Long cfRegistryEntryGetLong(IORegistryEntry entry, String key) {
-        CFStringRef k = CFStringRef.createCFString(key);
-        try {
-            CFTypeRef ref = entry.createCFProperty(k);
-            if (ref == null) {
-                return null;
-            }
-            try {
-                CFNumberRef num = new CFNumberRef(ref.getPointer());
-                LongByReference out = new LongByReference();
-                CF.CFNumberGetValue(num, K_CF_NUMBER_SINT64, out);
-                return out.getValue();
-            } finally {
-                ref.release();
-            }
-        } finally {
-            k.release();
-        }
-    }
-
-    // Reads a string value from an IORegistryEntry property.
-    private static String cfRegistryEntryGetString(IORegistryEntry entry, String key) {
-        CFStringRef k = CFStringRef.createCFString(key);
-        try {
-            CFTypeRef ref = entry.createCFProperty(k);
-            if (ref == null) {
-                return null;
-            }
-            try {
-                return new CFStringRef(ref.getPointer()).stringValue();
-            } finally {
-                ref.release();
-            }
-        } finally {
-            k.release();
-        }
-    }
-
-    // CFDictionary accessors. CFDictionaryGetValue returns a borrowed reference: the returned values must NOT be
-    // released.
-
-    private static CFDictionaryRef cfDictGetDictionary(CFDictionaryRef dict, String key) {
-        CFStringRef k = CFStringRef.createCFString(key);
-        try {
-            Pointer v = CF.CFDictionaryGetValue(dict, k);
-            return v == null ? null : new CFDictionaryRef(v);
-        } finally {
-            k.release();
-        }
-    }
-
-    private static String cfDictGetString(CFDictionaryRef dict, String key) {
-        CFStringRef k = CFStringRef.createCFString(key);
-        try {
-            Pointer v = CF.CFDictionaryGetValue(dict, k);
-            return v == null ? null : new CFStringRef(v).stringValue();
-        } finally {
-            k.release();
-        }
-    }
-
-    private static Long cfDictGetLong(CFDictionaryRef dict, String key) {
-        CFStringRef k = CFStringRef.createCFString(key);
-        try {
-            Pointer v = CF.CFDictionaryGetValue(dict, k);
-            if (v == null) {
-                return null;
-            }
-            CFNumberRef num = new CFNumberRef(v);
-            LongByReference out = new LongByReference();
-            CF.CFNumberGetValue(num, K_CF_NUMBER_SINT64, out);
-            return out.getValue();
-        } finally {
-            k.release();
-        }
     }
 }
