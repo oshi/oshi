@@ -388,46 +388,40 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                 if (removable != null && removable) {
                     return "Removable";
                 }
-                // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
-                IORegistryEntry driver = media.getParentEntry("IOService");
-                if (driver != null) {
-                    try (driver) {
-                        IORegistryEntry device = driver.getParentEntry("IOService");
-                        if (device != null) {
-                            try (device) {
-                                MemorySegment propsSeg = device.createCFProperties();
-                                if (!propsSeg.equals(MemorySegment.NULL)) {
-                                    try (CFDictionaryRef props = new CFDictionaryRef(propsSeg)) {
-                                        try (CFStringRef devCharKey = CFStringRef
-                                                .createCFString("Device Characteristics")) {
-                                            MemorySegment charSeg = props.getValue(devCharKey);
-                                            if (!charSeg.equals(MemorySegment.NULL)) {
-                                                try (CFStringRef medTypeKey = CFStringRef
-                                                        .createCFString("Medium Type")) {
-                                                    MemorySegment typeSeg = CFDictionaryRef.getValue(charSeg,
-                                                            medTypeKey);
-                                                    if (!typeSeg.equals(MemorySegment.NULL)) {
-                                                        String type = CFStringRef.stringValue(typeSeg);
-                                                        if (type != null) {
-                                                            if (type.contains("Solid State") || type.contains("SSD")) {
-                                                                return "SSD";
-                                                            } else if (type.contains("Rotational")) {
-                                                                return "HDD";
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                return parseMediumType(queryMediumType(media));
+            }
+        }
+    }
+
+    /**
+     * Reads the {@code Medium Type} device characteristic by traversing up from the IOMedia node to the block storage
+     * device, which is where the characteristic is published.
+     *
+     * @param media the IOMedia registry entry
+     * @return the {@code Medium Type} string, or {@code null} if any step of the traversal finds nothing
+     */
+    private static String queryMediumType(IORegistryEntry media) {
+        // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
+        IORegistryEntry driver = media.getParentEntry("IOService");
+        if (driver == null) {
+            return null;
+        }
+        try (driver) {
+            IORegistryEntry device = driver.getParentEntry("IOService");
+            if (device == null) {
+                return null;
+            }
+            try (device) {
+                MemorySegment propsSeg = device.createCFProperties();
+                if (propsSeg.equals(MemorySegment.NULL)) {
+                    return null;
+                }
+                try (CFDictionaryRef props = new CFDictionaryRef(propsSeg)) {
+                    CFDictionaryRef characteristics = CFUtilFFM.getDictionary(props, "Device Characteristics");
+                    return characteristics == null ? null : CFUtilFFM.getString(characteristics, "Medium Type");
                 }
             }
         }
-        return "Unknown";
     }
 
 }
