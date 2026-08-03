@@ -442,6 +442,29 @@ class, which would be closer to 100%.
 
 If you want per-Process CPU load to match the Windows Task Manager display, you should divide OSHI's calculation by the number of logical processors.  This is an entirely cosmetic preference.
 
+## Why is a BSD process's CPU time sometimes flat when I expect it to have increased?
+
+Because OSHI clamps it. The BSD `ps` time columns are not reliably monotonic, so `updateAttributes()` on an
+`OSProcess` or `OSThread` never lets `getKernelTime()` or `getUserTime()` report a value below the one it last
+reported; a read that would decrease holds at the previous value instead.
+
+On DragonFly the `TIME` column is a sum over the process's *currently live* LWPs (threads) rather than a monotonic
+accumulator. When the `KERN_PROC_FLAG_LWP` flag is absent, the kernel accumulates every live LWP into a single record
+(`kl_uticks += lwp->lwp_thread->td_uticks` in `fill_kinfo_lwp()`, with the per-LWP `bzero` skipped in
+`sysctl_out_proc()`), and `ps` prints `uticks + sticks + iticks` from that record. An exited LWP's usage folds into the
+process-level `p_ru`, which the `TIME` column never reads — so when a thread exits, the CPU time it had accumulated
+leaves the total. Sampling a busy JVM every 500ms on DragonFly 6.4 produced 7.80, 9.22, 9.78, 8.25, 8.80, 8.19, 8.19,
+8.19 seconds while `NLWP` moved 30, 34, 34, 34, 34, 33, 33, 33; the 33 per-thread rows summed to 8.29s against a
+process row of 8.26s.
+
+FreeBSD's kernel does the same kind of clamping internally: `calcru1()` divides a high-resolution runtime by a
+statistical user/system tick ratio, enforces monotonicity on the resulting buckets, restores the previous values for
+regressions under 3µs or 1%, and prints `calcru: runtime went backwards` for larger ones. DragonFly has no `calcru1()`
+and no such warning, so OSHI applies the equivalent guard in userland for the whole BSD family.
+
+Note also that DragonFly's `ps` offers neither a `systime` nor a `cputime` keyword, so `OSProcess.getKernelTime()` is
+always 0 there and `getUserTime()` carries the entire total.
+
 ## Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?
 
 The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described [here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more often on corporate-managed machines. If you are experiencing these delays, you can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`. The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.

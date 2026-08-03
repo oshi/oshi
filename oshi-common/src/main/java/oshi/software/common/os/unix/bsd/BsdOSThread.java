@@ -68,16 +68,20 @@ public abstract class BsdOSThread extends AbstractOSThread {
             this.name = threadMap.get(BsdPsThreadKeyword.ARGS);
         }
         // Kernel/user time: FreeBSD reports systime separately (time is user+sys); the others fold kernel time into a
-        // single cputime/time column.
+        // single cputime/time column. Clamp both against a decrease; see BsdOSProcess.monotonic(long, long).
         if (threadMap.containsKey(BsdPsThreadKeyword.SYSTIME)) {
-            this.kernelTime = ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.SYSTIME), 0L);
-            this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.TIME), 0L) - this.kernelTime;
+            long sysTime = ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.SYSTIME), 0L);
+            this.kernelTime = BsdOSProcess.monotonic(this.kernelTime, sysTime);
+            this.userTime = BsdOSProcess.monotonic(this.userTime,
+                    ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.TIME), 0L) - sysTime);
         } else if (threadMap.containsKey(BsdPsThreadKeyword.CPUTIME)) {
             this.kernelTime = 0L;
-            this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.CPUTIME), 0L);
+            this.userTime = BsdOSProcess.monotonic(this.userTime,
+                    ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.CPUTIME), 0L));
         } else {
             this.kernelTime = 0L;
-            this.userTime = ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.TIME), 0L);
+            this.userTime = BsdOSProcess.monotonic(this.userTime,
+                    ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.TIME), 0L));
         }
         // Start/up time: derived from the ps elapsed-time column where present; DragonFly's thread ps has none.
         long now = System.currentTimeMillis();

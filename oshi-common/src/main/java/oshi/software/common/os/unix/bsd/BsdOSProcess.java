@@ -201,16 +201,19 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             updateThreadCount();
         }
         // Kernel/user time: FreeBSD reports systime separately (time is user+sys); the others fold
-        // kernel time into a single cputime/time column.
+        // kernel time into a single cputime/time column. Clamp both against a decrease; see
+        // monotonic(long, long).
         if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
-            this.kernelTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
-            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - this.kernelTime;
+            long sysTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
+            this.kernelTime = monotonic(this.kernelTime, sysTime);
+            this.userTime = monotonic(this.userTime,
+                    ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - sysTime);
         } else if (psMap.containsKey(BsdPsKeyword.CPUTIME)) {
             this.kernelTime = 0L;
-            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.CPUTIME), 0L);
+            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.CPUTIME), 0L));
         } else {
             this.kernelTime = 0L;
-            this.userTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L);
+            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L));
         }
         // Start/up time: DragonFly resolves an absolute start time from /proc; the others derive it
         // from the ps elapsed-time column.
@@ -235,6 +238,23 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         this.commandLineBackup = psMap
                 .get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS);
         return true;
+    }
+
+    /**
+     * Clamps a freshly-parsed CPU-time counter so it never falls below the value already reported.
+     * <p>
+     * The BSD {@code ps} time columns are not reliably monotonic. On DragonFly the {@code TIME} column sums only the
+     * process's currently live LWPs, so an exiting thread takes its accumulated CPU time out of the total; where user
+     * time is derived by subtracting {@code systime} from {@code TIME}, the two columns are sampled independently and
+     * the difference can dip on its own. FreeBSD's kernel applies the same guard internally in {@code calcru1()} before
+     * handing these numbers to userland, but DragonFly has no equivalent, so OSHI enforces it here.
+     *
+     * @param previous the value last reported, or 0 on a first population
+     * @param parsed   the value just parsed from {@code ps}
+     * @return {@code parsed}, or {@code previous} if that would be a decrease
+     */
+    protected static long monotonic(long previous, long parsed) {
+        return Math.max(previous, parsed);
     }
 
     /**
