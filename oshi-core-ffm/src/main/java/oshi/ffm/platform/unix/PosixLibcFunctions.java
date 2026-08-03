@@ -44,9 +44,12 @@ public abstract class PosixLibcFunctions extends ForeignFunctions {
     protected PosixLibcFunctions() {
     }
 
-    // libc is already loaded into the JVM process, so defaultLookup() finds it without the libc.so versioning
-    // pitfalls that SymbolLookup.libraryLookup("c") hits on some platforms.
-    private static final SymbolLookup LIBC = LINKER.defaultLookup();
+    /**
+     * The libc symbol lookup, shared with the per-platform subclasses. libc is already loaded into the JVM process, so
+     * {@code defaultLookup()} finds it without the {@code libc.so} versioning pitfalls that
+     * {@code SymbolLookup.libraryLookup("c")} hits on some platforms.
+     */
+    protected static final SymbolLookup LIBC = LINKER.defaultLookup();
 
     /** Layout of {@code struct rlimit}: two {@code rlim_t} (LP64 long) fields. */
     public static final StructLayout RLIMIT_LAYOUT = MemoryLayout.structLayout(JAVA_LONG.withName("rlim_cur"),

@@ -13,7 +13,6 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
@@ -23,8 +22,9 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
 /**
  * FFM bindings for OpenBSD libc functions used by OSHI.
  * <p>
- * OpenBSD uses {@code sysctl(int *name, u_int namelen, ...)} exclusively (no {@code sysctlbyname}). Additional bindings
- * ({@code getthrid}, {@code getrlimit}) support process and resource limit queries.
+ * OpenBSD uses {@code sysctl(int *name, u_int namelen, ...)} exclusively (no {@code sysctlbyname}). Beyond that it
+ * binds only {@code getthrid} and {@code getloadavg}; the POSIX bindings ({@code getpid}, {@code getrlimit},
+ * {@code gethostname}) are inherited from {@link PosixLibcFunctions}.
  */
 public final class OpenBsdLibcFunctions extends PosixLibcFunctions {
 
@@ -36,9 +36,6 @@ public final class OpenBsdLibcFunctions extends PosixLibcFunctions {
 
     /** {@code getrlimit} resource: maximum number of open file descriptors. OpenBSD value (8). */
     public static final int RLIMIT_NOFILE = 8;
-
-    // libc is already loaded into the JVM process; defaultLookup() avoids versioning pitfalls.
-    private static final SymbolLookup LIBC = LINKER.defaultLookup();
 
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
     private static final MethodHandle sysctl = LINKER.downcallHandle(LIBC.findOrThrow("sysctl"),

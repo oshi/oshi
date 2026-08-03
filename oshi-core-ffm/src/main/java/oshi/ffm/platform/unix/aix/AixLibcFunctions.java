@@ -10,7 +10,6 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 
@@ -20,7 +19,9 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
  * FFM bindings for AIX libc functions used by OSHI.
  * <p>
  * Most performance and configuration data on AIX comes from {@code libperfstat} (see {@link PerfstatFunctions}); the
- * libc surface here is limited to thread/process IDs, hostname, and {@code getrlimit}.
+ * libc surface here is limited to {@code thread_self} and the {@code open}/{@code close}/{@code pread} trio used to
+ * read {@code /proc}. The POSIX bindings ({@code getpid}, {@code getrlimit}, {@code gethostname}) are inherited from
+ * {@link PosixLibcFunctions}.
  */
 public final class AixLibcFunctions extends PosixLibcFunctions {
 
@@ -32,9 +33,6 @@ public final class AixLibcFunctions extends PosixLibcFunctions {
 
     /** {@code getrlimit} resource: maximum number of open file descriptors. AIX value (7). */
     public static final int RLIMIT_NOFILE = 7;
-
-    // libc is already loaded into the JVM process; defaultLookup() avoids versioning pitfalls.
-    private static final SymbolLookup LIBC = LINKER.defaultLookup();
 
     // tid_t thread_self(void); // AIX-specific
     private static final MethodHandle thread_self = LINKER.downcallHandle(LIBC.findOrThrow("thread_self"),

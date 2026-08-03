@@ -16,7 +16,6 @@ import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
-import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 import java.util.Locale;
@@ -29,8 +28,9 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
 /**
  * FFM bindings for Linux libc functions used by OSHI.
  * <p>
- * Covers: {@code getpid}, {@code gettid}, {@code syscall}, {@code getloadavg}, {@code sysinfo}, {@code statvfs},
- * {@code gethostname}, {@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror}, and {@code getrlimit}.
+ * Covers: {@code gettid}, {@code syscall}, {@code getloadavg}, {@code sysinfo}, {@code statvfs}, the
+ * {@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror} surface, and {@code getrusage}. The POSIX bindings
+ * ({@code getpid}, {@code getrlimit}, {@code gethostname}) are inherited from {@link PosixLibcFunctions}.
  */
 public final class LinuxLibcFunctions extends PosixLibcFunctions {
 
@@ -217,32 +217,28 @@ public final class LinuxLibcFunctions extends PosixLibcFunctions {
     private static final boolean HAS_GETTID;
 
     static {
-        // libc is always linked into the JVM process; use the linker's default lookup
-        // rather than libraryLookup("c") which fails on Linux (libc.so vs libc.so.6).
-        SymbolLookup libc = LINKER.defaultLookup();
-
-        setutxent = LINKER.downcallHandle(libc.findOrThrow("setutxent"), FunctionDescriptor.ofVoid());
-        getutxent = LINKER.downcallHandle(libc.findOrThrow("getutxent"), FunctionDescriptor.of(ADDRESS));
-        endutxent = LINKER.downcallHandle(libc.findOrThrow("endutxent"), FunctionDescriptor.ofVoid());
+        setutxent = LINKER.downcallHandle(LIBC.findOrThrow("setutxent"), FunctionDescriptor.ofVoid());
+        getutxent = LINKER.downcallHandle(LIBC.findOrThrow("getutxent"), FunctionDescriptor.of(ADDRESS));
+        endutxent = LINKER.downcallHandle(LIBC.findOrThrow("endutxent"), FunctionDescriptor.ofVoid());
         // syscall(SYS_GETTID) — declare with one fixed arg; no extra args needed for gettid
-        syscall = LINKER.downcallHandle(libc.findOrThrow("syscall"), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG),
+        syscall = LINKER.downcallHandle(LIBC.findOrThrow("syscall"), FunctionDescriptor.of(JAVA_LONG, JAVA_LONG),
                 Linker.Option.firstVariadicArg(1));
-        getloadavg = LINKER.downcallHandle(libc.findOrThrow("getloadavg"),
+        getloadavg = LINKER.downcallHandle(LIBC.findOrThrow("getloadavg"),
                 FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
-        sysinfo = LINKER.downcallHandle(libc.findOrThrow("sysinfo"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
-        statvfs = LINKER.downcallHandle(libc.findOrThrow("statvfs"), FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
-        getaddrinfo = LINKER.downcallHandle(libc.findOrThrow("getaddrinfo"),
+        sysinfo = LINKER.downcallHandle(LIBC.findOrThrow("sysinfo"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
+        statvfs = LINKER.downcallHandle(LIBC.findOrThrow("statvfs"), FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
+        getaddrinfo = LINKER.downcallHandle(LIBC.findOrThrow("getaddrinfo"),
                 FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
-        freeaddrinfo = LINKER.downcallHandle(libc.findOrThrow("freeaddrinfo"), FunctionDescriptor.ofVoid(ADDRESS));
-        gai_strerror = LINKER.downcallHandle(libc.findOrThrow("gai_strerror"),
+        freeaddrinfo = LINKER.downcallHandle(LIBC.findOrThrow("freeaddrinfo"), FunctionDescriptor.ofVoid(ADDRESS));
+        gai_strerror = LINKER.downcallHandle(LIBC.findOrThrow("gai_strerror"),
                 FunctionDescriptor.of(ADDRESS, JAVA_INT));
-        getrusage = LINKER.downcallHandle(libc.findOrThrow("getrusage"),
+        getrusage = LINKER.downcallHandle(LIBC.findOrThrow("getrusage"),
                 FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
         MethodHandle hGettid = null;
         boolean hasGettid = false;
         try {
-            hGettid = LINKER.downcallHandle(libc.findOrThrow("gettid"), FunctionDescriptor.of(JAVA_INT));
+            hGettid = LINKER.downcallHandle(LIBC.findOrThrow("gettid"), FunctionDescriptor.of(JAVA_INT));
             hasGettid = true;
         } catch (Throwable e) {
             LOG.debug("gettid not found in libc, will use syscall fallback. {}", e.toString());

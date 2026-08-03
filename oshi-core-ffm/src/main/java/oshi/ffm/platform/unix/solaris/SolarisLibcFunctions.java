@@ -15,7 +15,6 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
@@ -25,9 +24,11 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
 /**
  * FFM bindings for Solaris/illumos libc functions used by OSHI.
  * <p>
- * Solaris uses kstat as its primary kernel-statistics interface, so the libc surface here is small: thread/process IDs
- * and {@code getrlimit}. The {@code RLIMIT_NOFILE} resource constant is {@code 5} on Solaris/illumos (not {@code 7} as
- * on Linux — see <a href="https://illumos.org/man/2/getrlimit">illumos getrlimit(2)</a>).
+ * Solaris uses kstat as its primary kernel-statistics interface, so the libc surface here is small: {@code thr_self},
+ * {@code getloadavg} and the {@code utmpx} family. The POSIX bindings ({@code getpid}, {@code getrlimit},
+ * {@code gethostname}) are inherited from {@link PosixLibcFunctions}. The {@code RLIMIT_NOFILE} resource constant is
+ * {@code 5} on Solaris/illumos (not {@code 7} as on Linux — see <a href="https://illumos.org/man/2/getrlimit">illumos
+ * getrlimit(2)</a>), so it stays declared here.
  */
 public final class SolarisLibcFunctions extends PosixLibcFunctions {
 
@@ -44,9 +45,6 @@ public final class SolarisLibcFunctions extends PosixLibcFunctions {
      * value.
      */
     public static final int RLIMIT_NOFILE = 5;
-
-    // libc is already loaded into the JVM process; defaultLookup() avoids versioning pitfalls.
-    private static final SymbolLookup LIBC = LINKER.defaultLookup();
 
     // thread_t thr_self(void); // Solaris-specific
     private static final MethodHandle thr_self = LINKER.downcallHandle(LIBC.findOrThrow("thr_self"),

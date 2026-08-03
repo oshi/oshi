@@ -15,7 +15,6 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
-import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
@@ -25,10 +24,10 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
 /**
  * FFM bindings for FreeBSD libc functions used by OSHI.
  * <p>
- * Covers {@code sysctlbyname}, {@code getloadavg}, the {@code utmpx} family, and the
- * {@code gethostname}/{@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror} surface used by network params.
- * Additional libc bindings ({@code sysctl} with int MIB, {@code getpid}, {@code thr_self}, {@code getrlimit}) are added
- * in later phases alongside their first FFM consumer.
+ * Covers {@code sysctl} with an int MIB, {@code sysctlbyname}, {@code getloadavg}, {@code thr_self}, the {@code utmpx}
+ * family, and the {@code getaddrinfo}/{@code freeaddrinfo}/{@code gai_strerror} surface used by network params. The
+ * POSIX bindings ({@code getpid}, {@code getrlimit}, {@code gethostname}) are inherited from
+ * {@link PosixLibcFunctions}.
  */
 public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
 
@@ -116,10 +115,6 @@ public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
     private static final long UTMPX_USER_OFFSET = UTMPX_LAYOUT.byteOffset(PathElement.groupElement("ut_user"));
     private static final long UTMPX_LINE_OFFSET = UTMPX_LAYOUT.byteOffset(PathElement.groupElement("ut_line"));
     private static final long UTMPX_HOST_OFFSET = UTMPX_LAYOUT.byteOffset(PathElement.groupElement("ut_host"));
-
-    // libc is already loaded into the JVM process; defaultLookup() avoids the libc.so vs libc.so.7 versioning pitfall
-    // that breaks SymbolLookup.libraryLookup("c") on FreeBSD.
-    private static final SymbolLookup LIBC = LINKER.defaultLookup();
 
     // int sysctlbyname(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
     private static final MethodHandle sysctlbyname = LINKER.downcallHandle(LIBC.findOrThrow("sysctlbyname"),
