@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinError;
 import com.sun.jna.platform.win32.WinNT;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -150,7 +151,8 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
         if (WinBase.INVALID_HANDLE_VALUE.equals(hVol)) {
             return fs;
         }
-        try (CloseableIntByReference pFlags = new CloseableIntByReference()) {
+        try (CloseableIntByReference pFlags = new CloseableIntByReference();
+                CloseableIntByReference pMountLen = new CloseableIntByReference()) {
             do {
                 fstype = new char[16];
                 name = new char[BUFSIZE];
@@ -167,8 +169,16 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                     continue;
                 }
                 final int flags = pFlags.getValue();
-                if (!Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, BUFSIZE, null)) {
-                    continue;
+                // GetVolumePathNamesForVolumeName reports a too-small buffer with ERROR_MORE_DATA and writes the
+                // required length; retry once with a right-sized buffer rather than dropping the volume.
+                if (!Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, mount.length, pMountLen)) {
+                    if (Kernel32.INSTANCE.GetLastError() != WinError.ERROR_MORE_DATA) {
+                        continue;
+                    }
+                    mount = new char[pMountLen.getValue()];
+                    if (!Kernel32.INSTANCE.GetVolumePathNamesForVolumeName(volume, mount, mount.length, pMountLen)) {
+                        continue;
+                    }
                 }
 
                 strMount = Native.toString(mount);

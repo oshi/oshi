@@ -85,7 +85,7 @@ public class MacFileSystemFFM extends MacFileSystem {
             @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
             CFAllocatorRef allocator = new CFAllocatorRef(CFAllocatorGetDefault());
             try (DASessionRef session = new DASessionRef(DASessionCreate(allocator.segment()))) {
-                if (session.segment() == null) {
+                if (session.isNull()) {
                     LOG.error("Unable to open session to DiskArbitration framework.");
                     return fsList;
                 }
