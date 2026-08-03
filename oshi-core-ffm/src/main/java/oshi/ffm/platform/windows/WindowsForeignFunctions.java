@@ -18,6 +18,8 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 
+import org.slf4j.Logger;
+
 import oshi.ffm.ForeignFunctions;
 
 /**
@@ -57,6 +59,29 @@ public abstract class WindowsForeignFunctions extends ForeignFunctions {
      */
     public static boolean isSuccess(int winBool) {
         return winBool != 0;
+    }
+
+    /**
+     * Passes through the result of a Windows API call, logging the name of the function and the value of
+     * {@code GetLastError()} if it failed. Intended to be used as a guard condition so that the failure branch of a
+     * native call is a single expression:
+     *
+     * <pre>
+     * if (!succeededOrLog(Advapi32FFM.OpenProcessToken(hProcess, access, hToken), LOG, "OpenProcessToken")) {
+     *     return false;
+     * }
+     * </pre>
+     *
+     * @param success  the result of the native call
+     * @param logger   the logger of the calling class, so the message is attributed to the caller
+     * @param function the name of the native function that was called
+     * @return {@code success}, unchanged
+     */
+    public static boolean succeededOrLog(boolean success, Logger logger, String function) {
+        if (!success) {
+            logger.error("{} failed, error: {}", function, Kernel32FFM.GetLastError().orElse(-1));
+        }
+        return success;
     }
 
     /**

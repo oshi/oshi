@@ -7,23 +7,17 @@ package oshi.software.os.windows;
 import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
-import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +73,8 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
-import oshi.util.tuples.Pair;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system
@@ -116,56 +108,40 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
             .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
-    /*
-     * Cache full process stats queries. Second query will only populate if first one returns null.
-     */
-    private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = memoize(
-            WindowsOperatingSystemJNA::queryProcessMapFromRegistry, defaultExpiration());
-    private Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = memoize(
-            WindowsOperatingSystemJNA::queryProcessMapFromPerfCounters, defaultExpiration());
-    /*
-     * Cache full thread stats queries. Second query will only populate if first one returns null. Only used if
-     * USE_PROCSTATE_SUSPENDED is set true.
-     */
-    private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = memoize(
-            WindowsOperatingSystemJNA::queryThreadMapFromRegistry, defaultExpiration());
-    private Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = memoize(
-            WindowsOperatingSystemJNA::queryThreadMapFromPerfCounters, defaultExpiration());
+    @Override
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
+        return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
+    }
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String version = System.getProperty("os.name");
-        if (version.startsWith("Windows ")) {
-            version = version.substring(8);
-        }
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
+        return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
+    }
 
-        String sp = null;
-        int suiteMask = 0;
-        String buildNumber = "";
-        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystemJNA.queryOsVersion();
-        if (versionInfo.getResultCount() > 0) {
-            sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
-            if (!sp.isEmpty() && !Constants.UNKNOWN.equals(sp)) {
-                version = version + " " + sp.replace("Service Pack ", "SP");
-            }
-            suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
-            buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
-        }
-        String codeName = parseCodeName(suiteMask);
-        // Older JDKs don't recognize Win11 and Server2022
-        if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
-            version = "11";
-        }
-        if ("Server 2016".equals(version) && buildNumber.compareTo("17762") > 0) {
-            version = "Server 2019";
-        }
-        if ("Server 2019".equals(version) && buildNumber.compareTo("20347") > 0) {
-            version = "Server 2022";
-        }
-        if ("Server 2022".equals(version) && buildNumber.compareTo("26039") > 0) {
-            version = "Server 2025";
-        }
-        return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
+    @Override
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
+        return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
+    }
+
+    @Override
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+        return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
+    }
+
+    @Override
+    protected Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
+        return ProcessWtsData.queryProcessWtsMap(pids);
+    }
+
+    @Override
+    protected OSProcess createOSProcess(int pid, Map<Integer, ProcessPerfCounterBlock> processMap,
+            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+        return new WindowsOSProcessJNA(pid, this, processMap, processWtsMap, threadMap);
+    }
+
+    @Override
+    protected WmiResult<OSVersionProperty> queryOsVersion() {
+        return Win32OperatingSystemJNA.queryOsVersion();
     }
 
     @Override
@@ -203,28 +179,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     }
 
     @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids);
-    }
-
-    @Override
-    public List<OSProcess> queryAllProcesses() {
-        return processMapToList(null);
-    }
-
-    @Override
-    public List<OSProcess> queryChildProcesses(int parentPid) {
-        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromSnapshot(), parentPid, false);
-        return processMapToList(descendantPids);
-    }
-
-    @Override
-    public List<OSProcess> queryDescendantProcesses(int parentPid) {
-        Set<Integer> descendantPids = getChildrenOrDescendants(getParentPidsFromSnapshot(), parentPid, true);
-        return processMapToList(descendantPids);
-    }
-
-    private static Map<Integer, Integer> getParentPidsFromSnapshot() {
+    protected Map<Integer, Integer> queryParentPidMap() {
         Map<Integer, Integer> parentPidMap = new HashMap<>();
         // Get processes from ToolHelp API for parent PID
         try (CloseablePROCESSENTRY32ByReference processEntry = new CloseablePROCESSENTRY32ByReference()) {
@@ -240,59 +195,6 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             }
         }
         return parentPidMap;
-    }
-
-    @Override
-    public OSProcess getProcess(int pid) {
-        List<OSProcess> procList = processMapToList(Arrays.asList(pid));
-        return procList.isEmpty() ? null : procList.get(0);
-    }
-
-    private List<OSProcess> processMapToList(Collection<Integer> pids) {
-        // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
-        // otherwise performance counters with WMI backup
-        if (processMap == null || processMap.isEmpty()) {
-            processMap = (pids == null) ? processMapFromPerfCounters.get()
-                    : ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
-        }
-        Map<Integer, ThreadPerfCounterBlock> threadMap = null;
-        if (USE_PROCSTATE_SUSPENDED) {
-            // Get data from the registry if possible
-            threadMap = threadMapFromRegistry.get();
-            // otherwise performance counters with WMI backup
-            if (threadMap == null || threadMap.isEmpty()) {
-                threadMap = (pids == null) ? threadMapFromPerfCounters.get()
-                        : ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
-            }
-        }
-
-        Map<Integer, WtsInfo> processWtsMap = ProcessWtsData.queryProcessWtsMap(pids);
-
-        Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
-        mapKeys.retainAll(processMap.keySet());
-
-        final Map<Integer, ProcessPerfCounterBlock> finalProcessMap = processMap;
-        final Map<Integer, ThreadPerfCounterBlock> finalThreadMap = threadMap;
-        return mapKeys.stream().parallel()
-                .map(pid -> new WindowsOSProcessJNA(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
-                .filter(VALID_PROCESS).collect(Collectors.toList());
-    }
-
-    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromRegistry() {
-        return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(null);
-    }
-
-    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
-        return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(null);
-    }
-
-    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromRegistry() {
-        return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(null);
-    }
-
-    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
-        return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(null);
     }
 
     @Override

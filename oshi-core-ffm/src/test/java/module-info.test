@@ -21,7 +21,11 @@
 --add-opens
   com.github.oshi.ffm/oshi.driver.unix.aix.perfstat=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.ffm.platform.windows=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.ffm.platform.windows.com=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.software.os.windows=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.windows=org.junit.platform.commons
 --add-opens

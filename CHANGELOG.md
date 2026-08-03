@@ -6,6 +6,7 @@
 * [#3562](https://github.com/oshi/oshi/pull/3562): Make Linux `getMaxFreq()` reproducible by resolving it from the cpufreq policy, `lshw`, and the vendor frequency rather than folding in a live frequency reading, returning -1 when none of those reports a maximum - [@dbwiddis](https://github.com/dbwiddis).
 * [#3564](https://github.com/oshi/oshi/pull/3564): Fix Linux `getSoftOpenFileLimit()` returning -1 for a process whose hard open-file limit is `unlimited`, discarding a valid soft limit - [@dbwiddis](https://github.com/dbwiddis).
 * [#3566](https://github.com/oshi/oshi/pull/3566): Read the OpenBSD host name from `gethostname` rather than resolving it, so `getHostName()` no longer reports `localhost` on a host whose name is not resolvable - [@dbwiddis](https://github.com/dbwiddis).
+* [#3568](https://github.com/oshi/oshi/pull/3568): Fix the Windows FFM `getProcess(pid)` and `getProcesses(pids)` returning a process that `getProcesses()` does not list, reporting a recently exited process as running with no path, no threads, and no CPU time - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24), 7.4.3 (2027-07-31)
 

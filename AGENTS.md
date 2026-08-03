@@ -130,6 +130,38 @@ it. To make code testable, extract the parsing from the acquisition: a method th
 `List<String>` or `String` and returns a parsed result, called by a thin method that does the
 `readFile`/`runNative`. Test the parse method against fixture data.
 
+#### A new test package needs an entry in `module-info.test`
+
+Tests run on the **module path**, patched into the module under test. JUnit instantiates a test
+class reflectively, so the package has to be open to it — and the `opens` for tests lives in
+`src/test/java/module-info.test`, not in `src/main/java/module-info.java`. That file holds the raw
+JVM options the plugin passes to the test run.
+
+**Adding a test in a package that no existing test uses means adding a line to that module's
+`module-info.test`:**
+
+```text
+--add-opens
+  com.github.oshi/oshi.software.os.windows=org.junit.platform.commons
+```
+
+The module name is `com.github.oshi` for `oshi-core`, `com.github.oshi.ffm` for `oshi-core-ffm`, and
+`com.github.oshi.common` for `oshi-common`. The same file is also where `--add-reads`,
+`--add-modules`, and `--enable-native-access` for tests are declared.
+
+⚠️ **A missing entry fails only on the platform that actually runs the test.** A test guarded by
+`@EnabledOnOs(OS.WINDOWS)` is skipped at the container level everywhere else — before JUnit ever
+tries to construct it — so a full green build on Linux or macOS proves nothing about the opens.
+The failure surfaces in CI as:
+
+```text
+[X] Unable to make oshi.software.os.windows.SomeTest() accessible:
+    module com.github.oshi does not "opens oshi.software.os.windows" to module org.junit.platform.commons
+```
+
+To check the wiring from any platform, drop an unconditional throwaway test in the new package,
+confirm it runs, and delete it.
+
 ## Hard rules that CI enforces
 
 **Language level.** `oshi-common` and `oshi-core` compile with `release 8`. No `var`, no `List.of`,
