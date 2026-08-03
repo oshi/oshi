@@ -14,7 +14,6 @@ import static oshi.ffm.platform.windows.WinNTFFM.PERFORMANCE_INFORMATION;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.setupTokenPrivileges;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.succeededOrLog;
-import static oshi.software.os.OperatingSystem.ProcessFiltering.VALID_PROCESS;
 import static oshi.util.LogLevel.ERROR;
 import static oshi.util.Memoizer.installedAppsExpiration;
 
@@ -25,13 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,81 +270,35 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                 .orElseGet(() -> new WindowsOSThreadFFM(proc.getProcessID(), tid, null, null));
     }
 
-    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = Memoizer
-            .memoize(WindowsOperatingSystemFFM::queryProcessMapFromRegistry, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = Memoizer
-            .memoize(WindowsOperatingSystemFFM::queryProcessMapFromPerfCounters, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = Memoizer
-            .memoize(WindowsOperatingSystemFFM::queryThreadMapFromRegistry, Memoizer.defaultExpiration());
-    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = Memoizer
-            .memoize(WindowsOperatingSystemFFM::queryThreadMapFromPerfCounters, Memoizer.defaultExpiration());
-
     @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
-        return processMapToList(pids);
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
+        return ProcessPerformanceDataFFM.buildProcessMapFromRegistry(pids);
     }
 
     @Override
-    public List<OSProcess> queryAllProcesses() {
-        return processMapToList(null);
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
+        return ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
-        List<OSProcess> procList = processMapToList(List.of(pid));
-        return procList.isEmpty() ? null : procList.get(0);
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
+        return ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
     }
 
-    private List<OSProcess> processMapToList(Collection<Integer> pids) {
-        // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
-        // otherwise performance counters with WMI backup
-        if (processMap == null || processMap.isEmpty()) {
-            processMap = (pids == null) ? processMapFromPerfCounters.get()
-                    : ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
-        }
-        Map<Integer, ThreadPerfCounterBlock> threadMap = null;
-        if (USE_PROCSTATE_SUSPENDED) {
-            // Get data from the registry if possible
-            threadMap = threadMapFromRegistry.get();
-            // otherwise performance counters with WMI backup
-            if (threadMap == null || threadMap.isEmpty()) {
-                threadMap = (pids == null) ? threadMapFromPerfCounters.get()
-                        : ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids);
-            }
-        }
-
-        Map<Integer, WtsInfo> processWtsMap = ProcessWtsDataFFM.queryProcessWtsMap(pids);
-
-        // Intersect with the WTS keys whether or not pids were requested. The perf counter map is memoized, so it can
-        // name a process that has since exited; WTS is queried fresh and will not. Keying off the WTS map keeps
-        // getProcess(pid) from returning a process that getProcesses() would not list.
-        Set<Integer> mapKeys = new HashSet<>(processWtsMap.keySet());
-        mapKeys.retainAll(processMap.keySet());
-
-        final Map<Integer, ProcessPerfCounterBlock> finalProcessMap = processMap;
-        final Map<Integer, ThreadPerfCounterBlock> finalThreadMap = threadMap;
-        return mapKeys.stream().parallel()
-                .map(pid -> new WindowsOSProcessFFM(pid, this, finalProcessMap, processWtsMap, finalThreadMap))
-                .filter(VALID_PROCESS).collect(Collectors.toList());
+    @Override
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+        return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids);
     }
 
-    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromRegistry() {
-        return ProcessPerformanceDataFFM.buildProcessMapFromRegistry(null);
+    @Override
+    protected Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
+        return ProcessWtsDataFFM.queryProcessWtsMap(pids);
     }
 
-    // Package-private: only reached in production when the registry query fails, so tested directly
-    static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
-        return ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(null);
-    }
-
-    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromRegistry() {
-        return ThreadPerformanceDataFFM.buildThreadMapFromRegistry(null);
-    }
-
-    // Package-private: only reached in production when the registry query fails, so tested directly
-    static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
-        return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(null);
+    @Override
+    protected OSProcess createOSProcess(int pid, Map<Integer, ProcessPerfCounterBlock> processMap,
+            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+        return new WindowsOSProcessFFM(pid, this, processMap, processWtsMap, threadMap);
     }
 
     @Override
@@ -367,30 +317,15 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
         return jvmBitness;
     }
 
+    /**
+     * Unlike the JNA backend, which takes a live ToolHelp32 snapshot, this derives each process's parent from the
+     * cached performance counter data rather than enumerating every process a second time.
+     */
     @Override
-    protected List<OSProcess> queryChildProcesses(int parentPid) {
-        Map<Integer, Integer> parentPidMap = getParentPidMap();
-        Set<Integer> descendantPids = getChildrenOrDescendants(parentPidMap, parentPid, false);
-        return processMapToList(descendantPids);
-    }
-
-    @Override
-    protected List<OSProcess> queryDescendantProcesses(int parentPid) {
-        Map<Integer, Integer> parentPidMap = getParentPidMap();
-        Set<Integer> descendantPids = getChildrenOrDescendants(parentPidMap, parentPid, true);
-        return processMapToList(descendantPids);
-    }
-
-    private Map<Integer, Integer> getParentPidMap() {
+    protected Map<Integer, Integer> queryParentPidMap() {
         Map<Integer, Integer> parentPidMap = new HashMap<>();
-        Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
-        if (processMap == null || processMap.isEmpty()) {
-            processMap = processMapFromPerfCounters.get();
-        }
-        if (processMap != null) {
-            for (Map.Entry<Integer, ProcessPerfCounterBlock> entry : processMap.entrySet()) {
-                parentPidMap.put(entry.getKey(), entry.getValue().getParentProcessID());
-            }
+        for (Map.Entry<Integer, ProcessPerfCounterBlock> entry : getCachedProcessMap().entrySet()) {
+            parentPidMap.put(entry.getKey(), entry.getValue().getParentProcessID());
         }
         return parentPidMap;
     }

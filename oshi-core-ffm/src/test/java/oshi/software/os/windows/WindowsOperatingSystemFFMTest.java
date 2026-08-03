@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.oneOf;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.software.os.OSProcess;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
@@ -53,11 +56,19 @@ class WindowsOperatingSystemFFMTest {
     }
 
     @Test
-    void testQueryMapsFromPerfCounters() {
+    void testBuildMapsFromPerfCounters() {
         assertThat("Process map from performance counters should not be null",
-                WindowsOperatingSystemFFM.queryProcessMapFromPerfCounters(), is(notNullValue()));
+                os.buildProcessMapFromPerfCountersForTest(), is(notNullValue()));
         assertThat("Thread map from performance counters should not be null",
-                WindowsOperatingSystemFFM.queryThreadMapFromPerfCounters(), is(notNullValue()));
+                os.buildThreadMapFromPerfCountersForTest(), is(notNullValue()));
+    }
+
+    @Test
+    void testQueryParentPidMap() {
+        Map<Integer, Integer> parentPidMap = os.queryParentPidMapForTest();
+        assertThat("Parent pid map should not be null", parentPidMap, is(notNullValue()));
+        assertThat("Parent pid map should include the current process", parentPidMap.containsKey(os.getProcessId()),
+                is(true));
     }
 
     private static final class TestWindowsOperatingSystemFFM extends WindowsOperatingSystemFFM {
@@ -71,6 +82,18 @@ class WindowsOperatingSystemFFMTest {
 
         private List<OSProcess> queryDescendantProcessesForTest(int parentPid) {
             return queryDescendantProcesses(parentPid);
+        }
+
+        private Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
+            return buildProcessMapFromPerfCounters(null);
+        }
+
+        private Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
+            return buildThreadMapFromPerfCounters(null);
+        }
+
+        private Map<Integer, Integer> queryParentPidMapForTest() {
+            return queryParentPidMap();
         }
     }
 }

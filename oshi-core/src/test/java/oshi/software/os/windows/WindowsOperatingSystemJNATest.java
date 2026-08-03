@@ -11,11 +11,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.oneOf;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.software.os.OSProcess;
 
 /**
@@ -36,29 +39,61 @@ class WindowsOperatingSystemJNATest {
     void testQueryChildProcesses() {
         int pid = os.getProcessId();
         assertThat("Current process id should be positive", pid, is(greaterThan(0)));
-        List<OSProcess> childProcesses = os.queryChildProcesses(pid);
+        List<OSProcess> childProcesses = os.queryChildProcessesForTest(pid);
         assertThat("Child process query should not be null", childProcesses, is(notNullValue()));
+        assertThat("Child process query should include the queried process",
+                childProcesses.stream().anyMatch(p -> p.getProcessID() == pid), is(true));
     }
 
     @Test
     void testQueryDescendantProcesses() {
         int pid = os.getProcessId();
         assertThat("Current process id should be positive", pid, is(greaterThan(0)));
-        List<OSProcess> descendantProcesses = os.queryDescendantProcesses(pid);
+        List<OSProcess> descendantProcesses = os.queryDescendantProcessesForTest(pid);
         assertThat("Descendant process query should not be null", descendantProcesses, is(notNullValue()));
+        assertThat("Descendant process query should include the queried process",
+                descendantProcesses.stream().anyMatch(p -> p.getProcessID() == pid), is(true));
     }
 
     @Test
-    void testQueryMapsFromPerfCounters() {
+    void testBuildMapsFromPerfCounters() {
         assertThat("Process map from performance counters should not be null",
-                WindowsOperatingSystemJNA.queryProcessMapFromPerfCounters(), is(notNullValue()));
+                os.buildProcessMapFromPerfCountersForTest(), is(notNullValue()));
         assertThat("Thread map from performance counters should not be null",
-                WindowsOperatingSystemJNA.queryThreadMapFromPerfCounters(), is(notNullValue()));
+                os.buildThreadMapFromPerfCountersForTest(), is(notNullValue()));
+    }
+
+    @Test
+    void testQueryParentPidMap() {
+        Map<Integer, Integer> parentPidMap = os.queryParentPidMapForTest();
+        assertThat("Parent pid map should not be null", parentPidMap, is(notNullValue()));
+        assertThat("Parent pid map should include the current process", parentPidMap.containsKey(os.getProcessId()),
+                is(true));
     }
 
     private static final class TestWindowsOperatingSystemJNA extends WindowsOperatingSystemJNA {
         private int queryBitnessForTest(int jvmBitness) {
             return queryBitness(jvmBitness);
+        }
+
+        private List<OSProcess> queryChildProcessesForTest(int parentPid) {
+            return queryChildProcesses(parentPid);
+        }
+
+        private List<OSProcess> queryDescendantProcessesForTest(int parentPid) {
+            return queryDescendantProcesses(parentPid);
+        }
+
+        private Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
+            return buildProcessMapFromPerfCounters(null);
+        }
+
+        private Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
+            return buildThreadMapFromPerfCounters(null);
+        }
+
+        private Map<Integer, Integer> queryParentPidMapForTest() {
+            return queryParentPidMap();
         }
     }
 }
