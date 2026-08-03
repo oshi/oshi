@@ -257,6 +257,15 @@ public final class NvmlUtilFFM {
         return -1d;
     }
 
+    private static long readVramTotal(Device device) {
+        MemorySegment memSeg = device.arena.allocate(NvmlFunctions.MEMORY_LAYOUT);
+        if (NvmlFunctions.deviceGetMemoryInfo(device.handle, memSeg) == NvmlFunctions.NVML_SUCCESS) {
+            return memSeg.get(JAVA_LONG,
+                    NvmlFunctions.MEMORY_LAYOUT.byteOffset(MemoryLayout.PathElement.groupElement("total")));
+        }
+        return -1L;
+    }
+
     private static long readVramUsed(Device device) {
         MemorySegment memSeg = device.arena.allocate(NvmlFunctions.MEMORY_LAYOUT);
         if (NvmlFunctions.deviceGetMemoryInfo(device.handle, memSeg) == NvmlFunctions.NVML_SUCCESS) {
@@ -382,6 +391,16 @@ public final class NvmlUtilFFM {
      */
     public static double getGpuUtilization(String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readUtilization, -1d);
+    }
+
+    /**
+     * Returns total VRAM in bytes, or -1 if unavailable.
+     *
+     * @param deviceId stable device identifier returned by {@link #findDevice} or {@link #findDeviceByName}
+     * @return total bytes or -1
+     */
+    public static long getVramTotal(String deviceId) {
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readVramTotal, -1L);
     }
 
     /**

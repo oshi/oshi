@@ -288,6 +288,15 @@ public final class NvmlUtilJNA {
         return -1d;
     }
 
+    private static long readVramTotal(Pointer device) {
+        NvmlMemory mem = new NvmlMemory();
+        if (Holder.LIB.nvmlDeviceGetMemoryInfo(device, mem) == Nvml.NVML_SUCCESS) {
+            mem.read();
+            return mem.total;
+        }
+        return -1L;
+    }
+
     private static long readVramUsed(Pointer device) {
         NvmlMemory mem = new NvmlMemory();
         if (Holder.LIB.nvmlDeviceGetMemoryInfo(device, mem) == Nvml.NVML_SUCCESS) {
@@ -428,6 +437,16 @@ public final class NvmlUtilJNA {
      */
     public static double getGpuUtilization(String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readUtilization, -1d);
+    }
+
+    /**
+     * Returns total VRAM in bytes, or -1 if unavailable.
+     *
+     * @param deviceId stable device identifier returned by {@link #findDevice} or {@link #findDeviceByName}
+     * @return total bytes or -1
+     */
+    public static long getVramTotal(String deviceId) {
+        return NvmlQuery.query(deviceId, SCOPE, NvmlUtilJNA::readVramTotal, -1L);
     }
 
     /**
