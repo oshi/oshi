@@ -140,7 +140,7 @@ JVM options the plugin passes to the test run.
 **Adding a test in a package that no existing test uses means adding a line to that module's
 `module-info.test`:**
 
-```
+```text
 --add-opens
   com.github.oshi/oshi.software.os.windows=org.junit.platform.commons
 ```
@@ -154,7 +154,7 @@ The module name is `com.github.oshi` for `oshi-core`, `com.github.oshi.ffm` for 
 tries to construct it — so a full green build on Linux or macOS proves nothing about the opens.
 The failure surfaces in CI as:
 
-```
+```text
 [X] Unable to make oshi.software.os.windows.SomeTest() accessible:
     module com.github.oshi does not "opens oshi.software.os.windows" to module org.junit.platform.commons
 ```
