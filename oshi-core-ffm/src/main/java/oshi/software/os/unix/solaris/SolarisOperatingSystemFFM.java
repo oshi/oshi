@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.WhoFFM;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
@@ -48,7 +49,7 @@ public class SolarisOperatingSystemFFM extends SolarisOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> SolarisLibcFunctions.getpid(), LOG, LogLevel.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, LogLevel.WARN,
                 "getpid failed", 0);
     }
 

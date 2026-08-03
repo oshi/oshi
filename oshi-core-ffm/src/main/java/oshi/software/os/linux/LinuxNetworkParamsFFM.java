@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.linux.LinuxNetworkParams;
 
 /**
@@ -31,7 +32,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
     public String getHostName() {
         String hostname = callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-            if (0 == LinuxLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
+            if (0 == PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return buf.getString(0);
             }
             return null;

@@ -12,7 +12,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.os.InternetProtocolStats;
-import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
@@ -55,9 +54,6 @@ public abstract class OpenBsdOperatingSystem extends BsdOperatingSystem {
     public InternetProtocolStats getInternetProtocolStats() {
         return new OpenBsdInternetProtocolStats();
     }
-
-    @Override
-    public abstract NetworkParams getNetworkParams();
 
     @Override
     protected List<OSProcess> getProcessListFromPS(int pid) {

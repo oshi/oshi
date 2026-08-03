@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -137,11 +138,11 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
     @Override
     protected long queryRlimitNofile(boolean soft) {
         return ForeignFunctions.callInArenaLongOrDefault(arena -> {
-            MemorySegment rlim = arena.allocate(OpenBsdLibcFunctions.RLIMIT_LAYOUT);
-            if (OpenBsdLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
+            MemorySegment rlim = arena.allocate(PosixLibcFunctions.RLIMIT_LAYOUT);
+            if (PosixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
-            return soft ? OpenBsdLibcFunctions.rlimitCur(rlim) : OpenBsdLibcFunctions.rlimitMax(rlim);
+            return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
         }, LOG, oshi.util.LogLevel.WARN, "Failed getrlimit", -1L);
     }
 

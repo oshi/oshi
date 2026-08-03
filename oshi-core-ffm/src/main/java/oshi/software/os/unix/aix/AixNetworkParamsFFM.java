@@ -11,7 +11,7 @@ import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.platform.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixNetworkParams;
 
 /**
@@ -24,7 +24,7 @@ final class AixNetworkParamsFFM extends AixNetworkParams {
     public String getHostName() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment buf = arena.allocate(HOST_NAME_BUF_SIZE);
-            if (AixLibcFunctions.gethostname(buf, HOST_NAME_BUF_SIZE) != 0) {
+            if (PosixLibcFunctions.gethostname(buf, HOST_NAME_BUF_SIZE) != 0) {
                 return super.getHostName();
             }
             int len = 0;

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -110,10 +111,10 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
     protected long queryRlimitNofile(boolean soft) {
         return callInArenaLongOrDefault(arena -> {
             MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
-            if (FreeBsdLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
+            if (PosixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
-            return soft ? FreeBsdLibcFunctions.rlimitCur(rlim) : FreeBsdLibcFunctions.rlimitMax(rlim);
+            return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
         }, LOG, WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
     }
 
