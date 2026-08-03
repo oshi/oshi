@@ -16,6 +16,7 @@ import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.LogLevel;
 
@@ -24,6 +25,11 @@ import oshi.util.LogLevel;
  */
 @ThreadSafe
 public class OpenBsdOperatingSystemFFM extends OpenBsdOperatingSystem {
+
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new OpenBsdNetworkParamsFFM();
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdOperatingSystemFFM.class);
 

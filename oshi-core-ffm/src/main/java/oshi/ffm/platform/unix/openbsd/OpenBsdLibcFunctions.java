@@ -37,6 +37,9 @@ public final class OpenBsdLibcFunctions extends PosixLibcFunctions {
     /** {@code getrlimit} resource: maximum number of open file descriptors. OpenBSD value (8). */
     public static final int RLIMIT_NOFILE = 8;
 
+    /** Maximum host name length, for sizing the {@code gethostname} buffer. */
+    public static final int HOST_NAME_MAX = 255;
+
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
     private static final MethodHandle sysctl = LINKER.downcallHandle(LIBC.findOrThrow("sysctl"),
             FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, SIZE_T), CAPTURE_CALL_STATE);

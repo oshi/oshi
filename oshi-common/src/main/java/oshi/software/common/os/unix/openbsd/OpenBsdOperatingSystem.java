@@ -57,9 +57,7 @@ public abstract class OpenBsdOperatingSystem extends BsdOperatingSystem {
     }
 
     @Override
-    public NetworkParams getNetworkParams() {
-        return new OpenBsdNetworkParams();
-    }
+    public abstract NetworkParams getNetworkParams();
 
     @Override
     protected List<OSProcess> getProcessListFromPS(int pid) {
