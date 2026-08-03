@@ -40,6 +40,24 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
+     * Classifies a disk from the IOKit {@code Medium Type} device characteristic.
+     *
+     * @param mediumType the {@code Medium Type} value from the device's {@code Device Characteristics} dictionary, or
+     *                   {@code null} if the property is absent
+     * @return {@code "SSD"}, {@code "HDD"}, or {@code "Unknown"} if the medium type is absent or unrecognized
+     */
+    protected static String parseMediumType(String mediumType) {
+        if (mediumType != null) {
+            if (mediumType.contains("Solid State") || mediumType.contains("SSD")) {
+                return "SSD";
+            } else if (mediumType.contains("Rotational")) {
+                return "HDD";
+            }
+        }
+        return "Unknown";
+    }
+
+    /**
      * Strings to convert to CFStringRef for pointer lookups.
      */
     protected enum CFKey {
