@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
@@ -13,6 +14,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Printer;
 import oshi.hardware.common.AbstractPrinter;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 import oshi.util.driver.unix.Lpstat;
 
 /**
@@ -37,6 +39,43 @@ public abstract class CupsPrinter extends AbstractPrinter {
     protected CupsPrinter(String name, String driverName, String description, PrinterStatus status, String statusReason,
             boolean isDefault, boolean isLocal, String portName) {
         super(name, driverName, description, status, statusReason, isDefault, isLocal, portName);
+    }
+
+    /** CUPS {@code ipp_pstate_t} value for an idle printer. */
+    private static final int IPP_PRINTER_IDLE = 3;
+    /** CUPS {@code ipp_pstate_t} value for a printer processing a job. */
+    private static final int IPP_PRINTER_PROCESSING = 4;
+    /** CUPS {@code ipp_pstate_t} value for a stopped printer. */
+    private static final int IPP_PRINTER_STOPPED = 5;
+
+    /**
+     * Maps a CUPS printer state and its state reasons to a {@link PrinterStatus}. An error or fault in the reasons
+     * takes precedence over the numeric state, matching the CUPS {@code ipp_pstate_t} values.
+     *
+     * @param state        the CUPS {@code printer-state} value as a string, or empty if unavailable
+     * @param stateReasons the CUPS {@code printer-state-reasons} value, or empty/{@code "none"} if there are none
+     * @return the mapped {@link PrinterStatus}, or {@link PrinterStatus#UNKNOWN} if the state is empty or unrecognized
+     */
+    protected static PrinterStatus parseStateFromCups(String state, String stateReasons) {
+        if (!stateReasons.isEmpty() && !"none".equals(stateReasons)) {
+            String lower = stateReasons.toLowerCase(Locale.ROOT);
+            if (lower.contains("error") || lower.contains("fault")) {
+                return PrinterStatus.ERROR;
+            }
+        }
+        if (state.isEmpty()) {
+            return PrinterStatus.UNKNOWN;
+        }
+        switch (ParseUtil.parseIntOrDefault(state, -1)) {
+            case IPP_PRINTER_IDLE:
+                return PrinterStatus.IDLE;
+            case IPP_PRINTER_PROCESSING:
+                return PrinterStatus.PRINTING;
+            case IPP_PRINTER_STOPPED:
+                return PrinterStatus.OFFLINE;
+            default:
+                return PrinterStatus.UNKNOWN;
+        }
     }
 
     /**

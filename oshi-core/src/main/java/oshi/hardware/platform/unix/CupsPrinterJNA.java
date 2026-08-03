@@ -6,7 +6,6 @@ package oshi.hardware.platform.unix;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,26 +109,4 @@ public final class CupsPrinterJNA extends CupsPrinter {
         return value != null ? value : "";
     }
 
-    private static PrinterStatus parseStateFromCups(String state, String stateReasons) {
-        if (!stateReasons.isEmpty() && !"none".equals(stateReasons)) {
-            String lower = stateReasons.toLowerCase(Locale.ROOT);
-            if (lower.contains("error") || lower.contains("fault")) {
-                return PrinterStatus.ERROR;
-            }
-        }
-        if (state.isEmpty()) {
-            return PrinterStatus.UNKNOWN;
-        }
-        int stateInt = ParseUtil.parseIntOrDefault(state, -1);
-        switch (stateInt) {
-            case Cups.IPP_PRINTER_IDLE:
-                return PrinterStatus.IDLE;
-            case Cups.IPP_PRINTER_PROCESSING:
-                return PrinterStatus.PRINTING;
-            case Cups.IPP_PRINTER_STOPPED:
-                return PrinterStatus.OFFLINE;
-            default:
-                return PrinterStatus.UNKNOWN;
-        }
-    }
 }

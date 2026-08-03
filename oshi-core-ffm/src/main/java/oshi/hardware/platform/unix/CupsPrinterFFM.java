@@ -11,7 +11,6 @@ import static oshi.util.LogLevel.WARN;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,25 +100,4 @@ public final class CupsPrinterFFM extends CupsPrinter {
         }, LOG, WARN, "Failed to query printers from libcups", printers);
     }
 
-    private static PrinterStatus parseStateFromCups(String state, String stateReasons) {
-        if (!stateReasons.isEmpty() && !"none".equals(stateReasons)) {
-            String lower = stateReasons.toLowerCase(Locale.ROOT);
-            if (lower.contains("error") || lower.contains("fault")) {
-                return PrinterStatus.ERROR;
-            }
-        }
-        if (state.isEmpty()) {
-            return PrinterStatus.UNKNOWN;
-        }
-        switch (ParseUtil.parseIntOrDefault(state, -1)) {
-            case CupsFunctions.IPP_PRINTER_IDLE:
-                return PrinterStatus.IDLE;
-            case CupsFunctions.IPP_PRINTER_PROCESSING:
-                return PrinterStatus.PRINTING;
-            case CupsFunctions.IPP_PRINTER_STOPPED:
-                return PrinterStatus.OFFLINE;
-            default:
-                return PrinterStatus.UNKNOWN;
-        }
-    }
 }
