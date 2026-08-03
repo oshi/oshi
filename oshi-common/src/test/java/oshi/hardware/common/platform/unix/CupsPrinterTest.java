@@ -86,4 +86,39 @@ class CupsPrinterTest {
         assertThat(printers.get(0).getName(), is("MyPrinter"));
         assertThat(printers.get(0).getStatus(), is(PrinterStatus.PRINTING));
     }
+
+    @Test
+    void testParseStateFromCupsIppStates() {
+        // CUPS ipp_pstate_t: 3 = idle, 4 = processing, 5 = stopped
+        assertThat(CupsPrinter.parseStateFromCups("3", "none"), is(PrinterStatus.IDLE));
+        assertThat(CupsPrinter.parseStateFromCups("4", "none"), is(PrinterStatus.PRINTING));
+        assertThat(CupsPrinter.parseStateFromCups("5", "none"), is(PrinterStatus.OFFLINE));
+    }
+
+    @Test
+    void testParseStateFromCupsErrorReasonsTakePrecedence() {
+        // An error or fault in the reasons overrides an otherwise healthy numeric state
+        assertThat(CupsPrinter.parseStateFromCups("3", "media-empty-error"), is(PrinterStatus.ERROR));
+        assertThat(CupsPrinter.parseStateFromCups("4", "cover-open-fault"), is(PrinterStatus.ERROR));
+        // Matching is case-insensitive
+        assertThat(CupsPrinter.parseStateFromCups("3", "Toner-Empty-ERROR"), is(PrinterStatus.ERROR));
+    }
+
+    @Test
+    void testParseStateFromCupsNonErrorReasonsIgnored() {
+        // Reasons that are neither error nor fault leave the numeric state in control
+        assertThat(CupsPrinter.parseStateFromCups("3", "toner-low"), is(PrinterStatus.IDLE));
+        assertThat(CupsPrinter.parseStateFromCups("5", "paused"), is(PrinterStatus.OFFLINE));
+    }
+
+    @Test
+    void testParseStateFromCupsUnknown() {
+        // Empty state, unrecognized state, and unparseable state all yield UNKNOWN
+        assertThat(CupsPrinter.parseStateFromCups("", "none"), is(PrinterStatus.UNKNOWN));
+        assertThat(CupsPrinter.parseStateFromCups("", ""), is(PrinterStatus.UNKNOWN));
+        assertThat(CupsPrinter.parseStateFromCups("9", "none"), is(PrinterStatus.UNKNOWN));
+        assertThat(CupsPrinter.parseStateFromCups("bogus", "none"), is(PrinterStatus.UNKNOWN));
+        // An empty state still defers to an error reason
+        assertThat(CupsPrinter.parseStateFromCups("", "hardware-error"), is(PrinterStatus.ERROR));
+    }
 }

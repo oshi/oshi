@@ -4,19 +4,6 @@
  */
 package oshi.software.common.os.linux;
 
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
-import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
-import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
-import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
-import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -161,7 +148,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
                 if (split.length > 9) {
                     Pair<byte[], Integer> lAddr = parseIpAddr(split[1]);
                     Pair<byte[], Integer> fAddr = parseIpAddr(split[2]);
-                    TcpState state = stateLookup(ParseUtil.hexStringToInt(split[3], 0));
+                    TcpState state = TcpState.fromLinuxState(ParseUtil.hexStringToInt(split[3], 0));
                     Pair<Integer, Integer> txQrxQ = parseHexColonHex(split[4]);
                     long inode = ParseUtil.parseLongOrDefault(split[9], 0);
                     conns.add(new IPConnection(protocol + ipver, lAddr.getA(), lAddr.getB(), fAddr.getA(), fAddr.getB(),
@@ -199,35 +186,5 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
             return new Pair<>(first, second);
         }
         return new Pair<>(0, 0);
-    }
-
-    private static TcpState stateLookup(int state) {
-        switch (state) {
-            case 0x01:
-                return ESTABLISHED;
-            case 0x02:
-                return SYN_SENT;
-            case 0x03:
-                return SYN_RECV;
-            case 0x04:
-                return FIN_WAIT_1;
-            case 0x05:
-                return FIN_WAIT_2;
-            case 0x06:
-                return TIME_WAIT;
-            case 0x07:
-                return CLOSED;
-            case 0x08:
-                return CLOSE_WAIT;
-            case 0x09:
-                return LAST_ACK;
-            case 0x0A:
-                return LISTEN;
-            case 0x0B:
-                return CLOSING;
-            case 0x00:
-            default:
-                return UNKNOWN;
-        }
     }
 }

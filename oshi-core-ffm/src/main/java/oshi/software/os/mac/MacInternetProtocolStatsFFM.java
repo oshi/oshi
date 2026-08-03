@@ -40,19 +40,7 @@ import static oshi.ffm.platform.mac.MacSystem.TCP_SOCK_INFO;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_listpids;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidfdinfo;
 import static oshi.ffm.platform.mac.MacSystemFunctions.proc_pidinfo;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
-import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
-import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
-import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
 import static oshi.software.os.InternetProtocolStats.TcpState.NONE;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
-import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.LogLevel.TRACE;
 import static oshi.util.ParseUtil.parseIntToIP;
@@ -160,7 +148,7 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
                     MemorySegment tcpsi = psi.asSlice(protoOffset);
                     ini = tcpsi.asSlice(TCP_SOCK_INFO.byteOffset(TCPSI_INI));
                     int tcpState = tcpsi.get(JAVA_INT, TCP_SOCK_INFO.byteOffset(TCPSI_STATE));
-                    state = stateLookup(tcpState);
+                    state = TcpState.fromBsdState(tcpState);
                 }
                 case SOCKINFO_IN -> {
                     type = "udp";
@@ -213,23 +201,6 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
             array[i] = segment.get(JAVA_INT, offset + i * 4);
         }
         return ParseUtil.parseIntArrayToIP(array);
-    }
-
-    private static TcpState stateLookup(int state) {
-        return switch (state) {
-            case 0 -> CLOSED;
-            case 1 -> LISTEN;
-            case 2 -> SYN_SENT;
-            case 3 -> SYN_RECV;
-            case 4 -> ESTABLISHED;
-            case 5 -> CLOSE_WAIT;
-            case 6 -> FIN_WAIT_1;
-            case 7 -> CLOSING;
-            case 8 -> LAST_ACK;
-            case 9 -> FIN_WAIT_2;
-            case 10 -> TIME_WAIT;
-            default -> UNKNOWN;
-        };
     }
 
     @Override

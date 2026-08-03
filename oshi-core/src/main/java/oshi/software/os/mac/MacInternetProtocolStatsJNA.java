@@ -13,19 +13,7 @@ import static com.sun.jna.platform.mac.SystemB.PROC_PIDLISTFDS;
 import static com.sun.jna.platform.mac.SystemB.PROX_FDTYPE_SOCKET;
 import static com.sun.jna.platform.mac.SystemB.SOCKINFO_IN;
 import static com.sun.jna.platform.mac.SystemB.SOCKINFO_TCP;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
-import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
-import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
-import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
 import static oshi.software.os.InternetProtocolStats.TcpState.NONE;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
-import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +89,7 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
                     si.psi.soi_proto.setType("pri_tcp");
                     si.psi.soi_proto.read();
                     ini = si.psi.soi_proto.pri_tcp.tcpsi_ini;
-                    state = stateLookup(si.psi.soi_proto.pri_tcp.tcpsi_state);
+                    state = TcpState.fromBsdState(si.psi.soi_proto.pri_tcp.tcpsi_state);
                     type = "tcp";
                 } else if (si.psi.soi_kind == SOCKINFO_IN) {
                     si.psi.soi_proto.setType("pri_in");
@@ -137,35 +125,6 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
             }
         }
         return null;
-    }
-
-    private static TcpState stateLookup(int state) {
-        switch (state) {
-            case 0:
-                return CLOSED;
-            case 1:
-                return LISTEN;
-            case 2:
-                return SYN_SENT;
-            case 3:
-                return SYN_RECV;
-            case 4:
-                return ESTABLISHED;
-            case 5:
-                return CLOSE_WAIT;
-            case 6:
-                return FIN_WAIT_1;
-            case 7:
-                return CLOSING;
-            case 8:
-                return LAST_ACK;
-            case 9:
-                return FIN_WAIT_2;
-            case 10:
-                return TIME_WAIT;
-            default:
-                return UNKNOWN;
-        }
     }
 
     @Override
