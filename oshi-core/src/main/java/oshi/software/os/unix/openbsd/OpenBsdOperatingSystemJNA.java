@@ -11,6 +11,7 @@ import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOperatingSystem;
 import oshi.software.os.FileSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
@@ -19,6 +20,11 @@ import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
  */
 @ThreadSafe
 public class OpenBsdOperatingSystemJNA extends OpenBsdOperatingSystem {
+
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new OpenBsdNetworkParamsJNA();
+    }
 
     @Override
     protected String querySysctl(int[] mib, String def) {
