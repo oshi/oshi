@@ -80,6 +80,13 @@ than introducing a separate mechanism.
 ./mvnw javadoc:javadoc               # javadoc errors fail the release build
 ```
 
+⚠️ **`forbiddenapis:check` and `javadoc:javadoc` need compiled classes, so run them after `install`
+in the same command, never after a bare `clean`.** `./mvnw clean javadoc:javadoc` fails with
+`Creating an aggregated report for both named and unnamed modules is not possible` — `clean` deletes
+`oshi-common/target/classes/module-info.class`, no standalone goal regenerates it, and the
+aggregator then sees one unnamed module among named ones. The error names `oshi-common` and looks
+like a module-descriptor problem in the project; it is not.
+
 Print a full report for the machine you are on — the fastest way to sanity-check a change by hand:
 
 ```sh
@@ -114,10 +121,17 @@ Avoid it:
 
 If a result does not make sense, rebuild clean from the root before spending time debugging it.
 
-Before opening a PR, run the whole gate in this order, on the modules you touched
-(`-pl <modules> -am`), and fold any spotless reformatting into the same commit:
-`spotless:apply` → `checkstyle:check` → `install` → `forbiddenapis:check` → `javadoc:javadoc`.
-Spotless first, because it shifts line numbers.
+Before opening a PR, run the whole gate as one command, and fold any spotless reformatting into the
+same commit:
+
+```sh
+./mvnw clean spotless:apply sortpom:sort checkstyle:check install forbiddenapis:check javadoc:javadoc
+```
+
+Spotless first, because it shifts line numbers. `install` before `forbiddenapis:check` and
+`javadoc:javadoc`, because both need compiled classes — see the warning above. `checkstyle:check`
+must be named explicitly: it is only bound to a phase in the `checks` profile, which is not active
+by default. Add `-pl <modules> -am` to narrow the run to the modules you touched.
 
 ### Tests
 
@@ -204,7 +218,8 @@ constructor that forwards to the abstract parent's, which *is* documented.
 ⚠️ **Checkstyle caches results per file in `target/checkstyle-cachefile`, so a second run only re-checks what
 changed.** Measuring a rule change without `mvn clean` first will report a fraction of the real violations and look
 like a fix. The same trap applies to `javadoc:javadoc`, which silently skips when `target/reports` is already
-populated. Always `clean` before believing either number.
+populated. Always `clean` before believing either number — but `clean` alone breaks `javadoc:javadoc`, so pair it
+with something that recompiles: `./mvnw clean compile javadoc:javadoc`, or the full gate command above.
 
 **Suppressing a warning.** Both tools have one house style. Never add a line range to
 `config/checkstyle-suppressions.xml` — a range breaks the moment anything above it shifts, including a
