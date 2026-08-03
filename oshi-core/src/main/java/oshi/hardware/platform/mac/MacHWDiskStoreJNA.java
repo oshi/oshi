@@ -380,70 +380,59 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
         }
         try {
             IORegistryEntry media = iter.next();
-            if (media != null) {
-                try {
-                    // Check removable at the IOMedia level
-                    Boolean removable = media.getBooleanProperty("Removable");
-                    if (removable != null && removable) {
-                        return "Removable";
-                    }
-                    // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
-                    IORegistryEntry driver = media.getParentEntry("IOService");
-                    if (driver != null) {
-                        try {
-                            IORegistryEntry device = driver.getParentEntry("IOService");
-                            if (device != null) {
-                                try {
-                                    CFMutableDictionaryRef props = device.createCFProperties();
-                                    if (props != null) {
-                                        try {
-                                            CFStringRef devCharKey = CFStringRef
-                                                    .createCFString("Device Characteristics");
-                                            try {
-                                                Pointer charDict = props.getValue(devCharKey);
-                                                if (charDict != null) {
-                                                    CFDictionaryRef characteristics = new CFDictionaryRef(charDict);
-                                                    CFStringRef medTypeKey = CFStringRef.createCFString("Medium Type");
-                                                    try {
-                                                        Pointer mediumType = characteristics.getValue(medTypeKey);
-                                                        if (mediumType != null) {
-                                                            String type = CFUtil.cfPointerToString(mediumType);
-                                                            if (type != null) {
-                                                                if (type.contains("Solid State")
-                                                                        || type.contains("SSD")) {
-                                                                    return "SSD";
-                                                                } else if (type.contains("Rotational")) {
-                                                                    return "HDD";
-                                                                }
-                                                            }
-                                                        }
-                                                    } finally {
-                                                        medTypeKey.release();
-                                                    }
-                                                }
-                                            } finally {
-                                                devCharKey.release();
-                                            }
-                                        } finally {
-                                            props.release();
-                                        }
-                                    }
-                                } finally {
-                                    device.release();
-                                }
-                            }
-                        } finally {
-                            driver.release();
-                        }
-                    }
-                } finally {
-                    media.release();
+            if (media == null) {
+                return "Unknown";
+            }
+            try {
+                // Check removable at the IOMedia level
+                Boolean removable = media.getBooleanProperty("Removable");
+                if (removable != null && removable) {
+                    return "Removable";
                 }
+                return parseMediumType(queryMediumType(media));
+            } finally {
+                media.release();
             }
         } finally {
             iter.release();
         }
-        return "Unknown";
+    }
+
+    /**
+     * Reads the {@code Medium Type} device characteristic by traversing up from the IOMedia node to the block storage
+     * device, which is where the characteristic is published.
+     *
+     * @param media the IOMedia registry entry
+     * @return the {@code Medium Type} string, or {@code null} if any step of the traversal finds nothing
+     */
+    private static String queryMediumType(IORegistryEntry media) {
+        // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
+        IORegistryEntry driver = media.getParentEntry("IOService");
+        if (driver == null) {
+            return null;
+        }
+        try {
+            IORegistryEntry device = driver.getParentEntry("IOService");
+            if (device == null) {
+                return null;
+            }
+            try {
+                CFMutableDictionaryRef props = device.createCFProperties();
+                if (props == null) {
+                    return null;
+                }
+                try {
+                    CFDictionaryRef characteristics = CFUtil.getDictionary(props, "Device Characteristics");
+                    return characteristics == null ? null : CFUtil.getString(characteristics, "Medium Type");
+                } finally {
+                    props.release();
+                }
+            } finally {
+                device.release();
+            }
+        } finally {
+            driver.release();
+        }
     }
 
 }
