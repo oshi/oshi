@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.linux.LinuxOSProcess;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
 
@@ -47,9 +48,9 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
     @Override
     protected long queryRlimitSoft() {
         long limit = callInArenaLongOrDefault(arena -> {
-            MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
-            if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
-                return LinuxLibcFunctions.rlimitCur(rlim);
+            MemorySegment rlim = arena.allocate(PosixLibcFunctions.RLIMIT_LAYOUT);
+            if (0 == PosixLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
+                return PosixLibcFunctions.rlimitCur(rlim);
             }
             return -1L;
         }, LOG, WARN, "FFM getrlimit failed", -1L);
@@ -59,9 +60,9 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
     @Override
     protected long queryRlimitHard() {
         long limit = callInArenaLongOrDefault(arena -> {
-            MemorySegment rlim = arena.allocate(LinuxLibcFunctions.RLIMIT_LAYOUT);
-            if (0 == LinuxLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
-                return LinuxLibcFunctions.rlimitMax(rlim);
+            MemorySegment rlim = arena.allocate(PosixLibcFunctions.RLIMIT_LAYOUT);
+            if (0 == PosixLibcFunctions.getrlimit(LinuxLibcFunctions.RLIMIT_NOFILE, rlim)) {
+                return PosixLibcFunctions.rlimitMax(rlim);
             }
             return -1L;
         }, LOG, WARN, "FFM getrlimit failed", -1L);

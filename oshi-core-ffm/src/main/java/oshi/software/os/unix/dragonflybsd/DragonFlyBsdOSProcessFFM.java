@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
@@ -58,7 +59,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     protected Map<String, String> queryEnvironmentVariables() {
         // DragonFlyBSD's /proc does not expose environ for other processes.
         // For the current process, use Java's System.getenv().
-        int self = callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed",
+        int self = callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed",
                 -1);
         if (getProcessID() == self) {
             return System.getenv();
@@ -74,8 +75,8 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     @Override
     protected long queryRlimitNofile(boolean soft) {
         return callInArenaOrDefault(arena -> {
-            MemorySegment rlim = arena.allocate(FreeBsdLibcFunctions.RLIMIT_LAYOUT);
-            if (FreeBsdLibcFunctions.getrlimit(FreeBsdLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
+            MemorySegment rlim = arena.allocate(PosixLibcFunctions.RLIMIT_LAYOUT);
+            if (PosixLibcFunctions.getrlimit(FreeBsdLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
             return rlim.get(JAVA_LONG, soft ? 0 : Long.BYTES);

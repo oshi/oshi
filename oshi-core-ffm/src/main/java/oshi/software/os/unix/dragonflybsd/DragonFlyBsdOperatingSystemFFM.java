@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.freebsd.WhoFFM;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.dragonflybsd.DragonFlyBsdLibcFunctions;
-import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
@@ -67,7 +67,7 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
 
     @Override
     public int getProcessId() {
-        return callInArenaIntOrDefault(arena -> FreeBsdLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed", 0);
+        return callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, LogLevel.WARN, "getpid failed", 0);
     }
 
     @Override

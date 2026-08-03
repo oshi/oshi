@@ -12,6 +12,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.unix.aix.perfstat.PerfstatConfigFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatProcessFFM;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.aix.AixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixOperatingSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -52,7 +53,7 @@ public final class AixOperatingSystemFFM extends AixOperatingSystem {
     @Override
     public int getProcessId() {
         try {
-            return AixLibcFunctions.getpid();
+            return PosixLibcFunctions.getpid();
         } catch (Throwable _) {
             return 0;
         }

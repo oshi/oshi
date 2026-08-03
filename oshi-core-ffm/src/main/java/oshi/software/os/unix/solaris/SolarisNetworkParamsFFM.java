@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.unix.solaris.SolarisNetworkParams;
 
 /**
@@ -28,7 +28,7 @@ final class SolarisNetworkParamsFFM extends SolarisNetworkParams {
     public String getHostName() {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-            int rc = SolarisLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L);
+            int rc = PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L);
             if (rc == 0) {
                 return buf.getString(0);
             }

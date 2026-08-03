@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
 import oshi.util.LogLevel;
 
@@ -30,7 +30,7 @@ public class OpenBsdNetworkParamsFFM extends OpenBsdNetworkParams {
     protected String queryHostName() {
         return callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-            if (0 != OpenBsdLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
+            if (0 != PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return null;
             }
             return buf.getString(0);

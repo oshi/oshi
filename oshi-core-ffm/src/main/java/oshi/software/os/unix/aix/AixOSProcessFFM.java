@@ -20,7 +20,7 @@ import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.unix.aix.PsInfoFFM;
 import oshi.driver.unix.aix.perfstat.PerfstatCpuFFM;
-import oshi.ffm.platform.unix.aix.AixLibcFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.unix.aix.AixOSProcess;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
@@ -52,8 +52,8 @@ public final class AixOSProcessFFM extends AixOSProcess {
     protected long queryRlimitNofile(boolean soft) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
-            if (AixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
-                return soft ? AixLibcFunctions.rlimitCur(rlim) : AixLibcFunctions.rlimitMax(rlim);
+            if (PosixLibcFunctions.getrlimit(RLIMIT_NOFILE, rlim) == 0) {
+                return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
             }
         } catch (Throwable _) {
             // fall through

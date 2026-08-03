@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.solaris.PsInfoFFM;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.solaris.SolarisLibcFunctions;
 import oshi.software.common.os.unix.solaris.SolarisOSProcess;
 import oshi.software.os.OSThread;
@@ -67,11 +68,11 @@ public final class SolarisOSProcessFFM extends SolarisOSProcess {
 
     private static long rlimitNofile(boolean soft) {
         return callInArenaLongOrDefault(arena -> {
-            MemorySegment rlim = arena.allocate(SolarisLibcFunctions.RLIMIT_LAYOUT);
-            if (SolarisLibcFunctions.getrlimit(SolarisLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
+            MemorySegment rlim = arena.allocate(PosixLibcFunctions.RLIMIT_LAYOUT);
+            if (PosixLibcFunctions.getrlimit(SolarisLibcFunctions.RLIMIT_NOFILE, rlim) != 0) {
                 return -1L;
             }
-            return soft ? SolarisLibcFunctions.rlimitCur(rlim) : SolarisLibcFunctions.rlimitMax(rlim);
+            return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
         }, LOG, WARN, "getrlimit failed", -1L);
     }
 }

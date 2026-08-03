@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
 import oshi.util.LogLevel;
@@ -62,7 +63,7 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
     protected String queryHostName() {
         return callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-            if (0 != FreeBsdLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
+            if (0 != PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
                 return null;
             }
             return buf.getString(0);

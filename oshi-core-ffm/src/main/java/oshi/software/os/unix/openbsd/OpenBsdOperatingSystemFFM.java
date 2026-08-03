@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.openbsd.OpenBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -45,7 +46,7 @@ public class OpenBsdOperatingSystemFFM extends OpenBsdOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> OpenBsdLibcFunctions.getpid(), LOG, LogLevel.WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, LogLevel.WARN,
                 "getpid failed", 0);
     }
 
