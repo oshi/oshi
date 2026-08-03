@@ -30,6 +30,7 @@ import oshi.driver.windows.perfmon.ProcessInformationFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.windows.Kernel32FFM;
+import oshi.ffm.platform.windows.WinErrorFFM;
 import oshi.software.common.os.windows.WindowsFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ParseUtil;
@@ -178,9 +179,10 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
                     int mountBufSize = BUFSIZE;
                     var pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),
                             mountBuf, mountBufSize, returnLengthBuf);
-                    // ERROR_MORE_DATA
+                    // GetVolumePathNamesForVolumeName reports a too-small buffer with ERROR_MORE_DATA, not
+                    // ERROR_INSUFFICIENT_BUFFER; on that code retry with the length it wrote to returnLengthBuf.
                     if ((pathNamesResult.isEmpty() || pathNamesResult.getAsInt() == 0)
-                            && Kernel32FFM.GetLastError().orElse(0) == 0x7A) {
+                            && Kernel32FFM.GetLastError().orElse(0) == WinErrorFFM.ERROR_MORE_DATA) {
                         mountBufSize = returnLengthBuf.get(JAVA_INT, 0);
                         mountBuf = arena.allocate(mountBufSize * JAVA_CHAR.byteSize());
                         pathNamesResult = Kernel32FFM.GetVolumePathNamesForVolumeName(toWideString(arena, volume),

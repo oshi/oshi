@@ -206,6 +206,13 @@ public final class IPHlpAPIUtilFFM {
             MemorySegment buffer = arena.allocate(size);
 
             ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+            // The table can grow between sizing and fetching under connection churn; retry with the newly reported
+            // size on ERROR_INSUFFICIENT_BUFFER rather than throwing and returning no connections.
+            while (ret == ERROR_INSUFFICIENT_BUFFER) {
+                size = sizeSegment.get(JAVA_INT, 0);
+                buffer = arena.allocate(size);
+                ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+            }
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
@@ -257,6 +264,13 @@ public final class IPHlpAPIUtilFFM {
             MemorySegment buffer = arena.allocate(size);
 
             ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
+            // The table can grow between sizing and fetching under connection churn; retry with the newly reported
+            // size on ERROR_INSUFFICIENT_BUFFER rather than throwing and returning no connections.
+            while (ret == ERROR_INSUFFICIENT_BUFFER) {
+                size = sizeSegment.get(JAVA_INT, 0);
+                buffer = arena.allocate(size);
+                ret = GetExtendedTcpTable(buffer, sizeSegment, 0, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
+            }
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
@@ -315,6 +329,13 @@ public final class IPHlpAPIUtilFFM {
             MemorySegment buffer = arena.allocate(size);
 
             ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
+            // The table can grow between sizing and fetching under connection churn; retry with the newly reported
+            // size on ERROR_INSUFFICIENT_BUFFER rather than throwing and returning no connections.
+            while (ret == ERROR_INSUFFICIENT_BUFFER) {
+                size = sizeSegment.get(JAVA_INT, 0);
+                buffer = arena.allocate(size);
+                ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET, UDP_TABLE_OWNER_PID, 0);
+            }
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
@@ -359,6 +380,13 @@ public final class IPHlpAPIUtilFFM {
             MemorySegment buffer = arena.allocate(size);
 
             ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+            // The table can grow between sizing and fetching under connection churn; retry with the newly reported
+            // size on ERROR_INSUFFICIENT_BUFFER rather than throwing and returning no connections.
+            while (ret == ERROR_INSUFFICIENT_BUFFER) {
+                size = sizeSegment.get(JAVA_INT, 0);
+                buffer = arena.allocate(size);
+                ret = GetExtendedUdpTable(buffer, sizeSegment, 0, AF_INET6, UDP_TABLE_OWNER_PID, 0);
+            }
             if (ret != ERROR_SUCCESS) {
                 throw new Win32Exception(ret);
             }
