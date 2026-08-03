@@ -17,13 +17,13 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFDataRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
-import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.platform.mac.CoreFoundationFunctions;
 import oshi.ffm.platform.mac.CoreGraphicsFunctions;
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.platform.mac.ObjCFunctions;
+import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
@@ -160,15 +160,15 @@ final class MacDisplayFFM extends AbstractDisplay {
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
     private static DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
-        CFDictionaryRef product = cfDictGetDictionary(attrs, "ProductAttributes");
+        CFDictionaryRef product = CFUtilFFM.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
         }
-        Long legacyMfg = cfDictGetLong(product, "LegacyManufacturerID");
-        Long week = cfDictGetLong(product, "WeekOfManufacture");
-        Long year = cfDictGetLong(product, "YearOfManufacture");
-        String model = cfDictGetString(product, "ProductName");
-        String serial = cfDictGetString(product, "AlphanumericSerialNumber");
+        Long legacyMfg = CFUtilFFM.getLong(product, "LegacyManufacturerID");
+        Long week = CFUtilFFM.getLong(product, "WeekOfManufacture");
+        Long year = CFUtilFFM.getLong(product, "YearOfManufacture");
+        String model = CFUtilFFM.getString(product, "ProductName");
+        String serial = CFUtilFFM.getString(product, "AlphanumericSerialNumber");
         // Native pixel resolution from the framebuffer node.
         Long displayWidth = fb.getLongProperty("DisplayWidth");
         Long displayHeight = fb.getLongProperty("DisplayHeight");
@@ -290,29 +290,5 @@ final class MacDisplayFFM extends AbstractDisplay {
             }
         }
         return null;
-    }
-
-    // CFDictionary accessors. CFDictionaryGetValue returns a borrowed reference: the returned wrappers must NOT be
-    // released.
-
-    private static CFDictionaryRef cfDictGetDictionary(CFDictionaryRef dict, String key) {
-        try (CFStringRef k = CFStringRef.createCFString(key)) {
-            MemorySegment v = dict.getValue(k);
-            return v == null || v.equals(MemorySegment.NULL) ? null : new CFDictionaryRef(v);
-        }
-    }
-
-    private static String cfDictGetString(CFDictionaryRef dict, String key) {
-        try (CFStringRef k = CFStringRef.createCFString(key)) {
-            MemorySegment v = dict.getValue(k);
-            return v == null || v.equals(MemorySegment.NULL) ? null : new CFStringRef(v).stringValue();
-        }
-    }
-
-    private static Long cfDictGetLong(CFDictionaryRef dict, String key) {
-        try (CFStringRef k = CFStringRef.createCFString(key)) {
-            MemorySegment v = dict.getValue(k);
-            return v == null || v.equals(MemorySegment.NULL) ? null : new CFNumberRef(v).longValue();
-        }
     }
 }
