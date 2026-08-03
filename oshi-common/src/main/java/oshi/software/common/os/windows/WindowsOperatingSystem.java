@@ -27,7 +27,6 @@ import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.tuples.Pair;
