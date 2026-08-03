@@ -8,18 +8,6 @@ import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET;
 import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
 import static com.sun.jna.platform.win32.IPHlpAPI.TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_ALL;
 import static com.sun.jna.platform.win32.IPHlpAPI.UDP_TABLE_CLASS.UDP_TABLE_OWNER_PID;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
-import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
-import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
-import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
-import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,8 +127,8 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         conns.add(new IPConnection("tcp4", ParseUtil.parseIntToIP(row.dwLocalAddr),
                                 ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort),
                                 ParseUtil.parseIntToIP(row.dwRemoteAddr),
-                                ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort), stateLookup(row.dwState), 0, 0,
-                                row.dwOwningPid));
+                                ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort),
+                                TcpState.fromWindowsMibState(row.dwState), 0, 0, row.dwOwningPid));
                     }
                 }
             } finally {
@@ -177,8 +165,8 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         MIB_TCP6ROW_OWNER_PID row = tcpTable.table[i];
                         conns.add(new IPConnection("tcp6", row.LocalAddr,
                                 ParseUtil.bigEndian16ToLittleEndian(row.dwLocalPort), row.RemoteAddr,
-                                ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort), stateLookup(row.State), 0, 0,
-                                row.dwOwningPid));
+                                ParseUtil.bigEndian16ToLittleEndian(row.dwRemotePort),
+                                TcpState.fromWindowsMibState(row.State), 0, 0, row.dwOwningPid));
                     }
                 }
             } finally {
@@ -260,35 +248,5 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             }
         }
         return conns;
-    }
-
-    private static TcpState stateLookup(int state) {
-        switch (state) {
-            case 1:
-            case 12:
-                return CLOSED;
-            case 2:
-                return LISTEN;
-            case 3:
-                return SYN_SENT;
-            case 4:
-                return SYN_RECV;
-            case 5:
-                return ESTABLISHED;
-            case 6:
-                return FIN_WAIT_1;
-            case 7:
-                return FIN_WAIT_2;
-            case 8:
-                return CLOSE_WAIT;
-            case 9:
-                return CLOSING;
-            case 10:
-                return LAST_ACK;
-            case 11:
-                return TIME_WAIT;
-            default:
-                return UNKNOWN;
-        }
     }
 }
