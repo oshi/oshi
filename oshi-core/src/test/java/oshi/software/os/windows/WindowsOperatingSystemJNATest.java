@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.ffm;
+package oshi.software.os.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -13,19 +13,18 @@ import static org.hamcrest.Matchers.oneOf;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.software.os.OSProcess;
-import oshi.software.os.windows.WindowsOperatingSystemFFM;
 
-@EnabledForJreRange(min = JRE.JAVA_25)
+/**
+ * Tests the JNA Windows operating system backend, mirroring {@code WindowsOperatingSystemFFMTest}.
+ */
 @EnabledOnOs(OS.WINDOWS)
-class WindowsOperatingSystemFFMTest {
+class WindowsOperatingSystemJNATest {
 
-    private final TestWindowsOperatingSystemFFM os = new TestWindowsOperatingSystemFFM();
+    private final TestWindowsOperatingSystemJNA os = new TestWindowsOperatingSystemJNA();
 
     @Test
     void testQueryBitness() {
@@ -37,33 +36,29 @@ class WindowsOperatingSystemFFMTest {
     void testQueryChildProcesses() {
         int pid = os.getProcessId();
         assertThat("Current process id should be positive", pid, is(greaterThan(0)));
-        List<OSProcess> childProcesses = os.queryChildProcessesForTest(pid);
+        List<OSProcess> childProcesses = os.queryChildProcesses(pid);
         assertThat("Child process query should not be null", childProcesses, is(notNullValue()));
-        assertThat("Child process query should include the queried process",
-                childProcesses.stream().anyMatch(p -> p.getProcessID() == pid), is(true));
     }
 
     @Test
     void testQueryDescendantProcesses() {
         int pid = os.getProcessId();
         assertThat("Current process id should be positive", pid, is(greaterThan(0)));
-        List<OSProcess> descendantProcesses = os.queryDescendantProcessesForTest(pid);
+        List<OSProcess> descendantProcesses = os.queryDescendantProcesses(pid);
         assertThat("Descendant process query should not be null", descendantProcesses, is(notNullValue()));
-        assertThat("Descendant process query should include the queried process",
-                descendantProcesses.stream().anyMatch(p -> p.getProcessID() == pid), is(true));
     }
 
-    private static final class TestWindowsOperatingSystemFFM extends WindowsOperatingSystemFFM {
+    @Test
+    void testQueryMapsFromPerfCounters() {
+        assertThat("Process map from performance counters should not be null",
+                WindowsOperatingSystemJNA.queryProcessMapFromPerfCounters(), is(notNullValue()));
+        assertThat("Thread map from performance counters should not be null",
+                WindowsOperatingSystemJNA.queryThreadMapFromPerfCounters(), is(notNullValue()));
+    }
+
+    private static final class TestWindowsOperatingSystemJNA extends WindowsOperatingSystemJNA {
         private int queryBitnessForTest(int jvmBitness) {
             return queryBitness(jvmBitness);
-        }
-
-        private List<OSProcess> queryChildProcessesForTest(int parentPid) {
-            return queryChildProcesses(parentPid);
-        }
-
-        private List<OSProcess> queryDescendantProcessesForTest(int parentPid) {
-            return queryDescendantProcesses(parentPid);
         }
     }
 }

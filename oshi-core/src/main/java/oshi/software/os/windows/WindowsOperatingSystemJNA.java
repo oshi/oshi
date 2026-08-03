@@ -79,10 +79,8 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.util.Constants;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
-import oshi.util.tuples.Pair;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system
@@ -133,39 +131,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             WindowsOperatingSystemJNA::queryThreadMapFromPerfCounters, defaultExpiration());
 
     @Override
-    public Pair<String, OSVersionInfo> queryFamilyVersionInfo() {
-        String version = System.getProperty("os.name");
-        if (version.startsWith("Windows ")) {
-            version = version.substring(8);
-        }
-
-        String sp = null;
-        int suiteMask = 0;
-        String buildNumber = "";
-        WmiResult<OSVersionProperty> versionInfo = Win32OperatingSystemJNA.queryOsVersion();
-        if (versionInfo.getResultCount() > 0) {
-            sp = WmiUtil.getString(versionInfo, OSVersionProperty.CSDVERSION, 0);
-            if (!sp.isEmpty() && !Constants.UNKNOWN.equals(sp)) {
-                version = version + " " + sp.replace("Service Pack ", "SP");
-            }
-            suiteMask = WmiUtil.getUint32(versionInfo, OSVersionProperty.SUITEMASK, 0);
-            buildNumber = WmiUtil.getString(versionInfo, OSVersionProperty.BUILDNUMBER, 0);
-        }
-        String codeName = parseCodeName(suiteMask);
-        // Older JDKs don't recognize Win11 and Server2022
-        if ("10".equals(version) && buildNumber.compareTo("22000") >= 0) {
-            version = "11";
-        }
-        if ("Server 2016".equals(version) && buildNumber.compareTo("17762") > 0) {
-            version = "Server 2019";
-        }
-        if ("Server 2019".equals(version) && buildNumber.compareTo("20347") > 0) {
-            version = "Server 2022";
-        }
-        if ("Server 2022".equals(version) && buildNumber.compareTo("26039") > 0) {
-            version = "Server 2025";
-        }
-        return new Pair<>("Windows", new OSVersionInfo(version, codeName, buildNumber));
+    protected WmiResult<OSVersionProperty> queryOsVersion() {
+        return Win32OperatingSystemJNA.queryOsVersion();
     }
 
     @Override
@@ -283,7 +250,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
         return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(null);
     }
 
-    private static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
+    // Package-private: only reached in production when the registry query fails, so tested directly
+    static Map<Integer, ProcessPerfCounterBlock> queryProcessMapFromPerfCounters() {
         return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(null);
     }
 
@@ -291,7 +259,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
         return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(null);
     }
 
-    private static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
+    // Package-private: only reached in production when the registry query fails, so tested directly
+    static Map<Integer, ThreadPerfCounterBlock> queryThreadMapFromPerfCounters() {
         return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(null);
     }
 
