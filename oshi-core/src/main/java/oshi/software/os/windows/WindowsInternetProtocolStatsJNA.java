@@ -55,6 +55,13 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
 
     private static final boolean IS_VISTA_OR_GREATER = VersionHelpers.IsWindowsVistaOrGreater();
 
+    /**
+     * Maximum number of times a connection-table fetch is retried after {@code ERROR_INSUFFICIENT_BUFFER}. The table
+     * can grow between sizing and fetching, but a table that outgrows the buffer this many times in a row is treated as
+     * a failure rather than retried indefinitely.
+     */
+    private static final int MAX_BUFFER_RETRIES = 5;
+
     @Override
     public TcpStats getTCPv4Stats() {
         try (CloseableMibTcpStats stats = new CloseableMibTcpStats()) {
@@ -113,6 +120,10 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             int size = sizePtr.getValue();
             Memory buf = new Memory(size);
             try {
+                // The table can grow between sizing and fetching under connection churn; retry on
+                // ERROR_INSUFFICIENT_BUFFER, but bound the retries so a persistently growing table fails through the
+                // empty-list return rather than looping indefinitely.
+                int retries = 0;
                 do {
                     ret = IPHLP.GetExtendedTcpTable(buf, sizePtr, false, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
                     if (ret == WinError.ERROR_INSUFFICIENT_BUFFER) {
@@ -120,7 +131,7 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         buf.close();
                         buf = new Memory(size);
                     }
-                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER);
+                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER && ++retries <= MAX_BUFFER_RETRIES);
                 if (ret == WinError.ERROR_SUCCESS) {
                     MIB_TCPTABLE_OWNER_PID tcpTable = new MIB_TCPTABLE_OWNER_PID(buf);
                     for (int i = 0; i < tcpTable.dwNumEntries; i++) {
@@ -148,6 +159,10 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             int size = sizePtr.getValue();
             Memory buf = new Memory(size);
             try {
+                // The table can grow between sizing and fetching under connection churn; retry on
+                // ERROR_INSUFFICIENT_BUFFER, but bound the retries so a persistently growing table fails through the
+                // empty-list return rather than looping indefinitely.
+                int retries = 0;
                 do {
                     ret = IPHLP.GetExtendedTcpTable(buf, sizePtr, false, AF_INET6, TCP_TABLE_OWNER_PID_ALL, 0);
                     if (ret == WinError.ERROR_INSUFFICIENT_BUFFER) {
@@ -155,7 +170,7 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         buf.close();
                         buf = new Memory(size);
                     }
-                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER);
+                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER && ++retries <= MAX_BUFFER_RETRIES);
                 if (ret == WinError.ERROR_SUCCESS) {
                     MIB_TCP6TABLE_OWNER_PID tcpTable = new MIB_TCP6TABLE_OWNER_PID(buf);
                     for (int i = 0; i < tcpTable.dwNumEntries; i++) {
@@ -182,6 +197,10 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             int size = sizePtr.getValue();
             Memory buf = new Memory(size);
             try {
+                // The table can grow between sizing and fetching under connection churn; retry on
+                // ERROR_INSUFFICIENT_BUFFER, but bound the retries so a persistently growing table fails through the
+                // empty-list return rather than looping indefinitely.
+                int retries = 0;
                 do {
                     ret = IPHLP.GetExtendedUdpTable(buf, sizePtr, false, AF_INET, UDP_TABLE_OWNER_PID, 0);
                     if (ret == WinError.ERROR_INSUFFICIENT_BUFFER) {
@@ -189,7 +208,7 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         buf.close();
                         buf = new Memory(size);
                     }
-                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER);
+                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER && ++retries <= MAX_BUFFER_RETRIES);
                 if (ret == WinError.ERROR_SUCCESS) {
                     MIB_UDPTABLE_OWNER_PID udpTable = new MIB_UDPTABLE_OWNER_PID(buf);
                     for (int i = 0; i < udpTable.dwNumEntries; i++) {
@@ -215,6 +234,10 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             int size = sizePtr.getValue();
             Memory buf = new Memory(size);
             try {
+                // The table can grow between sizing and fetching under connection churn; retry on
+                // ERROR_INSUFFICIENT_BUFFER, but bound the retries so a persistently growing table fails through the
+                // empty-list return rather than looping indefinitely.
+                int retries = 0;
                 do {
                     ret = IPHLP.GetExtendedUdpTable(buf, sizePtr, false, AF_INET6, UDP_TABLE_OWNER_PID, 0);
                     if (ret == WinError.ERROR_INSUFFICIENT_BUFFER) {
@@ -222,7 +245,7 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
                         buf.close();
                         buf = new Memory(size);
                     }
-                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER);
+                } while (ret == WinError.ERROR_INSUFFICIENT_BUFFER && ++retries <= MAX_BUFFER_RETRIES);
                 if (ret == WinError.ERROR_SUCCESS) {
                     MIB_UDP6TABLE_OWNER_PID udpTable = new MIB_UDP6TABLE_OWNER_PID(buf);
                     for (int i = 0; i < udpTable.dwNumEntries; i++) {
