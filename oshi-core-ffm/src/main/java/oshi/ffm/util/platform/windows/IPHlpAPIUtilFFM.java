@@ -32,18 +32,6 @@ import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readAnsiString;
 import static oshi.software.os.InternetProtocolStats.TcpState;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSED;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSE_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.CLOSING;
-import static oshi.software.os.InternetProtocolStats.TcpState.ESTABLISHED;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_1;
-import static oshi.software.os.InternetProtocolStats.TcpState.FIN_WAIT_2;
-import static oshi.software.os.InternetProtocolStats.TcpState.LAST_ACK;
-import static oshi.software.os.InternetProtocolStats.TcpState.LISTEN;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_RECV;
-import static oshi.software.os.InternetProtocolStats.TcpState.SYN_SENT;
-import static oshi.software.os.InternetProtocolStats.TcpState.TIME_WAIT;
-import static oshi.software.os.InternetProtocolStats.TcpState.UNKNOWN;
 
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
@@ -247,7 +235,8 @@ public final class IPHlpAPIUtilFFM {
 
                 conns.add(new IPConnection("tcp4", ParseUtil.parseIntToIP(localAddr),
                         ParseUtil.bigEndian16ToLittleEndian(localPortBE), ParseUtil.parseIntToIP(remoteAddr),
-                        ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
+                        ParseUtil.bigEndian16ToLittleEndian(remotePortBE), TcpState.fromWindowsMibState(state), 0, 0,
+                        pid));
             }
             return conns;
         }, LOG, LogLevel.DEBUG, "queryTCPv4Connections failed", Collections.emptyList());
@@ -312,7 +301,8 @@ public final class IPHlpAPIUtilFFM {
                         MIB_TCP6ROW_OWNER_PID_LAYOUT.byteOffset(PathElement.groupElement("dwOwningPid")));
 
                 conns.add(new IPConnection("tcp6", localAddr, ParseUtil.bigEndian16ToLittleEndian(localPortBE),
-                        remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE), stateLookup(state), 0, 0, pid));
+                        remoteAddr, ParseUtil.bigEndian16ToLittleEndian(remotePortBE),
+                        TcpState.fromWindowsMibState(state), 0, 0, pid));
             }
             return conns;
         }, LOG, LogLevel.DEBUG, "queryTCPv6Connections failed", Collections.emptyList());
@@ -422,35 +412,6 @@ public final class IPHlpAPIUtilFFM {
             }
             return conns;
         }, LOG, LogLevel.DEBUG, "queryUDPv6Connections failed", Collections.emptyList());
-    }
-
-    private static TcpState stateLookup(int state) {
-        switch (state) {
-            case 1, 12:
-                return CLOSED;
-            case 2:
-                return LISTEN;
-            case 3:
-                return SYN_SENT;
-            case 4:
-                return SYN_RECV;
-            case 5:
-                return ESTABLISHED;
-            case 6:
-                return FIN_WAIT_1;
-            case 7:
-                return FIN_WAIT_2;
-            case 8:
-                return CLOSE_WAIT;
-            case 9:
-                return CLOSING;
-            case 10:
-                return LAST_ACK;
-            case 11:
-                return TIME_WAIT;
-            default:
-                return UNKNOWN;
-        }
     }
 
 }
