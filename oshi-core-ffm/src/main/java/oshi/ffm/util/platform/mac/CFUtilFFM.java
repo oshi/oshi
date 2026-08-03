@@ -88,7 +88,7 @@ public final class CFUtilFFM {
     public static String getString(CFDictionaryRef dict, String key) {
         try (CFStringRef k = CFStringRef.createCFString(key)) {
             MemorySegment v = dict.getValue(k);
-            return v == null || v.equals(MemorySegment.NULL) ? null : new CFStringRef(v).stringValue();
+            return v == null || v.equals(MemorySegment.NULL) ? null : CFStringRef.stringValue(v);
         }
     }
 
@@ -105,7 +105,7 @@ public final class CFUtilFFM {
     public static Long getLong(CFDictionaryRef dict, String key) {
         try (CFStringRef k = CFStringRef.createCFString(key)) {
             MemorySegment v = dict.getValue(k);
-            return v == null || v.equals(MemorySegment.NULL) ? null : new CFNumberRef(v).longValue();
+            return v == null || v.equals(MemorySegment.NULL) ? null : CFNumberRef.longValue(v);
         }
     }
 }
