@@ -10,6 +10,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.linux.LinuxGraphicsCard;
+import oshi.util.gpu.NvmlUtilJNA;
 
 /**
  * JNA-based Linux graphics card with NVML-backed GPU stats.
@@ -33,8 +34,12 @@ final class LinuxGraphicsCardJNA extends LinuxGraphicsCard {
      * @return list of graphics cards
      */
     public static List<GraphicsCard> getGraphicsCards() {
-        return LinuxGraphicsCard
-                .getGraphicsCards(a -> new LinuxGraphicsCardJNA(a.getName(), a.getDeviceId(), a.getVendor(),
-                        a.getVersionInfo(), a.getVram(), a.getDrmDevicePath(), a.getDriverName(), a.getPciBusId()));
+        return LinuxGraphicsCard.getGraphicsCards(a -> new LinuxGraphicsCardJNA(a.getName(), a.getDeviceId(),
+                a.getVendor(), a.getVersionInfo(), vram(a), a.getDrmDevicePath(), a.getDriverName(), a.getPciBusId()));
+    }
+
+    private static long vram(LinuxGraphicsCard.Attrs attrs) {
+        long total = NvmlUtilJNA.getVramTotal(NvmlUtilJNA.findDevice(attrs.getPciBusId()));
+        return total > 0 ? total : attrs.getVram();
     }
 }
