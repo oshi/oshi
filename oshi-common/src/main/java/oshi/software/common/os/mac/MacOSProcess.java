@@ -262,6 +262,11 @@ public abstract class MacOSProcess extends AbstractOSProcess {
                 // environment entry into the argument list.
                 for (int i = 0; i < nargs && offset < limit; i++) {
                     int end = nextNull(procargs, offset, limit);
+                    if (end == limit) {
+                        // Unterminated: the reported size cut through this entry, so what is left is a fragment
+                        // rather than a value the process was given
+                        break;
+                    }
                     args.add(decode(procargs, offset, end));
                     offset = end + 1;
                 }
@@ -274,6 +279,10 @@ public abstract class MacOSProcess extends AbstractOSProcess {
                         break;
                     }
                     int end = nextNull(procargs, offset, limit);
+                    if (end == limit) {
+                        // Unterminated, as above: a truncated value is worse than a missing one
+                        break;
+                    }
                     String entry = decode(procargs, offset, end);
                     int idx = entry.indexOf('=');
                     if (idx > 0) {

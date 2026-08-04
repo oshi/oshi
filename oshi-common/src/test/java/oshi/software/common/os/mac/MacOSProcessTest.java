@@ -144,6 +144,24 @@ class MacOSProcessTest {
         assertThat("arguments", result.getA(), contains(EXEC, "kept"));
     }
 
+    /**
+     * A size that cuts through the middle of an entry leaves it unterminated. The fragment is not a value the process
+     * ever had, so it must be dropped rather than reported as a short argument or a truncated environment value.
+     */
+    @Test
+    void testTruncatedEntriesAreDropped() {
+        // "/usr/bin/foo\0" twice, then "kept\0"; stop 2 bytes into "kept"
+        byte[] argBuf = procargs(3, EXEC, "kept", "cut");
+        Pair<List<String>, Map<String, String>> argResult = MacOSProcess.parseProcArgs(argBuf, argBuf.length - 6);
+        assertThat("partial argument dropped", argResult.getA(), contains(EXEC));
+
+        // nargs=1, so the remaining entry is an environment assignment; stop inside its value
+        byte[] envBuf = procargs(1, EXEC, "HOME=/Users/me");
+        Pair<List<String>, Map<String, String>> envResult = MacOSProcess.parseProcArgs(envBuf, envBuf.length - 5);
+        assertThat("arguments", envResult.getA(), contains(EXEC));
+        assertThat("partial environment value dropped", envResult.getB(), is(anEmptyMap()));
+    }
+
     @Test
     void testUnusableBuffers() {
         byte[] tooShort = { 1, 0, 0 };
