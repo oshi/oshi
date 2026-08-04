@@ -23,15 +23,23 @@ public final class PerfstatProcessJNA {
     }
 
     /** Slack added to the perfstat_process count to absorb new processes between count and fill calls. */
-    private static final int PROC_COUNT_PAD = 10;
+    private static final int PROC_COUNT_PAD = 64;
+
+    /** Bound on re-counting when the padded buffer still filled exactly. */
+    private static final int MAX_BUFFER_RETRIES = 3;
 
     /**
      * Queries perfstat_process for per-process usage statistics.
      * <p>
      * The two-call pattern (count then fill) leaves a window in which a process can spawn between the calls. perfstat
      * returns its array sorted by pid; if we allocate exactly {@code count} entries and a new process appears, the
-     * highest-pid process (often us, the JVM) gets cut off the tail. Pad the allocation by {@value #PROC_COUNT_PAD} to
-     * absorb churn — same pattern as {@code MacOperatingSystemJNA.getThreadCount} (+10).
+     * highest-pid process (often us, the JVM) gets cut off the tail — observed on a busy shared build host as
+     * {@code getProcess(getProcessId())} returning null.
+     * <p>
+     * The allocation is padded by {@value #PROC_COUNT_PAD} to absorb ordinary churn, but padding alone is a guess: a
+     * return equal to the allocation means the buffer filled exactly and the tail may have been dropped, so re-count
+     * and retry up to {@value #MAX_BUFFER_RETRIES} times. After that the result is returned as-is, which is still
+     * better than discarding it.
      *
      * @return an array of usage statistics
      */
@@ -39,27 +47,34 @@ public final class PerfstatProcessJNA {
         perfstat_process_t process = new perfstat_process_t();
         // With null, null, ..., 0, returns total # of elements
         int procCount = PERF.perfstat_process(null, null, process.size(), 0);
-        if (procCount > 0) {
+        for (int attempt = 0; procCount > 0 && attempt <= MAX_BUFFER_RETRIES; attempt++) {
             int padded = procCount + PROC_COUNT_PAD;
             perfstat_process_t[] proct = (perfstat_process_t[]) process.toArray(padded);
             perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""
             int ret = PERF.perfstat_process(firstprocess, proct, process.size(), padded);
-            if (ret > 0) {
-                AixPerfstatProcess[] result = new AixPerfstatProcess[ret];
-                for (int i = 0; i < ret; i++) {
-                    perfstat_process_t stat = proct[i];
-                    AixPerfstatProcess p = new AixPerfstatProcess();
-                    p.pid = stat.pid;
-                    p.num_threads = stat.num_threads;
-                    p.proc_real_mem_data = stat.proc_real_mem_data;
-                    p.proc_real_mem_text = stat.proc_real_mem_text;
-                    p.real_inuse = stat.real_inuse;
-                    p.ucpu_time = stat.ucpu_time;
-                    p.scpu_time = stat.scpu_time;
-                    result[i] = p;
-                }
-                return result;
+            if (ret <= 0) {
+                break;
             }
+            if (ret == padded && attempt < MAX_BUFFER_RETRIES) {
+                // The buffer was filled exactly, so processes beyond it may have been dropped. Re-count and retry
+                // rather than return a list that is silently missing its tail.
+                procCount = PERF.perfstat_process(null, null, process.size(), 0);
+                continue;
+            }
+            AixPerfstatProcess[] result = new AixPerfstatProcess[ret];
+            for (int i = 0; i < ret; i++) {
+                perfstat_process_t stat = proct[i];
+                AixPerfstatProcess p = new AixPerfstatProcess();
+                p.pid = stat.pid;
+                p.num_threads = stat.num_threads;
+                p.proc_real_mem_data = stat.proc_real_mem_data;
+                p.proc_real_mem_text = stat.proc_real_mem_text;
+                p.real_inuse = stat.real_inuse;
+                p.ucpu_time = stat.ucpu_time;
+                p.scpu_time = stat.scpu_time;
+                result[i] = p;
+            }
+            return result;
         }
         return new AixPerfstatProcess[0];
     }
