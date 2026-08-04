@@ -14,7 +14,7 @@
 * [#3578](https://github.com/oshi/oshi/pull/3578): Fix the Windows JNA AMD GPU path reporting a power draw of -1 on Overdrive 6-era Radeon cards. Power draw is read through the Overdrive 6 API but was gated on Overdrive N support, rejecting the cards that implement the call; the Overdrive capability check also ignored the library's `supported` flag - [@dbwiddis](https://github.com/dbwiddis).
 * [#3579](https://github.com/oshi/oshi/pull/3579): Fix the macOS FFM firmware, baseboard, computer system, and CPU manufacturer strings mangling IORegistry byte properties, which are NUL-terminated within a fixed-width buffer. Stripping every NUL and trimming concatenated a multi-string property's entries and discarded significant leading or trailing spaces, where the JNA twin stopped at the first NUL. Add `ParseUtil.decodeNulTerminated` and decode through it on both backends - [@dbwiddis](https://github.com/dbwiddis).
 
-# 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24), 7.4.3 (2027-07-31)
+# 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2026-07-24), 7.4.3 (2026-07-31)
 
 ##### New Features
 
