@@ -15,9 +15,6 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -167,7 +164,7 @@ public final class SessionWtsDataFFM {
                                 host = "Illegal length IP Array";
                             }
                         } else if (addrFamily == AF_INET6) {
-                            int[] ipArray = convertBytesToInts(address);
+                            int[] ipArray = ParseUtil.parseIPv6BytesToIntArray(address);
                             host = ParseUtil.parseUtAddrV6toIP(ipArray);
                         }
                         sessions.add(new OSSession(userName, device, logonTime, host));
@@ -180,13 +177,5 @@ public final class SessionWtsDataFFM {
             // Silently return what we have
         }
         return sessions;
-    }
-
-    private static int[] convertBytesToInts(byte[] address) {
-        IntBuffer intBuf = ByteBuffer.wrap(Arrays.copyOfRange(address, 2, 18)).order(ByteOrder.BIG_ENDIAN)
-                .asIntBuffer();
-        int[] array = new int[intBuf.remaining()];
-        intBuf.get(array);
-        return array;
     }
 }

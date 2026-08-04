@@ -87,17 +87,17 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
         long commitLimit = 0L;
 
         for (String checkLine : procMemInfo) {
-            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+            String[] memorySplit = ParseUtil.whitespaces.split(checkLine, 2);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                     case "SwapTotal:":
-                        swapTotal = parseMeminfo(memorySplit);
+                        swapTotal = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                         break;
                     case "SwapFree:":
-                        swapFree = parseMeminfo(memorySplit);
+                        swapFree = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                         break;
                     case "CommitLimit:":
-                        commitLimit = parseMeminfo(memorySplit);
+                        commitLimit = ParseUtil.parseDecimalMemorySizeToBinary(memorySplit[1]);
                         break;
                     default:
                         // do nothing with other lines
@@ -138,22 +138,5 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
             }
         }
         return new Pair<>(swapPagesIn, swapPagesOut);
-    }
-
-    /**
-     * Parses lines from the display of /proc/meminfo
-     *
-     * @param memorySplit Array of Strings representing the 3 columns of /proc/meminfo
-     * @return value, multiplied by 1024 if kB is specified
-     */
-    private static long parseMeminfo(String[] memorySplit) {
-        if (memorySplit.length < 2) {
-            return 0L;
-        }
-        long memory = ParseUtil.parseLongOrDefault(memorySplit[1], 0L);
-        if (memorySplit.length > 2 && "kB".equals(memorySplit[2])) {
-            memory *= 1024;
-        }
-        return memory;
     }
 }
