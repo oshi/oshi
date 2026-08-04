@@ -151,7 +151,7 @@
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
-        <dependency-check-maven.version>12.2.2</dependency-check-maven.version>
+        <dependency-check-maven.version>13.0.0</dependency-check-maven.version>
         <!-- OWASP dependency-check NVD tuning: treat cached data as fresh for a week (skips updates on a
              warm cache) and ride out NVD API throttling. See the NVD Cache Warmer and Site workflows. -->
         <dependency-check.nvdApiDelay>7500</dependency-check.nvdApiDelay>
