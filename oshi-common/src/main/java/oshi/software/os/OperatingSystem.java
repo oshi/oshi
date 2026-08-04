@@ -254,11 +254,18 @@ public interface OperatingSystem {
 
     /**
      * Gets the current process.
+     * <p>
+     * Unlike {@link #getProcess(int)}, this never returns null: the current process exists by definition, so a failed
+     * lookup is a failed read — a truncated native process list, a denied {@code /proc} entry, a race with the query —
+     * rather than a missing process. When the platform query cannot produce it, a stand-in is returned reporting the
+     * current process ID and a {@link OSProcess.State#RUNNING} state, with the unknown/zero/empty defaults elsewhere.
      *
-     * @return the current process
+     * @return the current process, never null
      */
     default OSProcess getCurrentProcess() {
-        return getProcess(getProcessId());
+        int pid = getProcessId();
+        OSProcess proc = getProcess(pid);
+        return proc == null ? new CurrentProcessStub(pid) : proc;
     }
 
     /**
