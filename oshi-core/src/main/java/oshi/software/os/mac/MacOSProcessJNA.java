@@ -4,7 +4,6 @@
  */
 package oshi.software.os.mac;
 
-import static com.sun.jna.platform.mac.SystemB.INT_SIZE;
 import static com.sun.jna.platform.mac.SystemB.PROC_PIDPATHINFO_MAXSIZE;
 import static com.sun.jna.platform.mac.SystemB.PROC_PIDTASKALLINFO;
 import static com.sun.jna.platform.mac.SystemB.PROC_PIDVNODEPATHINFO;
@@ -13,9 +12,7 @@ import static oshi.jna.platform.unix.CLibrary.RUSAGE_SELF;
 import static oshi.software.os.OSProcess.State.INVALID;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -89,12 +86,6 @@ public class MacOSProcessJNA extends MacOSProcess {
     @Override
     protected Pair<List<String>, Map<String, String>> queryArgsAndEnvironment() {
         int pid = getProcessID();
-        // Set up return objects
-        List<String> args = new ArrayList<>();
-        // API does not specify any particular order of entries, but it is reasonable to
-        // maintain whatever order the OS provided to the end user
-        Map<String, String> env = new LinkedHashMap<>();
-
         // Get command line via sysctl
         int[] mib = new int[3];
         mib[0] = 1; // CTL_KERN
@@ -106,54 +97,17 @@ public class MacOSProcessJNA extends MacOSProcess {
             size_t.ByReference size = new size_t.ByReference(ARGMAX);
             // Fetch arguments
             if (0 == SystemB.INSTANCE.sysctl(mib, mib.length, procargs, size, null, size_t.ZERO)) {
-                // Procargs contains an int representing total # of args, followed by a
-                // null-terminated execpath string and then the arguments, each
-                // null-terminated (possible multiple consecutive nulls),
-                // The execpath string is also the first arg.
-                // Following this is an int representing total # of env, followed by
-                // null-terminated envs in similar format
-                int nargs = procargs.getInt(0);
-                // Sanity check
-                if (nargs > 0 && nargs <= 1024) {
-                    // Skip first int (containing value of nargs)
-                    long offset = INT_SIZE;
-                    // Skip exec_command, as
-                    offset += procargs.getString(offset).length();
-                    // Iterate character by character using offset
-                    // Build each arg and add to list
-                    while (offset < size.longValue()) {
-                        // Advance through additional nulls
-                        while (procargs.getByte(offset) == 0) {
-                            if (++offset >= size.longValue()) {
-                                break;
-                            }
-                        }
-                        // Grab a string. This should go until the null terminator
-                        String arg = procargs.getString(offset);
-                        if (nargs-- > 0) {
-                            // If we havent found nargs yet, it's an arg
-                            args.add(arg);
-                        } else {
-                            // otherwise it's an env
-                            int idx = arg.indexOf('=');
-                            if (idx > 0) {
-                                env.put(arg.substring(0, idx), arg.substring(idx + 1));
-                            }
-                        }
-                        // Advance offset to next null
-                        offset += arg.length();
-                    }
-                }
-            } else {
-                // Don't warn for pid 0
-                if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
-                    LOG.warn(
-                            "Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
-                            pid, Native.getLastError());
-                }
+                int len = (int) size.longValue();
+                return parseProcArgs(procargs.getByteArray(0, len), len);
+            }
+            // Don't warn for pid 0
+            if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
+                LOG.warn(
+                        "Failed sysctl call for process arguments (kern.procargs2), process {} may not exist. Error code: {}",
+                        pid, Native.getLastError());
             }
         }
-        return new Pair<>(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));
+        return new Pair<>(Collections.emptyList(), Collections.emptyMap());
     }
 
     @Override
