@@ -232,9 +232,9 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     /**
      * Parses the buffer returned by the {@code KERN_PROCARGS2} sysctl into the process arguments and environment.
      * <p>
-     * The buffer holds an {@code int} argument count, a null-terminated {@code exec_path} string, then that many
-     * null-terminated arguments (the first of which repeats {@code exec_path}), then the null-terminated environment
-     * entries, with arbitrary null padding between sections.
+     * The buffer holds an {@code int} argument count, a null-terminated {@code exec_path} string, null padding, then
+     * exactly that many contiguous null-terminated arguments (the first of which repeats {@code exec_path}), then the
+     * null-terminated environment entries.
      *
      * @param procargs the raw sysctl buffer
      * @param size     the number of valid bytes in {@code procargs}, as reported by the sysctl
@@ -248,36 +248,51 @@ public abstract class MacOSProcess extends AbstractOSProcess {
         int limit = Math.min(size, procargs.length);
         if (limit > Integer.BYTES) {
             int nargs = (int) ParseUtil.byteArrayToLong(procargs, Integer.BYTES, false);
-            // Sanity check
-            if (nargs > 0 && nargs <= 1024) {
-                // Skip the leading int, then the exec_path string which the first argument repeats
+            // Sanity check. Every argument occupies at least its null terminator, so the bytes remaining after the
+            // count bound how many there can be. A process may legitimately have many thousands of arguments.
+            if (nargs > 0 && nargs <= limit - Integer.BYTES) {
+                // Skip the leading int and the exec_path string, which the first argument repeats, then the padding
+                // between exec_path and the arguments
                 int offset = nextNull(procargs, Integer.BYTES, limit);
+                while (offset < limit && procargs[offset] == 0) {
+                    offset++;
+                }
+                // The arguments are contiguous, so consume exactly nargs of them rather than treating a null as
+                // padding: an empty argument is a legal argv entry, and skipping it would both drop it and pull an
+                // environment entry into the argument list.
+                for (int i = 0; i < nargs && offset < limit; i++) {
+                    int end = nextNull(procargs, offset, limit);
+                    args.add(decode(procargs, offset, end));
+                    offset = end + 1;
+                }
+                // The environment entries follow, separated by nulls
                 while (offset < limit) {
-                    // Advance through the null padding between entries
                     while (offset < limit && procargs[offset] == 0) {
                         offset++;
                     }
                     if (offset >= limit) {
                         break;
                     }
-                    // Decode up to the null terminator. Offsets must advance by the entry's length in bytes: a
-                    // multi-byte character makes that longer than the decoded String's length in chars, and
-                    // advancing by the char count lands mid-character and corrupts every entry that follows.
                     int end = nextNull(procargs, offset, limit);
-                    String entry = new String(procargs, offset, end - offset, StandardCharsets.UTF_8);
-                    if (nargs-- > 0) {
-                        args.add(entry);
-                    } else {
-                        int idx = entry.indexOf('=');
-                        if (idx > 0) {
-                            env.put(entry.substring(0, idx), entry.substring(idx + 1));
-                        }
+                    String entry = decode(procargs, offset, end);
+                    int idx = entry.indexOf('=');
+                    if (idx > 0) {
+                        env.put(entry.substring(0, idx), entry.substring(idx + 1));
                     }
                     offset = end;
                 }
             }
         }
         return new Pair<>(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));
+    }
+
+    /**
+     * Decodes the bytes in {@code [from, to)} as UTF-8. The range must be delimited by scanning for the null
+     * terminator: a multi-byte character is longer in bytes than the decoded String is in chars, so advancing an offset
+     * by the char count lands mid-character and corrupts every entry that follows.
+     */
+    private static String decode(byte[] buf, int from, int to) {
+        return new String(buf, from, to - from, StandardCharsets.UTF_8);
     }
 
     /**
