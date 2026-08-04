@@ -57,9 +57,14 @@ public final class PerfstatProcessJNA {
             }
             if (ret == padded && attempt < MAX_BUFFER_RETRIES) {
                 // The buffer was filled exactly, so processes beyond it may have been dropped. Re-count and retry
-                // rather than return a list that is silently missing its tail.
-                procCount = PERF.perfstat_process(null, null, process.size(), 0);
-                continue;
+                // rather than return a list that is silently missing its tail. If the re-count itself fails there is
+                // nothing better to try, so keep the full buffer already read rather than discarding it for an empty
+                // result.
+                int recount = PERF.perfstat_process(null, null, process.size(), 0);
+                if (recount > 0) {
+                    procCount = recount;
+                    continue;
+                }
             }
             AixPerfstatProcess[] result = new AixPerfstatProcess[ret];
             for (int i = 0; i < ret; i++) {
