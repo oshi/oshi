@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
@@ -66,11 +67,9 @@ public abstract class MacComputerSystem extends AbstractComputerSystem {
         Quartet<String, String, String, String> result = ioKitProvider().withMatchingService("IOPlatformExpertDevice",
                 entry -> {
                     byte[] data = entry.getByteArrayProperty("manufacturer");
-                    String mfr = data != null ? new String(data, StandardCharsets.UTF_8).replace("\0", "").trim()
-                            : null;
+                    String mfr = data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
                     data = entry.getByteArrayProperty("model");
-                    String mdl = data != null ? new String(data, StandardCharsets.UTF_8).replace("\0", "").trim()
-                            : null;
+                    String mdl = data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
                     String sn = entry.getStringProperty("IOPlatformSerialNumber");
                     String uuid = entry.getStringProperty("IOPlatformUUID");
                     return new Quartet<>(mfr, mdl, sn, uuid);

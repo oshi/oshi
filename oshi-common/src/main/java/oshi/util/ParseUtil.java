@@ -1599,6 +1599,27 @@ public final class ParseUtil {
         return 0;
     }
 
+    /**
+     * Decodes a NUL-terminated byte array to a String, stopping at the first NUL byte. This matches the behavior of
+     * JNA's {@code Native.toString(byte[], Charset)} and provides an equivalent for use in non-JNA code (FFM, pure
+     * Java). If the array contains no NUL, the entire array is decoded.
+     *
+     * @param bytes   the byte array to decode
+     * @param charset the charset to use for decoding
+     * @return the decoded string up to (but not including) the first NUL byte, or an empty string if the array is null
+     *         or empty
+     */
+    public static String decodeNulTerminated(byte[] bytes, Charset charset) {
+        if (bytes == null || bytes.length == 0) {
+            return "";
+        }
+        int len = 0;
+        while (len < bytes.length && bytes[len] != 0) {
+            len++;
+        }
+        return new String(bytes, 0, len, charset);
+    }
+
     private static LocalDateTime parseWithDefaultYear(String dateString, String datePattern, int year) {
         try {
             // STRICT, because the default SMART style silently clamps February 29 to the 28th in a non-leap year
