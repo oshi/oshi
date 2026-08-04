@@ -60,6 +60,10 @@ public final class ParseUtil {
     /*
      * Used for matching
      */
+    // The '.' before the decimals is deliberately unescaped, and must stay that way. Matching any separator pulls a
+    // malformed number into the value group whole ("2,40" from "2,40GHz"), where parseHertz rejects it and returns
+    // the documented -1. Escaping it instead lets the match re-anchor on a fragment, so "2 40GHz" would be reported
+    // as 40 GHz rather than as unparseable. See testParseHertzNonDecimalSeparator.
     private static final Pattern HERTZ_PATTERN = Pattern.compile("(\\d+(.\\d+)?) ?([kKMGT]?Hz).*");
     private static final Pattern BYTES_PATTERN = Pattern.compile("(\\d+) ?([kKMGT]?B?).*");
     private static final Pattern UNITS_PATTERN = Pattern.compile("(\\d+(.\\d+)?)[\\s]?([kKMGT])?");
@@ -212,10 +216,10 @@ public final class ParseUtil {
     public static long parseHertz(String hertz) {
         Matcher matcher = HERTZ_PATTERN.matcher(hertz.trim());
         if (matcher.find()) {
-            // Regexp enforces #(.#) format so no test for NFE required
-            double value = Double.valueOf(matcher.group(1)) * multipliers.getOrDefault(matcher.group(3), -1L);
-            if (value >= 0d) {
-                return (long) value;
+            double value = parseDoubleOrDefault(matcher.group(1), -1d);
+            long multiplier = multipliers.getOrDefault(matcher.group(3), -1L);
+            if (value >= 0d && multiplier > 0L) {
+                return (long) (value * multiplier);
             }
         }
         return -1L;
