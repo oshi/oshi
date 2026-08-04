@@ -11,6 +11,7 @@
 * [#3573](https://github.com/oshi/oshi/pull/3573): Report Linux VRAM from NVML rather than summing the prefetchable PCI BARs, which measures the card's address aperture (capped at 256 MiB without Resizable BAR) instead of its memory size - [@Krillsson](https://github.com/Krillsson).
 * [#3574](https://github.com/oshi/oshi/pull/3574): Never report a decrease in a BSD process's or thread's kernel or user time across `updateAttributes()`. DragonFly's `ps` `TIME` column sums only the currently live LWPs, so an exiting thread takes its accumulated CPU time out of the process total - [@dbwiddis](https://github.com/dbwiddis).
 * [#3577](https://github.com/oshi/oshi/pull/3577): Fix macOS `OSProcess#getArguments()` and `getEnvironmentVariables()` corrupting every entry after one containing a non-ASCII character. The `KERN_PROCARGS2` parser advanced its offset by each entry's length in characters rather than bytes, landing mid-character and returning garbage in place of the remaining arguments - [@dbwiddis](https://github.com/dbwiddis).
+* [#3578](https://github.com/oshi/oshi/pull/3578): Fix the Windows JNA AMD GPU path reporting a power draw of -1 on Overdrive 6-era Radeon cards. Power draw is read through the Overdrive 6 API but was gated on Overdrive N support, rejecting the cards that implement the call; the Overdrive capability check also ignored the library's `supported` flag - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2027-07-24), 7.4.3 (2027-07-31)
 
