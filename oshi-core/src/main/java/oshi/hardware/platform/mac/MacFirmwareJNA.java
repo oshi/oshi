@@ -6,7 +6,6 @@ package oshi.hardware.platform.mac;
 
 import java.nio.charset.StandardCharsets;
 
-import com.sun.jna.Native;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -14,6 +13,7 @@ import com.sun.jna.platform.mac.IOKitUtil;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quintet;
 
@@ -47,27 +47,30 @@ final class MacFirmwareJNA extends MacFirmware {
                                         case "rom":
                                             data = entry.getByteArrayProperty("vendor");
                                             if (data != null) {
-                                                manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                                                manufacturer = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             data = entry.getByteArrayProperty("version");
                                             if (data != null) {
-                                                version = Native.toString(data, StandardCharsets.UTF_8);
+                                                version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                                             }
                                             data = entry.getByteArrayProperty("release-date");
                                             if (data != null) {
-                                                releaseDate = Native.toString(data, StandardCharsets.UTF_8);
+                                                releaseDate = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "chosen":
                                             data = entry.getByteArrayProperty("booter-name");
                                             if (data != null) {
-                                                name = Native.toString(data, StandardCharsets.UTF_8);
+                                                name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "efi":
                                             data = entry.getByteArrayProperty("firmware-abi");
                                             if (data != null) {
-                                                description = Native.toString(data, StandardCharsets.UTF_8);
+                                                description = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             break;
                                         default:
@@ -89,19 +92,19 @@ final class MacFirmwareJNA extends MacFirmware {
                 if (Util.isBlank(manufacturer)) {
                     data = platformExpert.getByteArrayProperty("manufacturer");
                     if (data != null) {
-                        manufacturer = Native.toString(data, StandardCharsets.UTF_8);
+                        manufacturer = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(version)) {
                     data = platformExpert.getByteArrayProperty("target-type");
                     if (data != null) {
-                        version = Native.toString(data, StandardCharsets.UTF_8);
+                        version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(name)) {
                     data = platformExpert.getByteArrayProperty("device_type");
                     if (data != null) {
-                        name = Native.toString(data, StandardCharsets.UTF_8);
+                        name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
             } finally {

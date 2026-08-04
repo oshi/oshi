@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
@@ -64,13 +65,13 @@ public abstract class MacBaseboard extends AbstractBaseboard {
     protected Quartet<String, String, String, String> queryPlatform() {
         Quartet<String, String, String, String> result = ioKitProvider().withMatchingService("IOPlatformExpertDevice",
                 entry -> {
-                    String mfr = bytesToString(entry.getByteArrayProperty("manufacturer"));
-                    String mdl = bytesToString(entry.getByteArrayProperty("board-id"));
+                    String mfr = decodeProperty(entry.getByteArrayProperty("manufacturer"));
+                    String mdl = decodeProperty(entry.getByteArrayProperty("board-id"));
                     if (Util.isBlank(mdl)) {
-                        mdl = bytesToString(entry.getByteArrayProperty("model-number"));
+                        mdl = decodeProperty(entry.getByteArrayProperty("model-number"));
                     }
-                    String ver = bytesToString(entry.getByteArrayProperty("version"));
-                    String sn = bytesToString(entry.getByteArrayProperty("mlb-serial-number"));
+                    String ver = decodeProperty(entry.getByteArrayProperty("version"));
+                    String sn = decodeProperty(entry.getByteArrayProperty("mlb-serial-number"));
                     if (Util.isBlank(sn)) {
                         sn = entry.getStringProperty("IOPlatformSerialNumber");
                     }
@@ -85,7 +86,7 @@ public abstract class MacBaseboard extends AbstractBaseboard {
                 Util.isBlank(result.getD()) ? Constants.UNKNOWN : result.getD());
     }
 
-    private static String bytesToString(byte[] data) {
-        return data != null ? new String(data, StandardCharsets.UTF_8).replace("\0", "").trim() : null;
+    private static String decodeProperty(byte[] data) {
+        return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
     }
 }

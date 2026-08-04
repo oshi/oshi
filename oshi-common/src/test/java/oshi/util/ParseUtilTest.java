@@ -1063,4 +1063,30 @@ class ParseUtilTest {
         assertThat(ParseUtil.decodeLongOrDefault("notanumber", -1L), is(-1L));
         assertThat(ParseUtil.decodeLongOrDefault("0x7FFFFFFFFFFFFFFF", -1L), is(Long.MAX_VALUE));
     }
+
+    @Test
+    void testDecodeNulTerminated() {
+        // Single NUL-terminated string
+        assertThat(
+                ParseUtil.decodeNulTerminated("Apple Inc.\0".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
+                is("Apple Inc."));
+        // NUL-padded
+        assertThat(ParseUtil.decodeNulTerminated("Apple Inc.\0\0\0".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8), is("Apple Inc."));
+        // Multi-string (IORegistry "compatible" style): stops at first NUL
+        assertThat(ParseUtil.decodeNulTerminated("apple,t8103\0arm,v8\0".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8), is("apple,t8103"));
+        // No NUL — decodes entire array
+        assertThat(ParseUtil.decodeNulTerminated("hello".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
+                is("hello"));
+        // Leading NUL → empty
+        assertThat(ParseUtil.decodeNulTerminated("\0trailing".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8),
+                is(""));
+        // Null and empty arrays
+        assertThat(ParseUtil.decodeNulTerminated(null, StandardCharsets.UTF_8), is(""));
+        assertThat(ParseUtil.decodeNulTerminated(new byte[0], StandardCharsets.UTF_8), is(""));
+        // US_ASCII variant
+        assertThat(ParseUtil.decodeNulTerminated("test\0data".getBytes(StandardCharsets.US_ASCII),
+                StandardCharsets.US_ASCII), is("test"));
+    }
 }

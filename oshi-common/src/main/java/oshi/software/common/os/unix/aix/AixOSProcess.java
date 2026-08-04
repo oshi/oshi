@@ -156,27 +156,13 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
         } else {
             this.privateResidentMemory = this.residentSetSize;
         }
-        this.commandLineBackup = nulTerminatedToString(info.pr_psargs);
+        this.commandLineBackup = ParseUtil.decodeNulTerminated(info.pr_psargs, StandardCharsets.US_ASCII);
         this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (this.name.isEmpty()) {
-            this.name = nulTerminatedToString(info.pr_fname);
+            this.name = ParseUtil.decodeNulTerminated(info.pr_fname, StandardCharsets.US_ASCII);
         }
         return true;
-    }
-
-    /**
-     * Decodes a NUL-terminated byte slice as US-ASCII. Mirrors JNA's {@code Native.toString(byte[])}.
-     *
-     * @param bytes a byte array possibly containing a trailing NUL
-     * @return decoded string
-     */
-    private static String nulTerminatedToString(byte[] bytes) {
-        int len = 0;
-        while (len < bytes.length && bytes[len] != 0) {
-            len++;
-        }
-        return new String(bytes, 0, len, StandardCharsets.US_ASCII);
     }
 
     /**

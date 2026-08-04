@@ -155,7 +155,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     protected String platformExpert() {
         String manufacturer = ioKitProvider().withMatchingService("IOPlatformExpertDevice", entry -> {
             byte[] data = entry.getByteArrayProperty("manufacturer");
-            return data != null ? new String(data, StandardCharsets.UTF_8).replace("\0", "").trim() : null;
+            return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
         });
         return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
     }

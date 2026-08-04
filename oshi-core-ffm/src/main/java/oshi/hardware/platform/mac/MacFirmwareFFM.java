@@ -12,6 +12,7 @@ import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quintet;
 
@@ -44,27 +45,30 @@ final class MacFirmwareFFM extends MacFirmware {
                                         case "rom":
                                             byte[] data = current.getByteArrayProperty("vendor");
                                             if (data != null) {
-                                                manufacturer = toUtf8(data);
+                                                manufacturer = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             data = current.getByteArrayProperty("version");
                                             if (data != null) {
-                                                version = toUtf8(data);
+                                                version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                                             }
                                             data = current.getByteArrayProperty("release-date");
                                             if (data != null) {
-                                                releaseDate = toUtf8(data);
+                                                releaseDate = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "chosen":
                                             data = current.getByteArrayProperty("booter-name");
                                             if (data != null) {
-                                                name = toUtf8(data);
+                                                name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                                             }
                                             break;
                                         case "efi":
                                             data = current.getByteArrayProperty("firmware-abi");
                                             if (data != null) {
-                                                description = toUtf8(data);
+                                                description = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
                                             }
                                             break;
                                         default:
@@ -82,19 +86,19 @@ final class MacFirmwareFFM extends MacFirmware {
                 if (Util.isBlank(manufacturer)) {
                     byte[] data = platformExpert.getByteArrayProperty("manufacturer");
                     if (data != null) {
-                        manufacturer = toUtf8(data);
+                        manufacturer = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(version)) {
                     byte[] data = platformExpert.getByteArrayProperty("target-type");
                     if (data != null) {
-                        version = toUtf8(data);
+                        version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
                 if (Util.isBlank(name)) {
                     byte[] data = platformExpert.getByteArrayProperty("device_type");
                     if (data != null) {
-                        name = toUtf8(data);
+                        name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                     }
                 }
             }
@@ -106,7 +110,4 @@ final class MacFirmwareFFM extends MacFirmware {
                 Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
     }
 
-    private static String toUtf8(byte[] data) {
-        return new String(data, StandardCharsets.UTF_8).trim().replace("\0", "");
-    }
 }
