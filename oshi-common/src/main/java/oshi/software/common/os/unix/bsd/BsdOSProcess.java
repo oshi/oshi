@@ -174,6 +174,10 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
      * @param psMap the parsed {@code ps} columns for this process
      * @return {@code true} once the attributes are populated
      */
+    // S3078: the monotonic() clamps read and write a volatile long, but this method makes ~20 unsynchronized
+    // volatile writes and OSProcess documents that concurrent updateAttributes() callers must synchronize
+    // externally. Both racing writers only ever raise the value, so a lost clamp keeps a real ps reading.
+    @SuppressWarnings("java:S3078")
     protected boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput(psMap.get(BsdPsKeyword.STATE).charAt(0));
