@@ -768,6 +768,27 @@ class ParseUtilTest {
     }
 
     @Test
+    void testParseIPv6BytesToIntArray() {
+        // WTS_CLIENT_ADDRESS Address member: 2 bytes of padding, then 16 bytes of big-endian IPv6, then trailing bytes
+        byte[] address = new byte[20];
+        byte[] v6Bytes = { 0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03,
+                0x70, 0x73, 0x34 };
+        System.arraycopy(v6Bytes, 0, address, 2, 16);
+        int[] parsed = ParseUtil.parseIPv6BytesToIntArray(address);
+        assertThat("Should decode to 4 ints", parsed.length, is(4));
+        assertThat("Round trip through parseUtAddrV6toIP failed", ParseUtil.parseUtAddrV6toIP(parsed),
+                is("2001:db8:85a3::8a2e:370:7334"));
+        // All zeros
+        assertThat("Zero address failed", ParseUtil.parseUtAddrV6toIP(ParseUtil.parseIPv6BytesToIntArray(new byte[20])),
+                is("::"));
+        // Exactly 18 bytes is sufficient
+        assertThat("18-byte array should parse", ParseUtil.parseIPv6BytesToIntArray(new byte[18]).length, is(4));
+        // Too short, and null
+        assertThrows(IllegalArgumentException.class, () -> ParseUtil.parseIPv6BytesToIntArray(new byte[17]));
+        assertThrows(IllegalArgumentException.class, () -> ParseUtil.parseIPv6BytesToIntArray(null));
+    }
+
+    @Test
     void testHexStringToInt() {
         assertThat("Parsing ff failed", ParseUtil.hexStringToInt("ff", 0), is(255));
         assertThat("Parsing 830f53a0 failed", ParseUtil.hexStringToInt("830f53a0", 0), is(-2096147552));

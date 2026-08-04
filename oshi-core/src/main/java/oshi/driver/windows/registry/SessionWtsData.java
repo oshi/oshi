@@ -6,9 +6,6 @@ package oshi.driver.windows.registry;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -138,7 +135,7 @@ public final class SessionWtsData {
                                             }
                                         } else if (addr.AddressFamily == IPHlpAPI.AF_INET6) {
                                             // Get ints for address parsing
-                                            int[] ipArray = convertBytesToInts(addr.Address);
+                                            int[] ipArray = ParseUtil.parseIPv6BytesToIntArray(addr.Address);
                                             host = ParseUtil.parseUtAddrV6toIP(ipArray);
                                         }
                                         sessions.add(new OSSession(userName, device, logonTime, host));
@@ -155,20 +152,4 @@ public final class SessionWtsData {
         return sessions;
     }
 
-    /**
-     * Per WTS_INFO_CLASS docs, the IP address is offset by two bytes from the start of the Address member of the
-     * WTS_CLIENT_ADDRESS structure. Also contrary to docs, IPv4 is not a null terminated string.
-     * <p>
-     * This method converts the byte[20] to an int[4] parseable by existing code
-     *
-     * @param address The 20-byte array from the WTS_CLIENT_ADDRESS structure
-     * @return A 4-int array for {@link ParseUtil#parseUtAddrV6toIP}
-     */
-    private static int[] convertBytesToInts(byte[] address) {
-        IntBuffer intBuf = ByteBuffer.wrap(Arrays.copyOfRange(address, 2, 18)).order(ByteOrder.BIG_ENDIAN)
-                .asIntBuffer();
-        int[] array = new int[intBuf.remaining()];
-        intBuf.get(array);
-        return array;
-    }
 }

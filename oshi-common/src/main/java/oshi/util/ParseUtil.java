@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -1222,6 +1223,29 @@ public final class ParseUtil {
         // 20480 = 0x5000 should be 0x0050 = 80
         // 47873 = 0xBB01 should be 0x01BB = 443
         return port >> 8 & 0xff | port << 8 & 0xff00;
+    }
+
+    /**
+     * Converts the 16 bytes of an IPv6 address, offset two bytes into the given array, to the 4-element int array
+     * expected by {@link #parseUtAddrV6toIP}.
+     * <p>
+     * Per the {@code WTS_INFO_CLASS} docs, the IP address is offset by two bytes from the start of the {@code Address}
+     * member of the {@code WTS_CLIENT_ADDRESS} structure.
+     *
+     * @param address a byte array holding a big-endian IPv6 address in bytes 2 through 17, such as the 20-byte
+     *                {@code WTS_CLIENT_ADDRESS} {@code Address} member
+     * @return a 4-element int array for {@link #parseUtAddrV6toIP}
+     * @throws IllegalArgumentException if the array holds fewer than 18 bytes
+     */
+    public static int[] parseIPv6BytesToIntArray(byte[] address) {
+        if (address == null || address.length < 18) {
+            throw new IllegalArgumentException("address must have at least 18 elements");
+        }
+        IntBuffer intBuf = ByteBuffer.wrap(Arrays.copyOfRange(address, 2, 18)).order(ByteOrder.BIG_ENDIAN)
+                .asIntBuffer();
+        int[] array = new int[intBuf.remaining()];
+        intBuf.get(array);
+        return array;
     }
 
     /**
