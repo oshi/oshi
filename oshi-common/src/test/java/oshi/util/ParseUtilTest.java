@@ -122,6 +122,24 @@ class ParseUtilTest {
     }
 
     /**
+     * A number whose decimals are introduced by something other than a decimal point is not parseable, and the
+     * documented -1 is the answer. This used to throw NumberFormatException instead.
+     * <p>
+     * These cases also pin the pattern's deliberately unescaped {@code .}, which matches any separator and so captures
+     * the malformed number whole for the parser to reject. Escaping it would let the match re-anchor on a fragment and
+     * report "2 40GHz" as a 40 GHz processor.
+     */
+    @Test
+    void testParseHertzNonDecimalSeparator() {
+        assertThat("comma decimal separator", ParseUtil.parseHertz("2,40GHz"), is(-1L));
+        assertThat("comma separator in a CPU name", ParseUtil.parseHertz("Intel Core i7 @ 2,40GHz"), is(-1L));
+        assertThat("space separator", ParseUtil.parseHertz("2 40GHz"), is(-1L));
+        assertThat("letter separator", ParseUtil.parseHertz("2X00MHz"), is(-1L));
+        assertThat("still parses a decimal point", ParseUtil.parseHertz("Intel Core i7 @ 2.40GHz"), is(2_400_000_000L));
+        assertThat("still parses without a decimal", ParseUtil.parseHertz("Some CPU @ 3GHz"), is(3_000_000_000L));
+    }
+
+    /**
      * Test parse string.
      */
     @Test
