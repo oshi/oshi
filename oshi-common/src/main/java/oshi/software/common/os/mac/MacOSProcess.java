@@ -13,6 +13,10 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -23,6 +27,7 @@ import oshi.driver.common.mac.ThreadInfo;
 import oshi.software.common.AbstractOSProcess;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -222,6 +227,68 @@ public abstract class MacOSProcess extends AbstractOSProcess {
             default:
                 return OTHER;
         }
+    }
+
+    /**
+     * Parses the buffer returned by the {@code KERN_PROCARGS2} sysctl into the process arguments and environment.
+     * <p>
+     * The buffer holds an {@code int} argument count, a null-terminated {@code exec_path} string, then that many
+     * null-terminated arguments (the first of which repeats {@code exec_path}), then the null-terminated environment
+     * entries, with arbitrary null padding between sections.
+     *
+     * @param procargs the raw sysctl buffer
+     * @param size     the number of valid bytes in {@code procargs}, as reported by the sysctl
+     * @return a pair of the argument list and the environment map, both empty if the buffer is unusable
+     */
+    protected static Pair<List<String>, Map<String, String>> parseProcArgs(byte[] procargs, int size) {
+        List<String> args = new ArrayList<>();
+        // API does not specify any particular order of entries, but it is reasonable to
+        // maintain whatever order the OS provided to the end user
+        Map<String, String> env = new LinkedHashMap<>();
+        int limit = Math.min(size, procargs.length);
+        if (limit > Integer.BYTES) {
+            int nargs = (int) ParseUtil.byteArrayToLong(procargs, Integer.BYTES, false);
+            // Sanity check
+            if (nargs > 0 && nargs <= 1024) {
+                // Skip the leading int, then the exec_path string which the first argument repeats
+                int offset = nextNull(procargs, Integer.BYTES, limit);
+                while (offset < limit) {
+                    // Advance through the null padding between entries
+                    while (offset < limit && procargs[offset] == 0) {
+                        offset++;
+                    }
+                    if (offset >= limit) {
+                        break;
+                    }
+                    // Decode up to the null terminator. Offsets must advance by the entry's length in bytes: a
+                    // multi-byte character makes that longer than the decoded String's length in chars, and
+                    // advancing by the char count lands mid-character and corrupts every entry that follows.
+                    int end = nextNull(procargs, offset, limit);
+                    String entry = new String(procargs, offset, end - offset, StandardCharsets.UTF_8);
+                    if (nargs-- > 0) {
+                        args.add(entry);
+                    } else {
+                        int idx = entry.indexOf('=');
+                        if (idx > 0) {
+                            env.put(entry.substring(0, idx), entry.substring(idx + 1));
+                        }
+                    }
+                    offset = end;
+                }
+            }
+        }
+        return new Pair<>(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));
+    }
+
+    /**
+     * Returns the index of the next null byte at or after {@code from}, or {@code limit} if there is none.
+     */
+    private static int nextNull(byte[] buf, int from, int limit) {
+        int idx = from;
+        while (idx < limit && buf[idx] != 0) {
+            idx++;
+        }
+        return idx;
     }
 
     /**

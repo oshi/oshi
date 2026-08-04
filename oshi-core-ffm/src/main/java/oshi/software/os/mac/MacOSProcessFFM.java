@@ -67,9 +67,7 @@ import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -135,12 +133,6 @@ public class MacOSProcessFFM extends MacOSProcess {
     @Override
     protected Pair<List<String>, Map<String, String>> queryArgsAndEnvironment() {
         int pid = getProcessID();
-        // Set up return objects
-        List<String> args = new ArrayList<>();
-        // API does not specify any particular order of entries, but it is reasonable to
-        // maintain whatever order the OS provided to the end user
-        Map<String, String> env = new LinkedHashMap<>();
-
         // Get command line via sysctl
         int[] mib = { 1, 49, pid }; // CTL_KERN, KERN_PROCARGS2, pid
         try (Arena arena = Arena.ofConfined()) {
@@ -149,56 +141,15 @@ public class MacOSProcessFFM extends MacOSProcess {
 
             long size = sysctl(mib, procargs);
             if (size > 0) {
-                // Procargs contains an int representing total # of args, followed by a
-                // null-terminated execpath string and then the arguments, each
-                // null-terminated (possible multiple consecutive nulls),
-                // The execpath string is also the first arg.
-                // Following this is an int representing total # of env, followed by
-                // null-terminated envs in similar format
-                int nargs = procargs.get(JAVA_INT, 0);
-                // Sanity check
-                if (nargs > 0 && nargs <= 1024) {
-                    // Skip first int (containing value of nargs)
-                    long offset = Integer.BYTES;
-                    // Skip exec_command
-                    offset += procargs.getString(offset).length();
-                    // Iterate character by character using offset
-                    // Build each arg and add to list
-                    while (offset < size) {
-                        // Skip null bytes
-                        while (offset < size && procargs.get(JAVA_BYTE, offset) == 0) {
-                            offset++;
-                        }
-                        if (offset >= size) {
-                            break;
-                        }
-                        // Read string until null terminator
-                        String arg = procargs.getString(offset);
-                        if (arg.isEmpty()) {
-                            break;
-                        }
-                        if (nargs-- > 0) {
-                            // Still processing arguments
-                            args.add(arg);
-                        } else {
-                            // Processing environment variables
-                            int idx = arg.indexOf('=');
-                            if (idx > 0) {
-                                env.put(arg.substring(0, idx), arg.substring(idx + 1));
-                            }
-                        }
-                        offset += arg.length() + 1; // +1 for null terminator
-                    }
-                }
-            } else {
-                // Don't warn for pid 0
-                if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
-                    LOG.warn("Failed sysctl call for process arguments (kern.procargs2), process {} may not exist.",
-                            pid);
-                }
+                int len = (int) size;
+                return parseProcArgs(procargs.asSlice(0, len).toArray(JAVA_BYTE), len);
+            }
+            // Don't warn for pid 0
+            if (pid > 0 && LOG_MAC_SYSCTL_WARNING) {
+                LOG.warn("Failed sysctl call for process arguments (kern.procargs2), process {} may not exist.", pid);
             }
         }
-        return new Pair<>(Collections.unmodifiableList(args), Collections.unmodifiableMap(env));
+        return new Pair<>(Collections.emptyList(), Collections.emptyMap());
     }
 
     @Override
