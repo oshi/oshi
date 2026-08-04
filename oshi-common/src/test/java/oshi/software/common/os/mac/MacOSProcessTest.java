@@ -152,7 +152,7 @@ class MacOSProcessTest {
     void testTruncatedEntriesAreDropped() {
         // "/usr/bin/foo\0" twice, then "kept\0"; stop 2 bytes into "kept"
         byte[] argBuf = procargs(3, EXEC, "kept", "cut");
-        Pair<List<String>, Map<String, String>> argResult = MacOSProcess.parseProcArgs(argBuf, argBuf.length - 6);
+        Pair<List<String>, Map<String, String>> argResult = MacOSProcess.parseProcArgs(argBuf, argBuf.length - 7);
         assertThat("partial argument dropped", argResult.getA(), contains(EXEC));
 
         // nargs=1, so the remaining entry is an environment assignment; stop inside its value
