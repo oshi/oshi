@@ -5,12 +5,12 @@
 package oshi.jna.platform.windows;
 
 import com.sun.jna.Library;
-import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.win32.StdCallLibrary;
 
 /**
  * JNA bindings for the AMD Display Library (ADL) on Windows. This class should be considered non-API as it may be
@@ -20,6 +20,7 @@ public interface Adl {
 
     int ADL_OK = 0;
     int ADL_OVERDRIVE_VERSION_N = 8;
+    int ADL_OVERDRIVE_VERSION_6 = 6;
     int ADL_FAN_SPEED_MODE_PERCENT = 1;
     int ADL_OVERDRIVE_TEMPERATURE_EDGE = 1;
 

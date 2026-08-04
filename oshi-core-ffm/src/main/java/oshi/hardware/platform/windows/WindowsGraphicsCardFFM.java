@@ -154,7 +154,9 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
         result.addAll(cardList);
 
         if (result.isEmpty()) {
-            return getGraphicsCardsFromWmi(dxgiAdapters, lhmParentMap);
+            // Adapters are removed from remainingDxgi only after a card is successfully constructed, so an
+            // adapter whose registry reads threw is still available to the WMI fallback here.
+            return getGraphicsCardsFromWmi(remainingDxgi, lhmParentMap);
         }
         return result;
     }

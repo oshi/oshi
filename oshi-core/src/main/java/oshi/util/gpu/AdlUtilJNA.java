@@ -91,6 +91,7 @@ public final class AdlUtilJNA {
     }
 
     // Lazy adapter enumeration state — written once, read-only thereafter
+    private static final Object ENUM_LOCK = new Object();
     private static volatile boolean adaptersEnumerated = false;
     private static final AtomicReference<Map<Integer, Integer>> BUS_TO_INDEX = new AtomicReference<>(
             Collections.emptyMap());
@@ -140,13 +141,19 @@ public final class AdlUtilJNA {
         if (adaptersEnumerated) {
             return;
         }
-        Map<Integer, Integer> result = enumerateAdapters(context);
-        if (result != null) {
-            BUS_TO_INDEX.set(result);
-            adaptersEnumerated = true;
-            LOG.debug("ADL enumerated {} adapter(s)", BUS_TO_INDEX.get().size());
-        } else {
-            LOG.debug("ADL adapter enumeration failed; will retry on next call");
+        // Double-checked locking so concurrent callers enumerate at most once
+        synchronized (ENUM_LOCK) {
+            if (adaptersEnumerated) {
+                return;
+            }
+            Map<Integer, Integer> result = enumerateAdapters(context);
+            if (result != null) {
+                BUS_TO_INDEX.set(result);
+                adaptersEnumerated = true;
+                LOG.debug("ADL enumerated {} adapter(s)", BUS_TO_INDEX.get().size());
+            } else {
+                LOG.debug("ADL adapter enumeration failed; will retry on next call");
+            }
         }
     }
 
@@ -176,11 +183,19 @@ public final class AdlUtilJNA {
     }
 
     private static boolean supportsOverdriveN(Pointer context, int adapterIndex) {
+        return supportsOverdriveVersion(context, adapterIndex, Adl.ADL_OVERDRIVE_VERSION_N);
+    }
+
+    private static boolean supportsOverdrive6(Pointer context, int adapterIndex) {
+        return supportsOverdriveVersion(context, adapterIndex, Adl.ADL_OVERDRIVE_VERSION_6);
+    }
+
+    private static boolean supportsOverdriveVersion(Pointer context, int adapterIndex, int minVersion) {
         IntByReference supported = new IntByReference();
         IntByReference enabled = new IntByReference();
         IntByReference version = new IntByReference();
         if (Holder.LIB.ADL2_Overdrive_Caps(context, adapterIndex, supported, enabled, version) == Adl.ADL_OK) {
-            return version.getValue() >= Adl.ADL_OVERDRIVE_VERSION_N;
+            return supported.getValue() != 0 && version.getValue() >= minVersion;
         }
         return false;
     }
@@ -301,8 +316,8 @@ public final class AdlUtilJNA {
     }
 
     /**
-     * Returns GPU power draw in watts, or -1 if unavailable. Uses Overdrive 6 power API which is available on Overdrive
-     * N adapters. Power is reported in units of 1/256 watts.
+     * Returns GPU power draw in watts, or -1 if unavailable. Uses the Overdrive 6 power API, which is available on
+     * Overdrive 6 and newer adapters. Power is reported in units of 1/256 watts.
      *
      * @param adapterIndex ADL adapter index
      * @return power in watts or -1
@@ -316,7 +331,9 @@ public final class AdlUtilJNA {
             return -1d;
         }
         try {
-            if (!supportsOverdriveN(ctx, adapterIndex)) {
+            // Power draw uses the Overdrive 6 API, so gate on OD6 (or newer) rather than Overdrive N. This
+            // no longer rejects OD6-only cards; the return code still guards cards that don't implement the call.
+            if (!supportsOverdrive6(ctx, adapterIndex)) {
                 return -1d;
             }
             IntByReference power = new IntByReference();
