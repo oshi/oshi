@@ -32,6 +32,16 @@ import oshi.annotation.concurrent.ThreadSafe;
  * <b>Platform note:</b> Process CPU usage sums ticks across all processors and may exceed 100% for multi-threaded
  * processes (consistent with {@code top} on Unix). To match the Windows Task Manager, which scales to the system,
  * divide by {@link oshi.hardware.CentralProcessor#getLogicalProcessorCount()}.
+ * <p>
+ * <b>Refreshing:</b> {@link #updateAttributes()} is intended for a single process being individually monitored. When
+ * refreshing more than a few processes it is more efficient to re-query the full list from
+ * {@link OperatingSystem#getProcesses()} and correlate the results against the previous set, since on many platforms
+ * the full list must be queried to provide any individual result.
+ * <p>
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, and should externally synchronize such usage to ensure
+ * consistent calculations: a getter called before an intervening update and one called after it report values from two
+ * different samples.
  */
 @PublicApi
 @ThreadSafe
