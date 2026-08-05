@@ -199,6 +199,19 @@ imported, and must stay consistent with each module's `module-info.java`
 (`src/main/java/module-info.java`). A new external import means editing both, plus possibly the
 module's `pom.xml`. Checkstyle fails otherwise.
 
+**API compatibility.** The semver guarantee does not cover the whole codebase. It covers the
+interfaces and classes in `oshi.hardware` and `oshi.software.os`, plus anything annotated
+`@PublicApi` — see [FAQ.md](FAQ.md#is-the-api-backwards-compatible-between-versions) for the full
+statement. Platform implementations in the lower-level packages may change between minor versions,
+and `oshi.driver` and `oshi.util` may change rarely, so **`ParseUtil` and its neighbours are not
+semver-locked**; in `oshi/util/` only `PlatformEnum` carries the annotation, because it is returned
+by public API.
+
+Stability there is still valued — don't churn a util signature gratuitously — but a change to one is
+a judgment call rather than an automatic breaking change. Check the annotation before calling
+something a breaking change: `japicmp:cmp` reports on everything it can see, and the annotation is
+what decides whether a report implies a version bump.
+
 **Formatting and headers.** Spotless owns formatting and the import block, so you do not need to
 remove unused imports — but you do need to *add* the ones you use. New files get a current-year-only
 header (`Copyright 2026 The OSHI Project Contributors` / `SPDX-License-Identifier: MIT`), even when
