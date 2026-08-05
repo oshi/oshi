@@ -188,10 +188,21 @@ class OperatingSystemTest {
         assertThat(MINIMAL.getProcesses(Arrays.asList(1, 2, 3)), is(empty()));
     }
 
+    /**
+     * MINIMAL implements the interface directly rather than extending AbstractOperatingSystem, so this covers the
+     * default method itself: its getProcess(int) returns null for every pid, as a failed native read would, and
+     * getCurrentProcess() must still honor its non-null contract.
+     */
     @Test
     void testDefaultGetCurrentProcess() {
-        // getProcess(getProcessId()) returns null in MINIMAL
-        assertThat(MINIMAL.getCurrentProcess(), is((Object) null));
+        OSProcess proc = MINIMAL.getCurrentProcess();
+        assertThat("never null, even when getProcess cannot find it", proc, is(notNullValue()));
+        assertThat("keeps the real process ID", proc.getProcessID(), is(MINIMAL.getProcessId()));
+        assertThat("we are, in fact, running", proc.getState(), is(OSProcess.State.RUNNING));
+        assertThat("threads empty rather than null", proc.getThreadDetails(), is(empty()));
+        assertThat("arguments empty rather than null", proc.getArguments(), is(empty()));
+        assertThat("name not null", proc.getName(), is(notNullValue()));
+        assertThat("user not null", proc.getUser(), is(notNullValue()));
     }
 
     @Test
