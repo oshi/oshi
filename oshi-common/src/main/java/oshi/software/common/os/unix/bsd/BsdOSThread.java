@@ -53,14 +53,16 @@ public abstract class BsdOSThread extends AbstractOSThread {
     /**
      * Populates this thread's attributes from a parsed {@code ps} thread row. Shared by every BSD platform; differences
      * in the available columns are handled by checking which keys are present in the map.
+     * <p>
+     * Synchronized for the same reasons as {@link BsdOSProcess#updateAttributes(Map)}: it is the only writer of this
+     * object's fields, reached both from {@link #updateAttributes()} and from each platform's constructor, and the lock
+     * both makes the field set update atomically and makes the {@link BsdOSProcess#monotonic(long, long)}
+     * read-modify-write safe against a racing refresh.
      *
      * @param threadMap the parsed {@code ps} columns for this thread
      * @return {@code true} once the attributes are populated
      */
-    // S3078: see BsdOSProcess.updateAttributes(Map) - the monotonic() clamps read and write a volatile long, but
-    // the field is one of many written unsynchronized here and racing writers only ever raise the value.
-    @SuppressWarnings("java:S3078")
-    protected boolean updateAttributes(Map<BsdPsThreadKeyword, String> threadMap) {
+    protected synchronized boolean updateAttributes(Map<BsdPsThreadKeyword, String> threadMap) {
         // Thread id: lwp (FreeBSD), tid (OpenBSD/DragonFly), or lid (NetBSD)
         this.threadId = ParseUtil.parseIntOrDefault(threadIdValue(threadMap), 0);
         this.state = BsdOSProcess.getStateFromOutput(threadMap.get(BsdPsThreadKeyword.STATE).charAt(0));

@@ -170,15 +170,17 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     /**
      * Populates this process's attributes from a parsed {@code ps} row. Shared by every BSD platform; differences in
      * the available columns are handled by checking which keys are present in the map.
+     * <p>
+     * Synchronized because it is the only writer of this object's fields, reached both from {@link #updateAttributes()}
+     * and from each platform's constructor. The lock makes the whole field set update atomically, so two concurrent
+     * refreshes cannot interleave values from two different {@code ps} samples, and it makes the read-modify-write in
+     * {@link #monotonic(long, long)} safe: without it, two racing clamps can both read the same previous value and the
+     * lower one can land last, reintroducing the decrease the clamp exists to prevent.
      *
      * @param psMap the parsed {@code ps} columns for this process
      * @return {@code true} once the attributes are populated
      */
-    // S3078: the monotonic() clamps read and write a volatile long, but this method makes ~20 unsynchronized
-    // volatile writes and OSProcess documents that concurrent updateAttributes() callers must synchronize
-    // externally. Both racing writers only ever raise the value, so a lost clamp keeps a real ps reading.
-    @SuppressWarnings("java:S3078")
-    protected boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
+    protected synchronized boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
         long now = System.currentTimeMillis();
         this.state = getStateFromOutput(psMap.get(BsdPsKeyword.STATE).charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PPID), 0);

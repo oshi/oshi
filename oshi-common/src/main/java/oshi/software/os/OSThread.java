@@ -14,6 +14,16 @@ import oshi.software.os.OSProcess.State;
  * <p>
  * Threads are obtained from {@link oshi.software.os.OSProcess#getThreadDetails()}. Each thread belongs to a parent
  * process identified by {@link #getOwningProcessId()}.
+ * <p>
+ * <b>Refreshing:</b> {@link #updateAttributes()} is intended for a single thread being individually monitored. When
+ * refreshing more than a few threads it is more efficient to re-query the full list from
+ * {@link OSProcess#getThreadDetails()} and correlate the results against the previous set, since on many platforms the
+ * owning process's full thread list must be queried to provide any individual result.
+ * <p>
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, and should externally synchronize such usage to ensure
+ * consistent calculations: a getter called before an intervening update and one called after it report values from two
+ * different samples.
  *
  * @see oshi.software.os.OSProcess#getThreadDetails()
  */
