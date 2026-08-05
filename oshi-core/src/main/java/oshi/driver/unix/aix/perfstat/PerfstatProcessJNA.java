@@ -65,7 +65,11 @@ public final class PerfstatProcessJNA {
         perfstat_process_t process = new perfstat_process_t();
         // With null, null, ..., 0, returns total # of elements
         int procCount = PERF.perfstat_process(null, null, process.size(), 0);
-        for (int attempt = 0; procCount > 0 && attempt <= MAX_BUFFER_RETRIES; attempt++) {
+        // Bounded by the retry check below, not here: the only path back to the top is its continue, which
+        // requires attempt < MAX_BUFFER_RETRIES. Do not hoist that bound into this guard -- arriving here with
+        // attempt == MAX_BUFFER_RETRIES must fall through to the mapping below, not exit and discard a buffer
+        // that was read successfully.
+        for (int attempt = 0; procCount > 0; attempt++) {
             int padded = paddedSize(procCount);
             perfstat_process_t[] proct = (perfstat_process_t[]) process.toArray(padded);
             perfstat_id_t firstprocess = new perfstat_id_t(); // name is ""

@@ -76,7 +76,11 @@ public final class PerfstatProcessFFM {
     public static AixPerfstatProcess[] queryProcesses() {
         return ForeignFunctions.callInArenaOrDefault(arena -> {
             int count = perfstat_process(MemorySegment.NULL, MemorySegment.NULL, PERFSTAT_PROCESS_T_SIZE, 0);
-            for (int attempt = 0; count > 0 && attempt <= MAX_BUFFER_RETRIES; attempt++) {
+            // Bounded by the retry check below, not here: the only path back to the top is its continue,
+            // which requires attempt < MAX_BUFFER_RETRIES. Do not hoist that bound into this guard --
+            // arriving here with attempt == MAX_BUFFER_RETRIES must fall through to the mapping below, not
+            // exit and discard a buffer that was read successfully.
+            for (int attempt = 0; count > 0; attempt++) {
                 int padded = paddedSize(count);
                 MemorySegment buf = arena.allocate((long) PERFSTAT_PROCESS_T_SIZE * padded);
                 MemorySegment firstName = arena.allocate(PERFSTAT_ID_T_SIZE);
