@@ -39,7 +39,7 @@ OSHI follows [Semantic Versioning](https://semver.org/). The interfaces and clas
 
 Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
 
-Code in the platform-specific `oshi.jna.*` packages is intended to be temporary and will be removed when that respective code is included in the JNA project.
+Code in the `oshi.jna.*` and `oshi.ffm.*` packages, other than the `oshi.ffm.SystemInfo` entry point, is intended to be temporary and is not intended for dependent projects to rely on. This covers the native mappings and the utilities supporting them. The JNA code will be removed as it is included in the JNA project, and the FFM code may likewise move to a project of its own.
 
 ## Does OSHI support Open Service Gateway initiative (OSGi) modules?
 

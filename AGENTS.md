@@ -207,6 +207,11 @@ and `oshi.driver` and `oshi.util` may change rarely, so **`ParseUtil` and its ne
 semver-locked**; in `oshi/util/` only `PlatformEnum` carries the annotation, because it is returned
 by public API.
 
+Everything under `oshi.jna` and `oshi.ffm` — the native mappings and the utilities supporting
+them — sits further out still: explicitly temporary, and not something dependent projects are
+meant to rely on. The sole exception is `oshi.ffm.SystemInfo`, the FFM entry point, which is
+`@PublicApi`.
+
 Stability there is still valued — don't churn a util signature gratuitously — but a change to one is
 a judgment call rather than an automatic breaking change. Check the annotation before calling
 something a breaking change: `japicmp:cmp` reports on everything it can see, and the annotation is

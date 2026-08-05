@@ -223,6 +223,7 @@ Many thanks to the following companies for providing free support of Open Source
 * [SonarCloud](https://sonarcloud.io/about) for a range of code quality tools
 * [GitHub Actions](https://github.com/features/actions), [AppVeyor](https://www.appveyor.com/), and [CircleCI](https://circleci.com/) for continuous integration testing
 * [CodeRabbit](https://www.coderabbit.ai/) for automated AI code review
+* The [Claude for Open Source](https://claude.com/contact-sales/claude-for-oss) program for AI assistance used to broaden operating system coverage, accelerate the Foreign Function & Memory implementation, and audit the codebase for bugs that had gone unnoticed for over a decade
 * The [jProfiler Java Profiler](https://www.ej-technologies.com/products/jprofiler/overview.html) used to eliminate CPU bottlenecks
 
 License
