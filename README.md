@@ -47,12 +47,12 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.4.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.3)
-  * FFM: [oshi-core-ffm-7.4.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.3)
+  * JNA: [oshi-core-7.4.4](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.4)
+  * FFM: [oshi-core-ffm-7.4.4](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.4)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.4.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.4-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.4.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.4-SNAPSHOT/)
+  * JNA: [oshi-core-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.5-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.5-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -66,6 +66,7 @@ Usage
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
+
 2. Create a new instance of `SystemInfo` (implementing `SystemInfoProvider`):
 
 ```java

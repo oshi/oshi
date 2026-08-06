@@ -47,12 +47,12 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.4.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.3)
-  * FFM: [oshi-core-ffm-7.4.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.3)
+  * JNA: [oshi-core-7.4.4](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.4.4)
+  * FFM: [oshi-core-ffm-7.4.4](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.4)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.4.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.4-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.4.4-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.4-SNAPSHOT/)
+  * JNA: [oshi-core-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.5-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.5-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -61,10 +61,12 @@ Legacy Versions
 Usage
 -----
 1. Include OSHI and its dependencies on your classpath.
-   - We strongly recommend you add `oshi-core` (and/or `oshi-core-ffm`) as a dependency to your project dependency manager such as Maven or Gradle.
+   - We strongly recommend you add `oshi-core` (and/or `oshi-core-ffm`) as a dependency to your project dependency manager such as Maven or Gradle. Transitive dependencies (including `oshi-common` and JNA) are resolved automatically.
+   - If you manage JAR files manually, download all needed JARs from the [oshi-dist](https://repo1.maven.org/maven2/com/github/oshi/oshi-dist/) zip files. See [UPGRADING.md](https://github.com/oshi/oshi/blob/master/UPGRADING.md#project-dependencies) for details.
    - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
+
 2. Create a new instance of `SystemInfo` (implementing `SystemInfoProvider`):
 
 ```java
@@ -118,7 +120,7 @@ git clone https://github.com/oshi/oshi.git && cd oshi
   -Dexec.classpathScope="test"
 ```
 
-See [SystemInfoTest.java](oshi-core/src/test/java/oshi/SystemInfoTest.java) for the source, or the pre-generated [Sample Output](src/site/markdown/SampleOutput.md) for an example report.
+See [SystemInfoTest.java](https://github.com/oshi/oshi/blob/master/oshi-core/src/test/java/oshi/SystemInfoTest.java) for the source, or the pre-generated [Sample Output](SampleOutput.html) for an example report.
 
 Documentation
 -------------
@@ -180,18 +182,18 @@ Please see [SECURITY.md](https://github.com/oshi/oshi/blob/master/SECURITY.md).
 
 Continuous Integration Test Status
 ----------------------------------
-[![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
+[![AppVeyor Build Status](https://img.shields.io/appveyor/ci/dbwiddis/oshi/master.svg?logo=appveyor&amp;logoColor=white)](https://ci.appveyor.com/project/dbwiddis/oshi)
 [![Android CI](https://dl.circleci.com/status-badge/img/gh/oshi/oshi/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/oshi/oshi/tree/master)
 [![Windows CI](https://github.com/oshi/oshi/workflows/Windows%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Windows+CI%22)
 [![macOS CI](https://github.com/oshi/oshi/workflows/macOS%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22macOS+CI%22)
 [![Linux CI](https://github.com/oshi/oshi/workflows/Linux%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Linux+CI%22)
 [![Unix CI](https://github.com/oshi/oshi/workflows/Unix%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Unix+CI%22)
 [![Cfarm CI](https://github.com/oshi/oshi/workflows/Cfarm%20CI/badge.svg)](https://github.com/oshi/oshi/actions?query=workflow%3A%22Cfarm+CI%22)
-[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=bugs)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
-[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Bugs](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=bugs)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Maintainability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=sqale_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Reliability](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=reliability_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
+[![SonarQube Security](https://sonarcloud.io/api/project_badges/measure?project=oshi_oshi&amp;metric=security_rating)](https://sonarcloud.io/dashboard?id=oshi_oshi)
 [![Coverity Scan Build Status](https://img.shields.io/coverity/scan/28367.svg)](https://scan.coverity.com/projects/oshi-oshi)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4002c92342814fe1989a7841d9f427f1)](https://app.codacy.com/gh/oshi/oshi/dashboard?utm_source=gh&amp;utm_medium=referral&amp;utm_content=&amp;utm_campaign=Badge_grade)
 [![CodeQL](https://github.com/oshi/oshi/workflows/CodeQL/badge.svg)](https://github.com/oshi/oshi/security/code-scanning)

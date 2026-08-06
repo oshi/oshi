@@ -20,12 +20,36 @@ manually deployed using `mvn clean deploy`
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
 * Choose an appropriate [version number](https://semver.org/) for the release
     * Proactively change version numbers in the download links on [README.md](README.md).
-    * Copy `README.md` to `src/site/markdown/index.md`
-        * HTML-escape `&`, `<`, and `>` in any links in the site version
-        * Edit markdown URLs to use full GitHub links for root docs and relative links for site docs
+    * Copy `README.md` to `src/site/markdown/index.md`, then apply the site transformations below.
+      The site is published at `oshi.ooo`, where repo-relative paths do not resolve, so a plain copy
+      ships broken links. Re-copy the **whole file** rather than hand-editing the changed lines —
+      every drift found so far came from partial syncs.
+        * HTML-escape `&`, `<`, and `>` inside markdown link targets — but **not** inside fenced code
+          blocks (`git clone ... && cd oshi` must stay unescaped)
+        * Rewrite repo-relative links to full `https://github.com/oshi/oshi/blob/master/...` URLs:
+          `FAQ.md`, `PERFORMANCE.md`, `UPGRADING.md`, `CONTRIBUTING.md`, `RELEASING.md`,
+          `SECURITY.md`, `SUPPORT.md`, `oshi-demo/`, `oshi-metrics/`, `oshi-benchmark/`, and
+          `oshi-core/src/test/java/oshi/SystemInfoTest.java` (keep any `#anchor` suffix)
+        * Rewrite links to docs that are themselves site pages to their sibling `.html`:
+          `src/site/markdown/SampleOutput.md` → `SampleOutput.html`, and
+          `src/site/resources/Projects.md` → `Projects.html`
+        * Verify: `wc -l` should match between the two files, and every line in
+          `diff README.md src/site/markdown/index.md` should be explained by one of the
+          transformations above
     * Change release dates and in-progress versions in `CHANGELOG.md`
     * Move "Your contribution here" to a new empty "In Progress" section
     * Commit changes as a "x.x release" (no need to push upstream yet)
+* Verify the release-profile build before tagging:
+    ```sh
+    mvn -Prelease clean install
+    ```
+    * The `attach-javadocs` execution binds `javadoc:jar`, which lives **only in the `release`
+      profile** and is therefore not exercised by any routine build. It is stricter than the
+      `javadoc:javadoc` report goal used in the normal gate: it fails on unresolved `{@link}`
+      references that the report goal tolerates. A missing import for a type referenced only in
+      javadoc is the usual culprit, and it will not surface until `release:perform`.
+    * **Always `clean` first.** The javadoc goals skip when their output is already present, so a
+      re-run without `clean` can report `BUILD SUCCESS` without checking anything.
 
 ### Release
 
@@ -33,7 +57,9 @@ manually deployed using `mvn clean deploy`
 
 See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-a-release-deployment-with-the-maven-release-plugin) for a summary of the below steps
 * `mvn clean deploy`
-    * Do a final snapshot release and fix any errors in the javadocs
+    * Do a final snapshot release
+    * Note this does **not** activate the `release` profile, so it will not catch the javadoc-jar
+      errors described in the Prepare section — run `mvn -Prelease clean install` for those
     * If pom sorting or license headers are rewritten as part of this deployment, commit the changes
 * `mvn release:clean`
     * Takes a few seconds

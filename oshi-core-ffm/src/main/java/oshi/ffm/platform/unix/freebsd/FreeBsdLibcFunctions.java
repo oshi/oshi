@@ -19,6 +19,7 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
+import oshi.ffm.ForeignFunctions;
 import oshi.ffm.platform.unix.PosixLibcFunctions;
 
 /**
